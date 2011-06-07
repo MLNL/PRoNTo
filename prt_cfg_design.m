@@ -163,7 +163,7 @@ durations.num     = [Inf 1];
 TR         = cfg_entry;
 TR.tag     = 'TR';
 TR.name    = 'Interscan interval';
-TR.help    = {'Specify interscan interval (TR). The units should be seconds.'};
+TR.help    = {'Specify interscan interval (TR). The units should be milliseconds.'};
 TR.strtype = 'e';
 TR.num     = [Inf 1];
 
