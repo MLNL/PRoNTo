@@ -30,8 +30,7 @@ prt_dir=regexprep(char(fname),'PRT.mat', '');
 % Load libraries
 % -------------------------------------------------------------------------
 
-addpath LIB/NII_lib
-
+%addpath LIB/NII_lib %[afm] moved to the prt_batch script
 
 % -------------------------------------------------------------------------
 %Initial checks
@@ -118,7 +117,7 @@ step=0;
 for m=1:n_modalities
     maskname =  regexprep(char(PRT.masks(m)),',1','');
     if isempty(PRT.masks{m})
-       maskname =  'masks/SPM_mask_noeyes.hdr';
+       maskname = prt_get_defaults('prep.default_mask');
     end
     mnii{m} = load_nii(maskname);
     newmask_name = [prt_dir 'updated_mask_m' int2str(m) '.img'];   

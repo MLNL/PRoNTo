@@ -13,8 +13,16 @@ persistent batch_initialize
 
 if isempty(batch_initialize) || ~batch_initialize
     % Whole initialisation of SPM batch system
-    spm('defaults','fMRI')
-    spm_jobman('initcfg')
+    try
+        spm('defaults','fMRI')
+        spm_jobman('initcfg')
+    catch
+        error('Can''t run SPM. Please check it''s in the search path');
+    end
+    
+    % Add path to nifti toolbox
+    addpath([prt_get_defaults('global.install_dir'),'/LIB/NII_lib']);
+    
     % PRONTO config tree
     prt_gui = prt_cfg_batch;
     % Adding PRONTO config tree to the SPM tools

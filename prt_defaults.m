@@ -21,12 +21,19 @@ function prt_defaults
 %%
 global prt_def
 
+% Global defaults
+prt_loc = which('prt_batch');
+prt_def.global.install_dir = fileparts(prt_loc);
+
 % Preprocessing defaults
 prt_def.prep.use1  = 5;      
 prt_def.prep.use2  = 'kk'; % pre
 % Put in whatever default value is useful for the preprocessing step. It
 % could be a flag (value 1/0), some scalar or vector of values, or even
 % some strings...
+
+% default mask
+prt_def.prep.default_mask  = [prt_def.global.install_dir,'/masks/SPM_mask_noeyes.hdr'];
 
 % Design specification default
 pre_def.dspec.use3 = [1 2];
