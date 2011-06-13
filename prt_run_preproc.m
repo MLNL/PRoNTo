@@ -61,59 +61,16 @@ if error_flag == 1
 end
 
 
-% -------------------------------------------------------------------------
-% Load images, keep NaNs coordinates and build a data matrice per modality
-% -------------------------------------------------------------------------
-
 for m=1:n_modalities
     sample_img{m} = load_nii(PRT.group(1).subject(1).modality(m).scans{1});
     sample_name{m} = PRT.group(1).subject(1).modality(m).scans{1};
-%     for g = 1:n_groups
-%         for s = 1:n_subjects
-%             % eval(['data_matrix_',int2str(g),'_',int2str(s),'_',int2str(m) '= []']);
-%             disp('teste');
-%         end
-%     end
 end
 
-nan_indices = [];
 
-h = waitbar(0,'Please wait while images are loaded ... ');
-step=0;
-for g = 1:n_groups
-    disp(['Loading group ' int2str(g)]);
-    n_subj = length(PRT.group(g).subject);
-    for s = 1:n_subj
-        disp(['Loading subject ' int2str(s)]);
-        n_mod = length(PRT.group(g).subject(s).modality);
-        for m = 1:n_mod
-            disp(['Loading modality ' int2str(m)]);                  
-            n_scans = length(PRT.group(g).subject(s).modality(m).scans);
-            for sc = 1:n_scans
-                step = step+1;
-                nii = load_nii(PRT.group(g).subject(s).modality(m).scans{sc});
-                if size(nii.img) ~= size(sample_img{m}.img)
-                    disp (['Error - Scan ' int2str(sc) 'Modality ' int2str(m) 'Subject ' int2str(s) 'Group ' int2str(g) ' has wrong dimensions']);
-                    break;
-                else
-                    img = double(reshape(nii.img,1,size(nii.img,1)*size(nii.img,2)*size(nii.img,3)));
-                    nan_indices = [nan_indices find(isnan(img))];
-                    eval(['data_matrix_',int2str(g),'_',int2str(s),'_',int2str(m),'(',int2str(sc),',:)' '= img;']);
-                    waitbar(step / (n_groups*n_subj*n_mod*n_scans));
-                end
-            end
-        end
-    end
-end
-delete(h);
-
-
-% ------------------------------------------------------------------------- 
-% Resize, updated and apply masks to data matrices
 % -------------------------------------------------------------------------
+% Resizing masks
+% -------------------------------------------------
 
-h = waitbar(0,'Please wait while masks are applied ... ');
-step=0;
 for m=1:n_modalities
     maskname =  regexprep(char(PRT.masks(m)),',1','');
     if isempty(PRT.masks{m})
@@ -129,72 +86,72 @@ for m=1:n_modalities
        spm_imcalc([img1_calc img2_calc],outputfile,'i2.*(i1>0)');
        mnii{m} = load_nii(newmask_name);
     end
-    aux = double(reshape(mnii{m}.img,1,size(mnii{m}.img,1)*size(mnii{m}.img,2)*size(mnii{m}.img,3)));
-    aux(nan_indices) = 0;
-    mask{m} = aux;
-    for g = 1:n_groups
-        for s = 1:n_subjects
-            n_scans = length(PRT.group(g).subject(s).modality(m).scans);
-            for sc=1:n_scans
-                step = step+1;
-                eval(['data_matrix_',int2str(g),'_',int2str(s),'_',int2str(m),'(',int2str(sc),',:) = ' 'data_matrix_',int2str(g),'_',int2str(s),'_',int2str(m),'(',int2str(sc),',:) .* mask{m};']);
-                waitbar(step / (n_scans*n_subjects*n_groups*n_modalities));
-            end
-        end
-    end
-    mnii{m}.img = reshape(mask{m},size(mnii{m}.img,1),size(mnii{m}.img,2),size(mnii{m}.img,3));
-    save_nii(mnii{m},newmask_name);
+    mask{m} = double(reshape(mnii{m}.img,1,size(mnii{m}.img,1)*size(mnii{m}.img,2)*size(mnii{m}.img,3)));
 end
-delete(h);
 
 
 % -------------------------------------------------------------------------
-% Detrend
+% Loading images, detrending, saving
 % -------------------------------------------------------------------------
 
-h = waitbar(0,'Please wait while timeseries are detrended ... ');
-step = 0;
+h = waitbar(0,'Please wait while images are pre-processed (details provided in the main window)');
+step=0;
 for g = 1:n_groups
+    disp(['Loading group ' int2str(g)]);
     n_subj = length(PRT.group(g).subject);
+    group_prefix = ['g' int2str(g)];
     for s = 1:n_subj
+        disp(['Loading subject ' int2str(s)]);
         n_mod = length(PRT.group(g).subject(s).modality);
+        subj_prefix = ['_s' int2str(s)];
         for m = 1:n_mod
-            mask_indices = mask{m}>0;
-            if (PRT.group(g).subject(s).modality(m).timesr)
-                n_scans = length(PRT.group(g).subject(s).modality(m).scans);
-                n_voxels_mask = length(mask_indices);
-                for v = 1:n_voxels_mask
-                    %timeserie = data_matrix{m}(:,mask_indices(v));
-                    timeserie = eval(['data_matrix_',int2str(g),'_',int2str(s),'_',int2str(m),'(:,mask_indices(',int2str(v),'));']);
-                    aux = detrend(timeserie);
-                    eval(['data_matrix_',int2str(g),'_',int2str(s),'_',int2str(m),'(:,mask_indices(',int2str(v),')) = aux;'])
-                    step = step+1;
-                    waitbar(step / (n_groups*n_subj*n_mod*n_voxels_mask));
+            disp(['Loading modality ' int2str(m)]);                  
+            n_scans = length(PRT.group(g).subject(s).modality(m).scans);
+            mod_prefix = ['_m' int2str(m)];
+            dim1 = size(sample_img{m}.img,1);
+            dim2 = size(sample_img{m}.img,2);
+            dim3 = size(sample_img{m}.img,3);
+            dim_vector = dim1*dim2*dim3; 
+            
+            
+            % Loading images
+            img_allscans=zeros(n_scans,dim_vector);
+            for sc = 1:n_scans
+                nii = load_nii(PRT.group(g).subject(s).modality(m).scans{sc});
+                if size(nii.img) ~= size(sample_img{m}.img)
+                    disp (['Error - Scan ' int2str(sc) 'Modality ' int2str(m) 'Subject ' int2str(s) 'Group ' int2str(g) ' has wrong dimensions']);
+                    break;
+                else
+                    img = double(reshape(nii.img,1,dim_vector));
+                    img(find(isnan(img))) = 0;
+                    img_allscans(sc,:) = img.*mask{m};
                 end
             end
-        end
-        waitbar(step / n_subj);
-    end
-end
-delete(h);
-
-
-% -------------------------------------------------------------------------
-% Save pre-processed images
-% -------------------------------------------------------------------------
-
-h = waitbar(0,'Please wait while pre-processed images are saved ... ');
-step = 0;
-for g = 1:n_groups
-    group_prefix = ['g' int2str(g)];
-    n_subj = length(PRT.group(g).subject);
-    for s = 1:n_subj
-        subj_prefix = ['_s' int2str(s)];
-        n_mod = length(PRT.group(g).subject(s).modality);
-        for m = 1:n_mod
-            mod_prefix = ['_m' int2str(m)];
-            n_scans = length(PRT.group(g).subject(s).modality(m).scans);
+            
+            step = step + 1;
+            waitbar(step / (n_groups*n_subjects*n_modalities*3));
+          
+            % Detrending
+            if (PRT.group(g).subject(s).modality(m).timesr)
+                disp ('Detrending ....');
+                n_scans = length(PRT.group(g).subject(s).modality(m).scans);
+                mask_indices = mask{m}>0;
+                n_voxels_mask = length(mask_indices);
+                for v = 1:n_voxels_mask
+                    timeserie = img_allscans(:,mask_indices(v));
+                    aux = detrend(timeserie);
+                    img_allscans(:,mask_indices(v)) = aux;
+                end
+            end
+            
+            step = step + 1;
+            waitbar(step / (n_groups*n_subjects*n_modalities*3));
+            
+            %Saving pre-processed images
+            disp ('Saving pre-processed images ...');
+            % Detrended timeseries 
             if isa(PRT.group(g).subject(s).modality(m).design,'struct') & PRT.group(g).subject(s).modality(m).timesr
+                % i.e. if there is a design and if the detrend was done in preprocessing
                 n_cond = length(PRT.group(g).subject(s).modality(m).design.conds);
                 hrf_delay=floor(3/(PRT.group(g).subject(s).modality(m).design.TR/1000));
                 for c = 1:n_cond
@@ -212,37 +169,43 @@ for g = 1:n_groups
                         disp('Error - design exceeds timeseries');
                         break;
                     end
+                    img4d=zeros(dim1,dim2,dim3,length(examples_list));
                     for i = 1:length(examples_list)
-                        img1d = eval(['data_matrix_',int2str(g),'_',int2str(s),'_',int2str(m),'(examples_list(',int2str(i),'),:);']);
-                        img3d = reshape(img1d,size(mnii{m}.img,1),size(mnii{m}.img,2),size(mnii{m}.img,3));
+                        img1d = img_allscans(examples_list(i),:);
+                        img3d = reshape(img1d,dim1,dim2,dim3);
                         img4d(:,:,:,i) = img3d;
                     end
                     nii = make_nii(img4d);  
                     save_nii(nii,filename);
-                    step = step+1;
-                    waitbar(step / (n_groups*n_subj*n_mod*n_cond));
                 end
+                
+            % Structural    
             else % design == 0
-                filename = [prt_dir group_prefix subj_prefix mod_prefix];
-                for i = 1:n_scans
-                    img1d = eval(['data_matrix_',int2str(g),'_',int2str(s),'_',int2str(m),'(',int2str(i),',:);']);
-                    img3d = reshape(img1d,size(mnii{m}.img,1),size(mnii{m}.img,2),size(mnii{m}.img,3));
+                % i.e. if there is not a design (e.g. structural)
+                img4d = zeros(dim1,dim2,dim3,n_scans);
+                for i = 1:n_scans                 
+                    img3d = reshape(img_allscans(i,:),dim1,dim2,dim3);  
                     img4d(:,:,:,i) = img3d;
                 end
+                filename = [prt_dir group_prefix subj_prefix mod_prefix];
                 nii = make_nii(img4d);  
                 save_nii(nii,filename);
-                step = step+1;
-                waitbar(step / (n_groups*n_subj*n_mod));
             end
+            
+            clear img_allscans;
             clear img4d;
-        end
+            
+            step = step+1;
+            waitbar(step / (n_groups*n_subjects*n_modalities*3));
+        end        
     end
 end
+
 delete(h);
 
 
-
-% Function output
+% 
+% % Function output
 % -------------------------------------------------------------------------
 out.files{1} = '';
 disp('Preprocessing done.')
