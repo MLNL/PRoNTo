@@ -30,8 +30,18 @@ ngroup    = length(job.group);
 
 % Masks
 % -------------------------------------------------------------------------
-nmasks    = length(job.fmask);
-PRT.masks = job.fmask;
+nmasks     = size(job.fmask{1},1);
+nmasks_mod = size(job.fmask,2);
+
+for i = 1:nmasks_mod
+    if nmasks == size(job.fmask{i},1);
+        PRT.masks(i).fnames = job.fmask{i};
+    else
+        out.files{1} = [];
+        msgbox('Error: incorrect number of modalities or masks!')
+        return
+    end
+end
 
 
 % Make PRT.mat
@@ -46,9 +56,9 @@ if isfield(job.group(1).select,'modality')
         nsub = length(job.group(g).select.modality(1).subjects);
 
         % Check if the number of masks and conditions is the same
-        if nmod ~= nmasks || nmod ~= nmod_scans
+        if nmod ~= nmod_scans || nmod ~= nmasks_mod
             out.files{1} = [];
-            msgbox('Error: incorrect number of modalities or masks!')
+            msgbox('Error: incorrect number of modalities!')
             return
         else
             % Modalities
@@ -80,9 +90,9 @@ else
         for j = 1:nsubj,
             nmod = length(job.group(g).select.subject{j});
             % Check if the number of masks and conditions is the same
-            if nmod ~= nmasks || nmod ~= nmod_subjs
+            if nmod ~= nmod_subjs || nmod ~= nmasks_mod
                 out.files{1} = [];
-                msgbox('Error: incorrect number of modalities or masks!')
+                msgbox('Error: incorrect number of modalities!')
                 return
 
             else

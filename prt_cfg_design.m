@@ -94,19 +94,31 @@ timesr.values  = {0 1};
 timesr.val     = {0};
 
 % ---------------------------------------------------------------------
-% fmask Masks
+% fmask Modality
 % ---------------------------------------------------------------------
 fmask        = cfg_files;
 fmask.tag    = 'fmask';
-fmask.name   = 'Masks';
+fmask.name   = 'Modality';
 fmask.filter = 'nifti';
 fmask.val{1} = {''};
 fmask.filter = 'image';
 fmask.ufilter = '.*';
 fmask.num    = [0 Inf];
-fmask.help   = {['Select masks for each modality. The masks should be '...
-                'loaded with the same order the modalities were specified. '...
+fmask.help   = {['Select masks for each modality. The modalities should '...
+                'follow the same order of modalities as specified '...
+                'for each subject and group. '...
                 'If left empty a default mask will be used for each modality.']};
+
+% ---------------------------------------------------------------------
+% groups Groups
+% ---------------------------------------------------------------------
+masks         = cfg_repeat;
+masks.tag     = 'masks';
+masks.name    = 'Masks';
+masks.help    = {['Add masks for each modality. '...
+                    'More than one mask is allowed per modality.']};
+masks.num     = [1 Inf];
+masks.values  = {fmask };
 
 % ---------------------------------------------------------------------
 % load_SPM Load SPM.mat
@@ -377,7 +389,7 @@ dir_name.num     = [1 1];
 data        = cfg_exbranch;
 data.tag    = 'data';
 data.name   = 'Data & Design';
-data.val    = {dir_name groups fmask};
+data.val    = {dir_name groups masks};
 data.help   = {'Specify the group(s) of data set.'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;
