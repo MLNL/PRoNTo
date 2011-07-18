@@ -77,6 +77,7 @@ if isfield(job.group(1).select,'modality')
                         PRT.group(g).subject(s).modality(m).mod_name = job.group(g).select.modality(m).mod_name;
                         PRT.group(g).subject(s).modality(m).quant    = job.group(g).select.modality(m).quant;
                         PRT.group(g).subject(s).modality(m).design   = 0;
+                        PRT.group(g).subject(s).modality(m).timesr   = 0;
                     end
                 end
             end
@@ -144,7 +145,9 @@ else
                     % Create PRT.mat modalities
                     PRT.group(g).gr_name                       = job.group(g).gr_name;
                     PRT.group(g).subject(j).modality(k)        = job.group(g).select.subject{j}(k);
-                    PRT.group(g).subject(j).modality(k).design = design;   
+                    PRT.group(g).subject(j).modality(k).design = design; 
+                    PRT.group(g).subject(j).modality(k).quant  = job.group(g).select.subject{j}(k).quant;
+                    PRT.group(g).subject(j).modality(k).timesr = job.group(g).select.subject{j}(k).timesr;
                 end
 
             end
