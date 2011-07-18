@@ -21,9 +21,8 @@ job   = varargin{1};
 % Input file
 % -------------------------------------------------------------------------
 
-fname = job.infile;
+fname = job.infile
 load(char(fname));
-n_groups = length(PRT.group);
 prt_dir=regexprep(char(fname),'PRT.mat', '');
 
 % -------------------------------------------------------------------------
