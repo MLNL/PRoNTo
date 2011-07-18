@@ -48,7 +48,6 @@ kernels.help   = {'Compute kernel matrices according to the design specified'};
 kernels.prog   = @prt_run_kernel_construction;
 kernels.vout   = @vout_data;
 
-
 % Output function
 %------------------------------------------------------------------------
 function cdep = vout_data(job)
