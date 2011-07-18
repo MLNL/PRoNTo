@@ -72,8 +72,8 @@ end
 % -------------------------------------------------
 
 for m=1:n_modalities
-    maskname =  regexprep(char(PRT.masks(m)),',1','');
-    if isempty(PRT.masks{m})
+    maskname =  regexprep(char(PRT.masks(m).fnames),',1','');
+    if isempty(PRT.masks(m).fnames)
        maskname = prt_get_defaults('prep.default_mask');
     end
     mnii{m} = load_nii(maskname);
