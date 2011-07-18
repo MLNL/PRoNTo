@@ -27,7 +27,7 @@ prt.help    = {[...
     'for Neuroimaging Toolbox providing a GUI for the vario tools.']
                   }';
 %  Only two modules so far... and not doing much.
-prt.values  = {prt_cfg_design, prt_cfg_preproc };
+prt.values  = {prt_cfg_design, prt_cfg_preproc, prt_cfg_kernel_construction };
 % Assuming 4 main modules: 
 % - defining data & design, 
 % - pre-processing,
