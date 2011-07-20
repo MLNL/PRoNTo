@@ -119,6 +119,6 @@ end
 
 % Function output
 % -------------------------------------------------------------------------
-out.files{1} = '';
+out.files{1} = outfile;
 disp('Kernel construction done.')
 end
