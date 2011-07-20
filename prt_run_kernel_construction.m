@@ -21,52 +21,106 @@ job   = varargin{1};
 fname = job.infile;
 load(char(fname));
 
-%prt_dir=regexprep(char(fname),'PRT.mat', '');
-%n_groups     = length(PRT.group);
-n_modalities = length(PRT.group(1).subject(1).modality(1));   
-n_groups     = length(PRT.group);
-n_subjects   = length(PRT.group(1).subject);
+%prt_dir=fileparts(char(fname));
+prt_dir=regexprep(char(fname),'PRT.mat', '');
 
-% %n = 
-% % Initialize
-% Kt=zeros(n);
-% 
-% chunk_size=100000; % number of voxels to process at a time
-% chunk_start=1; chunk_end=min(chunk_size,length(l2_mask));
-% while chunk_start < length(l2_mask)
-%     disp ([' > processing voxels: ', num2str(chunk_start),' - ',num2str(chunk_end),' ...']);
-%     
-%     chunk_mask=l2_mask(chunk_start:chunk_end);
-%     
-%     data_vols=zeros(length(chunk_mask),n);
-%     % Load data from all subjects
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     for s=1:n_subjects,
-%         %disp([' >> subject: ',num2str(s)]);
-%         scan_range1=(s-1)*n_task*n_scans_s+1:(s-1)*n_scans_s*2+n_scans_s;
-%         scan_range2=scan_range1+n_scans_s;
-%         
-%         % load class 1
-%         load ([prefix_group1,subjects(s,:),suffix_group1]);
-%         data_vols(:,scan_range1) = class_n(chunk_mask,:);
-%         clear class_n;
-%         
-%         % load class 2
-%         load ([prefix_group2,subjects(s,:),suffix_group2]);
-%         data_vols(:,scan_range2)=class_n(chunk_mask,:);
-%         clear class_n;
-%     end
-%     
-%     % Add this chunk's contribution to the Kernel matrix
-%     Kt = Kt + (data_vols' * data_vols);
-%     
-%     chunk_start=chunk_end+1; chunk_end=min(chunk_start+chunk_size-1,length(l2_mask));
-% end
-% 
-% % Mean centre
-% C=ones(n,1);
-% R=eye(n)-C*pinv(C);
-% Kt=R'*Kt*R;
+% initialize the modality
+mid   = job.modality;
+N     = nifti([prt_dir,'g1_s1_m',num2str(mid),'_c1.img']);
+n_vox = prod(N.dat.dim(1:3));
+n_groups    = length(job.group);
+
+% Count the total number of samples in the different groups
+% -------------------------------------------------------------------------
+n = 0; %n_datafiles = 0;
+for g = 1:n_groups                                   % group
+    gid = job.group(g).gr_num;                   
+    for s = 1:length(job.group(g).subjects);         % subject
+        sid = job.group(g).subjects(s);       
+        for c = 1:length(job.group(g).conditions)    % condition
+            cid = job.group(g).conditions(c);
+            n_vols_s_c = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations;
+            n = n + sum(n_vols_s_c);
+            %n_datafiles = n_datafiles + 1;
+        end
+    end
+end
+
+% Set memory limit
+mem     = 124*1024*1024;  % Mbytes of RAM to use (124 Mb)
+b_size  = ceil(mem/8/n); % Block size (double = 8 bytes)
+n_block = ceil(n_vox/b_size);
+
+% Initialize K
+K   = zeros(n);
+K_idx = zeros(n,3);
+
+% Compute kernel (block-wise)
+% -------------------------------------------------------------------------
+bstart=1; bend=min(b_size,n_vox);
+%X = zeros(n_vox,n);
+for b = 1:n_block
+    samp_range = 0; % initialise (will be set later)
+    for g = 1:n_groups
+        gid = job.group(g).gr_num;
+        
+        disp ([' > processing block: ', num2str(b),' of ',num2str(n_block),' ...'])
+        vox_range=bstart:bend;
+        
+        data_vols=zeros(length(vox_range),n);
+        % load data from all subjects
+        % ---------------------------
+        %sub_range 
+        for s = 1:length(job.group(g).subjects)
+            sid = job.group(g).subjects(s);
+            
+            for c = 1:length(job.group(g).conditions)
+                cid = job.group(g).conditions(c);
+                n_vol_s_c = sum(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations);
+                samp_range = (1:n_vol_s_c)+max(samp_range);
+                
+                fname = [prt_dir,'g',num2str(gid),'_s',num2str(sid),'_m',num2str(mid),'_c',num2str(cid)];
+                
+                %disp([' >> subject: ',num2str(s)]);
+                sdata  = prt_load_blocks(fname,b_size,b);
+                
+                data_vols(:,samp_range) = sdata; %sdata(bmask,:);
+                
+                clear sdata;
+                
+                K_idx(samp_range,1) = gid;
+                K_idx(samp_range,2) = sid;
+                K_idx(samp_range,3) = cid;
+                
+                % for testing
+                %sdata2 = prt_load_vols(fname,[],true);
+                %X(:,samp_range) = sdata2;
+            end
+        end
+    end
+    
+    % add this chunk's contribution to the kernel matrix
+    K = K + (data_vols' * data_vols);
+    
+    bstart=bend+1; bend=min(bstart+b_size-1,n_vox);
+end
+
+%K2 = X'*X;
+
+% Mean centre and normalise
+K = prt_remove_confounds(K,ones(n,1));
+if job.normalise
+    K = prt_normalise_kernel(K);
+end
+
+% Save kernel and indices
+outfile = [prt_dir, 'kernel_',job.kernel_filename];
+disp(['Saving kernel to: ',job.kernel_filename,'.mat.......>>'])
+if spm_matlab_version_chk('7') >= 0
+    save(outfile,'-V6','K','K_idx');
+else
+    save(outfile,'K','K_idx');
+end
 
 % Function output
 % -------------------------------------------------------------------------
