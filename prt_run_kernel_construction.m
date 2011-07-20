@@ -32,7 +32,7 @@ n_groups    = length(job.group);
 
 % Count the total number of samples in the different groups
 % -------------------------------------------------------------------------
-n = 0; %n_datafiles = 0;
+n = 0;
 for g = 1:n_groups                                   % group
     gid = job.group(g).gr_num;                   
     for s = 1:length(job.group(g).subjects);         % subject
@@ -41,18 +41,17 @@ for g = 1:n_groups                                   % group
             cid = job.group(g).conditions(c);
             n_vols_s_c = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations;
             n = n + sum(n_vols_s_c);
-            %n_datafiles = n_datafiles + 1;
         end
     end
 end
 
 % Set memory limit
-mem     = 124*1024*1024;  % Mbytes of RAM to use (124 Mb)
+mem     = prt_get_defaults('kernel.mem_limit');
 b_size  = ceil(mem/8/n); % Block size (double = 8 bytes)
 n_block = ceil(n_vox/b_size);
 
 % Initialize K
-K   = zeros(n);
+K     = zeros(n);
 K_idx = zeros(n,3);
 
 % Compute kernel (block-wise)
@@ -70,9 +69,9 @@ for b = 1:n_block
         data_vols=zeros(length(vox_range),n);
         % load data from all subjects
         % ---------------------------
-        %sub_range 
         for s = 1:length(job.group(g).subjects)
             sid = job.group(g).subjects(s);
+            %disp([' >> subject: ',num2str(s)]);
             
             for c = 1:length(job.group(g).conditions)
                 cid = job.group(g).conditions(c);
@@ -80,14 +79,9 @@ for b = 1:n_block
                 samp_range = (1:n_vol_s_c)+max(samp_range);
                 
                 fname = [prt_dir,'g',num2str(gid),'_s',num2str(sid),'_m',num2str(mid),'_c',num2str(cid)];
+                data_vols(:,samp_range) = prt_load_blocks(fname,b_size,b);
                 
-                %disp([' >> subject: ',num2str(s)]);
-                sdata  = prt_load_blocks(fname,b_size,b);
-                
-                data_vols(:,samp_range) = sdata; %sdata(bmask,:);
-                
-                clear sdata;
-                
+                % configure indices
                 K_idx(samp_range,1) = gid;
                 K_idx(samp_range,2) = sid;
                 K_idx(samp_range,3) = cid;
@@ -99,13 +93,14 @@ for b = 1:n_block
         end
     end
     
-    % add this chunk's contribution to the kernel matrix
+    % add this block's contribution to the kernel matrix
     K = K + (data_vols' * data_vols);
     
     bstart=bend+1; bend=min(bstart+b_size-1,n_vox);
 end
 
-%K2 = X'*X;
+% for testing
+% K2 = X'*X;
 
 % Mean centre and normalise
 K = prt_remove_confounds(K,ones(n,1));

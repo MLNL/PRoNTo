@@ -35,6 +35,9 @@ prt_def.prep.use2  = 'kk'; % pre
 % default mask
 prt_def.prep.default_mask  = [prt_def.global.install_dir,'/masks/SPM_mask_noeyes.hdr'];
 
+% memory limit for kernel construction
+prt_def.kernel.mem_limit = 128*1024*1024;  % bytes of memory to use
+
 % Design specification default
 pre_def.dspec.use3 = [1 2];
 
