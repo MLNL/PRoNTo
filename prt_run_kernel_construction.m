@@ -103,7 +103,7 @@ end
 % K2 = X'*X;
 
 % Mean centre and normalise
-K = prt_remove_confounds(K,ones(n,1));
+%K = prt_remove_confounds(K,ones(n,1));
 if job.normalise
     K = prt_normalise_kernel(K);
 end
