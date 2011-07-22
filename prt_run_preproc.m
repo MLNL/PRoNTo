@@ -10,6 +10,7 @@ function out = prt_run_preproc(varargin)
 % out    - filename of saved data structure.
 %__________________________________________________________________________
 % Copyright (C) 2011, ...
+% Written by J.M.Rondina
 % $Id: $
 
 
@@ -21,7 +22,7 @@ job   = varargin{1};
 % Input file
 % -------------------------------------------------------------------------
 
-fname = job.infile
+fname = job.infile;
 load(char(fname));
 prt_dir=regexprep(char(fname),'PRT.mat', '');
 
@@ -98,20 +99,29 @@ step=0;
 for g = 1:n_groups
     disp(['Loading group ' int2str(g)]);
     n_subj = length(PRT.group(g).subject);
-    group_prefix = ['g' int2str(g)];
+    %group_prefix = ['g' int2str(g)];
+    try
+        group_prefix = [lower(PRT.group(g).gr_name(1:3)) '_'];
+    catch
+        group_prefix = 'xxx_';
+    end
     for s = 1:n_subj
         disp(['Loading subject ' int2str(s)]);
         n_mod = length(PRT.group(g).subject(s).modality);
-        subj_prefix = ['_s' int2str(s)];
+        subj_prefix = ['s' int2str(s) '_'];
         for m = 1:n_mod
             disp(['Loading modality ' int2str(m)]);                  
             n_scans = length(PRT.group(g).subject(s).modality(m).scans);
-            mod_prefix = ['_m' int2str(m)];
+            %mod_prefix = ['_m' int2str(m)];
+            try
+                mod_prefix = [lower(PRT.group(g).subject(s).modality(m).mod_name(1:3))];
+            catch
+                mod_prefix = 'xxx';
+            end
             dim1 = size(sample_img{m}.img,1);
             dim2 = size(sample_img{m}.img,2);
             dim3 = size(sample_img{m}.img,3);
             dim_vector = dim1*dim2*dim3; 
-            
             
             % Loading images
             img_allscans=zeros(n_scans,dim_vector);
@@ -152,27 +162,41 @@ for g = 1:n_groups
             if isa(PRT.group(g).subject(s).modality(m).design,'struct') & PRT.group(g).subject(s).modality(m).timesr
                 % i.e. if there is a design and if the detrend was done in preprocessing
                 n_cond = length(PRT.group(g).subject(s).modality(m).design.conds);
-                hrf_delay=floor(3/(PRT.group(g).subject(s).modality(m).design.TR/1000));
+                % Estimating delay of hemodynamic response (TR now in
+                % seconds)
+                hrf_delay=floor(3/PRT.group(g).subject(s).modality(m).design.TR);
                 for c = 1:n_cond
-                    cond_prefix = ['_c' int2str(c)];
-                    filename = [prt_dir group_prefix subj_prefix mod_prefix cond_prefix];
+                    %cond_prefix = ['_c' int2str(c)];
+                    try
+                        cond_prefix = ['_' lower(PRT.group(g).subject(s).modality(m).design.conds(c).cond_name(1:3))];
+                    catch
+                        cond_prefix = '_xxx';
+                    end
+                    filename = [prt_dir 'PRT_' group_prefix subj_prefix mod_prefix cond_prefix];
                     examples_list = [];
                     n_ons = length(PRT.group(g).subject(s).modality(m).design.conds(c).onsets);
+                    % Replicating duration
+                    durations = PRT.group(g).subject(s).modality(m).design.conds(c).durations;
+                    if (length(durations) == 1)
+                        durations = repmat(durations,n_ons,1);
+                    end
+                    % Extracting examples
                     for o = 1:n_ons
                         onset = PRT.group(g).subject(s).modality(m).design.conds(c).onsets(o) + hrf_delay;
-                        duration = PRT.group(g).subject(s).modality(m).design.conds(c).durations(o);
-                        examples_list = [examples_list onset:(onset+duration-1)];
+                        examples_list = [examples_list onset:(onset+durations(o)-1)];
                     end                 
                     test_design = sort(examples_list);
-                    if (test_design(end) > n_scans)
-                        disp('Error - design exceeds timeseries');
-                        break;
-                    end
                     img4d=zeros(dim1,dim2,dim3,length(examples_list));
                     for i = 1:length(examples_list)
-                        img1d = img_allscans(examples_list(i),:);
-                        img3d = reshape(img1d,dim1,dim2,dim3);
-                        img4d(:,:,:,i) = img3d;
+                        try
+                            img1d = img_allscans(examples_list(i),:);
+                            img3d = reshape(img1d,dim1,dim2,dim3);
+                            img4d(:,:,:,i) = img3d;
+                        catch
+                            if (test_design(end) > n_scans)
+                                disp('Error - design exceeds timeseries');
+                            end
+                        end
                     end
                     nii = make_nii(img4d);  
                     save_nii(nii,filename);
@@ -186,7 +210,7 @@ for g = 1:n_groups
                     img3d = reshape(img_allscans(i,:),dim1,dim2,dim3);  
                     img4d(:,:,:,i) = img3d;
                 end
-                filename = [prt_dir group_prefix subj_prefix mod_prefix];
+                filename = [prt_dir 'PRT_' group_prefix subj_prefix mod_prefix];
                 nii = make_nii(img4d);  
                 save_nii(nii,filename);
             end
