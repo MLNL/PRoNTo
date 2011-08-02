@@ -26,7 +26,8 @@ prt_dir=regexprep(char(fname),'PRT.mat', '');
 
 % initialize the modality
 mid   = job.modality;
-N     = nifti([prt_dir,'g1_s1_m',num2str(mid),'_c1.img']);
+%N     = nifti([prt_dir,'g1_s1_m',num2str(mid),'_c1.img']);
+N     = nifti([prt_dir,prt_get_filename(PRT,1,1,1,1),'.img']);
 n_vox = prod(N.dat.dim(1:3));
 n_groups    = length(job.group);
 
@@ -39,16 +40,22 @@ for g = 1:n_groups                                   % group
         sid = job.group(g).subjects(s);       
         for c = 1:length(job.group(g).conditions)    % condition
             cid = job.group(g).conditions(c);
-            n_vols_s_c = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations;
+            %n_vols_s_c = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations;
+            onsets    = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).onsets;
+            durations = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations;
+            if (length(durations) == 1)
+                durations = repmat(durations,length(onsets),1);
+            end
+            n_vols_s_c = sum(durations);
             n = n + sum(n_vols_s_c);
         end
     end
 end
 
 % Set memory limit
-mem     = prt_get_defaults('kernel.mem_limit');
-b_size  = ceil(mem/8/n); % Block size (double = 8 bytes)
-n_block = ceil(n_vox/b_size);
+mem         = prt_get_defaults('kernel.mem_limit');
+block_size  = ceil(mem/8/n); % Block size (double = 8 bytes)
+n_block     = ceil(n_vox/block_size);
 
 % Initialize K
 K     = zeros(n);
@@ -56,7 +63,7 @@ K_idx = zeros(n,3);
 
 % Compute kernel (block-wise)
 % -------------------------------------------------------------------------
-bstart=1; bend=min(b_size,n_vox);
+bstart=1; bend=min(block_size,n_vox);
 %X = zeros(n_vox,n);
 for b = 1:n_block
     samp_range = 0; % initialise (will be set later)
@@ -75,11 +82,20 @@ for b = 1:n_block
             
             for c = 1:length(job.group(g).conditions)
                 cid = job.group(g).conditions(c);
-                n_vol_s_c = sum(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations);
+                %n_vol_s_c = sum(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations);   
+                onsets    = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).onsets;
+                durations = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations;
+                if (length(durations) == 1)
+                    durations = repmat(durations,length(onsets),1);
+                end
+                n_vol_s_c = sum(durations);
+                
                 samp_range = (1:n_vol_s_c)+max(samp_range);
                 
-                fname = [prt_dir,'g',num2str(gid),'_s',num2str(sid),'_m',num2str(mid),'_c',num2str(cid)];
-                data_vols(:,samp_range) = prt_load_blocks(fname,b_size,b);
+                %fname = [prt_dir,'g',num2str(gid),'_s',num2str(sid),'_m',num2str(mid),'_c',num2str(cid)];
+                fname = [prt_dir, prt_get_filename(PRT,gid,sid,mid,cid)];
+
+                data_vols(:,samp_range) = prt_load_blocks(fname,block_size,b);
                 
                 % configure indices
                 K_idx(samp_range,1) = gid;
@@ -96,7 +112,7 @@ for b = 1:n_block
     % add this block's contribution to the kernel matrix
     K = K + (data_vols' * data_vols);
     
-    bstart=bend+1; bend=min(bstart+b_size-1,n_vox);
+    bstart=bend+1; bend=min(bstart+block_size-1,n_vox);
 end
 
 % for testing

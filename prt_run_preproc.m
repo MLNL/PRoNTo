@@ -13,7 +13,6 @@ function out = prt_run_preproc(varargin)
 % Written by J.M.Rondina
 % $Id: $
 
-
 % Job variable
 % -------------------------------------------------------------------------
 
@@ -27,14 +26,8 @@ load(char(fname));
 prt_dir=regexprep(char(fname),'PRT.mat', '');
 
 % -------------------------------------------------------------------------
-% Load libraries
+% Initial checks
 % -------------------------------------------------------------------------
-
-%addpath LIB/NII_lib %[afm] moved to the prt_batch script
-
-% -------------------------------------------------------------------------
-%Initial checks
-% -------------------------------------------------
 
 n_groups = length(PRT.group);
 n_modalities = length(PRT.masks);
@@ -60,16 +53,14 @@ if error_flag == 1
     return;
 end
 
-
 for m=1:n_modalities
     sample_img{m} = load_nii(PRT.group(1).subject(1).modality(m).scans{1});
     sample_name{m} = PRT.group(1).subject(1).modality(m).scans{1};
 end
 
-
 % -------------------------------------------------------------------------
 % Resizing masks
-% -------------------------------------------------
+% -------------------------------------------------------------------------
 
 for m=1:n_modalities
     maskname =  regexprep(char(PRT.masks(m).fnames),',1','');
@@ -89,7 +80,6 @@ for m=1:n_modalities
     mask{m} = double(reshape(mnii{m}.img,1,size(mnii{m}.img,1)*size(mnii{m}.img,2)*size(mnii{m}.img,3)));
 end
 
-
 % -------------------------------------------------------------------------
 % Loading images, detrending, saving
 % -------------------------------------------------------------------------
@@ -99,25 +89,17 @@ step=0;
 for g = 1:n_groups
     disp(['Loading group ' int2str(g)]);
     n_subj = length(PRT.group(g).subject);
-    %group_prefix = ['g' int2str(g)];
-    try
-        group_prefix = [lower(PRT.group(g).gr_name(1:3)) '_'];
-    catch
-        group_prefix = 'xxx_';
-    end
+
     for s = 1:n_subj
         disp(['Loading subject ' int2str(s)]);
         n_mod = length(PRT.group(g).subject(s).modality);
-        subj_prefix = ['s' int2str(s) '_'];
+       
+        %subj_prefix = ['s' int2str(s) '_'];
+      
         for m = 1:n_mod
             disp(['Loading modality ' int2str(m)]);                  
             n_scans = length(PRT.group(g).subject(s).modality(m).scans);
-            %mod_prefix = ['_m' int2str(m)];
-            try
-                mod_prefix = [lower(PRT.group(g).subject(s).modality(m).mod_name(1:3))];
-            catch
-                mod_prefix = 'xxx';
-            end
+
             dim1 = size(sample_img{m}.img,1);
             dim2 = size(sample_img{m}.img,2);
             dim3 = size(sample_img{m}.img,3);
@@ -162,17 +144,11 @@ for g = 1:n_groups
             if isa(PRT.group(g).subject(s).modality(m).design,'struct') & PRT.group(g).subject(s).modality(m).timesr
                 % i.e. if there is a design and if the detrend was done in preprocessing
                 n_cond = length(PRT.group(g).subject(s).modality(m).design.conds);
-                % Estimating delay of hemodynamic response (TR now in
-                % seconds)
+                % Estimating delay of hemodynamic response (TR now in seconds)
                 hrf_delay=floor(3/PRT.group(g).subject(s).modality(m).design.TR);
-                for c = 1:n_cond
-                    %cond_prefix = ['_c' int2str(c)];
-                    try
-                        cond_prefix = ['_' lower(PRT.group(g).subject(s).modality(m).design.conds(c).cond_name(1:3))];
-                    catch
-                        cond_prefix = '_xxx';
-                    end
-                    filename = [prt_dir 'PRT_' group_prefix subj_prefix mod_prefix cond_prefix];
+                for c = 1:n_cond                  
+                    filename = [prt_dir, prt_get_filename(PRT,g,s,m,c)];
+                    
                     examples_list = [];
                     n_ons = length(PRT.group(g).subject(s).modality(m).design.conds(c).onsets);
                     % Replicating duration
@@ -209,8 +185,9 @@ for g = 1:n_groups
                 for i = 1:n_scans                 
                     img3d = reshape(img_allscans(i,:),dim1,dim2,dim3);  
                     img4d(:,:,:,i) = img3d;
-                end
-                filename = [prt_dir 'PRT_' group_prefix subj_prefix mod_prefix];
+                end              
+                filename = [prt_dir, prt_get_filename(PRT,g,s,m)];
+                
                 nii = make_nii(img4d);  
                 save_nii(nii,filename);
             end
@@ -226,9 +203,8 @@ end
 
 delete(h);
 
-
-% 
-% % Function output
+% -------------------------------------------------------------------------
+% Function output
 % -------------------------------------------------------------------------
 out.files{1} = '';
 disp('Preprocessing done.')
