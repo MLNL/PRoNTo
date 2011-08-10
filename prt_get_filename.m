@@ -1,5 +1,11 @@
 function out = prt_get_filename(PRT,g,s,m,c)
 
+%__________________________________________________________________________
+% Copyright (C) 2011, ...
+
+% Written by 
+% $Id$
+
 try
     %group_prefix = [lower(PRT.group(g).gr_name(1:3)) '_'];
     group_prefix = [sprintf('%0.3s',lower(PRT.group(g).gr_name)),'_'];

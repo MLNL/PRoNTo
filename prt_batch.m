@@ -6,8 +6,8 @@ function prt_batch
 %_______________________________________________________________________
 % Copyright (C) 2011, ...
 
-% Christophe Phillips
-% $Id:$
+% Written by Christophe Phillips
+% $Id$
 
 persistent batch_initialize
 

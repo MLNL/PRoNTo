@@ -24,7 +24,7 @@ function varargout = prt_get_defaults(defstr, varargin)
 
 % Volkmar Glauche
 % Then modified for use with the PRoNTo toolbox by Christophe Phillips
-% $Id: $
+% $Id$
 
 global prt_def;
 if isempty(prt_def)

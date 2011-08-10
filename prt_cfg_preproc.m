@@ -2,8 +2,9 @@ function preproc = prt_cfg_preproc
 % Preprocessing of the data.
 %_______________________________________________________________________
 % Copyright (C) 2011, ...
+
 % Written by J.M.Rondina
-% $Id:$
+% $Id$
 
 
 % ---------------------------------------------------------------------

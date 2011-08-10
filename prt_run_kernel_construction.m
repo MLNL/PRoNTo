@@ -10,8 +10,9 @@ function out = prt_run_kernel_construction(varargin)
 % out    - filename of saved data structure.
 %__________________________________________________________________________
 % Copyright (C) 2011
+
 % Written by A Marquand
-% $Id: $
+% $Id$
 
 % Job variable
 % -------------------------------------------------------------------------

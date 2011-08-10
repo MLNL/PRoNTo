@@ -5,13 +5,13 @@ function prt = prt_cfg_batch
 %_______________________________________________________________________
 % Copyright (C) 2011, ...
 
-% Christophe Phillips
-% $Id:$
+% Written by Christophe Phillips
+% $Id$
 
-% if ~isdeployed, addpath(fullfile(spm('Dir'),'toolbox','PRONTO')); end
+% if ~isdeployed, addpath(fullfile(spm('Dir'),'toolbox','PRoNTo')); end
 % Only needed if
 % - PRN is installed in SPM8 toolbox directory, for example
-%   SPM8\toolbox\PRONTO
+%   SPM8\toolbox\PRoNTo
 % - and this directory isn't saved on Matlab path (which it shouldn't)
 
 
@@ -23,8 +23,8 @@ prt         = cfg_choice;
 prt.tag     = 'prt';
 prt.name    = 'PRoNTo';
 prt.help    = {[...
-    'This is the batch interface for PRONTO, i.e. Pattern Recognition '...
-    'for Neuroimaging Toolbox providing a GUI for the vario tools.']
+    'This is the batch interface for PRoNTo, i.e. Pattern Recognition '...
+    'for Neuroimaging Toolbox providing a GUI for the various tools.']
                   }';
 %  Only two modules so far... and not doing much.
 prt.values  = {prt_cfg_design, prt_cfg_preproc, prt_cfg_kernel_construction };

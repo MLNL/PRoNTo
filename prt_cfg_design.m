@@ -5,7 +5,7 @@ function data = prt_cfg_design
 % Copyright (C) 2011, ...
 
 % Written by M.J.Rosa
-% $Id:$
+% $Id$
 
 % ---------------------------------------------------------------------
 % quant Quantitative

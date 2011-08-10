@@ -11,7 +11,7 @@ function out = prt_run_design(varargin)
 % Copyright (C) 2011, ...
 
 % Written by M.J.Rosa
-% $Id: $
+% $Id$
 
 
 % Job variable

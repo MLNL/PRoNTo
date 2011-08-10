@@ -4,8 +4,8 @@ function kernel = prt_cfg_kernel_construction
 %_______________________________________________________________________
 % Copyright (C) 2011, ...
 
-% Andre Marquand
-% $Id:$
+% Written by Andre Marquand
+% $Id$
 
 % ---------------------------------------------------------------------
 % filename Filename(s) of data

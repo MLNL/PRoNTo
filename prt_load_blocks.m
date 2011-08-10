@@ -19,6 +19,9 @@ function block = prt_load_blocks(varargin)
 %_______________________________________________________________________
 % Copyright (C) 2011, 
 
+% Written by 
+% $Id$
+
 if nargin < 3 || nargin > 3 
     disp('Usage: img = prt_load_blocks(filenames, block_size, block_range, [mask])');
     return;

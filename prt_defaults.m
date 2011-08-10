@@ -16,7 +16,8 @@ function prt_defaults
 %_______________________________________________________________________
 % Copyright (C) 2011, ...
 
-% $Id:$
+% Written by Christophe Phillips
+% $Id$
 
 %%
 global prt_def
