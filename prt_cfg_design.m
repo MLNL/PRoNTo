@@ -94,31 +94,19 @@ timesr.values  = {0 1};
 timesr.val     = {0};
 
 % ---------------------------------------------------------------------
-% fmask Modality
+% masks Masks
 % ---------------------------------------------------------------------
-fmask        = cfg_files;
-fmask.tag    = 'fmask';
-fmask.name   = 'Modality';
-fmask.filter = 'nifti';
-fmask.val{1} = {''};
-fmask.filter = 'image';
-fmask.ufilter = '.*';
-fmask.num    = [0 Inf];
-fmask.help   = {['Select masks for each modality. The modalities should '...
+masks        = cfg_files;
+masks.tag    = 'masks';
+masks.name   = 'Masks';
+masks.filter = 'img';
+masks.ufilter = '.*';
+masks.num    = [1 Inf];
+masks.help   = {['Select masks for each modality. The modalities should '...
                 'follow the same order of modalities as specified '...
                 'for each subject and group. '...
                 'If left empty a default mask will be used for each modality.']};
 
-% ---------------------------------------------------------------------
-% groups Groups
-% ---------------------------------------------------------------------
-masks         = cfg_repeat;
-masks.tag     = 'masks';
-masks.name    = 'Masks';
-masks.help    = {['Add masks for each modality. '...
-                    'More than one mask is allowed per modality.']};
-masks.num     = [1 Inf];
-masks.values  = {fmask };
 
 % ---------------------------------------------------------------------
 % load_SPM Load SPM.mat
