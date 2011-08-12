@@ -38,14 +38,13 @@ error_flag = 0;
 for g = 1:n_groups
     n_subj = length(PRT.group(g).subject);
     if n_subj ~= n_subjects
-        error_flag = 1;
-        disp(['Group ' int2str(g) ' has a different number of subjects.']);
+        disp(['Warning - Group ' int2str(g) ' has a different number of subjects.']);
     end
     for s = 1:n_subj
          n_mod = length(PRT.group(g).subject(s).modality);
          if (n_mod ~= n_modalities)
-             error_flag = 1;
-             disp(['Subject ' int2str(s) ' group ' int2str(g) ' has a different number of modalities.']);
+             disp(['Error - Subject ' int2str(s) ' group ' int2str(g) ' has a different number of modalities.']);
+             return;
          end        
     end
 end 
@@ -64,9 +63,10 @@ end
 % -------------------------------------------------------------------------
 
 for m=1:n_modalities
-    maskname =  regexprep(char(PRT.masks(m).fnames),',1','');
-    if isempty(PRT.masks(m).fnames)
-       maskname = prt_get_defaults('prep.default_mask');
+    maskname =  regexprep(char(PRT.masks(m)),',1','');
+    if isempty(PRT.masks(m))
+       disp(['Error - No mask defined for the modality ' int2str(m)]);
+       return;
     end
     mnii{m} = load_nii(maskname);
     newmask_name = [prt_dir 'updated_mask_m' int2str(m) '.img'];   
