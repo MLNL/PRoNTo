@@ -12,10 +12,10 @@ function preproc = prt_cfg_preproc
 % ---------------------------------------------------------------------
 infile        = cfg_files;
 infile.tag    = 'infile';
-infile.name   = 'Data structure file';
+infile.name   = 'Load PRT.mat';
 infile.filter = 'mat';
 infile.num    = [1 1];
-infile.help   = {'Select data/design structure file (PRT.mat).'};
+infile.help   = {'Select PRT.mat (file containing data/design structure).'};
 
 % ---------------------------------------------------------------------
 % preproc Preprocessing
