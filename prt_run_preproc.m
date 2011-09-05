@@ -54,7 +54,7 @@ if error_flag == 1
 end
 
 for m=1:n_modalities
-    sample_img{m} = load_nii(PRT.group(1).subject(1).modality(m).scans{1});
+    sample_img{m} = nifti(PRT.group(1).subject(1).modality(m).scans{1});
     sample_name{m} = PRT.group(1).subject(1).modality(m).scans{1};
 end
 
@@ -68,17 +68,17 @@ for m=1:n_modalities
        disp(['Error - No mask defined for the modality ' int2str(m)]);
        return;
     end
-    mnii{m} = load_nii(maskname);
+    mnii{m} = nifti(maskname);
     newmask_name = [prt_dir 'updated_mask_m' int2str(m) '.img'];   
-    if size(mnii{m}.img) ~= size(sample_img{m}.img)
+    if size(mnii{m}.dat(:,:,:,1)) ~= size(sample_img{m}.dat(:,:,:,1))
        img1_calc = spm_vol(sample_name{m});
        img2_calc = spm_vol(maskname);
        outputfile = img1_calc;
        outputfile.fname = newmask_name;
        spm_imcalc([img1_calc img2_calc],outputfile,'i2.*(i1>0)');
-       mnii{m} = load_nii(newmask_name);
+       mnii{m} = nifti(newmask_name);
     end
-    mask{m} = double(reshape(mnii{m}.img,1,size(mnii{m}.img,1)*size(mnii{m}.img,2)*size(mnii{m}.img,3)));
+    mask{m} = double(reshape(mnii{m}.dat,1,size(mnii{m}.dat,1)*size(mnii{m}.dat,2)*size(mnii{m}.dat,3)));
 end
 
 % -------------------------------------------------------------------------
@@ -100,21 +100,21 @@ for g = 1:n_groups
         for m = 1:n_mod
             disp(['Loading modality ' int2str(m)]);                  
             n_scans = length(PRT.group(g).subject(s).modality(m).scans);
-
-            dim1 = size(sample_img{m}.img,1);
-            dim2 = size(sample_img{m}.img,2);
-            dim3 = size(sample_img{m}.img,3);
-            dim_vector = dim1*dim2*dim3; 
+    
+            dim1 = size(sample_img{m}.dat,1);
+            dim2 = size(sample_img{m}.dat,2);
+            dim3 = size(sample_img{m}.dat,3);
+            dim_vector = dim1*dim2*dim3;
             
             % Loading images
             img_allscans=zeros(n_scans,dim_vector);
-            for sc = 1:n_scans
-                nii = load_nii(PRT.group(g).subject(s).modality(m).scans{sc});
-                if size(nii.img) ~= size(sample_img{m}.img)
+            for sc = 1:n_scans              
+                nii = nifti(PRT.group(g).subject(s).modality(m).scans{sc});
+                if size(nii.dat) ~= size(sample_img{m}.dat)
                     disp (['Error - Scan ' int2str(sc) 'Modality ' int2str(m) 'Subject ' int2str(s) 'Group ' int2str(g) ' has wrong dimensions']);
                     break;
                 else
-                    img = double(reshape(nii.img,1,dim_vector));
+                    img = double(reshape(nii.dat,1,dim_vector));
                     img(find(isnan(img))) = 0;
                     img_allscans(sc,:) = img.*mask{m};
                 end
@@ -147,8 +147,8 @@ for g = 1:n_groups
                 n_cond = length(PRT.group(g).subject(s).modality(m).design.conds);
                 % Estimating delay of hemodynamic response (TR now in seconds)
                 hrf_delay=floor(3/PRT.group(g).subject(s).modality(m).design.TR);
-                for c = 1:n_cond                  
-                    filename = [prt_dir, prt_get_filename(PRT,g,s,m,c)];
+                for c = 1:n_cond 
+                    filename = [prt_dir, prt_get_filename([g,s,m,c]),'.img'];
                     
                     examples_list = [];
                     n_ons = length(PRT.group(g).subject(s).modality(m).design.conds(c).onsets);
@@ -163,7 +163,7 @@ for g = 1:n_groups
                         examples_list = [examples_list onset:(onset+durations(o)-1)];
                     end                 
                     test_design = sort(examples_list);
-                    img4d=zeros(dim1,dim2,dim3,length(examples_list));
+                    img4d = file_array(filename,[dim1,dim2,dim3,length(examples_list)],'float64-le',0,1,0);
                     for i = 1:length(examples_list)
                         try
                             img1d = img_allscans(examples_list(i),:);
@@ -175,22 +175,29 @@ for g = 1:n_groups
                             end
                         end
                     end
-                    nii = make_nii(img4d);  
-                    save_nii(nii,filename);
+                    
+                    No         = sample_img{1}; % copy header
+                    No.dat     = img4d;         % change file_array
+                    No.descrip = 'Pronto data';
+                    No.cal     = [0 1000];
+                    create(No);                 % write header
                 end
                 
             % Structural    
             else % design == 0
                 % i.e. if there is not a design (e.g. structural)
-                img4d = zeros(dim1,dim2,dim3,n_scans);
+                filename = [prt_dir, prt_get_filename([g,s,m]),'.img'];
+                img4d = file_array(filename,[dim1,dim2,dim3,n_scans],'FLOAT64-LE',0,1,0);
                 for i = 1:n_scans                 
                     img3d = reshape(img_allscans(i,:),dim1,dim2,dim3);  
                     img4d(:,:,:,i) = img3d;
-                end              
-                filename = [prt_dir, prt_get_filename(PRT,g,s,m)];
+                end
                 
-                nii = make_nii(img4d);  
-                save_nii(nii,filename);
+                No         = sample_img{1}; % copy header
+                No.dat     = img4d;         % change file_array
+                No.descrip = 'Pronto data';
+                No.cal     = [0 1];
+                create(No);                 % write header
             end
             
             clear img_allscans;
