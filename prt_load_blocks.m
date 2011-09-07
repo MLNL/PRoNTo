@@ -19,7 +19,7 @@ function block = prt_load_blocks(varargin)
 %_______________________________________________________________________
 % Copyright (C) 2011, 
 
-% Written by 
+% Written by A Marquand
 % $Id$
 
 if nargin < 3 || nargin > 3 
@@ -40,14 +40,19 @@ else
 end
 
 % defaults
-%try,
-    bs = varargin{2};  %catch, bs = 1024*128; end
-%try, 
-br = varargin{3};  %catch, br = 1;        end
+try
+    bs = varargin{2};  
+catch 
+    bs = 1024*128; 
+end
+try
+    br = varargin{3};  
+catch 
+    br = 1;       
+end
 
 data_range = (br(1)-1)*bs+1:min(br(end)*bs,n_vox); 
-
-try, 
+try 
     mask = varargin{4}; 
     if isempty(mask)
         use_mask = false;
@@ -56,7 +61,7 @@ try,
     end
     mask_r = reshape(mask,prod(dm),1) > 0;
 	n_voxels = sum(mask_r);
-catch,  
+catch  
     use_mask = false; 
     n_voxels = length(data_range);
 end
