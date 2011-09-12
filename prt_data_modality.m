@@ -79,8 +79,8 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             set(handles.modname,'String',nlist);
             set(handles.modname,'Value',valsel);
             set(handles.quantbutt,'Value',modsel.quant);
-            set(handles.tmsbutt,'Value',modsel.timesr);
-            handles.mod.tseries=modsel.timesr;
+            set(handles.tmsbutt,'Value',modsel.detrend);
+            handles.mod.tseries=modsel.detrend;
             handles.mod.quant=modsel.quant;
             handles.mod.design=modsel.design;
             handles.mod.files=modsel.scans;

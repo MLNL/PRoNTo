@@ -592,7 +592,7 @@ if isnumeric(mod)
 end
 %update structure
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).timesr=mod.tseries;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.tseries;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).quant=mod.quant;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.files;
