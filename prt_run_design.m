@@ -31,9 +31,9 @@ ngroup    = length(job.group);
 % -------------------------------------------------------------------------
 nmasks     = length(job.mask);
 for i = 1:nmasks
-    mod_names{i}       = job.mask(i).mod_name;
-    masks(i).mod_fname = mod_names{i};
-    masks(i).fname     = char(job.mask(i).fmask);
+    mod_names{i}      = job.mask(i).mod_name;
+    masks(i).mod_name = mod_names{i};
+    masks(i).fname    = char(job.mask(i).fmask);
 end
 
 mod_names_uniq = unique(mod_names);
