@@ -110,7 +110,9 @@ else
     set(handles.modlist,'String',list)
     handles.ind=ind;
     set(handles.figure1,'CurrentAxes',handles.axes2)
-    prt_disp_conditions(PRT,1,handles,hObject);   
+    % Update handles structure
+    guidata(hObject, handles);
+    prt_disp_conditions(PRT,ind(1),handles,hObject);   
 end
 
 %Display the bar graph for the number of subjects/group
