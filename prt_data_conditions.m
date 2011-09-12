@@ -257,7 +257,7 @@ function tredit_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of tredit as text
 %        str2double(get(hObject,'String')) returns contents of tredit as a double
 val=get(handles.tredit,'String');
-eval(['handles.trval=',val]);
+eval(['handles.trval=',val,';']);
 % Update handles structure
 guidata(hObject, handles);
 
