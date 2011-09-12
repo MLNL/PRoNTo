@@ -9,7 +9,7 @@ function out = prt_run_design(varargin)
 % out    - filename of saved data structure.
 %__________________________________________________________________________
 % Copyright (C) 2011, ...
-
+%
 % Written by M.J.Rosa
 % $Id$
 
@@ -29,8 +29,22 @@ ngroup    = length(job.group);
 
 % Masks
 % -------------------------------------------------------------------------
-nmasks     = length(job.masks);
-PRT.masks  = job.masks;
+nmasks     = length(job.mask);
+for i = 1:nmasks
+    mod_names{i}       = job.mask(i).mod_name;
+    masks(i).mod_fname = mod_names{i};
+    masks(i).fname     = char(job.mask(i).fmask);
+end
+
+mod_names_uniq = unique(mod_names);
+
+if nmasks ~= length(mod_names_uniq);
+    out.files{1} = [];
+    beep;
+    sprintf('Names of mask modalities repeated! Please correct!')
+    return
+end
+    
 
 % Make PRT.mat
 % -------------------------------------------------------------------------
@@ -40,108 +54,231 @@ if isfield(job.group(1).select,'modality')
     nmod_scans = length(job.group(1).select.modality);
     for g = 1:ngroup
         
-        nmod = length(job.group(g).select.modality);
-        nsub = length(job.group(g).select.modality(1).subjects);
-
+        clear mod_names_mod
+        nmod   = length(job.group(g).select.modality);
+        nsub   = length(job.group(g).select.modality(1).subjects);
+        
         % Check if the number of masks and conditions is the same
-        if nmod ~= nmod_scans || nmod ~= nmasks
+        if nmod ~= nmod_scans
             out.files{1} = [];
-            msgbox('Error: incorrect number of modalities or masks!')
+            beep;
+            sprintf('Numbers of modalities in groups 1 and %d differ!',g)
+            disp('Please correct!')
             return
         else
-            % Modalities
-            PRT.group(g).gr_name  = job.group(g).gr_name;
-
-            % Subjects
-            for s = 1:nsub,
-                for m = 1:nmod,
-                    ns = length(job.group(g).select.modality(m).subjects);
-                    if nsub ~= ns
+            if nmod ~= nmasks
+                out.files{1} = [];
+                beep;
+                sprintf('Number of modalities in group %d different from number of masks!',g)
+                disp('Please correct!')
+                return               
+            else
+                % Modalities
+                PRT.group(g).gr_name  = job.group(g).gr_name;
+                
+                % Subjects
+                for s = 1:nsub,
+                    subj_name = sprintf('S%d',s);
+                    for m = 1:nmod,
+                        modnm = job.group(g).select.modality(m).mod_name;
+                        mod_names_mod{m} = modnm;
+                        if isempty(intersect(mod_names_uniq,modnm)),
+                            out.files{1} = [];
+                            beep
+                            sprintf('Incorrect modality name %s for subject %d group %d! ',modnm,s,g)
+                            disp('Please correct!')
+                            return
+                        end
+                        ns = length(job.group(g).select.modality(m).subjects);
+                        if nsub ~= ns
+                            out.files{1} = [];
+                            beep
+                            sprintf('Number of subjects in modality %d and 1 of group %d are different! ',m,g)
+                            disp('Please correct!')
+                            return
+                        else                   
+                            PRT.group(g).subject(s).subj_name            = subj_name;
+                            
+                            PRT.group(g).subject(s).modality(m).mod_name = job.group(g).select.modality(m).mod_name;
+                            PRT.group(g).subject(s).modality(m).detrend  = 0;
+                            PRT.group(g).subject(s).modality(m).quant    = job.group(g).select.modality(m).quant;
+                            PRT.group(g).subject(s).modality(m).design   = 0;                    
+                            PRT.group(g).subject(s).modality(m).scans    = char(job.group(g).select.modality(m).subjects{s});
+                        end
+                    end
+                    if nmod ~= length(unique(mod_names_mod));
                         out.files{1} = [];
-                        msgbox('Error: incorrect number of subjects!')
+                        beep;
+                        sprintf('Names of modalities in group %d repeated! Please correct!',g)
                         return
-                    else
-                        PRT.group(g).subject(s).modality(m).scans{1} = job.group(g).select.modality(m).subjects{s};
-                        PRT.group(g).subject(s).modality(m).mod_name = job.group(g).select.modality(m).mod_name;
-                        PRT.group(g).subject(s).modality(m).quant    = job.group(g).select.modality(m).quant;
-                        PRT.group(g).subject(s).modality(m).design   = 0;
-                        PRT.group(g).subject(s).modality(m).timesr   = 0;
                     end
                 end
             end
         end
-
     end
 else
-    for g = 1:ngroup,
+    for g = 1:ngroup,  
         nmod_subjs = length(job.group(1).select.subject{1});
-        nsubj = length(job.group(g).select.subject);
+        nsubj  = length(job.group(g).select.subject);
+        nsubj1 = length(job.group(1).select.subject);
+        if nsubj ~= nsubj1,
+            disp('Warning: unbalanced groups.')
+        end
         for j = 1:nsubj,
+            clear mod_names_subj
+            subj_name = sprintf('S%d',j);
             nmod = length(job.group(g).select.subject{j});
             % Check if the number of masks and conditions is the same
-            if nmod ~= nmod_subjs || nmod ~= nmasks
+            if nmod ~= nmod_subjs
                 out.files{1} = [];
-                msgbox('Error: incorrect number of modalities or masks!')
+                beep
+                sprintf('Numbers of modalities in subjects 1 and %d from group %d differ!',j,g)
+                disp('Please correct!')
                 return
-
             else
-                for k = 1:nmod,
-                    clear design
-                    % Load SPM.mat design
-                    if isfield(job.group(g).select.subject{j}(k).design,'load_SPM')
-                        try
-                            load(job.group(g).select.subject{j}(k).design.load_SPM{1});
-                        catch
-                            error('Cannot load SPM.mat file');
+                if nmod ~= nmasks
+                    out.files{1} = [];
+                    beep
+                    sprintf('Number of modalities in group %d subject %d different from number of masks!',g,j)
+                    disp('Please correct!')
+                    return
+                else
+                    for k = 1:nmod,
+                        modnm = job.group(g).select.subject{j}(k).mod_name;
+                        mod_names_subj{k} = modnm;
+                        if isempty(intersect(mod_names_uniq,modnm)),
+                            out.files{1} = [];
+                            beep
+                            sprintf('Incorrect modality name %s for subject %d group %d! ',modnm,j,g)
+                            disp('Please correct!')
+                            return
                         end
-                        ncond = length(SPM.Sess(1).U);
-                        for c = 1:ncond
-                            conds(c).cond_name = SPM.Sess(1).U(c).name{1};
-                            conds(c).onsets    = SPM.Sess(1).U(c).ons;
-                            conds(c).durations = SPM.Sess(1).U(c).dur;
-                        end
-                        design.conds = conds;
-                        design.covar = [];
-                        design.TR    = SPM.xX.K.RT;
-                    else
-                        % No design
-                        if isfield(job.group(g).select.subject{j}(k).design,'no_design')
-                            design = job.group(g).select.subject{j}(k).design.no_design;
-                        else
-                            % Create new design
-                            if ~isempty(job.group(g).select.subject{j}(k).design.new_design.multi_conds{1})
-                                multi_fname = job.group(g).select.subject{j}(k).design.new_design.multi_conds{1};
-                                % Multiple conditions
-                                try
-                                    multicond = load(multi_fname);
-                                catch
-                                    error('Cannot load %s',multi_fname);
-                                end
-                                for mc = 1:length(multicond.onsets)
-                                    conds(mc).cond_name  = multicond.names{mc};
-                                    conds(mc).onsets     = multicond.onsets{mc};
-                                    conds(mc).durations  = multicond.durations{mc};
-                                end
-                                design.conds = conds;
-                            else
-                                design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
+                        clear design
+                        % Load SPM.mat design
+                        if isfield(job.group(g).select.subject{j}(k).design,'load_SPM')
+                            try
+                                load(job.group(g).select.subject{j}(k).design.load_SPM{1});
+                            catch
+                                out.files{1} = [];
+                                beep
+                                disp('Could not load SPM.mat file!')
+                                return
                             end
-                            design.covar = job.group(g).select.subject{j}(k).design.new_design.covar;
-                            design.TR    = job.group(g).select.subject{j}(k).design.new_design.TR;
+                            ncond = length(SPM.Sess(1).U);
+                            for c = 1:ncond
+                                conds(c).cond_name = SPM.Sess(1).U(c).name{1};
+                                conds(c).onsets    = SPM.Sess(1).U(c).ons;
+                                conds(c).durations = SPM.Sess(1).U(c).dur;
+                            end
+                            design.conds = conds;
+                            design.covar = [];
+                            design.TR    = SPM.xX.K.RT;
+                        else
+                            % No design
+                            if isfield(job.group(g).select.subject{j}(k).design,'no_design')
+                                design = 0;
+                            else
+                                nscans = length(job.group(g).select.subject{j}(k).scans);
+                                % Create new design
+                                if ~isempty(job.group(g).select.subject{j}(k).design.new_design.multi_conds{1})
+                                    multi_fname = job.group(g).select.subject{j}(k).design.new_design.multi_conds{1};
+                                    % Multiple conditions
+                                    try
+                                        load(multi_fname);
+                                    catch
+                                        out.files{1} = [];
+                                        beep
+                                        sprintf('Could not load %s file!',multi_fname)
+                                        return
+                                    end
+                                    try
+                                        multicond.names = names;
+                                    catch
+                                        beep
+                                        disp('No "names" found in the .mat file, please select another file!')
+                                        return
+                                    end
+                                    try
+                                        multicond.durations = durations;
+                                    catch
+                                        beep
+                                        disp('No "durations" found in the .mat file, please select another file!')
+                                        return
+                                    end
+                                    try
+                                        multicond.onsets = onsets;
+                                    catch
+                                        beep
+                                        disp('No "onsets" found in the .mat file, please select another file!')
+                                        return
+                                    end
+                                    for mc = 1:length(multicond.onsets)
+                                        conds(mc).cond_name  = multicond.names{mc};
+                                        conds(mc).onsets     = multicond.onsets{mc};
+                                        conds(mc).durations  = multicond.durations{mc};
+                                    end
+                                    design.conds = conds;
+                                else
+                                    design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
+                                end
+                                maxcond = max([design.conds(:).onsets]);
+                                if nscans<maxcond
+                                    out.files{1} = [];
+                                    beep
+                                    sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
+                                    disp('Please correct design or add files!')
+                                    return
+                                end
+                                TR    = job.group(g).select.subject{j}(k).design.new_design.TR;
+                                covar = job.group(g).select.subject{j}(k).design.new_design.covar;
+                                ncond = length(design.conds);
+                                for c = 1:ncond
+                                    lons = length(design.conds(c).onsets);
+                                    ldur = length(design.conds(c).durations);
+                                    if ldur==1
+                                        design.conds(c).durations = repmat(design.conds(c).durations, 1, lons);
+                                        ldur = length(design.conds(c).durations);
+                                    end
+                                    if ldur ~= lons
+                                        out.files{1} = [];
+                                        beep
+                                        sprintf('The onsets and durations of condition %d do not have the same size!', c)
+                                        disp('Please correct')
+                                        return
+                                    end
+                                end
+                                checked_conds = prt_check_design(design.conds,TR);
+                                design.conds  = checked_conds.conds;
+                                design.stats  = checked_conds.stats;
+                                design.TR     = checked_conds.TR;
+                                design.covar  = covar;         
+                            end
                         end
+                        % Create PRT.mat modalities
+                        PRT.group(g).gr_name                        = job.group(g).gr_name;
+                        PRT.group(g).subject(j).subj_name           = subj_name;
+                        PRT.group(g).subject(j).modality(k)         = job.group(g).select.subject{j}(k);
+                        PRT.group(g).subject(j).modality(k).detrend = job.group(g).select.subject{j}(k).detrend;
+                        PRT.group(g).subject(j).modality(k).quant   = job.group(g).select.subject{j}(k).quant;
+                        PRT.group(g).subject(j).modality(k).design  = design;
+                        PRT.group(g).subject(j).modality(k).scans   = char(job.group(g).select.subject{j}(k).scans);
+                   
                     end
-                    % Create PRT.mat modalities
-                    PRT.group(g).gr_name                       = job.group(g).gr_name;
-                    PRT.group(g).subject(j).modality(k)        = job.group(g).select.subject{j}(k);
-                    PRT.group(g).subject(j).modality(k).design = design; 
-                    PRT.group(g).subject(j).modality(k).quant  = job.group(g).select.subject{j}(k).quant;
-                    PRT.group(g).subject(j).modality(k).timesr = job.group(g).select.subject{j}(k).timesr;
                 end
-
+            end
+            if nmod ~= length(unique(mod_names_subj));
+                out.files{1} = [];
+                beep;
+                sprintf('Names of modalities in subject %d group %d repeated! Please correct!',j,g)
+                return
             end
         end
     end
 end
+
+% Save masks at the end
+% -------------------------------------------------------------------------
+PRT.masks  = masks;
 
 % Save PRT.mat file
 % -------------------------------------------------------------------------
@@ -152,6 +289,12 @@ else
     save(fname,'PRT');
 end
 
+% Review
+% -------------------------------------------------------------------------
+if job.review
+    prt_data_review('UserData',PRT);
+end
+    
 % Function output
 % -------------------------------------------------------------------------
 out.files{1} = fname;

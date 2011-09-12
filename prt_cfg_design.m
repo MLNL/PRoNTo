@@ -23,6 +23,20 @@ quant.values  = {0 1};
 quant.val     = {0};
 
 % ---------------------------------------------------------------------
+% review Review
+% ---------------------------------------------------------------------
+review         = cfg_menu;
+review.tag     = 'review';
+review.name    = 'Review';
+review.help    = {'Would you like to review the design?.'};
+review.labels  = {
+               'No'
+               'Yes'
+}';
+review.values  = {0 1};
+review.val     = {0};
+
+% ---------------------------------------------------------------------
 % mod_name Name
 % ---------------------------------------------------------------------
 mod_name         = cfg_entry;
@@ -80,33 +94,49 @@ images.help   = {[...
     'each subject.']};
 
 % ---------------------------------------------------------------------
-% timesr Time-series
+% detrend Time-series
 % ---------------------------------------------------------------------
-timesr         = cfg_menu;
-timesr.tag     = 'timesr';
-timesr.name    = 'Time-series';
-timesr.help    = {'Are the data time-series data? If yes, ... .'};
-timesr.labels  = {
+detrend         = cfg_menu;
+detrend.tag     = 'detrend';
+detrend.name    = 'Detrend';
+detrend.help    = {'Would you like to de-trend the time-series?.'};
+detrend.labels  = {
                'No'
                'Yes'
 }';
-timesr.values  = {0 1};
-timesr.val     = {0};
+detrend.values  = {0 1};
+detrend.val     = {0};
 
+% ---------------------------------------------------------------------
+% fmask File name
+% ---------------------------------------------------------------------
+fmask        = cfg_files;
+fmask.tag    = 'fmask';
+fmask.name   = 'File';
+fmask.filter = 'img';
+fmask.ufilter = '.*';
+fmask.num    = [1 1];
+fmask.help   = {'Select one mask for each modality.'};
+% ---------------------------------------------------------------------
+% mask Modality
+% ---------------------------------------------------------------------
+mask         = cfg_branch;
+mask.tag     = 'mask';
+mask.name    = 'Modality';
+mask.help    = {'Specify name of modality and file for each mask.'};
+mask.val     = {mod_name, fmask };
+            
 % ---------------------------------------------------------------------
 % masks Masks
 % ---------------------------------------------------------------------
-masks        = cfg_files;
-masks.tag    = 'masks';
-masks.name   = 'Masks';
-masks.filter = 'img';
-masks.ufilter = '.*';
-masks.num    = [1 Inf];
-masks.help   = {['Select masks for each modality. The modalities should '...
-                'follow the same order of modalities as specified '...
-                'for each subject and group. '...
-                'If left empty a default mask will be used for each modality.']};
-
+masks         = cfg_repeat;
+masks.tag     = 'masks';
+masks.name    = 'Masks';
+masks.help    = {['Select first-level (pre-processing) mask for each ',...
+                  'modality. The name of the modalities should be the same ',...
+                  'as the ones entered for subjects/scans.']};
+masks.num     = [1 Inf];
+masks.values  = {mask };
 
 % ---------------------------------------------------------------------
 % load_SPM Load SPM.mat
@@ -292,7 +322,7 @@ design.val    = {load_SPM };
 subject      = cfg_branch;
 subject.tag  = 'subject';
 subject.name = 'Modality';
-subject.val  = {mod_name, scans, quant, timesr, design };
+subject.val  = {mod_name, scans, quant, detrend, design };
 subject.help = {'Add new data modality.'};
 
 % ---------------------------------------------------------------------
@@ -377,7 +407,7 @@ dir_name.num     = [1 1];
 data        = cfg_exbranch;
 data.tag    = 'data';
 data.name   = 'Data & Design';
-data.val    = {dir_name groups masks};
+data.val    = {dir_name groups masks review};
 data.help   = {'Specify the group(s) of data set.'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;
