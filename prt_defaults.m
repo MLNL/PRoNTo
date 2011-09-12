@@ -26,6 +26,13 @@ global prt_def
 prt_loc = which('prt_batch');
 prt_def.global.install_dir = fileparts(prt_loc);
 
+
+% Parameters for the data and design
+%-----------------------------------------------
+prt_def.datad.hrfd=6;               % HRF delay in seconds
+prt_def.datad.hrfw=6;               % HRF FWHM, used to compute the overlap between conditions
+
+
 % Preprocessing defaults
 prt_def.prep.use1  = 5;      
 prt_def.prep.use2  = 'kk'; % pre
