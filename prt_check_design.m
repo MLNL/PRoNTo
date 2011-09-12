@@ -1,7 +1,7 @@
 function [conds]=prt_check_design(cond,tr)
 %Check the design and discards scans which are either overlapping between
 %conditions or which do not respect a minimum time interval between
-%conditions.
+%conditions (due to the width of the HRF function).
 %Inputs:
 % - cond : structure containing the names, durations and onsets of the
 %          conditions

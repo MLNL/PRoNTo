@@ -19,6 +19,7 @@ function varargout = prt_ui_design(varargin)
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
+% Written by J.Schrouff, 25/08/2011
 
 % Edit the above text to modify the response to help prt_ui_design
 
@@ -549,7 +550,7 @@ end
 %Create modality within the dat structure, with the fields compatible with
 %the batch
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).timesr=mod.tseries;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.tseries;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).quant=mod.quant;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.files;
@@ -933,6 +934,29 @@ set(handles.edit1,'String',a)
 set(handles.group_list,'String',{PRT.group(:).gr_name})
 handles.dat=PRT;
 handles.dat.dir=a;
+
+%set the 'rename' and 'modify' right-clicks
+%for groups
+ren=uicontextmenu;
+% Update handles structure
+guidata(hObject, handles);
+item1=uimenu(ren,'Label','Rename','Callback',@rengroup);
+set(handles.group_list,'UIContextMenu',ren)
+handles=guidata(hObject);
+%for subjects
+rens=uicontextmenu;
+% Update handles structure
+guidata(hObject, handles);
+item1=uimenu(rens,'Label','Rename','Callback',@rensubj);
+set(handles.subjects_list,'UIContextMenu',rens)
+handles=guidata(hObject);
+%for modalities
+renm=uicontextmenu;
+item1=uimenu(renm,'Label','Modify','Callback',@renmod);
+% Update handles structure
+guidata(hObject, handles);
+set(handles.modality_list,'UIContextMenu',renm)
+handles=guidata(hObject);
 
 % Update handles structure
 guidata(hObject, handles);

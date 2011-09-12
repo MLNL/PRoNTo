@@ -19,12 +19,15 @@ function varargout = prt_data_modality(varargin)
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
+% Written by J.Schrouff, 25/08/2011
 
 % Edit the above text to modify the response to help prt_data_modality
 
 % Last Modified by GUIDE v2.5 25-Aug-2011 15:53:27
 
 % Begin initialization code - DO NOT EDIT
+
+
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...

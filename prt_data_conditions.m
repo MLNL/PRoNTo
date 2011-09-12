@@ -19,6 +19,7 @@ function varargout = prt_data_conditions(varargin)
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
+% Written by J.Schrouff, 25/08/2011
 
 % Edit the above text to modify the response to help prt_data_conditions
 
