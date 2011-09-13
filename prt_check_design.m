@@ -34,18 +34,18 @@ conds=[];
 for i=1:ncond
     condsc=[];
     bl=[];
-    cond(i).onsets=round((cond(i).onsets+def.hrfd)/tr);
-    if any(cond(i).onsets==0)
-        ind=find(cond(i).onsets==0);
+    cs=round((cond(i).onsets+def.hrfd)/tr);
+    if any(cs==0)
+        ind=find(cs==0);
         if ind~=1
             sprintf('An onset of 0 TR was found in condition %d at position %d, Please correct',i,ind)
         else
-            cond(i).onsets(ind)=1;
+            cs(ind)=1;
         end
     end
-    cond(i).durations=max(1,floor(cond(i).durations/tr));
-    for j=1:length(cond(i).onsets)
-        temp=cond(i).onsets(j):cond(i).onsets(j)+cond(i).durations(j)-1;
+    cdur=max(1,floor(cond(i).durations/tr));
+    for j=1:length(cs)
+        temp=cs(j):cs(j)+cdur(j)-1;
         condsc=[condsc,temp];
         bl=[bl j*ones(length(temp))];
     end
