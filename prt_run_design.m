@@ -170,9 +170,11 @@ else
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
                             end
-                            design.conds = conds;
-                            design.covar = [];
-                            design.TR    = SPM.xX.K.RT;
+                            checked_conds = prt_check_design(conds,SPM.xY.RT);
+                            design.conds  = checked_conds.conds;
+                            design.stats  = checked_conds.stats;
+                            design.TR     = SPM.xX.RT;
+                            design.covar  = [];
                         else
                             % No design
                             if isfield(job.group(g).select.subject{j}(k).design,'no_design')
