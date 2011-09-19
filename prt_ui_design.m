@@ -523,7 +523,15 @@ if ~isfield(handles,'ds') || length(handles.ds)<1 || ...
     disp(['Please add at least one group and one subject before adding modalities'])
     return
 end
-mod=prt_data_modality('UserData',{handles.modlist,handles.dat.group(handles.cgr).subject(handles.cs)});
+if isfield(handles.dat.group(handles.cgr).subject(1),'modality')
+    in4=handles.dat.group(handles.cgr).subject(1).modality;
+else
+    in4=[];
+end
+in1=handles.modlist;
+in2=handles.dat.group(handles.cgr).subject(handles.cs);
+in3=[];
+mod=prt_data_modality('UserData',{in1,in2,in3,in4});
 if isnumeric(mod)
     return
 end
@@ -543,17 +551,17 @@ else
 end
 handles.ds{handles.cgr}{handles.cs}=[handles.ds{handles.cgr}{handles.cs}, cell(1)];
 handles.cm=length(handles.ds{handles.cgr}{handles.cs});
-handles.ds{handles.cgr}{handles.cs}{handles.cm}=size(mod.files,1);
+handles.ds{handles.cgr}{handles.cs}{handles.cm}=size(mod.scans,1);
 if ~isfield(handles.dat.group(handles.cgr).subject(handles.cs),'modality')
     handles.dat.group(handles.cgr).subject(handles.cs).modality=struct([]);
 end
 %Create modality within the dat structure, with the fields compatible with
 %the batch
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.tseries;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.detrend;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).quant=mod.quant;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.files;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
 newlist=[get(handles.modality_list,'String'); {mod.name}];
 set(handles.modality_list,'String',newlist);
 set(handles.modality_list,'Value',length(newlist));
@@ -564,8 +572,8 @@ else
     set(handles.mask_list,'String',{'none'});
     set(handles.mask_list,'Value',1);
 end
-if ~isempty(mod.files)
-    set(handles.file_list,'String',cellstr(mod.files));
+if ~isempty(mod.scans)
+    set(handles.file_list,'String',cellstr(mod.scans));
 end
 handles.cf=1;
 renm=uicontextmenu;
@@ -587,16 +595,19 @@ guidata(hObject, handles);
 function renmod(hObject,eventdata)
 handles=guidata(hObject);
 val=get(handles.modality_list,'Value');
-mod=prt_data_modality('UserData',{handles.modlist,handles.dat.group(handles.cgr).subject(handles.cs),val});
+in1=handles.modlist;
+in2=handles.dat.group(handles.cgr).subject(handles.cs);
+in3=val;
+mod=prt_data_modality('UserData',{in1,in2,in3});
 if isnumeric(mod)
     return
 end
 %update structure
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.tseries;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.detrend;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).quant=mod.quant;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.files;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
 
 %update list of modalities and remove the former name from the modlist and
 %mask_list if it is not present in any other subject
@@ -905,6 +916,7 @@ if isfield(PRT,'group')
                                 handles.saved=0;
                                 des=prt_check_design(des.conds,des.TR);
                                 PRT.group(i).subject(j).modality(k).design=des;
+                                PRT.group(i).subject(j).modality(k).design.covar=[];
                             end
                         end
                         handles.ds{i}{j}{k}=size(PRT.group(i).subject(j).modality(k).scans,1);
@@ -1045,12 +1057,12 @@ for i=1:ng
             return
         elseif nmj~=nm
             beep
-            sprintf('Numbers of modalities in groups 1 and %d differ',i)
+            sprintf('Numbers of modalities in groups 1 and %d differ \n',i)
             disp('Please correct')
             return
         elseif nmj~=nmask
             beep
-            sprintf('%d modalities found for subject %d of group %d, while %d masks found',nmj,j,i,nmask)
+            sprintf('%d modalities found for subject %d of group %d, while %d masks found \n',nmj,j,i,nmask)
             disp('Possible errors in the modalities names, please correct')
             return
         end
@@ -1061,9 +1073,13 @@ for i=1:ng
                 maxcond=max([des.conds(:).scans]);
                 if matdat(j,k)<maxcond
                     beep
-                    sprintf('Design of subject %d, group %d, modality %d, exceeds time series',maxcond,j,i,k,matdat(j,k))
-                    disp('Please correct design or add files')
-                    return
+                    sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',j,i,k)
+                    disp('These events were discarded')
+                    for l=1:length(des.conds)
+                        ovser=find(des.conds(l).scans>matdat(j,k));
+                        des.conds(l).scans=des.conds(l).scans(des.conds(l).scans<=matdat(j,k));
+                        des.conds(l).discardedscans=[des.conds(l).discardedscans, des.conds(l).scans(ovser)];
+                    end
                 end
             end
         end

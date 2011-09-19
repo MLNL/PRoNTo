@@ -117,8 +117,10 @@ end
 
 %Display the bar graph for the number of subjects/group
 set(handles.figure1,'CurrentAxes',handles.axes1)
-bar(handles.axes1,ns);
+x=2:2:2*ng;
+bar(handles.axes1,x,ns);
 ylim([0 max(ns)+1])
+xlim([1 max(x)+1])
 set(handles.axes1,'XTickLabel',gname)
 ylabel('Number of subjects')
 handles.PRT=PRT;
@@ -222,35 +224,31 @@ for i=2:size(meantp,1)
     vecty=vecty+(ncond+1);
     y=[y;vecty];
 end
-x    = mean(y,2);
-xdim = size(x,2);
-if xdim == 1
-    bar(meantp,1);
-    hold on
-    errorbar(meantp,stdtp,'.k')
+x=mean(y,2);
+if length(x)==1
+    x=2:2+ncond-1;
+    xl=max(x)+1;
 else
-    bar(x,meantp,1);
-    hold on
-    errorbar(y,meantp,stdtp,'.k')
+    xl=max(x)+ncond-1;
 end
+bar(x,meantp,0.9);
+hold on
+errorbar(y,meantp,stdtp,'.k')
 ylim([0 max(meantp(:))+1])
+xlim([1 xl])
 ylabel('Number of scans')
 set(handles.axes2,'XTickLabel',handles.gname)
 
 set(handles.figure1,'CurrentAxes',handles.axes3)
-if xdim == 1
-    bar(meantpdisc,1)
-    hold on
-    errorbar(meantpdisc,stdtpdisc,'.k')
-else
-    bar(x,meantpdisc,1)
-    hold on
-    errorbar(y,meantpdisc,stdtpdisc,'.k')
-end
+bar(x,meantpdisc,0.9);
+hold on
+errorbar(y,meantpdisc,stdtpdisc,'.k')
 aa=meantpdisc(:)+stdtpdisc(:);
 ylim([0 max(aa)+1])
+xlim([1 xl])
 ylabel('Number of discarded scans')
 set(handles.axes3,'XTickLabel',handles.gname)
+
 
 %set the overlaps before and after HRF correction
 set(handles.mbef,'String',num2str(mean(mbef)));

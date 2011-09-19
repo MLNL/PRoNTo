@@ -65,11 +65,12 @@ set(handles.design_menu,...
     
 
 handles.mod=[];
-handles.mod.tseries=0;
+handles.mod.detrend=0;
 handles.mod.quant=0;
 handles.mod.design=0;
-handles.mod.files=[];
+handles.mod.scans=[];
 handles.mod.name={};
+handles.subj1=0;
 
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')    
     if ~isempty(varargin{2}{2}) && isfield(varargin{2}{2},'modality') && ...
@@ -83,10 +84,10 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             set(handles.modname,'Value',valsel);
             set(handles.quantbutt,'Value',modsel.quant);
             set(handles.tmsbutt,'Value',modsel.detrend);
-            handles.mod.tseries=modsel.detrend;
+            handles.mod.detrend=modsel.detrend;
             handles.mod.quant=modsel.quant;
             handles.mod.design=modsel.design;
-            handles.mod.files=modsel.scans;
+            handles.mod.scans=modsel.scans;
             handles.mod.name=modsel.mod_name;
         else
             nlist=[varargin{2}{1}, {'Enter new'}];
@@ -102,7 +103,9 @@ else
     handles.subjmod={};
     set(handles.modname,'String',nlist,'Value',1);
 end
-
+if length(varargin{2})==4 && ~isempty(varargin{2}{4})
+    handles.subj1=varargin{2}{4};
+end
 
 % Update handles structure
 guidata(hObject, handles);
@@ -176,6 +179,17 @@ else
         end
     end         
 end
+
+%if a subject was previously entered, then propose to replicate its design
+%if the modality is the same
+if isstruct(handles.subj1)
+    if any(strcmpi(modname, {handles.subj1(:).mod_name}))
+        handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
+        list=get(handles.design_menu,'String');
+        list=[list;{'Replicate design of subject 1'}];
+        set(handles.design_menu,'String',list);
+    end
+end
 handles.mod.name=modname;
 % Update handles structure
 guidata(hObject, handles);
@@ -219,9 +233,9 @@ function tmsbutt_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of tmsbutt
 val=get(handles.tmsbutt,'Value');
 if val
-    handles.mod.tseries=1;
+    handles.mod.detrend=1;
 else
-    handles.mod.tseries=0;
+    handles.mod.detrend=0;
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -259,8 +273,10 @@ elseif choice==2
     else
         desn=prt_data_conditions;
     end
-else
+elseif choice ==3
     desn=[];
+elseif choice==4
+    desn=handles.subj1(handles.indmods1).design;
 end
 handles.mod.design=desn;
 % Update handles structure
@@ -284,13 +300,13 @@ function getfiles_Callback(hObject, eventdata, handles)
 % hObject    handle to getfiles (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if ~isempty(handles.mod.files)
-    sel=cellstr(handles.mod.files);
+if ~isempty(handles.mod.scans)
+    sel=cellstr(handles.mod.scans);
 else
     sel=[];
 end
 t=spm_select([1 Inf],'image','Select files for the modality',sel);
-handles.mod.files=t;
+handles.mod.scans=t;
 % Update handles structure
 guidata(hObject, handles);
 
