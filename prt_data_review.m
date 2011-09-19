@@ -222,18 +222,31 @@ for i=2:size(meantp,1)
     vecty=vecty+(ncond+1);
     y=[y;vecty];
 end
-x=mean(y,2);
-bar(x,meantp,1);
-hold on
-errorbar(y,meantp,stdtp,'.k')
+x    = mean(y,2);
+xdim = size(x,2);
+if xdim == 1
+    bar(meantp,1);
+    hold on
+    errorbar(meantp,stdtp,'.k')
+else
+    bar(x,meantp,1);
+    hold on
+    errorbar(y,meantp,stdtp,'.k')
+end
 ylim([0 max(meantp(:))+1])
 ylabel('Number of scans')
 set(handles.axes2,'XTickLabel',handles.gname)
 
 set(handles.figure1,'CurrentAxes',handles.axes3)
-bar(x,meantpdisc,1)
-hold on
-errorbar(y,meantpdisc,stdtpdisc,'.k')
+if xdim == 1
+    bar(meantpdisc,1)
+    hold on
+    errorbar(meantpdisc,stdtpdisc,'.k')
+else
+    bar(x,meantpdisc,1)
+    hold on
+    errorbar(y,meantpdisc,stdtpdisc,'.k')
+end
 aa=meantpdisc(:)+stdtpdisc(:);
 ylim([0 max(aa)+1])
 ylabel('Number of discarded scans')
