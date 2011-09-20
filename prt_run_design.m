@@ -98,7 +98,6 @@ if isfield(job.group(1).select,'modality')
                             return
                         else                   
                             PRT.group(g).subject(s).subj_name            = subj_name;
-                            
                             PRT.group(g).subject(s).modality(m).mod_name = job.group(g).select.modality(m).mod_name;
                             PRT.group(g).subject(s).modality(m).detrend  = 0;
                             PRT.group(g).subject(s).modality(m).quant    = job.group(g).select.modality(m).quant;
@@ -173,7 +172,7 @@ else
                             checked_conds = prt_check_design(conds,SPM.xY.RT);
                             design.conds  = checked_conds.conds;
                             design.stats  = checked_conds.stats;
-                            design.TR     = SPM.xX.RT;
+                            design.TR     = SPM.xY.RT;
                             design.covar  = [];
                         else
                             % No design
