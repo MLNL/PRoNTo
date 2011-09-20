@@ -41,7 +41,6 @@ fname = job.infile;
 load(char(fname));    % Load data structure (PRT.mat)
 prt_dir=regexprep(char(fname),'PRT.mat', '');  % Get PRT.mat directory 
 
-
 % -------------------------------------------------------------------------
 % Resizing masks
 % -------------------------------------------------------------------------
@@ -207,6 +206,7 @@ delete(h);
 % Function output
 % -------------------------------------------------------------------------
 disp('Preprocessing done.')
-out.files{1} = '';
+out.files{1} = fname{1};
+disp('Done')
 
  return

@@ -232,7 +232,7 @@ for m = 1:n_mods
     mfile = char(masks(m)); % = job.mask(m);
     
     %if isfield(job.group(1).modality(mid).conditions,'all_scans')
-    if PRT.group(1).subject(1).modality(mid).timesr        
+    if PRT.group(1).subject(1).modality(mid).detrend        
         file_idx = [1 1 mid 1];
     else
         file_idx = [1 1 mid];
