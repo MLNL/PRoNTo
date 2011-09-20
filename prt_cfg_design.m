@@ -55,9 +55,9 @@ scans.name    = 'Scans';
 scans.help    = {['Select scans (images) for this modality. They must '...
                   'all have the same image dimensions, orientation, '...
                   'voxel size etc.']};
-scans.filter  = 'img';
+scans.filter = 'image';
 scans.ufilter = '.*';
-scans.num     = [0 Inf];
+scans.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
 % subjects Subjects
