@@ -138,37 +138,22 @@ for g = 1:n_groups
             %Saving pre-processed images
             disp ('Saving pre-processed images ...');
             % Saving timeseries already detrended (in this case, the examples are extracted from the timeseries 
-            if isa(PRT.group(g).subject(s).modality(m).design,'struct') & PRT.group(g).subject(s).modality(m).detrend
+            if isa(PRT.group(g).subject(s).modality(m).design,'struct') && PRT.group(g).subject(s).modality(m).detrend
                 % i.e. if there is a design and if the detrend was done in preprocessing
                 n_cond = length(PRT.group(g).subject(s).modality(m).design.conds);
-                % Estimating delay of hemodynamic response (TR in seconds)
-                hrf_delay=floor(3/PRT.group(g).subject(s).modality(m).design.TR);
                 for c = 1:n_cond 
                     filename = [prt_dir, prt_get_filename([g,s,m,c]),'.img']; %Get output file name                   
-                    examples_list = [];
-                    n_ons = length(PRT.group(g).subject(s).modality(m).design.conds(c).onsets);
-                    % Replicating duration
-                    durations = PRT.group(g).subject(s).modality(m).design.conds(c).durations;
-                    if (length(durations) == 1)
-                        durations = repmat(durations,n_ons,1);
-                    end
-                    % Extract examples
-                    for o = 1:n_ons
-                        onset = PRT.group(g).subject(s).modality(m).design.conds(c).onsets(o) + hrf_delay;
-                        examples_list = [examples_list onset:(onset+durations(o)-1)];
-                    end                 
-                    test_design = sort(examples_list);
+                    examples_list = PRT.group(g).subject(s).modality(m).design.conds(c).scans;
                     % Build 4d image with the extracted examples 
                     img4d = file_array(filename,[dim1,dim2,dim3,length(examples_list)],'float64-le',0,1,0);
                     for i = 1:length(examples_list)
-                        try
+                        if ~(examples_list(i)>n_scans)
                             img1d = img_allscans(examples_list(i),:);
                             img3d = reshape(img1d,dim1,dim2,dim3);
                             img4d(:,:,:,i) = img3d;
-                        catch
-                            if (test_design(end) > n_scans)
-                                disp('Error - design exceeds timeseries');
-                            end
+                        else  %should not happen since checked in the data and design
+                            disp('Warning - design exceeds timeseries')
+                            disp('Corresponding scans were discarded')
                         end
                     end                
                     No         = sample_img{1}; % copy header
