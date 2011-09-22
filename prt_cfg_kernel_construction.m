@@ -27,38 +27,6 @@ kernel_filename.help    = {'Target filename (will be saved as kernel_xxx.mat'};
 kernel_filename.strtype = 's';
 kernel_filename.num     = [1 Inf];
 
-
-% ---------------------------------------------------------------------
-% gr_name Modality
-% ---------------------------------------------------------------------
-gr_name         = cfg_entry;
-gr_name.tag     = 'gr_name';
-gr_name.name    = 'Group name';
-gr_name.help    = {'Specify the name the group to be included'};
-gr_name.strtype = 's';
-gr_name.num     = [1 Inf];
-
-
-% ---------------------------------------------------------------------
-% modality Modality
-% ---------------------------------------------------------------------
-modality         = cfg_entry;
-modality.tag     = 'modality';
-modality.name    = 'Modality';
-modality.help    = {'Specify the name of the source modality for this kernel matrix'};
-modality.strtype = 's';
-modality.num     = [1 Inf];
-
-% ---------------------------------------------------------------------
-% Subjects selected (per group)
-% ---------------------------------------------------------------------
-subjects         = cfg_entry;
-subjects.tag     = 'subjects';
-subjects.name    = 'Subject numbers';
-subjects.help    = {'Subjects to be included in this kernel matrix'};
-subjects.strtype = 'e';
-subjects.num     = [Inf 1];
-
 % ---------------------------------------------------------------------
 % cond_name Name
 % ---------------------------------------------------------------------
@@ -68,15 +36,6 @@ cond_name.name    = 'Condition';
 cond_name.help    = {'Name of condition to include.'};
 cond_name.strtype = 's';
 cond_name.num     = [1 Inf];
-
-% ---------------------------------------------------------------------
-% sel_cond Conditions
-% ---------------------------------------------------------------------
-sel_cond         = cfg_repeat;
-sel_cond.tag     = 'sel_cond';
-sel_cond.name    = 'Specify Conditions';
-sel_cond.help    = {'Specify the name of conditions to be included '};
-sel_cond.values  = {cond_name};
 
 % ---------------------------------------------------------------------
 % all_cond All conditions
@@ -105,7 +64,7 @@ all_scans.help    = {['No design specified. This option can be used '...
 conditions        = cfg_choice;
 conditions.tag    = 'conditions';
 conditions.name   = 'Conditions';
-conditions.values = {sel_cond, all_cond, all_scans};
+conditions.values = {all_cond, all_scans};
 conditions.help   = {...
 ['Which task conditions do you want to include in the kernel matrix? '...
  'Select conditions: select specific conditions from the timeseries. ', ...
@@ -115,6 +74,46 @@ conditions.help   = {...
  'if you want to include all scans from an fMRI timeseries (assumes you ',...
  'have not already detrended the timeseries and extracted task components)']};
 
+% % ---------------------------------------------------------------------
+% % no_dt Linear detrend
+% % ---------------------------------------------------------------------
+% no_dt         = cfg_const;
+% no_dt.tag     = 'no_dt';
+% no_dt.name    = 'None';
+% no_dt.val     = {1};
+% no_dt.help    = {'No detrend'};
+% 
+% % ---------------------------------------------------------------------
+% % linear_dt Linear detrend
+% % ---------------------------------------------------------------------
+% linear_dt         = cfg_const;
+% linear_dt.tag     = 'linear_dt';
+% linear_dt.name    = 'Linear';
+% linear_dt.val     = {1};
+% linear_dt.help    = {'Linear detrend'};
+%                  
+% % ---------------------------------------------------------------------
+% % kernel_dt Kernel detrend
+% % ---------------------------------------------------------------------
+% kernel_dt        = cfg_choice;
+% kernel_dt.tag    = 'kernel_dt';
+% kernel_dt.name   = 'Kernel detrend';
+% kernel_dt.values = {no_dt linear_dt};
+% kernel_dt.help   = {'Perform detrending in the kernel'};
+
+% ---------------------------------------------------------------------
+% kernel_dt Review
+% ---------------------------------------------------------------------
+kernel_dt         = cfg_menu;
+kernel_dt.tag     = 'kernel_dt';
+kernel_dt.name    = 'Kernel detrend';
+kernel_dt.help    = {'Perform detrending in the kernel.'};
+kernel_dt.labels  = {
+               'None'
+               'Linear'
+}';
+kernel_dt.values  = {0 1};
+kernel_dt.val     = {0};
 
 % ---------------------------------------------------------------------
 % mod_name Name
@@ -122,10 +121,9 @@ conditions.help   = {...
 mod_name         = cfg_entry;
 mod_name.tag     = 'mod_name';
 mod_name.name    = 'Name';
-mod_name.help    = {'Name of modality. Example: ''BOLD''.'};
+mod_name.help    = {'Name of modality. Example: ''BOLD''. Must match design specification'};
 mod_name.strtype = 's';
 mod_name.num     = [1 Inf];
-
 
 % ---------------------------------------------------------------------
 % modality Modality
@@ -133,7 +131,7 @@ mod_name.num     = [1 Inf];
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name conditions};
+modality.val  = {mod_name conditions, kernel_dt};
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
@@ -145,26 +143,6 @@ modalities.name    = 'Modalities';
 modalities.help    = {'Add modalities'};
 modalities.num     = [1 Inf];
 modalities.values  = {modality};
-
-% ---------------------------------------------------------------------
-% group Group
-% ---------------------------------------------------------------------
-group         = cfg_branch;
-group.tag     = 'group';
-group.name    = 'Group';
-group.help    = {'Specify data and design for the group.'};
-group.val     = {gr_name, subjects, modalities};
-
-% ---------------------------------------------------------------------
-% groups Groups
-% ---------------------------------------------------------------------
-groups         = cfg_repeat;
-groups.tag     = 'groups';
-groups.name    = 'Groups';
-groups.help    = {['Add data and design for one group. Click ''new'' '...
-                    'or ''repeat'' to add another group.']};
-groups.num     = [1 Inf];
-groups.values  = {group};
 
 % ---------------------------------------------------------------------
 % Normalise Kernel
@@ -180,24 +158,57 @@ normalise.labels  = {
 normalise.values  = {0 1};
 normalise.val     = {0};
 
+% % ---------------------------------------------------------------------
+% % mask Mask
+% % ---------------------------------------------------------------------
+% mask        = cfg_files;
+% mask.tag    = 'mask';
+% mask.name   = 'Kernel masks';
+% mask.filter = 'image';
+% %mask.ufilter = '.*';
+% mask.num    = [1 Inf];
+% mask.help   = {'Select kernel masks for each modality included in the kernel.'};
+%   
+
 % ---------------------------------------------------------------------
-% mask Mask
+% fmask File name
 % ---------------------------------------------------------------------
-mask        = cfg_files;
-mask.tag    = 'mask';
-mask.name   = 'Kernel masks';
-mask.filter = 'image';
-%mask.ufilter = '.*';
-mask.num    = [1 Inf];
-mask.help   = {'Select kernel masks for each modality included in the kernel.'};
-  
+fmask        = cfg_files;
+fmask.tag    = 'fmask';
+fmask.name   = 'File';
+fmask.filter = 'img';
+fmask.ufilter = '.*';
+fmask.num    = [1 1];
+fmask.help   = {'Select one mask for each modality.'};
+% ---------------------------------------------------------------------
+% mask Modality
+% ---------------------------------------------------------------------
+mask         = cfg_branch;
+mask.tag     = 'mask';
+mask.name    = 'Modality';
+mask.help    = {'Specify name of modality and file for each mask.'};
+mask.val     = {mod_name, fmask };
+            
+% ---------------------------------------------------------------------
+% masks Masks
+% ---------------------------------------------------------------------
+masks         = cfg_repeat;
+masks.tag     = 'masks';
+masks.name    = 'Masks';
+masks.help    = {['Select kernel mask for each ',...
+                  'modality. The name of the modalities should be the same ',...
+                  'as the ones entered for subjects/scans.']};
+masks.num     = [1 Inf];
+masks.values  = {mask };
+
 % ---------------------------------------------------------------------
 % Configure Kernel
 % ---------------------------------------------------------------------
 kernel        = cfg_exbranch;
 kernel.tag    = 'kernel';
 kernel.name   = 'Kernels';
-kernel.val    = {infile, kernel_filename, groups, mask, normalise};
+%kernel.val    = {infile, kernel_filename, groups, mask, normalise};
+kernel.val    = {infile, kernel_filename, modalities, masks, normalise};
 kernel.help   = {'Compute kernel matrices according to the design specified'};
 kernel.prog   = @prt_run_kernel_construction;
 kernel.vout   = @vout_data;

@@ -25,7 +25,7 @@ load(fname);
 
 prt_dir = regexprep(fname,'PRT.mat', ''); % or: fileparts(fname);
 
-n_groups      = length(job.group);
+n_groups      = length(PRT.group);
 [n_mods mids] = get_modalities(PRT, job);
 
 % Load mask(s) and resize if necessary
@@ -50,62 +50,44 @@ for b = 1:n_block
    vox_range=bstart:bend;
    data_vols=zeros(length(vox_range),n);
         
-    % Select all groups
-    for g = 1:n_groups
-        gid = lookup_name(PRT,job.group(g).gr_name,'group');
-            
-        % Select all subjects
-        for s = 1:length(job.group(g).subjects)
-            sid = job.group(g).subjects(s);
-                    
-            % Select all modalities
+    for gid = 1:n_groups
+        for sid = 1:length(PRT.group(gid).subject)            
             for m = 1:n_mods
                 mid = mids(m);
                 
                 block_mask = prt_load_blocks(mask{m},block_size,b);
                 
                 % Select scans
-                if strcmp(get_mode(job,g,m),'all_scans')   
-                    fname = [prt_dir, prt_get_filename([gid,sid,mid])];
-                    
-                    n_vols_s = length(PRT.group(gid).subject(sid).modality(mid).scans);
-                    
-                    sample_range = (1:n_vols_s)+max(sample_range);
-                    
-                    % load the current block
-                    data_vols(:,sample_range) = ...
-                        repmat(block_mask,1,length(sample_range)) .* ...
-                        prt_load_blocks(fname,block_size,b);
-                    
-                else
-                    % Select conditions
-                    if strcmp(get_mode(job,g,m),'all_conds')
-                        conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
-                    else
-                        conds = job.group(g).modality(m).conditions.cond_name;
-                    end
-                    
-                    for c = 1:length(conds)    % condition
-                        cid = lookup_name(PRT,conds(c).cond_name,'condition',gid,mid);
+                switch get_mode(job,m)
+                    case 'all_scans'
                         
-                        onsets    = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).onsets;
-                        durations = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations;
-                        if (length(durations) == 1)
-                            durations = repmat(durations,length(onsets),1);
-                        end
-                        n_vol_s_c = sum(durations);
-                        
-                        sample_range = (1:n_vol_s_c)+max(sample_range);
-                        
-                        fname = [prt_dir, prt_get_filename([gid,sid,mid,cid])];
+                        fname = [prt_dir, prt_get_filename([gid,sid,mid])];
+                        n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+                        sample_range = (1:n_vols_s)+max(sample_range);
                         
                         % load the current block
                         data_vols(:,sample_range) = ...
                             repmat(block_mask,1,length(sample_range)) .* ...
                             prt_load_blocks(fname,block_size,b);
                         
-                    end       % condition
-                end
+                    case 'all_conds'
+                        conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
+                        
+                        for cid = 1:length(conds)    % condition                           
+                            scans = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
+                            n_vol_s_c = length(scans);
+                            
+                            sample_range = (1:n_vol_s_c)+max(sample_range);
+                            
+                            fname = [prt_dir, prt_get_filename([gid,sid,mid,cid])];
+                            
+                            % load the current block
+                            data_vols(:,sample_range) = ...
+                                repmat(block_mask,1,length(sample_range)) .* ...
+                                prt_load_blocks(fname,block_size,b);
+                            
+                        end    % condition
+                end        % case
             end       % modality
         end       % subject
     end       % group
@@ -116,14 +98,44 @@ for b = 1:n_block
     bstart=bend+1; bend=min(bstart+block_size-1,n_vox);
 end
 
+% Detrend
+% -------------------------------------------------------------------------
+linear_dt = false;
+% construct indicator matrix
+Kidx = [[kernel.ids(:).group]', ...
+        [kernel.ids(:).subject]', ...
+        [kernel.ids(:).modality]', ...
+        [kernel.ids(:).cond]', ... 
+        [kernel.ids(:).scan]'];
+% configure confound matrix
+C = [];
+for gid = 1:length(PRT.group)    
+    for sid = 1:length(PRT.group(gid).subject)
+        for m = 1:n_mods
+            if job.modality(m).kernel_dt == 1
+                linear_dt = true; 
+                rg = logical(double(Kidx(:,1) == gid) .* double(Kidx(:,2) == sid) .* double(Kidx(:,3) == mids(m)));
+                c  = zeros(n,2);
+                c(rg,1:2) = [(1:sum(rg))' ones(sum(rg),1)];
+                C = [C c];
+            end
+        end
+    end
+end
+
+% detrend
+if linear_dt
+    kernel.K = prt_remove_confounds(kernel.K,C);
+end
+
 % Normalise
+% -------------------------------------------------------------------------
 if job.normalise
     kernel.K = prt_normalise_kernel(kernel.K);
 end
 
-%K_idx = [[kernel.ids(:).group]' [kernel.ids(:).subject]'  [kernel.ids(:).modality]' [kernel.ids(:).cond]' [kernel.ids(:).scan]'];
-
-% Save kernel and indices
+% Save kernel and function output
+% -------------------------------------------------------------------------
 outfile = [prt_dir, 'kernel_',job.kernel_filename];
 disp(['Saving kernel to: ',['kernel_',job.kernel_filename],'.mat.......>>'])
 if spm_matlab_version_chk('7') >= 0
@@ -132,14 +144,12 @@ else
     save(outfile,'kernel');
 end
 
-% Function output
-% -------------------------------------------------------------------------
 out.files{1} = outfile;
 disp('Kernel construction done.')
 end
 
 % -------------------------------------------------------------------------
-% Local functions
+% Private functions
 % -------------------------------------------------------------------------
 
 function kernel = init_kernel(PRT, job)
@@ -150,51 +160,37 @@ kernel.name = job.kernel_filename;
 kernel.ids  = struct('modality',{},'group',{},'subject',{},'cond',{},'scan',{}); 
 
 [n_mods mids] = get_modalities(PRT, job);
+for m = 1:n_mods
+   kernel.modality(m).mod_name = PRT.masks(m).mod_name;
+   kernel.modality(m).kernel_dt = job.modality(m).kernel_dt;
+end
 
 % Count the total number of samples and set sample ids
 sample_range = 0;
-for g = 1:length(job.group) % group
-    gid = lookup_name(PRT,job.group(g).gr_name,'group');
-    
-    for s = 1:length(job.group(g).subjects);  % subject
-        sid = job.group(g).subjects(s);
-        
-        % check the input specification
-        if job.group(g).subjects(s) > length(PRT.group(gid).subject)
-            error ('The number of subjects selected exceeds the group size');
-        end
-        
+for gid = 1:length(PRT.group) % group    
+    for sid = 1:length(PRT.group(gid).subject);  % subject       
         for m = 1:n_mods
             mid = mids(m);
-            if strcmp(get_mode(job,g,m),'all_scans');
-                n_vols_s = length(PRT.group(gid).subject(sid).modality(mid).scans);
+            if strcmp(get_mode(job,m),'all_scans');
+                n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
                 
                 % configure indices
                 sample_range = (1:n_vols_s)+max(sample_range);
                 [kernel.ids(sample_range).group]    = deal(gid);
                 [kernel.ids(sample_range).subject]  = deal(sid);
-                [kernel.ids(sample_range).modality] = deal(mid); 
-                [kernel.ids(sample_range).cond]     = deal(NaN);
+                [kernel.ids(sample_range).modality] = deal(mid);
+                [kernel.ids(sample_range).cond]     = deal(0);
                 for ii = 1:length(sample_range)
                     kernel.ids(sample_range(ii)).scan = ii;
                 end
                 
-            else
-                if strcmp(get_mode(job,g,m),'all_conds')
-                    conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
-                else
-                    conds = job.group(g).conditions.cond_name;
-                end
+            elseif strcmp(get_mode(job,m),'all_conds')
+                conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
+                
                 % now loop over conditions
-                for c = 1:length(conds)    % condition
-                    cid = lookup_name(PRT,conds(c).cond_name,'condition',gid,mid);
-                    
-                    onsets    = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).onsets;
-                    durations = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).durations;
-                    if (length(durations) == 1)
-                        durations = repmat(durations,length(onsets),1);
-                    end
-                    n_vol_s_c = sum(sum(durations));
+                for cid = 1:length(conds)    % condition
+                    scans = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
+                    n_vol_s_c = length(scans);
                     
                     % configure indices
                     sample_range = (1:n_vol_s_c)+max(sample_range);
@@ -205,7 +201,7 @@ for g = 1:length(job.group) % group
                     for ii = 1:length(sample_range)
                         kernel.ids(sample_range(ii)).scan = ii;
                     end
-                end
+                end                
             end
         end  % modality
     end  % subject 
@@ -215,23 +211,19 @@ kernel.K = zeros(length(kernel.ids));
 end
 
 function [mask, n_vox] = load_masks(PRT, prt_dir, job)
-% function to initialise the kernel data structure
-% ------------------------------------------------
+% function to load the mask for each modality
+% -------------------------------------------
 
 [n_mods mids] = get_modalities(PRT, job);
 if length(job.mask) ~= n_mods
-    warning('No. of masks does not match the no. of modalities. Using mask 1 for all modalities');
-    masks = repmat(job.mask, n_mods, 1);
-else
-    masks = job.mask;
+    error('Number of masks does not match the number of modalities.');
 end
 
 mask  = cell(1,n_mods);
 for m = 1:n_mods    
     mid = mids(m);
-    mfile = char(masks(m)); % = job.mask(m);
+    mfile = char(job.mask(m).fmask); % = job.mask(m);
     
-    %if isfield(job.group(1).modality(mid).conditions,'all_scans')
     if PRT.group(1).subject(1).modality(mid).detrend        
         file_idx = [1 1 mid 1];
     else
@@ -268,87 +260,46 @@ end
 
 function [n_mods mids] = get_modalities(PRT, job)
 % function to determine the number of modalities and return their ids.
-% Also does some error checking to make sure the same list of modalities
-% is specified for every group
 % ----------------------------------------------------------------------
 
-n_mods = length(job.group(1).modality);
-mids  = zeros(n_mods,1);
+n_mods = length(job.modality);
+mids   = zeros(n_mods,1);
 for m = 1:n_mods
-    mids(m) = lookup_name(PRT,job.group(1).modality(m).mod_name,'modality',1);
-end
-
-for g = 1:length(job.group)
-    gid = lookup_name(PRT,job.group(g).gr_name,'group');
+    %mids(m) = lookup_name(PRT,job.modality(m).mod_name,'modality');
     
-    if length(job.group(g).modality) ~= n_mods
-        error(['Subjects do not have the same number of modalities.',...
-            ' Group = ',num2str(g)]);
-    end
-    for m = 1:n_mods
-        mid = lookup_name(PRT,job.group(gid).modality(m).mod_name,'modality',gid);
-        if mid ~= mids(m)
-            error(['Subjects do not have the same modalities specified.',...
-                ' Group = ',num2str(g)]);
+    mod_names   = {PRT.masks.mod_name};
+    target      = job.modality(m).mod_name;
+    
+    % search the list of modalities
+    id = NaN;
+    for i = 1:length(mod_names)
+        if strcmpi(mod_names{i},target)
+            id = i;
         end
     end
+    
+    % return an error if the target isn't found
+    if isnan(id)
+        error(['Couldn''t find modality "',target,'" in PRT.mat']);
+    end
+    
+    mids(m) = id;
+end
 end
 
-end
-
-function mode = get_mode(job, g, m)
+function mode = get_mode(job, m)
 % function to determine how scans are selected for each modality
 % --------------------------------------------------------------
 
-if isfield(job.group(g).modality(m).conditions,'all_scans') 
+if isfield(job.modality(m).conditions,'all_scans') 
     mode  = 'all_scans';
-elseif isfield(job.group(g).modality(m).conditions,'all_cond')
+elseif isfield(job.modality(m).conditions,'all_cond')
     mode = 'all_conds';
 else
-    mode = 'selected';
+   error ('Invalid mode selected')
 end
 
 end
 
-function id = lookup_name(PRT, target, varargin)
-% function to find the id number specified by the 'target' string.
-% ---------------------------------------------------------------
-% usage: lookup_name(PRT, target, 'group')
-%    or: lookup_name(PRT, target, 'modality', gid)
-%    or: lookup_name(PRT, target, 'condition', gid, mid)
-
-field = varargin{1};
-
-id = NaN;
-% assemble a list to search
-switch field 
-    case 'group'
-        list = {PRT.group.gr_name};
-    case 'modality'
-        gid = varargin{2};
-        % this should be changed to use the masks field
-        list = {PRT.group(gid).subject(1).modality.mod_name};
-    case 'condition'
-        gid = varargin{2};
-        mid = varargin{3};
-        list = {PRT.group(gid).subject(1).modality(mid).design.conds.cond_name};
-    otherwise
-        error (['Can''t parse fieldname ',field]);
-        
-end
-
-% search the list
-for i = 1:length(list)
-    if strcmpi(list{i},target)
-        id = i;
-    end
-end
-
-% return an error if the target isn't found
-if isnan(id)
-    error(['Couldn''t find ',field, ' "',target,'" in PRT.mat']);
-end
-
-end
 
 

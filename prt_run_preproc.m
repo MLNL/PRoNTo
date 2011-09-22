@@ -93,8 +93,9 @@ for g = 1:n_groups
         
         for m = 1:n_mod
             disp(['Loading modality ' int2str(m)]);                  
-            n_scans = length(PRT.group(g).subject(s).modality(m).scans); % get number of scans
-    
+            %n_scans = length(PRT.group(g).subject(s).modality(m).scans); % get number of scans
+            n_scans = size(PRT.group(g).subject(s).modality(m).scans,1);
+            
             dim1 = size(sample_img{m}.dat,1);
             dim2 = size(sample_img{m}.dat,2);
             dim3 = size(sample_img{m}.dat,3);
