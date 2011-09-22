@@ -214,7 +214,7 @@ function [mask, n_vox] = load_masks(PRT, prt_dir, job)
 % function to load the mask for each modality
 % -------------------------------------------
 
-[n_mods mids] = get_modalities(PRT, job);
+[n_mods mids mnames] = get_modalities(PRT, job);
 if length(job.mask) ~= n_mods
     error('Number of masks does not match the number of modalities.');
 end
@@ -222,7 +222,18 @@ end
 mask  = cell(1,n_mods);
 for m = 1:n_mods    
     mid = mids(m);
-    mfile = char(job.mask(m).fmask); % = job.mask(m);
+    mname = char(job.mask(m).mod_name);
+    
+    %mfile = char(job.mask(m).fmask); % = job.mask(m);
+    mfile = 'xxx';
+    for mm = 1:length(mnames)
+       if strcmp(mname, mnames(mm))
+           mfile = job.mask(mm).fmask;
+       end
+    end
+    if strcmp(mfile,'xxx');
+        error(['Can''t find mask for modality ', mname]);
+    end
     
     if PRT.group(1).subject(1).modality(mid).detrend        
         file_idx = [1 1 mid 1];
@@ -258,7 +269,7 @@ end
 
 end
 
-function [n_mods mids] = get_modalities(PRT, job)
+function [n_mods mids mnames] = get_modalities(PRT, job)
 % function to determine the number of modalities and return their ids.
 % ----------------------------------------------------------------------
 
@@ -267,13 +278,13 @@ mids   = zeros(n_mods,1);
 for m = 1:n_mods
     %mids(m) = lookup_name(PRT,job.modality(m).mod_name,'modality');
     
-    mod_names   = {PRT.masks.mod_name};
+    mnames   = {PRT.masks.mod_name};
     target      = job.modality(m).mod_name;
     
     % search the list of modalities
     id = NaN;
-    for i = 1:length(mod_names)
-        if strcmpi(mod_names{i},target)
+    for i = 1:length(mnames)
+        if strcmpi(mnames{i},target)
             id = i;
         end
     end
