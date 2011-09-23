@@ -8,6 +8,20 @@ function data = prt_cfg_design
 % $Id$
 
 % ---------------------------------------------------------------------
+% units Units for design
+% ---------------------------------------------------------------------
+unit         = cfg_menu;
+unit.tag     = 'unit';
+unit.name    = 'Units for design';
+unit.help    = {'The onsets of events or blocks can be specified in either scans or seconds.'};
+unit.labels  = {
+                'Scans'
+                'Seconds'
+}';
+unit.values  = {1 0};
+unit.val     = {0};
+
+% ---------------------------------------------------------------------
 % quant Quantitative
 % ---------------------------------------------------------------------
 quant         = cfg_menu;
@@ -293,7 +307,7 @@ new_design         = cfg_branch;
 new_design.tag     = 'new_design';
 new_design.name    = 'Specify design';
 new_design.help    = {'Specify design: scans (data), onsets and durations.'};
-new_design.val     = {TR conditions multi_conds covar};
+new_design.val     = {unit TR conditions multi_conds covar};
 
 % ---------------------------------------------------------------------
 % no_design No design

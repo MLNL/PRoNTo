@@ -169,10 +169,17 @@ else
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
                             end
-                            checked_conds = prt_check_design(conds,SPM.xY.RT);
+                            switch SPM.xBF.UNITS
+                                case 'scans'
+                                    unit = 0;
+                                case 'seconds'
+                                    unit = 1;
+                            end                                  
+                            checked_conds = prt_check_design(conds,SPM.xY.RT,unit);
                             design.conds  = checked_conds.conds;
                             design.stats  = checked_conds.stats;
                             design.TR     = SPM.xY.RT;
+                            design.unit   = unit;
                             design.covar  = [];
                         else
                             % No design
@@ -231,6 +238,7 @@ else
                                     return
                                 end
                                 TR    = job.group(g).select.subject{j}(k).design.new_design.TR;
+                                unit  = job.group(g).select.subject{j}(k).design.new_design.unit;
                                 covar = job.group(g).select.subject{j}(k).design.new_design.covar;
                                 ncond = length(design.conds);
                                 for c = 1:ncond
@@ -248,11 +256,12 @@ else
                                         return
                                     end
                                 end
-                                checked_conds = prt_check_design(design.conds,TR);
+                                checked_conds = prt_check_design(design.conds,TR,unit);
                                 design.conds  = checked_conds.conds;
                                 design.stats  = checked_conds.stats;
                                 design.TR     = checked_conds.TR;
-                                design.covar  = covar;         
+                                design.unit   = unit;
+                                design.covar  = covar;
                             end
                         end
                         % Create PRT.mat modalities
