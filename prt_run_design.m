@@ -163,24 +163,38 @@ else
                                 disp('Could not load SPM.mat file!')
                                 return
                             end
-                            ncond = length(SPM.Sess(1).U);
+                            switch SPM.xBF.UNITS
+                                case 'scans'
+                                    unit   = 0;
+                                case 'seconds'
+                                    unit   = 1;
+                            end        
+                            nscans  = length(job.group(g).select.subject{j}(k).scans);
+                            ncond   = length(SPM.Sess(1).U);
                             for c = 1:ncond
                                 conds(c).cond_name = SPM.Sess(1).U(c).name{1};
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
-                            end
-                            switch SPM.xBF.UNITS
-                                case 'scans'
-                                    unit = 0;
-                                case 'seconds'
-                                    unit = 1;
-                            end                                  
+                            end                        
                             checked_conds = prt_check_design(conds,SPM.xY.RT,unit);
                             design.conds  = checked_conds.conds;
                             design.stats  = checked_conds.stats;
                             design.TR     = SPM.xY.RT;
                             design.unit   = unit;
                             design.covar  = [];
+                            maxcond       = max([design.conds(:).scans]);
+                            if nscans < maxcond
+                                out.files{1} = [];
+                                beep
+                                sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
+                                disp('Corresponding events were discarded')
+                                for l = 1:length(design.conds)
+                                    ovser                          = find(design.conds(l).scans > nscans);
+                                    design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
+                                    design.conds(l).scans          = design.conds(l).scans(design.conds(l).scans<=nscans);
+                                end
+                                return
+                            end
                         else
                             % No design
                             if isfield(job.group(g).select.subject{j}(k).design,'no_design')
@@ -229,14 +243,6 @@ else
                                 else
                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
                                 end
-                                maxcond = max([design.conds(:).onsets]);
-                                if nscans<maxcond
-                                    out.files{1} = [];
-                                    beep
-                                    sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
-                                    disp('Please correct design or add files!')
-                                    return
-                                end
                                 TR    = job.group(g).select.subject{j}(k).design.new_design.TR;
                                 unit  = job.group(g).select.subject{j}(k).design.new_design.unit;
                                 covar = job.group(g).select.subject{j}(k).design.new_design.covar;
@@ -262,6 +268,19 @@ else
                                 design.TR     = checked_conds.TR;
                                 design.unit   = unit;
                                 design.covar  = covar;
+                                maxcond       = max([design.conds(:).scans]);
+                                if nscans < maxcond
+                                    out.files{1} = [];
+                                    beep
+                                    sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
+                                    disp('Corresponding events were discarded')                                  
+                                    for l = 1:length(design.conds)
+                                        ovser                          = find(design.conds(l).scans > nscans);
+                                        design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
+                                        design.conds(l).scans          = design.conds(l).scans(design.conds(l).scans<=nscans);    
+                                    end
+                                    return
+                                end
                             end
                         end
                         % Create PRT.mat modalities

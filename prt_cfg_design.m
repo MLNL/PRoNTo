@@ -18,8 +18,8 @@ unit.labels  = {
                 'Scans'
                 'Seconds'
 }';
-unit.values  = {1 0};
-unit.val     = {0};
+unit.values  = {0 1};
+unit.val     = {1};
 
 % ---------------------------------------------------------------------
 % quant Quantitative
