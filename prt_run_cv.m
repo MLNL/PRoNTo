@@ -27,6 +27,6 @@ disp('This is just a placeholder. Not implemented yet');
 
 % Function output
 % -------------------------------------------------------------------------
-%out.files{1} = outfile;
+out.filescv{1} = '';
 disp('Cross-validation done.')
 end

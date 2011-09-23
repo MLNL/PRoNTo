@@ -136,7 +136,7 @@ end
 
 % Save kernel and function output
 % -------------------------------------------------------------------------
-outfile = [prt_dir, 'kernel_',job.kernel_filename];
+outfile = [prt_dir, 'kernel_',job.kernel_filename,'.mat'];
 disp(['Saving kernel to: ',['kernel_',job.kernel_filename],'.mat.......>>'])
 if spm_matlab_version_chk('7') >= 0
     save(outfile,'-V6','kernel');
@@ -144,7 +144,7 @@ else
     save(outfile,'kernel');
 end
 
-out.files{1} = outfile;
+out.fname{1} = outfile;
 disp('Kernel construction done.')
 end
 

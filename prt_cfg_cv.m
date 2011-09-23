@@ -273,8 +273,8 @@ function cdep = vout_data(job)
 % Specifies the output from this modules, i.e. the filename of the mat file
 
 cdep(1)            = cfg_dep;
-cdep(1).sname      = 'Configure Kernels';
-cdep(1).src_output = substruct('()',{1}, '.','fname','()',{':'});
+cdep(1).sname      = 'Cross validation';
+cdep(1).src_output = substruct('.','filescv');
 cdep(1).tgt_spec   = cfg_findspec({{'filter','mat','strtype','e'}});
 %------------------------------------------------------------------------
 
