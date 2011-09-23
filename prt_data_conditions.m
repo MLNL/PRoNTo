@@ -23,7 +23,7 @@ function varargout = prt_data_conditions(varargin)
 
 % Edit the above text to modify the response to help prt_data_conditions
 
-% Last Modified by GUIDE v2.5 30-Aug-2011 17:32:07
+% Last Modified by GUIDE v2.5 23-Sep-2011 16:35:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -98,6 +98,13 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     set(handles.condtable,'Data',dat);
     handles.trval=des.TR;
     set(handles.tredit,'String',num2str(des.TR));
+    handles.unit=des.unit;
+    if des.unit
+        uv=1;
+    else
+        uv=2;
+    end
+    set(handles.pop_unit,'Value',uv)
     if ~isempty(des.covar)
         for j=1:length(des.covar)
             text=[text, num2str(des.covar(j)),', '];
@@ -119,8 +126,9 @@ set(handles.condtable,'ColumnName',{'Name','Onsets','Duration'});
 set(handles.condtable,'ColumnEditable',[true,true,true]);
 set(handles.condtable,'ColumnWidth',{'auto',130,130});
 set(handles.condtable,'ColumnFormat',{'char','char','char'});
-
-
+set(handles.pop_unit,'String',{'Seconds','Scans'});
+set(handles.pop_unit,'Value',1);
+handles.unit=get(handles.pop_unit,'Value');
 
 def=prt_get_defaults('datad');
 handles.def=def;
@@ -273,7 +281,34 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+% --- Executes on selection change in pop_unit.
+function pop_unit_Callback(hObject, eventdata, handles)
+% hObject    handle to pop_unit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
+% Hints: contents = get(hObject,'String') returns pop_unit contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from pop_unit
+un=get(handles.pop_unit,'Value');
+if un==1
+    handles.unit=1;
+else
+    handles.unit=0;
+end
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function pop_unit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pop_unit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
 function covedit_Callback(hObject, eventdata, handles)
 % hObject    handle to covedit (see GCBO)
@@ -430,7 +465,7 @@ end
 
 %Check that the conditions do not overlap, either directly or when taking
 %the width of the HRF into account
-conds=prt_check_design(handles.cond,handles.trval);
+conds=prt_check_design(handles.cond,handles.trval,handles.unit);
 conds.covar=handles.covar;
 handles.output=conds;
 

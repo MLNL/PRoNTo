@@ -912,12 +912,10 @@ if isfield(PRT,'group')
                         %earlier
                         if isstruct(PRT.group(i).subject(j).modality(k).design)
                             des=PRT.group(i).subject(j).modality(k).design;
-                            if ~isfield(des.conds,'scans')
-                                handles.saved=0;
-                                des=prt_check_design(des.conds,des.TR);
-                                PRT.group(i).subject(j).modality(k).design=des;
-                                PRT.group(i).subject(j).modality(k).design.covar=[];
-                            end
+                            handles.saved=0;
+                            des=prt_check_design(des.conds,des.TR,des.unit);
+                            PRT.group(i).subject(j).modality(k).design=des;
+                            PRT.group(i).subject(j).modality(k).design.covar=[];
                         end
                         handles.ds{i}{j}{k}=size(PRT.group(i).subject(j).modality(k).scans,1);
                     end
@@ -1074,7 +1072,7 @@ for i=1:ng
                 if matdat(j,k)<maxcond
                     beep
                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',j,i,k)
-                    disp('These events were discarded')
+                    disp('Corresponding events were discarded')
                     for l=1:length(des.conds)
                         ovser=find(des.conds(l).scans>matdat(j,k));
                         des.conds(l).scans=des.conds(l).scans(des.conds(l).scans<=matdat(j,k));

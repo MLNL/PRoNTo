@@ -1,11 +1,12 @@
-function [conds]=prt_check_design(cond,tr)
+function [conds]=prt_check_design(cond,tr,units)
 %Check the design and discards scans which are either overlapping between
 %conditions or which do not respect a minimum time interval between
 %conditions (due to the width of the HRF function).
 %Inputs:
-% - cond : structure containing the names, durations and onsets of the
-%          conditions
-% - tr :   interscan interval (TR)
+% - cond :  structure containing the names, durations and onsets of the
+%           conditions
+% - tr :    interscan interval (TR)
+% - units : 1 for seconds, 0 for scans
 %
 %Output:
 % the same cond structure containing supplementary fields:
@@ -27,6 +28,10 @@ function [conds]=prt_check_design(cond,tr)
 ncond=length(cond);
 %get defaults
 def=prt_get_defaults('datad');
+%suppose design is in seconds if no units specified
+if nargin<3
+    units=1;
+end
 
 %check the level of overlapping between the different conditions
 all=[];
@@ -34,7 +39,13 @@ conds=[];
 for i=1:ncond
     condsc=[];
     bl=[];
-    cs=round((cond(i).onsets+def.hrfd)/tr);
+    if units
+    	cs=round((cond(i).onsets+def.hrfd)/tr);
+        cdur=floor(cond(i).durations/tr);
+    else
+        cs=round(cond(i).onsets+(def.hrfd/tr));
+        cdur=round(cond(i).durations);
+    end
     if any(cs==0)
         ind=find(cs==0);
         if ind~=1
@@ -43,7 +54,7 @@ for i=1:ncond
             cs(ind)=1;
         end
     end
-    cdur=max(1,floor(cond(i).durations/tr));
+    cdur=max(1,cdur);
     for j=1:length(cs)
         temp=cs(j):cs(j)+cdur(j)-1;
         condsc=[condsc,temp];
@@ -131,4 +142,5 @@ conds=struct();
 conds.conds=cond;
 conds.stats=stats;
 conds.TR=tr;
+conds.unit=units;
 return

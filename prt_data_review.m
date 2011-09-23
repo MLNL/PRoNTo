@@ -234,20 +234,21 @@ end
 bar(x,meantp,0.9);
 hold on
 errorbar(y,meantp,stdtp,'.k')
-ylim([0 max(meantp(:))+1])
+ylim([0 1.1*max(meantp(:))])
 xlim([1 xl])
-ylabel('Number of scans')
+ylabel('Number of selected scans')
 set(handles.axes2,'XTickLabel',handles.gname)
 
 set(handles.figure1,'CurrentAxes',handles.axes3)
 bar(x,meantpdisc,0.9);
 hold on
 errorbar(y,meantpdisc,stdtpdisc,'.k')
-aa=meantpdisc(:)+stdtpdisc(:);
-ylim([0 max(aa)+1])
+ylim([0 1.1*max(meantp(:))])
 xlim([1 xl])
 ylabel('Number of discarded scans')
 set(handles.axes3,'XTickLabel',handles.gname)
+legend({dat.group(1).subject(1).modality(ind).design.conds(:).cond_name},...
+    'Location','NorthEast')
 
 
 %set the overlaps before and after HRF correction

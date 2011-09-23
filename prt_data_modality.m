@@ -264,8 +264,13 @@ if choice==1
         conds(c).cond_name = SPM.Sess(1).U(c).name{1};
         conds(c).onsets    = SPM.Sess(1).U(c).ons;
         conds(c).durations = SPM.Sess(1).U(c).dur;
+    end    
+    if strcmpi(SPM.xBF.UNITS,'scans')
+        units=0;
+    else
+        units=1;
     end
-    desn=prt_check_design(conds,SPM.xX.K.RT);
+    desn=prt_check_design(conds,SPM.xX.K.RT,units);
     desn.covar = [];
 elseif choice==2
     if isstruct(handles.mod.design)
