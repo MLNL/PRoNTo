@@ -129,7 +129,7 @@ function datarev_Callback(hObject, eventdata, handles)
 fname=spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
 try
     load(fname)
-    prt_data_review(PRT);
+    prt_data_review('UserData',PRT);
 catch
     beep
     disp('Could not load file')

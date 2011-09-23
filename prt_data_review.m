@@ -228,6 +228,17 @@ x=mean(y,2);
 if length(x)==1
     x=2:2+ncond-1;
     xl=max(x)+1;
+    meantp=[meantp; zeros(1,ncond)];
+    stdtp=[stdtp; zeros(1,ncond)];
+    meantpdisc=[meantpdisc; zeros(1,ncond)];
+    stdtpdisc=[stdtpdisc; zeros(1,ncond)];
+    vecty=2:2+ncond-1;
+    y=vecty;
+    for i=2:size(meantp,1)
+        vecty=vecty+(ncond+1);
+        y=[y;vecty];
+    end
+    x=mean(y,2);
 else
     xl=max(x)+ncond-1;
 end
