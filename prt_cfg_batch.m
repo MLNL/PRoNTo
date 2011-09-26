@@ -1,5 +1,5 @@
 function prt = prt_cfg_batch
-% Pattern Recognition for Neuroimaging Toolbox, PRONTO.
+% Pattern Recognition for Neuroimaging Toolbox, PRoNTo.
 % PRN configuration file
 % This builds the whole tree for the various tools and their GUI.
 %_______________________________________________________________________
@@ -8,16 +8,16 @@ function prt = prt_cfg_batch
 % Written by Christophe Phillips
 % $Id$
 
+
 % if ~isdeployed, addpath(fullfile(spm('Dir'),'toolbox','PRoNTo')); end
-% Only needed if
-% - PRN is installed in SPM8 toolbox directory, for example
+% Only de-comment the previous line if
+% - PRT is installed in SPM8 toolbox directory, for example
 %   SPM8\toolbox\PRoNTo
 % - and this directory isn't saved on Matlab path (which it shouldn't)
 
 
-
 % ---------------------------------------------------------------------
-% prn PRONTO series of modules
+% prt PRoNTo series of modules
 % ---------------------------------------------------------------------
 prt         = cfg_choice;
 prt.tag     = 'prt';
