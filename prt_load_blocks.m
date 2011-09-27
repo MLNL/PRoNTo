@@ -1,20 +1,11 @@
-function block = prt_load_blocks(varargin)
+function block = prt_load_blocks(filenames, bs, br)
 % Load one or more blocks of data.
 % This script is a effectively a wrapper function that for the routines  
-% that actually do the work. At present, spm supplies this functionality, 
-% but in practice any toolbox could be used. 
+% that actually do the work (SPM nifti routines)
 %
 % The syntax is:
 % 
-% img = prt_load_blocks(filenames, block_size, block_range, [mask])
-%
-% where:
-%   mask is a 3d matrix. If none is specified the routine will
-%   return all voxels in the field of view.
-%    
-%   reshape_img is a boolean flag and if set to true, the routine will 
-%   return a set of vectors suitable for pattern recognition. If false,
-%   the routine will instead return an n-d volume of the appropriate size.
+% img = prt_load_blocks(filenames, block_size, block_range)
 %
 %_______________________________________________________________________
 % Copyright (C) 2011, 
@@ -22,13 +13,12 @@ function block = prt_load_blocks(varargin)
 % Written by A Marquand
 % $Id$
 
-if nargin < 3 || nargin > 3 
-    disp('Usage: img = prt_load_blocks(filenames, block_size, block_range, [mask])');
+if nargin ~= 3
+    disp('Usage: img = prt_load_blocks(filenames, block_size, block_range)');
     return;
 end
 
-filenames = varargin{1};
-
+% read the image dimensions from the header
 N  = nifti(filenames);
 dm = size(N(1).dat);
 n_vox = prod(dm(1:3));
@@ -39,49 +29,8 @@ else
     n_volumes = dm(4);
 end
 
-% defaults
-try
-    bs = varargin{2};  
-catch 
-    bs = 1024*128; 
-end
-try
-    br = varargin{3};  
-catch 
-    br = 1;       
-end
-
+% get the data
 data_range = (br(1)-1)*bs+1:min(br(end)*bs,n_vox); 
-try 
-    mask = varargin{4}; 
-    if isempty(mask)
-        use_mask = false;
-    else
-        use_mask = true; 
-    end
-    mask_r = reshape(mask,prod(dm),1) > 0;
-	n_voxels = sum(mask_r);
-catch  
-    use_mask = false; 
-    n_voxels = length(data_range);
+dat_r = reshape(N.dat,prod(dm(1:3)),n_volumes);
+block = dat_r(data_range,:);
 end
-
-%data_r = cell(1,n_volumes);
-block = zeros(length(data_range),n_volumes);
-if n_voxels > 0 % only do anything if there are voxels within the mask
-    for i=1:n_volumes,
-        %i
-        %data_r{i} = reshape(N.dat(:,:,:,i),[prod(dm(1:3)),1]);
-        %block(:,i) = data_r{i}(data_range);
-        
-        data_vec = reshape(N.dat(:,:,:,i),prod(dm(1:3)),1);
-        if use_mask
-            data_vec = data_vec .* mask_r;
-        end
-        block(:,i) = data_vec(data_range);
-    end
-end
-
-
-
-

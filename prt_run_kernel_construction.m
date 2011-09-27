@@ -11,7 +11,7 @@ function out = prt_run_kernel_construction(varargin)
 %__________________________________________________________________________
 % Copyright (C) 2011
 
-% Written by A Marquand
+% Written by A Marquand and J Schrouff
 % $Id$
 
 % Job variable
@@ -31,7 +31,7 @@ if ~isempty(setdiff(modchos,allmod))
 end
 
 for i=1:length(PRT.masks)
-    if any(strmcpi(modchos,allmod{i}))
+    if any(strcmpi(modchos,allmod{i}))
         mod(i).mod_name=allmod{i};
         ind=find(strcmpi(modchos,allmod{i}));
         mod(i).kernel_dt=job.modality(ind).kernel_dt;
