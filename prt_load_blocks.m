@@ -24,13 +24,13 @@ dm = size(N(1).dat);
 n_vox = prod(dm(1:3));
 
 if length(dm) == 3
-    n_volumes = 1; 
+    n_vol = 1; 
 else
-    n_volumes = dm(4);
+    n_vol = dm(4);
 end
 
 % get the data
 data_range = (br(1)-1)*bs+1:min(br(end)*bs,n_vox); 
-dat_r = reshape(N.dat,prod(dm(1:3)),n_volumes);
+dat_r = reshape(N.dat,prod(dm(1:3)),n_vol);
 block = dat_r(data_range,:);
 end
