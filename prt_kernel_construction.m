@@ -1,5 +1,5 @@
 function [outfile]=prt_kernel_construction(PRT,in)
-% Script to compute a linear (dot product kernel)
+% Script to compute a linear (dot product) kernel
 %__________________________________________________________________________
 % Copyright (C) 2011
 
@@ -10,23 +10,13 @@ function [outfile]=prt_kernel_construction(PRT,in)
 prt_dir = regexprep(in.fname,'PRT.mat', ''); % or: fileparts(fname);
 
 n_groups      = length(PRT.group);
+
 % get the index of the modalities for which the user wants a kernel/data
 n_mods=length(in.mod);
 mids=[];
 for i=1:n_mods
     if ~isempty(in.mod(i).mask)
-        % search for the id in PRT
-        id = NaN;
-        for j = 1:length(PRT.masks)
-            if strcmpi(in.mod(i).mod_name, PRT.masks(j).mod_name)
-                id = j;
-            end
-        end
-        if ~isnan(id)
-            mids = [mids, id];
-        else
-            error(['Modality ',char(in.mod(i).mask),' not found in PRT.mat']);
-        end
+        mids=[mids,i];
     end
 end
 
