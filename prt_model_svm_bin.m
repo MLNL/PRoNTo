@@ -18,7 +18,7 @@ function output = prt_model_svm_bin(train,test,tr_lbs,args)
 
 %--------------------------------------------------------------------------
 % Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
-% $Id: $
+% $Id$
 
 SANITYCHECK=false; % can turn off for "speed"
 

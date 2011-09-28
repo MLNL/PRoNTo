@@ -2,7 +2,7 @@ function kernel = prt_cfg_kernel_construction
 % Data & design configuration file
 % This configures the kernel construction for each modality.
 %_______________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Andre Marquand
 % $Id$
@@ -213,6 +213,7 @@ kernel.help   = {'Compute kernel matrices according to the design specified'};
 kernel.prog   = @prt_run_kernel_construction;
 kernel.vout   = @vout_data;
 
+%------------------------------------------------------------------------
 % Output function
 %------------------------------------------------------------------------
 function cdep = vout_data(job)

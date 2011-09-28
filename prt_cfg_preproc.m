@@ -1,7 +1,7 @@
 function preproc = prt_cfg_preproc
 % Preprocessing of the data.
 %_______________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J.M.Rondina
 % $Id$

@@ -1,25 +1,31 @@
 function prt_preproc(fname)
 
-%function to preprocess the images, by loading each one of them (or the
-%ones corresponding to the selected scans when a design was specified),
-%applying the masks on them and, if asked, detrend along each voxel along
-%the time series.
-%input: loaded PRT.mat
-%no output
-%--------------------------------------------------------------------------
+% Function to preprocess the images, by loading each one of them (or the
+% ones corresponding to the selected scans when a design was specified),
+% applying the masks on them and, if asked, detrend along each voxel along
+% the time series.
+% 
+% INPUT: 
+%   fname   filename and path to PRT.mat
+%
+% OUTPUT:
+%   results are saved on disk.
+%_______________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
 % Written by J.Rondina
-% Last modified by J.schrouff, 23/09/2011
+% Id:$
 
 %--------------------------------------------------------------------------
-%Load PRT.mat
+% Load PRT.mat
 %--------------------------------------------------------------------------
 load(char(fname));    % Load data structure (PRT.mat)
 prt_dir=regexprep(char(fname),'PRT.mat', '');  % Get PRT.mat directory 
 
 
-% -------------------------------------------------------------------------
+%-------------------------------------------------------------------------
 % Resizing masks
-% -------------------------------------------------------------------------
+%-------------------------------------------------------------------------
 
 % Get numbers of groups, modalities and subjects from PRT.mat
 n_groups = length(PRT.group);
@@ -60,9 +66,9 @@ for m=1:n_modalities
     mask{m} = double(reshape(mnii{m}.dat,1,size(mnii{m}.dat,1)*size(mnii{m}.dat,2)*size(mnii{m}.dat,3)));
 end
 
-% -------------------------------------------------------------------------
+%-------------------------------------------------------------------------
 % Loading images, detrending, saving
-% -------------------------------------------------------------------------
+%-------------------------------------------------------------------------
 
 h = waitbar(0,'Please wait while images are pre-processed (details provided in the main window)');
 step=0;

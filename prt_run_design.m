@@ -1,14 +1,16 @@
 function out = prt_run_design(varargin)
-% PRONTO job execution function
+%
+% PRoNTo job execution function
 % takes a harvested job data structure and rearranges data into PRT
 % data structure, then saves PRT.mat file.
 %
-% Input:
-% job    - harvested job data structure (see matlabbatch help)
-% Output:
-% out    - filename of saved data structure.
+% INPUT
+%   job    - harvested job data structure (see matlabbatch help)
+%
+% OUTPUT
+%   out    - filename of saved data structure.
 %__________________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
 % Written by M.J.Rosa
 % $Id$

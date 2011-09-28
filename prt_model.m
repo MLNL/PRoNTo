@@ -28,7 +28,7 @@ function output = prt_model(train,test,tr_lbs,machine)
 
 %--------------------------------------------------------------------------
 % Written by M.J.Rosa and J.Richiardi
-% $Id: $
+% $Id$
 
 % TODO: make tr_lbs a cell array
 

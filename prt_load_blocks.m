@@ -8,7 +8,7 @@ function block = prt_load_blocks(filenames, bs, br)
 % img = prt_load_blocks(filenames, block_size, block_range)
 %
 %_______________________________________________________________________
-% Copyright (C) 2011, 
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand
 % $Id$

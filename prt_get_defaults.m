@@ -19,10 +19,12 @@ function varargout = prt_get_defaults(defstr, varargin)
 %
 % The structure and content of this file are largely inspired by SPM &
 % Matlabbatch.
+% http://www.fil.ion.ucl.ac.uk/spm
+% http://sourceforge.net/projects/matlabbatch/
 %__________________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Volkmar Glauche
+% Originally written by Volkmar Glauche
 % Then modified for use with the PRoNTo toolbox by Christophe Phillips
 % $Id$
 

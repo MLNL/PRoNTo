@@ -12,9 +12,10 @@ function prt_defaults
 %
 % Care must be taken when modifying this file!
 %
-% The structure and content of this file are largely inspired by SPM.
+% The structure and content of this file are largely inspired by SPM:
+% http://www.fil.ion.ucl.ac.uk/spm
 %_______________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Christophe Phillips
 % $Id$
@@ -29,8 +30,8 @@ prt_def.global.install_dir = fileparts(prt_loc);
 
 % Parameters for the data and design
 %-----------------------------------------------
-prt_def.datad.hrfd=6;               % HRF delay in seconds
-prt_def.datad.hrfw=6;               % HRF FWHM, used to compute the overlap between conditions
+prt_def.datad.hrfd = 6; % HRF delay in seconds
+prt_def.datad.hrfw = 6; % HRF FWHM, used to compute the overlap between conditions
 
 
 % Preprocessing defaults

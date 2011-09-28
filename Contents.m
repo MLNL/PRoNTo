@@ -1,8 +1,36 @@
 % Pattern Recognition for Neuroimaging Toolbox (PRoNTo)
+% Verion 0.1 (PRoNTo) 30-November-2011
+%_______________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
 % $Id$
-% 
-% Files
+%
+%
+% PRoNTo is written for MATLAB X.Y (R20ZZb) and onwards.
+%
+% PRoNTo is  developed by the Machine Learning & Neuroimaging Laboratory,
+% Computer Science department, University College London, UK.
+% http://www.mlnl.cs.ucl.ac.uk
+%
+% The development of PRoNTo was possible with the financial support of 
+% - the Wellcome Trust
+% - PASCAL
+% - the Fonds de la Recherche Scientifique-FNRS, Belgium.
+%
+% PRoNTo is free software: you can redistribute it  and/or modify it under  
+% the terms of the GNU General Public License as published by the Free 
+% Software Foundation,  either version 2 of  the License,  or (at  your  
+% option) any later version.
+% PRoNTo is  distributed in the hope  that it will be  useful, but WITHOUT 
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+% FITNESS FOR A  PARTICULAR PURPOSE.  See the  GNU General Public License   
+% for more details.
+% You should  have received a copy of the  GNU General Public License along
+% with PRoNTo, in prt_LICENCE.man. If not, see 
+% <http://www.gnu.org/licenses/>.
+%
+%
+% List of files:
 %   prt_batch - launch the PRoNTo batch system
 %   prt_cfg_batch - (internal) add PRoNTo menu to batch system
 %   prt_cfg_cv.m - 

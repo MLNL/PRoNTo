@@ -2,7 +2,7 @@ function data = prt_cfg_design
 % Data & design configuration file
 % This builds the PRT.mat data and design structure.
 %_______________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by M.J.Rosa
 % $Id$
@@ -426,6 +426,7 @@ data.help   = {'Specify the group(s) of data set.'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;
 
+%------------------------------------------------------------------------
 % Output function
 %------------------------------------------------------------------------
 function cdep = vout_data(job)

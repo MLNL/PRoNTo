@@ -1,13 +1,13 @@
 function prt_latex_cfg(c)
 % Convert a job configuration tree into a series of LaTeX documents
-
-% File derived from that of the SPM distribution.
+%
+% File derived from that of the SPM8 distribution.
 % http://www.fil.ion.ucl.ac.uk/spm
-%__________________________________________________________________________
-% Copyright (C) 2008 Wellcome Trust Centre for Neuroimaging
+%_______________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % John Ashburner
-% $Id: spm_latex_cfg.m 3934 2010-06-17 14:58:25Z guillaume $
+% $Id: $
 
 if ~nargin, c = prt_cfg_batch; end
 if nargin && ischar(c), clean_latex_compile; return; end

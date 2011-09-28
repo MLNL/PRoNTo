@@ -1,14 +1,14 @@
 function Kr = prt_remove_confounds(K,C)
 
 %__________________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by 
+% Written by A. Marquand
 % $Id$
 
 
-n=size(K,1);
-R=eye(n)-C*pinv(C); %R=eye(n)-C*inv(C'*C)*C'
-Kr=R'*K*R;
+n  = size(K,1);
+R  = eye(n)-C*pinv(C); %R=eye(n)-C*inv(C'*C)*C'
+Kr = R'*K*R;
 
 return

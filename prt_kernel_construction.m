@@ -1,9 +1,16 @@
-function [outfile]=prt_kernel_construction(PRT,in)
+function [outfile] = prt_kernel_construction(PRT,in)
 % Script to compute a linear (dot product) kernel
 %__________________________________________________________________________
 % Copyright (C) 2011
 
 % Written by A Marquand and J Schrouff
+
+%__________________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
+% Written by J. Schrouff and A. Marquand
+% $Id$
+
 
 % Configure some variables
 % -------------------------------------------------------------------------

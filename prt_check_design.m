@@ -1,30 +1,35 @@
-function [conds]=prt_check_design(cond,tr,units)
-%Check the design and discards scans which are either overlapping between
-%conditions or which do not respect a minimum time interval between
-%conditions (due to the width of the HRF function).
-%Inputs:
-% - cond :  structure containing the names, durations and onsets of the
-%           conditions
-% - tr :    interscan interval (TR)
-% - units : 1 for seconds, 0 for scans
+function [conds] = prt_check_design(cond,tr,units)
+% FORMAT [conds] = prt_check_design(cond,tr,units)
 %
-%Output:
+% Check the design and discards scans which are either overlapping between
+% conditions or which do not respect a minimum time interval between
+% conditions (due to the width of the HRF function).
+%
+% INPUT
+%   - cond  : structure containing the names, durations and onsets of the
+%             conditions
+%   - tr    : interscan interval (TR)
+%   - units : 1 for seconds, 0 for scans
+%
+% OUTPUT
 % the same cond structure containing supplementary fields:
-% scans :               scans retained for further classification
-% discardedscans:       scans discarded because they overlapped between 
-%                       conditions
-% hrfdiscardedscans:    scans discarded because they didn't respect the
-%                       minimum time interval between conditions
-% blocks:               represents the grouping of the stimuli (for
-%                       cross-validation)
-% stats:                struct containing the original time intervals, the
-%                       time interval with only the 'good' scans, their
-%                       means and standard deviation
-%--------------------------------------------------------------------------
-%PRoNTo
-%Written by J. Schrouff, 2011
+%   - scans :            scans retained for further classification
+%   - discardedscans:    scans discarded because they overlapped between 
+%                        conditions
+%   - hrfdiscardedscans: scans discarded because they didn't respect the
+%                        minimum time interval between conditions
+%   - blocks:            represents the grouping of the stimuli (for
+%                        cross-validation)
+%   - stats:             struct containing the original time intervals, the
+%                        time interval with only the 'good' scans, their
+%                        means and standard deviation
+%_______________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-%get the number of conditions
+% Written by J. Schrouff
+% $Id$
+
+% get the number of conditions
 ncond=length(cond);
 %get defaults
 def=prt_get_defaults('datad');

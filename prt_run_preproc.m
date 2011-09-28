@@ -1,6 +1,6 @@
 function out = prt_run_preproc(varargin)
+%
 % PRONTO job execution function
-
 % Read the data structure (PRT.mat);
 % Read masks for all modalities, compare them with a sample scan and resize 
 % the masks when dimensionality doesn't match;  
@@ -14,15 +14,15 @@ function out = prt_run_preproc(varargin)
 %   -> Save as a 4D image
 % -> If it is a timeseries and detrend is done in the preprocessing:
 %   -> Save as a 4D image    
-
-% Input:
-% job    - harvested job data structure (see matlabbatch help)
-% Output:
-% out    - filename of saved data structure (1 file per group, per subject,
-% per modality, per condition
-% 
+%
+% INPUT
+%   job    - harvested job data structure (see matlabbatch help)
+%
+% OUTPUT
+%   out    - filename of saved data structure (1 file per group, per 
+%            subject, per modality, per condition 
 %__________________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J.M.Rondina
 % $Id$

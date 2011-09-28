@@ -4,12 +4,13 @@ function out = prt_run_kernel_construction(varargin)
 % data structure, then save do what it has to do...
 % Here simply the harvested job structure in a mat file.
 %
-% Input:
-% job    - harvested job data structure (see matlabbatch help)
-% Output:
-% out    - filename of saved data structure.
+% INPUT
+%   job    - harvested job data structure (see matlabbatch help)
+%
+% OUTPUT
+%   out    - filename of saved data structure.
 %__________________________________________________________________________
-% Copyright (C) 2011
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand and J Schrouff
 % $Id$

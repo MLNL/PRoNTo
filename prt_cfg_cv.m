@@ -2,7 +2,7 @@ function cv_struct = prt_cfg_cv
 % Data & design configuration file
 % This configures the kernel construction for each modality.
 %_______________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Andre Marquand
 % $Id: prt_cfg_kernel_construction.m 33 2011-08-10 08:47:17Z cphillip $
@@ -267,6 +267,7 @@ cv_struct.help   = {'Compute kernel matrices according to the design specified'}
 cv_struct.prog   = @prt_run_cv;
 cv_struct.vout   = @vout_data;
 
+%------------------------------------------------------------------------
 % Output function
 %------------------------------------------------------------------------
 function cdep = vout_data(job)

@@ -1,9 +1,9 @@
 function out = prt_get_filename(ids)
 
 %__________________________________________________________________________
-% Copyright (C) 2011, ...
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by 
+% Written by A. Marquand
 % $Id$
 
 % Obs: Names return to the simple form: e.g. 'g1_s1_m1_c1'
