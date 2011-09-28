@@ -25,6 +25,9 @@
 % - the Wellcome Trust
 % - PASCAL
 % - the Fonds de la Recherche Scientifique-FNRS, Belgium.
+% - Swiss National Science Foundation (PP00P2-123438) and Center for
+% Biomedical Imaging (CIBM) of the EPFL and Universities and Hospitals
+% of Lausanne and Geneva. 
 %
 % PRoNTo is free software: you can redistribute it  and/or modify it under  
 % the terms of the GNU General Public License as published by the Free 
