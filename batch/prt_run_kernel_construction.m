@@ -64,7 +64,7 @@ input.mod=mod;
 input.normalise=job.normalise;
     
 outfile=prt_kernel_construction(PRT,input);
-out.fname{1} = outfile;
+out.fname{1} = [outfile,'.mat'];
 disp('Kernel construction done.')
 end
 
