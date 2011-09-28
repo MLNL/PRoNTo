@@ -20,7 +20,7 @@ function output = prt_model_svm_bin(train,test,tr_lbs,args)
 % Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
 % $Id: $
 
-SANITYCHECK=true; % can turn off for "speed"
+SANITYCHECK=false; % can turn off for "speed"
 
 if SANITYCHECK==true
     % args should be a string (empty or otherwise)
@@ -38,7 +38,11 @@ end
 % Run SVM
 %--------------------------------------------------------------------------
 nlbs  = length(tr_lbs);
-model = svmtrain(tr_lbs,[(1:nlbs)' train],args);
+if iscell(train)
+    model = svmtrain(tr_lbs,[(1:nlbs)' train{:}],args);
+else
+    model = svmtrain(tr_lbs,[(1:nlbs)' train],args);
+end
 
 % check if training succeeded: 
 if isempty(model)
@@ -50,7 +54,11 @@ alpha = get_alpha(model,nlbs);
 b     = -model.rho * model.Label(1);
 % compute prediction directly rather than using svmpredict, which does
 % not allow empty test labels
-predictions = test*alpha+b;
+if iscell(test)
+    predictions = test{:}*alpha+b;
+else
+    predictions = test*alpha+b;
+end
 alpha       = model.Label(1)*alpha;
 
 % Outputs
