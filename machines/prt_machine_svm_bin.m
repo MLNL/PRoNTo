@@ -1,6 +1,6 @@
-function output = prt_model_svm_bin(train,test,tr_lbs,args)
+function output = prt_machine_svm_bin(train,test,tr_lbs,args)
 % Run binary SVM - wrapper for libSVM
-% FORMAT output = prt_model_svm_bin(train,test,tr_lbs,args)
+% FORMAT output = prt_machine_svm_bin(train,test,tr_lbs,args)
 % Inputs:
 %    train   - training data (cell array of matrices of row vectors, each
 %              [Ntr x D]). each matrix contains one representation of the

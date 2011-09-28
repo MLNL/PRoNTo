@@ -1,6 +1,6 @@
-function output = prt_model(train,test,tr_lbs,machine)
+function output = prt_machine(train,test,tr_lbs,machine)
 % Run machine function for classification or regression
-% FORMAT output = prt_model(train,test,tr_lbs,machine)
+% FORMAT output = prt_machine(train,test,tr_lbs,machine)
 % Inputs:
 %    train   - training data (cell array of matrices of row vectors, each
 %              [Ntr x D]). each matrix contains one representation of the
