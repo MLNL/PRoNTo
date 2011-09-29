@@ -20,7 +20,7 @@ function output = prt_machine_svm_bin(train,test,tr_lbs,args)
 % Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
 % $Id$
 
-SANITYCHECK=false; % can turn off for "speed"
+SANITYCHECK=true; % can turn off for "speed"
 
 if SANITYCHECK==true
     % args should be a string (empty or otherwise)
@@ -29,10 +29,17 @@ if SANITYCHECK==true
             ' args should be a string']);
     end
     % check we can reach the binary library
-    if ~exist(svmtrain,'file')
+    if ~exist('svmtrain','file')
         error('prt_machine_svm_bin:libSVMtrainFunctionNotFound',['Error:'...
             ' libSVM svmtrain function could not be found!']);
     end   
+    % check it is indeed a binary classification problem
+    nC=numel(unique(tr_lbs));
+    if nC>2
+        error('prt_machine_svm_bin:problemNotBinary',['Error:'...
+            ' This machine is only for two-class problems but the' ...
+            ' current problem has ' num2str(nC) ' !']);
+    end
 end
 
 % Run SVM
