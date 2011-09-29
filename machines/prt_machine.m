@@ -131,9 +131,11 @@ end % SANITYCHECK
 
 % Run model
 %--------------------------------------------------------------------------
-fnc    = inline([machine.function,'(train,test,tr_lbs,args)'],'train',...
-    'test','tr_lbs','args');
-output = feval(fnc,train,test,tr_lbs,machine.args);
+%fnc    = inline([machine.function,'(train,test,tr_lbs,args)'],'train',...
+%    'test','tr_lbs','args');
+%output = feval(fnc,train,test,tr_lbs,machine.args);
+fnch = str2func(machine.function);
+output = fnch(train,test,tr_lbs,machine.args);
 
 if SANITYCHECK==true
 % Final checks
