@@ -72,6 +72,7 @@ alpha       = model.Label(1)*alpha;
 % Outputs
 %--------------------------------------------------------------------------
 output.predictions = predictions;
+output.type        = 'classifier';
 output.alpha       = alpha;
 output.b           = b;
 output.totalSV     = model.totalSV;
