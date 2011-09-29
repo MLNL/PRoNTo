@@ -1,4 +1,4 @@
-% Pattern Recognition for Neuroimaging Toolbox (PRoNTo)
+% Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
 % Verion 0.1 (PRoNTo) 30-November-2011
 %__________________________________________________________________________
 %
@@ -8,26 +8,37 @@
 %  / ____/ _, _/ /_/ / /|  / / / /_/ /
 % /_/   /_/ |_|\____/_/ |_/ /_/\____/ 
 %
-%                                   PRoNTO - http://www.mlnl.cs.ucl.ac.uk
+%                              PRoNTO - http://www.mlnl.cs.ucl.ac.uk/pronto
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
 % $Id$
 %
+%__________________________________________________________________________
 %
 % PRoNTo is written for MATLAB X.Y (R20ZZb) and onwards.
+% Some routine may need to be compiled for your specific OS.
 %
 % PRoNTo is  developed by the Machine Learning & Neuroimaging Laboratory,
 % Computer Science department, University College London, UK.
-% http://www.mlnl.cs.ucl.ac.uk
+% http://www.mlnl.cs.ucl.ac.uk and associated researchers.
 %
-% The development of PRoNTo was possible with the financial support of 
+% Main contributors, in alphabetical order: J. Ashburner, C. Chu, 
+% A. Marquand, J. Mourao-Miranda, C. Phillips, J. Richiardi, J. Rondina, 
+% M.J. Rosa, J. Schrouff,
+% 
+% The development of PRoNTo was possible with the financial and logistic 
+% support of 
+% - Computer Science Dept, University College London
 % - the Wellcome Trust
-% - PASCAL
-% - the Fonds de la Recherche Scientifique-FNRS, Belgium.
+% - PASCAL (http://www.pascal-network.org/)
+% - the Fonds de la Recherche Scientifique-FNRS, Belgium
+%   (http://www.fnrs.be)
 % - Swiss National Science Foundation (PP00P2-123438) and Center for
-% Biomedical Imaging (CIBM) of the EPFL and Universities and Hospitals
-% of Lausanne and Geneva. 
+%   Biomedical Imaging (CIBM) of the EPFL and Universities and Hospitals
+%   of Lausanne and Geneva. 
+%
+%__________________________________________________________________________
 %
 % PRoNTo is free software: you can redistribute it  and/or modify it under  
 % the terms of the GNU General Public License as published by the Free 
@@ -41,6 +52,7 @@
 % with PRoNTo, in prt_LICENCE.man. If not, see 
 % <http://www.gnu.org/licenses/>.
 %
+%__________________________________________________________________________
 %
 % List of files:
 %   prt_batch - launch the PRoNTo batch system

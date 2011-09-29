@@ -1,4 +1,5 @@
 function prt_latex_cfg(c)
+%
 % Convert a job configuration tree into a series of LaTeX documents
 %
 % File derived from that of the SPM8 distribution.
@@ -46,7 +47,7 @@ for i=1:numel(c.values),
    %end;
 end;
 fprintf(fp,'\\parskip=0mm\n');
-bibcstr = get_bib(fullfile(PRTdir,'man'));
+bibcstr = get_bib(fullfile(PRTdir,'manual'));
 
 % tbxlist = dir(fullfile(spm('dir'),'toolbox'));
 % for k = 1:numel(tbxlist)

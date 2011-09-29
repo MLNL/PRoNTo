@@ -77,7 +77,6 @@ function varargout = prt_ui_main_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
 % --- Executes on button press in datastruct.
 function datastruct_Callback(hObject, eventdata, handles)
 % hObject    handle to datastruct (see GCBO)
@@ -119,7 +118,6 @@ function model_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --- Executes on button press in appmod.
 function appmod_Callback(hObject, eventdata, handles)
 % hObject    handle to appmod (see GCBO)
@@ -147,7 +145,6 @@ function kerncvrev_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --- Executes on button press in resrev.
 function resrev_Callback(hObject, eventdata, handles)
 % hObject    handle to resrev (see GCBO)
@@ -167,3 +164,13 @@ function credits_Callback(hObject, eventdata, handles)
 % hObject    handle to credits (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+help(fullfile(prt('dir'),'Contents.m'));
+% str = help(fullfile(prt('dir'),'Contents.m'));
+% fig = figure;
+% set(fig,'Position',[73   145   498   1003])
+% set(fig,'NumberTitle','off')
+% set(fig,'Name','License & Copyright')
+% h = axes('Position',[0 0 1 1],'Visible','off');
+% 
+% text(.025,.5,str,'FontSize',8,'FontName','Courier')
