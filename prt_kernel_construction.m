@@ -68,7 +68,7 @@ for b = 1:n_block
                             repmat(block_mask,1,length(sample_range)) .* ...
                             prt_load_blocks(fname,block_size,b);
                         
-                    case 'all_conds'
+                    case 'all_cond'
                         conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
                         
                         for cid = 1:length(conds)    % condition                           
@@ -178,7 +178,7 @@ for gid = 1:length(PRT.group) % group
                     kernel.ids(sample_range(ii)).scan = ii;
                 end
                 
-            elseif strcmpi(in.mod(mid).mode,'all_conds')
+            elseif strcmpi(in.mod(mid).mode,'all_cond')
                 conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
                 
                 % now loop over conditions
