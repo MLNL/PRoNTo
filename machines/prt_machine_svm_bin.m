@@ -9,7 +9,7 @@ function output = prt_machine_svm_bin(train,test,tr_lbs,args)
 %    test    - testing data  (cell array of matrices row vectors, each
 %              [Nte x D])
 %    tr_lbs  - training labels (column vector, [Ntr x 1])
-%    args    - libSVM arguments 
+%    args    - libSVM arguments
 % Output:
 %    output  - output of machine (struct). Mandatory fields:
 %      .predictions - predictions of classification or regression [Nte x D]
@@ -26,19 +26,23 @@ if SANITYCHECK==true
     % args should be a string (empty or otherwise)
     if ~ischar(args)
         error('prt_machine_svm_bin:libSVMargsNotString',['Error: libSVM'...
-            ' args should be a string']);
+            ' args should be a string. ' ...
+            ' SOLUTION: Please do XXX']);
     end
     % check we can reach the binary library
     if ~exist('svmtrain','file')
         error('prt_machine_svm_bin:libSVMtrainFunctionNotFound',['Error:'...
-            ' libSVM svmtrain function could not be found!']);
-    end   
-    % check it is indeed a binary classification problem
+            ' libSVM svmtrain function could not be found !' ...
+            ' SOLUTION: Please check your path XXX']);
+    end
+    % check it is indeed a two-class classification problem
     nC=numel(unique(tr_lbs));
     if nC>2
         error('prt_machine_svm_bin:problemNotBinary',['Error:'...
             ' This machine is only for two-class problems but the' ...
-            ' current problem has ' num2str(nC) ' !']);
+            ' current problem has ' num2str(nC) ' !' ...
+            'SOLUTION: Please select another machine than ' ...
+            'prt_machine_svm_bin in XXX']);
     end
 end
 
@@ -47,10 +51,10 @@ end
 nlbs  = length(tr_lbs);
 model = svmtrain(tr_lbs,[(1:nlbs)' train{:}],args);
 
-% check if training succeeded: 
+% check if training succeeded:
 if isempty(model)
     error('prt_machine_svm_bin:libSVMsvmtrainUnsuccessful',['Error:'...
-            ' libSVM svmtrain function did not run properly!']);
+        ' libSVM svmtrain function did not run properly!']);
 end
 
 alpha = get_alpha(model,nlbs);
