@@ -63,7 +63,7 @@ b     = -model.rho * model.Label(1);
 % compute prediction directly rather than using svmpredict, which does
 % not allow empty test labels
 if iscell(test)
-    predictions = test{:}*alpha+b;
+    predictions = cell2mat(test)*alpha+b;
 else
     predictions = test*alpha+b;
 end
