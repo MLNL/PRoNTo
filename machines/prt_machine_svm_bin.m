@@ -38,11 +38,7 @@ end
 % Run SVM
 %--------------------------------------------------------------------------
 nlbs  = length(tr_lbs);
-if iscell(train)
-    model = svmtrain(tr_lbs,[(1:nlbs)' train{:}],args);
-else
-    model = svmtrain(tr_lbs,[(1:nlbs)' train],args);
-end
+model = svmtrain(tr_lbs,[(1:nlbs)' train{:}],args);
 
 % check if training succeeded: 
 if isempty(model)
