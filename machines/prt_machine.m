@@ -176,8 +176,27 @@ end % SANITYCHECK
 % Run model
 %--------------------------------------------------------------------------
 fnch   = str2func(machine.function);
-output = fnch(train,test,tr_labels,machine.args);
-
+try
+    if ~existcov
+        output = fnch(train,test,tr_labels,machine.args);
+    else
+        error('XXX WRAPPER NOT AVAILABLE FOR TESTCOV (GP) MACHINES YET');
+        output = fnch(train,test,testcov,tr_labels,machine.args);
+    end
+catch
+    err = lasterror;
+    err_ID=lower(err.identifier);
+    err_libProblem = strfind(err_ID,'libNotFound');
+    if ~isempty(err_libProblem)
+        error('prt_machine:libNotFound',['Error: the library for '... 
+            'machine %s could not be found on your path. ' ...
+            'SOLUTION: Please XXX]',machine.function);
+    else
+        % we don't know what more to do here, pass it up
+        error('prt_machine:otherProblem','%s %s',erridentifier,...
+            err.message);
+    end
+end
 
 % Final checks
 %--------------------------------------------------------------------------
