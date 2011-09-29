@@ -20,7 +20,7 @@ function output = prt_machine_svm_bin(train,test,tr_lbs,args)
 % Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
 % $Id$
 
-SANITYCHECK=true; % can turn off for "speed"
+SANITYCHECK=true; % can turn off for "speed". Expert only.
 
 if SANITYCHECK==true
     % args should be a string (empty or otherwise)
@@ -29,6 +29,7 @@ if SANITYCHECK==true
             ' args should be a string. ' ...
             ' SOLUTION: Please do XXX']);
     end
+
     % check we can reach the binary library
     if ~exist('svmtrain','file')
         error('prt_machine_svm_bin:libSVMtrainFunctionNotFound',['Error:'...

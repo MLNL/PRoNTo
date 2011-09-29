@@ -1,4 +1,8 @@
 % simple test harness for prt_machine
+%
+% $Id$
+
+
 
 %% generate data
 featuresAsKernelMatrix=true;
