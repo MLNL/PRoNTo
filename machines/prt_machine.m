@@ -1,6 +1,6 @@
-function output = prt_machine(train,test,testcov,tr_labels,machine)
+function output = prt_machine(train,test,testcov,tr_labels,machine,iskernel)
 % Run machine function for classification or regression
-% FORMAT output = prt_machine(train,test,testcov,tr_labels,machine)
+% FORMAT output = prt_machine(train,test,testcov,tr_labels,machine,iskernel)
 % Inputs:
 %    train     - training data (cell array of matrices of row vectors, each
 %                [Ntr x D]). each matrix contains one representation of the
@@ -18,6 +18,7 @@ function output = prt_machine(train,test,testcov,tr_labels,machine)
 %      .args     - function arguments (either a string, a matrix, or a
 %                  struct). This is specific to each machine, e.g. for
 %                  an L2-norm linear SVM this could be the C parameter
+%    iskernel  - flag, is data a kernel (1) is not (0)
 % Output:
 %    output  - output of machine (struct).
 %       Mandatory fields:
@@ -40,8 +41,7 @@ SANITYCHECK = true; % can turn off for "speed"
 % make sure labels are column vectors
 tr_labels   = tr_labels(:);
 
-% check if data is kernel and testcov is emprty
-dataiskernel = machine.dataiskernel;
+% check if testcov is emprty
 existcov     = ~isempty(testcov);
 
 if SANITYCHECK==true
@@ -148,7 +148,7 @@ if SANITYCHECK==true
                 'and Ntrain=%d for dataset %d!'],Ntrlbs,Ntr,k);
         end
         % 3: if kernel check for kernel properties
-        if dataiskernel
+        if iskernel
             if ~(Ntrain==Dtrain)
                 error('prt_machine:NtrainNotEqDtrain',['Error: Training '...
                     'dimensions should match, but Ntr=%d and Dtr=%d for '...
