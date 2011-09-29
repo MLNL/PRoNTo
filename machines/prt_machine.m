@@ -176,6 +176,7 @@ end % SANITYCHECK
 % Run model
 %--------------------------------------------------------------------------
 fnch   = str2func(machine.function);
+% unfortunately old-style error shaking to support Matlab 7.1...
 try
     if ~existcov
         output = fnch(train,test,tr_labels,machine.args);
