@@ -1,7 +1,7 @@
 function varargout = prt(varargin)
 % Pattern Recognition for Neuroimaging Toolbox, PRoNTo.
 %
-% This function initializes things for PRoNTo and provide some low level
+% This function initializes things for PRoNTo and provides some low level
 % functionalities
 %
 %_______________________________________________________________________
@@ -19,23 +19,41 @@ else
 end
 
 switch lower(Action)
+    %==================================================================
+    case 'startup'                                    % Startup the toolbox
         %==================================================================
-    case 'startup'                                    % Startup teh toolbox
-        %==================================================================
+        
+        % check installation of toolbox and that of SPM8
+        ok = check_installation;
+        if ~ok
+            beep
+            fprintf('INSTALLATION PROBLEM!');
+            return
+        end
         
         % Welcome message
         prt('ASCIIwelcome');
         
-        % check installation of toolbox and that of SPM8
-        check_installation;
-        
         % add appropriate path, if necessary
+        if ~exist('prt_batch','file')
+            addpath(fullfile(prt('Dir'),'batch'));
+        end
+        if ~exist('prt_machine','file')
+            pth_machines = fullfile(prt('Dir'),'machines');
+            addpath(pth_machines);
+            % add each machine sub-directory
+            ls_machinedir = list_subdir(pth_machines);
+            for ii=1:numel(ls_machinedir)
+                addpath(fullfile(pth_machines,ls_machinedir{ii}))
+            end
+        end
+        
         % in particular SPM's directories: matlabbatch
         if ~exist('cfg_util','file')
             addpath(fullfile(spm('Dir'),'matlabbatch'));
         end
         
-        % intialize the matlabbatch system, if necessary
+        % intialize the matlabbatch system
         cfg_get_defaults('cfg_util.genscript_run', @genscript_run);
         cfg_util('initcfg');
         
@@ -56,7 +74,7 @@ switch lower(Action)
         disp( '  / ____/ _, _/ /_/ / /|  / / / /_/ /               ');
         disp( ' /_/   /_/ |_|\____/_/ |_/ /_/\____/                ');
         disp( '                                                    ');
-        disp( ' PRoNTo - http://www.mlnl.cs.ucl.ac.uk/pronto       ');
+        disp( '       PRoNTo - http://www.mlnl.cs.ucl.ac.uk/pronto ');
         fprintf('\n');
         
         %==================================================================
@@ -94,12 +112,54 @@ return
 %% SUBFUNCTIONS
 %=======================================================================
 
+%=======================================================================
 function ok = check_installation
 % function to check installation state of toolbox,
-% particullarly the path setup
+% particullarly the SPM path setup
 
 ok=1;
 
+if exist('spm.m','file')
+    if ~strcmpi(spm('ver'),'spm8')
+        beep
+        fprintf('\nERROR:\n')
+        fprintf('\tSPM8 should be installed on your computer, and\n')
+        fprintf('\tbe available on MATLABPATH!\n\n')
+        ok = 0;
+    end
+else
+    beep
+    fprintf('\nERROR:\n')
+    fprintf('\tSPM8 should be installed on your computer, and\n')
+    fprintf ('\tbe available on MATLABPATH!\n\n')
+    ok = 0;
+end
+
 return
 
+%=======================================================================
+function lsdir = list_subdir(pth_dir,rejd)
+% function that returns the list of subdirectories of a directory,
+% rejection those beginning with some characters ('.', '@' and '_' by 
+% default) 
 
+if nargin<2
+    rejd = '.@_';
+end
+if nargin<1
+    pth_dir = pwd;
+end
+
+tmp = dir(pth_dir);
+ld = find([tmp.isdir]); ld([1 2]) = [];
+lsdir = {tmp(ld).name};
+if ~isempty(rejd)
+    for ii=1:numel(rejd)
+        lrej = find(strncmp(rejd(ii),lsdir,1));
+        if ~isemtpy(lrej)
+            lsdir(lrej) = [];
+        end
+    end
+end
+    
+return

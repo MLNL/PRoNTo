@@ -13,18 +13,7 @@ function prt_batch
 persistent batch_initialize
 
 if isempty(batch_initialize) || ~batch_initialize
-%     % Whole initialisation of SPM batch system
-%     try
-%         spm('defaults','fMRI')
-%         spm_jobman('initcfg')
-%     catch
-%         error('Can''t run SPM. Please check it''s in the search path');
-%     end
-%     
-% %     % Add path to nifti toolbox
-% %     addpath([prt_get_defaults('global.install_dir'),'/LIB/NII_lib']);
-    
-    % PRONTO config tree
+    % PRoNTo config tree
     prt_gui = prt_cfg_batch;
     % Adding PRoNTo config tree to the SPM tools
     cfg_util('addapp', prt_gui)
@@ -36,17 +25,3 @@ end
 cfg_ui
 
 return
-
-%  FROM spm_jobman:
-% 
-%         if ~isdeployed
-%             addpath(fullfile(spm('Dir'),'matlabbatch'));
-%             addpath(fullfile(spm('Dir'),'config'));
-%         end
-%         cfg_get_defaults('cfg_util.genscript_run', @genscript_run);
-%         cfg_util('initcfg'); % This must be the first call to cfg_util
-
-% Need to write a routine named 'pronto.m' or 'prt.m' to:
-% - initialize stuff and launch GUI
-% - provide some basic functionality, e.g. returning installation directory
-% - check some integrity of the code, e.g. classifiers and their wraper

@@ -1,3 +1,5 @@
+%
+%
 % Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
 % Verion 0.1 (PRoNTo) 30-November-2011
 %__________________________________________________________________________
@@ -29,7 +31,8 @@
 % 
 % The development of PRoNTo was possible with the financial and logistic 
 % support of 
-% - Computer Science Dept, University College London
+% - the Department of Computer Science, University College London
+%   (http://www.cs.ucl.ac.uk)
 % - the Wellcome Trust
 % - PASCAL (http://www.pascal-network.org/)
 % - the Fonds de la Recherche Scientifique-FNRS, Belgium

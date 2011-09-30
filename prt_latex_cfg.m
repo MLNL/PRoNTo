@@ -10,11 +10,15 @@ function prt_latex_cfg(c)
 % John Ashburner
 % $Id: $
 
-if ~nargin, c = prt_cfg_batch; end
-if nargin && ischar(c), clean_latex_compile; return; end
+if ~nargin,
+    c = prt_cfg_batch;
+end
+if nargin && ischar(c),
+    clean_latex_compile;
+    return;
+end
 
-PRTdir = which('prt_cfg_batch');
-PRTdir    = fileparts(PRTdir);
+PRTdir = prt('dir');
 
 fp = fopen(fullfile(PRTdir,'manual','prt_manual.tex'),'w');
 fprintf(fp,'\\documentclass[a4paper,titlepage]{book}\n');
@@ -69,7 +73,8 @@ function part(c,fp)
 %if isstruct(c) && isfield(c,'tag'),
     fprintf(fp,'\\part{%s}\n',texify(c.name));
     % write_help(c,fp);
-    if isa(c,'cfg_repeat')||isa(c,'cfg_choice')||isa(c,'cfg_menu'),
+    if isa(c,'cfg_repeat') || isa(c,'cfg_choice') || ...
+                        isa(c,'cfg_menu') || isa(c,'cfg_exbranch'),
         for i=1:numel(c.values),
             %if isfield(c.values{i},'tag'),
                 fprintf(fp,'\\include{%s}\n',c.values{i}.tag);
@@ -204,14 +209,13 @@ end
 
 %==========================================================================
 function clean_latex_compile
-PRTdir = which('prt_cfg_batch');
-PRTdir    = fileparts(PRTdir);
-p = fullfile(PRTdir,'man');
+PRTdir = prt('dir');
+p = fullfile(PRTdir,'manual');
 [f, d] = spm_select('FPlist',p,'.*\.aux$');
 f = strvcat(f, spm_select('FPlist',p,'.*\.tex$'));
 f = strvcat(f, spm_select('FPlist',p,'^manual\..*$'));
-f(strcmp(cellstr(f),fullfile(spm('Dir'),'man','manual.tex')),:) = [];
-f(strcmp(cellstr(f),fullfile(spm('Dir'),'man','manual.pdf')),:) = [];
+f(strcmp(cellstr(f),fullfile(PRTdir,'manual','manual.tex')),:) = [];
+f(strcmp(cellstr(f),fullfile(PRTdir,'manual','manual.pdf')),:) = [];
 for i=1:size(d,1)
     f = strvcat(f, spm_select('FPlist',deblank(d(i,:)),'.*\.aux$'));
 end
