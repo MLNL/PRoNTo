@@ -41,7 +41,7 @@ if SANITYCHECK==true
     if ~exist('svmtrain','file')
         error('prt_machine_svm_bin:libNotFound',['Error:'...
             ' libSVM svmtrain function could not be found !' ...
-            ' SOLUTION: Please check your path XXX']);
+            ' SOLUTION: Please check your path.']);
     end
     % check it is indeed a two-class classification problem
     nC=numel(unique(tr_lbs));

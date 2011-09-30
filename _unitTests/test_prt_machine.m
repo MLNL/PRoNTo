@@ -3,8 +3,8 @@
 % $Id$
 
 %% test setup
-featuresAsKernelMatrix=true;
-useMultipleKernels=true;
+featuresAsKernelMatrix=false;
+useMultipleKernels=false;
 
 %% generate data
 
@@ -14,31 +14,37 @@ Nte=30;                 % number of testing vectors
 
 if useMultipleKernels==true
     
-    myTR={rand(Ntr,D); randn(Ntr,D) };
-    myTE={rand(Nte,D); randn(Nte,D)};
+    t_d.train={rand(Ntr,D); randn(Ntr,D) };
+    t_d.test={rand(Nte,D); randn(Nte,D)};
 else
-    myTR={rand(Ntr,D)};
-    myTE={rand(Nte,D)};
+    t_d.train={rand(Ntr,D)};
+    t_d.test={rand(Nte,D)};
 end
 
-myLabs=round(rand(Ntr,1));
+t_d.tr_targets=round(rand(Ntr,1));
 
 if featuresAsKernelMatrix==true
     if useMultipleKernels==true
-        myTE={myTE{1}*myTR{1}';myTE{2}*myTR{2}'};
-        myTR={myTR{1}*myTR{1}';myTR{2}*myTR{2}'};
+        t_d.test={t_d.test{1}*t_d.train{1}';t_d.test{2}*t_d.train{2}'};
+        t_d.train={t_d.train{1}*t_d.train{1}';t_d.train{2}*t_d.train{2}'};
     else
-        myTE={myTE{1}*myTR{1}'};
-        myTR={myTR{1}*myTR{1}'};
+        t_d.test={t_d.test{1}*t_d.train{1}'};
+        t_d.train={t_d.train{1}*t_d.train{1}'};
     end
 end
 
 figure;
-subplot(221); imagesc(myTR{1}); title('TR 1');
-subplot(223); imagesc(myTE{1}); title('TE 1');
+subplot(221); imagesc(t_d.train{1}); title('TR 1');
+subplot(223); imagesc(t_d.test{1}); title('TE 1');
 if useMultipleKernels==true
-    subplot(222); imagesc(myTR{2}); title('TR 2');
-    subplot(224); imagesc(myTE{2}); title('TE 2');
+    subplot(222); imagesc(t_d.train{2}); title('TR 2');
+    subplot(224); imagesc(t_d.test{2}); title('TE 2');
+end
+
+if featuresAsKernelMatrix==true
+    t_d.usebf=true;
+else
+    t_d.usebf=false;
 end
 
 %% prepare machine
@@ -50,7 +56,16 @@ else
 end
 testCov=[];
 
+%% potentially annoy the code
+% 1: by removing libSVM, we might causes the code to point at the biostats
+%toolbox's version of svmtrain instead
+%rmpath('/Users/Richiardi/_skool/matlabTools/libsvm/'); 
+% 2: by removing biostats toolbox, we're 
+%rmpath('/Applications/_sciEng/MATLAB_R2011a.app/toolbox/bioinfo/biolearning');
+
 %% run
 tic
-output = prt_machine(myTR,myTE,testCov,myLabs,myMachine,featuresAsKernelMatrix);
+% OLD fomat
+%output = prt_machine(train,test,testCov,myLabs,myMachine,featuresAsKernelMatrix);
+output = prt_machine(t_d,myMachine);
 toc
