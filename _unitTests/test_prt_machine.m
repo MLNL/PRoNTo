@@ -4,11 +4,11 @@
 
 %% test setup
 featuresAsKernelMatrix=true;
-useMultipleKernels=false;
+useMultipleKernels=true;
 
 %% generate data
 
-Ntr=100;                 % number of training vectors
+Ntr=100;                % number of training vectors
 D=3;                    % dimensionality of the feature vectors
 Nte=30;                 % number of testing vectors
 
@@ -51,4 +51,6 @@ end
 testCov=[];
 
 %% run
+tic
 output = prt_machine(myTR,myTE,testCov,myLabs,myMachine,featuresAsKernelMatrix);
+toc

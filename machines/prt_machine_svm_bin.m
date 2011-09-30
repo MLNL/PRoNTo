@@ -20,6 +20,10 @@ function output = prt_machine_svm_bin(train,test,tr_lbs,args)
 % Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
 % $Id$
 
+% FIXME: make sure the svmtrain we reach is the libsvm one, not the one
+% with the same name from the bioinformatics toolbox! 
+% toolbox/bioinfo/biolearning/
+
 % FIXME: support for multiple kernels / feature representations 
 % is not yet tested, there might be transposition or dimensionality errors.
 
