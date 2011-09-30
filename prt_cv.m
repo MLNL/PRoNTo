@@ -3,24 +3,24 @@ function [outfile]=prt_cv(PRT,in)
 %
 % Input structure:
 % ----------------
-% in.fname:      filename for PRT.mat
-% in.model_name: name for this model
-% in.targets:    labels for the whole dataset
-% in.usebf:      use a kernel (basis functions) or features? 
+% in.fname:      filename for PRT.mat (string)
+% in.model_name: name for this model (string)
+% in.targets:    labels for the whole dataset (n x nClass matrix)
+% in.usebf:      use a kernel (basis functions) or features? (boolean)
 %
-% in.fs.fs_name: name for this feature set
-% in.fs.fs_file: location for data matrices / kernels
-% in.fs.mask:    masks used to create the data (indices)
+% in.fs.fs_name: name for this feature set (string)
+% in.fs.fs_file: location for data matrices / kernels (string)
+% in.fs.mask:    masks used to create the data (vector of indices)
 %
-% in.cv.cv_name: cross-validation approach to use
-% in.cv.cv_mat:  cross-validation matrix
-% in.cv.indices: sample indices of the data set
+% in.cv.cv_name: cross-validation approach to use (string)
+% in.cv.cv_mat:  cross-validation matrix (n x nFold matrix)
+% in.cv.indices: sample indices of the data set (vector of indices)
 %
 % in.machine.function: function for classification or regression (string)       
 % in.machine.args:     function arguments (string, matrix, or struct).
 %
-% Outputs the following fields in the PRT data structure:
-% -------------------------------------------------------
+% Writes the following fields in the PRT data structure:
+% ------------------------------------------------------
 % PRT.fs(f).fs_name
 % PRT.fs(f).fs_file
 % PRT.fs(f).mask
@@ -30,13 +30,14 @@ function [outfile]=prt_cv(PRT,in)
 % PRT.cv(c).indices
 %
 % PRT.model(m).model_name:    name of this model
-% PRT.model(m).input.fs_name: feature set used  % was index
-% PRT.model(m).input.cv_name: CV structure used % was index
+% PRT.model(m).input.fs_name: feature set used 
+% PRT.model(m).input.cv_name: CV structure used 
 % PRT.model(m).input.targets: Prediction targets
 % PRT.model(m).input.usebf:   Use basis functions or features?
 % PRT.model(m).input.machine: machine used for the model (see above)
 % 
 % PRT.model(m).output.fold(i).predictions: predictions for fold(i)
+% PRT.model(m).output.fold(i).stats:       statistics for fold(i)
 % PRT.model(m).output.fold(i).{custom}:    optional fields
 %__________________________________________________________________________
 % Copyright (C) 2011
@@ -80,19 +81,23 @@ for f = 1:n_folds
         
     [Phi_tr, Phi_te] = split_data(Phi, train, test, PRT.model(id.m).input.usebf);
       
-    model = prt_machine(Phi_tr, Phi_te, [], t(train), PRT.model(id.m).input.machine);
+    model = prt_machine(Phi_tr, Phi_te, [], t(train,:), ...
+        PRT.model(id.m).input.machine, PRT.model(id.m).input.usebf);
     
     if ~any(strcmpi(fieldnames(model(:)),'predictions'))
         error(['prt_cv:machineDoesNotGivePredictions',...
                'Machine ''',PRT.model(id.m).input.machine.function,...
                ''' did not produce a predictions field']);
     end
+        
+    % compute stats
+    model.stats = prt_stats(model, t(test,:));
     
     % update PRT
     PRT.model(id.m).output.fold(f) = model(:);
 end
 
-% Save PRT containing classifier output
+% Save PRT containing machine output
 % -------------------------------------------------------------------------
 
 outfile = [prt_dir, 'PRT'];
@@ -153,12 +158,12 @@ else
     id.f = 1;
 end
 if fs_exists
+    disp(['Feature set ''',in.fs.fs_name,''' found in PRT.mat.']);
+else
     disp(['Feature set ''',in.fs.fs_name,''' not found in PRT.mat. Creating.'])
     PRT.fs(id.f).fs_name = in.fs.fs_name;
     PRT.fs(id.f).fs_file = in.fs.fs_file; 
     PRT.fs(id.f).mask    = in.fs.mask;
-else
-    disp(['Feature set ''',in.model_name,''' found in PRT.mat.']);
 end
 
 % update cross-validation structure
@@ -175,12 +180,12 @@ else
 end
 
 if cv_exists
-    disp(['Model ''',in.model_name,''' not found in PRT.mat. Creating.'])
+    disp(['CV structure ''',in.cv.cv_name,''' found in PRT.mat.']);
+else
+    disp(['CV structure ''',in.cv.cv_name,''' not found in PRT.mat. Creating.'])
     PRT.cv(id.c).cv_name = in.cv.cv_name;
     PRT.cv(id.c).cv_mat  = in.cv.cv_mat;
     PRT.cv(id.c).indices = in.cv.indices;
-else
-    disp(['CV structure ''',in.model_name,''' found in PRT.mat.']);
 end
 
 end
@@ -213,7 +218,7 @@ else
 end
 
 for i = 1:length(Phi_all)
-    Phi_s{i} = Phi_all{i}(train, cols_tr);
+    Phi_s{i} = Phi_all{i}(test, cols_tr);
     Phi_ss{i} = Phi_all{i}(test, cols_te);
 end
 
