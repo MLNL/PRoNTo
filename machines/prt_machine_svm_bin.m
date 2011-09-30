@@ -24,8 +24,6 @@ function output = prt_machine_svm_bin(train,test,tr_lbs,args)
 % Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
 % $Id$
 
-% FIXME: prediction code not yet tested for feature input case
-
 % FIXME: support for multiple kernels / feature representations
 % is not yet tested, there might be transposition or dimensionality errors.
 
@@ -60,10 +58,32 @@ if SANITYCHECK==true
     if nC>2
         error('prt_machine_svm_bin:problemNotBinary',['Error:'...
             ' This machine is only for two-class problems but the' ...
-            ' current problem has ' num2str(nC) ' !' ...
+            ' current problem has ' num2str(nC) ' ! ' ...
             'SOLUTION: Please select another machine than ' ...
             'prt_machine_svm_bin in XXX']);
     end
+    
+    % check we are using the C-SVC (exclude types -s 1,2,3,4)
+    if ~isempty(regexp(args,'-s\s+[1234]','once'))
+        error('prt_machine_svm_bin:argsProblem:onlyCSVCsupport',['Error:'...
+            ' This machine only supports a C-SVC formulation ' ...
+            ' (''-s 0'' in the ''args'' parameter), but the args ' ...
+            ' supplied are ''' args ''' ! ' ...
+            'SOLUTION: Please change the offending part of args to '...
+            '''-s 0''']);
+    end
+    
+    % check we are using linear or precomputed kernels
+    % (exclude types -t 1,2,3)
+    if ~isempty(regexp(args,'-t\s+[123]','once'))
+        error('prt_machine_svm_bin:argsProblem:onlyLinOrPrecomputeSupport',...
+            ['Error: This machine only supports linear or precomputed ' ...
+            'kernels (''-t 0/4'' in the ''args'' parameter), but the args ' ...
+            ' supplied are ''' args ''' ! ' ...
+            'SOLUTION: Please change the offending part of args to '...
+            '''-t 0'' or ''-t 4'' as intended']);
+    end
+    
 end
 
 % TODO: check/convert labels
@@ -78,11 +98,11 @@ end
 %--------------------------------------------------------------------------
 nlbs  = length(tr_lbs);
 if hasPrecomputedKernel
-    allids=(1:nlbs)';
+    allids_tr=(1:nlbs)';
 else
-    allids=[];
+    allids_tr=[];
 end
-model = svmtrain(tr_lbs,[allids train{:}],args);
+model = svmtrain(tr_lbs,[allids_tr train{:}],args);
 
 % check if training succeeded:
 if isempty(model)
@@ -96,7 +116,7 @@ if isempty(model)
         ' This could be a problem with the supplied function arguments'...
         ' ' args_str '']);
 end
-b     = -model.rho * model.Label(1);
+b     = -model.rho; %
 
 if hasPrecomputedKernel
     alpha = get_alpha(model,nlbs);
@@ -127,7 +147,16 @@ end
 % compute hard decisions
 predictions=sign(func_val);
 
-% TODO: convert labels to 
+% % REMOVEME compare with libsvm svmpredict results
+% if hasPrecomputedKernel
+%     allids_te=(1:size(cell2mat(test),1))';
+% else
+%     allids_te=[];
+% end
+% [foo_preds, foo_acc, foo_decision] = svmpredict([ones(10,1); ones(10,1)*2],[allids_te cell2mat(test)], model);
+% [func_val foo_decision]
+
+% TODO: convert labels to chosen output format
 
 % Outputs
 %--------------------------------------------------------------------------
@@ -153,7 +182,7 @@ for i = 1:model.totalSV
     ind        = model.SVs(i);
     alpha(ind) = model.sv_coef(i);
 end
-alpha = model.Label(1)*alpha;
+%alpha = model.Label(1)*alpha;
 
 end
 

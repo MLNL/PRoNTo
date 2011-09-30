@@ -11,17 +11,18 @@ useMultipleKernels=false;
 Ntr=30;                % number of training vectors
 D=3;                    % dimensionality of the feature vectors
 Nte=20;                 % number of testing vectors
+classOffset=1;
 
 if useMultipleKernels==true
     
-    t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+2]; [randn(Ntr/2,D); randn(Ntr/2,D)+2] };
-    t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+2]; [randn(Nte/2,D); randn(Nte/2,D)+2] };
+    t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+classOffset]; [randn(Ntr/2,D); randn(Ntr/2,D)+classOffset] };
+    t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+classOffset]; [randn(Nte/2,D); randn(Nte/2,D)+classOffset] };
 else
-    t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+2]};
-    t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+2]};
+    t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+classOffset]};
+    t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+classOffset]};
 end
 
-t_d.tr_targets=([zeros(Ntr/2,1) ; ones(Ntr/2,1)]);
+t_d.tr_targets=([ones(Ntr/2,1) ; ones(Ntr/2,1)*2]);
 
 if featuresAsKernelMatrix==true
     if useMultipleKernels==true
@@ -50,9 +51,9 @@ end
 %% prepare machine
 myMachine.function='prt_machine_svm_bin';
 if featuresAsKernelMatrix==true
-    myMachine.args='-t 4';
+    myMachine.args='-s 0 -t 4';
 else
-    myMachine.args='-t 1';
+    myMachine.args='-s 0 -t 0';
 end
 testCov=[];
 
