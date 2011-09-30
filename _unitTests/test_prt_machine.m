@@ -3,25 +3,25 @@
 % $Id$
 
 %% test setup
-featuresAsKernelMatrix=false;
+featuresAsKernelMatrix=true;
 useMultipleKernels=false;
 
 %% generate data
 
-Ntr=100;                % number of training vectors
+Ntr=30;                % number of training vectors
 D=3;                    % dimensionality of the feature vectors
-Nte=30;                 % number of testing vectors
+Nte=20;                 % number of testing vectors
 
 if useMultipleKernels==true
     
-    t_d.train={rand(Ntr,D); randn(Ntr,D) };
-    t_d.test={rand(Nte,D); randn(Nte,D)};
+    t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+2]; [randn(Ntr/2,D); randn(Ntr/2,D)+2] };
+    t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+2]; [randn(Nte/2,D); randn(Nte/2,D)+2] };
 else
-    t_d.train={rand(Ntr,D)};
-    t_d.test={rand(Nte,D)};
+    t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+2]};
+    t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+2]};
 end
 
-t_d.tr_targets=round(rand(Ntr,1));
+t_d.tr_targets=([zeros(Ntr/2,1) ; ones(Ntr/2,1)]);
 
 if featuresAsKernelMatrix==true
     if useMultipleKernels==true
