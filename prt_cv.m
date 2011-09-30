@@ -43,7 +43,7 @@ function [outfile]=prt_cv(PRT,in)
 
 % Written by A Marquand
 
-prt_dir = regexprep(in.fname,'PRT.mat', ''); % or: fileparts(fname);
+prt_dir = regexprep(in.fname,'PRT.mat', '');
 
 [PRT, id] = update_prt_static(PRT, in);
 
@@ -80,10 +80,11 @@ for f = 1:n_folds
         
     [Phi_tr, Phi_te] = split_data(Phi, train, test, PRT.model(id.m).input.usebf);
       
-    model = prt_machine(Phi_tr, Phi_te, t(train), PRT.model(id.m).input.machine);
+    model = prt_machine(Phi_tr, Phi_te, [], t(train), PRT.model(id.m).input.machine);
     
     if ~any(strcmpi(fieldnames(model(:)),'predictions'))
-        error(['Machine ''',PRT.model(id.m).input.machine.function,...
+        error(['prt_cv:machineDoesNotGivePredictions',...
+               'Machine ''',PRT.model(id.m).input.machine.function,...
                ''' did not produce a predictions field']);
     end
     
@@ -114,15 +115,24 @@ function [PRT, id] = update_prt_static(PRTin, in)
 PRT = PRTin;
 
 % update model
+model_exists = false;
 if isfield(PRT,'model')
     if any(strcmpi(in.model_name,{PRT.model(:).model_name}))
         id.m = find(strcmpi(in.model_name,{PRT.model(:).model_name}));
+        model_exists = true;
     else
         id.m = length(PRT.model)+1;
     end
 else
     id.m = 1;
 end
+if model_exists
+    warning('prt_cv:modelAlreadyInPRT',['Model ''',in.model_name,...
+        ''' already exists in PRT.mat. Overwriting.']);
+else
+    disp(['Model ''',in.model_name,''' not found in PRT.mat. Creating.'])
+end
+% always overwrite the model
 PRT.model(id.m).model_name    = in.model_name;
 PRT.model(id.m).input.fs_name = in.fs.fs_name;
 PRT.model(id.m).input.cv_name = in.cv.cv_name;
@@ -131,32 +141,47 @@ PRT.model(id.m).input.usebf   = in.usebf;
 PRT.model(id.m).input.machine = in.machine;
 
 % update feature set
-if isfield(PRT,'fs')
+fs_exists = false;
+if isfield(PRT,'feature_set')
     if any(strcmpi(in.fs.fs_name,{PRT.fs(:).fs_name}))
         id.f = find(strcmpi(in.fs.fs_name,{PRT.fs(:).fs_name}));
+        fs_exists = true;
     else
         id.f = length(PRT.cv)+1;
     end
 else
     id.f = 1;
 end
-PRT.fs(id.f).fs_name = in.fs.fs_name;
-PRT.fs(id.f).fs_file = in.fs.fs_file; 
-PRT.fs(id.f).mask    = in.fs.mask;
+if fs_exists
+    disp(['Feature set ''',in.fs.fs_name,''' not found in PRT.mat. Creating.'])
+    PRT.fs(id.f).fs_name = in.fs.fs_name;
+    PRT.fs(id.f).fs_file = in.fs.fs_file; 
+    PRT.fs(id.f).mask    = in.fs.mask;
+else
+    disp(['Feature set ''',in.model_name,''' found in PRT.mat.']);
+end
 
 % update cross-validation structure
+cv_exists = false;
 if isfield(PRT,'cv')
     if any(strcmpi(in.cv.cv_name,{PRT.cv(:).cv_name}))
         id.c = find(strcmpi(in.cv.cv_name,{PRT.cv(:).cv_name}));
+        cv_exists = true;
     else
         id.c = length(PRT.cv)+1;
     end
 else
     id.c = 1;
 end
-PRT.cv(id.c).cv_name = in.cv.cv_name;
-PRT.cv(id.c).cv_mat  = in.cv.cv_mat;
-PRT.cv(id.c).indices = in.cv.indices;
+
+if cv_exists
+    disp(['Model ''',in.model_name,''' not found in PRT.mat. Creating.'])
+    PRT.cv(id.c).cv_name = in.cv.cv_name;
+    PRT.cv(id.c).cv_mat  = in.cv.cv_mat;
+    PRT.cv(id.c).indices = in.cv.indices;
+else
+    disp(['CV structure ''',in.model_name,''' found in PRT.mat.']);
+end
 
 end
         
