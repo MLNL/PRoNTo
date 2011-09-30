@@ -1,11 +1,6 @@
 function [outfile] = prt_kernel_construction(PRT,in)
 % Script to compute a linear (dot product) kernel
 %__________________________________________________________________________
-% Copyright (C) 2011
-
-% Written by A Marquand and J Schrouff
-
-%__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Schrouff and A. Marquand
@@ -229,11 +224,13 @@ for m = 1:n_mods
     if m == 1 
         n_vox = prod(N.dat.dim(1:3));  
     elseif n_mods > 1 && n_vox ~= prod(N.dat.dim(1:3))
-        error('Multiple modalities specified, but have variable numbers of features');  
+        error('prt_kernel_construction:multipleModatlitiesVariableFeatures',...
+              'Multiple modalities specified, but have variable numbers of features');  
     end
 
     if size(M.dat(:,:,:,1)) ~= size(N(1).dat(:,:,:,1))
-        warning('Mask has different dimensions to the image files. Resizing...');
+        warning('prt_kernel_construction:maskAndImagesDifferentDim',...
+            'Mask has different dimensions to the image files. Resizing...');
         
         V1 = spm_vol([prt_dir,prt_get_filename(file_idx),'.img,1']);
         V2 = spm_vol(char(mfile));
