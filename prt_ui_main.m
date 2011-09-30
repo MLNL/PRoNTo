@@ -165,7 +165,7 @@ function credits_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-help('Contents.m'));
+help('Contents.m');
 % str = help('Contents.m'));
 % fig = figure;
 % set(fig,'Position',[73   145   498   1003])

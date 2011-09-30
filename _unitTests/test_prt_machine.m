@@ -8,10 +8,10 @@ useMultipleKernels=false;
 
 %% generate data
 
-Ntr=30;                % number of training vectors
-D=3;                    % dimensionality of the feature vectors
-Nte=20;                 % number of testing vectors
-classOffset=1;
+Ntr=100;                % number of training vectors
+D=1000;                    % dimensionality of the feature vectors
+Nte=30;                 % number of testing vectors
+classOffset=0.06;
 
 if useMultipleKernels==true
     
@@ -23,6 +23,7 @@ else
 end
 
 t_d.tr_targets=([ones(Ntr/2,1) ; ones(Ntr/2,1)*2]);
+te_targets=([ones(Nte/2,1) ; ones(Nte/2,1)*2]);
 
 if featuresAsKernelMatrix==true
     if useMultipleKernels==true
@@ -70,3 +71,7 @@ tic
 %output = prt_machine(train,test,testCov,myLabs,myMachine,featuresAsKernelMatrix);
 output = prt_machine(t_d,myMachine);
 toc
+
+%% eval 
+figure; plot([output.func_val te_targets]);
+legend('soft prediction','true labels');

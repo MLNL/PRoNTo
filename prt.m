@@ -156,7 +156,7 @@ lsdir = {tmp(ld).name};
 if ~isempty(rejd)
     for ii=1:numel(rejd)
         lrej = find(strncmp(rejd(ii),lsdir,1));
-        if ~isemtpy(lrej)
+        if ~isempty(lrej)
             lsdir(lrej) = [];
         end
     end
