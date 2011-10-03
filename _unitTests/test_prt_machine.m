@@ -8,10 +8,10 @@ useMultipleKernels=false;
 
 %% generate data
 
-Ntr=100;                % number of training vectors
+Ntr=200;                % number of training vectors
 D=1000;                    % dimensionality of the feature vectors
-Nte=30;                 % number of testing vectors
-classOffset=0.06;
+Nte=100;                 % number of testing vectors
+classOffset=0.01;       % higher value = easier problem
 
 if useMultipleKernels==true
     
@@ -51,12 +51,19 @@ else
 end
 
 %% prepare machine
-myMachine.function='prt_machine_svm_bin';
-if featuresAsKernelMatrix==true
-    myMachine.args='-s 0 -t 4';
+%myMachine.function='prt_machine_svm_bin';
+myMachine.function='prt_machine_RT_bin';
+
+if ~isempty(strfind(myMachine.function,'svm_bin'))
+    if featuresAsKernelMatrix==true
+        myMachine.args='-s 0 -t 4';
+    else
+        myMachine.args='-s 0 -t 0';
+    end
 else
-    myMachine.args='-s 0 -t 0';
+    myMachine.args=[601];
 end
+
 testCov=[];
 
 %% potentially annoy the code
@@ -79,3 +86,5 @@ plot(output.predictions,'k:','LineWidth',2);
 plot(output.func_val,'b--','LineWidth',2); 
 legend('true labels','hard prediction','soft prediction');
 grid on
+acc=sum(output.predictions==te_targets)/numel(te_targets)
+title([myMachine.function ' - ' num2str(acc,'%2.2f')],'Interpreter','none');
