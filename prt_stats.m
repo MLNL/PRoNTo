@@ -12,13 +12,24 @@ function stats = prt_stats(model, t)
 % ----------------
 % stats.con_mat: Confusion matrix (nClasses x nClasses matrix, pred x true)
 % stats.acc:     Accuracy (scalar)
-% stats.b_acc:   Balanced accuracy (nClassees x 1 vector)
+% stats.b_acc:   Balanced accuracy (nClasses x 1 vector)
 % stats.c_acc:   Accuracy by class (nClasses x 1 vector)
 % stats.c_pv:    Predictive value for each class (nClasses x 1 vector)
 %__________________________________________________________________________
 % Copyright (C) 2011 PRoNTo
 
 % Written by A. Marquand
+
+% Do some checks ...
+if ~any(strcmpi(fieldnames(model),'predictions'))
+    error(['prt_stats:machineDoesNotGivePredictions',...
+        'Machine did not produce a predictions field']);
+end
+if size(t,1) ~= size(model.predictions,1)
+    error(['prt_stats:machineProvidesWrongNumberOfPredictions',...
+        'Machine produced a number of predictions not equal to the number of targets']);
+end
+
 
 switch model.type
     case 'classifier'
@@ -43,21 +54,11 @@ end
 function stats = compute_stats_classifier(model, t)
     
     k = max(size(t,2),2);       % number of classes
-    
-    % HACK: fix the svm decision function (until prt_machine_svm_bin is
-    % updated)
-    if isfield(model,'totalSV')
-       pred = sign(model.predictions); 
-       
-       % convert -1/+1 labels to c = 1,2,3...
-       t    = 1 + (t + 1) ./ 2;
-       pred = 1 + (pred + 1) ./ 2;
-    end
-        
+               
     stats.con_mat = zeros(k,k);
     for i = 1:length(t)
         true_lb = t(i);
-        pred_lb = pred(i);
+        pred_lb = model.predictions(i);
         stats.con_mat(pred_lb,true_lb) = stats.con_mat(pred_lb,true_lb) + 1;
     end
     
