@@ -145,7 +145,7 @@ else
 end
 
 % compute hard decisions
-predictions=sign(func_val);
+predictions = sign(func_val);
 
 % % REMOVEME compare with libsvm svmpredict results
 % if hasPrecomputedKernel
@@ -160,6 +160,10 @@ predictions=sign(func_val);
 
 % Outputs
 %--------------------------------------------------------------------------
+% change predictions from -1/1 to 1/2
+predictions(predictions==1)  = 2;
+predictions(predictions==-1) = 1;
+
 output.predictions = predictions;
 output.func_val    = func_val;
 output.type        = 'classifier';
