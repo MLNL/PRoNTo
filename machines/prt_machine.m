@@ -186,7 +186,7 @@ if SANITYCHECK==true
             if ~(Ntrain_lbs==Ntrain)
                 error('prt_machine:NtrlbsNotEqNtr',['Error: Number of training '...
                     'examples and training labels should match, but Ntrain_lbs=%d '...
-                    'and Ntrain=%d for dataset %d!'],Ntrlbs,Ntr,k);
+                    'and Ntrain=%d for dataset %d!'],Ntrain_lbs,Ntrain,k);
             end
             % c: if kernel check for kernel properties
             if d.usebf
