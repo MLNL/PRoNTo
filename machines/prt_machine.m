@@ -39,6 +39,7 @@ function output = prt_machine(d,m)
 
 % TODO: make tr_targets a cell array (?)
 % TODO: fix 80-cols limit in source code
+% TODO: Multi-kernel learning
 
 SANITYCHECK = true; % can turn off for "speed"
 
@@ -141,6 +142,12 @@ if SANITYCHECK==true
         % 5: Check data properties (over cells)
         Nk_train   = length(d.train);
         Nk_test    = length(d.test);
+        
+        % 6: Check if data has more than one cell
+        if Nk_train > 1
+             error('prt_machine:MKLnotSupported',...
+                    'Error: Multi-kernel learning not supported yet!');
+        end 
         if existcov,
             if ~iscell(d.testcov)
                 error('prt_machine:TestCovNotCell',...
@@ -162,7 +169,7 @@ if SANITYCHECK==true
             end
         end
         
-        % 6: Check datasets properties (within cells)
+        % 7: Check datasets properties (within cells)
         for k = 1:Nk_train,
             if ~isempty(d.train{k}) && ~isempty(d.test{k})
                 if ~prt_ismatrix(d.train{k}) || ~prt_ismatrix(d.test{k})
