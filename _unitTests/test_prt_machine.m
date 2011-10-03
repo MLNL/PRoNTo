@@ -22,8 +22,9 @@ else
     t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+classOffset]};
 end
 
-t_d.tr_targets=([ones(Ntr/2,1) ; ones(Ntr/2,1)*2]);
-te_targets=([ones(Nte/2,1) ; ones(Nte/2,1)*2]);
+% can also label class1=2 class2=1 to be perverse
+t_d.tr_targets=([ones(Ntr/2,1)*1 ; ones(Ntr/2,1)*2]);
+te_targets=([ones(Nte/2,1)*1 ; ones(Nte/2,1)*2]);
 
 if featuresAsKernelMatrix==true
     if useMultipleKernels==true
@@ -72,6 +73,9 @@ tic
 output = prt_machine(t_d,myMachine);
 toc
 
-%% eval 
-figure; plot([output.func_val te_targets]);
-legend('soft prediction','true labels');
+% eval 
+figure; plot(te_targets,'g-','LineWidth',3); hold on;
+plot(output.predictions,'k:','LineWidth',2);
+plot(output.func_val,'b--','LineWidth',2); 
+legend('true labels','hard prediction','soft prediction');
+grid on

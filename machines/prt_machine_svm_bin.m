@@ -27,10 +27,8 @@ function output = prt_machine_svm_bin(train,test,tr_lbs,args)
 % FIXME: support for multiple kernels / feature representations
 % is not yet tested, there might be transposition or dimensionality errors.
 
-% TODO: check class label coding at input and potentially remap at output
-
 % TODO: maybe also check the prt_machine .usebf argument for compatibility
-% with lbSVM syntax ?
+% with libSVM syntax ?
 
 % TODO: make sure the svmtrain we reach is the libsvm one, not the one
 % with the same name from the bioinformatics toolbox!
@@ -54,13 +52,22 @@ if SANITYCHECK==true
             ' SOLUTION: Please check your path.']);
     end
     % check it is indeed a two-class classification problem
-    nC=numel(unique(tr_lbs));
+    uTL=unique(tr_lbs(:));
+    nC=numel(uTL);
     if nC>2
         error('prt_machine_svm_bin:problemNotBinary',['Error:'...
             ' This machine is only for two-class problems but the' ...
             ' current problem has ' num2str(nC) ' ! ' ...
             'SOLUTION: Please select another machine than ' ...
             'prt_machine_svm_bin in XXX']);
+    end
+    % check it is indeed labelled correctly (probably should be done 
+    if ~all(uTL==[1 2]')
+        error('prt_machine_svm_bin:LabellingIncorect',['Error:'...
+            ' This machine needs labels to be in {1,2} ' ...
+            ' but they are ' mat2str(uTL) ' ! ' ...
+            'SOLUTION: Please relabel your classes by changing the '...
+            ' ''tr_lbs'' argument to prt_machine_svm_bin']);
     end
     
     % check we are using the C-SVC (exclude types -s 1,2,3,4)
@@ -85,8 +92,6 @@ if SANITYCHECK==true
     end
     
 end
-
-% TODO: check/convert labels
 
 if ~isempty(regexp(args,'-t\s+4','once'))
     hasPrecomputedKernel=true;
@@ -116,7 +121,7 @@ if isempty(model)
         ' This could be a problem with the supplied function arguments'...
         ' ' args_str '']);
 end
-b     = -model.rho; %
+b     = -model.rho; 
 
 if hasPrecomputedKernel
     alpha = get_alpha(model,nlbs);
@@ -160,9 +165,10 @@ predictions = sign(func_val);
 
 % Outputs
 %--------------------------------------------------------------------------
-% change predictions from -1/1 to 1/2
-predictions(predictions==1)  = 2;
-predictions(predictions==-1) = 1;
+% change predictions from 1/-1 to 1/2
+c1PredIdx=predictions==1; % locate class 1 preds
+predictions(c1PredIdx) = model.Label(1);
+predictions(~c1PredIdx) = model.Label(2);
 
 output.predictions = predictions;
 output.func_val    = func_val;
