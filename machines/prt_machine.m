@@ -165,7 +165,7 @@ if SANITYCHECK==true
         % 6: Check datasets properties (within cells)
         for k = 1:Nk_train,
             if ~isempty(d.train{k}) && ~isempty(d.test{k})
-                if ~ismatrix(d.train{k}) || ~ismatrix(d.test{k})
+                if ~prt_ismatrix(d.train{k}) || ~prt_ismatrix(d.test{k})
                     error('prt_machine:TrAndTeNotMatrices',...
                         'Error: training and testing datasets should be matrices!');
                 end
@@ -288,3 +288,11 @@ end % SANITYCHECK on output
 
 end
 
+%% local functions
+function out=prt_ismatrix(A)
+% ismatrix was not a built-in in Matlab 7.1, so do a homebrew
+% implementation (based on Dan Vimont's Matlab libs at
+% http://www.aos.wisc.edu/~dvimont/matlab but with short-circuit AND for
+% "speed")
+out=(ndims(A)==2) && (min(size(A)) ~= 1);
+end
