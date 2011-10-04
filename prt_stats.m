@@ -27,9 +27,8 @@ if ~any(strcmpi(fieldnames(model),'predictions'))
 end
 if size(t,1) ~= size(model.predictions,1)
     error(['prt_stats:machineProvidesWrongNumberOfPredictions',...
-        'Machine produced a number of predictions not equal to the number of targets']);
+        'Number of predictions is not equal to the number of targets']);
 end
-
 
 switch model.type
     case 'classifier'

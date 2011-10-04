@@ -1,11 +1,27 @@
-function [outfile] = prt_kernel_construction(PRT,in)
-% Script to compute a linear (dot product) kernel
+function [fs_file] = prt_kernel_construction(PRT,in)
+% Function to compute a linear (dot product) kernel
+%
+% Inputs:
+% -------
+% in.fname:     filename for the PRT.mat (string)
+% in.kname:     relative path filename for the kernel matrix (string)
+% in.normalise: scale the kernel to a unit hypersphere (boolean)
+%
+% in.mod(m).mod_name:  name of modality to include in this kernel (string)
+% in.mod(m).kernel_dt: detrend the kernel (scalar: 0 = none, 1 = linear)
+% in.mod(m).mode:      'all_cond' or 'all_scans' (string)
+% in.mod(m).mask:      mask file used to create the kernel
+%
+% Outputs:
+% --------
+% Calls prt_init_fs to populate basic fields in PRT.fs(f)
+% Writes PRT.mat
+% Writes the kernel matrix to the path indicated by in.kname
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by J. Schrouff and A. Marquand
+% Written by A. Marquand and J. Schrouff 
 % $Id$
-
 
 % Configure some variables
 % -------------------------------------------------------------------------
@@ -13,7 +29,7 @@ prt_dir = regexprep(in.fname,'PRT.mat', ''); % or: fileparts(fname);
 
 n_groups      = length(PRT.group);
 
-% get the index of the modalities for which the user wants a kernel/data
+% get the index of the modalities for which the user wants to include
 n_mods=length(in.mod);
 mids=[];
 for i=1:n_mods
@@ -25,9 +41,15 @@ end
 % Load mask(s) and resize if necessary
 [mask, n_vox] = load_masks(PRT, prt_dir, in.mod,mids);
 
+% Initalise feature set
+fs.mod     = in.mod;
+fs.fs_name = in.kname;  
+fs.fs_file = in.kname;    % FIXME: these fields should probably be separated
+[PRT, fid] = prt_init_fs(PRT,fs);
+
 % Initialize kernel
-kernel = init_kernel(PRT,in,mids);
-n      = length(kernel.ids);
+n   = length(PRT.fs(fid).ids);
+Phi = zeros(n); 
 
 % Set memory limit
 mem         = prt_get_defaults('kernel.mem_limit');
@@ -86,7 +108,7 @@ for b = 1:n_block
     end       % group
     
     % add this block's contribution to K
-    kernel.K = kernel.K + (data_vols' * data_vols);
+    Phi = Phi + (data_vols' * data_vols);
     
     bstart=bend+1; bend=min(bstart+block_size-1,n_vox);
 end
@@ -95,11 +117,11 @@ end
 % -------------------------------------------------------------------------
 linear_dt = false;
 % construct indicator matrix
-Kidx = [[kernel.ids(:).group]', ...
-        [kernel.ids(:).subject]', ...
-        [kernel.ids(:).modality]', ...
-        [kernel.ids(:).cond]', ... 
-        [kernel.ids(:).scan]'];
+Phi_id = [[PRT.fs(fid).ids(:).group]', ...
+          [PRT.fs(fid).ids(:).subject]', ...
+          [PRT.fs(fid).ids(:).modality]', ...
+          [PRT.fs(fid).ids(:).cond]', ... 
+          [PRT.fs(fid).ids(:).scan]'];
 % configure confound matrix
 C = [];
 for gid = 1:length(PRT.group)    
@@ -107,7 +129,9 @@ for gid = 1:length(PRT.group)
         for m = 1:n_mods
             if in.mod(mids(m)).kernel_dt == 1
                 linear_dt = true; 
-                rg = logical(double(Kidx(:,1) == gid) .* double(Kidx(:,2) == sid) .* double(Kidx(:,3) == mids(m)));
+                rg = and(and( Phi_id(:,1) == gid, ...
+                              Phi_id(:,2) == sid), ...
+                              Phi_id(:,3) == mids(m) );
                 c  = zeros(n,2);
                 c(rg,1:2) = [(1:sum(rg))' ones(sum(rg),1)];
                 C = [C c];
@@ -118,86 +142,32 @@ end
 
 % detrend
 if linear_dt
-    kernel.K = prt_remove_confounds(kernel.K,C);
+    Phi = prt_remove_confounds(Phi,C);
 end
 
 % Normalise
 % -------------------------------------------------------------------------
 if in.normalise
-    kernel.K = prt_normalise_kernel(kernel.K);
+    Phi = prt_normalise_kernel(Phi);
 end
 
 % Save kernel and function output
 % -------------------------------------------------------------------------
-outfile = [prt_dir, 'kernel_',in.kname];
-disp(['Saving kernel to: ',['kernel_',in.kname],'.mat.......>>'])
+fs_file = [prt_dir,in.kname];
+disp(['Saving kernel to: ',in.kname,'.mat.......>>'])
+disp('Saving PRT.mat.......>>')
 if spm_matlab_version_chk('7') >= 0
-    save(outfile,'-V6','kernel');
+    save(fs_file,'-V6','Phi');
+    save(in.fname,'-V6','PRT');
 else
-    save(outfile,'kernel');
+    save(fs_file,'Phi');
+    save(in.fname,'-V6','PRT');
+end
 end
 
 % -------------------------------------------------------------------------
 % Private functions
 % -------------------------------------------------------------------------
-
-function kernel = init_kernel(PRT, in, mids)
-% function to initialise the kernel data structure
-% ------------------------------------------------
-
-kernel.name = in.kname;
-kernel.ids  = struct('modality',{},'group',{},'subject',{},'cond',{},'scan',{}); 
-
-n_mods=length(mids);
-for m = 1:n_mods
-   kernel.modality(m).mod_name = in.mod(mids(m)).mod_name;
-   kernel.modality(m).kernel_dt = in.mod(mids(m)).kernel_dt;
-end
-
-% Count the total number of samples and set sample ids
-sample_range = 0;
-for gid = 1:length(PRT.group) % group    
-    for sid = 1:length(PRT.group(gid).subject);  % subject       
-        for m = 1:n_mods
-            mid = mids(m);
-            if strcmpi(in.mod(mid).mode,'all_scans');
-                n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
-                
-                % configure indices
-                sample_range = (1:n_vols_s)+max(sample_range);
-                [kernel.ids(sample_range).group]    = deal(gid);
-                [kernel.ids(sample_range).subject]  = deal(sid);
-                [kernel.ids(sample_range).modality] = deal(mid);
-                [kernel.ids(sample_range).cond]     = deal(0);
-                for ii = 1:length(sample_range)
-                    kernel.ids(sample_range(ii)).scan = ii;
-                end
-                
-            elseif strcmpi(in.mod(mid).mode,'all_cond')
-                conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
-                
-                % now loop over conditions
-                for cid = 1:length(conds)    % condition
-                    scans = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
-                    n_vol_s_c = length(scans);
-                    
-                    % configure indices
-                    sample_range = (1:n_vol_s_c)+max(sample_range);
-                    [kernel.ids(sample_range).group]    = deal(gid);
-                    [kernel.ids(sample_range).subject]  = deal(sid);
-                    [kernel.ids(sample_range).modality] = deal(mid); 
-                    [kernel.ids(sample_range).cond]     = deal(cid);
-                    for ii = 1:length(sample_range)
-                        kernel.ids(sample_range(ii)).scan = ii;
-                    end
-                end                
-            end
-        end  % modality
-    end  % subject 
-end  % group
-
-kernel.K = zeros(length(kernel.ids)); 
-
 
 function [mask, n_vox] = load_masks(PRT, prt_dir, in, mids)
 % function to load the mask for each modality
@@ -242,4 +212,5 @@ for m = 1:n_mods
         mask{m} = mfile;
     end
     clear M N V1 V2 mfile mfile_new
+end
 end

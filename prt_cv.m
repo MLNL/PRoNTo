@@ -23,14 +23,20 @@ function [outfile]=prt_cv(PRT,in)
 % ------------------------------------------------------
 % PRT.fs(f).fs_name
 % PRT.fs(f).fs_file
-% PRT.fs(f).mask
+% PRT.fs(f).mask 
+% *PRT.fs(f).ids.group
+% *PRT.fs(f).ids.subject
+% *PRT.fs(f).ids.modality
+% *PRT.fs(f).ids.cond
+% *PRT.fs(f).ids.scan
 %
 % PRT.cv(c).cv_name
 % PRT.cv(c).cv_mat
-% PRT.cv(c).indices
-%
+% *PRT.cv(c).fs_name
+% *PRT.cv(c).fs_indices
+% 
 % PRT.model(m).model_name:    name of this model
-% PRT.model(m).input.fs_name: feature set used 
+% -PRT.model(m).input.fs_name: feature set used 
 % PRT.model(m).input.cv_name: CV structure used 
 % PRT.model(m).input.targets: Prediction targets (all samples)
 % PRT.model(m).input.usebf:   Use basis functions or features?
@@ -158,7 +164,7 @@ PRT.model(id.m).input.targets = in.targets;
 PRT.model(id.m).input.usebf   = in.usebf;
 PRT.model(id.m).input.machine = in.machine;
 
-% update feature set
+ update feature set
 fs_exists = false;
 if isfield(PRT,'fs')
     if any(strcmpi(in.fs.fs_name,{PRT.fs(:).fs_name}))
