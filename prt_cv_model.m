@@ -1,0 +1,155 @@
+function [outfile]=prt_cv_model(PRT,in)
+% Function to run a cross-validation structure on a given model 
+%
+% Inputs:
+% -------
+% in.fname:      filename for PRT.mat (string)
+% in.model_name: name for this model (string)
+% in.targets:    labels for the whole dataset (n x nClass matrix)
+% in.usebf:      use a kernel (basis functions) or features? (boolean)
+% in.cv_name: cross-validation approach to use (string)
+%
+% in.machine.function: function for classification or regression (string)       
+% in.machine.args:     function arguments (string, matrix, or struct).
+%
+% Outputs:
+% --------
+% Writes the following fields in the PRT data structure:
+% 
+% PRT.model(m).output.fold(i).targets:     targets for fold(i)
+% PRT.model(m).output.fold(i).predictions: predictions for fold(i)
+% PRT.model(m).output.fold(i).stats:       statistics for fold(i)
+% PRT.model(m).output.fold(i).{custom}:    optional fields
+%
+% Notes: - The feature set is derived from the cross-validation structure,
+%          it is not an inherent property of the model itself.
+%        - The PRT.model(m).input fields are set by prt_init_model, not by
+%          this function
+%__________________________________________________________________________
+% Copyright (C) 2011
+
+% Written by A Marquand
+
+prt_dir = regexprep(in.fname,'PRT.mat', '');
+
+% Get index of specified model and cross-validation structure;
+cid = prt_init_cv(PRT, in);
+mid = prt_init_model(PRT, in);
+
+% Get index of feature set (from CV)
+fs.fs_name = PRT.cv(cid).fs_name;
+fid        = prt_init_fs(PRT, fs);
+
+% configure some variables
+CV      = PRT.cv(cid).cv_mat;  % CV matrix
+n_folds = size(CV,2);            % number of CV folds
+n_Phi   = size(PRT.fs(fid),1);  % number of data matrices
+
+% targets
+t = PRT.model(mid).input.targets;
+
+% load data files
+disp('Loading data files.....>>');
+Phi_all = cell(1,n_Phi);
+for i = 1:size(PRT.fs,1)
+    load(fullfile(prt_dir,PRT.fs(fid).fs_file));
+    
+    if PRT.model(mid).input.usebf
+        Phi_all{i} = Phi;
+    else
+        % this should be improved
+        vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);
+        eval(['Phi_all{',num2str(i),'}=',vname,';']);
+    end
+end
+
+% Begin cross-validation loop
+% -------------------------------------------------------------------------
+PRT.model(mid).output.fold = struct();
+for f = 1:n_folds
+    % configure training and test indices (validation is done later)
+    tr_idx = and(CV(:,f) == 1, in.targets ~= 0);
+    te_idx = and(CV(:,f) == 2, in.targets ~= 0);    
+    
+    [Phi_tr, Phi_te, Phi_tt] = ...
+        split_data(Phi_all, tr_idx, te_idx, PRT.model(mid).input.usebf);
+      
+    % Assemble data structure
+    cvdata.train      = Phi_tr;
+    cvdata.test       = Phi_te;
+    cvdata.tr_targets = t(tr_idx,:);
+    cvdata.usebf      = PRT.model(mid).input.usebf;
+    %if PRT.model(mid).input.usebf
+    %    cvdata.testcov    = Phi_tt;
+    %end
+    
+    % train the prediction model
+    model = prt_machine(cvdata, PRT.model(mid).input.machine);
+        
+    % compute stats
+    stats = prt_stats(model, t(te_idx,:));
+    
+    % update PRT
+    PRT.model(mid).output.fold(f).targets = t(te_idx,:);
+    % copy fields from the model
+    flds = fieldnames(model);
+    for fld = 1:length(flds)
+        fldnm = char(flds(fld));
+        eval(['PRT.model(mid).output.fold(f).',fldnm,'=model.',fldnm,';']);
+    end
+    %PRT.model(mid).output.fold(f)      = model(:);
+    PRT.model(mid).output.fold(f).stats = stats;
+end
+
+% Save PRT containing machine output
+% -------------------------------------------------------------------------
+outfile = [prt_dir, 'PRT'];
+disp('Updating PRT.mat.......>>')
+if spm_matlab_version_chk('7') >= 0
+    save(outfile,'-V6','PRT');
+else
+    save(outfile,'PRT');
+end
+end
+
+% -------------------------------------------------------------------------
+% Private functions
+% -------------------------------------------------------------------------
+        
+function [Phi_tr Phi_te Phi_tt] = split_data(Phi_all, tr_idx, te_idx, usebf)
+% function to split the data matrix into training and test
+
+n_mat = length(Phi_all);
+
+Phi_tr = cell(1,n_mat);
+for i = 1:n_mat;
+    if usebf
+        cols_tr = tr_idx;
+    else
+        cols_tr = size(Phi_all{i},2);
+    end
+    
+    Phi_tr{i} = Phi_all{i}(tr_idx,cols_tr);
+end
+
+Phi_te  = cell(1,n_mat);
+Phi_tt = cell(1,n_mat);
+
+if usebf
+    cols_tr = tr_idx;
+    cols_te = te_idx;
+else
+    cols_tr = size(Phi_all{i},2);
+    %cols_te = size(Phi_all{i},2);
+end
+
+for i = 1:length(Phi_all)
+    Phi_te{i} = Phi_all{i}(te_idx, cols_tr);
+    if usebf
+        Phi_tt{i} = Phi_all{i}(te_idx, cols_te);
+    else
+        Phi_tt{i} = [];
+    end
+end
+end
+

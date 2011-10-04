@@ -13,20 +13,19 @@ function cv_struct = prt_cfg_cv
 infile        = cfg_files;
 infile.tag    = 'infile';
 infile.name   = 'Data structure file';
-%infile.filter = 'mat';
 infile.ufilter = 'PRT.mat';
 infile.num    = [1 1];
 infile.help   = {'Select data/design structure file (PRT.mat).'};
 
 % ---------------------------------------------------------------------
-% kfile Filenames(s) for kernel(s)
+% kfile Filenames(s) for feature sets(s)
 % ---------------------------------------------------------------------
-kfile        = cfg_files;
-kfile.tag    = 'kfile';
-kfile.name   = 'Kernel matrices';
-kfile.filter = 'mat';
-kfile.num    = [1 Inf];
-kfile.help   = {'Select Kernel matrices (kernel_xxx.mat).'};
+fs_file        = cfg_files;
+fs_file.tag    = 'fs_file';
+fs_file.name   = 'Feature sets';
+fs_file.filter = 'mat';
+fs_file.num    = [1 Inf];
+fs_file.help   = {'Select Kernel matrices (kernel_xxx.mat).'};
 
 % ---------------------------------------------------------------------
 % specify_labels Specify labels
@@ -44,7 +43,6 @@ specify_labels.num     = [Inf 1];
 label_file        = cfg_files;
 label_file.tag    = 'label_file';
 label_file.name   = 'Load from file';
-%label_file.filter = 'mat';
 label_file.num    = [1 1];
 label_file.help   = {'Specify file containing labels (ASCII or mat).'};
 
@@ -262,7 +260,7 @@ cv_type.help   = {'Choose the type of cross-validation to be used'};
 cv_struct        = cfg_exbranch;
 cv_struct.tag    = 'cv_struct';
 cv_struct.name   = 'Cross-validation';
-cv_struct.val    = {infile, kfile, labels, cv_type};
+cv_struct.val    = {infile, fs_file, labels, cv_type};
 cv_struct.help   = {'Compute kernel matrices according to the design specified'};
 cv_struct.prog   = @prt_run_cv;
 cv_struct.vout   = @vout_data;

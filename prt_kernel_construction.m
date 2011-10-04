@@ -14,7 +14,7 @@ function [fs_file] = prt_kernel_construction(PRT,in)
 %
 % Outputs:
 % --------
-% Calls prt_init_fs to populate basic fields in PRT.fs(f)
+% Calls prt_init_fs to populate basic fields in PRT.fs(f)...
 % Writes PRT.mat
 % Writes the kernel matrix to the path indicated by in.kname
 %__________________________________________________________________________
@@ -45,7 +45,7 @@ end
 fs.mod     = in.mod;
 fs.fs_name = in.kname;  
 fs.fs_file = in.kname;    % FIXME: these fields should probably be separated
-[PRT, fid] = prt_init_fs(PRT,fs);
+[fid, PRT] = prt_init_fs(PRT,fs);
 
 % Initialize kernel
 n   = length(PRT.fs(fid).ids);
@@ -155,7 +155,7 @@ end
 % -------------------------------------------------------------------------
 fs_file = [prt_dir,in.kname];
 disp(['Saving kernel to: ',in.kname,'.mat.......>>'])
-disp('Saving PRT.mat.......>>')
+disp('Updating PRT.mat.......>>')
 if spm_matlab_version_chk('7') >= 0
     save(fs_file,'-V6','Phi');
     save(in.fname,'-V6','PRT');
