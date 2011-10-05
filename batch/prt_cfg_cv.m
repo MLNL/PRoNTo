@@ -5,7 +5,7 @@ function cv_struct = prt_cfg_cv
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Andre Marquand
-% $Id: prt_cfg_kernel_construction.m 33 2011-08-10 08:47:17Z cphillip $
+% $Id$
 
 % ---------------------------------------------------------------------
 % filename Filename(s) of data
@@ -18,54 +18,130 @@ infile.num    = [1 1];
 infile.help   = {'Select data/design structure file (PRT.mat).'};
 
 % ---------------------------------------------------------------------
-% kfile Filenames(s) for feature sets(s)
+% cv_name Name
 % ---------------------------------------------------------------------
-fs_file        = cfg_files;
-fs_file.tag    = 'fs_file';
-fs_file.name   = 'Feature sets';
-fs_file.filter = 'mat';
-fs_file.num    = [1 Inf];
-fs_file.help   = {'Select Kernel matrices (kernel_xxx.mat).'};
+cv_name         = cfg_entry;
+cv_name.tag     = 'cv_name';
+cv_name.name    = 'Name of CV structure';
+cv_name.help    = {'Name for the cross-validation approach, e.g. ''fourfoldcv'''};
+cv_name.strtype = 's';
+cv_name.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
-% specify_labels Specify labels
+% fs_name Name
 % ---------------------------------------------------------------------
-specify_labels         = cfg_entry;
-specify_labels.tag     = 'specify_labels';
-specify_labels.name    = 'Specify labels';
-specify_labels.help    = {'Specify the label for each entry in the kernel matrix'};
-specify_labels.strtype = 'e';
-specify_labels.num     = [Inf 1];
+fs_name         = cfg_entry;
+fs_name.tag     = 'fs_name';
+fs_name.name    = 'Name';
+fs_name.help    = {'Name of a feature set to use for this cross-validation'};
+fs_name.strtype = 's';
+fs_name.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
-% label_file Filename for Labels
+% fset Feature sets
 % ---------------------------------------------------------------------
-label_file        = cfg_files;
-label_file.tag    = 'label_file';
-label_file.name   = 'Load from file';
-label_file.num    = [1 1];
-label_file.help   = {'Specify file containing labels (ASCII or mat).'};
+fset         = cfg_branch;
+fset.tag     = 'fset';
+fset.name    = 'Feature set';
+fset.help    = {'Feature set to include'};
+fset.val     = {fs_name};
+            
+% ---------------------------------------------------------------------
+% fsets Feature sets
+% ---------------------------------------------------------------------
+fsets         = cfg_repeat;
+fsets.tag     = 'fsets';
+fsets.name    = 'Feature sets';
+fsets.help    = {['Select feature sets to include in this cross-validation ',...
+                  'structure. These can be kernels or feature matrices. ', ...
+                  'If multiple feature sets are included, they must all have ',...
+                  'the same number of samples']};
+fsets.num     = [1 Inf];
+fsets.values  = {fset};
+
+% ---------------------------------------------------------------------
+% specify_samples Specify samples
+% ---------------------------------------------------------------------
+specify_samples         = cfg_entry;
+specify_samples.tag     = 'specify_samples';
+specify_samples.name    = 'Specify samples';
+specify_samples.help    = {'Specify the samples to include'};
+specify_samples.strtype = 'e';
+specify_samples.num     = [Inf 1];
+
+% ---------------------------------------------------------------------
+% all_cond All conditions
+% ---------------------------------------------------------------------
+all_samples         = cfg_const;
+all_samples.tag     = 'all_samples';
+all_samples.name    = 'All samples';
+all_samples.val     = {1};
+all_samples.help    = {'Include all samples from the feature set'};
 
 % ---------------------------------------------------------------------
 % labels Labels
 % ---------------------------------------------------------------------
-labels        = cfg_choice;
-labels.tag    = 'labels';
-labels.name   = 'Labels';
-labels.values = {specify_labels, label_file};
-labels.help   = {...
-    ['Labels for each of the samples in the kernel matrices. '...
-    'Can be entered into a text box or loaded from a file']};
+fs_samples        = cfg_choice;
+fs_samples.tag    = 'fs_samples';
+fs_samples.name   = 'Samples ';
+fs_samples.values = {all_samples, specify_samples};
+fs_samples.help   = {['Select which samples from the feature set to include.']};
+
+% 
+% % ---------------------------------------------------------------------
+% % specify_labels Specify labels
+% % ---------------------------------------------------------------------
+% specify_labels         = cfg_entry;
+% specify_labels.tag     = 'specify_labels';
+% specify_labels.name    = 'Specify labels';
+% specify_labels.help    = {'Specify the label for each entry in the kernel matrix'};
+% specify_labels.strtype = 'e';
+% specify_labels.num     = [Inf 1];
+% 
+% % ---------------------------------------------------------------------
+% % label_file Filename for Labels
+% % ---------------------------------------------------------------------
+% label_file        = cfg_files;
+% label_file.tag    = 'label_file';
+% label_file.name   = 'Load from file';
+% label_file.num    = [1 1];
+% label_file.help   = {'Specify file containing labels (ASCII or mat).'};
+% 
+% % ---------------------------------------------------------------------
+% % labels Labels
+% % ---------------------------------------------------------------------
+% labels        = cfg_choice;
+% labels.tag    = 'labels';
+% labels.name   = 'Labels';
+% labels.values = {specify_labels, label_file};
+% labels.help   = {...
+%     ['Labels for each of the samples in the kernel matrices. '...
+%     'Can be entered into a text box or loaded from a file']};
+
+
+
+
+
+% % ---------------------------------------------------------------------
+% % Groups selected
+% % ---------------------------------------------------------------------
+% gr_num         = cfg_entry;
+% gr_num.tag     = 'gr_num';
+% gr_num.name    = 'Group number';
+% gr_num.help    = {'Group to be included in this kernel matrix'};
+% gr_num.strtype = 'e';
+% gr_num.num     = [1 1];
 
 % ---------------------------------------------------------------------
-% Groups selected
+% gr_name Name
 % ---------------------------------------------------------------------
-gr_num         = cfg_entry;
-gr_num.tag     = 'gr_num';
-gr_num.name    = 'Group number';
-gr_num.help    = {'Group to be included in this kernel matrix'};
-gr_num.strtype = 'e';
-gr_num.num     = [1 1];
+gr_name         = cfg_entry;
+gr_name.tag     = 'gr_name';
+gr_name.name    = 'Name';
+gr_name.help    = {'Name of the group to include. Must exist in PRT.mat'};
+gr_name.strtype = 's';
+gr_name.num     = [1 Inf];
+
 
 % ---------------------------------------------------------------------
 % Subjects selected (per group)
@@ -131,7 +207,7 @@ group         = cfg_branch;
 group.tag     = 'group';
 group.name    = 'Group';
 group.help    = {'Specify data and design for the group.'};
-group.val     = {gr_num, subjects, conditions};
+group.val     = {gr_name, subjects, conditions};
 
 
 % ---------------------------------------------------------------------
@@ -260,7 +336,7 @@ cv_type.help   = {'Choose the type of cross-validation to be used'};
 cv_struct        = cfg_exbranch;
 cv_struct.tag    = 'cv_struct';
 cv_struct.name   = 'Cross-validation';
-cv_struct.val    = {infile, fs_file, labels, cv_type};
+cv_struct.val    = {infile, cv_name, fsets, fs_samples, cv_type};
 cv_struct.help   = {'Compute kernel matrices according to the design specified'};
 cv_struct.prog   = @prt_run_cv;
 cv_struct.vout   = @vout_data;

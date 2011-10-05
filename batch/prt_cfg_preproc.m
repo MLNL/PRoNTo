@@ -4,7 +4,7 @@ function preproc = prt_cfg_preproc
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J.M.Rondina
-% $Id: prt_cfg_preproc.m 79 2011-09-28 09:45:12Z cphillip $
+% $Id$
 
 
 % ---------------------------------------------------------------------

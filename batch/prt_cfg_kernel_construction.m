@@ -5,7 +5,7 @@ function kernel = prt_cfg_kernel_construction
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Andre Marquand
-% $Id: prt_cfg_kernel_construction.m 79 2011-09-28 09:45:12Z cphillip $
+% $Id$
 
 % ---------------------------------------------------------------------
 % filename Filename(s) of data

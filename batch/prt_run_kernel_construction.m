@@ -13,7 +13,7 @@ function out = prt_run_kernel_construction(varargin)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand and J Schrouff
-% $Id: prt_run_kernel_construction.m 79 2011-09-28 09:45:12Z cphillip $
+% $Id$
 
 % Job variable
 % -------------------------------------------------------------------------

@@ -8,7 +8,7 @@ function prt_latex_cfg(c)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % John Ashburner
-% $Id: $
+% $Id$
 
 if ~nargin,
     c = prt_cfg_batch;

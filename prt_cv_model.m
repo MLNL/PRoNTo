@@ -22,13 +22,13 @@ function [outfile]=prt_cv_model(PRT,in)
 % PRT.model(m).output.fold(i).{custom}:    optional fields
 %
 % Notes: - The feature set is derived from the cross-validation structure,
-%          it is not an inherent property of the model itself.
+%          it is not an inherent property of the model
 %        - The PRT.model(m).input fields are set by prt_init_model, not by
 %          this function
 %__________________________________________________________________________
 % Copyright (C) 2011
 
-% Written by A Marquand
+% Written by A Marquand 
 
 prt_dir = regexprep(in.fname,'PRT.mat', '');
 
@@ -60,6 +60,11 @@ for i = 1:size(PRT.fs,1)
         % this should be improved
         vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);
         eval(['Phi_all{',num2str(i),'}=',vname,';']);
+    end
+    % check size of 
+    if size(t,1) ~= size(Phi,1)
+        error('prt_cv_model:fsSizeDoesNotMatchTargets',...
+            ['size of Feature set ',num2str(fid),' does not match targets']);
     end
 end
 
@@ -121,6 +126,7 @@ function [Phi_tr Phi_te Phi_tt] = split_data(Phi_all, tr_idx, te_idx, usebf)
 
 n_mat = length(Phi_all);
 
+% training
 Phi_tr = cell(1,n_mat);
 for i = 1:n_mat;
     if usebf
@@ -132,9 +138,9 @@ for i = 1:n_mat;
     Phi_tr{i} = Phi_all{i}(tr_idx,cols_tr);
 end
 
+% test
 Phi_te  = cell(1,n_mat);
 Phi_tt = cell(1,n_mat);
-
 if usebf
     cols_tr = tr_idx;
     cols_te = te_idx;

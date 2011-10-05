@@ -25,7 +25,7 @@ function out = prt_run_preproc(varargin)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J.M.Rondina
-% $Id: prt_run_preproc.m 79 2011-09-28 09:45:12Z cphillip $
+% $Id$
 
 % -------------------------------------------------------------------------
 % Job variable

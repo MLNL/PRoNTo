@@ -5,7 +5,7 @@ function data = prt_cfg_design
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by M.J.Rosa
-% $Id: prt_cfg_design.m 79 2011-09-28 09:45:12Z cphillip $
+% $Id$
 
 % ---------------------------------------------------------------------
 % units Units for design

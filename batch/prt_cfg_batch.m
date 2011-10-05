@@ -6,7 +6,7 @@ function prt = prt_cfg_batch
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Christophe Phillips
-% $Id: prt_cfg_batch.m 79 2011-09-28 09:45:12Z cphillip $
+% $Id$
 
 
 % if ~isdeployed, addpath(fullfile(spm('Dir'),'toolbox','PRoNTo')); end

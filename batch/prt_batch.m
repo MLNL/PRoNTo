@@ -8,7 +8,7 @@ function prt_batch
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Christophe Phillips
-% $Id: prt_batch.m 79 2011-09-28 09:45:12Z cphillip $
+% $Id$
 
 persistent batch_initialize
 
