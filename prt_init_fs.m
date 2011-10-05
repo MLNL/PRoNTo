@@ -90,7 +90,7 @@ else
         disp(['Feature set ''',in.fs_name,''' not found in PRT.mat. Creating...'])
     end
     
-    % get the index of the modalities for which the user wants to include
+    % get the index of the modalities to include
     n_mods=length(in.mod);
     mids=[];
     for i=1:n_mods
