@@ -112,7 +112,7 @@ for g = 1:n_groups
             if (PRT.group(g).subject(s).modality(m).detrend)
                 disp ('Detrending ....');
                 n_scans = length(PRT.group(g).subject(s).modality(m).scans);
-                mask_indices = mask{m2}>0;
+                mask_indices = find(mask{m2}>0);
                 n_voxels_mask = length(mask_indices); 
                 for v = 1:n_voxels_mask  % Detrend only voxels inside the mask
                     timeserie = img_allscans(:,mask_indices(v));
