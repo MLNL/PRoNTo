@@ -63,7 +63,10 @@ for i=1:ncond
     for j=1:length(cs)
         temp=cs(j):cs(j)+cdur(j)-1;
         condsc=[condsc,temp];
-        bl=[bl j*ones(length(temp))];
+        % was:
+        % bl=[bl j*ones(length(temp))]; 
+        % but we probably want a vector here..
+        bl=[bl j*ones(1,length(temp))]; 
     end
     cond(i).scans=unique(condsc);
     cond(i).blocks=bl;

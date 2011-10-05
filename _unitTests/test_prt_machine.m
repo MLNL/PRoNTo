@@ -3,29 +3,74 @@
 % $Id$
 
 %% test setup
-featuresAsKernelMatrix=true;
+featuresAsKernelMatrix=false;
 useMultipleKernels=false;
+useSynthData=false;         % use synthetic data
+% root of PRT mat
+p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot/';
+fn_PRTtoUse='PRT_featureMatrix.mat'; % which PRT mat we want to use
 
 %% generate data
-
-Ntr=200;                % number of training vectors
-D=1000;                    % dimensionality of the feature vectors
-Nte=100;                 % number of testing vectors
-classOffset=0.01;       % higher value = easier problem
-
-if useMultipleKernels==true
+if useSynthData==true
+    Ntr=96;                % number of training vectors
+    D=64*64*64;                    % dimensionality of the feature space
+    Nte=30;                 % number of testing vectors
+    classOffset=0.1;       % higher value = easier problem
     
-    t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+classOffset]; [randn(Ntr/2,D); randn(Ntr/2,D)+classOffset] };
-    t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+classOffset]; [randn(Nte/2,D); randn(Nte/2,D)+classOffset] };
+    if useMultipleKernels==true
+        
+        t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+classOffset]; [randn(Ntr/2,D); randn(Ntr/2,D)+classOffset] };
+        t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+classOffset]; [randn(Nte/2,D); randn(Nte/2,D)+classOffset] };
+    else
+        t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+classOffset]};
+        t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+classOffset]};
+    end
+    
+    % can also label class1=2 class2=1 to be perverse
+    t_d.tr_targets=([ones(Ntr/2,1)*1 ; ones(Ntr/2,1)*2]);
+    te_targets=([ones(Nte/2,1)*1 ; ones(Nte/2,1)*2]);
 else
-    t_d.train={[rand(Ntr/2,D); rand(Ntr/2,D)+classOffset]};
-    t_d.test={[rand(Nte/2,D); rand(Nte/2,D)+classOffset]};
+    if featuresAsKernelMatrix==true
+        error('code not ready to test kernel matrix')
+    end
+    if length(PRT.group.subject.modality.design.conds)>2
+        error('code not ready for >2 class testing')
+    end
+    
+    load(fullfile(p_PRTroot,fn_PRTtoUse));
+    % load mask
+    VMi=spm_vol(PRT.masks.fname(1:end-2));
+    VM=spm_read_vols(VMi);
+    % find non-zero voxels (within the mask)
+    nzidx=find(VM>0); % no support for logical indexing in file_array :(
+    clear VM VMi;
+    %nzvx=PRT.file_arrays.Y(nzidx,:);
+    T=size(PRT.file_arrays.Y,2);
+    
+    %%% retrieve scan indices
+    % make shortcut
+    c1ScansIdx=PRT.group.subject.modality.design.conds(1).scans;
+    c2ScansIdx=PRT.group.subject.modality.design.conds(2).scans;
+    % flag used scans
+    c1Scans=zeros(1,T);
+    c2Scans=c1Scans;
+    c1Scans(c1ScansIdx)=1;
+    c2Scans(c2ScansIdx)=1;
+    
+    figure; subplot(211); bar(c1Scans); axis tight; xlabel('scans')
+    title(['c1 - ' PRT.group.subject.modality.design.conds(1).cond_name]);
+    subplot(212); bar(c2Scans); axis tight; xlabel('scans')
+    title(['c2 - ' PRT.group.subject.modality.design.conds(2).cond_name]);
+
+    
+    %%% lazy feature generation
+    X=zeros(length(nzvx),0);
+    for t=1:T
+        
+    end
 end
 
-% can also label class1=2 class2=1 to be perverse
-t_d.tr_targets=([ones(Ntr/2,1)*1 ; ones(Ntr/2,1)*2]);
-te_targets=([ones(Nte/2,1)*1 ; ones(Nte/2,1)*2]);
-
+% compute kernel if needed
 if featuresAsKernelMatrix==true
     if useMultipleKernels==true
         t_d.test={t_d.test{1}*t_d.train{1}';t_d.test{2}*t_d.train{2}'};
@@ -34,8 +79,12 @@ if featuresAsKernelMatrix==true
         t_d.test={t_d.test{1}*t_d.train{1}'};
         t_d.train={t_d.train{1}*t_d.train{1}'};
     end
+    t_d.usebf=true;
+else
+    t_d.usebf=false;
 end
 
+%% plot dataset
 figure;
 subplot(221); imagesc(t_d.train{1}); title('TR 1');
 subplot(223); imagesc(t_d.test{1}); title('TE 1');
@@ -44,15 +93,10 @@ if useMultipleKernels==true
     subplot(224); imagesc(t_d.test{2}); title('TE 2');
 end
 
-if featuresAsKernelMatrix==true
-    t_d.usebf=true;
-else
-    t_d.usebf=false;
-end
 
 %% prepare machine
-%myMachine.function='prt_machine_svm_bin';
-myMachine.function='prt_machine_RT_bin';
+myMachine.function='prt_machine_svm_bin';
+%myMachine.function='prt_machine_RT_bin';
 
 if ~isempty(strfind(myMachine.function,'svm_bin'))
     if featuresAsKernelMatrix==true
