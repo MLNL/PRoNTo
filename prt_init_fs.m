@@ -24,7 +24,8 @@ function [fid, PRT] = prt_init_fs(PRT, in)
 % Input:
 % ------
 % in.fs_name: name for the feature set (string)
-% in.fs_file: relative path filename for the datafile for this feature set
+% in.f_file: relative path filename for the datafile for this feature set
+% in.k_file: relative path filename for the kernel for this feature set
 %
 % in.mod(m).mod_name:  name of modality to include in this kernel (string)
 % in.mod(m).mode:      'all_cond' or 'all_scans' (string)
@@ -38,18 +39,16 @@ function [fid, PRT] = prt_init_fs(PRT, in)
 % Populates the following fields in PRT.mat (copied from above):
 %
 % PRT.fs(f).fs_name
-% PRT.fs(f).fs_file
+% PRT.fs(f).f_file
+% PRT.fs(f).k_file
 %
 % PRT.fs(f).mod(m).mod_name
 % PRT.fs(f).mod(m).mode
 % PRT.fs(f).mod(m).mask 
 % PRT.fs(f).mod(m).kernel_dt
 %
-% PRT.fs(f).ids.group
-% PRT.fs(f).ids.subject
-% PRT.fs(f).ids.modality
-% PRT.fs(f).ids.cond
-% PRT.fs(f).ids.scan
+% PRT.fs(f).id_mat:       Identifier matrix (useful later)
+% PRT.fs(f).id_col_names: Columns in the id matrix
 %
 % Note: this function does not write PRT.mat. That should be done by the
 %       calling function
@@ -65,7 +64,7 @@ if isfield(PRT,'fs')
         fid = find(strcmpi(in.fs_name,{PRT.fs(:).fs_name}));
         fs_exists = true;
     else
-        fid = length(PRT.cv)+1;
+        fid = length(PRT.fs)+1;
     end
 else
     fid = 1;
@@ -99,35 +98,58 @@ else
         end
     end
     
-    % initialise structure
+    % initialise basic fields of fs structure
     PRT.fs(fid).fs_name = in.fs_name;
-    PRT.fs(fid).fs_file = in.fs_file;
-    PRT.fs(fid).mod     = in.mod;
-    PRT.fs(fid).ids  = struct('modality',{},'group',{},'subject',{},'cond',{},'scan',{});
-    
-    n_mods=length(mids);
+    PRT.fs(fid).k_file  = in.k_file;
+    PRT.fs(fid).f_file  = in.f_file;
+    PRT.fs(fid).mod     = in.mod; 
     for m = 1:n_mods
         PRT.fs(fid).modality(m).mod_name = in.mod(mids(m)).mod_name;
         PRT.fs(fid).modality(m).kernel_dt = in.mod(mids(m)).kernel_dt;
     end
     
-    % Count the total number of samples and set sample ids
-    sample_range = 0;
+    % First count the total number of samples. Loops are needed since each
+    % subject may have a variable number of scans
+    n = 0;
     for gid = 1:length(PRT.group) % group
         for sid = 1:length(PRT.group(gid).subject);  % subject
             for m = 1:n_mods
                 mid = mids(m);
                 if strcmpi(in.mod(mid).mode,'all_scans');
+                    n = n + size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+                elseif strcmpi(in.mod(mid).mode,'all_cond')
+                    for cid = 1:length(PRT.group(gid).subject(sid).modality(mid).design.conds)    % condition
+                        n = n + length(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans);
+                    end
+                end
+            end  % modality
+        end  % subject
+    end  % group
+    
+    % Now configure id matrix
+    col_names = {'group','subject','modality','condition','block','scan'};
+    id_mat = zeros(n,length(col_names));
+    sample_range = 0; 
+    for gid = 1:length(PRT.group) % group
+        for sid = 1:length(PRT.group(gid).subject);  % subject
+            for m = 1:n_mods
+                mid = mids(m);
+                if strcmpi(in.mod(mid).mode,'all_scans');                  
+                    conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
                     n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
                     
                     % configure indices
-                    sample_range = (1:n_vols_s)+max(sample_range);
-                    [PRT.fs(fid).ids(sample_range).group]    = deal(gid);
-                    [PRT.fs(fid).ids(sample_range).subject]  = deal(sid);
-                    [PRT.fs(fid).ids(sample_range).modality] = deal(mid);
-                    [PRT.fs(fid).ids(sample_range).cond]     = deal(0);
-                    for ii = 1:length(sample_range)
-                        PRT.fs(fid).ids(sample_range(ii)).scan = ii;
+                    sample_range = (1:n_vols_s)+max(sample_range);                   
+                    id_mat(sample_range,1) = gid;
+                    id_mat(sample_range,2) = sid;
+                    id_mat(sample_range,3) = mid;
+                    for cid = 1:length(conds)
+                        scans  = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
+                        blocks = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+                        
+                        id_mat(sample_range(scans),4) = cid;
+                        id_mat(sample_range(scans),5) = blocks;
+                        id_mat(sample_range(scans),6) = 1:length(scans);
                     end
                     
                 elseif strcmpi(in.mod(mid).mode,'all_cond')
@@ -136,23 +158,26 @@ else
                     % now loop over conditions
                     for cid = 1:length(conds)    % condition
                         scans = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
+                        blocks = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
                         n_vol_s_c = length(scans);
                         
                         % configure indices
-                        sample_range = (1:n_vol_s_c)+max(sample_range);
-                        [PRT.fs(fid).ids(sample_range).group]    = deal(gid);
-                        [PRT.fs(fid).ids(sample_range).subject]  = deal(sid);
-                        [PRT.fs(fid).ids(sample_range).modality] = deal(mid);
-                        [PRT.fs(fid).ids(sample_range).cond]     = deal(cid);
-                        for ii = 1:length(sample_range)
-                            PRT.fs(fid).ids(sample_range(ii)).scan = ii;
-                        end
+                        sample_range = (1:n_vol_s_c)+max(sample_range);                      
+                        id_mat(sample_range,1) = gid;
+                        id_mat(sample_range,2) = sid;
+                        id_mat(sample_range,3) = mid;
+                        id_mat(sample_range,4) = cid;
+                        id_mat(sample_range,5) = blocks;
+                        id_mat(sample_range,6) = 1:length(sample_range);
                     end
                 end
+                
             end  % modality
         end  % subject
     end  % group
     
+    PRT.fs(fid).id_mat       = id_mat;               
+    PRT.fs(fid).id_col_names = col_names;
 end
 
 end

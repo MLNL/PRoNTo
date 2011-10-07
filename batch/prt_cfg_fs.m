@@ -1,6 +1,6 @@
-function kernel = prt_cfg_kernel_construction
+function fs = prt_cfg_fs
 % Data & design configuration file
-% This configures the kernel construction for each modality.
+% This configures the fs construction for each modality.
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -18,14 +18,14 @@ infile.num    = [1 1];
 infile.help   = {'Select data/design structure file (PRT.mat).'};
 
 % ---------------------------------------------------------------------
-% kernel_filename Name
+% k_file Name
 % ---------------------------------------------------------------------
-kernel_filename         = cfg_entry;
-kernel_filename.tag     = 'kernel_filename';
-kernel_filename.name    = 'Name';
-kernel_filename.help    = {'Target filename (will be saved as kernel_xxx.mat'};
-kernel_filename.strtype = 's';
-kernel_filename.num     = [1 Inf];
+k_file         = cfg_entry;
+k_file.tag     = 'k_file';
+k_file.name    = 'Name';
+k_file.help    = {'Target filename for kernel matrix'};
+k_file.strtype = 's';
+k_file.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
 % cond_name Name
@@ -158,18 +158,6 @@ normalise.labels  = {
 normalise.values  = {0 1};
 normalise.val     = {0};
 
-% % ---------------------------------------------------------------------
-% % mask Mask
-% % ---------------------------------------------------------------------
-% mask        = cfg_files;
-% mask.tag    = 'mask';
-% mask.name   = 'Kernel masks';
-% mask.filter = 'image';
-% %mask.ufilter = '.*';
-% mask.num    = [1 Inf];
-% mask.help   = {'Select kernel masks for each modality included in the kernel.'};
-%   
-
 % ---------------------------------------------------------------------
 % fmask File name
 % ---------------------------------------------------------------------
@@ -195,23 +183,22 @@ mask.val     = {mod_name, fmask };
 masks         = cfg_repeat;
 masks.tag     = 'masks';
 masks.name    = 'Masks';
-masks.help    = {['Select kernel mask for each ',...
+masks.help    = {['Select mask for each ',...
                   'modality. The name of the modalities should be the same ',...
                   'as the ones entered for subjects/scans.']};
 masks.num     = [1 Inf];
 masks.values  = {mask };
 
 % ---------------------------------------------------------------------
-% Configure Kernel
+% Configure Feature set
 % ---------------------------------------------------------------------
-kernel        = cfg_exbranch;
-kernel.tag    = 'kernel';
-kernel.name   = 'Kernels';
-%kernel.val    = {infile, kernel_filename, groups, mask, normalise};
-kernel.val    = {infile, kernel_filename, modalities, masks, normalise};
-kernel.help   = {'Compute kernel matrices according to the design specified'};
-kernel.prog   = @prt_run_kernel_construction;
-kernel.vout   = @vout_data;
+fs        = cfg_exbranch;
+fs.tag    = 'fs';
+fs.name   = 'Feature set / Kernel';
+fs.val    = {infile, k_file, modalities, masks, normalise};
+fs.help   = {'Compute feature set according to the design specified'};
+fs.prog   = @prt_run_fs;
+fs.vout   = @vout_data;
 
 %------------------------------------------------------------------------
 % Output function

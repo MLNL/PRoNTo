@@ -1,4 +1,4 @@
-function out = prt_run_kernel_construction(varargin)
+function out = prt_run_fs(varargin)
 % PRONTO job execution function
 % takes a harvested job data structure and rearrange data into "proper"
 % data structure, then save do what it has to do...
@@ -20,7 +20,7 @@ function out = prt_run_kernel_construction(varargin)
 job   = varargin{1};
 fname = char(job.infile);
 load(fname);
-kname=job.kernel_filename;
+kname=job.k_file;
 
 mod=struct();
 allmod={PRT.masks(:).mod_name};
@@ -63,7 +63,8 @@ input.kname=kname;
 input.mod=mod;
 input.normalise=job.normalise;
     
-outfile=prt_kernel_construction(PRT,input);
+%outfile=prt_kernel_construction(PRT,input);
+outfile=prt_fs(PRT,input);
 out.fname{1} = [outfile,'.mat'];
 disp('Kernel construction done.')
 end

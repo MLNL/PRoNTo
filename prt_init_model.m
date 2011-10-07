@@ -24,20 +24,25 @@ function [mid, PRT] = prt_init_model(PRT, in)
 %
 % Input:
 % ------
-% in.model_name: name of the model to be created (string)
-% in.cv_name:    name of the cross-validation structure to use (string)
-% in.targets:    vector of targets (nSamples x 1) 
-% in.usebf:      use basis functions for this model (boolean)
-% in.machine:    prediction machine to use for this model (struct)
+% in.model_name:  name of the model to be created (string)
+% in.targets:     vector of targets (nSamples x 1) 
+% in.use_kernel:  use kernel or basis functions for this model (boolean)
+% in.machine:     prediction machine to use for this model (struct)
+% in.fs_name:     feature set to use for this model (string)
+% in.fs_feat_idx: vector of feature indices for the feature set (dim x 1)
+% in.fs_samp_idx: vector of sample indices for the feature set (n x 1)
 %
 % Output:
 % -------
 % Populates the following fields in PRT.mat (copied from above):
 % PRT.model(m).model_name 
-% PRT.model(m).input.cv_name 
 % PRT.model(m).input.targets
-% PRT.model(m).input.usebf
+% PRT.model(m).input.use_kernel 
 % PRT.model(m).input.machine
+% PRT.model(m).input.fs_name
+% PRT.model(m).input.fs_feat_idx
+% PRT.model(m).input.fs_samp_idx
+% PRT.model(m).input.cv_mat
 %
 % Note: this function does not write PRT.mat. That should be done by the
 %       calling function
