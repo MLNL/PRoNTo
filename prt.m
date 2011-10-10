@@ -56,6 +56,7 @@ switch lower(Action)
         % intialize the matlabbatch system
         cfg_get_defaults('cfg_util.genscript_run', @genscript_run);
         cfg_util('initcfg');
+        clear prt_batch;
         
         % launch the main GUI
         prt_ui_main;
