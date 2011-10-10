@@ -63,8 +63,9 @@ all_scans.help    = {['No design specified. This option can be used '...
 % ---------------------------------------------------------------------
 conditions        = cfg_choice;
 conditions.tag    = 'conditions';
-conditions.name   = 'Conditions';
-conditions.values = {all_cond, all_scans};
+conditions.name   = 'Scans / Conditions';
+conditions.values = {all_scans, all_cond};
+conditions.val    = {all_scans};
 conditions.help   = {...
 ['Which task conditions do you want to include in the kernel matrix? '...
  'Select conditions: select specific conditions from the timeseries. ', ...
@@ -115,6 +116,18 @@ kernel_dt.labels  = {
 kernel_dt.values  = {0 1};
 kernel_dt.val     = {0};
 
+
+% ---------------------------------------------------------------------
+% fmask File name
+% ---------------------------------------------------------------------
+fmask        = cfg_files;
+fmask.tag    = 'fmask';
+fmask.name   = 'Mask file';
+fmask.filter = 'img';
+fmask.ufilter = '^*.img';
+fmask.num    = [1 1];
+fmask.help   = {'Select a mask for the selected modality.'};
+
 % ---------------------------------------------------------------------
 % mod_name Name
 % ---------------------------------------------------------------------
@@ -131,7 +144,7 @@ mod_name.num     = [1 Inf];
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name conditions, kernel_dt};
+modality.val  = {mod_name conditions, fmask, kernel_dt};
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
@@ -158,36 +171,26 @@ normalise.labels  = {
 normalise.values  = {0 1};
 normalise.val     = {0};
 
-% ---------------------------------------------------------------------
-% fmask File name
-% ---------------------------------------------------------------------
-fmask        = cfg_files;
-fmask.tag    = 'fmask';
-fmask.name   = 'File';
-fmask.filter = 'img';
-fmask.ufilter = '.*';
-fmask.num    = [1 1];
-fmask.help   = {'Select one mask for each modality.'};
-% ---------------------------------------------------------------------
-% mask Modality
-% ---------------------------------------------------------------------
-mask         = cfg_branch;
-mask.tag     = 'mask';
-mask.name    = 'Modality';
-mask.help    = {'Specify name of modality and file for each mask.'};
-mask.val     = {mod_name, fmask };
-            
-% ---------------------------------------------------------------------
-% masks Masks
-% ---------------------------------------------------------------------
-masks         = cfg_repeat;
-masks.tag     = 'masks';
-masks.name    = 'Masks';
-masks.help    = {['Select mask for each ',...
-                  'modality. The name of the modalities should be the same ',...
-                  'as the ones entered for subjects/scans.']};
-masks.num     = [1 Inf];
-masks.values  = {mask };
+% % ---------------------------------------------------------------------
+% % mask Modality
+% % ---------------------------------------------------------------------
+% mask         = cfg_branch;
+% mask.tag     = 'mask';
+% mask.name    = 'Modality';
+% mask.help    = {'Specify name of modality and file for each mask.'};
+% mask.val     = {mod_name, fmask };
+%             
+% % ---------------------------------------------------------------------
+% % masks Masks
+% % ---------------------------------------------------------------------
+% masks         = cfg_repeat;
+% masks.tag     = 'masks';
+% masks.name    = 'Masks';
+% masks.help    = {['Select mask for each ',...
+%                   'modality. The name of the modalities should be the same ',...
+%                   'as the ones entered for subjects/scans.']};
+% masks.num     = [1 Inf];
+% masks.values  = {mask };
 
 % ---------------------------------------------------------------------
 % Configure Feature set
@@ -195,7 +198,7 @@ masks.values  = {mask };
 fs        = cfg_exbranch;
 fs.tag    = 'fs';
 fs.name   = 'Feature set / Kernel';
-fs.val    = {infile, k_file, modalities, masks, normalise};
+fs.val    = {infile, k_file, modalities, normalise};
 fs.help   = {'Compute feature set according to the design specified'};
 fs.prog   = @prt_run_fs;
 fs.vout   = @vout_data;

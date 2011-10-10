@@ -25,7 +25,8 @@ kname=job.k_file;
 mod=struct();
 allmod={PRT.masks(:).mod_name};
 modchos={job.modality(:).mod_name};
-maskchos={job.mask(:).mod_name};
+%maskchos={job.mask(:).mod_name};
+maskchos={job.modality(:).mod_name};
 
 if ~isempty(setdiff(modchos,allmod))
     error(['Couldn''t find modality "',target,'" in PRT.mat']);
@@ -47,7 +48,8 @@ for i=1:length(PRT.masks)
         if isempty(indm)
             error(['No mask selected for ',allmod{i}])
         else
-            mod(i).mask=char(job.mask(indm).fmask);
+            %mod(i).mask=char(job.mask(indm).fmask);
+            mod(i).mask=char(job.modality(indm).fmask);
         end
     else
         mod(i).mod_name=allmod{i};

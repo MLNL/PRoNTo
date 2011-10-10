@@ -24,31 +24,20 @@ function [fid, PRT] = prt_init_fs(PRT, in)
 % Input:
 % ------
 % in.fs_name: name for the feature set (string)
-% in.f_file: relative path filename for the datafile for this feature set
-% in.k_file: relative path filename for the kernel for this feature set
-%
-% in.mod(m).mod_name:  name of modality to include in this kernel (string)
-% in.mod(m).mode:      'all_cond' or 'all_scans' (string)
-% in.mod(m).mask:      mask file used to create the kernel (string)
-% in.mod(m).kernel_dt: was this modality detrended in the kernel (boolean)
+% in.fas:     structure for the file_array 
+% in.k_file:  relative path filename for the kernel for this feature set
 %
 % Output:
 % -------
 % fid : is the identifier for the model constructed in PRT.mat
 %
 % Populates the following fields in PRT.mat (copied from above):
-%
-% PRT.fs(f).fs_name
-% PRT.fs(f).f_file
-% PRT.fs(f).k_file
-%
-% PRT.fs(f).mod(m).mod_name
-% PRT.fs(f).mod(m).mode
-% PRT.fs(f).mod(m).mask 
-% PRT.fs(f).mod(m).kernel_dt
-%
-% PRT.fs(f).id_mat:       Identifier matrix (useful later)
-% PRT.fs(f).id_col_names: Columns in the id matrix
+%   PRT.fs(f).fs_name
+%   PRT.fs(f).fas
+%   PRT.fs(f).k_file
+% Also computes the following fields:
+%   PRT.fs(f).id_mat:       Identifier matrix (useful later)
+%   PRT.fs(f).id_col_names: Columns in the id matrix
 %
 % Note: this function does not write PRT.mat. That should be done by the
 %       calling function
@@ -99,14 +88,10 @@ else
     end
     
     % initialise basic fields of fs structure
-    PRT.fs(fid).fs_name = in.fs_name;
-    PRT.fs(fid).k_file  = in.k_file;
-    PRT.fs(fid).f_file  = in.f_file;
-    PRT.fs(fid).mod     = in.mod; 
-    for m = 1:n_mods
-        PRT.fs(fid).modality(m).mod_name = in.mod(mids(m)).mod_name;
-        PRT.fs(fid).modality(m).kernel_dt = in.mod(mids(m)).kernel_dt;
-    end
+    PRT.fs(fid).fs_name  = in.fs_name;
+    PRT.fs(fid).k_file   = in.k_file;
+    PRT.fs(fid).fas      = in.fas;
+    %PRT.fs(fid).modality = in.mod; 
     
     % First count the total number of samples. Loops are needed since each
     % subject may have a variable number of scans

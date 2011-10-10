@@ -1,4 +1,4 @@
-function Kr = prt_remove_confounds(K,C)
+function [Kr, R] = prt_remove_confounds(K,C)
 
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory

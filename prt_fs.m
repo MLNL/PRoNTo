@@ -14,9 +14,16 @@ function [fs_file] = prt_fs(PRT,in)
 %
 % Outputs:
 % --------
-% Calls prt_init_fs to populate basic fields in PRT.fs(f)...
-% Writes PRT.mat
-% Writes the kernel matrix to the path indicated by in.kname
+% This function performs the following functions:
+%   1. Calls prt_init_fs to populate basic fields in PRT.fs(f). 
+%   2. Populates the following fields in PRT.mat:
+%       PRT.fs(f).modality(m).mod_name
+%       PRT.fs(f).modality(m).mode
+%       PRT.fs(f).modality(m).mask 
+%       PRT.fs(f).modality(m).feat_idx 
+%       PRT.fs(f).modality(m).rf_mat
+%   3. Writes PRT.mat
+%   4. Writes the kernel matrix to the path indicated by in.kname
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -50,7 +57,7 @@ fs.fs_name = in.kname;
 % NOTE!! the next two fields will need to be updated separately once the
 %        unified preprocessing structure is implemented.
 fs.k_file  = in.kname;   
-fs.f_file  = [];               % not implemented yet
+fs.fas  = [];               % not implemented yet
 [fid, PRT] = prt_init_fs(PRT,fs);
 
 % Initialize kernel
@@ -131,9 +138,9 @@ for gid = 1:length(PRT.group)
         for m = 1:n_mods
             if in.mod(mids(m)).kernel_dt == 1
                 linear_dt = true; 
-                rg = and(and( PRT.fs(fid).id_mat(:,1) == gid, ...
-                              PRT.fs(fid).id_mat(:,2) == sid), ...
-                              PRT.fs(fid).id_mat(:,3) == mids(m) );
+                rg =  (PRT.fs(fid).id_mat(:,1) == gid) & ...
+                      (PRT.fs(fid).id_mat(:,2) == sid) & ...
+                      (PRT.fs(fid).id_mat(:,3) == mids(m));
                 c  = zeros(n,2);
                 c(rg,1:2) = [(1:sum(rg))' ones(sum(rg),1)];
                 C = [C c];
@@ -144,7 +151,7 @@ end
 
 % detrend
 if linear_dt
-    Phi = prt_remove_confounds(Phi,C);
+    [Phi, R] = prt_remove_confounds(Phi,C);
 end
 
 % Normalise
@@ -152,6 +159,21 @@ end
 if in.normalise
     Phi = prt_normalise_kernel(Phi);
 end
+
+% Populate additional fields in PRT.mat
+% -------------------------------------------------------------------------
+for m = 1:length(mids)
+    PRT.fs(fid).modality(m).mod_name  = in.mod(m).mod_name;
+    PRT.fs(fid).modality(m).mode      = in.mod(m).mode;
+    PRT.fs(fid).modality(m).mask_file = mask{m};
+    
+    N = nifti(mask{m});
+    PRT.fs(fid).modality(m).feat_idx  = ...
+        find(reshape(N.dat(:,:,:,1),prod(N.dat.dim(1:3)),1));
+end
+
+PRT.fs(fid).rf_mat    = R;
+PRT.fs(fid).normalise = in.normalise;
 
 % Save kernel and function output
 % -------------------------------------------------------------------------
