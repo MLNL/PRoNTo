@@ -92,12 +92,13 @@ for f = 1:n_folds
     
     % compute stats
     stats = prt_stats(model, t(te_idx,:));
+    acc = stats.acc % for debugging
     
     % update PRT 
     PRT.model(mid).output.fold(f).targets     = t(te_idx,:);
     PRT.model(mid).output.fold(f).predictions = model.predictions; 
     PRT.model(mid).output.fold(f).stats       = stats;
-    stats.acc
+    
     % copy other fields from the model
     flds = fieldnames(model);
     for fld = 1:length(flds)
