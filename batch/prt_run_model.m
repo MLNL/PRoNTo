@@ -25,7 +25,8 @@ function out = prt_run_model(varargin)
 %   model.class(c).class_name
 %   model.class(c).group(g).subj(s).num
 %   model.class(c).group(g).subj(s).modality(m).mod_name
-%   model.class(c).group(g).subj(s).modality(m).conds(c).cond_name
+%   EITHER: model.class(c).group(g).subj(s).modality(m).conds(c).cond_name
+%   OR:     model.class(c).group(g).subj(s).modality(m).all_scans
 %
 %   model.cv.type:     type of cross-validation ('loso','losgo','custom')
 %   model.cv.mat_file: file specifying CV matrix (if type = 'custom');
@@ -54,12 +55,6 @@ model.use_kernel = job.use_kernel;
 % insert feature set fields
 for f = 1:length(job.fset)
     model.fs(f).fs_name = job.fset(f).fs_name;
-%     if isfield(job.fset(f).sel_features,'all_features')
-%         model.fs(f).fs_features = 'all';
-%     else
-%         model.fs(f).fs_features = 'mask';
-%         model.fs(f).mask_file   = char(job.fset.sel_features.mask.fmask);
-%     end
 end
 
 
@@ -83,10 +78,13 @@ if isfield(job.model_type,'class')
                 
                 model.class(c).group(g).subj(scount).modality.mod_name = ...
                     job.model_type.class(c).group(g).modality.mod_name;
-                
-                model.class(c).group(g).subj(scount).modality.conds = ...
-                    job.model_type.class(c).group(g).modality.conditions.conds;
-                
+                % FIXME: need to loop over modalities here too
+                if isfield(job.model_type.class(c).group(g).modality.conditions,'all_scans')
+                    model.class(c).group(g).subj(scount).modality.all_scans = true;
+                else
+                    model.class(c).group(g).subj(scount).modality.conds = ...
+                        job.model_type.class(c).group(g).modality.conditions.conds;
+                end
                 scount = scount+1;
             end
         end

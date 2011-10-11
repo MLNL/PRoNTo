@@ -301,5 +301,5 @@ function out=prt_ismatrix(A)
 % implementation (based on Dan Vimont's Matlab libs at
 % http://www.aos.wisc.edu/~dvimont/matlab but with short-circuit AND for
 % "speed")
-out=(ndims(A)==2) && (min(size(A)) ~= 1);
+out=(ndims(A)==2); %&& (min(size(A)) ~= 1);
 end

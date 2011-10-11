@@ -14,7 +14,8 @@ function PRT = prt_model(PRT,in)
 %   in.class(c).class_name
 %   in.class(c).group(g).subj(s).num
 %   in.class(c).group(g).subj(s).modality(m).mod_name
-%   in.class(c).group(g).subj(s).modality(m).conds(c).cond_name
+%   EITHER: in.class(c).group(g).subj(s).modality(m).conds(c).cond_name
+%   OR:     in.class(c).group(g).subj(s).modality(m).all_scans
 %
 %   in.cv.type:     type of cross-validation ('loso','losgo','custom')
 %   in.cv.mat_file: file specifying CV matrix (if type='custom');
@@ -101,21 +102,26 @@ for c = 1:length(in.class)
                     error('prt_model:groupNotFoundInPRT',...
                         ['Modality ',mod_name,' not found in PRT.mat']);
                 end
-                
-                % conditions
-                for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
-                    cond_name = in.class(c).group(g).subj(s).modality(m).conds(cond).cond_name;
-                    conds     = {PRT.group(gid).subject(s).modality(mid).design.conds(:).cond_name};
-                   
-                    if any(strcmpi(cond_name,conds))
-                        cid = find(strcmpi(cond_name,conds));
-                    else
-                        error('prt_model:groupNotFoundInPRT',...
-                            ['Condition ',cond_name,' not found in PRT.mat']);
-                    end
-                    
-                    idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid & ID(:,4) == cid;
+              
+                if isfield(in.class(c).group(g).subj(s).modality(m), 'all_scans')
+                    % add all scans for each subject
+                    idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid;
                     t_all(idx) = c;
+                else  % loop over conditions
+                    for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
+                        cond_name = in.class(c).group(g).subj(s).modality(m).conds(cond).cond_name;
+                        conds     = {PRT.group(gid).subject(s).modality(mid).design.conds(:).cond_name};
+                        
+                        if any(strcmpi(cond_name,conds))
+                            cid = find(strcmpi(cond_name,conds));
+                        else
+                            error('prt_model:groupNotFoundInPRT',...
+                                ['Condition ',cond_name,' not found in PRT.mat']);
+                        end
+                        
+                        idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid & ID(:,4) == cid;
+                        t_all(idx) = c;
+                    end
                 end
             end
         end
@@ -126,27 +132,27 @@ PRT.model(modelid).input.targets  = t_all(PRT.model(modelid).input.samp_idx);
 
 % compute cross-validation matrix
 % -------------------------------------------------------------------------
-% build CV matrix
+n_classes = length({in.class(:).class_name});
 ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);   
 switch in.cv.type
     case 'loso'
-        n_groups = length(unique(ID(:,1)));
+        gids = unique(ID(:,1));
         
-        G = cell(n_groups,1);
-        for g = 1:n_groups    
-            gid = find(strcmpi(in.class(c).group(g).gr_name,groups));
-            gs  = ID(:,1) == gid;
-            snums = histc(ID(gs,2),unique(ID(gs,2)));
-            
-            Gs = cell(length(snums),1);
-            for s = 1:length(snums)
-                snums(s);
-                Gs{s} = ones(snums(s),1);
-            end
-            G{g} = blkdiag(Gs{:});
-            
-        end        
-        PRT.model(modelid).input.cv_mat = blkdiag(G{:}) + 1;
+        % give each subject a unique id
+        gc = 0;
+        for g = 1:length(gids)
+            gidx = ID(:,1) == gid;
+            ID(gidx,2) = ID(gidx,2) + gc;
+            gc = gc + max(ID(gidx,2));
+        end
+        
+        % Compute CV matrix
+        snums = histc(ID(:,2),unique(ID(:,2)));
+        G = cell(length(snums),1);
+        for s = 1:length(snums)
+            G{s} = ones(snums(s),1);
+        end
+        PRT.model(modelid).input.cv_mat = blkdiag(G{:}) + 1;  
         
     case 'losgo'
         error('losgo CV not implemented yet');
