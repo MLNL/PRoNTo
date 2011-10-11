@@ -82,8 +82,8 @@ subjects.name    = 'Subjects';
 subjects.help    = {['Select scans (images) for this modality. They must '...
                   'all have the same image dimensions, orientation, '...
                   'voxel size etc.']};
-subjects.filter  = 'img';
-subjects.ufilter = '.*';
+subjects.filter  = 'image';
+%subjects.ufilter = '.*';
 subjects.num     = [0 Inf];
 
 % ---------------------------------------------------------------------

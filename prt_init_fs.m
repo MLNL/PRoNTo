@@ -119,24 +119,32 @@ else
         for sid = 1:length(PRT.group(gid).subject);  % subject
             for m = 1:n_mods
                 mid = mids(m);
-                if strcmpi(in.mod(mid).mode,'all_scans');                  
-                    conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
+                if strcmpi(in.mod(mid).mode,'all_scans');      
                     n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
                     
                     % configure indices
-                    sample_range = (1:n_vols_s)+max(sample_range);                   
+                    sample_range = (1:n_vols_s)+max(sample_range);
                     id_mat(sample_range,1) = gid;
                     id_mat(sample_range,2) = sid;
                     id_mat(sample_range,3) = mid;
-                    for cid = 1:length(conds)
-                        scans  = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
-                        blocks = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+                    
+                    if isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
+                        conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
                         
-                        id_mat(sample_range(scans),4) = cid;
-                        id_mat(sample_range(scans),5) = blocks;
-                        id_mat(sample_range(scans),6) = 1:length(scans);
+                        for cid = 1:length(conds)
+                            scans  = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
+                            blocks = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+                            
+                            id_mat(sample_range(scans),4) = cid;
+                            id_mat(sample_range(scans),5) = blocks;
+                            id_mat(sample_range(scans),6) = 1:length(scans);
+                        end
+                    else
+                         scans  = 1:size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+                         id_mat(sample_range,6) = scans;
                     end
                     
+                % all conditions
                 elseif strcmpi(in.mod(mid).mode,'all_cond')
                     conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
                     
