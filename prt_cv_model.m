@@ -22,6 +22,7 @@ function [outfile]=prt_cv_model(PRT,in)
 % Copyright (C) 2011
 
 % Written by A Marquand 
+% $Id$
 
 prt_dir = char(regexprep(in.fname,'PRT.mat', ''));
 
