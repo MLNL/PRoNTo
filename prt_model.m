@@ -33,6 +33,8 @@ function PRT = prt_model(PRT,in)
 
 % Written by A. Marquand 
 
+% $Id$
+
 % populate basic fields in PRT.mat
 % -------------------------------------------------------------------------
 [modelid, PRT] = prt_init_model(PRT,in);

@@ -46,7 +46,7 @@ for i = 1:size(PRT.fs,1)
         
     if PRT.model(mid).input.use_kernel
         load(fullfile(prt_dir, PRT.fs(fid).k_file));
-        Phi_all{i} = Phi(samp_idx,:);
+        Phi_all{i} = Phi(samp_idx,samp_idx);
     else
         error('training with features not implemented yet');
         % this should be improved (e.g. need to load feat_idx)
@@ -97,6 +97,7 @@ for f = 1:n_folds
     PRT.model(mid).output.fold(f).targets     = t(te_idx,:);
     PRT.model(mid).output.fold(f).predictions = model.predictions; 
     PRT.model(mid).output.fold(f).stats       = stats;
+    stats.acc
     % copy other fields from the model
     flds = fieldnames(model);
     for fld = 1:length(flds)

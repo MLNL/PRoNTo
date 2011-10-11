@@ -114,7 +114,7 @@ else
     model.cv.mat_file = job.cv_type;
 end
 
-outfile = prt_model(PRT,model);
+prt_model(PRT,model);
 
 % Function output
 % -------------------------------------------------------------------------
