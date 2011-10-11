@@ -35,7 +35,7 @@ function out = prt_run_model(varargin)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand
-% $Id: prt_run_model.m 129 2011-10-05 13:00:36Z amarquan $
+% $Id$
 
 % Job variable
 % -------------------------------------------------------------------------

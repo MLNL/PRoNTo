@@ -48,7 +48,6 @@ for i = 1:size(PRT.fs,1)
         Phi_all{i} = Phi(samp_idx,:);
     else
         error('training with features not implemented yet');
-        
         % this should be improved (e.g. need to load feat_idx)
         vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);
         eval(['Phi_all{',num2str(i),'}=',vname,'(samp_idx,:);']);
@@ -78,25 +77,33 @@ for f = 1:n_folds
     cvdata.tr_targets = t(tr_idx,:);
     cvdata.use_kernel = PRT.model(mid).input.use_kernel;
     %if PRT.model(mid).input.use_kernel
-    %   cvdata.testcov    = Phi_tt;
+    %    cvdata.testcov    = Phi_tt;
     %end
     
     % train the prediction model
     model = prt_machine(cvdata, PRT.model(mid).input.machine);
-        
+    
+    % check that it produced a predictions field
+    if ~any(strcmpi(fieldnames(model),'predictions'))
+        error(['prt_cv_model:machineDoesNotGivePredictions',...
+            'Machine did not produce a predictions field']);
+    end  
+    
     % compute stats
     stats = prt_stats(model, t(te_idx,:));
     
-    % update PRT
-    PRT.model(mid).output.fold(f).targets = t(te_idx,:);
-    % copy fields from the model
+    % update PRT 
+    PRT.model(mid).output.fold(f).targets     = t(te_idx,:);
+    PRT.model(mid).output.fold(f).predictions = model.predictions; 
+    PRT.model(mid).output.fold(f).stats       = stats;
+    % copy other fields from the model
     flds = fieldnames(model);
     for fld = 1:length(flds)
         fldnm = char(flds(fld));
-        eval(['PRT.model(mid).output.fold(f).',fldnm,'=model.',fldnm,';']);
+        if ~strcmpi(fldnm,'predictions')
+            eval(['PRT.model(mid).output.fold(f).',fldnm,'=model.',fldnm,';']);
+        end
     end
-    %PRT.model(mid).output.fold(f)      = model(:);
-    PRT.model(mid).output.fold(f).stats = stats;
 end
 
 % Save PRT containing machine output

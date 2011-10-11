@@ -21,10 +21,6 @@ function stats = prt_stats(model, t)
 % Written by A. Marquand
 
 % Do some checks ...
-if ~any(strcmpi(fieldnames(model),'predictions'))
-    error(['prt_stats:machineDoesNotGivePredictions',...
-        'Machine did not produce a predictions field']);
-end
 if size(t,1) ~= size(model.predictions,1)
     error(['prt_stats:machineProvidesWrongNumberOfPredictions',...
         'Number of predictions is not equal to the number of targets']);

@@ -12,7 +12,7 @@ function weights = prt_weights(PRT,model,wfunc)
 
 %--------------------------------------------------------------------------
 % Written by M.J.Rosa and J.Mourao-Miranda
-% $Id: prt_weitghts.m $
+% $Id$
 
 SANITYCHECK = true; % turn off for speed
 

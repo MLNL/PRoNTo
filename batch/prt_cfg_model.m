@@ -5,7 +5,7 @@ function model = prt_cfg_model
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Andre Marquand
-% $Id: prt_cfg_cv.m 129 2011-10-05 13:00:36Z amarquan $
+% $Id$
 
 % ---------------------------------------------------------------------
 % filename Filename(s) of data

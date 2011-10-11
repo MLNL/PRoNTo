@@ -11,7 +11,7 @@ function weights = prt_weights_svm_bin (PRT,model)
 
 %--------------------------------------------------------------------------
 % Written by J.Mourao-Miranda and M.J.Rosa
-% $Id: prt_weitghts_svm_bin.m $
+% $Id$
 
 SANITYCHECK = true; % turn off for speed
 

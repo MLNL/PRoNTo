@@ -28,7 +28,7 @@ load(fname);
 in.fname      = job.infile;
 in.model_name = job.model_name;
 
-prt_cv_model(PRT, in)
+prt_cv_model(PRT, in);
 
 % -------------------------------------------------------------------------
 % Function output
