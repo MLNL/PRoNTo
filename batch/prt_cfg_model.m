@@ -59,7 +59,7 @@ all_features.help    = {...
 % ---------------------------------------------------------------------
 fs_name         = cfg_entry;
 fs_name.tag     = 'fs_name';
-fs_name.name    = 'Feature set name';
+fs_name.name    = 'Name';
 fs_name.help    = {'Name of a feature set'};
 fs_name.strtype = 's';
 fs_name.num     = [1 Inf];
@@ -117,15 +117,15 @@ mod_name.num     = [1 Inf];
 % sel_features.help   = {...
 %     ['Which features (e.g. voxels) would you like to include in the model?']};
 
-% % ---------------------------------------------------------------------
-% % fset Feature set
-% % ---------------------------------------------------------------------
-% fset         = cfg_branch;
-% fset.tag     = 'fset';
-% fset.name    = 'Feature set';
-% fset.help    = {'Feature set to include in this model'};
-% %fset.val     = {fs_name, sel_features};
-% fset.val     = {fs_name};
+% ---------------------------------------------------------------------
+% fset Feature set
+% ---------------------------------------------------------------------
+fset         = cfg_branch;
+fset.tag     = 'fset';
+fset.name    = 'Feature set';
+fset.help    = {'Feature set to include in this model'};
+%fset.val     = {fs_name, sel_features};
+fset.val     = {fs_name};
             
 % ---------------------------------------------------------------------
 % fsets Feature sets
@@ -139,7 +139,7 @@ fsets.help    = {['Select feature sets to include in this model. ',...
                   'the same number of rows']};
 fsets.num     = [1 Inf];
 %fsets.values  = {fsets};
-fsets.values  = {fs_name};
+fsets.values  = {fset};
 
 
 % ---------------------------------------------------------------------
@@ -549,7 +549,7 @@ function cdep = vout_data(job)
 
 cdep(1)            = cfg_dep;
 cdep(1).sname      = 'Cross validation';
-cdep(1).src_output = substruct('.','filescv');
+cdep(1).src_output = substruct('.','files');
 cdep(1).tgt_spec   = cfg_findspec({{'filter','mat','strtype','e'}});
 %------------------------------------------------------------------------
 

@@ -51,7 +51,7 @@ for f = 1:length(in.fs)
              'supplied to the machine. This usage is not supported.']);
     end
     
-    PRT.model(modelid).fs(f).fs_name = in.fs(f).fs_name;
+    PRT.model(modelid).input.fs(f).fs_name = in.fs(f).fs_name;
 end
 
 % compute labels and samp_idx
@@ -119,37 +119,36 @@ for c = 1:length(in.class)
         end
     end
 end
-PRT.model(modelid).samp_idx = find(t_all);
-PRT.model(modelid).targets  = t_all(PRT.model(modelid).samp_idx);
+PRT.model(modelid).input.samp_idx = find(t_all);
+PRT.model(modelid).input.targets  = t_all(PRT.model(modelid).input.samp_idx);
 
 % compute cross-validation matrix
 % -------------------------------------------------------------------------
 % build CV matrix
-switch in.type
+ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);   
+switch in.cv.type
     case 'loso'
-        n_groups = length(in.class(:).group);
-        n_mod    = length(PRT.masks(:).mod_name);    
+        n_groups = length(unique(ID(:,1)));
         
         G = cell(n_groups,1);
-        for g = 1:n_groups
-            n_sub_g = length(PRT.group(g).subject(:));
+        for g = 1:n_groups    
+            gid = find(strcmpi(in.class(c).group(g).gr_name,groups));
+            gs  = ID(:,1) == gid;
+            snums = histc(ID(gs,2),unique(ID(gs,2)));
             
-            for s = 1:n_sub_g
-                for m = 1:n_mod
-                    
-                      mod_len(m)
-                end
+            Gs = cell(length(snums),1);
+            for s = 1:length(snums)
+                snums(s);
+                Gs{s} = ones(snums(s),1);
             end
-            kron(ones(nmod), mod_lens)
+            G{g} = blkdiag(Gs{:});
             
-        end
-        n = length({PRT.group(g).subject(:).subj_name});
-        
-        model.cv_mat = blkdiag(n_scans_s{:});
+        end        
+        PRT.model(modelid).input.cv_mat = blkdiag(G{:}) + 1;
         
     case 'losgo'
         error('losgo CV not implemented yet');
-        
+          
     case 'custom'
         error('custom CV not implemented yet');
         
@@ -158,26 +157,8 @@ switch in.type
              ['Unknown type specified for CV structure (',in.type',')']);
 end
 
-cv.cv_mat     = kron(eye(5),ones(n_scans_s,1))+1;
-
-
-cv.fs_indices = (1:size(Phi_id,1))';
-
-
-[cid, PRT] = prt_init_cv(PRT,cv);
-
-save(mod.fname,'PRT');
-
-cv.cv_mat = prt_cv_mat(PRT, mat);
-
-% configure fs_indices
-if isfield(job.fs_samples,'all_samples')
-    cv.fs_indices = 1:size(cv.cvmat,1);
-else
-    
-end
-
 % Save PRT.mat
+% -------------------------------------------------------------------------
 disp('Updating PRT.mat.......>>')
 if spm_matlab_version_chk('7') >= 0
     save(in.fname,'-V6','PRT');

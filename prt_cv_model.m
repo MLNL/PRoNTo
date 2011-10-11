@@ -3,14 +3,9 @@ function [outfile]=prt_cv_model(PRT,in)
 %
 % Inputs:
 % -------
+% PRT containing the specified model plus the following arguments:
 % in.fname:      filename for PRT.mat (string)
 % in.model_name: name for this model (string)
-% in.targets:    labels for the whole dataset (n x nClass matrix)
-% in.usebf:      use a kernel (basis functions) or features? (boolean)
-% in.cv_name: cross-validation approach to use (string)
-%
-% in.machine.function: function for classification or regression (string)       
-% in.machine.args:     function arguments (string, matrix, or struct).
 %
 % Outputs:
 % --------
@@ -21,29 +16,23 @@ function [outfile]=prt_cv_model(PRT,in)
 % PRT.model(m).output.fold(i).stats:       statistics for fold(i)
 % PRT.model(m).output.fold(i).{custom}:    optional fields
 %
-% Notes: - The feature set is derived from the cross-validation structure,
-%          it is not an inherent property of the model
-%        - The PRT.model(m).input fields are set by prt_init_model, not by
+% Notes: - The PRT.model(m).input fields are set by prt_init_model, not by
 %          this function
 %__________________________________________________________________________
 % Copyright (C) 2011
 
 % Written by A Marquand 
 
-prt_dir = regexprep(in.fname,'PRT.mat', '');
+prt_dir = char(regexprep(in.fname,'PRT.mat', ''));
 
-% Get index of specified model and cross-validation structure;
-cid = prt_init_cv(PRT, in);
+% Get index of specified model
 mid = prt_init_model(PRT, in);
 
-% Get index of feature set (from CV)
-fs.fs_name = PRT.cv(cid).fs_name;
-fid        = prt_init_fs(PRT, fs);
-
 % configure some variables
-CV      = PRT.cv(cid).cv_mat;  % CV matrix
-n_folds = size(CV,2);            % number of CV folds
-n_Phi   = size(PRT.fs(fid),1);  % number of data matrices
+CV       = PRT.model(mid).input.cv_mat;     % CV matrix
+n_folds  = size(CV,2);                      % number of CV folds
+n_Phi    = length(PRT.model(mid).input.fs); % number of data matrices
+samp_idx = PRT.model(mid).input.samp_idx;   % which samples are in the model
 
 % targets
 t = PRT.model(mid).input.targets;
@@ -52,17 +41,20 @@ t = PRT.model(mid).input.targets;
 disp('Loading data files.....>>');
 Phi_all = cell(1,n_Phi);
 for i = 1:size(PRT.fs,1)
-    load(fullfile(prt_dir,PRT.fs(fid).fs_file));
-    
-    if PRT.model(mid).input.usebf
-        Phi_all{i} = Phi;
+    fid = prt_init_fs(PRT, PRT.model(mid).input.fs(i));
+        
+    if PRT.model(mid).input.use_kernel
+        load(fullfile(prt_dir, PRT.fs(fid).k_file));
+        Phi_all{i} = Phi(samp_idx,:);
     else
-        % this should be improved
+        error('training with features not implemented yet');
+        
+        % this should be improved (e.g. need to load feat_idx)
         vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);
-        eval(['Phi_all{',num2str(i),'}=',vname,';']);
+        eval(['Phi_all{',num2str(i),'}=',vname,'(samp_idx,:);']);
     end
-    % check size of 
-    if size(t,1) ~= size(Phi,1)
+    % check size of data matrix
+    if size(t,1) ~= size(Phi_all{i},1)
         error('prt_cv_model:fsSizeDoesNotMatchTargets',...
             ['size of Feature set ',num2str(fid),' does not match targets']);
     end
@@ -72,20 +64,21 @@ end
 % -------------------------------------------------------------------------
 PRT.model(mid).output.fold = struct();
 for f = 1:n_folds
+    disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
     % configure training and test indices (validation is done later)
-    tr_idx = and(CV(:,f) == 1, in.targets ~= 0);
-    te_idx = and(CV(:,f) == 2, in.targets ~= 0);    
+    tr_idx = CV(:,f) == 1;
+    te_idx = CV(:,f) == 2;    
     
     [Phi_tr, Phi_te, Phi_tt] = ...
-        split_data(Phi_all, tr_idx, te_idx, PRT.model(mid).input.usebf);
+        split_data(Phi_all, tr_idx, te_idx, PRT.model(mid).input.use_kernel);
       
     % Assemble data structure
     cvdata.train      = Phi_tr;
     cvdata.test       = Phi_te;
     cvdata.tr_targets = t(tr_idx,:);
-    cvdata.usebf      = PRT.model(mid).input.usebf;
-    %if PRT.model(mid).input.usebf
-    %    cvdata.testcov    = Phi_tt;
+    cvdata.use_kernel = PRT.model(mid).input.use_kernel;
+    %if PRT.model(mid).input.use_kernel
+    %   cvdata.testcov    = Phi_tt;
     %end
     
     % train the prediction model

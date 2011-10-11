@@ -14,8 +14,8 @@ function output = prt_machine(d,m)
 %                [Nte x Nte])
 %    .tr_targets - training labels (for classification) or values (for
 %                  regression) (column vector, [Ntr x 1])
-%    .usebf  - flag, is data in form of kernel matrices (true) of in form
-%                of features (false)
+%    .use_kernel - flag, is data in form of kernel matrices (true) of in 
+%                form of features (false)
 %   m          - structure with information about the classification or
 %                regression machine to use, with fields:
 %      .function - function for classification or regression (string)
@@ -94,9 +94,9 @@ if SANITYCHECK==true
                 ['Error: ''data'' struct must contain a ''tr_targets'' '...
                 ' field!']);
         end
-        if ~isfield(d,'usebf')
+        if ~isfield(d,'use_kernel')
             error('prt_machine:noUsebfField',...
-                ['Error: ''data'' struct must contain a ''usebf'' '...
+                ['Error: ''data'' struct must contain a ''use_kernel'' '...
                 ' field!']);
         end
         
@@ -129,10 +129,10 @@ if SANITYCHECK==true
         % 4: BASIC: check if testcov is empty
         if isfield(d,'testcov')
             existcov     = ~isempty(d.testcov);
-            if (existcov && (d.usebf == false))
+            if (existcov && (d.use_kernel == false))
                 warning('prt_machine:tescovOnlyWithKernelMethods',...
                     ['Warning: A test covariance matrix can only be ' ...
-                    ' provided when using kernel methods! The usebf flag ' ...
+                    ' provided when using kernel methods! The use_kernel flag ' ...
                     ' should be set.']);
             end
         else
@@ -196,7 +196,7 @@ if SANITYCHECK==true
                     'and Ntrain=%d for dataset %d!'],Ntrain_lbs,Ntrain,k);
             end
             % c: if kernel check for kernel properties
-            if d.usebf
+            if d.use_kernel
                 if ~(Ntrain==Dtrain)
                     error('prt_machine:NtrainNotEqDtrain',['Error: Training '...
                         'dimensions should match, but Ntr=%d and Dtr=%d for '...

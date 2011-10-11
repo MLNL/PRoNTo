@@ -52,18 +52,16 @@ model.model_name = job.model_name;
 model.use_kernel = job.use_kernel;
 
 % insert feature set fields
-% for f = 1:length(job.fset)
-%     model.fs(f).fs_name = job.fset.fs_name;
+for f = 1:length(job.fset)
+    model.fs(f).fs_name = job.fset(f).fs_name;
 %     if isfield(job.fset(f).sel_features,'all_features')
 %         model.fs(f).fs_features = 'all';
 %     else
 %         model.fs(f).fs_features = 'mask';
 %         model.fs(f).mask_file   = char(job.fset.sel_features.mask.fmask);
 %     end
-% end
-for f = 1:length(job.fs_name)
-    model.fs(f).fs_name = job.fs_name{f};
 end
+
 
 % Insert fields for generating the labels (ie. translate the fields coming
 % from matlabbatch to something more consistent for the prt_model function)
@@ -120,6 +118,6 @@ outfile = prt_model(PRT,model);
 
 % Function output
 % -------------------------------------------------------------------------
-out.fname{1} = [outfile,'.mat'];
-disp('Cross-validation done.')
+out.files{1} = fname;
+disp('Model configuration complete.')
 end

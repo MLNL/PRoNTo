@@ -27,11 +27,13 @@ function [mid, PRT] = prt_init_model(PRT, in)
 % in.model_name: name of the model to be created (string)
 % in.use_kernel: use kernel or basis functions for this model (boolean)
 % in.machine:    prediction machine to use for this model (struct)
+% in.type:       'classification' or 'regression'
 %
 % Output:
 % -------
 % Populates the following fields in PRT.mat (copied from above):
 % PRT.model(m).model_name 
+% PRT.model(m).type 
 % PRT.model(m).input.use_kernel 
 % PRT.model(m).input.machine
 %
@@ -75,6 +77,7 @@ else
     % always overwrite the model
     PRT.model(mid).model_name       = in.model_name;
     PRT.model(mid).input.use_kernel = in.use_kernel;
+    PRT.model(mid).input.type       = in.type;
     PRT.model(mid).input.machine    = in.machine;
 end
 

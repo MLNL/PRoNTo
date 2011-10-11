@@ -137,14 +137,14 @@ for gid = 1:length(PRT.group)
     for sid = 1:length(PRT.group(gid).subject)
         for m = 1:n_mods
             if in.mod(mids(m)).kernel_dt == 1
-                linear_dt = true; 
-                rg =  (PRT.fs(fid).id_mat(:,1) == gid) & ...
-                      (PRT.fs(fid).id_mat(:,2) == sid) & ...
-                      (PRT.fs(fid).id_mat(:,3) == mids(m));
-                c  = zeros(n,2);
-                c(rg,1:2) = [(1:sum(rg))' ones(sum(rg),1)];
-                C = [C c];
+                linear_dt = true;
             end
+            rg = (PRT.fs(fid).id_mat(:,1) == gid) & ...
+                 (PRT.fs(fid).id_mat(:,2) == sid) & ...
+                 (PRT.fs(fid).id_mat(:,3) == mids(m));
+            c  = zeros(n,2);
+            c(rg,1:2) = [(1:sum(rg))' ones(sum(rg),1)];
+            C = [C c];
         end
     end
 end
@@ -152,7 +152,12 @@ end
 % detrend
 if linear_dt
     [Phi, R] = prt_remove_confounds(Phi,C);
+    PRT.fs(fid).kernel_dt = 1;
+else
+    R = eye(n)-C*pinv(C);
+    PRT.fs(fid).kernel_dt = 0;
 end
+PRT.fs(fid).rf_mat = R;
 
 % Normalise
 % -------------------------------------------------------------------------
@@ -171,8 +176,6 @@ for m = 1:length(mids)
     PRT.fs(fid).modality(m).feat_idx  = ...
         find(reshape(N.dat(:,:,:,1),prod(N.dat.dim(1:3)),1));
 end
-
-PRT.fs(fid).rf_mat    = R;
 PRT.fs(fid).normalise = in.normalise;
 
 % Save kernel and function output
