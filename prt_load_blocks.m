@@ -3,18 +3,26 @@ function block = prt_load_blocks(filenames, bs, br)
 % This script is a effectively a wrapper function that for the routines  
 % that actually do the work (SPM nifti routines)
 %
-% The syntax is:
+% The syntax is either:
 % 
-% img = prt_load_blocks(filenames, block_size, block_range)
+% img = prt_load_blocks(filenames, block_size, block_range) just to specify
+% continuous blocks of data
 %
+%or
+%
+% img = prt_load_blocks(filenames, voxel_index) to access non continuous
+% blocks
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand
+% Modified by J Schrouff, 12/10/2011
 % $Id$
 
-if nargin ~= 3
+if nargin <2 || nargin >3
     disp('Usage: img = prt_load_blocks(filenames, block_size, block_range)');
+    disp('or')
+    disp('Usage: img = prt_load_blocks(filenames, voxel_indexes)');
     return;
 end
 
@@ -30,7 +38,20 @@ else
 end
 
 % get the data
-data_range = (br(1)-1)*bs+1:min(br(end)*bs,n_vox); 
-dat_r = reshape(N.dat,prod(dm(1:3)),n_vol);
-block = dat_r(data_range,:);
+if nargin==3
+    data_range = (br(1)-1)*bs+1:min(br(end)*bs,n_vox);
+else
+    data_range = bs;
+end
+
+block=zeros(length(data_range),length(N));
+if length(N)>1
+    for i=1:length(N)
+        dat_r = reshape(N(i).dat,prod(dm(1:3)),1);
+        block(:,i) = dat_r(data_range);
+    end
+else
+    dat_r = reshape(N.dat,prod(dm(1:3)),n_vol);
+    block = dat_r(data_range,:);
+end
 end
