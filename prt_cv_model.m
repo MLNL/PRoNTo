@@ -92,7 +92,7 @@ for f = 1:n_folds
     
     % compute stats
     stats = prt_stats(model, t(te_idx,:));
-    acc = stats.acc % for debugging
+    acc = stats.acc; % for debugging
     
     % update PRT 
     PRT.model(mid).output.fold(f).targets     = t(te_idx,:);
