@@ -563,7 +563,7 @@ end
 %the batch
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.detrend;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).quant=mod.quant;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).TR=mod.TR;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
 newlist=[get(handles.modality_list,'String'); {mod.name}];
@@ -609,7 +609,7 @@ end
 %update structure
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.detrend;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).quant=mod.quant;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).TR=mod.TR;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
 

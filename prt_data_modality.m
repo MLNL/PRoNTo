@@ -27,7 +27,7 @@ function varargout = prt_data_modality(varargin)
 
 % Edit the above text to modify the response to help prt_data_modality
 
-% Last Modified by GUIDE v2.5 25-Aug-2011 15:53:27
+% Last Modified by GUIDE v2.5 12-Oct-2011 18:20:09
 
 % Begin initialization code - DO NOT EDIT
 
@@ -69,8 +69,8 @@ set(handles.design_menu,...
     
 
 handles.mod=[];
-handles.mod.detrend=0;
-handles.mod.quant=0;
+handles.mod.detrend=1;
+handles.mod.TR=[];
 handles.mod.design=0;
 handles.mod.scans=[];
 handles.mod.name={};
@@ -86,13 +86,12 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             valsel=find(strcmpi(modsel.mod_name,nlist));
             set(handles.modname,'String',nlist);
             set(handles.modname,'Value',valsel);
-            set(handles.quantbutt,'Value',modsel.quant);
-            set(handles.tmsbutt,'Value',modsel.detrend);
+            set(handles.edit_TR,'String',num2str(modsel.TR));
             handles.mod.detrend=modsel.detrend;
-            handles.mod.quant=modsel.quant;
             handles.mod.design=modsel.design;
             handles.mod.scans=modsel.scans;
             handles.mod.name=modsel.mod_name;
+            handles.mod.TR=modsel.TR;
         else
             nlist=[varargin{2}{1}, {'Enter new'}];
             set(handles.modname,'String',nlist,'Value',length(nlist));  
@@ -211,39 +210,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on button press in quantbutt.
-function quantbutt_Callback(hObject, eventdata, handles)
-% hObject    handle to quantbutt (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of quantbutt
-val=get(handles.quantbutt,'Value');
-if val
-    handles.mod.quant=1;
-else
-    handles.mod.quant=0;
-end
-% Update handles structure
-guidata(hObject, handles);
-
-% --- Executes on button press in tmsbutt.
-function tmsbutt_Callback(hObject, eventdata, handles)
-% hObject    handle to tmsbutt (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of tmsbutt
-val=get(handles.tmsbutt,'Value');
-if val
-    handles.mod.detrend=1;
-else
-    handles.mod.detrend=0;
-end
-% Update handles structure
-guidata(hObject, handles);
-
 % --- Executes on selection change in design_menu.
 function design_menu_Callback(hObject, eventdata, handles)
 % hObject    handle to design_menu (see GCBO)
@@ -288,6 +254,8 @@ elseif choice==4
     desn=handles.subj1(handles.indmods1).design;
 end
 handles.mod.design=desn;
+handles.mod.TR=desn.TR;
+set(handles.edit_TR,'String',num2str(desn.TR));
 % Update handles structure
 guidata(hObject, handles);
 
@@ -303,6 +271,30 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+
+function edit_TR_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_TR (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_TR as text
+%        str2double(get(hObject,'String')) returns contents of edit_TR as a double
+tre=str2double(get(handles.edit_TR,'String'));
+handles.mod.TR=tre;
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function edit_TR_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_TR (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
 % --- Executes on button press in getfiles.
 function getfiles_Callback(hObject, eventdata, handles)
