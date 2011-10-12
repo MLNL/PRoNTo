@@ -1,12 +1,13 @@
-function weights = prt_weights(PRT,model,wfunc)
+function weights = prt_weights(d,m)
 % Run function to compute weights
-% FORMAT weights = prt_weights(PRT,model,wfunc)
+% FORMAT weights = prt_weights(d,m)
 % Inputs:
-%       PRT     - PRT data structure (must contain fields .fs and .model)
-%       model   - index of model to be used (integer)
-%       wfunc   - function to compute weights (string)
+%       d   - data structure
+%       m   - machine structure
+%           .function - function to compute weights (string)
+%           .args     - function arguments
 % Output:
-%       weights - filename of 4d image with weights (string)
+%       weights - weights vector [Nfeatures x 1]
 %__________________________________________________________________________
 % Copyright (C) 2011 PRoNTo
 
@@ -16,61 +17,57 @@ function weights = prt_weights(PRT,model,wfunc)
 
 SANITYCHECK = true; % turn off for speed
 
-% Initial checks
+% initial checks
 %--------------------------------------------------------------------------
 if SANITYCHECK == true
-    if ~isinteger(int8(model))
-        error('prt_weights:modelIsNotInteger',['Error: ''model'' input '...
-            'should be an integer indexing the model to use.']);
-    end    
-    if ~isempty(PRT)
-        if isstruct(PRT)
-            if ~isfield(PRT,'fs')
-                    error('prt_weights:fsFieldNotFound',...
-                        ['Error: PRT structure must contain ''.fs'' field '...
-                        'with feature set']);
-            end
-            if isfield(PRT,'model')
-                if ~isfield(PRT.model(model),'input')
-                    error('prt_weights:inputFieldNotFound',...
-                        ['Error: PRT.model must contain ''.input'' '...
-                        'field with inputs provided to the model.']);
+    if ~isempty(m)
+        if isstruct(m)
+            if isfield(m,'function')
+                if ~ischar(m.function)
+                    error('prt_weights:functionNotString',...
+                        'Error: ''function'' should be a string!');
                 end
-                if ~isfield(PRT.model(model),'output')
-                    error('prt_weights:outputFieldNotFound',...
-                        ['Error: PRT.model must contain ''.output'' '...
-                        'field with results.']);
+                if ~exist(m.function,'file')
+                    error('prt_weights:functionFileNotFound',...
+                        'Error: %s function could not be found!',...
+                        m.function);
                 end
             else
-                error('prt_weights:modelFieldNotFound',...
-                    ['Error: PRT structure must contain ''.model'' field '...
-                    'with model']);
+                error('prt_weights:functionNotField',...
+                    'Error: ''function'' should be a field of machine!');
+            end
+            if ~isfield(m,'args')
+                m.args = [];
             end
         else
-            error('prt_weights:PRTnotStruct',['Error: ''PRT'' should '...
-                'be a structure!']);
+            error('prt_weights:machineNotStruct',...
+                'Error: machine should be a structure!');
         end
     else
-        error('prt_weigths:PRTstructEmpty',...
-            'Error: ''PRT'' cannot be empty!');
+        error('prt_weights:machineEmpty',...
+            'Error: ''machine'' cannot be empty!');
+    end
+    if ~isempty(d)
+        if ~isstruct(d)
+            error('prt_weights:dataNotStruct',...
+                'Error: data should be a structure!');
+        end
+    else
+        error('prt_weights:dataStructEmpty',...
+            'Error: ''data'' struct cannot be empty!');
     end
 end
 
-% Run weights
+% run weights
 %--------------------------------------------------------------------------
-fnch    = str2func(wfunc);
-weights = fnch(PRT,model);
+fnch    = str2func(m.function);
+weights = fnch(d,m.args);
 
-% Final checks
+% final checks
 %--------------------------------------------------------------------------
 if SANITYCHECK == true
-    if ~ischar(weights)
-        error('prt_weights:weightsIsNotString',['Error: ''weights'' '...
-            'should be a string with file name of weights.']);
-    else
-        if ~exist(weights,'file')
-            error('prt_weights:weightsFileNotFound',['Error: %s file '...
-                'not found!',weigths]);
-        end
+    if ~isvector(weights)
+        error('prt_weights:weightsNotVector',...
+            'Error: weights should be a vector!');
     end
 end
