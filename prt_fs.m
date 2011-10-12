@@ -98,8 +98,9 @@ for b = 1:n_block
                             repmat(block_mask,1,length(sample_range)) .* ...
                             prt_load_blocks(fname,block_size,b);
                         
-                    case 'all_cond'
+                    case 'all_cond'     
                         conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
+                        
                         
                         for cid = 1:length(conds)    % condition                           
                             scans = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;

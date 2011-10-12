@@ -16,6 +16,7 @@ function PRT = prt_model(PRT,in)
 %   in.class(c).group(g).subj(s).modality(m).mod_name
 %   EITHER: in.class(c).group(g).subj(s).modality(m).conds(c).cond_name
 %   OR:     in.class(c).group(g).subj(s).modality(m).all_scans
+%   OR:     in.class(c).group(g).subj(s).modality(m).all_cond
 %
 %   in.cv.type:     type of cross-validation ('loso','losgo','custom')
 %   in.cv.mat_file: file specifying CV matrix (if type='custom');
@@ -24,11 +25,10 @@ function PRT = prt_model(PRT,in)
 % -------
 %
 %   This function performs the following functions:
-%      1. computes PRT.model.input.targets based on in.class(c)...
-%      2. computes PRT.model.input.samp_idx based on labels
-%      3. computes PRT.model.input.fs(f).feat_idx based on the input masks
-%      4. computes PRT.model.input.cv_mat based on the labels and CV spec
-%      5. populates remaining fields in PRT.model.input
+%      1. populates basic fields in PRT.model(m).input
+%      2. computes PRT.model(m).input.targets based on in.class(c)...
+%      3. computes PRT.model(m).input.samp_idx based on targets
+%      4. computes PRT.model(m).input.cv_mat based on the labels and CV spec
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -36,14 +36,12 @@ function PRT = prt_model(PRT,in)
 
 % $Id$
 
-% populate basic fields in PRT.mat
+% Populate basic fields in PRT.mat
 % -------------------------------------------------------------------------
 [modelid, PRT] = prt_init_model(PRT,in);
 
-% type 
+% specify model type and feature sets
 PRT.model(modelid).input.type = in.type;
-
-% feature sets
 for f = 1:length(in.fs)
     fid = prt_init_fs(PRT,in.fs(f));
     
@@ -57,12 +55,41 @@ for f = 1:length(in.fs)
     PRT.model(modelid).input.fs(f).fs_name = in.fs(f).fs_name;
 end
 
-% compute labels and samp_idx
+% compute targets and samp_idx
 % -------------------------------------------------------------------------
-% first check the feature sets have the same number of samples (eg for MKL)
+[targets, samp_idx] = compute_targets(PRT, in);
+
+PRT.model(modelid).input.samp_idx = samp_idx;
+PRT.model(modelid).input.targets  = targets;
+
+% compute cross-validation matrix
+% -------------------------------------------------------------------------
+PRT.model(modelid).input.cv_mat = compute_cv_mat(PRT,in, modelid);
+
+% Save PRT.mat
+% -------------------------------------------------------------------------
+disp('Updating PRT.mat.......>>')
+if spm_matlab_version_chk('7') >= 0
+    save(in.fname,'-V6','PRT');
+else
+    save(in.fname,'-V6','PRT');
+end
+
+end
+
+% -------------------------------------------------------------------------
+% Private Functions
+% -------------------------------------------------------------------------
+
+function [targets, samp_idx] = compute_targets(PRT, in)
+% Function to compute the prediction targets. Also does some error checking
+
+% Set the reference feature set
 fid = prt_init_fs(PRT, in.fs(1));
 ID  = PRT.fs(fid).id_mat;
 n   = size(ID,1);
+
+% Check the feature sets have the same number of samples (eg for MKL).
 if length(in.fs) > 1
     for f = 1:length(in.fs)
         fid = prt_init_fs(PRT, in.fs(f));
@@ -104,74 +131,108 @@ for c = 1:length(in.class)
                 end
               
                 if isfield(in.class(c).group(g).subj(s).modality(m), 'all_scans')
-                    % add all scans for each subject
+                    % check whether this was included in the feature set
+                    % using 'all conditions' (which is invalid)
+                    if strcmpi(PRT.fs(fid).modality.mode,'all_cond')
+                        error('prt_model:fsIsAllCondModelisAllScans',...
+                         ['''All scans'' selected for subject ',num2str(s),...
+                          ', group ',num2str(g), ', modality ', num2str(m),...
+                          ' but the feature set was constructed using ',...
+                          '''All conditions''. This syntax is invalid. ',...
+                          'Please use ''All Conditions'' instead.']);
+                    end
+                    
+                    % otherwise add all scans for each subject
                     idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid;
                     t_all(idx) = c;
-                else  % loop over conditions
-                    for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
-                        cond_name = in.class(c).group(g).subj(s).modality(m).conds(cond).cond_name;
-                        conds     = {PRT.group(gid).subject(s).modality(mid).design.conds(:).cond_name};
+                else % conditions have been specified
+                    sid = in.class(c).group(g).subj(s).num;
+                    
+                    % check whether conditions were specified in the design
+                    if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
+                        error('prt_model:conditionsSpecifiedButNoneInDesign',...
+                         ['Conditions selected for subject ',num2str(s),...
+                          ', class ',num2str(c),', group ',num2str(g), ...
+                          ', modality ', num2str(m),' but there are none in the design. ',...
+                          'Please use ''All Scans'' or adjust design.']);
+                    end 
+                    if isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
+                        % all conditions
+                        error('All conditions not implemented yet');
                         
-                        if any(strcmpi(cond_name,conds))
-                            cid = find(strcmpi(cond_name,conds));
-                        else
-                            error('prt_model:groupNotFoundInPRT',...
-                                ['Condition ',cond_name,' not found in PRT.mat']);
+                    else % loop over conditions
+                        for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
+                            cond_name = in.class(c).group(g).subj(s).modality(m).conds(cond).cond_name;
+                            conds     = {PRT.group(gid).subject(s).modality(mid).design.conds(:).cond_name};
+                            
+                            if any(strcmpi(cond_name,conds))
+                                cid = find(strcmpi(cond_name,conds));
+                            else
+                                error('prt_model:groupNotFoundInPRT',...
+                                    ['Condition ',cond_name,' not found in PRT.mat']);
+                            end
+                            
+                            idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid & ID(:,4) == cid;
+                            t_all(idx) = c;
                         end
-                        
-                        idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid & ID(:,4) == cid;
-                        t_all(idx) = c;
                     end
                 end
             end
         end
     end
 end
-PRT.model(modelid).input.samp_idx = find(t_all);
-PRT.model(modelid).input.targets  = t_all(PRT.model(modelid).input.samp_idx);
 
-% compute cross-validation matrix
-% -------------------------------------------------------------------------
-n_classes = length({in.class(:).class_name});
+samp_idx = find(t_all);
+targets  = t_all(samp_idx);
+
+end
+
+function CV = compute_cv_mat(PRT, in, modelid)
+% Function to compute the cross-validation matrix. Also does error checking
+
+fid = prt_init_fs(PRT, in.fs(1));
+
+% id matrix only contains samples within the CV structure
 ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);   
+
 switch in.cv.type
-    case 'loso'
-        gids = unique(ID(:,1));
-        
+    case 'loso'        
         % give each subject a unique id
+        gids = unique(ID(:,1));
         gc = 0;
         for g = 1:length(gids)
-            gidx = ID(:,1) == gid;
+            gidx = ID(:,1) == gids(g);
             ID(gidx,2) = ID(gidx,2) + gc;
             gc = gc + max(ID(gidx,2));
         end
         
         % Compute CV matrix
-        snums = histc(ID(:,2),unique(ID(:,2)));
+        %snums = histc(ID(:,2),unique(ID(:,2)));
+        snums = accumarray(ID(:,2),1);
         G = cell(length(snums),1);
         for s = 1:length(snums)
             G{s} = ones(snums(s),1);
         end
-        PRT.model(modelid).input.cv_mat = blkdiag(G{:}) + 1;  
+        CV = blkdiag(G{:}) + 1;  
         
     case 'losgo'
-        error('losgo CV not implemented yet');
-          
+        sids = unique(ID(:,2));
+        
+        CV = zeros(size(ID,1),length(sids));
+        for s = 1:length(sids)
+            sidx = ID(:,2) == sids(s);
+            CV(:,s) = double(sidx) + 1;
+        end
+        
+    case 'lobo'
+        error('leave-one-block-out CV not implemented yet');
+        
     case 'custom'
         error('custom CV not implemented yet');
         
     otherwise
         error('prt_cv:unknownTypeSpecified',...
              ['Unknown type specified for CV structure (',in.type',')']);
-end
-
-% Save PRT.mat
-% -------------------------------------------------------------------------
-disp('Updating PRT.mat.......>>')
-if spm_matlab_version_chk('7') >= 0
-    save(in.fname,'-V6','PRT');
-else
-    save(in.fname,'-V6','PRT');
 end
 
 end

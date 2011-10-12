@@ -27,6 +27,7 @@ function out = prt_run_model(varargin)
 %   model.class(c).group(g).subj(s).modality(m).mod_name
 %   EITHER: model.class(c).group(g).subj(s).modality(m).conds(c).cond_name
 %   OR:     model.class(c).group(g).subj(s).modality(m).all_scans
+%   OR:     model.class(c).group(g).subj(s).modality(m).all_cond
 %
 %   model.cv.type:     type of cross-validation ('loso','losgo','custom')
 %   model.cv.mat_file: file specifying CV matrix (if type = 'custom');
@@ -57,7 +58,6 @@ for f = 1:length(job.fset)
     model.fs(f).fs_name = job.fset(f).fs_name;
 end
 
-
 % Insert fields for generating the labels (ie. translate the fields coming
 % from matlabbatch to something more consistent for the prt_model function)
 % Note that we cycle through the groups to flatten out the structure, since
@@ -78,9 +78,10 @@ if isfield(job.model_type,'class')
                 
                 model.class(c).group(g).subj(scount).modality.mod_name = ...
                     job.model_type.class(c).group(g).modality.mod_name;
-                % FIXME: need to loop over modalities here too
                 if isfield(job.model_type.class(c).group(g).modality.conditions,'all_scans')
                     model.class(c).group(g).subj(scount).modality.all_scans = true;
+                elseif isfield(job.model_type.class(c).group(g).modality.conditions,'all_cond')
+                    model.class(c).group(g).subj(scount).modality.all_cond = true;
                 else
                     model.class(c).group(g).subj(scount).modality.conds = ...
                         job.model_type.class(c).group(g).modality.conditions.conds;
@@ -107,6 +108,8 @@ if isfield(job.cv_type,'cv_loso')
     model.cv.type = 'loso';
 elseif isfield(job.cv_type,'cv_losgo')
     model.cv.type = 'losgo';
+elseif isfield(job.cv_type,'cv_lobo')
+    model.cv.type = 'lobo';
 else
     model.cv.type     = 'custom';
     model.cv.mat_file = job.cv_type;

@@ -103,6 +103,13 @@ else
                 if strcmpi(in.mod(mid).mode,'all_scans');
                     n = n + size(PRT.group(gid).subject(sid).modality(mid).scans,1);
                 elseif strcmpi(in.mod(mid).mode,'all_cond')
+                    if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
+                        error('prt_model:fsIsAllCondModelisAllScans',...
+                         ['''All conditions'' selected for modality ', num2str(m)...
+                          ' but no design was specified. This syntax is invalid, '...
+                          'Please use ''All Scans'' instead.']);
+                    end                
+                           
                     for cid = 1:length(PRT.group(gid).subject(sid).modality(mid).design.conds)    % condition
                         n = n + length(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans);
                     end
@@ -145,7 +152,7 @@ else
                     end
                     
                 % all conditions
-                elseif strcmpi(in.mod(mid).mode,'all_cond')
+                elseif strcmpi(in.mod(mid).mode,'all_cond') 
                     conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
                     
                     % now loop over conditions

@@ -12,7 +12,7 @@ function model = prt_cfg_model
 % ---------------------------------------------------------------------
 infile        = cfg_files;
 infile.tag    = 'infile';
-infile.name   = 'Load PRT.mat';
+infile.name   = 'Data structure file';
 infile.ufilter = 'PRT.mat';
 infile.num    = [1 1];
 infile.help   = {'Select data/design structure file (PRT.mat).'};
@@ -466,6 +466,8 @@ machine.help   = {...
 % cv_valid.values = {cv_no_valid, cv_use_valid };
 % %cv_valid.val    = {cv_no_valid};
 % 
+
+
 % ---------------------------------------------------------------------
 % cv_loo Leave-one-out
 % ---------------------------------------------------------------------
@@ -484,7 +486,19 @@ cv_losgo.name    = 'Leave one subject per group out';
 cv_losgo.val     = {1};
 cv_losgo.help    = {...
     ['Leave out a single subject from each group at a time. ', ...
-     'Useful for repeated measures or paired samples designs.']};
+     'Appropriate for repeated measures or paired samples designs.']};
+ 
+% ---------------------------------------------------------------------
+% cv_losgo Leave-one-subject-per-group-out
+% ---------------------------------------------------------------------
+cv_lobo         = cfg_const;
+cv_lobo.tag     = 'cv_lobo';
+cv_lobo.name    = 'Leave one block out';
+cv_lobo.val     = {1};
+cv_lobo.help    = {...
+    ['Leave out a single block or event from each subject each iteration. ', ...
+     'Appropriate for single subject designs.']};
+  
 %  
 % % ---------------------------------------------------------------------
 % % cv_fold Cross-validation fold
@@ -526,7 +540,7 @@ cv_custom.help   = {...
 cv_type        = cfg_choice;
 cv_type.tag    = 'cv_type';
 cv_type.name   = 'Cross-validation type';
-cv_type.values = {cv_loso, cv_losgo, cv_custom};
+cv_type.values = {cv_loso, cv_losgo, cv_lobo, cv_custom};
 cv_type.val    = {cv_loso};
 cv_type.help   = {'Choose the type of cross-validation to be used'};
 
