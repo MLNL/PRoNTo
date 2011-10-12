@@ -79,13 +79,13 @@ else
     end
     
     % get the index of the modalities to include
-    n_mods=length(in.mod);
     mids=[];
-    for i=1:n_mods
+    for i=1:length(in.mod)
         if ~isempty(in.mod(i).mask)
             mids=[mids,i];
         end
     end
+    n_mods = length(mids);
     
     % initialise basic fields of fs structure
     PRT.fs(fid).fs_name  = in.fs_name;

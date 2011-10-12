@@ -32,6 +32,28 @@ if ~isempty(setdiff(modchos,allmod))
     error(['Couldn''t find modality "',target,'" in PRT.mat']);
 end
 
+% for i = 1:length(job.modality)
+%     
+%     if any(strcmpi(modchos,allmod{i}))
+%         ind=find(strcmpi(modchos,allmod{i}));
+%         mod(i).kernel_dt=job.modality(ind).kernel_dt;
+%         if isfield(job.modality(ind).conditions,'all_cond')
+%             mod(i).mode='all_cond';
+%         elseif isfield(job.modality(ind).conditions,'all_scans')
+%             mod(i).mode='all_scans';
+%         else
+%             error('Wrong mode selected: choose either all scans or all conditions')
+%         end
+%         indm=find(strcmpi(maskchos,allmod{i}));
+%         if isempty(indm)
+%             error(['No mask selected for ',allmod{i}])
+%         else
+%             %mod(i).mask=char(job.mask(indm).fmask);
+%             mod(i).mask=char(job.modality(indm).fmask);
+%         end
+%     end
+% end
+
 for i=1:length(PRT.masks)
     if any(strcmpi(modchos,allmod{i}))
         mod(i).mod_name=allmod{i};
@@ -51,11 +73,11 @@ for i=1:length(PRT.masks)
             %mod(i).mask=char(job.mask(indm).fmask);
             mod(i).mask=char(job.modality(indm).fmask);
         end
-%     else
-%         mod(i).mod_name=allmod{i};
-%         mod(i).kernel_dt=nan;
-%         mod(i).mode=nan;
-%         mod(i).masks=[];
+    else
+        mod(i).mod_name=allmod{i};
+        mod(i).kernel_dt=nan;
+        mod(i).mode=nan;
+        mod(i).mask=[];
     end
 end
 

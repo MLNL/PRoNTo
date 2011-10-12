@@ -40,13 +40,13 @@ prt_dir = regexprep(in.fname,'PRT.mat', ''); % or: fileparts(fname);
 n_groups      = length(PRT.group);
 
 % get the index of the modalities for which the user wants to include
-n_mods=length(in.mod);
 mids=[];
-for i=1:n_mods
+for i=1:length(in.mod)
     if ~isempty(in.mod(i).mask)
         mids=[mids,i];
     end
 end
+n_mods = length(mids);
 
 % Load mask(s) and resize if necessary
 [mask, n_vox] = load_masks(PRT, prt_dir, in.mod,mids);
@@ -204,7 +204,7 @@ n_mods=length(mids);
 mask  = cell(1,n_mods);
 for m = 1:n_mods
     mid=mids(m);
-    mfile=in(m).mask;
+    mfile=in(mid).mask;
 
     if PRT.group(1).subject(1).modality(mid).detrend        
         file_idx = [1 1 mid 1];
