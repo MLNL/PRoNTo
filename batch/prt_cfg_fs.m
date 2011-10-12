@@ -12,7 +12,7 @@ function fs = prt_cfg_fs
 % ---------------------------------------------------------------------
 infile        = cfg_files;
 infile.tag    = 'infile';
-infile.name   = 'Data structure file';
+infile.name   = 'Load PRT.mat';
 infile.ufilter = 'PRT.mat';
 infile.num    = [1 1];
 infile.help   = {'Select data/design structure file (PRT.mat).'};
