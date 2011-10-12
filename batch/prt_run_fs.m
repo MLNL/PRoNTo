@@ -51,11 +51,11 @@ for i=1:length(PRT.masks)
             %mod(i).mask=char(job.mask(indm).fmask);
             mod(i).mask=char(job.modality(indm).fmask);
         end
-    else
-        mod(i).mod_name=allmod{i};
-        mod(i).kernel_dt=nan;
-        mod(i).mode=nan;
-        mod(i).masks=[];
+%     else
+%         mod(i).mod_name=allmod{i};
+%         mod(i).kernel_dt=nan;
+%         mod(i).mode=nan;
+%         mod(i).masks=[];
     end
 end
 

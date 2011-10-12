@@ -147,6 +147,7 @@ for c = 1:length(in.class)
                     t_all(idx) = c;
                 else % conditions have been specified
                     sid = in.class(c).group(g).subj(s).num;
+                    conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
                     
                     % check whether conditions were specified in the design
                     if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
@@ -158,12 +159,13 @@ for c = 1:length(in.class)
                     end 
                     if isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
                         % all conditions
-                        error('All conditions not implemented yet');
-                        
+                        for cid = 1:length(conds)
+                            idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
+                            t_all(idx) = c;
+                        end
                     else % loop over conditions
                         for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
                             cond_name = in.class(c).group(g).subj(s).modality(m).conds(cond).cond_name;
-                            conds     = {PRT.group(gid).subject(s).modality(mid).design.conds(:).cond_name};
                             
                             if any(strcmpi(cond_name,conds))
                                 cid = find(strcmpi(cond_name,conds));
@@ -172,7 +174,7 @@ for c = 1:length(in.class)
                                     ['Condition ',cond_name,' not found in PRT.mat']);
                             end
                             
-                            idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid & ID(:,4) == cid;
+                            idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
                             t_all(idx) = c;
                         end
                     end
