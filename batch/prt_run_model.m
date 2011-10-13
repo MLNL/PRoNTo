@@ -78,13 +78,15 @@ if isfield(job.model_type,'class')
                 
                 model.class(c).group(g).subj(scount).modality.mod_name = ...
                     job.model_type.class(c).group(g).modality.mod_name;
-                if isfield(job.model_type.class(c).group(g).modality.conditions,'all_scans')
-                    model.class(c).group(g).subj(scount).modality.all_scans = true;
-                elseif isfield(job.model_type.class(c).group(g).modality.conditions,'all_cond')
-                    model.class(c).group(g).subj(scount).modality.all_cond = true;
-                else
-                    model.class(c).group(g).subj(scount).modality.conds = ...
-                        job.model_type.class(c).group(g).modality.conditions.conds;
+                for m = 1: length(job.model_type.class(c).group(g).modality)
+                    if isfield(job.model_type.class(c).group(g).modality(m).conditions,'all_scans')
+                        model.class(c).group(g).subj(scount).modality.all_scans = true;
+                    elseif isfield(job.model_type.class(c).group(g).modality(m).conditions,'all_cond')
+                        model.class(c).group(g).subj(scount).modality.all_cond = true;
+                    else
+                        model.class(c).group(g).subj(scount).modality(m).conds = ...
+                            job.model_type.class(c).group(g).modality(m).conditions.conds;
+                    end
                 end
                 scount = scount+1;
             end
