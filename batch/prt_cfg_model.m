@@ -381,13 +381,33 @@ svm_args.val     = {'-s 0 -t 4 -c 1'};
 svm_args.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
-% svm Regression group
+% svm group
 % ---------------------------------------------------------------------
 svm         = cfg_branch;
 svm.tag     = 'svm';
-svm.name    = 'SVM';
+svm.name    = 'SVM Classification';
 svm.help    = {'Binary support vector machine.'};
 svm.val     = {svm_args};
+
+% ---------------------------------------------------------------------
+% krr_args Regression Targets
+% ---------------------------------------------------------------------
+krr_args         = cfg_entry;
+krr_args.tag     = 'krr_args';
+krr_args.name    = 'Regularization';
+krr_args.help    = {['Regularization for prt_machine_krr.']};
+krr_args.strtype = 'e';
+krr_args.val     = {1};
+krr_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% KRR group
+% ---------------------------------------------------------------------
+krr         = cfg_branch;
+krr.tag     = 'krr';
+krr.name    = 'Kernel Ridge Regression';
+krr.help    = {'Kernel Ridge Regression.'};
+krr.val     = {krr_args};
 
 % ---------------------------------------------------------------------
 % machine Select Features
@@ -395,7 +415,7 @@ svm.val     = {svm_args};
 machine        = cfg_choice;
 machine.tag    = 'machine';
 machine.name   = 'Machine';
-machine.values = {svm, custom_machine};
+machine.values = {svm,krr, custom_machine};
 machine.val    =  {svm};
 machine.help   = {...
     ['Choose a prediction machine for this model']};
