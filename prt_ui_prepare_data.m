@@ -182,7 +182,7 @@ n_mod=length(handles.modnames);
 list=[];
 %initialize for all modalities
 for i=1:n_mod
-    handles.mod(i)=struct('mod_name',[],'mode',[],'mask',[],'kernel_dt',[], ...
+    handles.mod(i)=struct('mod_name',[],'mode',[],'mask',[],'detrend',[], ...
         'param_dt',[],'normalise',[],'matnorm',[]);
 end
 %get information for the selected modalities 

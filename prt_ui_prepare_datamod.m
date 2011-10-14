@@ -75,11 +75,11 @@ set(handles.pop_mod,'Value',1)
 set(handles.figure1,'Name',['Specify modality ',varargin{2}{2}])
 set(handles.pop_cond,'String',{'All conditions','All scans'})
 set(handles.pop_cond,'Value',2)
-handles.mod=struct('mod_name',[],'mode',[],'mask',[],'kernel_dt',[], ...
+handles.mod=struct('mod_name',[],'mode',[],'mask',[],'detrend',[], ...
         'param_dt',[],'normalise',[],'matnorm',[]);
 handles.mod.mod_name=mod_n(1);
 handles.mod.mode='all_scans';
-handles.mod.kernel_dt=0;
+handles.mod.detrend=0;
 handles.mod.normalise=0;
 handles.mod.mask=[];
 % Update handles structure
@@ -176,7 +176,7 @@ function pop_det_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_det contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_det
 val=get(handles.pop_det,'Value')-1;
-handles.mod.kernel_dt=val;
+handles.mod.detrend=val;
 if val==0 % No detrend
     set(handles.par_name,'Visible','off')
     set(handles.par_value,'Visible','off')
@@ -304,7 +304,7 @@ function okbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to okbutt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if strcmpi(handles.mod.mode,'all_cond') && handles.mod.kernel_dt~=0
+if strcmpi(handles.mod.mode,'all_cond') && handles.mod.detrend~=0
     beep
     disp('The "all conditions" mode can be selected only when no detrending is performed')
     return

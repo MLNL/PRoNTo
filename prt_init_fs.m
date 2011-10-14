@@ -86,7 +86,7 @@ else
     n_mods=length(mids);
     for m = 1:n_mods
         PRT.fs(fid).modality(m).mod_name = in.mod(mids(m)).mod_name;
-        PRT.fs(fid).modality(m).kernel_dt = in.mod(mids(m)).kernel_dt;
+        PRT.fs(fid).modality(m).detrend = in.mod(mids(m)).detrend;
         PRT.fs(fid).modality(m).param_dt = in.mod(mids(m)).param_dt;
         %get indexes from mask specified in the data and design step
         vm=spm_vol(mask{m});
@@ -224,12 +224,12 @@ else
     prt_dir=fileparts(in.fname);
     for i=1:n_mods
         % check whether we need to recreate the file array
-        if isempty(PRT.fas(mids(i)).dat) || PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).kernel_dt  
+        if isempty(PRT.fas(mids(i)).dat) || PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  
         
             if isempty(PRT.fas(mids(i)).dat)
                 disp(['File array does not exist for modality ''',...
                     char(in.mod(mids(i)).mod_name),'''. Creating...'])
-            elseif PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).kernel_dt ...
+            elseif PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend ...
                     && any(strcmpi(fieldnames(PRT.fas(mids(i)).dat),'fname')) ...
                     && exist(PRT.fas(mids(i)).dat.fname,'file')
                 
@@ -243,7 +243,7 @@ else
             
             tocomp(mids(i))=1;
             %PRT.fas(mids(i)).mod_name = in.mod(mids(i)).mod_name;
-            PRT.fas(mids(i)).detrend = in.mod(mids(i)).kernel_dt;
+            PRT.fas(mids(i)).detrend = in.mod(mids(i)).detrend;
             PRT.fas(mids(i)).param_dt = in.mod(mids(i)).param_dt;
             PRT.fas(mids(i)).hdr = headers{i};
             PRT.fas(mids(i)).idfeat_img = PRT.fs(fid).modality(i).feat_idx_img;                % index of voxels in the full image (nifti)

@@ -20,7 +20,7 @@ function out = prt_run_fs(varargin)
 job   = varargin{1};
 fname = char(job.infile);
 load(fname);
-kname=job.k_file;
+fs_name=job.k_file;
 
 mod=struct();
 allmod={PRT.masks(:).mod_name};
@@ -36,7 +36,19 @@ for i=1:length(PRT.masks)
     if any(strcmpi(modchos,allmod{i}))
         mod(i).mod_name=allmod{i};
         ind=find(strcmpi(modchos,allmod{i}));
-        mod(i).kernel_dt=job.modality(ind).kernel_dt;
+        
+        mod(i).detrend=job.modality(ind).detrend;
+        
+        mod(i).param_dt=job.modality(ind).param_dt;
+        
+        if isfield(job.modality(ind).normalise,'no_gms')
+            mod(i).normalise = 0;
+            mod(i).matnorm = [];
+        elseif isfield(job.modality(ind).normalise,'mat_gms')
+            mod(i).normalise=2;
+            mod(i).matnorm = char(job.modality(ind).normalise.mat_gms);
+        end
+        
         if isfield(job.modality(ind).conditions,'all_cond')
             mod(i).mode='all_cond';
         elseif isfield(job.modality(ind).conditions,'all_scans')
@@ -45,15 +57,20 @@ for i=1:length(PRT.masks)
             error('Wrong mode selected: choose either all scans or all conditions')
         end            
         indm=find(strcmpi(maskchos,allmod{i}));
-        if isempty(indm)
-            error(['No mask selected for ',allmod{i}])
+%         if isempty(indm)
+%             error(['No mask selected for ',allmod{i}])
+%         else
+%             mod(i).mask=char(job.modality(indm).fmask);
+%         end
+        if isfield(job.modality(indm).voxels,'fmask')
+            mod(i).mask = char(job.modality(indm).voxels.fmask);
         else
-            %mod(i).mask=char(job.mask(indm).fmask);
-            mod(i).mask=char(job.modality(indm).fmask);
+            mod(i).mask = [];
         end
+            
     else
-        mod(i).mod_name=allmod{i};
-        mod(i).kernel_dt=nan;
+        mod(i).mod_name=[];%allmod{i};
+        mod(i).detrend=nan;
         mod(i).mode=nan;
         mod(i).mask=[];
     end
@@ -61,9 +78,8 @@ end
 
 input=struct();
 input.fname=fname;
-input.kname=kname;
+input.fs_name=fs_name;
 input.mod=mod;
-input.normalise=job.normalise;
     
 prt_fs(PRT,input);
 

@@ -76,26 +76,37 @@ conditions.help   = {...
  'have not already detrended the timeseries and extracted task components)']};
 
 % ---------------------------------------------------------------------
-% kernel_dt Review
+% detrend Detrend
 % ---------------------------------------------------------------------
-kernel_dt         = cfg_menu;
-kernel_dt.tag     = 'kernel_dt';
-kernel_dt.name    = 'Kernel detrend';
-kernel_dt.help    = {'Perform detrending in the kernel.'};
-kernel_dt.labels  = {
+detrend         = cfg_menu;
+detrend.tag     = 'detrend';
+detrend.name    = 'Detrend';
+detrend.help    = {'Type of temporal detrending to apply'};
+detrend.labels  = {
                'None'
                'Linear'
 }';
-kernel_dt.values  = {0 1};
-kernel_dt.val     = {0};
+detrend.values  = {0 1};
+detrend.val     = {0};
 
+% ---------------------------------------------------------------------
+% param_dt Name
+% ---------------------------------------------------------------------
+param_dt         = cfg_entry;
+param_dt.tag     = 'param_dt';
+param_dt.name    = 'Detrend parameters';
+param_dt.help    = {[...
+    'Enter any parameters for the detrending operation (e.g. bases for DCT)']};
+param_dt.strtype = 's';
+param_dt.val     = {'1'};
+param_dt.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
 % fmask File name
 % ---------------------------------------------------------------------
 fmask        = cfg_files;
 fmask.tag    = 'fmask';
-fmask.name   = 'Mask file';
+fmask.name   = 'Specify mask file';
 fmask.filter = 'img';
 fmask.ufilter = '^*.img';
 fmask.num    = [1 1];
@@ -112,12 +123,68 @@ mod_name.strtype = 's';
 mod_name.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
+% no_gms No normalisation
+% ---------------------------------------------------------------------
+no_gms         = cfg_const;
+no_gms.tag     = 'no_gms';
+no_gms.name    = 'No scaling';
+no_gms.val     = {1};
+no_gms.help    = {'Do not scale the input scans'};
+
+% ---------------------------------------------------------------------
+% mat_norm File name
+% ---------------------------------------------------------------------
+mat_gms        = cfg_files;
+mat_gms.tag    = 'mat_gms';
+mat_gms.name   = 'Specify from *.mat';
+mat_gms.filter = 'mat';
+mat_gms.ufilter = '^*.mat';
+mat_gms.num    = [1 1];
+mat_gms.help   = {[...
+    'Specify a mat file containing the scaling parameters for each modality.']};
+
+% ---------------------------------------------------------------------
+% normalise 
+% ---------------------------------------------------------------------
+normalise        = cfg_choice;
+normalise.tag    = 'normalise';
+normalise.name   = 'Scale input scans';
+normalise.values = {no_gms, mat_gms};
+normalise.val    = {no_gms};
+normalise.help   = {...
+    ['Do you want to scale the input scans to have a fixed mean '...
+    '(i.e. grand mean scaling)?']};
+
+% ---------------------------------------------------------------------
+% all_voxels All voxels
+% ---------------------------------------------------------------------
+all_voxels         = cfg_const;
+all_voxels.tag     = 'all_voxels';
+all_voxels.name    = 'All voxels';
+all_voxels.val     = {1};
+all_voxels.help    = {'Use all voxels in this modality'};
+
+% ---------------------------------------------------------------------
+% voxels 
+% ---------------------------------------------------------------------
+voxels        = cfg_choice;
+voxels.tag    = 'voxels';
+voxels.name   = 'Voxels to include';
+voxels.values = {all_voxels, fmask};
+voxels.val    = {all_voxels};
+voxels.help   = {...
+    ['Specify which voxels from the current modality you would like to include']};
+
+
+
+
+% ---------------------------------------------------------------------
 % modality Modality
 % ---------------------------------------------------------------------
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name conditions, fmask, kernel_dt};
+modality.val  = {mod_name conditions, voxels, detrend, param_dt, normalise};
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
@@ -131,47 +198,12 @@ modalities.num     = [1 Inf];
 modalities.values  = {modality};
 
 % ---------------------------------------------------------------------
-% Normalise Kernel
-% ---------------------------------------------------------------------
-normalise         = cfg_menu;
-normalise.tag     = 'normalise';
-normalise.name    = 'Normalize Kernel';
-normalise.help    = {'Normalize the kernel matrix? (Equivalent to dividing each data vector by its norm)'};
-normalise.labels  = {
-               'No'
-               'Yes'
-}';
-normalise.values  = {0 1};
-normalise.val     = {0};
-
-% % ---------------------------------------------------------------------
-% % mask Modality
-% % ---------------------------------------------------------------------
-% mask         = cfg_branch;
-% mask.tag     = 'mask';
-% mask.name    = 'Modality';
-% mask.help    = {'Specify name of modality and file for each mask.'};
-% mask.val     = {mod_name, fmask };
-%             
-% % ---------------------------------------------------------------------
-% % masks Masks
-% % ---------------------------------------------------------------------
-% masks         = cfg_repeat;
-% masks.tag     = 'masks';
-% masks.name    = 'Masks';
-% masks.help    = {['Select mask for each ',...
-%                   'modality. The name of the modalities should be the same ',...
-%                   'as the ones entered for subjects/scans.']};
-% masks.num     = [1 Inf];
-% masks.values  = {mask };
-
-% ---------------------------------------------------------------------
 % Configure Feature set
 % ---------------------------------------------------------------------
 fs        = cfg_exbranch;
 fs.tag    = 'fs';
 fs.name   = 'Feature set / Kernel';
-fs.val    = {infile, k_file, modalities, normalise};
+fs.val    = {infile, k_file, modalities};
 fs.help   = {'Compute feature set according to the design specified'};
 fs.prog   = @prt_run_fs;
 fs.vout   = @vout_data;

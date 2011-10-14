@@ -8,18 +8,18 @@ function [outfile]=prt_fs(PRT,in)
 % in.fs_name:    name of fs and relative path filename for the kernel matrix
 %
 % in.mod(m).mod_name:  name of modality to include in this kernel (string)
-% in.mod(m).kernel_dt: detrend the kernel (scalar: 0 = none, 1 = linear)
-% *in.mod(m).param_dt:  parameters for the kernel detrend (e.g. DCT bases)
+% in.mod(m).detrend:   detrend (scalar: 0 = none, 1 = linear)
+% in.mod(m).param_dt:  parameters for the kernel detrend (e.g. DCT bases)
 % in.mod(m).mode:      'all_cond' or 'all_scans' (string)
 % in.mod(m).mask:      mask file used to create the kernel
-% *in.mod(m).normalise: 0 = none, 1 = normalise_kernel, 2 = scale modality
-% *in.mod(m).matnorm:   scaling
+% in.mod(m).normalise: 0 = none, 1 = normalise_kernel, 2 = scale modality
+% in.mod(m).matnorm:   filename for scaling matrix
 %
 % Outputs:
 % --------
 % Calls prt_init_fs to populate basic fields in PRT.fs(f)...
 % Writes PRT.mat
-% Writes the kernel matrix to the path indicated by in.kname
+% Writes the kernel matrix to the path indicated by in.fs_name
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -60,15 +60,15 @@ C = [];
 for gid = 1:length(PRT.group)
     for sid = 1:length(PRT.group(gid).subject)
         for m = 1:n_mods
-            if in.mod(mids(m)).kernel_dt == 1
+            if in.mod(mids(m)).detrend == 1
                 linear_dt = true;
             end
             if in.mod(mids(m)).normalise == 1
                 kern_norm = true;
             end
             rg = (PRT.fs(fid).id_mat(:,1) == gid) & ...
-                (PRT.fs(fid).id_mat(:,2) == sid) & ...
-                (PRT.fs(fid).id_mat(:,3) == mids(m));
+                 (PRT.fs(fid).id_mat(:,2) == sid) & ...
+                 (PRT.fs(fid).id_mat(:,3) == mids(m));
             c  = zeros(n,2);
             c(rg,1:2) = [(1:sum(rg))' ones(sum(rg),1)];
             C = [C c];
@@ -225,7 +225,7 @@ for m = 1:n_mods
     
     %get mask for the kernel if one was specified
     mfile=in.mod(mid).mask;
-    if ~isempty(mfile) &&  mfile ~= 0
+    if ~isempty(mfile) %&&  mfile ~= 0
         try
             precM = nifti(mfile);
         catch
@@ -265,7 +265,8 @@ for m = 1:n_mods
         mask{m} = ddmask;
         
     end
-    if ~isempty(mfile) && mfile ~= 0  && any((size(precM.dat(:,:,:,1))~= N.dim))
+    %if ~isempty(mfile) && mfile ~= 0  && any((size(precM.dat(:,:,:,1))~= N.dim))
+    if ~isempty(mfile)  && any((size(precM.dat(:,:,:,1))~= N.dim))
         warning('prt_prepare_data:maskAndImagesDifferentDim',...
             'Preprocessing mask has different dimensions to the image files. Resizing...');
         
