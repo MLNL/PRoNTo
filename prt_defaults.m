@@ -48,7 +48,7 @@ prt_def.prep.use2  = 'kk'; % pre
 prt_def.prep.default_mask  = [prt_def.global.install_dir,'/masks/SPM_mask_noeyes.hdr'];
 
 % memory limit for kernel construction
-prt_def.fs.mem_limit = 128*1024*1024;  % bytes of memory to use
+prt_def.fs.mem_limit = 64*1024*1024;  % bytes of memory to use
 prt_def.fs.writeraw = 0;               % flag to write the data detrended (default) or raw (to set to 1).
 
 % Design specification default

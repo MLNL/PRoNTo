@@ -75,33 +75,6 @@ conditions.help   = {...
  'if you want to include all scans from an fMRI timeseries (assumes you ',...
  'have not already detrended the timeseries and extracted task components)']};
 
-% % ---------------------------------------------------------------------
-% % no_dt Linear detrend
-% % ---------------------------------------------------------------------
-% no_dt         = cfg_const;
-% no_dt.tag     = 'no_dt';
-% no_dt.name    = 'None';
-% no_dt.val     = {1};
-% no_dt.help    = {'No detrend'};
-% 
-% % ---------------------------------------------------------------------
-% % linear_dt Linear detrend
-% % ---------------------------------------------------------------------
-% linear_dt         = cfg_const;
-% linear_dt.tag     = 'linear_dt';
-% linear_dt.name    = 'Linear';
-% linear_dt.val     = {1};
-% linear_dt.help    = {'Linear detrend'};
-%                  
-% % ---------------------------------------------------------------------
-% % kernel_dt Kernel detrend
-% % ---------------------------------------------------------------------
-% kernel_dt        = cfg_choice;
-% kernel_dt.tag    = 'kernel_dt';
-% kernel_dt.name   = 'Kernel detrend';
-% kernel_dt.values = {no_dt linear_dt};
-% kernel_dt.help   = {'Perform detrending in the kernel'};
-
 % ---------------------------------------------------------------------
 % kernel_dt Review
 % ---------------------------------------------------------------------

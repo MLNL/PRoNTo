@@ -2,29 +2,46 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 % function to initialise the kernel data structure
 % ------------------------------------------------
 %
-% Inputs:
+% FORMAT: Two modes are possible: 
+%     fid = prt_init_fs(PRT, in)
+%     [fid, PRT, tocomp] = prt_init_fs(PRT, in)
+%
+% USAGE 1: 
+% -------------------------------------------------------------------------
+% function will return the id of a feature set or an error if it doesn't 
+% exist in PRT.mat
+% Input:
+% ------
+% in.fs_name: name for the feature set (string)
+%
+% Output:
 % -------
-% in.fname:     filename for the PRT.mat (string)
-% in.kname:     relative path filename for the kernel matrix (string)
-% in.normalise: scale the kernel to a unit hypersphere (boolean)
+% fid : is the identifier for the feature set in PRT.mat
 %
-% in.mod(m).mod_name:  name of modality to include in this kernel (string)
-% in.mod(m).kernel_dt: detrend the kernel (scalar: 0 = none, 1 = linear)
-% in.mod(m).mode:      'all_cond' or 'all_scans' (string)
-% in.mod(m).mask:      mask file used to create the kernel
+% USAGE 2: 
+% -------------------------------------------------------------------------
+% function will create the feature set in PRT.mat and overwrite it if it
+% already exists.
+% Input:
+% ------
+% in.fs_name: name for the feature set (string)
+% in.fas:     structure for the file_array 
+% in.k_file:  relative path filename for the kernel for this feature set
 %
-% Outputs:
-% --------
-% This function performs the following functions:
-%   1. Calls prt_init_fs to populate basic fields in PRT.fs(f). 
-%   2. Populates the following fields in PRT.mat:
-%       PRT.fs(f).modality(m).mod_name
-%       PRT.fs(f).modality(m).mode
-%       PRT.fs(f).modality(m).mask 
-%       PRT.fs(f).modality(m).feat_idx 
-%       PRT.fs(f).modality(m).rf_mat
-%   3. Writes PRT.mat
-%   4. Writes the kernel matrix to the path indicated by in.kname
+% Output:
+% -------
+% fid : is the identifier for the model constructed in PRT.mat
+%
+% Populates the following fields in PRT.mat (copied from above):
+%   PRT.fs(f).fs_name
+%   PRT.fs(f).fas
+%   PRT.fs(f).k_file
+% Also computes the following fields:
+%   PRT.fs(f).id_mat:       Identifier matrix (useful later)
+%   PRT.fs(f).id_col_names: Columns in the id matrix
+%
+% Note: this function does not write PRT.mat. That should be done by the
+%       calling function
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -52,9 +69,17 @@ if nargout == 1
             ['Feature set ''',in.fs_name,''' not found in PRT.mat.']);
     end
 else
+    % initialise
+    if fs_exists
+        warning('prt_init_fs:overwriteFsInPRT',...
+            ['Feature set ''',in.fs_name,''' found in PRT.mat. Overwriting ...']);
+    else
+        % doesn't exist. initialise the structure
+        disp(['Feature set ''',in.fs_name,''' not found in PRT.mat. Creating...'])
+    end
     
     PRT.fs(fid).fs_name = in.fs_name;
-    PRT.fs(fid).fs_file = in.fs_name;
+    PRT.fs(fid).k_file = in.fs_name;
     PRT.fs(fid).id_col_names = {'group','subject','modality','condition','block','scan'};
     PRT.fs(fid).fas=struct('im',[],'ifa',[]);
     n_vox=0;
@@ -99,6 +124,12 @@ else
                 if strcmpi(in.mod(mid).mode,'all_scans');
                     n = n + size(PRT.group(gid).subject(sid).modality(mid).scans,1);
                 elseif strcmpi(in.mod(mid).mode,'all_cond')
+                    if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
+                        error('prt_model:fsIsAllCondModelisAllScans',...
+                            ['''All conditions'' selected for modality ', num2str(m)...
+                            ' but no design was specified. This syntax is invalid, '...
+                            'Please use ''All Scans'' instead.']);
+                    end
                     for cid = 1:length(PRT.group(gid).subject(sid).modality(mid).design.conds)    % condition
                         n = n + length(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans);
                     end
@@ -182,40 +213,53 @@ else
     %initialize the file arrays if they do not exist already or if the
     %detrending parameters were modified
     if ~isfield(PRT,'fas');
-        for m = 1:n_mods
-            PRT.fas(mids(m))=struct('mod_name',[],'dat',[],'detrend',[],'paramd',[],'hdr',[]);
+        % initialise all modalities (not just those we're working on)
+        for m = 1:length(PRT.masks)
+            
+            PRT.fas(m)=struct('mod_name',[],'dat',[],'detrend',[],'param_dt',[],'hdr',[]);
+            PRT.fas(m).mod_name = PRT.masks(m).mod_name;
         end
     end
     tocomp=zeros(1,length(in.mod));
     prt_dir=fileparts(in.fname);
     for i=1:n_mods
-        %     if ~isfield(PRT,'fas')
-        %         PRT.fas=struct();
-        %     end
+        % check whether we need to recreate the file array
+        if isempty(PRT.fas(mids(i)).dat) || PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).kernel_dt  
         
-        if ~isfield(PRT.fas,'dat') ||   isempty(PRT.fas(mids(i)).dat) || ...
-            PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).kernel_dt   %if no file array for that modality
-        
-            if isfield(PRT.fas(mids(i)).dat,'fname') && ...
-               exist(PRT.fas(mids(i)).dat.fname,'file')
+            if isempty(PRT.fas(mids(i)).dat)
+                disp(['File array does not exist for modality ''',...
+                    char(in.mod(mids(i)).mod_name),'''. Creating...'])
+            elseif PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).kernel_dt ...
+                    && any(strcmpi(fieldnames(PRT.fas(mids(i)).dat),'fname')) ...
+                    && exist(PRT.fas(mids(i)).dat.fname,'file')
+                
+                warning('prt_init_fs:overwriteFileArray',...
+                    ['File array already exists for modality ''',...
+                    char(in.mod(mids(i)).mod_name),''', but parameters ',...
+                    'have changed. Re-creating ...']);
+                
                 delete(PRT.fas(mids(i)).dat.fname);
             end
             
             tocomp(mids(i))=1;
-            PRT.fas(mids(i)).mname = in.mod(mids(i)).mod_name;
+            %PRT.fas(mids(i)).mod_name = in.mod(mids(i)).mod_name;
             PRT.fas(mids(i)).detrend = in.mod(mids(i)).kernel_dt;
-            %PRT.fas(mids(i)).paramd = in.mod(mids(i)).param_dt;
-            PRT.fas(mids(i)).headers = headers{i};
-            PRT.fas(mids(i)).idfeat_img = PRT.fs(fid).modality(m).feat_idx_img;                % index of voxels in the full image (nifti)
+            PRT.fas(mids(i)).param_dt = in.mod(mids(i)).param_dt;
+            PRT.fas(mids(i)).hdr = headers{i};
+            PRT.fas(mids(i)).idfeat_img = PRT.fs(fid).modality(i).feat_idx_img;                % index of voxels in the full image (nifti)
             datname=[prt_dir,filesep,'Data_matrix_',char(in.mod(mids(i)).mod_name),'.dat'];
             PRT.fas(mids(i)).dat = file_array(...
-                datname, ...                                          % fname     - filename
-                [szm(i),n_vox],...                               % dim       - dimensions (default = [0 0] )
-                spm_type('float32'), ...                              % dtype     - datatype   (default = 'float')
-                0, ...                                                % offset    - offset into file (default = 0)
-                1);                                                   % scl_slope - scalefactor (default = 1)
+                datname, ...                 % fname     - filename
+                [szm(i),n_vox],...           % dim       - dimensions (default = [0 0] )
+                spm_type('float32'), ...     % dtype     - datatype   (default = 'float')
+                0, ...                       % offset    - offset into file (default = 0)
+                1);                          % scl_slope - scalefactor (default = 1)
+        else
+            disp(['Using existing file array for modality ''', ...
+                char(in.mod(mids(i)).mod_name),'''.'])
         end
-        %check that the input .mat for the scaling have the right size
+        
+        % check that the input .mat for the scaling have the right size
         if in.mod(mids(i)).normalise==2
             try
                 load(in.mod(mids(i)).matnorm);
@@ -244,4 +288,3 @@ else
     
     PRT.fs(fid).modality=rmfield(PRT.fs(fid).modality,'feat_idx_img');
 end
-%PRT.fs(fid) = fs;
