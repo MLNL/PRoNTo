@@ -75,31 +75,76 @@ conditions.help   = {...
  'if you want to include all scans from an fMRI timeseries (assumes you ',...
  'have not already detrended the timeseries and extracted task components)']};
 
-% ---------------------------------------------------------------------
-% detrend Detrend
-% ---------------------------------------------------------------------
-detrend         = cfg_menu;
-detrend.tag     = 'detrend';
-detrend.name    = 'Detrend';
-detrend.help    = {'Type of temporal detrending to apply'};
-detrend.labels  = {
-               'None'
-               'Linear'
-}';
-detrend.values  = {0 1};
-detrend.val     = {0};
+% % ---------------------------------------------------------------------
+% % detrend Detrend
+% % ---------------------------------------------------------------------
+% detrend         = cfg_menu;
+% detrend.tag     = 'detrend';
+% detrend.name    = 'Detrend';
+% detrend.help    = {'Type of temporal detrending to apply'};
+% detrend.labels  = {
+%                'None'
+%                'Linear'
+% }';
+% detrend.values  = {0 1};
+% detrend.val     = {0};
 
 % ---------------------------------------------------------------------
 % param_dt Name
 % ---------------------------------------------------------------------
 param_dt         = cfg_entry;
 param_dt.tag     = 'param_dt';
-param_dt.name    = 'Detrend parameters';
+param_dt.name    = 'Parameters';
 param_dt.help    = {[...
     'Enter any parameters for the detrending operation (e.g. bases for DCT)']};
 param_dt.strtype = 's';
 param_dt.val     = {'1'};
 param_dt.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% dct_dt DCT
+% ---------------------------------------------------------------------
+dct_dt      = cfg_branch;
+dct_dt.tag  = 'dct_dt';
+dct_dt.name = 'Discrete cosine transform';
+dct_dt.val  = {param_dt};
+dct_dt.help = {'Use a discrete cosine basis set to detrend the data.'};
+
+% ---------------------------------------------------------------------
+% no_dt No detrend
+% ---------------------------------------------------------------------
+no_dt         = cfg_const;
+no_dt.tag     = 'no_dt';
+no_dt.name    = 'None';
+no_dt.val     = {1};
+no_dt.help    = {['Do not detrend the data ']};
+                 
+% ---------------------------------------------------------------------
+% linear_dt Linear detrend
+% ---------------------------------------------------------------------
+linear_dt         = cfg_const;
+linear_dt.tag     = 'linear_dt';
+linear_dt.name    = 'Linear detrend';
+linear_dt.val     = {1};
+linear_dt.help    = {'Perform a voxel-wise linear detrend on the data'};
+
+% ---------------------------------------------------------------------
+% detrend Conditions
+% ---------------------------------------------------------------------
+detrend        = cfg_choice;
+detrend.tag    = 'detrend';
+detrend.name   = 'Detrend';
+detrend.values = {no_dt, linear_dt, dct_dt};
+detrend.val    = {no_dt};
+detrend.help   = {...
+['Type of temporal detrending to apply']};
+
+
+
+
+
+
+
 
 % ---------------------------------------------------------------------
 % fmask File name
@@ -175,16 +220,13 @@ voxels.val    = {all_voxels};
 voxels.help   = {...
     ['Specify which voxels from the current modality you would like to include']};
 
-
-
-
 % ---------------------------------------------------------------------
 % modality Modality
 % ---------------------------------------------------------------------
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name conditions, voxels, detrend, param_dt, normalise};
+modality.val  = {mod_name conditions, voxels, detrend, normalise};
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------

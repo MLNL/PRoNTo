@@ -131,9 +131,18 @@ for b = 1:n_block
                     sample_range=(1:n_vols_s)+max(sample_range);
                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
                     datapr(sample_range,:) = (prt_load_blocks(fname,ind_ddmask))';
-                    if ~def.writeraw
-                        %datapr(sample_range,:)=detrend(datapr(sample_range,:));
-                        datapr(sample_range,:)=detrend(datapr(sample_range,:));
+                    %if ~def.writeraw
+                    %    datapr(sample_range,:)=detrend(datapr(sample_range,:));
+                    %end
+                    if in.mod(mid).detrend ~= 0
+                        if in.mod(mid).detrend > 1
+                            error('Only linear detrend implemented so far');
+                        end
+                        rg = (PRT.fs(fid).id_mat(:,1) == gid) & ...
+                             (PRT.fs(fid).id_mat(:,2) == sid) & ...
+                             (PRT.fs(fid).id_mat(:,3) == mid);
+                        R = PRT.fs(fid).rf_mat(rg,rg);
+                        datapr(sample_range,:)=R*datapr(sample_range,:);
                     end
                 end
             end
@@ -227,7 +236,8 @@ for m = 1:n_mods
     mfile=in.mod(mid).mask;
     if ~isempty(mfile) %&&  mfile ~= 0
         try
-            precM = nifti(mfile);
+            %precM = nifti(mfile);
+            precM = spm_vol(char(mfile));
         catch
             error('prt_prepare_data:CouldNotLoadFile',...
                 'Could not load mask file for preprocessing');
@@ -266,7 +276,7 @@ for m = 1:n_mods
         
     end
     %if ~isempty(mfile) && mfile ~= 0  && any((size(precM.dat(:,:,:,1))~= N.dim))
-    if ~isempty(mfile)  && any((size(precM.dat(:,:,:,1))~= N.dim))
+    if ~isempty(mfile)  && any((precM.dim~= N.dim))
         warning('prt_prepare_data:maskAndImagesDifferentDim',...
             'Preprocessing mask has different dimensions to the image files. Resizing...');
         

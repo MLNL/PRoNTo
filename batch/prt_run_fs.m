@@ -37,9 +37,17 @@ for i=1:length(PRT.masks)
         mod(i).mod_name=allmod{i};
         ind=find(strcmpi(modchos,allmod{i}));
         
-        mod(i).detrend=job.modality(ind).detrend;
-        
-        mod(i).param_dt=job.modality(ind).param_dt;
+        %mod(i).detrend=job.modality(ind).detrend;
+        %mod(i).param_dt=job.modality(ind).param_dt;
+        if isfield(job.modality(ind).detrend,'linear_dt')
+            mod(i).detrend=1;
+            mod(i).param_dt=1;
+        elseif isfield(job.modality(ind).detrend,'no_dt')
+            mod(i).detrend=0;
+            mod(i).param_dt=[];
+        else
+            error('DCT not supported yet');
+        end        
         
         if isfield(job.modality(ind).normalise,'no_gms')
             mod(i).normalise = 0;
