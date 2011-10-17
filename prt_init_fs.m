@@ -25,8 +25,15 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 % Input:
 % ------
 % in.fs_name: name for the feature set (string)
-% in.fas:     structure for the file_array 
-% in.k_file:  relative path filename for the kernel for this feature set
+% in.fname:   name of PRT.mat
+%
+% in.mod(m).mod_name:  name of the modality
+% in.mod(m).detrend:   type of detrending
+% in.mod(m).mode:      'all_scans' or 'all_cond'
+% in.mod(m).mask:	   mask used to create the feature set
+% in.mod(m).param_dt:  parameters used for detrending (if any)
+% in.mod(m).normalise: scale the input scans or not
+% in.mod(m).matnorm:   mat file used to scale the input scans
 %
 % Output:
 % -------
@@ -86,8 +93,9 @@ else
     n_mods=length(mids);
     for m = 1:n_mods
         PRT.fs(fid).modality(m).mod_name = in.mod(mids(m)).mod_name;
-        PRT.fs(fid).modality(m).detrend = in.mod(mids(m)).detrend;
+        PRT.fs(fid).modality(m).detrend  = in.mod(mids(m)).detrend;
         PRT.fs(fid).modality(m).param_dt = in.mod(mids(m)).param_dt;
+        PRT.fs(fid).modality(m).mode     = in.mod(mids(m)).mode;
         %get indexes from mask specified in the data and design step
         vm=spm_vol(mask{m});
         vm=spm_read_vols(vm);

@@ -32,8 +32,8 @@ function [mid, PRT] = prt_init_model(PRT, in)
 % Output:
 % -------
 % Populates the following fields in PRT.mat (copied from above):
-% PRT.model(m).model_name 
-% PRT.model(m).type 
+% PRT.model(m).input.model_name 
+% PRT.model(m).input.type 
 % PRT.model(m).input.use_kernel 
 % PRT.model(m).input.machine
 %

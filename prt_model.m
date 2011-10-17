@@ -42,6 +42,12 @@ function PRT = prt_model(PRT,in)
 
 % specify model type and feature sets
 PRT.model(modelid).input.type = in.type;
+if strcmp(in.type,'classification')
+    for c = 1:length(in.class)
+        PRT.model(modelid).input.class(c).class_name = in.class(c).class_name;
+    end
+end
+
 for f = 1:length(in.fs)
     fid = prt_init_fs(PRT,in.fs(f));
     
