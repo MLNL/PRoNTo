@@ -38,11 +38,15 @@ samp_idx = PRT.model(mid).input.samp_idx;   % which samples are in the model
 % targets
 t = PRT.model(mid).input.targets;
 
-% load data files
+% load data files and configure ID matrix
 disp('Loading data files.....>>');
 Phi_all = cell(1,n_Phi);
 for i = 1:size(PRT.fs,1)
     fid = prt_init_fs(PRT, PRT.model(mid).input.fs(i));
+    
+    if i == 1
+        ID = PRT.fs(fid).id_mat(PRT.model(mid).input.samp_idx,:);
+    end
         
     if PRT.model(mid).input.use_kernel
         load(fullfile(prt_dir, PRT.fs(fid).k_file));
@@ -71,15 +75,23 @@ for f = 1:n_folds
     
     [Phi_tr, Phi_te, Phi_tt] = ...
         split_data(Phi_all, tr_idx, te_idx, PRT.model(mid).input.use_kernel);
-      
+    
     % Assemble data structure
     cvdata.train      = Phi_tr;
     cvdata.test       = Phi_te;
     cvdata.tr_targets = t(tr_idx,:);
+    cvdata.te_targets = t(te_idx,:);
+    cvdata.tr_id      = ID(tr_idx,:);
+    cvdata.te_id      = ID(te_idx,:);
     cvdata.use_kernel = PRT.model(mid).input.use_kernel;
     %if PRT.model(mid).input.use_kernel
     %    cvdata.testcov    = Phi_tt;
     %end
+    
+    % Apply any operations specified
+    for o = PRT.model(mid).input.operations
+        cvdata = prt_apply_operation(PRT, cvdata, o);
+    end
     
     % train the prediction model
     model = prt_machine(cvdata, PRT.model(mid).input.machine);
@@ -91,11 +103,11 @@ for f = 1:n_folds
     end  
     
     % compute stats
-    stats = prt_stats(model, t(te_idx,:));
-    acc = stats.acc; % for debugging
+    stats = prt_stats(model, cvdata.te_targets);
+    acc = stats.acc % for debugging
     
     % update PRT 
-    PRT.model(mid).output.fold(f).targets     = t(te_idx,:);
+    PRT.model(mid).output.fold(f).targets     = cvdata.te_targets;
     PRT.model(mid).output.fold(f).predictions = model.predictions; 
     PRT.model(mid).output.fold(f).stats       = stats;
     

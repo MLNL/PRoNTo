@@ -63,17 +63,6 @@ fs_name.name    = 'Name';
 fs_name.help    = {'Name of a feature set'};
 fs_name.strtype = 's';
 fs_name.num     = [1 Inf];
-% 
-% % ---------------------------------------------------------------------
-% % fmask Feature set mask
-% % ---------------------------------------------------------------------
-% fmask        = cfg_files;
-% fmask.tag    = 'fmask';
-% fmask.name   = 'Specify mask file';
-% fmask.filter = 'img';
-% fmask.ufilter = '.*';
-% fmask.num    = [1 1];
-% fmask.help   = {'Select one mask for each modality.'};
 
 % ---------------------------------------------------------------------
 % mod_name Modality name
@@ -85,38 +74,6 @@ mod_name.help    = {'Name of modality. Example: ''BOLD''. Must match design spec
 mod_name.strtype = 's';
 mod_name.num     = [1 Inf];
 
-% % ---------------------------------------------------------------------
-% % mask Mask
-% % ---------------------------------------------------------------------
-% mask         = cfg_branch;
-% mask.tag     = 'mask';
-% mask.name    = 'Modality';
-% mask.help    = {'Specify name of modality and file for each mask.'};
-% mask.val     = {mod_name, fmask };
-%             
-% % ---------------------------------------------------------------------
-% % masks Masks
-% % ---------------------------------------------------------------------
-% masks         = cfg_repeat;
-% masks.tag     = 'masks';
-% masks.name    = 'Specify masks';
-% masks.help    = {['Select mask for each ',...
-%                   'modality. The name of the modalities should be the same ',...
-%                   'as the ones entered for subjects/scans.']};
-% masks.num     = [1 Inf];
-% masks.values  = {mask };
-% 
-% % ---------------------------------------------------------------------
-% % sel_features Select Features
-% % ---------------------------------------------------------------------
-% sel_features        = cfg_choice;
-% sel_features.tag    = 'sel_features';
-% sel_features.name   = 'Data features';
-% sel_features.values = {all_features, masks};
-% sel_features.val    =  {all_features};
-% sel_features.help   = {...
-%     ['Which features (e.g. voxels) would you like to include in the model?']};
-
 % ---------------------------------------------------------------------
 % fset Feature set
 % ---------------------------------------------------------------------
@@ -124,7 +81,6 @@ fset         = cfg_branch;
 fset.tag     = 'fset';
 fset.name    = 'Feature set';
 fset.help    = {'Feature set to include in this model'};
-%fset.val     = {fs_name, sel_features};
 fset.val     = {fs_name};
             
 % ---------------------------------------------------------------------
@@ -564,13 +520,88 @@ cv_type.values = {cv_loso, cv_losgo, cv_lobo, cv_custom};
 cv_type.val    = {cv_loso};
 cv_type.help   = {'Choose the type of cross-validation to be used'};
 
+
+% ---------------------------------------------------------------------
+% no_op All scans
+% ---------------------------------------------------------------------
+no_op         = cfg_const;
+no_op.tag     = 'no_op';
+no_op.name    = 'No operations';
+no_op.val     = {1};
+no_op.help    = {['No design specified. This option can be used '...
+    'for modalities (e.g. structural scans) that do not '...
+    'have an experimental design or for an fMRI design',...
+    'where you want to include all scans in the timeseries']};
+
+% ---------------------------------------------------------------------
+% data_op Operation
+% ---------------------------------------------------------------------
+data_op         = cfg_menu;
+data_op.tag     = 'data_op';
+data_op.name    = 'Operation';
+data_op.help    = {'Select an operation to apply.'};
+data_op.labels  = {
+    'Done'
+    'Sample averaging (within block)'
+    'Sample averaging (within subject/condition)'
+    'Mean centre features (over subjects)'
+    'Divide data vectors by their norm'
+    'Perform a GLM (fMRI only)'
+}';
+data_op.values  = {0 1 2 3 4 5};
+data_op.val     = {0};
+
+% ---------------------------------------------------------------------
+% data_ops Classification
+% ---------------------------------------------------------------------
+data_ops         = cfg_repeat;
+data_ops.tag     = 'data_ops';
+data_ops.name    = 'Operations';
+data_ops.help    = {...
+    [' Add zero or more operations to be applied to the data. ',...
+     'These will be executed in the order specified. ']};
+data_ops.num     = [1 Inf];
+data_ops.values  = {data_op};
+
+% ---------------------------------------------------------------------
+% sel_ops Class
+% ---------------------------------------------------------------------
+sel_ops         = cfg_branch;
+sel_ops.tag     = 'sel_ops';
+sel_ops.name    = 'Specify operations';
+sel_ops.help    = {...
+    ['Specify operations to apply']};
+sel_ops.val     = {data_ops};
+
+
+% ---------------------------------------------------------------------
+% data_ops Select Features
+% ---------------------------------------------------------------------
+data_ops        = cfg_choice;
+data_ops.tag    = 'data_ops';
+data_ops.name   = 'Data Operations';
+data_ops.values = {no_op, sel_ops};
+data_ops.val    =  {no_op};
+data_ops.help   = {...
+    ['This branch controls operations that can be applied to the data ',...
+     'before the data is passed to the classifier. Add zero or more ',...
+     'operations to be applied. These will be executed in the order ',...
+     'specified. ']};
+
 % ---------------------------------------------------------------------
 % model Model
 % ---------------------------------------------------------------------
 model        = cfg_exbranch;
 model.tag    = 'model';
 model.name   = 'Specify model';
-model.val    = {infile, model_name, use_kernel, fsets, model_type, machine, cv_type};
+model.val    = {infile, ...
+                model_name, ...
+                use_kernel, ...
+                fsets, ...
+                model_type, ...
+                machine, ...
+                cv_type,...
+                data_ops};
 model.help   = {'Construct model according to design specified'};
 model.prog   = @prt_run_model;
 model.vout   = @vout_data;

@@ -17,6 +17,7 @@ function out = prt_run_model(varargin)
 %   model.model_name: name for this cross-validation structure
 %   model.type:       'classification' or 'regression'
 %   model.use_kernel: does this model use kernels or features?
+%   model.operations: operations to apply before prediction
 %
 %   model.fs(f).fs_name:     feature set(s) this CV approach is defined for
 %   model.fs(f).fs_features: feature selection mode ('all' or 'mask')
@@ -118,6 +119,13 @@ elseif isfield(job.cv_type,'cv_lobo')
 else
     model.cv.type     = 'custom';
     model.cv.mat_file = job.cv_type;
+end
+
+% specify operations to apply to the data prior to prediction
+if isfield(job.data_ops,'sel_ops')
+    model.operations = [job.data_ops.sel_ops.data_op{:}];
+elseif isfield(job.data_ops,'no_op')
+    model.operations = [];
 end
 
 prt_model(PRT,model);

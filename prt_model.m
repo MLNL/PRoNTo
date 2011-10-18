@@ -3,11 +3,17 @@ function PRT = prt_model(PRT,in)
 %
 % Input:
 % ------
+%
+%   model.fs(f).fs_name:     feature set(s) this CV approach is defined for
+%   model.fs(f).fs_features: feature selection mode ('all' or 'mask')
+%   model.fs(f).mask_file:   mask for this feature set (fs_features='mask')
+%
 % 
 %   in.fname:      filename for PRT.mat
 %   in.model_name: name for this cross-validation structure
 %   in.type:       'classification' or 'regression'
 %   in.use_kernel: does this model use kernels or features?
+%   in.operations: operations to apply before prediction
 %
 %   in.fs(f).fs_name:     feature set(s) this CV approach is defined for
 %
@@ -63,14 +69,16 @@ end
 
 % compute targets and samp_idx
 % -------------------------------------------------------------------------
-[targets, samp_idx] = compute_targets(PRT, in);
+[targets, samp_idx, targ_allscans]     = compute_targets(PRT, in);
 
-PRT.model(modelid).input.samp_idx = samp_idx;
-PRT.model(modelid).input.targets  = targets;
+PRT.model(modelid).input.samp_idx      = samp_idx;
+PRT.model(modelid).input.targets       = targets;
+PRT.model(modelid).input.targ_allscans = targ_allscans;
 
-% compute cross-validation matrix
+% compute cross-validation matrix and specify operations to apply
 % -------------------------------------------------------------------------
-PRT.model(modelid).input.cv_mat = compute_cv_mat(PRT,in, modelid);
+PRT.model(modelid).input.cv_mat     = compute_cv_mat(PRT,in, modelid);
+PRT.model(modelid).input.operations = in.operations;
 
 % Save PRT.mat
 % -------------------------------------------------------------------------
@@ -87,7 +95,7 @@ end
 % Private Functions
 % -------------------------------------------------------------------------
 
-function [targets, samp_idx] = compute_targets(PRT, in)
+function [targets, samp_idx, t_all] = compute_targets(PRT, in)
 % Function to compute the prediction targets. Also does some error checking
 
 % Set the reference feature set
@@ -215,8 +223,8 @@ switch in.cv.type
         end
         
         % Compute CV matrix
-        %snums = histc(ID(:,2),unique(ID(:,2)));
-        snums = accumarray(ID(:,2),1);
+        snums = histc(ID(:,2),unique(ID(:,2)));
+        %snums = accumarray(ID(:,2),1);
         G = cell(length(snums),1);
         for s = 1:length(snums)
             G{s} = ones(snums(s),1);
