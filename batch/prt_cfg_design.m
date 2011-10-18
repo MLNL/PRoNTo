@@ -8,6 +8,44 @@ function data = prt_cfg_design
 % $Id$
 
 % ---------------------------------------------------------------------
+% regsubj One per subject
+% ---------------------------------------------------------------------
+regsubj         = cfg_entry;
+regsubj.tag     = 'regsubj';
+regsubj.name    = 'Regression targets (subjects)';
+regsubj.help    = {['Enter one regression target per subject. Enter matrix '...
+                     'to specify targets for different modalities, '...
+                     '[nsub x nmod]. The number of '...
+                     'columns is the number of modalities. The number of '...
+                     'rows is the number of subjects.']
+}';
+regsubj.strtype = 'e';
+regsubj.val     = {[]};
+regsubj.num     = [Inf Inf];
+
+% ---------------------------------------------------------------------
+% regtrial One per trial
+% ---------------------------------------------------------------------
+rt_trial         = cfg_entry;
+rt_trial.tag     = 'rt_trial';
+rt_trial.name    = 'Regression targets (trials)';
+rt_trial.help    = {'Enter one regression target per trial.'
+}';
+rt_trial.strtype = 'e';
+rt_trial.val     = {[]};
+rt_trial.num     = [Inf Inf];
+
+% ---------------------------------------------------------------------
+% TR Interscan interval
+% ---------------------------------------------------------------------
+TR         = cfg_entry;
+TR.tag     = 'TR';
+TR.name    = 'Interscan interval';
+TR.help    = {'Specify interscan interval (TR). The units should be seconds.'};
+TR.strtype = 'e';
+TR.num     = [Inf 1];
+
+% ---------------------------------------------------------------------
 % units Units for design
 % ---------------------------------------------------------------------
 unit         = cfg_menu;
@@ -20,21 +58,6 @@ unit.labels  = {
 }';
 unit.values  = {0 1};
 unit.val     = {1};
-
-% ---------------------------------------------------------------------
-% quant Quantitative
-% ---------------------------------------------------------------------
-quant         = cfg_menu;
-quant.tag     = 'quant';
-quant.name    = 'Quantitative';
-quant.help    = {['Are the data quantitative? If yes, then the data will be  '...
-                  'centered/rescaled within subject.']};
-quant.labels  = {
-               'No'
-               'Yes'
-}';
-quant.values  = {0 1};
-quant.val     = {0};
 
 % ---------------------------------------------------------------------
 % review Review
@@ -83,7 +106,6 @@ subjects.help    = {['Select scans (images) for this modality. They must '...
                   'all have the same image dimensions, orientation, '...
                   'voxel size etc.']};
 subjects.filter  = 'image';
-%subjects.ufilter = '.*';
 subjects.num     = [0 Inf];
 
 % ---------------------------------------------------------------------
@@ -92,7 +114,7 @@ subjects.num     = [0 Inf];
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name, quant, subjects };
+modality.val  = {mod_name, TR, subjects };
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
@@ -106,20 +128,6 @@ images.help   = {[...
     'Select this option if you have many subjects to spatially ',...
     'normalise, but there is one or a small number of scans for '...
     'each subject.']};
-
-% ---------------------------------------------------------------------
-% detrend Time-series
-% ---------------------------------------------------------------------
-detrend         = cfg_menu;
-detrend.tag     = 'detrend';
-detrend.name    = 'Detrend';
-detrend.help    = {'Would you like to de-trend the time-series?.'};
-detrend.labels  = {
-               'No'
-               'Yes'
-}';
-detrend.values  = {0 1};
-detrend.val     = {0};
 
 % ---------------------------------------------------------------------
 % fmask File name
@@ -202,23 +210,13 @@ durations.strtype = 'e';
 durations.num     = [Inf 1];
 
 % ---------------------------------------------------------------------
-% TR Interscan interval
-% ---------------------------------------------------------------------
-TR         = cfg_entry;
-TR.tag     = 'TR';
-TR.name    = 'Interscan interval';
-TR.help    = {'Specify interscan interval (TR). The units should be seconds.'};
-TR.strtype = 'e';
-TR.num     = [Inf 1];
-
-% ---------------------------------------------------------------------
 % conds Condition
 % ---------------------------------------------------------------------
 conds         = cfg_branch;
 conds.tag     = 'conds';
 conds.name    = 'Condition';
 conds.help    = {'Specify condition: name, onsets and duration.'};
-conds.val     = {cond_name, onsets, durations};
+conds.val     = {cond_name, onsets, durations, rt_trial};
 
 % ---------------------------------------------------------------------
 % conditions Conditions
@@ -307,7 +305,7 @@ new_design         = cfg_branch;
 new_design.tag     = 'new_design';
 new_design.name    = 'Specify design';
 new_design.help    = {'Specify design: scans (data), onsets and durations.'};
-new_design.val     = {unit TR conditions multi_conds covar};
+new_design.val     = {unit conditions multi_conds covar};
 
 % ---------------------------------------------------------------------
 % no_design No design
@@ -336,7 +334,7 @@ design.val    = {load_SPM };
 subject      = cfg_branch;
 subject.tag  = 'subject';
 subject.name = 'Modality';
-subject.val  = {mod_name, scans, quant, detrend, design };
+subject.val  = {mod_name, TR, scans, design };
 subject.help = {'Add new data modality.'};
 
 % ---------------------------------------------------------------------
@@ -389,7 +387,7 @@ group         = cfg_branch;
 group.tag     = 'group';
 group.name    = 'Group';
 group.help    = {'Specify data and design for the group.'};
-group.val     = {gr_name, select };
+group.val     = {gr_name, select, regsubj };
 
 % ---------------------------------------------------------------------
 % groups Groups

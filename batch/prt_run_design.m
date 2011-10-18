@@ -77,6 +77,7 @@ if isfield(job.group(1).select,'modality')
             else
                 % Modalities
                 PRT.group(g).gr_name  = job.group(g).gr_name;
+                PRT.group(g).rt_subj  = job.group(g).regsubj;
                 
                 % Subjects
                 for s = 1:nsub,
@@ -101,8 +102,7 @@ if isfield(job.group(1).select,'modality')
                         else                   
                             PRT.group(g).subject(s).subj_name            = subj_name;
                             PRT.group(g).subject(s).modality(m).mod_name = job.group(g).select.modality(m).mod_name;
-                            PRT.group(g).subject(s).modality(m).detrend  = 0;
-                            PRT.group(g).subject(s).modality(m).quant    = job.group(g).select.modality(m).quant;
+                            PRT.group(g).subject(s).modality(m).TR       = job.group(g).select.modality(m).TR;
                             PRT.group(g).subject(s).modality(m).design   = 0;                    
                             PRT.group(g).subject(s).modality(m).scans    = char(job.group(g).select.modality(m).subjects{s});
                         end
@@ -119,9 +119,11 @@ if isfield(job.group(1).select,'modality')
     end
 else
     for g = 1:ngroup,  
+        
         nmod_subjs = length(job.group(1).select.subject{1});
         nsubj  = length(job.group(g).select.subject);
         nsubj1 = length(job.group(1).select.subject);
+        
         if nsubj ~= nsubj1,
             disp('Warning: unbalanced groups.')
         end
@@ -145,7 +147,8 @@ else
                     return
                 else
                     for k = 1:nmod,
-                        modnm = job.group(g).select.subject{j}(k).mod_name;
+                        modnm    = job.group(g).select.subject{j}(k).mod_name;
+                        TR       = job.group(g).select.subject{j}(k).TR;
                         mod_names_subj{k} = modnm;
                         if isempty(intersect(mod_names_uniq,modnm)),
                             out.files{1} = [];
@@ -165,10 +168,12 @@ else
                                 disp('Could not load SPM.mat file!')
                                 return
                             end
-                            switch SPM.xBF.UNITS
+                            switch lower(SPM.xBF.UNITS)
                                 case 'scans'
                                     unit   = 0;
                                 case 'seconds'
+                                    unit   = 1;
+                                case 'secs'
                                     unit   = 1;
                             end        
                             nscans  = length(job.group(g).select.subject{j}(k).scans);
@@ -178,10 +183,10 @@ else
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
                             end                        
-                            checked_conds = prt_check_design(conds,SPM.xY.RT,unit);
+                            checked_conds = prt_check_design(conds,TR,unit);
                             design.conds  = checked_conds.conds;
                             design.stats  = checked_conds.stats;
-                            design.TR     = SPM.xY.RT;
+                            design.TR     = TR;
                             design.unit   = unit;
                             design.covar  = [];
                             maxcond       = max([design.conds(:).scans]);
@@ -245,7 +250,6 @@ else
                                 else
                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
                                 end
-                                TR    = job.group(g).select.subject{j}(k).design.new_design.TR;
                                 unit  = job.group(g).select.subject{j}(k).design.new_design.unit;
                                 covar = job.group(g).select.subject{j}(k).design.new_design.covar;
                                 ncond = length(design.conds);
@@ -289,8 +293,7 @@ else
                         PRT.group(g).gr_name                        = job.group(g).gr_name;
                         PRT.group(g).subject(j).subj_name           = subj_name;
                         PRT.group(g).subject(j).modality(k)         = job.group(g).select.subject{j}(k);
-                        PRT.group(g).subject(j).modality(k).detrend = job.group(g).select.subject{j}(k).detrend;
-                        PRT.group(g).subject(j).modality(k).quant   = job.group(g).select.subject{j}(k).quant;
+                        PRT.group(g).subject(j).modality(k).TR      = job.group(g).select.subject{j}(k).TR;
                         PRT.group(g).subject(j).modality(k).design  = design;
                         PRT.group(g).subject(j).modality(k).scans   = char(job.group(g).select.subject{j}(k).scans);
                    
@@ -304,6 +307,7 @@ else
                 return
             end
         end
+        PRT.group(g).rt_subj = job.group(g).regsubj;
     end
 end
 
