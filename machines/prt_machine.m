@@ -2,28 +2,28 @@ function output = prt_machine(d,m)
 % Run machine function for classification or regression
 % FORMAT output = prt_machine(d,m)
 % Inputs:
-%   d         - structure with information about the data, with fields:
-%    .train    - training data (cell array of matrices of row vectors,
-%                each [Ntr x D]). each matrix contains one representation
-%                of the data. This is useful for approaches such as
-%                multiple kernel learning.
-%    .test     - testing data  (cell array of matrices row vectors, each
-%                [Nte x D])
-%    .testcov  - test covariance matrix (optional) (only valid for kernel
-%                methods) (cell array of matrices of row vectors, each
-%                [Nte x Nte])
+%   d            - structure with information about the data, with fields:
+%    Mandatory fields:
+%    .train      - training data (cell array of matrices of row vectors,
+%                  each [Ntr x D]). each matrix contains one representation
+%                  of the data. This is useful for approaches such as
+%                  multiple kernel learning.
+%    .test       - testing data  (cell array of matrices row vectors, each
+%                  [Nte x D])
 %    .tr_targets - training labels (for classification) or values (for
 %                  regression) (column vector, [Ntr x 1])
 %    .use_kernel - flag, is data in form of kernel matrices (true) of in 
-%                form of features (false)
-%   m          - structure with information about the classification or
-%                regression machine to use, with fields:
+%                  form of features (false)
+%    Optional fields: the machine is respnsible for dealing with this
+%                  optional fields (e.g. d.testcov)
+%   m            - structure with information about the classification or
+%                  regression machine to use, with fields:
 %      .function - function for classification or regression (string)
 %      .args     - function arguments (either a string, a matrix, or a
 %                  struct). This is specific to each machine, e.g. for
 %                  an L2-norm linear SVM this could be the C parameter
 % Output:
-%    output  - output of machine (struct).
+%    output      - output of machine (struct).
 %       Mandatory fields:
 %       .predictions - predictions of classification or regression
 %                      [Nte x D]
@@ -126,48 +126,14 @@ if SANITYCHECK==true
                 'Error: training labels cannot be empty!');
         end
         
-        % 4: BASIC: check if testcov is empty
-        if isfield(d,'testcov')
-            existcov     = ~isempty(d.testcov);
-            if (existcov && (d.use_kernel == false))
-                warning('prt_machine:tescovOnlyWithKernelMethods',...
-                    ['Warning: A test covariance matrix can only be ' ...
-                    ' provided when using kernel methods! The use_kernel flag ' ...
-                    ' should be set.']);
-            end
-        else
-            existcov = false;
-        end
-        
-        % 5: Check data properties (over cells)
+        % 4: Check data properties (over cells)
         Nk_train   = length(d.train);
-        Nk_test    = length(d.test);
         
-        % 6: Check if data has more than one cell
+        % 5: Check if data has more than one cell
         if Nk_train > 1
              error('prt_machine:MKLnotSupported',...
                     'Error: Multi-kernel learning not supported yet!');
         end 
-        if existcov,
-            if ~iscell(d.testcov)
-                error('prt_machine:TestCovNotCell',...
-                    'Error: Test covariance matrix should be a cell array!');
-            else
-                Nk_cov = length(d.testcov);
-            end
-            if ~(Nk_train==Nk_test==Nk_cov)
-                error('prt_machine:NktrNkteNkcovNotEq', ...
-                    ['Error: Number of training and testing datasets should ' ...
-                    'match, but Nktr=%d, Nkte=%d and Ncov=%d!'],...
-                    Nk_train, Nk_test, Nk_cov);
-            else
-                if ~(Nk_train==Nk_test)
-                    error('prt_machine:NktrNotEqNkte',['Error: Number of training '...
-                        'and testing datasets should match, but Nktr=%d and Nkte=%d !'],...
-                        Nk_train, Nk_teat);
-                end
-            end
-        end
         
         % 7: Check datasets properties (within cells)
         for k = 1:Nk_train,
@@ -206,17 +172,7 @@ if SANITYCHECK==true
                     error('prt_machine:DtestNotEqNtrain',['Error: Testing '...
                         'dimensions should match, but Dte=%d and Ntr=%d for '...
                         'dataset %d!'],Dtest,Ntrain,k);
-                end
-                if existcov
-                    [Ncov, Dcov] = size(d.testcov{k});
-                    if ~((Ncov==Dcov) && (Ncov==Ntest) && (Dcov==Ntest))
-                        error('prt_machine:NcovDcovNteNotEq',['Error: Test '...
-                            'covariance dimensions should match, but Ncov=%d, '...
-                            'Dcov=%d and Nte=%d for dataset %d!'],Ncov,Dcov,...
-                            Ntest,k);
-                    end
-                end
-                
+                end    
             end
         end
     else
@@ -228,14 +184,9 @@ end % SANITYCHECK
 %% Run model
 %--------------------------------------------------------------------------
 fnch   = str2func(m.function);
-% unfortunately old-style error checking to support Matlab 7.1...
+
 try
-    if ~existcov
-        output = fnch(d.train,d.test,d.tr_targets,m.args);
-    else
-        error('XXX WRAPPER NOT AVAILABLE FOR TESTCOV (GP) MACHINES YET');
-        output = fnch(d.train,d.test,d.testcov,tr_targets,m.args);
-    end
+    output = fnch(d,m.args);
 catch
     err = lasterror;
     err_ID=lower(err.identifier);
@@ -296,7 +247,7 @@ end % SANITYCHECK on output
 end
 
 %% local functions
-function out=prt_ismatrix(A)
+function out = prt_ismatrix(A)
 % ismatrix was not a built-in in Matlab 7.1, so do a homebrew
 % implementation (based on Dan Vimont's Matlab libs at
 % http://www.aos.wisc.edu/~dvimont/matlab but with short-circuit AND for

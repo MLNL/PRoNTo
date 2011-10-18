@@ -1,15 +1,19 @@
-function output = prt_machine_svm_bin(train,test,tr_lbs,args)
+function output = prt_machine_svm_bin(d,args)
 % Run binary SVM - wrapper for libSVM
-% FORMAT output = prt_machine_svm_bin(train,test,tr_lbs,args)
+% FORMAT output = prt_machine_svm_bin(d,args)
 % Inputs:
-%    train   - training data (cell array of matrices of row vectors, each
-%              [Ntr x D]). each matrix contains one representation of the
-%              data. This is useful for approaches such as multiple kernel
-%              learning.
-%    test    - testing data  (cell array of matrices row vectors, each
-%              [Nte x D])
-%    tr_lbs  - training labels (column vector, [Ntr x 1])
-%    args    - libSVM arguments
+%   d         - structure with data information, with mandatory fields:
+%     .train      - training data (cell array of matrices of row vectors,
+%                   each [Ntr x D]). each matrix contains one representation
+%                   of the data. This is useful for approaches such as
+%                   multiple kernel learning.
+%     .test       - testing data  (cell array of matrices row vectors, each
+%                   [Nte x D])
+%     .tr_targets - training labels (for classification) or values (for
+%                   regression) (column vector, [Ntr x 1])
+%     .use_kernel - flag, is data in form of kernel matrices (true) of in 
+%                form of features (false)
+%    args     - libSVM arguments
 % Output:
 %    output  - output of machine (struct).
 %     * Mandatory fields:
@@ -52,7 +56,7 @@ if SANITYCHECK==true
             ' SOLUTION: Please check your path.']);
     end
     % check it is indeed a two-class classification problem
-    uTL=unique(tr_lbs(:));
+    uTL=unique(d.tr_targets(:));
     nC=numel(uTL);
     if nC>2
         error('prt_machine_svm_bin:problemNotBinary',['Error:'...
@@ -67,7 +71,7 @@ if SANITYCHECK==true
             ' This machine needs labels to be in {1,2} ' ...
             ' but they are ' mat2str(uTL) ' ! ' ...
             'SOLUTION: Please relabel your classes by changing the '...
-            ' ''tr_lbs'' argument to prt_machine_svm_bin']);
+            ' ''tr_targets'' argument to prt_machine_svm_bin']);
     end
     
     % check we are using the C-SVC (exclude types -s 1,2,3,4)
@@ -94,27 +98,27 @@ if SANITYCHECK==true
 end
 
 if ~isempty(regexp(args,'-t\s+4','once'))
-    hasPrecomputedKernel=true;
+    hasPrecomputedKernel = true;
 else
-    hasPrecomputedKernel=false;
+    hasPrecomputedKernel = false;
 end
 
 % Run SVM
 %--------------------------------------------------------------------------
-nlbs  = length(tr_lbs);
+nlbs  = length(d.tr_targets);
 if hasPrecomputedKernel
-    allids_tr=(1:nlbs)';
+    allids_tr = (1:nlbs)';
 else
-    allids_tr=[];
+    allids_tr = [];
 end
-model = svmtrain(tr_lbs,[allids_tr train{:}],args);
+model = svmtrain(d.tr_targets,[allids_tr d.train{:}],args);
 
 % check if training succeeded:
 if isempty(model)
     if (ischar(args))
-        args_str=args;
+        args_str = args;
     else
-        args_str='';
+        args_str = '';
     end
     error('prt_machine_svm_bin:libSVMsvmtrainUnsuccessful',['Error:'...
         ' libSVM svmtrain function did not run properly!' ...
@@ -126,26 +130,26 @@ b     = -model.rho;
 if hasPrecomputedKernel
     alpha = get_alpha(model,nlbs);
 else
-    alpha=model.sv_coef;    % recover alphas directly
-    SVs=model.SVs;          % recover also the SV's themselves
+    alpha = model.sv_coef;    % recover alphas directly
+    SVs   = model.SVs;          % recover also the SV's themselves
 end
 
 % compute prediction directly rather than using svmpredict, which does
 % not allow empty test labels
 if hasPrecomputedKernel
-    if iscell(test)
-        func_val = cell2mat(test)*alpha+b;
+    if iscell(d.test)
+        func_val = cell2mat(d.test)*alpha+b;
     else
-        func_val = test*alpha+b;
+        func_val = d.test*alpha+b;
     end
 else
     % compute primal weight vector
-    w=SVs'*alpha;
+    w = SVs'*alpha;
     % compute function
-    if iscell(test)
-        func_val=cell2mat(test)*w+b;
+    if iscell(d.test)
+        func_val = cell2mat(d.test)*w+b;
     else
-        func_val=test*w+b;
+        func_val = d.test*w+b;
     end
 end
 
@@ -166,8 +170,8 @@ predictions = sign(func_val);
 % Outputs
 %--------------------------------------------------------------------------
 % change predictions from 1/-1 to 1/2
-c1PredIdx=predictions==1; % locate class 1 preds
-predictions(c1PredIdx) = model.Label(1);
+c1PredIdx               = predictions==1; % locate class 1 preds
+predictions(c1PredIdx)  = model.Label(1);
 predictions(~c1PredIdx) = model.Label(2);
 
 output.predictions = predictions;
@@ -177,7 +181,7 @@ output.alpha       = alpha;
 output.b           = b;
 output.totalSV     = model.totalSV;
 if exist('w','var')==1
-    output.w=w;
+    output.w = w;
 end
 
 end
