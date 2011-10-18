@@ -94,12 +94,12 @@ conditions.help   = {...
 % ---------------------------------------------------------------------
 param_dt         = cfg_entry;
 param_dt.tag     = 'param_dt';
-param_dt.name    = 'Parameters';
+param_dt.name    = 'Cutoff of high-pass filter (second)';
 param_dt.help    = {[...
-    'Enter any parameters for the detrending operation (e.g. bases for DCT)']};
-param_dt.strtype = 's';
-param_dt.val     = {'1'};
-param_dt.num     = [1 Inf];
+    'The default high-pass filter cutoff is 128 seconds (same as SPM)']};
+param_dt.strtype = 'e';
+param_dt.val     = {128};
+param_dt.num     = [1 1];
 
 % ---------------------------------------------------------------------
 % dct_dt DCT
@@ -118,15 +118,27 @@ no_dt.tag     = 'no_dt';
 no_dt.name    = 'None';
 no_dt.val     = {1};
 no_dt.help    = {['Do not detrend the data ']};
-                 
+
 % ---------------------------------------------------------------------
-% linear_dt Linear detrend
+% paramPoly_dt Name
 % ---------------------------------------------------------------------
-linear_dt         = cfg_const;
+paramPoly_dt         = cfg_entry;
+paramPoly_dt.tag     = 'paramPoly_dt';
+paramPoly_dt.name    = 'Order';
+paramPoly_dt.help    = {[...
+    'Enter the order for polynomial detrend (1 is linear detrend)']};
+paramPoly_dt.strtype = 'e';
+paramPoly_dt.val     = {1};
+paramPoly_dt.num     = [1 1];
+
+% ---------------------------------------------------------------------
+% linear_dt Polynomial detrend
+% ---------------------------------------------------------------------
+linear_dt         = cfg_branch;
 linear_dt.tag     = 'linear_dt';
-linear_dt.name    = 'Linear detrend';
-linear_dt.val     = {1};
-linear_dt.help    = {'Perform a voxel-wise linear detrend on the data'};
+linear_dt.name    = 'Polynomial detrend ';
+linear_dt.val     = {paramPoly_dt};
+linear_dt.help    = {'Perform a voxel-wise polynomial detrend on the data (1 is linear detrend) '};
 
 % ---------------------------------------------------------------------
 % detrend Conditions
@@ -135,7 +147,7 @@ detrend        = cfg_choice;
 detrend.tag    = 'detrend';
 detrend.name   = 'Detrend';
 detrend.values = {no_dt, linear_dt, dct_dt};
-detrend.val    = {no_dt};
+detrend.val    = {linear_dt};
 detrend.help   = {...
 ['Type of temporal detrending to apply']};
 
