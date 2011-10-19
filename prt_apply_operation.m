@@ -17,7 +17,15 @@ function out = prt_apply_operation(PRT, in, opid)
 %    4 = Divide data vectors by their norm
 %    5 = Perform a GLM (fMRI only)
 %
+% N.B: - all operations are applied independently to training and test
+%        partitions
+%      - see Chu et. al (2011) for mathematical descriptions of operations
+%        1 and 2 and Shawe-Taylor (2006) for details about operation 3.
+%__________________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
 % Written by A Marquand
+% $Id: prt_apply_operation.m 161 2011-10-18 16:59:19Z amarquan $
 
 for d = 1:length(in.train)
     switch opid
@@ -52,7 +60,10 @@ for d = 1:length(in.train)
             out.te_targets = Pte*in.te_targets;
             out.tr_id = round(Ptr*in.tr_id);
             out.te_id = round(Pte*in.te_id);
-        
+            
+            out.tr_targets = round(out.tr_targets);
+            out.te_targets = round(out.te_targets);
+            
         case 3 % mean centre features over subjects
             if in.use_kernel
                 [out.train{d}, out.test{d}] = ...
@@ -133,26 +144,31 @@ function P = compute_sa_mat(ID)
 % function to compute the block averaging matrix (P) necessary to apply
 % temporal compression
 
-error('Sample averaging (within subject/condition) Not implemented yet')
-
 % give each subject a unique id
-gids = unique(ID(:,1));
-gc = 0;
-for g = 1:length(gids)
-    gidx = ID(:,1) == gids(g);
-    ID(gidx,2) = ID(gidx,2) + gc;
-    gc = gc + max(ID(gidx,2));
+IDs = zeros(size(ID,1),1);
+ccount = 0; 
+lastid = zeros(1,2);
+for s = 1:size(ID,1)
+    currid = ID(s,1:2);  
+    if any(lastid ~= currid)
+        ccount = ccount + 1;
+    end
+    lastid = currid;
+    IDs(s) = ccount;
 end
 
-% Compute sample averaging matrix
-sids  = unique(ID(:,2));
-snums = histc(ID(:,2),sids);
-S = cell(length(snums),1);
-for s = 1:length(snums)
-    S{s} = 1/snums(s) .* ones(1,snums(s));
-end
-P = blkdiag(S{:});
+subs = unique(IDs);
 
+P = [];
+for s = 1:length(subs)
+    sidx = IDs == subs(s);
+    conds = unique(ID(sidx,4));
+    for c = 1:length(conds)
+        p = (IDs == s & ID(:,4) == conds(c))';
+        P = [P; 1./sum(p) * double(p)];
+    end
+end
+P = double(P);
 end
 
 function [C,Cs,Css] = centre_kernel(K, Ks, Kss)
