@@ -32,7 +32,7 @@ function out = prt_apply_operation(PRT, in, opid)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand
-% $Id: prt_apply_operation.m 161 2011-10-18 16:59:19Z amarquan $
+% $Id$
 
 for d = 1:length(in.train)
     switch opid
