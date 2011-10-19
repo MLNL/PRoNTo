@@ -20,7 +20,14 @@ function out = prt_apply_operation(PRT, in, opid)
 % N.B: - all operations are applied independently to training and test
 %        partitions
 %      - see Chu et. al (2011) for mathematical descriptions of operations
-%        1 and 2 and Shawe-Taylor (2006) for details about operation 3.
+%        1 and 2 and Shawe-Taylor and Cristianini (2004) for a description
+%        of operation 3.
+%
+% References:
+% Chu, C et al. (2011) Utilizing temporal information in fMRI decoding: 
+% classifier using kernel regression methods. Neuroimage. 58(2):560-71.
+% Shawe-Taylor, J. and Cristianini, N. (2004). Kernel methods for Pattern
+% analysis. Cambridge University Press.
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -34,8 +41,9 @@ for d = 1:length(in.train)
             Pte = compute_tc_mat(in.te_id);
             
             if in.use_kernel
-                out.train{d} = Ptr*in.train{d}*Ptr';
-                out.test{d}  = Pte*in.test{d}*Ptr';
+                out.train{d}    = Ptr*in.train{d}*Ptr';
+                out.test{d}     = Pte*in.test{d}*Ptr';
+                out.testcov{d}  = Pte*in.testcov{d}*Pte';
             else
                 out.train{d} = Ptr*in.train{d};
                 out.test{d}  = Pte*in.test{d};
@@ -50,8 +58,9 @@ for d = 1:length(in.train)
             Pte = compute_sa_mat(in.te_id);
             
             if in.use_kernel
-                out.train{d} = Ptr*in.train{d}*Ptr';
-                out.test{d}  = Pte*in.test{d}*Ptr';
+                out.train{d}    = Ptr*in.train{d}*Ptr';
+                out.test{d}     = Pte*in.test{d}*Ptr';
+                out.testcov{d}  = Pte*in.testcov{d}*Pte';
             else
                 out.train{d} = Ptr*in.train{d};
                 out.test{d}  = Pte*in.test{d};
@@ -66,8 +75,8 @@ for d = 1:length(in.train)
             
         case 3 % mean centre features over subjects
             if in.use_kernel
-                [out.train{d}, out.test{d}] = ...
-                    centre_kernel(in.train{d},in.test{d});
+                [out.train{d}, out.test{d}, out.testcov{d}] = ...
+                    centre_kernel(in.train{d},in.test{d},in.testcov{d});
             else
                 m = mean(in.train{d});
                 
@@ -81,8 +90,17 @@ for d = 1:length(in.train)
             
         case 4 % divide each feature vector by its norm
             if in.use_kernel
-                out.train{d} = normalise_kernel(in.train{d});
-                out.test{d}  = normalise_kernel(in.test{d});
+                % in this case, the operation is applied independently to
+                % each data vector, so it is safe (and convenient) to apply
+                % the operation to the whole kernel at once
+                Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
+                Phi = normalise_kernel(Phi);
+                
+                tr = 1:size(in.train{d},1);
+                te = (1:size(in.test{d},1))+max(tr);
+                out.train{d}    = Phi(tr,tr);
+                out.test{d}     = Phi(te,tr);
+                out.testcov{d}  = Phi(te,te);
             else
                 for r = 1:size(in.train{d})
                     in.train{d}(r,:) = in.train{d}(r,:) / norm(in.train{d}(r,:));

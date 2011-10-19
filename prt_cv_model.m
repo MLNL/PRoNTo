@@ -79,18 +79,19 @@ for f = 1:n_folds
     % Assemble data structure
     cvdata.train      = Phi_tr;
     cvdata.test       = Phi_te;
+    if PRT.model(mid).input.use_kernel
+        cvdata.testcov    = Phi_tt;
+    end
     cvdata.tr_targets = t(tr_idx,:);
     cvdata.te_targets = t(te_idx,:);
     cvdata.tr_id      = ID(tr_idx,:);
     cvdata.te_id      = ID(te_idx,:);
     cvdata.use_kernel = PRT.model(mid).input.use_kernel;
-    %if PRT.model(mid).input.use_kernel
-    %    cvdata.testcov    = Phi_tt;
-    %end
-    
+
     % Apply any operations specified
-    for o = PRT.model(mid).input.operations
-        cvdata = prt_apply_operation(PRT, cvdata, o);
+    ops = PRT.model(mid).input.operations;
+    for o = 1:length(ops)
+        cvdata = prt_apply_operation(PRT, cvdata, ops(o));
     end
     
     % train the prediction model
@@ -104,7 +105,7 @@ for f = 1:n_folds
     
     % compute stats
     stats = prt_stats(model, cvdata.te_targets);
-    acc = stats.acc % for debugging
+    %acc = stats.acc % for debugging
     
     % update PRT 
     PRT.model(mid).output.fold(f).targets     = cvdata.te_targets;
