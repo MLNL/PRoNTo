@@ -101,9 +101,12 @@ end
 if isfield(job.machine,'svm')
     model.machine.function = 'prt_machine_svm_bin';
     model.machine.args     = job.machine.svm.svm_args;
+elseif isfield(job.machine,'gpc')
+    model.machine.function='prt_machine_gpml';
+    model.machine.args=job.machine.gpc.gpc_args;
 elseif isfield(job.machine,'krr')
     model.machine.function='prt_machine_krr';
-    model.machine.arg=job.machine.krr.krr_args;
+    model.machine.args=job.machine.krr.krr_args;
 else
     [pat, nam] = fileparts(char(job.machine.custom_machine.machine_func));
     model.machine.function = nam;

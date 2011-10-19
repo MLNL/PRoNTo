@@ -346,6 +346,26 @@ svm.help    = {'Binary support vector machine.'};
 svm.val     = {svm_args};
 
 % ---------------------------------------------------------------------
+% gpc_args GPC arguments
+% ---------------------------------------------------------------------
+gpc_args         = cfg_entry;
+gpc_args.tag     = 'gpc_args';
+gpc_args.name    = 'Arguments';
+gpc_args.help    = {['Arguments for prt_machine_gpml.']};
+gpc_args.strtype = 's';
+gpc_args.val     = {'-l erf -h'};
+gpc_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% gpc GPCp
+% ---------------------------------------------------------------------
+gpc         = cfg_branch;
+gpc.tag     = 'gpc';
+gpc.name    = 'Gaussian Process Classification';
+gpc.help    = {'Gaussian Process Classification'};
+gpc.val     = {gpc_args};
+
+% ---------------------------------------------------------------------
 % krr_args Regression Targets
 % ---------------------------------------------------------------------
 krr_args         = cfg_entry;
@@ -371,7 +391,7 @@ krr.val     = {krr_args};
 machine        = cfg_choice;
 machine.tag    = 'machine';
 machine.name   = 'Machine';
-machine.values = {svm,krr, custom_machine};
+machine.values = {svm,gpc,krr,custom_machine};
 machine.val    =  {svm};
 machine.help   = {...
     ['Choose a prediction machine for this model']};
