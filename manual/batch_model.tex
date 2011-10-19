@@ -1,0 +1,217 @@
+% $Id$ 
+
+\chapter{Specify model  \label{Chap:model}}
+\minitoc
+
+\vskip 1.5cm
+
+Construct model according to design specified
+
+
+\section{Data structure file}
+Select data/design structure file (PRT.mat).
+
+
+\section{Model name}
+Name for model
+
+
+\section{Use kernels}
+Are the data for this model in the form of kernels/basis functions? If 'No' is selected, it is assumed the data are in the form of feature matrices
+
+
+\section{Feature sets}
+Select feature sets to include in this model. These can be kernels or feature matrices. If multiple feature sets are included, they must all have the same number of rows
+
+
+\subsection{Feature set}
+Feature set to include in this model
+
+
+\subsubsection{Name}
+Name of a feature set
+
+
+\section{Model Type }
+Select which kind of predictive model is to be used.
+
+
+\subsection{Classification}
+Specify which elements belong to this class. Click 'new' or 'repeat' to add another class.
+
+
+\subsubsection{Class}
+Specify which groups, modalities, subjects and conditions should be included in this class
+
+
+\paragraph{Name}
+Name for this class, e.g. 'controls' 
+
+
+\paragraph{Groups}
+Add one group to this class. Click 'new' or 'repeat' to add another group.
+
+
+\subparagraph{Group}
+Specify data and design for the group.
+
+
+\textbf{Name}
+Name of the group to include. Must exist in PRT.mat
+
+
+\textbf{Subject number(s)}
+Subjects to be included in this class. Note that individual subject numbers (e.g. 1), or a range of subject numbers (e.g. 3:5) can be entered
+
+
+\textbf{Modalities}
+Add modalities
+
+
+\textsc{Modality}
+Specify modality, such as name and data.
+
+
+\textsl{Name}
+Name of modality. Example: 'BOLD'. Must match design specification
+
+
+\textsl{Conditions / Scans}
+Which task conditions do you want to include? Select conditions: select specific conditions from the timeseries. All conditions: include all conditions extracted from the timeseries. All scans: include all scans for each subject. This may be used for modalities with only one scan per subject (e.g. PET), if you want to include all scans from an fMRI timeseries (assumes you have not already detrended the timeseries and extracted task components)
+
+
+\textit{Specify Conditions}
+Specify the name of conditions to be included 
+
+
+\textit{Condition}
+Specify condition:.
+
+
+\textit{Name}
+Name of condition to include.
+
+
+\textit{All Conditions}
+Include all conditions in this model
+
+
+\textit{All scans}
+No design specified. This option can be used for modalities (e.g. structural scans) that do not have an experimental design or for an fMRI designwhere you want to include all scans in the timeseries
+
+
+\subsection{Regression}
+Add one group to this regression model. Click 'new' or 'repeat' to add another group.
+
+
+\subsubsection{Group}
+Specify data and design for the group.
+
+
+\paragraph{Name}
+Name of the group to include. Must exist in PRT.mat
+
+
+\paragraph{Subject number(s)}
+Subjects to be included in this class. Note that individual subject numbers (e.g. 1), or a range of subject numbers (e.g. 3:5) can be entered
+
+
+\paragraph{Conditions / Scans}
+Which task conditions do you want to include? Select conditions: select specific conditions from the timeseries. All conditions: include all conditions extracted from the timeseries. All scans: include all scans for each subject. This may be used for modalities with only one scan per subject (e.g. PET), if you want to include all scans from an fMRI timeseries (assumes you have not already detrended the timeseries and extracted task components)
+
+
+\subparagraph{Specify Conditions}
+Specify the name of conditions to be included 
+
+
+\textbf{Condition}
+Specify condition:.
+
+
+\textsc{Name}
+Name of condition to include.
+
+
+\subparagraph{All Conditions}
+Include all conditions in this model
+
+
+\subparagraph{All scans}
+No design specified. This option can be used for modalities (e.g. structural scans) that do not have an experimental design or for an fMRI designwhere you want to include all scans in the timeseries
+
+
+\paragraph{Targets}
+Specify continuous valued target variables
+
+
+\section{Machine}
+Choose a prediction machine for this model
+
+
+\subsection{SVM Classification}
+Binary support vector machine.
+
+
+\subsubsection{Arguments}
+Arguments for prt\_machine\_svm\_bin.
+
+
+\subsection{Kernel Ridge Regression}
+Kernel Ridge Regression.
+
+
+\subsubsection{Regularization}
+Regularization for prt\_machine\_krr.
+
+
+\subsection{Custom machine}
+Choose another prediction machine
+
+
+\subsubsection{Function}
+Choose a function that will perform prediction.
+
+
+\subsubsection{Arguments}
+Arguments for prediction machine.
+
+
+\section{Cross-validation type}
+Choose the type of cross-validation to be used
+
+
+\subsection{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\subsection{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\subsection{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\subsection{Custom}
+Load a cross-validation matrix. Note that an interface will be provided for this functionality in a later release
+
+
+\section{Data Operations}
+This branch controls operations that can be applied to the data before the data is passed to the classifier. Add zero or more operations to be applied. These will be executed in the order specified. 
+
+
+\subsection{No operations}
+No design specified. This option can be used for modalities (e.g. structural scans) that do not have an experimental design or for an fMRI designwhere you want to include all scans in the timeseries
+
+
+\subsection{Specify operations}
+Specify operations to apply
+
+
+\subsubsection{Operations}
+ Add zero or more operations to be applied to the data. These will be executed in the order specified. 
+
+
+\paragraph{Operation}
+Select an operation to apply.
+

@@ -30,11 +30,6 @@ prt.values  = {prt_cfg_design, ...
                prt_cfg_fs, ...
                prt_cfg_model, ...
                prt_cfg_cv_model};
-% Assuming 4 main modules: 
-% - defining data & design, 
-% - pre-processing,
-% - pattern recognition
-% - results
 %------------------------------------------------------------------------
 
 return
