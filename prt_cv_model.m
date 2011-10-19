@@ -89,7 +89,7 @@ for f = 1:n_folds
     cvdata.use_kernel = PRT.model(mid).input.use_kernel;
 
     % Apply any operations specified
-    ops = PRT.model(mid).input.operations;
+    ops = PRT.model(mid).input.operations(PRT.model(mid).input.operations ~=0 );
     for o = 1:length(ops)
         cvdata = prt_apply_operation(PRT, cvdata, ops(o));
     end
