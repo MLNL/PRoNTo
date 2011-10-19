@@ -19,7 +19,7 @@ function [outfile]=prt_cv_model(PRT,in)
 % Notes: - The PRT.model(m).input fields are set by prt_init_model, not by
 %          this function
 %__________________________________________________________________________
-% Copyright (C) 2011
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand 
 % $Id$
@@ -76,7 +76,7 @@ for f = 1:n_folds
     [Phi_tr, Phi_te, Phi_tt] = ...
         split_data(Phi_all, tr_idx, te_idx, PRT.model(mid).input.use_kernel);
     
-    % Assemble data structure
+    % Assemble data structure to supply to machine
     cvdata.train      = Phi_tr;
     cvdata.test       = Phi_te;
     if PRT.model(mid).input.use_kernel
@@ -105,7 +105,7 @@ for f = 1:n_folds
     
     % compute stats
     stats = prt_stats(model, cvdata.te_targets);
-    %acc = stats.acc % for debugging
+    acc = stats.acc % for debugging
     
     % update PRT 
     PRT.model(mid).output.fold(f).targets     = cvdata.te_targets;

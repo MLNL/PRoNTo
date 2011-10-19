@@ -376,6 +376,7 @@ machine.val    =  {svm};
 machine.help   = {...
     ['Choose a prediction machine for this model']};
 
+% Old CV structure. Might be resuscitated at some point.
 % % ---------------------------------------------------------------------
 % % cv_train Cross-validation training set
 % % ---------------------------------------------------------------------
@@ -442,7 +443,6 @@ machine.help   = {...
 % cv_valid.values = {cv_no_valid, cv_use_valid };
 % %cv_valid.val    = {cv_no_valid};
 % 
-
 
 % ---------------------------------------------------------------------
 % cv_loo Leave-one-out
@@ -558,8 +558,10 @@ data_ops         = cfg_repeat;
 data_ops.tag     = 'data_ops';
 data_ops.name    = 'Operations';
 data_ops.help    = {...
-    [' Add zero or more operations to be applied to the data. ',...
-     'These will be executed in the order specified. ']};
+    ['Add zero or more operations to be applied to the data before the ',...
+     'prediction machine is called. These are executed within the ',...
+     'cross-validation loop (i.e. they respect training/test independence) ',...
+     'and will be executed in the order specified. ']};
 data_ops.num     = [1 Inf];
 data_ops.values  = {data_op};
 

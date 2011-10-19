@@ -106,7 +106,8 @@ elseif isfield(job.machine,'krr')
     model.machine.arg=job.machine.krr.krr_args;
 else
     [pat, nam] = fileparts(char(job.machine.custom_machine.machine_func));
-    model.machine.function = job.machine.custom_machine.machine_args;
+    model.machine.function = nam;
+    model.machine.args = job.machine.custom_machine.machine_args;
 end
 
 % assemble structure for performing cross-validation

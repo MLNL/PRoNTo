@@ -26,6 +26,12 @@ if size(t,1) ~= size(model.predictions,1)
         'Number of predictions is not equal to the number of targets']);
 end
 
+if ~isfield(model,'type')
+    warning('prt_stats:modelDoesNotProvideTypeField',...
+            'model.type not specified, defaulting to classifier');
+    model.type = 'classifier';
+end
+
 switch model.type
     case 'classifier'
         
