@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_check_design</title>
+  <meta name="keywords" content="prt_check_design">
+  <meta name="description" content="FORMAT [conds] = prt_check_design(cond,tr,units)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_check_design.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_check_design
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>FORMAT [conds] = prt_check_design(cond,tr,units)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [conds] = prt_check_design(cond,tr,units) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> FORMAT [conds] = prt_check_design(cond,tr,units)
+
+ Check the design and discards scans which are either overlapping between
+ conditions or which do not respect a minimum time interval between
+ conditions (due to the width of the HRF function).
+
+ INPUT
+   - cond  : structure containing the names, durations and onsets of the
+             conditions
+   - tr    : interscan interval (TR)
+   - units : 1 for seconds, 0 for scans
+
+ OUTPUT
+ the same cond structure containing supplementary fields:
+   - scans :            scans retained for further classification
+   - discardedscans:    scans discarded because they overlapped between 
+                        conditions
+   - hrfdiscardedscans: scans discarded because they didn't respect the
+                        minimum time interval between conditions
+   - blocks:            represents the grouping of the stimuli (for
+                        cross-validation)
+   - stats:             struct containing the original time intervals, the
+                        time interval with only the 'good' scans, their
+                        means and standard deviation
+_______________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Get/set the defaults values associated with an identifier</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_data_conditions.html" class="code" title="function varargout = prt_data_conditions(varargin)">prt_data_conditions</a>	PRT_DATA_CONDITIONS M-file for prt_data_conditions.fig</li><li><a href="prt_data_modality.html" class="code" title="function varargout = prt_data_modality(varargin)">prt_data_modality</a>	PRT_DATA_MODALITY M-file for prt_data_modality.fig</li><li><a href="prt_ui_design.html" class="code" title="function varargout = prt_ui_design(varargin)">prt_ui_design</a>	PRT_UI_DESIGN M-file for prt_ui_design.fig</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [conds] = prt_check_design(cond,tr,units)</a>
+0002 <span class="comment">% FORMAT [conds] = prt_check_design(cond,tr,units)</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Check the design and discards scans which are either overlapping between</span>
+0005 <span class="comment">% conditions or which do not respect a minimum time interval between</span>
+0006 <span class="comment">% conditions (due to the width of the HRF function).</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% INPUT</span>
+0009 <span class="comment">%   - cond  : structure containing the names, durations and onsets of the</span>
+0010 <span class="comment">%             conditions</span>
+0011 <span class="comment">%   - tr    : interscan interval (TR)</span>
+0012 <span class="comment">%   - units : 1 for seconds, 0 for scans</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% OUTPUT</span>
+0015 <span class="comment">% the same cond structure containing supplementary fields:</span>
+0016 <span class="comment">%   - scans :            scans retained for further classification</span>
+0017 <span class="comment">%   - discardedscans:    scans discarded because they overlapped between</span>
+0018 <span class="comment">%                        conditions</span>
+0019 <span class="comment">%   - hrfdiscardedscans: scans discarded because they didn't respect the</span>
+0020 <span class="comment">%                        minimum time interval between conditions</span>
+0021 <span class="comment">%   - blocks:            represents the grouping of the stimuli (for</span>
+0022 <span class="comment">%                        cross-validation)</span>
+0023 <span class="comment">%   - stats:             struct containing the original time intervals, the</span>
+0024 <span class="comment">%                        time interval with only the 'good' scans, their</span>
+0025 <span class="comment">%                        means and standard deviation</span>
+0026 <span class="comment">%_______________________________________________________________________</span>
+0027 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0028 
+0029 <span class="comment">% Written by J. Schrouff</span>
+0030 <span class="comment">% $Id: prt_check_design.m 135 2011-10-11 10:21:27Z amarquan $</span>
+0031 
+0032 <span class="comment">% get the number of conditions</span>
+0033 ncond=length(cond);
+0034 <span class="comment">%get defaults</span>
+0035 def=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'datad'</span>);
+0036 <span class="comment">%suppose design is in seconds if no units specified</span>
+0037 <span class="keyword">if</span> nargin&lt;3
+0038     units=1;
+0039 <span class="keyword">end</span>
+0040 
+0041 <span class="comment">%check the level of overlapping between the different conditions</span>
+0042 all=[];
+0043 conds=[];
+0044 <span class="keyword">for</span> i=1:ncond
+0045     condsc=[];
+0046     bl=[];
+0047     <span class="keyword">if</span> units
+0048         cs=round((cond(i).onsets+def.hrfd)/tr);
+0049         cdur=floor(cond(i).durations/tr);
+0050     <span class="keyword">else</span>
+0051         cs=round(cond(i).onsets+(def.hrfd/tr));
+0052         cdur=round(cond(i).durations);
+0053     <span class="keyword">end</span>
+0054     <span class="keyword">if</span> any(cs==0)
+0055         ind=find(cs==0);
+0056         <span class="keyword">if</span> ind~=1
+0057             sprintf(<span class="string">'An onset of 0 TR was found in condition %d at position %d, Please correct'</span>,i,ind)
+0058         <span class="keyword">else</span>
+0059             cs(ind)=1;
+0060         <span class="keyword">end</span>
+0061     <span class="keyword">end</span>
+0062     cdur=max(1,cdur);
+0063     <span class="keyword">for</span> j=1:length(cs)
+0064         temp=cs(j):cs(j)+cdur(j)-1;
+0065         condsc=[condsc,temp];
+0066         <span class="comment">% was:</span>
+0067         <span class="comment">% bl=[bl j*ones(length(temp))];</span>
+0068         <span class="comment">% but we probably want a vector here..</span>
+0069         bl=[bl j*ones(1,length(temp))]; 
+0070     <span class="keyword">end</span>
+0071     cond(i).scans=unique(condsc);
+0072     cond(i).blocks=bl;
+0073     conds=[conds;i*ones(length(cond(i).scans),1)];
+0074     all=[all; cond(i).scans'];
+0075 <span class="keyword">end</span>
+0076 index=1:length(all);
+0077 [allc,indexc]=unique(all);
+0078 conds=conds(indexc);
+0079 interind=setdiff(index,indexc);
+0080 <span class="comment">%Check if the same scans are implied in different conditions</span>
+0081 <span class="keyword">if</span> ~isempty(interind)
+0082     intervect=all(interind);
+0083     [allgood,indgood]=setxor(allc,intervect);
+0084     conds=conds(indgood);
+0085     flag=1;
+0086 <span class="keyword">else</span>
+0087     allgood=allc;
+0088     flag=0;
+0089 <span class="keyword">end</span>
+0090 <span class="keyword">if</span> flag
+0091     <span class="keyword">for</span> i=1:ncond
+0092         [dumb,indd]=setdiff(cond(i).scans,intervect);
+0093         cond(i).blocks=cond(i).blocks(indd);
+0094         cond(i).discardedscans=intersect(cond(i).scans,intervect);
+0095         cond(i).scans=dumb;
+0096     <span class="keyword">end</span>
+0097     disp(<span class="string">'The same scans are implied in different conditions'</span>)
+0098     disp(<span class="string">'They will be discarded'</span>)
+0099     disp(<span class="string">'Review the data set for more information'</span>)
+0100 <span class="keyword">else</span>
+0101     <span class="keyword">for</span> i=1:ncond
+0102         cond(i).discardedscans=[];
+0103     <span class="keyword">end</span>
+0104 <span class="keyword">end</span>
+0105 
+0106 <span class="comment">%Check for the overlapping between conditions: will not allow an</span>
+0107 <span class="comment">%overlapping smaller than hrfw seconds (the Haemodynamic Response FWHM) / by</span>
+0108 <span class="comment">%the TR.</span>
+0109 thresh=ceil(def.hrfw/tr);
+0110 overlap=abs(diff(allgood));
+0111 changecond=diff(conds);
+0112 chan=find(changecond~=0);
+0113 
+0114 alldisc=[];
+0115 <span class="keyword">for</span> i=1:length(chan)
+0116     intvl=overlap(chan(i));
+0117     <span class="keyword">if</span> ~(intvl&gt;=thresh)
+0118         togap=thresh-intvl;
+0119         disc_c=allgood(chan(i)+1):allgood(chan(i)+1)+togap-1;
+0120         interall=intersect(allgood,disc_c);
+0121         alldisc=[alldisc,interall];
+0122     <span class="keyword">end</span>
+0123 <span class="keyword">end</span>
+0124 <span class="keyword">if</span> ~isempty(alldisc)
+0125     <span class="keyword">for</span> i=1:ncond
+0126         [dumb,indd]=setdiff(cond(i).scans,alldisc);
+0127         cond(i).blocks=cond(i).blocks(indd);
+0128         cond(i).hrfdiscardedscans=intersect(cond(i).scans,alldisc);
+0129         cond(i).scans=dumb;
+0130     <span class="keyword">end</span>
+0131 <span class="keyword">else</span>
+0132     <span class="keyword">for</span> i=1:ncond
+0133         cond(i).hrfdiscardedscans=[];
+0134     <span class="keyword">end</span>
+0135 <span class="keyword">end</span>
+0136 
+0137 stats=struct();
+0138 stats.overlap=overlap;
+0139 stats.goodscans=setdiff(allgood,alldisc);
+0140 stats.discscans=alldisc;
+0141 stats.meanovl=mean(overlap);
+0142 stats.stdovl=std(overlap);
+0143 ovlgood=abs(diff(stats.goodscans));
+0144 stats.mgoodovl=mean(ovlgood);
+0145 stats.sgoodovl=std(ovlgood);
+0146 stats.goodovl=ovlgood;
+0147 
+0148 <span class="comment">%output structure</span>
+0149 conds=struct();
+0150 conds.conds=cond;
+0151 conds.stats=stats;
+0152 conds.TR=tr;
+0153 conds.unit=units;
+0154 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Thu 20-Oct-2011 11:56:23 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

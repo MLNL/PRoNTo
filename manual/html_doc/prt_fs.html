@@ -1,0 +1,364 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_fs</title>
+  <meta name="keywords" content="prt_fs">
+  <meta name="description" content="Function to build file arrays containing the (linearly detrended) data">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_fs.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_fs
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to build file arrays containing the (linearly detrended) data</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [outfile]=prt_fs(PRT,in) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to build file arrays containing the (linearly detrended) data
+ and compute a linear (dot product) kernel from them
+
+ Inputs:
+ -------
+ in.fname:      filename for the PRT.mat (string)
+ in.fs_name:    name of fs and relative path filename for the kernel matrix
+
+ in.mod(m).mod_name:  name of modality to include in this kernel (string)
+ in.mod(m).detrend:   detrend (scalar: 0 = none, 1 = linear)
+ in.mod(m).param_dt:  parameters for the kernel detrend (e.g. DCT bases)
+ in.mod(m).mode:      'all_cond' or 'all_scans' (string)
+ in.mod(m).mask:      mask file used to create the kernel
+ in.mod(m).normalise: 0 = none, 1 = normalise_kernel, 2 = scale modality
+ in.mod(m).matnorm:   filename for scaling matrix
+
+ Outputs:
+ --------
+ Calls prt_init_fs to populate basic fields in PRT.fs(f)...
+ Writes PRT.mat
+ Writes the kernel matrix to the path indicated by in.fs_name
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Get/set the defaults values associated with an identifier</li><li><a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>	function to initialise the kernel data structure</li><li><a href="prt_load_blocks.html" class="code" title="function block = prt_load_blocks(filenames, bs, br)">prt_load_blocks</a>	Load one or more blocks of data.</li><li><a href="prt_normalise_kernel.html" class="code" title="function K_normalised = prt_normalise_kernel(K)">prt_normalise_kernel</a>	FORMAT K_normalised = prt_normalise_kernel(K)</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_ui_prepare_data.html" class="code" title="function varargout = prt_ui_prepare_data(varargin)">prt_ui_prepare_data</a>	PRT_UI_KERNEL MATLAB code for prt_ui_kernel.fig</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function [mask, precmask, headers] = load_masks(PRT, prt_dir, in, mids)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [outfile]=prt_fs(PRT,in)</a>
+0002 <span class="comment">% Function to build file arrays containing the (linearly detrended) data</span>
+0003 <span class="comment">% and compute a linear (dot product) kernel from them</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% Inputs:</span>
+0006 <span class="comment">% -------</span>
+0007 <span class="comment">% in.fname:      filename for the PRT.mat (string)</span>
+0008 <span class="comment">% in.fs_name:    name of fs and relative path filename for the kernel matrix</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% in.mod(m).mod_name:  name of modality to include in this kernel (string)</span>
+0011 <span class="comment">% in.mod(m).detrend:   detrend (scalar: 0 = none, 1 = linear)</span>
+0012 <span class="comment">% in.mod(m).param_dt:  parameters for the kernel detrend (e.g. DCT bases)</span>
+0013 <span class="comment">% in.mod(m).mode:      'all_cond' or 'all_scans' (string)</span>
+0014 <span class="comment">% in.mod(m).mask:      mask file used to create the kernel</span>
+0015 <span class="comment">% in.mod(m).normalise: 0 = none, 1 = normalise_kernel, 2 = scale modality</span>
+0016 <span class="comment">% in.mod(m).matnorm:   filename for scaling matrix</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">% Outputs:</span>
+0019 <span class="comment">% --------</span>
+0020 <span class="comment">% Calls prt_init_fs to populate basic fields in PRT.fs(f)...</span>
+0021 <span class="comment">% Writes PRT.mat</span>
+0022 <span class="comment">% Writes the kernel matrix to the path indicated by in.fs_name</span>
+0023 <span class="comment">%__________________________________________________________________________</span>
+0024 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0025 
+0026 <span class="comment">% Written by A. Marquand and J. Schrouff</span>
+0027 
+0028 <span class="comment">% $Id: prt_fs.m 158 2011-10-17 09:48:38Z amarquan $</span>
+0029 
+0030 <span class="comment">% Configure some variables and get defaults</span>
+0031 <span class="comment">% -------------------------------------------------------------------------</span>
+0032 prt_dir = regexprep(in.fname,<span class="string">'PRT.mat'</span>, <span class="string">''</span>); <span class="comment">% or: fileparts(fname);</span>
+0033 
+0034 n_groups      = length(PRT.group);
+0035 <span class="comment">% get the index of the modalities for which the user wants a kernel/data</span>
+0036 n_mods=length(in.mod);
+0037 mids=[];
+0038 <span class="keyword">for</span> i=1:n_mods
+0039     <span class="keyword">if</span> ~isempty(in.mod(i).mod_name)
+0040         mids = [mids, i];
+0041     <span class="keyword">end</span>
+0042 <span class="keyword">end</span>
+0043 n_mods=length(mids);
+0044 def=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'fs'</span>);
+0045 
+0046 <span class="comment">% Load mask(s) and resize if necessary</span>
+0047 [mask,precmask,headers] = <a href="#_sub1" class="code" title="subfunction [mask, precmask, headers] = load_masks(PRT, prt_dir, in, mids)">load_masks</a>(PRT, prt_dir, in,mids);
+0048 
+0049 <span class="comment">% Initialize the file arrays, kernel and feature set parameters</span>
+0050 [fid,PRT,tocomp] = <a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>(PRT,in,mids,mask,precmask,headers);
+0051 
+0052 n   = length(PRT.fs(fid).id_mat);
+0053 Phi = zeros(n);
+0054 
+0055 <span class="comment">% Build confound and residual forming matrices (for detrending)</span>
+0056 <span class="comment">% -------------------------------------------------------------------------</span>
+0057 kern_norm = false;
+0058 <span class="comment">% configure confound matrix</span>
+0059 C = [];
+0060 <span class="keyword">for</span> gid = 1:length(PRT.group)
+0061     <span class="keyword">for</span> sid = 1:length(PRT.group(gid).subject)
+0062         <span class="keyword">for</span> m = 1:n_mods
+0063             <span class="keyword">if</span> in.mod(mids(m)).detrend == 1
+0064                 linear_dt = true;
+0065             <span class="keyword">end</span>
+0066             <span class="keyword">if</span> in.mod(mids(m)).normalise == 1
+0067                 kern_norm = true;
+0068             <span class="keyword">end</span>
+0069             rg = (PRT.fs(fid).id_mat(:,1) == gid) &amp; <span class="keyword">...</span>
+0070                  (PRT.fs(fid).id_mat(:,2) == sid) &amp; <span class="keyword">...</span>
+0071                  (PRT.fs(fid).id_mat(:,3) == mids(m));
+0072             c  = zeros(n,2);
+0073             c(rg,1:2) = [(1:sum(rg))' ones(sum(rg),1)];
+0074             C = [C c];
+0075         <span class="keyword">end</span>
+0076     <span class="keyword">end</span>
+0077 <span class="keyword">end</span>
+0078 PRT.fs(fid).rf_mat = eye(n)-C*pinv(C);
+0079 
+0080 <span class="comment">% -------------------------------------------------------------------------</span>
+0081 <span class="comment">% ---------------------Build file arrays and kernel------------------------</span>
+0082 <span class="comment">% -------------------------------------------------------------------------</span>
+0083 mem = def.mem_limit;
+0084 nfa = [];
+0085 <span class="keyword">for</span> m=1:n_mods
+0086     nfa = [nfa, PRT.fas(mids(m)).dat.dim(1)];
+0087     n_vox = PRT.fas(mids(m)).dat.dim(2);
+0088 <span class="keyword">end</span>
+0089 block_size  = floor(mem/8/max([nfa, n])); <span class="comment">% Block size (double = 8 bytes)</span>
+0090 n_block     = ceil(n_vox/block_size);
+0091 bstart=1; bend=min(block_size,n_vox);
+0092 h = waitbar(0,<span class="string">'Please wait while images are pre-processed'</span>);
+0093 step=1;
+0094 <span class="keyword">for</span> b = 1:n_block
+0095     disp ([<span class="string">' &gt; processing block: '</span>, num2str(b),<span class="string">' of '</span>,num2str(n_block),<span class="string">' ...'</span>])
+0096     vox_range = bstart:bend;
+0097     block_size=length(vox_range);
+0098     kern_vols=zeros(block_size,n);
+0099     <span class="keyword">for</span> m=1:n_mods
+0100         mid=mids(m);
+0101         
+0102         <span class="comment">%Parameters for the masks and indexes of the voxels</span>
+0103         <span class="comment">%-------------------------------------------------------------------</span>
+0104         
+0105         <span class="comment">%get the indexes of the voxels within the file array mask (data &amp;</span>
+0106         <span class="comment">%design step)</span>
+0107         ind_ddmask = PRT.fas(mid).idfeat_img(vox_range);
+0108         
+0109         <span class="comment">%load the mask for that modality if another one was specified</span>
+0110         <span class="keyword">if</span> ~isempty(precmask{m})
+0111             prec_mask = <a href="prt_load_blocks.html" class="code" title="function block = prt_load_blocks(filenames, bs, br)">prt_load_blocks</a>(precmask{m},ind_ddmask);
+0112         <span class="keyword">else</span>
+0113             prec_mask = ones(block_size,1);
+0114         <span class="keyword">end</span>
+0115         <span class="comment">%indexes to access the file array</span>
+0116         indm=find(PRT.fs(fid).fas.im==mid);
+0117         ifa=PRT.fs(fid).fas.ifa(indm);
+0118         
+0119         <span class="comment">%get the data from each subject of each group and save its linear</span>
+0120         <span class="comment">%detrended version in a file array</span>
+0121         <span class="comment">%-------------------------------------------------------------------</span>
+0122         <span class="keyword">if</span> tocomp(mid)  <span class="comment">%need to build the file array corresponding to that modality</span>
+0123             sample_range=0;
+0124             nfa=PRT.fas(mid).dat.dim(1);
+0125             datapr=zeros(nfa,block_size);
+0126             
+0127             <span class="comment">%get the data for each subject of each group</span>
+0128             <span class="keyword">for</span> gid = 1:n_groups
+0129                 <span class="keyword">for</span> sid = 1:length(PRT.group(gid).subject)
+0130                     n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+0131                     sample_range=(1:n_vols_s)+max(sample_range);
+0132                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
+0133                     datapr(sample_range,:) = (<a href="prt_load_blocks.html" class="code" title="function block = prt_load_blocks(filenames, bs, br)">prt_load_blocks</a>(fname,ind_ddmask))';
+0134                     <span class="comment">%if ~def.writeraw</span>
+0135                     <span class="comment">%    datapr(sample_range,:)=detrend(datapr(sample_range,:));</span>
+0136                     <span class="comment">%end</span>
+0137                     <span class="keyword">if</span> in.mod(mid).detrend ~= 0
+0138                         <span class="keyword">if</span> in.mod(mid).detrend &gt; 1
+0139                             error(<span class="string">'Only linear detrend implemented so far'</span>);
+0140                         <span class="keyword">end</span>
+0141                         rg = (PRT.fs(fid).id_mat(:,1) == gid) &amp; <span class="keyword">...</span>
+0142                              (PRT.fs(fid).id_mat(:,2) == sid) &amp; <span class="keyword">...</span>
+0143                              (PRT.fs(fid).id_mat(:,3) == mid);
+0144                         R = PRT.fs(fid).rf_mat(rg,rg);
+0145                         datapr(sample_range,:)=R*datapr(sample_range,:);
+0146                     <span class="keyword">end</span>
+0147                 <span class="keyword">end</span>
+0148             <span class="keyword">end</span>
+0149             
+0150             <span class="comment">%Write the data detrended into the file array</span>
+0151             namedat=[<span class="string">'Data_matrix_'</span>,char(in.mod(mid).mod_name),<span class="string">'.dat'</span>];
+0152             fpd_clean = fopen(fullfile(prt_dir,namedat), <span class="string">'a'</span>); <span class="comment">% 'a' append</span>
+0153             <span class="keyword">if</span> b==1
+0154                 <span class="comment">% write the data in file .dat</span>
+0155                 fwrite(fpd_clean, datapr, <span class="string">'float32'</span>);
+0156                 fclose(fpd_clean);
+0157             <span class="keyword">else</span>
+0158                 <span class="comment">% Append the data in file .dat</span>
+0159                 fseek(fpd_clean,0,<span class="string">'eof'</span>);
+0160                 fwrite(fpd_clean, datapr, <span class="string">'float32'</span>);
+0161                 fclose(fpd_clean);
+0162             <span class="keyword">end</span>
+0163             
+0164             <span class="comment">% get the data to build the kernel</span>
+0165             kern_vols(:,indm) = datapr(ifa,:)'.* <span class="keyword">...</span>
+0166                 repmat(prec_mask,1,length(ifa));
+0167             <span class="comment">% if a scaling was entered, apply it now</span>
+0168             <span class="keyword">if</span> ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
+0169                 kern_vols(:,indm) = kern_vols(:,indm)./ <span class="keyword">...</span>
+0170                     reshape(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
+0171             <span class="keyword">end</span>
+0172             clear datapr
+0173         <span class="keyword">else</span>
+0174             kern_vols(:,indm) = (PRT.fas(mid).dat(ifa,vox_range))' .* <span class="keyword">...</span>
+0175                 repmat(prec_mask,1,length(ifa));
+0176             <span class="comment">% if a scaling was entered, apply it now</span>
+0177             <span class="keyword">if</span> ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
+0178                 kern_vols(:,indm) = kern_vols(:,indm)./ <span class="keyword">...</span>
+0179                     reshape(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
+0180             <span class="keyword">end</span>
+0181             
+0182         <span class="keyword">end</span>
+0183         waitbar(step/ (n_block*n_mods),h);
+0184         step=step+1;
+0185     <span class="keyword">end</span>
+0186     Phi = Phi + (kern_vols' * kern_vols);
+0187     bstart=bend+1; bend=min(bstart+block_size-1,n_vox);
+0188     clear block_mask kern_vols
+0189 <span class="keyword">end</span>
+0190 close(h)
+0191 
+0192 <span class="comment">% Normalise</span>
+0193 <span class="comment">% -------------------------------------------------------------------------</span>
+0194 <span class="keyword">if</span> kern_norm
+0195     Phi = <a href="prt_normalise_kernel.html" class="code" title="function K_normalised = prt_normalise_kernel(K)">prt_normalise_kernel</a>(Phi);
+0196 <span class="keyword">end</span>
+0197 
+0198 <span class="comment">% Save kernel and function output</span>
+0199 <span class="comment">% -------------------------------------------------------------------------</span>
+0200 outfile = in.fname;
+0201 disp(<span class="string">'Saving feature set to: PRT.mat.......&gt;&gt;'</span>)
+0202 disp([<span class="string">'Saving kernel to: '</span>,in.fs_name,<span class="string">'.mat.......&gt;&gt;'</span>])
+0203 fs_file = [prt_dir,in.fs_name];
+0204 <span class="keyword">if</span> spm_matlab_version_chk(<span class="string">'7'</span>) &gt;= 0
+0205     save(outfile,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
+0206     save(fs_file,<span class="string">'-V6'</span>,<span class="string">'Phi'</span>);
+0207 <span class="keyword">else</span>
+0208     save(outfile,<span class="string">'PRT'</span>);
+0209     save(fs_file,<span class="string">'Phi'</span>);
+0210 <span class="keyword">end</span>
+0211 
+0212 <span class="comment">% -------------------------------------------------------------------------</span>
+0213 <span class="comment">% Private functions</span>
+0214 <span class="comment">% -------------------------------------------------------------------------</span>
+0215 
+0216 <a name="_sub1" href="#_subfunctions" class="code">function [mask, precmask, headers] = load_masks(PRT, prt_dir, in, mids)</a>
+0217 <span class="comment">% function to load the mask for each modality</span>
+0218 <span class="comment">% -------------------------------------------</span>
+0219 n_mods=length(mids);
+0220 mask  = cell(1,n_mods);
+0221 precmask  = cell(1,n_mods);
+0222 headers = cell(1,n_mods);
+0223 <span class="keyword">for</span> m = 1:n_mods
+0224     mid=mids(m);
+0225     
+0226     <span class="comment">%get mask for the within-brain voxels (from data and design)</span>
+0227     ddmask=PRT.masks(mid).fname;
+0228     <span class="keyword">try</span>
+0229         M=nifti(ddmask);
+0230     <span class="keyword">catch</span>
+0231         error(<span class="string">'prt_prepare_data:CouldNotLoadFile'</span>,<span class="keyword">...</span>
+0232             <span class="string">'Could not load mask file'</span>);
+0233     <span class="keyword">end</span>
+0234     
+0235     <span class="comment">%get mask for the kernel if one was specified</span>
+0236     mfile=in.mod(mid).mask;
+0237     <span class="keyword">if</span> ~isempty(mfile) <span class="comment">%&amp;&amp;  mfile ~= 0</span>
+0238         <span class="keyword">try</span>
+0239             <span class="comment">%precM = nifti(mfile);</span>
+0240             precM = spm_vol(char(mfile));
+0241         <span class="keyword">catch</span>
+0242             error(<span class="string">'prt_prepare_data:CouldNotLoadFile'</span>,<span class="keyword">...</span>
+0243                 <span class="string">'Could not load mask file for preprocessing'</span>);
+0244         <span class="keyword">end</span>
+0245     <span class="keyword">end</span>
+0246     
+0247     <span class="comment">%get header of the first scan of that modality</span>
+0248     <span class="keyword">if</span> isfield(PRT,<span class="string">'fas'</span>) &amp;&amp; ~isempty(PRT.fas(mid).dat)
+0249         N=PRT.fas(mid).hdr;
+0250     <span class="keyword">else</span>
+0251         N=spm_vol(PRT.group(1).subject(1).modality(mid).scans(1,:));
+0252     <span class="keyword">end</span>
+0253     headers{m}=N;
+0254     
+0255     
+0256     <span class="comment">% compute voxel dimensions and check for equality if n_mod &gt; 1</span>
+0257     <span class="keyword">if</span> m == 1
+0258         n_vox = prod(N.dim(1:3));
+0259     <span class="keyword">elseif</span> n_mods &gt; 1 &amp;&amp; n_vox ~= prod(N.dim(1:3))
+0260         error(<span class="string">'prt_prepare_data:multipleModatlitiesVariableFeatures'</span>,<span class="keyword">...</span>
+0261             <span class="string">'Multiple modalities specified, but have variable numbers of features'</span>);
+0262     <span class="keyword">end</span>
+0263     
+0264     <span class="comment">%resize the different masks if needed</span>
+0265     <span class="keyword">if</span> any(size(M.dat(:,:,:,1)) ~= N.dim)
+0266         warning(<span class="string">'prt_prepare_data:maskAndImagesDifferentDim'</span>,<span class="keyword">...</span>
+0267             <span class="string">'Mask has different dimensions to the image files. Resizing...'</span>);
+0268         
+0269         V2 = spm_vol(char(ddmask));
+0270         mfile_new       = N;
+0271         mfile_new.fname = [prt_dir <span class="string">'updated_kernel_mask_m'</span>,num2str(mid),<span class="string">'.img'</span>];
+0272         tmp             = spm_imcalc([N V2],mfile_new,<span class="string">'0.*i1+(i2&gt;0)'</span>);
+0273         mask{m}         = mfile_new.fname;
+0274     <span class="keyword">else</span>
+0275         mask{m} = ddmask;
+0276         
+0277     <span class="keyword">end</span>
+0278     <span class="comment">%if ~isempty(mfile) &amp;&amp; mfile ~= 0  &amp;&amp; any((size(precM.dat(:,:,:,1))~= N.dim))</span>
+0279     <span class="keyword">if</span> ~isempty(mfile)  &amp;&amp; any((precM.dim~= N.dim))
+0280         warning(<span class="string">'prt_prepare_data:maskAndImagesDifferentDim'</span>,<span class="keyword">...</span>
+0281             <span class="string">'Preprocessing mask has different dimensions to the image files. Resizing...'</span>);
+0282         
+0283         V2 = spm_vol(char(mfile));
+0284         mfile_new       = precM;
+0285         mfile_new.fname = [prt_dir <span class="string">'updated_kernel_mask_m'</span>,num2str(mid),<span class="string">'.img'</span>];
+0286         tmp             = spm_imcalc([precM V2],mfile_new,<span class="string">'0.*i1+(i2&gt;0)'</span>);
+0287         precmask{m}     = mfile_new.fname;
+0288     <span class="keyword">else</span>
+0289         precmask{m} = mfile;
+0290     <span class="keyword">end</span>
+0291     clear M N precM V1 V2 mfile mfile_new
+0292 <span class="keyword">end</span>
+0293</pre></div>
+<hr><address>Generated on Thu 20-Oct-2011 11:56:23 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

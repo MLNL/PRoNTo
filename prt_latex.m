@@ -1,9 +1,16 @@
-function prt_latex_cfg(c)
+function prt_latex
 %
-% Convert a job configuration tree into a series of LaTeX documents.
-% Only generate .tex files for each exec_branch of prt_batch. These files
-% are then included in a manually generated prt_manual.tex file, which also
-% includes chapter/sections written manually.
+% Extract information from the toolbox m-files and output them as usable
+% .tex files which can be directly included in the manual.
+%
+% There are 2 types of m2tex operations:
+% 1. converting the job configuration tree, i.e. *_cfg_* files defining the
+%    batching interface into a series of .tex files. 
+%    NOTE: Only generate .tex files for each exec_branch of prt_batch. 
+% 2. converting the help header of the functions into .tex files.
+%
+% These files are then included in a manually written prt_manual.tex file, 
+% which also includes chapter/sections written manually.
 %
 % File derived from that of the SPM8 distribution.
 % http://www.fil.ion.ucl.ac.uk/spm
@@ -13,28 +20,35 @@ function prt_latex_cfg(c)
 % John Ashburner & Christophe Phillips
 % $Id$
 
+
+%% Turning the cfg files into a .tex file
 if ~nargin,
     c = prt_cfg_batch;
 end
-if nargin && ischar(c),
-    clean_latex_compile;
-    return;
-end
+% if nargin && ischar(c),
+%     clean_latex_compile;
+%     return;
+% end
 
 for i=1:numel(c.values),
-    %        part(c.values{i},fp);
-    chapter(c.values{i});
+    fp = fopen(fullfile(prt('dir'),'manual',['batch_',bn,'.tex']),'w');
+    if fp==-1, sts = false; return; end;
+    chapter(c.values{i},fp);
 end;
+
+%% picking all the function help files and put them into a .tex
+fp = fopen(fullfile(prt('dir'),'manual','functions.tex'),'w');
+if fp==-1, sts = false; return; end;
 
 return;
 
 %==========================================================================
-function sts = chapter(c)
+function sts = chapter(c,fp)
 bn = c.tag;
-fp = fopen(fullfile(prt('dir'),'manual',['batch_',bn,'.tex']),'w');
-if fp==-1, sts = false; return; end;
-
-% $Id$
+if nargin<2
+    fp = fopen(fullfile(pwd,'manual',[bn,'.tex']),'w');
+    if fp==-1, sts = false; return; end;
+end
 
 fprintf(fp,'%% $Id$ \n\n');
 fprintf(fp, ...

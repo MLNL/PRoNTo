@@ -1,0 +1,385 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_ui_prepare_datamod</title>
+  <meta name="keywords" content="prt_ui_prepare_datamod">
+  <meta name="description" content="PRT_UI_KERNEL_MODALITY M-file for prt_ui_kernel_modality.fig">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_ui_prepare_datamod.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_ui_prepare_datamod
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>PRT_UI_KERNEL_MODALITY M-file for prt_ui_kernel_modality.fig</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function varargout = prt_ui_prepare_datamod(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> PRT_UI_KERNEL_MODALITY M-file for prt_ui_kernel_modality.fig
+      PRT_UI_KERNEL_MODALITY, by itself, creates a new PRT_UI_KERNEL_MODALITY or raises the existing
+      singleton*.
+
+      H = PRT_UI_KERNEL_MODALITY returns the handle to a new PRT_UI_KERNEL_MODALITY or the handle to
+      the existing singleton*.
+
+      PRT_UI_KERNEL_MODALITY('CALLBACK',hObject,eventData,handles,...) calls the local
+      function named CALLBACK in PRT_UI_KERNEL_MODALITY.M with the given input arguments.
+
+      PRT_UI_KERNEL_MODALITY('Property','Value',...) creates a new PRT_UI_KERNEL_MODALITY or raises the
+      existing singleton*.  Starting from the left, property value pairs are
+      applied to the GUI before prt_ui_kernel_modality_OpeningFcn gets called.  An
+      unrecognized property name or invalid value makes property application
+      stop.  All inputs are passed to prt_ui_kernel_modality_OpeningFcn via varargin.
+
+      *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one
+      instance to run (singleton)&quot;.
+
+ See also: GUIDE, GUIDATA, GUIHANDLES</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_ui_prepare_data.html" class="code" title="function varargout = prt_ui_prepare_data(varargin)">prt_ui_prepare_data</a>	PRT_UI_KERNEL MATLAB code for prt_ui_kernel.fig</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function prt_ui_prepare_datamod_OpeningFcn(hObject, eventdata, handles, varargin)</a></li><li><a href="#_sub2" class="code">function varargout = prt_ui_prepare_datamod_OutputFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub3" class="code">function edit_mask_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub4" class="code">function edit_mask_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub5" class="code">function br_mask_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub6" class="code">function pop_cond_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub7" class="code">function pop_cond_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub8" class="code">function pop_det_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub9" class="code">function pop_det_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub10" class="code">function pop_mod_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub11" class="code">function pop_mod_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub12" class="code">function par_value_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub13" class="code">function par_value_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub14" class="code">function pop_norm_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub15" class="code">function pop_norm_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub16" class="code">function okbutt_Callback(hObject, eventdata, handles)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = prt_ui_prepare_datamod(varargin)</a>
+0002 <span class="comment">% PRT_UI_KERNEL_MODALITY M-file for prt_ui_kernel_modality.fig</span>
+0003 <span class="comment">%      PRT_UI_KERNEL_MODALITY, by itself, creates a new PRT_UI_KERNEL_MODALITY or raises the existing</span>
+0004 <span class="comment">%      singleton*.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%      H = PRT_UI_KERNEL_MODALITY returns the handle to a new PRT_UI_KERNEL_MODALITY or the handle to</span>
+0007 <span class="comment">%      the existing singleton*.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%      PRT_UI_KERNEL_MODALITY('CALLBACK',hObject,eventData,handles,...) calls the local</span>
+0010 <span class="comment">%      function named CALLBACK in PRT_UI_KERNEL_MODALITY.M with the given input arguments.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%      PRT_UI_KERNEL_MODALITY('Property','Value',...) creates a new PRT_UI_KERNEL_MODALITY or raises the</span>
+0013 <span class="comment">%      existing singleton*.  Starting from the left, property value pairs are</span>
+0014 <span class="comment">%      applied to the GUI before prt_ui_kernel_modality_OpeningFcn gets called.  An</span>
+0015 <span class="comment">%      unrecognized property name or invalid value makes property application</span>
+0016 <span class="comment">%      stop.  All inputs are passed to prt_ui_kernel_modality_OpeningFcn via varargin.</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%      *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one</span>
+0019 <span class="comment">%      instance to run (singleton)&quot;.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% See also: GUIDE, GUIDATA, GUIHANDLES</span>
+0022 
+0023 <span class="comment">% Edit the above text to modify the response to help prt_ui_kernel_modality</span>
+0024 
+0025 <span class="comment">% Last Modified by GUIDE v2.5 30-Sep-2011 15:37:09</span>
+0026 
+0027 <span class="comment">% Begin initialization code - DO NOT EDIT</span>
+0028 gui_Singleton = 1;
+0029 gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
+0030                    <span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
+0031                    <span class="string">'gui_OpeningFcn'</span>, @<a href="#_sub1" class="code" title="subfunction prt_ui_prepare_datamod_OpeningFcn(hObject, eventdata, handles, varargin)">prt_ui_prepare_datamod_OpeningFcn</a>, <span class="keyword">...</span>
+0032                    <span class="string">'gui_OutputFcn'</span>,  @<a href="#_sub2" class="code" title="subfunction varargout = prt_ui_prepare_datamod_OutputFcn(hObject, eventdata, handles)">prt_ui_prepare_datamod_OutputFcn</a>, <span class="keyword">...</span>
+0033                    <span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
+0034                    <span class="string">'gui_Callback'</span>,   []);
+0035 <span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
+0036     gui_State.gui_Callback = str2func(varargin{1});
+0037 <span class="keyword">end</span>
+0038 
+0039 <span class="keyword">if</span> nargout
+0040     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+0041 <span class="keyword">else</span>
+0042     gui_mainfcn(gui_State, varargin{:});
+0043 <span class="keyword">end</span>
+0044 <span class="comment">% End initialization code - DO NOT EDIT</span>
+0045 
+0046 
+0047 <span class="comment">% --- Executes just before prt_ui_kernel_modality is made visible.</span>
+0048 <a name="_sub1" href="#_subfunctions" class="code">function prt_ui_prepare_datamod_OpeningFcn(hObject, eventdata, handles, varargin)</a>
+0049 <span class="comment">% This function has no output args, see OutputFcn.</span>
+0050 <span class="comment">% hObject    handle to figure</span>
+0051 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0052 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0053 <span class="comment">% varargin   command line arguments to prt_ui_kernel_modality (see VARARGIN)</span>
+0054 
+0055 <span class="comment">% Choose default command line output for prt_ui_kernel_modality</span>
+0056 handles.output = hObject;
+0057 set(handles.par_name,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0058 set(handles.par_value,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0059 set(handles.pop_det,<span class="string">'String'</span>,{<span class="string">'No'</span>,<span class="string">'Linear'</span>, <span class="keyword">...</span>
+0060     <span class="string">'Polynomial'</span>,<span class="string">'Discrete Cosine Transform'</span>})
+0061 set(handles.pop_det,<span class="string">'Value'</span>,1)
+0062 set(handles.pop_norm,<span class="string">'String'</span>,{<span class="string">'No'</span>,<span class="string">'Kernel'</span>, <span class="keyword">...</span>
+0063     <span class="string">'Specify from .mat'</span>});
+0064 set(handles.pop_norm,<span class="string">'Value'</span>,1)
+0065 <span class="keyword">if</span> ~isempty(varargin{1}) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
+0066     handles.PRT=varargin{2}{1};
+0067 <span class="keyword">else</span>
+0068     beep
+0069     disp(<span class="string">'Select a PRT.mat first'</span>)
+0070     <span class="keyword">return</span>
+0071 <span class="keyword">end</span>
+0072 mod_n={handles.PRT.masks(:).mod_name};
+0073 set(handles.pop_mod,<span class="string">'String'</span>,mod_n)
+0074 set(handles.pop_mod,<span class="string">'Value'</span>,1)
+0075 set(handles.figure1,<span class="string">'Name'</span>,[<span class="string">'Specify modality '</span>,varargin{2}{2}])
+0076 set(handles.pop_cond,<span class="string">'String'</span>,{<span class="string">'All conditions'</span>,<span class="string">'All scans'</span>})
+0077 set(handles.pop_cond,<span class="string">'Value'</span>,2)
+0078 handles.mod=struct(<span class="string">'mod_name'</span>,[],<span class="string">'mode'</span>,[],<span class="string">'mask'</span>,[],<span class="string">'detrend'</span>,[], <span class="keyword">...</span>
+0079         <span class="string">'param_dt'</span>,[],<span class="string">'normalise'</span>,[],<span class="string">'matnorm'</span>,[]);
+0080 handles.mod.mod_name=mod_n(1);
+0081 handles.mod.mode=<span class="string">'all_scans'</span>;
+0082 handles.mod.detrend=0;
+0083 handles.mod.normalise=0;
+0084 handles.mod.mask=[];
+0085 <span class="comment">% Update handles structure</span>
+0086 guidata(hObject, handles);
+0087 
+0088 <span class="comment">% UIWAIT makes prt_ui_kernel_modality wait for user response (see UIRESUME)</span>
+0089 uiwait(handles.figure1);
+0090 
+0091 
+0092 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0093 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_prepare_datamod_OutputFcn(hObject, eventdata, handles) </a>
+0094 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0095 <span class="comment">% hObject    handle to figure</span>
+0096 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0097 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0098 
+0099 <span class="comment">% Get default command line output from handles structure</span>
+0100 varargout{1} = handles.output;
+0101 <span class="comment">% The figure can be deleted now</span>
+0102 delete(handles.figure1);
+0103 
+0104 
+0105 
+0106 <a name="_sub3" href="#_subfunctions" class="code">function edit_mask_Callback(hObject, eventdata, handles)</a>
+0107 <span class="comment">% hObject    handle to edit_mask (see GCBO)</span>
+0108 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0109 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0110 
+0111 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_mask as text</span>
+0112 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_mask as a double</span>
+0113 handles.mod.mask=get(handles.edit_mask,<span class="string">'String'</span>);
+0114 <span class="comment">% Update handles structure</span>
+0115 guidata(hObject, handles);
+0116 
+0117 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0118 <a name="_sub4" href="#_subfunctions" class="code">function edit_mask_CreateFcn(hObject, eventdata, handles)</a>
+0119 <span class="comment">% hObject    handle to edit_mask (see GCBO)</span>
+0120 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0121 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0122 
+0123 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0124 <span class="comment">%       See ISPC and COMPUTER.</span>
+0125 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0126     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0127 <span class="keyword">end</span>
+0128 
+0129 
+0130 <span class="comment">% --- Executes on button press in br_mask.</span>
+0131 <a name="_sub5" href="#_subfunctions" class="code">function br_mask_Callback(hObject, eventdata, handles)</a>
+0132 <span class="comment">% hObject    handle to br_mask (see GCBO)</span>
+0133 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0134 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0135 handles.mod.mask=spm_select(1,<span class="string">'image'</span>,<span class="string">'Select mask for the selected modality'</span>);
+0136 set(handles.edit_mask,<span class="string">'String'</span>,handles.mod.mask);
+0137 <span class="comment">% Update handles structure</span>
+0138 guidata(hObject, handles);
+0139 
+0140 <span class="comment">% --- Executes on selection change in pop_cond.</span>
+0141 <a name="_sub6" href="#_subfunctions" class="code">function pop_cond_Callback(hObject, eventdata, handles)</a>
+0142 <span class="comment">% hObject    handle to pop_cond (see GCBO)</span>
+0143 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0144 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0145 
+0146 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_cond contents as cell array</span>
+0147 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_cond</span>
+0148 val=get(handles.pop_cond,<span class="string">'Value'</span>);
+0149 <span class="keyword">if</span> val==1
+0150     handles.mod.mode=<span class="string">'all_cond'</span>;
+0151 <span class="keyword">else</span>
+0152     handles.mod.mode=<span class="string">'all_scans'</span>;
+0153 <span class="keyword">end</span>
+0154 <span class="comment">% Update handles structure</span>
+0155 guidata(hObject, handles);
+0156 
+0157 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0158 <a name="_sub7" href="#_subfunctions" class="code">function pop_cond_CreateFcn(hObject, eventdata, handles)</a>
+0159 <span class="comment">% hObject    handle to pop_cond (see GCBO)</span>
+0160 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0161 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0162 
+0163 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0164 <span class="comment">%       See ISPC and COMPUTER.</span>
+0165 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0166     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0167 <span class="keyword">end</span>
+0168 
+0169 
+0170 <span class="comment">% --- Executes on selection change in pop_det.</span>
+0171 <a name="_sub8" href="#_subfunctions" class="code">function pop_det_Callback(hObject, eventdata, handles)</a>
+0172 <span class="comment">% hObject    handle to pop_det (see GCBO)</span>
+0173 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0174 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0175 
+0176 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_det contents as cell array</span>
+0177 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_det</span>
+0178 val=get(handles.pop_det,<span class="string">'Value'</span>)-1;
+0179 handles.mod.detrend=val;
+0180 <span class="keyword">if</span> val==0 <span class="comment">% No detrend</span>
+0181     set(handles.par_name,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0182     set(handles.par_value,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0183     handles.mod.param_dt=[];
+0184 <span class="keyword">elseif</span> val==1 <span class="comment">% Linear detrend</span>
+0185     set(handles.par_name,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0186     set(handles.par_value,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0187     handles.mod.param_dt=1;
+0188 <span class="keyword">elseif</span> val==2
+0189     set(handles.par_name,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
+0190     set(handles.par_value,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
+0191     set(handles.par_name,<span class="string">'String'</span>,<span class="string">'Order'</span>)
+0192     set(handles.par_value,<span class="string">'String'</span>,<span class="string">'1'</span>)
+0193     handles.mod.param_dt=1;
+0194 <span class="keyword">elseif</span> val==3
+0195     set(handles.par_name,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
+0196     set(handles.par_value,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
+0197     set(handles.par_name,<span class="string">'String'</span>,<span class="string">'Cutoff (Hz)'</span>)
+0198     set(handles.par_value,<span class="string">'String'</span>,<span class="string">'1/128'</span>)
+0199     handles.mod.param_dt=1/128;
+0200 <span class="keyword">end</span>
+0201 <span class="comment">% Update handles structure</span>
+0202 guidata(hObject, handles);
+0203 
+0204 
+0205 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0206 <a name="_sub9" href="#_subfunctions" class="code">function pop_det_CreateFcn(hObject, eventdata, handles)</a>
+0207 <span class="comment">% hObject    handle to pop_det (see GCBO)</span>
+0208 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0209 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0210 
+0211 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0212 <span class="comment">%       See ISPC and COMPUTER.</span>
+0213 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0214     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0215 <span class="keyword">end</span>
+0216 
+0217 
+0218 <span class="comment">% --- Executes on selection change in pop_mod.</span>
+0219 <a name="_sub10" href="#_subfunctions" class="code">function pop_mod_Callback(hObject, eventdata, handles)</a>
+0220 <span class="comment">% hObject    handle to pop_mod (see GCBO)</span>
+0221 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0222 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0223 
+0224 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_mod contents as cell array</span>
+0225 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_mod</span>
+0226 val=get(handles.pop_mod,<span class="string">'Value'</span>);
+0227 list=get(handles.pop_mod,<span class="string">'String'</span>);
+0228 handles.mod.mod_name=list(val);
+0229 <span class="comment">% Update handles structure</span>
+0230 guidata(hObject, handles);
+0231 
+0232 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0233 <a name="_sub11" href="#_subfunctions" class="code">function pop_mod_CreateFcn(hObject, eventdata, handles)</a>
+0234 <span class="comment">% hObject    handle to pop_mod (see GCBO)</span>
+0235 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0236 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0237 
+0238 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0239 <span class="comment">%       See ISPC and COMPUTER.</span>
+0240 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0241     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0242 <span class="keyword">end</span>
+0243 
+0244 
+0245 
+0246 <a name="_sub12" href="#_subfunctions" class="code">function par_value_Callback(hObject, eventdata, handles)</a>
+0247 <span class="comment">% hObject    handle to par_value (see GCBO)</span>
+0248 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0249 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0250 
+0251 <span class="comment">% Hints: get(hObject,'String') returns contents of par_value as text</span>
+0252 <span class="comment">%        str2double(get(hObject,'String')) returns contents of par_value as</span>
+0253 <span class="comment">%        a double</span>
+0254 handles.mod.param_dt=get(handles.paramd,<span class="string">'Value'</span>);
+0255 <span class="comment">% Update handles structure</span>
+0256 guidata(hObject, handles);
+0257 
+0258 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0259 <a name="_sub13" href="#_subfunctions" class="code">function par_value_CreateFcn(hObject, eventdata, handles)</a>
+0260 <span class="comment">% hObject    handle to par_value (see GCBO)</span>
+0261 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0262 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0263 
+0264 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0265 <span class="comment">%       See ISPC and COMPUTER.</span>
+0266 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0267     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0268 <span class="keyword">end</span>
+0269 
+0270 
+0271 <span class="comment">% --- Executes on selection change in pop_norm.</span>
+0272 <a name="_sub14" href="#_subfunctions" class="code">function pop_norm_Callback(hObject, eventdata, handles)</a>
+0273 <span class="comment">% hObject    handle to pop_norm (see GCBO)</span>
+0274 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0275 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0276 
+0277 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_norm contents as cell array</span>
+0278 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_norm</span>
+0279 val=get(handles.pop_norm,<span class="string">'Value'</span>)-1;
+0280 handles.mod.normalise=val;
+0281 <span class="keyword">if</span> val==0 || val==1
+0282     handles.mod.matnorm=[];
+0283 <span class="keyword">elseif</span> val==2
+0284     handles.mod.matnorm=spm_select(1,<span class="string">'mat'</span>,<span class="string">'Select .mat file containing scaling'</span>);
+0285 <span class="keyword">end</span>
+0286 <span class="comment">% Update handles structure</span>
+0287 guidata(hObject, handles);
+0288 
+0289 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0290 <a name="_sub15" href="#_subfunctions" class="code">function pop_norm_CreateFcn(hObject, eventdata, handles)</a>
+0291 <span class="comment">% hObject    handle to pop_norm (see GCBO)</span>
+0292 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0293 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0294 
+0295 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0296 <span class="comment">%       See ISPC and COMPUTER.</span>
+0297 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0298     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0299 <span class="keyword">end</span>
+0300 
+0301 
+0302 <span class="comment">% --- Executes on button press in okbutt.</span>
+0303 <a name="_sub16" href="#_subfunctions" class="code">function okbutt_Callback(hObject, eventdata, handles)</a>
+0304 <span class="comment">% hObject    handle to okbutt (see GCBO)</span>
+0305 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0306 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0307 <span class="keyword">if</span> strcmpi(handles.mod.mode,<span class="string">'all_cond'</span>) &amp;&amp; handles.mod.detrend~=0
+0308     beep
+0309     disp(<span class="string">'The &quot;all conditions&quot; mode can be selected only when no detrending is performed'</span>)
+0310     <span class="keyword">return</span>
+0311 <span class="keyword">end</span>
+0312     
+0313 handles.output=handles.mod;
+0314 <span class="comment">% Update handles structure</span>
+0315 guidata(hObject, handles);
+0316 
+0317 uiresume(handles.figure1)</pre></div>
+<hr><address>Generated on Thu 20-Oct-2011 11:56:23 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
