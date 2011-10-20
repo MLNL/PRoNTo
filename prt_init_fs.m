@@ -52,6 +52,8 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
+% Written by A Marquand
+
 % $Id$
 
 % find index for the new feature set
@@ -67,6 +69,7 @@ else
     fid = 1;
 end
 
+% do we want to initialise the feature set?
 if nargout == 1
     if fs_exists
         % just display message and exit (returning id)
@@ -158,7 +161,8 @@ else
                 mid = mids(m);
                 
                 if strcmpi(in.mod(mid).mode,'all_scans')
-                    n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+                    n_vols_s  = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+                    all_scans = 1:n_vols_s;
                     
                     % configure indices
                     sample_range = (1:n_vols_s)+max(sample_range);
@@ -174,8 +178,10 @@ else
                             
                             PRT.fs(fid).id_mat(sample_range(scans),4) = cid;
                             PRT.fs(fid).id_mat(sample_range(scans),5) = blocks;
-                            PRT.fs(fid).id_mat(sample_range(scans),6) = 1:length(scans);
+                            %PRT.fs(fid).id_mat(sample_range(scans),6) = 1:length(scans);
                         end
+                        
+                        PRT.fs(fid).id_mat(sample_range,6) = 1:length(all_scans);
                     else
                         scans  = 1:size(PRT.group(gid).subject(sid).modality(mid).scans,1);
                         PRT.fs(fid).id_mat(sample_range,6) = scans;
@@ -187,13 +193,13 @@ else
                     %configure indices for the file array
                     indm(m)=n_vols_s+max(indm(m));
                 elseif strcmpi(in.mod(mid).mode,'all_cond')
-                    conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
-                    n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
-                    
+                    conds     = PRT.group(gid).subject(sid).modality(mid).design.conds;
+                    n_vols_s  = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+                                        
                     % now loop over conditions
                     for cid = 1:length(conds)    % condition
-                        scans = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
-                        blocks = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+                        scans     = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
+                        blocks    = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
                         n_vol_s_c = length(scans);
                         
                         % configure indices
@@ -203,7 +209,8 @@ else
                         PRT.fs(fid).id_mat(sample_range,3) = mid;
                         PRT.fs(fid).id_mat(sample_range,4) = cid;
                         PRT.fs(fid).id_mat(sample_range,5) = blocks;
-                        PRT.fs(fid).id_mat(sample_range,6) = 1:length(sample_range);
+                        %PRT.fs(fid).id_mat(sample_range,6) = 1:length(sample_range);
+                        PRT.fs(fid).id_mat(sample_range,6) = scans;
                         
                         %configure indices for the file array
                         sctoadd=scans+indm(m);
