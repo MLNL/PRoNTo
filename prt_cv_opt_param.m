@@ -34,7 +34,7 @@ function param=prt_cv_opt_param(PRT,ID,CV)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand 
-% $Id: prt_cv_opt_param.m 169 2011-10-19 12:54:55Z amarquan $
+% $Id$
 
 param.cv_fold = CV;
 param.id_fold = ID;

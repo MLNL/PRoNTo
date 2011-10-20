@@ -24,14 +24,13 @@ function [outfile]=prt_fs(PRT,in)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A. Marquand and J. Schrouff
-
 % $Id$
 
 % Configure some variables and get defaults
 % -------------------------------------------------------------------------
-prt_dir = regexprep(in.fname,'PRT.mat', ''); % or: fileparts(fname);
+prt_dir  = regexprep(in.fname,'PRT.mat', ''); % or: fileparts(fname);
+n_groups = length(PRT.group);
 
-n_groups      = length(PRT.group);
 % get the index of the modalities for which the user wants a kernel/data
 n_mods=length(in.mod);
 mids=[];
@@ -49,45 +48,22 @@ def=prt_get_defaults('fs');
 % Initialize the file arrays, kernel and feature set parameters
 [fid,PRT,tocomp] = prt_init_fs(PRT,in,mids,mask,precmask,headers);
 
-n   = length(PRT.fs(fid).id_mat);
-Phi = zeros(n);
-
-% Build confound and residual forming matrices (for detrending)
-% -------------------------------------------------------------------------
-kern_norm = false;
-% configure confound matrix
-C = [];
-for gid = 1:length(PRT.group)
-    for sid = 1:length(PRT.group(gid).subject)
-        for m = 1:n_mods
-            if in.mod(mids(m)).detrend == 1
-                linear_dt = true;
-            end
-            if in.mod(mids(m)).normalise == 1
-                kern_norm = true;
-            end
-            rg = (PRT.fs(fid).id_mat(:,1) == gid) & ...
-                 (PRT.fs(fid).id_mat(:,2) == sid) & ...
-                 (PRT.fs(fid).id_mat(:,3) == mids(m));
-            c  = zeros(n,2);
-            c(rg,1:2) = [(1:sum(rg))' ones(sum(rg),1)];
-            C = [C c];
-        end
-    end
-end
-PRT.fs(fid).rf_mat = eye(n)-C*pinv(C);
-
 % -------------------------------------------------------------------------
 % ---------------------Build file arrays and kernel------------------------
 % -------------------------------------------------------------------------
-mem = def.mem_limit;
+n   = length(PRT.fs(fid).id_mat);
+Phi = zeros(n);
+
+% set memory limit
 nfa = [];
 for m=1:n_mods
-    nfa = [nfa, PRT.fas(mids(m)).dat.dim(1)];
+    nfa   = [nfa, PRT.fas(mids(m)).dat.dim(1)];
     n_vox = PRT.fas(mids(m)).dat.dim(2);
 end
+mem = def.mem_limit;
 block_size  = floor(mem/8/max([nfa, n])); % Block size (double = 8 bytes)
 n_block     = ceil(n_vox/block_size);
+
 bstart=1; bend=min(block_size,n_vox);
 h = waitbar(0,'Please wait while images are pre-processed');
 step=1;
@@ -101,9 +77,8 @@ for b = 1:n_block
         
         %Parameters for the masks and indexes of the voxels
         %-------------------------------------------------------------------
-        
-        %get the indexes of the voxels within the file array mask (data &
-        %design step)
+        % get the indices of the voxels within the file array mask (data &
+        % design step)
         ind_ddmask = PRT.fas(mid).idfeat_img(vox_range);
         
         %load the mask for that modality if another one was specified
@@ -131,23 +106,19 @@ for b = 1:n_block
                     sample_range=(1:n_vols_s)+max(sample_range);
                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
                     datapr(sample_range,:) = (prt_load_blocks(fname,ind_ddmask))';
-                    %if ~def.writeraw
-                    %    datapr(sample_range,:)=detrend(datapr(sample_range,:));
-                    %end
                     if in.mod(mid).detrend ~= 0
                         if in.mod(mid).detrend > 1
                             error('Only linear detrend implemented so far');
                         end
-                        rg = (PRT.fs(fid).id_mat(:,1) == gid) & ...
-                             (PRT.fs(fid).id_mat(:,2) == sid) & ...
-                             (PRT.fs(fid).id_mat(:,3) == mid);
-                        R = PRT.fs(fid).rf_mat(rg,rg);
-                        datapr(sample_range,:)=R*datapr(sample_range,:);
+                        % detrend data using residual forming matrix
+                        C = [(1:length(sample_range))', ones(length(sample_range),1)];
+                        R = eye(length(sample_range)) - C*pinv(C);
+                        datapr(sample_range,:) = R*datapr(sample_range,:);
                     end
                 end
             end
             
-            %Write the data detrended into the file array
+            % Write the detrended data into the file array
             namedat=['Data_matrix_',char(in.mod(mid).mod_name),'.dat'];
             fpd_clean = fopen(fullfile(prt_dir,namedat), 'a'); % 'a' append
             if b==1
@@ -189,12 +160,6 @@ for b = 1:n_block
 end
 close(h)
 
-% Normalise
-% -------------------------------------------------------------------------
-if kern_norm
-    Phi = prt_normalise_kernel(Phi);
-end
-
 % Save kernel and function output
 % -------------------------------------------------------------------------
 outfile = in.fname;
@@ -212,7 +177,6 @@ end
 % -------------------------------------------------------------------------
 % Private functions
 % -------------------------------------------------------------------------
-
 function [mask, precmask, headers] = load_masks(PRT, prt_dir, in, mids)
 % function to load the mask for each modality
 % -------------------------------------------
