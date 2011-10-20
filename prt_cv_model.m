@@ -109,7 +109,7 @@ for f = 1:n_folds
     
     % compute stats
     stats = prt_stats(model, cvdata.te_targets);
-    acc = stats.acc % for debugging
+    %acc = stats.acc % for debugging
     
     % update PRT 
     PRT.model(mid).output.fold(f).targets     = cvdata.te_targets;

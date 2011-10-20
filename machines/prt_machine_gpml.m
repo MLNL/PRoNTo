@@ -97,22 +97,27 @@ else
     optimise_theta = false;
 end
 
-% Configure data matrices
-% -------------------------------------------------------------------------
-K   = d.train{1};
-Ks  = d.test{1};
-Kss = d.testcov{1};
-
 % convert labels to +1/-1
 y =  2 * d.tr_targets - 3;
 
-% Train GP model
+% Configure data matrices & train GP model
 % -------------------------------------------------------------------------
 meanfunc = @meanConst; hyp.mean = 0;
 covfunc  = @covLINkernel; hyp.cov = 0;
 %covfunc  = @covLINkcell; hyp.cov = 0;
 likfunc  = @likErf;
 maxeval  = -100;
+
+K   = d.train{1};
+Ks  = d.test{1};
+Kss = d.testcov{1};
+
+% experimental: use cell directly
+% prt_gp(hyp, @infEP, meanfunc, covfunc, likfunc,K,y)
+% K   = d.train;
+% Ks  = d.test;
+% Kss = d.testcov;
+% prt_gpc(hyp, @prt_infEP, meanfunc, @covLINkcell, likfunc,K,y)
 
 % optimise hyperparameters
 if optimise_theta
