@@ -60,7 +60,7 @@ for m=1:n_mods
     nfa   = [nfa, PRT.fas(mids(m)).dat.dim(1)];
     n_vox = PRT.fas(mids(m)).dat.dim(2);
 end
-mem = def.mem_limit;
+mem         = def.mem_limit;
 block_size  = floor(mem/8/max([nfa, n])); % Block size (double = 8 bytes)
 n_block     = ceil(n_vox/block_size);
 
@@ -200,7 +200,6 @@ for m = 1:n_mods
     mfile=in.mod(mid).mask;
     if ~isempty(mfile) %&&  mfile ~= 0
         try
-            %precM = nifti(mfile);
             precM = spm_vol(char(mfile));
         catch
             error('prt_prepare_data:CouldNotLoadFile',...
@@ -239,8 +238,7 @@ for m = 1:n_mods
         mask{m} = ddmask;
         
     end
-    %if ~isempty(mfile) && mfile ~= 0  && any((size(precM.dat(:,:,:,1))~= N.dim))
-    if ~isempty(mfile)  && any((precM.dim~= N.dim))
+    if ~isempty(mfile)  && any((precM.dim~= N.dim)) % && mfile ~= 0 
         warning('prt_prepare_data:maskAndImagesDifferentDim',...
             'Preprocessing mask has different dimensions to the image files. Resizing...');
         
