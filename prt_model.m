@@ -38,8 +38,7 @@ function PRT = prt_model(PRT,in)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by A. Marquand 
-
+% Written by A Marquand 
 % $Id$
 
 % Populate basic fields in PRT.mat
@@ -50,7 +49,7 @@ function PRT = prt_model(PRT,in)
 PRT.model(modelid).input.type = in.type;
 if strcmp(in.type,'classification')
     for c = 1:length(in.class)
-        PRT.model(modelid).input.class(c).class_name = in.class(c).class_name;
+        PRT.model(modelid).input.class(c) = in.class(c);
     end
 end
 
@@ -66,6 +65,7 @@ for f = 1:length(in.fs)
     
     PRT.model(modelid).input.fs(f).fs_name = in.fs(f).fs_name;
 end
+
 
 % compute targets and samp_idx
 % -------------------------------------------------------------------------

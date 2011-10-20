@@ -14,7 +14,7 @@ function K = covLINkernel(hyp, A, B, i)
 % Copyright (C) Carl Rasmussen and Hannes Nickisch, 2011.
 
 % Written by A Marquand 
-% $Id: covLINkernel.m 167 2011-10-19 08:49:04Z amarquan $
+% $Id$
 
 if nargin<2, K = '1'; return; end             % report number of parameters
 if nargin<3, B = []; end                              % make sure, B exists

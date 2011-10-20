@@ -43,6 +43,7 @@ function [mid, PRT] = prt_init_model(PRT, in)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A. Marquand 
+% $Id$
 
 % find model index
 model_exists = false;

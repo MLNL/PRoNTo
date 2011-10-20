@@ -27,7 +27,7 @@ function output = prt_machine_gpml(d,args)
 % Copyright (C) 2011 PRoNTo
 
 % Written by A Marquand
-% $Id: prt_machine_gpml.m 163 2011-10-18 18:27:42Z mjrosa $
+% $Id$
 
 SANITYCHECK=true; % can turn off for "speed". Expert only.
 
