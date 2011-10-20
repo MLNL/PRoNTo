@@ -151,21 +151,14 @@ detrend.val    = {linear_dt};
 detrend.help   = {...
 ['Type of temporal detrending to apply']};
 
-
-
-
-
-
-
-
 % ---------------------------------------------------------------------
 % fmask File name
 % ---------------------------------------------------------------------
 fmask        = cfg_files;
 fmask.tag    = 'fmask';
 fmask.name   = 'Specify mask file';
-fmask.filter = 'img';
-fmask.ufilter = '^*.img';
+fmask.filter = 'image';
+fmask.ufilter = '.*';
 fmask.num    = [1 1];
 fmask.help   = {'Select a mask for the selected modality.'};
 
@@ -219,7 +212,7 @@ all_voxels         = cfg_const;
 all_voxels.tag     = 'all_voxels';
 all_voxels.name    = 'All voxels';
 all_voxels.val     = {1};
-all_voxels.help    = {'Use all voxels in this modality'};
+all_voxels.help    = {'Use all voxels in the design mask for this modality'};
 
 % ---------------------------------------------------------------------
 % voxels 
