@@ -109,7 +109,8 @@ y =  2 * d.tr_targets - 3;
 % Train GP model
 % -------------------------------------------------------------------------
 meanfunc = @meanConst; hyp.mean = 0;
-covfunc  = @covLINkernel; b = 1; hyp.cov = log(b);
+covfunc  = @covLINkernel; hyp.cov = 0;
+%covfunc  = @covLINkcell; hyp.cov = 0;
 likfunc  = @likErf;
 maxeval  = -100;
 

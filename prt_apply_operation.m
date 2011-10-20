@@ -53,6 +53,12 @@ for d = 1:length(in.train)
             out.tr_id = round(Ptr*in.tr_id);
             out.te_id = round(Pte*in.te_id);
             
+            if strcmpi(in.pred_type,'classification');
+                % round labels to avoid numerical problems
+                out.tr_targets = round(out.tr_targets);
+                out.te_targets = round(out.te_targets);
+            end
+            
         case 2  % sample averaging            
             Ptr = compute_sa_mat(in.tr_id);
             Pte = compute_sa_mat(in.te_id);
@@ -70,8 +76,11 @@ for d = 1:length(in.train)
             out.tr_id = round(Ptr*in.tr_id);
             out.te_id = round(Pte*in.te_id);
             
-            out.tr_targets = round(out.tr_targets);
-            out.te_targets = round(out.te_targets);
+            if strcmpi(in.pred_type,'classification');
+                % round labels to avoid numerical problems
+                out.tr_targets = round(out.tr_targets);
+                out.te_targets = round(out.te_targets);
+            end
             
         case 3 % mean centre features over subjects
             if in.use_kernel
