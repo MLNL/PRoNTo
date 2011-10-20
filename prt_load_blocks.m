@@ -1,10 +1,10 @@
 function block = prt_load_blocks(filenames, bs, br)
 % Load one or more blocks of data.
-% This script is a effectively a wrapper function that for the routines  
+% This script is a effectively a wrapper function that for the routines
 % that actually do the work (SPM nifti routines)
 %
 % The syntax is either:
-% 
+%
 % img = prt_load_blocks(filenames, block_size, block_range) just to specify
 % continuous blocks of data
 %
@@ -32,7 +32,7 @@ dm = size(N(1).dat);
 n_vox = prod(dm(1:3));
 
 if length(dm) == 3
-    n_vol = 1; 
+    n_vol = 1;
 else
     n_vol = dm(4);
 end
@@ -45,13 +45,15 @@ else
 end
 
 block=zeros(length(data_range),length(N));
-if length(N)>1
+if n_vol==1
     for i=1:length(N)
         dat_r = reshape(N(i).dat,prod(dm(1:3)),1);
         block(:,i) = dat_r(data_range);
     end
 else
-    dat_r = reshape(N.dat,prod(dm(1:3)),n_vol);
-    block = dat_r(data_range,:);
+    for i=1:n_vol
+        dat_r=reshape(N(1).dat(:,:,:,i),prod(dm(1:3)),1);
+        block(:,i) = dat_r(data_range);
+    end
 end
-end
+return
