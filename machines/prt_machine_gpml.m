@@ -102,34 +102,46 @@ y =  2 * d.tr_targets - 3;
 
 % Configure data matrices & train GP model
 % -------------------------------------------------------------------------
-meanfunc = @meanConst; hyp.mean = 0;
-covfunc  = @covLINkernel; hyp.cov = 0;
-%covfunc  = @covLINkcell; hyp.cov = 0;
+meanfunc = @meanConstcell; hyp.mean = 0;
+covfunc  = @covLINkcell; hyp.cov = 0;
 likfunc  = @likErf;
 maxeval  = -100;
 
-K   = d.train{1};
-Ks  = d.test{1};
-Kss = d.testcov{1};
+K   = d.train;
+Ks  = d.test;
+Kss = d.testcov;
 
-% experimental: use cell directly
-% prt_gp(hyp, @infEP, meanfunc, covfunc, likfunc,K,y)
-% K   = d.train;
-% Ks  = d.test;
-% Kss = d.testcov;
-% prt_gpc(hyp, @prt_infEP, meanfunc, @covLINkcell, likfunc,K,y)
-
-% optimise hyperparameters
 if optimise_theta
-    [hyp nlmls] = minimize(hyp, @prt_gp, maxeval, @infEP, meanfunc, covfunc, likfunc, K, y);    
+      [hyp nlmls] = minimize(hyp, @prt_gpc, maxeval, @prt_infEP, meanfunc, covfunc, likfunc, K, y);
 else
     nlmls = NaN;
 end
 
 % make predictions
-[a b c d lp post] = prt_gp(hyp, @infEP, meanfunc, covfunc, likfunc, ...
-                           K, y, Ks, zeros(size(Ks,1),1), Kss);
-                       
+[a b c d lp post] = prt_gpc(hyp, @prt_infEP, @meanConstcell, @covLINkcell, likfunc, ...
+                           K, y, d.test, zeros(size(Ks{1},1),1), Kss);
+
+% %old method (doesn't use a cell array directly)
+% meanfunc = @meanConst; hyp.mean = 0;
+% covfunc  = @covLINkernel; hyp.cov = 0;
+% likfunc  = @likErf;
+% maxeval  = -100;
+% 
+% K   = d.train{1};
+% Ks  = d.test{1};
+% Kss = d.testcov{1};
+%
+% % optimise hyperparameters
+% if optimise_theta
+%     [hyp nlmls] = minimize(hyp, @prt_gp, maxeval, @infEP, meanfunc, covfunc, likfunc, K, y);    
+% else
+%     nlmls = NaN;
+% end
+% 
+% % make predictions
+% [a b c d lp post] = prt_gp(hyp, @infEP, meanfunc, covfunc, likfunc, ...
+%                            K, y, Ks, zeros(size(Ks,1),1), Kss);
+
 % Outputs
 % -------------------------------------------------------------------------
 p = exp(lp);
