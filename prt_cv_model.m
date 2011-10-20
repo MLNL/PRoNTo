@@ -87,6 +87,9 @@ for f = 1:n_folds
     cvdata.tr_id      = ID(tr_idx,:);
     cvdata.te_id      = ID(te_idx,:);
     cvdata.use_kernel = PRT.model(mid).input.use_kernel;
+    % additional parameters (e.g. for MCKR)
+    cvdata.tr_param  = prt_cv_opt_param(PRT, ID(tr_idx,:), CV(tr_idx,f));
+    cvdata.te_param  = prt_cv_opt_param(PRT, ID(te_idx,:), CV(te_idx,f));
 
     % Apply any operations specified
     ops = PRT.model(mid).input.operations(PRT.model(mid).input.operations ~=0 );

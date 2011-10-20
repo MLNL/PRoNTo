@@ -15,14 +15,26 @@ function output = prt_machine_gpml(d,args)
 %                   regression) (column vector, [Ntr x 1])
 %     .use_kernel - flag, is data in form of kernel matrices (true) of in 
 %                form of features (false)
-%    args     - libSVM arguments
+%    args     - argument string, where
+%       -h        - optimise hyperparameters (otherwise don't)
+%       -l lik    - likelihood function. Currently only lik = 'erf' is
+%                   supported
+%       -c cov    - covariance function:
+%                       'lin'  - simple dot product (no hyperparameters)
+%                       'linb' - dot product with bias (one hyperparameter)
+%                       
 % Output:
 %    output  - output of machine (struct).
 %     * Mandatory fields:
 %      .predictions - predictions of classification or regression [Nte x D]
 %     * Optional fields:
-%      .func_val - value of the decision function
 %      .type     - which type of machine this is (here, 'classifier')
+%      .p        - predictive probabilties
+%      .loghyper - log hyperparameters
+%      .nlml     - negative log marginal likelihood
+%      .alpha    - GP weighting coefficients
+%      .sW       - likelihood matrix (see Rasmussen & Williams, 2006)
+%      .L        - Cholesky factor
 %__________________________________________________________________________
 % Copyright (C) 2011 PRoNTo
 
@@ -71,25 +83,28 @@ if SANITYCHECK==true
 end
 
 % parse input arguments
+% -------------------------------------------------------------------------
 if ~isempty(regexp(args,'-l\s+erf','once'))
     mode = 'classifier';
 else
     error('regression with gps not yet supported');
 end
 
-% parse input arguments
+% optimise hyperparameters
 if ~isempty(regexp(args,'-h','once'))
     optimise_theta = true;
 else
     optimise_theta = false;
 end
 
-% convert labels to +1/-1
-y =  2 * d.tr_targets - 3;
-
+% Configure data matrices
+% -------------------------------------------------------------------------
 K   = d.train{1};
 Ks  = d.test{1};
 Kss = d.testcov{1};
+
+% convert labels to +1/-1
+y =  2 * d.tr_targets - 3;
 
 % Train GP model
 % -------------------------------------------------------------------------
