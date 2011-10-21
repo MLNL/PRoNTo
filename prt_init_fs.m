@@ -58,6 +58,7 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 
 % find index for the new feature set
 fs_exists = false;
+ [pathName fileName]=fileparts(in.fname);
 if isfield(PRT,'fs')
     if any(strcmpi(in.fs_name,{PRT.fs(:).fs_name}))
         fid = find(strcmpi(in.fs_name,{PRT.fs(:).fs_name}));
@@ -239,7 +240,7 @@ else
     prt_dir=fileparts(in.fname);
     for i=1:n_mods
         % check whether we need to recreate the file array
-        if isempty(PRT.fas(mids(i)).dat) || PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  
+        if exist(PRT.fas(mids(i)).dat.fname)==0 || PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  || PRT.fas(mids(i)).param_dt~=in.mod(mids(i)).param_dt
         
             if isempty(PRT.fas(mids(i)).dat)
                 disp(['File array does not exist for modality ''',...
