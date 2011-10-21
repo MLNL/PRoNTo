@@ -107,11 +107,18 @@ for b = 1:n_block
                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
                     datapr(sample_range,:) = (prt_load_blocks(fname,ind_ddmask))';
                     if in.mod(mid).detrend ~= 0
-                        if in.mod(mid).detrend > 1
-                            error('Only linear detrend implemented so far');
-                        end
+%                         if in.mod(mid).detrend > 1
+%                             error('Only linear detrend implemented so far');
+%                         end
                         % detrend data using residual forming matrix
-                        C = [(1:length(sample_range))', ones(length(sample_range),1)];
+                        TR=PRT.group.subject(sid).modality(mid).TR;
+                        switch in.mod(mid).detrend
+                            case 1
+                                c= poly_regressor(length(sample_range),in.mod(mid).param_dt);
+                            case 2
+                                c=dct_regressor(length(sample_range),in.mod(mid).param_dt,TR);
+                        end
+                        C = [c];
                         R = eye(length(sample_range)) - C*pinv(C);
                         datapr(sample_range,:) = R*datapr(sample_range,:);
                     end
@@ -252,4 +259,26 @@ for m = 1:n_mods
     end
     clear M N precM V1 V2 mfile mfile_new
 end
+return
+function c=poly_regressor(n,order)
+%n: length of the series
+%order: the order of polynomial function to fit the tend
 
+basis=repmat([1:n]',[1 order]);
+o=repmat([1:order],[n 1]);
+c=[ones(n,1) basis.^o];
+return
+
+function c=dct_regressor(n,cut_off,TR)
+% n: length of the series
+%cut_off: the cut off perioed in second (1/ cut off frequency)
+%TR: TR
+
+if cut_off<0
+    error('cut off cannot be negative')
+end
+
+T=n*TR;
+order=floor((T/cut_off)*2)+1;
+c=spm_dctmtx(n,order);
+return
