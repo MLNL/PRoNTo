@@ -200,7 +200,6 @@ else
                                     design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
                                     design.conds(l).scans          = design.conds(l).scans(design.conds(l).scans<=nscans);
                                 end
-                                return
                             end
                         else
                             % No design

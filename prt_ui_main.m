@@ -27,7 +27,7 @@ function varargout = prt_ui_main(varargin)
 
 % Edit the above text to modify the response to help prt_ui_main
 
-% Last Modified by GUIDE v2.5 23-Sep-2011 15:00:58
+% Last Modified by GUIDE v2.5 20-Oct-2011 12:50:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,6 +57,11 @@ function prt_ui_main_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_main (see VARARGIN)
 
+cc=get(handles.figure1,'Color');
+[A] = imread('PRoNTo_logo.png','BackgroundColor',cc);
+image(A)
+axis off
+
 % Choose default command line output for prt_ui_main
 handles.output = hObject;
 
@@ -64,7 +69,7 @@ handles.output = hObject;
 guidata(hObject, handles);
 
 % UIWAIT makes prt_ui_main wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% uiwait(handles.figure1)
 
 
 % --- Outputs from this function are returned to the command line.
@@ -77,6 +82,13 @@ function varargout = prt_ui_main_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
+% --- Closing the figure
+function figure1_DeleteFcn(hObject,eventdata,handles)
+% hObject    handle to datastruct (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+delete(handles.figure1);
+
 % --- Executes on button press in datastruct.
 function datastruct_Callback(hObject, eventdata, handles)
 % hObject    handle to datastruct (see GCBO)
@@ -84,26 +96,13 @@ function datastruct_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 prt_ui_design;
 
-% --- Executes on button press in preproc.
-function preproc_Callback(hObject, eventdata, handles)
-% hObject    handle to preproc (see GCBO)
+% --- Executes on button press in fs.
+function fs_Callback(hObject, eventdata, handles)
+% hObject    handle to fs (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-fname=spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
-try
-    prt_preproc(fname);
-catch
-    beep
-    disp('Could not load file')
-    return
-end
+prt_ui_prepare_data
 
-% --- Executes on button press in kerncomp.
-function kerncomp_Callback(hObject, eventdata, handles)
-% hObject    handle to kerncomp (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-prt_ui_kernel_construction
 
 % --- Executes on button press in crval.
 function crval_Callback(hObject, eventdata, handles)
