@@ -222,6 +222,7 @@ else
                                     catch
                                         beep
                                         disp('No "names" found in the .mat file, please select another file!')
+                                        out.files{1} = [];
                                         return
                                     end
                                     try
@@ -229,6 +230,7 @@ else
                                     catch
                                         beep
                                         disp('No "durations" found in the .mat file, please select another file!')
+                                        out.files{1} = [];
                                         return
                                     end
                                     try
@@ -236,6 +238,7 @@ else
                                     catch
                                         beep
                                         disp('No "onsets" found in the .mat file, please select another file!')
+                                        out.files{1} = [];
                                         return
                                     end
                                     for mc = 1:length(multicond.onsets)
@@ -258,6 +261,8 @@ else
                                         ldur = length(design.conds(c).durations);
                                     end
                                     if ldur ~= lons
+                                        out.files{1} = [];
+                                        beep
                                         sprintf('The onsets and durations of condition %d do not have the same size!', c)
                                         disp('Please correct')
                                         return
@@ -271,8 +276,6 @@ else
                                 design.covar  = covar;
                                 maxcond       = max([design.conds(:).scans]);
                                 if nscans < maxcond
-                                    out.files{1} = [];
-                                    beep
                                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                     disp('Corresponding events were discarded')                                  
                                     for l = 1:length(design.conds)
