@@ -191,8 +191,6 @@ else
                             design.covar  = [];
                             maxcond       = max([design.conds(:).scans]);
                             if nscans < maxcond
-                                out.files{1} = [];
-                                beep
                                 sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                 disp('Corresponding events were discarded')
                                 for l = 1:length(design.conds)
@@ -260,8 +258,6 @@ else
                                         ldur = length(design.conds(c).durations);
                                     end
                                     if ldur ~= lons
-                                        out.files{1} = [];
-                                        beep
                                         sprintf('The onsets and durations of condition %d do not have the same size!', c)
                                         disp('Please correct')
                                         return
