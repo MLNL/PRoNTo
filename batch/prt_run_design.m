@@ -212,9 +212,9 @@ else
                                     try
                                         load(multi_fname);
                                     catch
-                                        out.files{1} = [];
                                         beep
                                         sprintf('Could not load %s file!',multi_fname)
+                                        out.files{1} = [];
                                         return
                                     end
                                     try
@@ -283,7 +283,6 @@ else
                                         design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
                                         design.conds(l).scans          = design.conds(l).scans(design.conds(l).scans<=nscans);    
                                     end
-                                    return
                                 end
                             end
                         end
