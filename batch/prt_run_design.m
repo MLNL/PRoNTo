@@ -77,13 +77,36 @@ if isfield(job.group(1).select,'modality')
             else
                 % Modalities
                 PRT.group(g).gr_name  = job.group(g).gr_name;
-                PRT.group(g).rt_subj  = job.group(g).regsubj;
-                
                 % Subjects
                 for s = 1:nsub,
                     subj_name = sprintf('S%d',s);
                     for m = 1:nmod,
-                        modnm = job.group(g).select.modality(m).mod_name;
+                        modnm   = job.group(g).select.modality(m).mod_name;
+                        ns      = length(job.group(g).select.modality(m).subjects);
+                        try
+                            load(char(job.group(g).select.modality(m).rt_subj{1}));
+                            if exist('rt_subj','var')
+                                rt_subj = rt_subj(:);
+                                if length(rt_subj) ~= ns
+                                    out.files{1} = [];
+                                    beep
+                                    sprintf('Number of regression targets must be the number of subjects/scans! ')
+                                    disp('Please correct!')
+                                    return
+                                end
+                            else
+                                out.files{1} = [];
+                                beep
+                                sprintf('Regression targets file must contain ''rt_subj'' variable! ')
+                                disp('Please correct!')
+                                return
+                            end
+                        catch
+                            beep
+                            sprintf('Could not load %s file!',char(job.group(g).select.modality(m).rt_subj{1}))
+                            out.files{1} = [];
+                            return
+                        end
                         mod_names_mod{m} = modnm;
                         if isempty(intersect(mod_names_uniq,modnm)),
                             out.files{1} = [];
@@ -92,7 +115,6 @@ if isfield(job.group(1).select,'modality')
                             disp('Please correct!')
                             return
                         end
-                        ns = length(job.group(g).select.modality(m).subjects);
                         if nsub ~= ns
                             out.files{1} = [];
                             beep
@@ -102,9 +124,9 @@ if isfield(job.group(1).select,'modality')
                         else                   
                             PRT.group(g).subject(s).subj_name            = subj_name;
                             PRT.group(g).subject(s).modality(m).mod_name = job.group(g).select.modality(m).mod_name;
-                            PRT.group(g).subject(s).modality(m).TR       = job.group(g).select.modality(m).TR;
                             PRT.group(g).subject(s).modality(m).design   = 0;                    
                             PRT.group(g).subject(s).modality(m).scans    = char(job.group(g).select.modality(m).subjects{s});
+                            PRT.group(g).subject(s).modality(m).rt_subj  = rt_subj(s);
                         end
                     end
                     if nmod ~= length(unique(mod_names_mod));
@@ -247,6 +269,17 @@ else
                                         conds(mc).cond_name  = multicond.names{mc};
                                         conds(mc).onsets     = multicond.onsets{mc};
                                         conds(mc).durations  = multicond.durations{mc};
+                                        if isfield(conds(mc),'rt_trial')
+                                            lons = length(conds(mc).onsets);
+                                            lreg = length(conds(mc).rt_trial);
+                                            if  lreg ~= lons
+                                                out.files{1} = [];
+                                                beep
+                                                sprintf('Number of regression targets must be the number of trials!')
+                                                disp('Please correct')
+                                                return
+                                            end
+                                        end
                                     end
                                     design.conds = conds;
                                 else
@@ -258,6 +291,7 @@ else
                                 for c = 1:ncond
                                     lons = length(design.conds(c).onsets);
                                     ldur = length(design.conds(c).durations);
+                                    lreg = length(design.conds(c).rt_trial);
                                     if ldur==1
                                         design.conds(c).durations = repmat(design.conds(c).durations, 1, lons);
                                         ldur = length(design.conds(c).durations);
@@ -266,6 +300,13 @@ else
                                         out.files{1} = [];
                                         beep
                                         sprintf('The onsets and durations of condition %d do not have the same size!', c)
+                                        disp('Please correct')
+                                        return
+                                    end
+                                    if ~isempty(design.conds(c).rt_trial) && lreg ~= lons
+                                        out.files{1} = [];
+                                        beep
+                                        sprintf('Number of regression targets must be the number of trials!')
                                         disp('Please correct')
                                         return
                                     end
@@ -306,7 +347,6 @@ else
                 return
             end
         end
-        PRT.group(g).rt_subj = job.group(g).regsubj;
     end
 end
 

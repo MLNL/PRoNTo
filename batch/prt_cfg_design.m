@@ -8,20 +8,36 @@ function data = prt_cfg_design
 % $Id$
 
 % ---------------------------------------------------------------------
-% regsubj One per subject
+% covar Covariates
 % ---------------------------------------------------------------------
-regsubj         = cfg_entry;
-regsubj.tag     = 'regsubj';
-regsubj.name    = 'Regression targets (subjects)';
-regsubj.help    = {['Enter one regression target per subject. Enter matrix '...
-                     'to specify targets for different modalities, '...
-                     '[nsub x nmod]. The number of '...
-                     'columns is the number of modalities. The number of '...
-                     'rows is the number of subjects.']
-}';
-regsubj.strtype = 'e';
-regsubj.val     = {[]};
-regsubj.num     = [Inf Inf];
+covar         = cfg_entry;
+covar.tag     = 'covar';
+covar.name    = 'Covariates';
+covar.help    = {['Select a matrix/vector containing details '...
+                  'of your covariates (i.e. any other data/information '...
+                  'you would like to include in your design). If you enter '...
+                  'a vector instead of a matrix, the entries of the vector '...
+                  'will be repeated to create a matrix with the dimensions: '...
+                  'number of scans x number of covariates (or vector '...
+                  'entries.']};
+covar.strtype = 'e';
+covar.val     = {[]};
+covar.num     = [Inf Inf];
+
+% ---------------------------------------------------------------------
+% rt_subj One per subject
+% ---------------------------------------------------------------------
+rt_subj         = cfg_files;
+rt_subj.tag     = 'rt_subj';
+rt_subj.name    = 'Regression targets (subjects)';
+rt_subj.help    = {['Load .mat with one regression target per subject. '...
+                     'This .mat file should contain the variable '...
+                     '''rt_subj''. This variable should be a vector '...
+                     '[Nsubjs x 1], where Nsubjs is the number of subjects.']};
+rt_subj.val{1}  = {''};                
+rt_subj.filter  = 'mat';
+rt_subj.ufilter = '.*';
+rt_subj.num     = [0 1];
 
 % ---------------------------------------------------------------------
 % regtrial One per trial
@@ -29,11 +45,13 @@ regsubj.num     = [Inf Inf];
 rt_trial         = cfg_entry;
 rt_trial.tag     = 'rt_trial';
 rt_trial.name    = 'Regression targets (trials)';
-rt_trial.help    = {'Enter one regression target per trial.'
+rt_trial.help    = {['Enter one regression target per trial. '...
+                     'This vector should have the following dimensions: '...
+                     '[Ntrials x 1], where Ntrials is the number of trials.']
 }';
 rt_trial.strtype = 'e';
 rt_trial.val     = {[]};
-rt_trial.num     = [Inf Inf];
+rt_trial.num     = [Inf 0];
 
 % ---------------------------------------------------------------------
 % TR Interscan interval
@@ -114,7 +132,7 @@ subjects.num     = [0 Inf];
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name, TR, subjects };
+modality.val  = {mod_name, subjects, rt_subj, covar };
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
@@ -282,23 +300,6 @@ multi_conds.ufilter = '.*';
 multi_conds.num     = [0 1];
 
 % ---------------------------------------------------------------------
-% covar Covariates
-% ---------------------------------------------------------------------
-covar         = cfg_entry;
-covar.tag     = 'covar';
-covar.name    = 'Covariates';
-covar.help    = {['Select a matrix/vector containing details '...
-                  'of your covariates (i.e. any other data/information '...
-                  'you would like to include in your design). If you enter '...
-                  'a vector instead of a matrix, the entries of the vector '...
-                  'will be repeated to create a matrix with the dimensions: '...
-                  'number of scans x number of covariates (or vector '...
-                  'entries.']};
-covar.strtype = 'e';
-covar.val     = {[]};
-covar.num     = [Inf Inf];
-
-% ---------------------------------------------------------------------
 % new_design Specify design
 % ---------------------------------------------------------------------
 new_design         = cfg_branch;
@@ -387,7 +388,7 @@ group         = cfg_branch;
 group.tag     = 'group';
 group.name    = 'Group';
 group.help    = {'Specify data and design for the group.'};
-group.val     = {gr_name, select, regsubj };
+group.val     = {gr_name, select };
 
 % ---------------------------------------------------------------------
 % groups Groups
