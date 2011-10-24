@@ -1,4 +1,4 @@
-% $Id$ 
+% $Id: prt_latex.m 178 2011-10-20 11:15:06Z cphillip $ 
 
 \chapter{Specify model  \label{Chap:model}}
 \minitoc
@@ -8,7 +8,7 @@
 Construct model according to design specified
 
 
-\section{Data structure file}
+\section{Load PRT.mat}
 Select data/design structure file (PRT.mat).
 
 
@@ -65,7 +65,7 @@ Subjects to be included in this class. Note that individual subject numbers (e.g
 
 
 \textbf{Modalities}
-Add modalities
+Add modalities. Note that if multiple modalities are entered here, they will be added to the feature set as additional samples. In other words, modalities are concatenated along the sample dimension, not the feature dimension. For example, this is appropriate for accommodating multiple fMRI runs from identical subjects.
 
 
 \textsc{Modality}
@@ -156,6 +156,14 @@ Binary support vector machine.
 Arguments for prt\_machine\_svm\_bin.
 
 
+\subsection{Gaussian Process Classification}
+Gaussian Process Classification
+
+
+\subsubsection{Arguments}
+Arguments for prt\_machine\_gpml.
+
+
 \subsection{Kernel Ridge Regression}
 Kernel Ridge Regression.
 
@@ -209,7 +217,7 @@ Specify operations to apply
 
 
 \subsubsection{Operations}
- Add zero or more operations to be applied to the data. These will be executed in the order specified. 
+Add zero or more operations to be applied to the data before the prediction machine is called. These are executed within the cross-validation loop (i.e. they respect training/test independence) and will be executed in the order specified. 
 
 
 \paragraph{Operation}

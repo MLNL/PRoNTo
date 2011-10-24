@@ -1,7 +1,7 @@
 % $Id$
 
 \documentclass[a4paper,titlepage]{book}
-\usepackage{epsfig,amsmath,pifont,moreverb,minitoc}
+\usepackage{epsfig,amsmath,pifont,moreverb,minitoc,alltt}
 \usepackage[
 	colorlinks=true,
 	pdfpagemode=UseOutlines,
@@ -92,7 +92,8 @@ Malet Place, London WC1E 6BT, UK \\
 
 %-----------------------------------------------------------------------
 
-\dominitoc \tableofcontents
+% \dominitoc 
+\tableofcontents
 \newpage
 
 %%%%%% INTRODUCTION %%%%%%
@@ -140,8 +141,9 @@ Malet Place, London WC1E 6BT, UK \\
 \include{adv_functions}
 
 
+%%%%%% BIBLIOGRAPHY %%%%%%
 %==========================================
-\newpage
+\part{Bibliography}
 \bibliography{prt_manual.bib}
 
 \end{document}
