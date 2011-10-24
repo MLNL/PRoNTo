@@ -194,9 +194,11 @@ else
                                 sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                 disp('Corresponding events were discarded')
                                 for l = 1:length(design.conds)
-                                    ovser                          = find(design.conds(l).scans > nscans);
-                                    design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
-                                    design.conds(l).scans          = design.conds(l).scans(design.conds(l).scans<=nscans);
+                                    ovser = find(des.conds(l).scans>matdat(j,k));
+                                    inser = find(des.conds(l).scans<=matdat(j,k));
+                                    des.conds(l).discardedscans = [des.conds(l).discardedscans, des.conds(l).scans(ovser)];
+                                    des.conds(l).scans = des.conds(l).scans(inser);
+                                    des.conds(l).blocks = des.conds(l).blocks(inser);
                                 end
                             end
                         else
