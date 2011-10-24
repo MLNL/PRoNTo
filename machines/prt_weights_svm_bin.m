@@ -46,12 +46,12 @@ end
 
 % create 1D image
 %--------------------------------------------------------------------------
-img1d     = zeros(size(d.datamat(:,1)),'single');
+img1d     = zeros(size(d.datamat(1,:)),'single');
 
 % compute weigths
 for i=1:ncoeffs   
     
-    tmp1 = single(d.datamat(:,i));
+    tmp1 = single(d.datamat(i,:));
     tmp2 = single(d.coeffs(i));
    img1d = img1d + tmp1 * tmp2;
    
