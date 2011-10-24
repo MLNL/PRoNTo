@@ -2,13 +2,13 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 % function to initialise the kernel data structure
 % ------------------------------------------------
 %
-% FORMAT: Two modes are possible: 
+% FORMAT: Two modes are possible:
 %     fid = prt_init_fs(PRT, in)
 %     [fid, PRT, tocomp] = prt_init_fs(PRT, in)
 %
-% USAGE 1: 
+% USAGE 1:
 % -------------------------------------------------------------------------
-% function will return the id of a feature set or an error if it doesn't 
+% function will return the id of a feature set or an error if it doesn't
 % exist in PRT.mat
 % Input:
 % ------
@@ -18,7 +18,7 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 % -------
 % fid : is the identifier for the feature set in PRT.mat
 %
-% USAGE 2: 
+% USAGE 2:
 % -------------------------------------------------------------------------
 % function will create the feature set in PRT.mat and overwrite it if it
 % already exists.
@@ -58,7 +58,6 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 
 % find index for the new feature set
 fs_exists = false;
- [pathName fileName]=fileparts(in.fname);
 if isfield(PRT,'fs')
     if any(strcmpi(in.fs_name,{PRT.fs(:).fs_name}))
         fid = find(strcmpi(in.fs_name,{PRT.fs(:).fs_name}));
@@ -81,6 +80,8 @@ if nargout == 1
     end
 else
     % initialise
+    
+    [pathName fileName]=fileparts(in.fname);
     if fs_exists
         warning('prt_init_fs:overwriteFsInPRT',...
             ['Feature set ''',in.fs_name,''' found in PRT.mat. Overwriting ...']);
@@ -196,7 +197,7 @@ else
                 elseif strcmpi(in.mod(mid).mode,'all_cond')
                     conds     = PRT.group(gid).subject(sid).modality(mid).design.conds;
                     n_vols_s  = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
-                                        
+                    
                     % now loop over conditions
                     for cid = 1:length(conds)    % condition
                         scans     = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
@@ -241,7 +242,7 @@ else
     for i=1:n_mods
         % check whether we need to recreate the file array
         if exist(PRT.fas(mids(i)).dat.fname)==0 || PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  || PRT.fas(mids(i)).param_dt~=in.mod(mids(i)).param_dt
-        
+            
             if isempty(PRT.fas(mids(i)).dat)
                 disp(['File array does not exist for modality ''',...
                     char(in.mod(mids(i)).mod_name),'''. Creating...'])
