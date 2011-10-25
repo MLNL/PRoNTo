@@ -10,19 +10,17 @@ function data = prt_cfg_design
 % ---------------------------------------------------------------------
 % covar Covariates
 % ---------------------------------------------------------------------
-covar         = cfg_entry;
+covar         = cfg_files;
 covar.tag     = 'covar';
 covar.name    = 'Covariates';
-covar.help    = {['Select a matrix/vector containing details '...
-                  'of your covariates (i.e. any other data/information '...
-                  'you would like to include in your design). If you enter '...
-                  'a vector instead of a matrix, the entries of the vector '...
-                  'will be repeated to create a matrix with the dimensions: '...
-                  'number of scans x number of covariates (or vector '...
-                  'entries.']};
-covar.strtype = 'e';
-covar.val     = {[]};
-covar.num     = [Inf Inf];
+covar.help    = {['Select a .mat file containing '...
+                  'your covariates (i.e. any other data/information '...
+                  'you would like to include in your design). This file '...
+                  'should contain a variable ''R'' with the covariates.']};
+covar.val{1}  = {''};
+covar.filter  = 'mat';
+covar.ufilter = '.*';
+covar.num     = [0 1];
 
 % ---------------------------------------------------------------------
 % rt_subj One per subject/scans
@@ -34,12 +32,6 @@ rt_subj.help    = {['Enter one regression target per scans. '...
                      'or enter the name of a variable '...
                      ' This variable should be a vector '...
                      '[Nscans x 1], where Nsubjs is the number of subjects.']};
-%Enter a file
-% rt_subj.val{1}  = {''};                
-% rt_subj.filter  = 'mat';
-% rt_subj.ufilter = '.*';
-% rt_subj.num     = [0 1];
-%Enter values or variable
 rt_subj.strtype = 'e';
 rt_subj.val     = {[]};
 rt_subj.num     = [Inf 0];
