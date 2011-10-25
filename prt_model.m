@@ -75,11 +75,15 @@ PRT.model(modelid).input.samp_idx      = samp_idx;
 PRT.model(modelid).input.targets       = targets;
 PRT.model(modelid).input.targ_allscans = targ_allscans;
 
+%
+
 % compute cross-validation matrix and specify operations to apply
 % -------------------------------------------------------------------------
 PRT.model(modelid).input.cv_mat     = compute_cv_mat(PRT,in, modelid);
 PRT.model(modelid).input.operations = in.operations;
 
+%Added by Carlton
+PRT.model(modelid).input.cv_type=in.cv.type;
 % Save PRT.mat
 % -------------------------------------------------------------------------
 disp('Updating PRT.mat.......>>')
