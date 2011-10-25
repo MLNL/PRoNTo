@@ -56,10 +56,10 @@ function prt_ui_prepare_datamod_OpeningFcn(hObject, eventdata, handles, varargin
 handles.output = hObject;
 set(handles.par_name,'Visible','off')
 set(handles.par_value,'Visible','off')
-set(handles.pop_det,'String',{'No','Linear', ...
+set(handles.pop_det,'String',{'No', ...
     'Polynomial','Discrete Cosine Transform'})
 set(handles.pop_det,'Value',1)
-set(handles.pop_norm,'String',{'No','Kernel', ...
+set(handles.pop_norm,'String',{'No scaling', ...
     'Specify from .mat'});
 set(handles.pop_norm,'Value',1)
 if ~isempty(varargin{1}) && strcmpi(varargin{1},'UserData')
@@ -181,22 +181,18 @@ if val==0 % No detrend
     set(handles.par_name,'Visible','off')
     set(handles.par_value,'Visible','off')
     handles.mod.param_dt=[];
-elseif val==1 % Linear detrend
-    set(handles.par_name,'Visible','off')
-    set(handles.par_value,'Visible','off')
-    handles.mod.param_dt=1;
-elseif val==2
+elseif val==1 % Polynomial detrend
     set(handles.par_name,'Visible','on')
     set(handles.par_value,'Visible','on')
     set(handles.par_name,'String','Order')
     set(handles.par_value,'String','1')
     handles.mod.param_dt=1;
-elseif val==3
+elseif val==2 % Discrete Cosine Transform
     set(handles.par_name,'Visible','on')
     set(handles.par_value,'Visible','on')
-    set(handles.par_name,'String','Cutoff (Hz)')
-    set(handles.par_value,'String','1/128')
-    handles.mod.param_dt=1/128;
+    set(handles.par_name,'String','Cutoff of highpass filter (s)')
+    set(handles.par_value,'String','128')
+    handles.mod.param_dt=1/128;    
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -278,10 +274,11 @@ function pop_norm_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from pop_norm
 val=get(handles.pop_norm,'Value')-1;
 handles.mod.normalise=val;
-if val==0 || val==1
+if val==0
     handles.mod.matnorm=[];
-elseif val==2
+elseif val==1
     handles.mod.matnorm=spm_select(1,'mat','Select .mat file containing scaling');
+    handles.mod.normalise=2;
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -304,11 +301,6 @@ function okbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to okbutt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if strcmpi(handles.mod.mode,'all_cond') && handles.mod.detrend~=0
-    beep
-    disp('The "all conditions" mode can be selected only when no detrending is performed')
-    return
-end
     
 handles.output=handles.mod;
 % Update handles structure

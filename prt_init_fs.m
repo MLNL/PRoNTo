@@ -241,7 +241,9 @@ else
     prt_dir=fileparts(in.fname);
     for i=1:n_mods
         % check whether we need to recreate the file array
-        if exist(PRT.fas(mids(i)).dat.fname)==0 || PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  || PRT.fas(mids(i)).param_dt~=in.mod(mids(i)).param_dt
+        if isempty(PRT.fas(mids(i)).dat) || exist(PRT.fas(mids(i)).dat.fname)==0 ||...
+                PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  || ...
+                PRT.fas(mids(i)).param_dt~=in.mod(mids(i)).param_dt
             
             if isempty(PRT.fas(mids(i)).dat)
                 disp(['File array does not exist for modality ''',...

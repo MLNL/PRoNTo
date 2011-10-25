@@ -107,10 +107,6 @@ for b = 1:n_block
                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
                     datapr(sample_range,:) = (prt_load_blocks(fname,ind_ddmask))';
                     if in.mod(mid).detrend ~= 0
-%                         if in.mod(mid).detrend > 1
-%                             error('Only linear detrend implemented so far');
-%                         end
-                        % detrend data using residual forming matrix
                         TR=PRT.group.subject(sid).modality(mid).TR;
                         switch in.mod(mid).detrend
                             case 1

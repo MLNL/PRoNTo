@@ -216,8 +216,8 @@ else
                                 sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                 disp('Corresponding events were discarded')
                                 for l = 1:length(design.conds)
-                                    ovser = find(des.conds(l).scans>matdat(j,k));
-                                    inser = find(des.conds(l).scans<=matdat(j,k));
+                                    ovser = find(design.conds(l).scans > nscans);
+                                    inser = find(design.conds(l).scans <= nscans);
                                     des.conds(l).discardedscans = [des.conds(l).discardedscans, des.conds(l).scans(ovser)];
                                     des.conds(l).scans = des.conds(l).scans(inser);
                                     des.conds(l).blocks = des.conds(l).blocks(inser);
@@ -322,9 +322,11 @@ else
                                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                     disp('Corresponding events were discarded')                                  
                                     for l = 1:length(design.conds)
-                                        ovser                          = find(design.conds(l).scans > nscans);
+                                        ovser = find(design.conds(l).scans > nscans);
+                                        inser = find(design.conds(l).scans <= nscans);
                                         design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
-                                        design.conds(l).scans          = design.conds(l).scans(design.conds(l).scans<=nscans);    
+                                        design.conds(l).scans          = design.conds(l).scans(inser);
+                                        design.conds(l).blocks         = design.conds(l).blocks(inser);
                                     end
                                 end
                             end

@@ -54,6 +54,7 @@ function prt_ui_prepare_data_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for prt_ui_kernel
 handles.output = hObject;
+set(handles.sel_mod,'Enable','off')
 % Update handles structure
 guidata(hObject, handles);
 
@@ -238,9 +239,8 @@ function buildbutt_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-input=struct('fname',[],'kname',[],'mod',[],'flagk',[]);
+input=struct('fname',[],'kname',[],'mod',[]);
 input.fname=handles.fname;
-%input.kname=handles.kname;
 input.fs_name=handles.kname;
 input.mod=handles.mod;
 load(input.fname);
