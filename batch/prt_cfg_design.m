@@ -25,19 +25,24 @@ covar.val     = {[]};
 covar.num     = [Inf Inf];
 
 % ---------------------------------------------------------------------
-% rt_subj One per subject
+% rt_subj One per subject/scans
 % ---------------------------------------------------------------------
-rt_subj         = cfg_files;
+rt_subj         = cfg_entry;
 rt_subj.tag     = 'rt_subj';
-rt_subj.name    = 'Regression targets (subjects)';
-rt_subj.help    = {['Load .mat with one regression target per subject. '...
-                     'This .mat file should contain the variable '...
-                     '''rt_subj''. This variable should be a vector '...
-                     '[Nsubjs x 1], where Nsubjs is the number of subjects.']};
-rt_subj.val{1}  = {''};                
-rt_subj.filter  = 'mat';
-rt_subj.ufilter = '.*';
-rt_subj.num     = [0 1];
+rt_subj.name    = 'Regression targets (per scans)';
+rt_subj.help    = {['Enter one regression target per scans. '...
+                     'or enter the name of a variable '...
+                     ' This variable should be a vector '...
+                     '[Nscans x 1], where Nsubjs is the number of subjects.']};
+%Enter a file
+% rt_subj.val{1}  = {''};                
+% rt_subj.filter  = 'mat';
+% rt_subj.ufilter = '.*';
+% rt_subj.num     = [0 1];
+%Enter values or variable
+rt_subj.strtype = 'e';
+rt_subj.val     = {[]};
+rt_subj.num     = [Inf 0];
 
 % ---------------------------------------------------------------------
 % regtrial One per trial
@@ -119,7 +124,7 @@ scans.num     = [1 Inf];
 % ---------------------------------------------------------------------
 subjects         = cfg_files;
 subjects.tag     = 'subjects';
-subjects.name    = 'Subjects';
+subjects.name    = 'Scans/beta maps';
 subjects.help    = {['Select scans (images) for this modality. They must '...
                   'all have the same image dimensions, orientation, '...
                   'voxel size etc.']};
@@ -234,7 +239,8 @@ conds         = cfg_branch;
 conds.tag     = 'conds';
 conds.name    = 'Condition';
 conds.help    = {'Specify condition: name, onsets and duration.'};
-conds.val     = {cond_name, onsets, durations, rt_trial};
+%temporarily remove the rt_trial
+conds.val     = {cond_name, onsets, durations};
 
 % ---------------------------------------------------------------------
 % conditions Conditions
