@@ -83,29 +83,48 @@ if isfield(job.group(1).select,'modality')
                     for m = 1:nmod,
                         modnm   = job.group(g).select.modality(m).mod_name;
                         ns      = length(job.group(g).select.modality(m).subjects);
-                        try
-                            load(char(job.group(g).select.modality(m).rt_subj{1}));
-                            if exist('rt_subj','var')
-                                rt_subj = rt_subj(:);
+                        if ~isempty(job.group(g).select.modality(m).rt_subj)
+                                rt_subj = job.group(g).select.modality(m).rt_subj(:);
                                 if length(rt_subj) ~= ns
                                     out.files{1} = [];
                                     beep
                                     sprintf('Number of regression targets must be the number of subjects/scans! ')
                                     disp('Please correct!')
                                     return
+                                else
+                                    PRT.group(g).subject(s).modality(m).rt_subj = rt_subj(s);
                                 end
-                            else
-                                out.files{1} = [];
+                        else
+                            PRT.group(g).subject(s).modality(m).rt_subj = [];
+                        end
+                        if ~isempty(job.group(g).select.modality(m).covar{1})
+                            try
+                                load(char(job.group(g).select.modality(m).covar{1}));
+                                if exist('R','var')
+                                    if size(R,1)==ns
+                                        PRT.group(g).subject(s).modality(m).covar  = R(s,:);
+                                    else
+                                        out.files{1} = [];
+                                        beep
+                                        sprintf('Number of covariates must be the number of subjects/scans! ')
+                                        disp('Please correct!')
+                                        return
+                                    end
+                                else
+                                    out.files{1} = [];
+                                    beep
+                                    sprintf('Covariates file must contain ''R'' variable! ')
+                                    disp('Please correct!')
+                                    return
+                                end
+                            catch
                                 beep
-                                sprintf('Regression targets file must contain ''rt_subj'' variable! ')
-                                disp('Please correct!')
+                                sprintf('Could not load %s file!',char(job.group(g).select.modality(m).covar{1}))
+                                out.files{1} = [];
                                 return
                             end
-                        catch
-                            beep
-                            sprintf('Could not load %s file!',char(job.group(g).select.modality(m).rt_subj{1}))
-                            out.files{1} = [];
-                            return
+                        else
+                            PRT.group(g).subject(s).modality(m).covar  = [];
                         end
                         mod_names_mod{m} = modnm;
                         if isempty(intersect(mod_names_uniq,modnm)),
@@ -121,12 +140,11 @@ if isfield(job.group(1).select,'modality')
                             sprintf('Number of subjects in modality %d and 1 of group %d are different! ',m,g)
                             disp('Please correct!')
                             return
-                        else                   
+                        else
                             PRT.group(g).subject(s).subj_name            = subj_name;
                             PRT.group(g).subject(s).modality(m).mod_name = job.group(g).select.modality(m).mod_name;
-                            PRT.group(g).subject(s).modality(m).design   = 0;                    
+                            PRT.group(g).subject(s).modality(m).design   = 0;
                             PRT.group(g).subject(s).modality(m).scans    = char(job.group(g).select.modality(m).subjects{s});
-                            PRT.group(g).subject(s).modality(m).rt_subj  = rt_subj(s);
                         end
                     end
                     if nmod ~= length(unique(mod_names_mod));
@@ -210,14 +228,13 @@ else
                             design.stats  = checked_conds.stats;
                             design.TR     = TR;
                             design.unit   = unit;
-                            design.covar  = [];
                             maxcond       = max([design.conds(:).scans]);
                             if nscans < maxcond
                                 sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                 disp('Corresponding events were discarded')
                                 for l = 1:length(design.conds)
-                                    ovser = find(design.conds(l).scans > nscans);
-                                    inser = find(design.conds(l).scans <= nscans);
+                                    ovser = find(des.conds(l).scans>matdat(j,k));
+                                    inser = find(des.conds(l).scans<=matdat(j,k));
                                     des.conds(l).discardedscans = [des.conds(l).discardedscans, des.conds(l).scans(ovser)];
                                     des.conds(l).scans = des.conds(l).scans(inser);
                                     des.conds(l).blocks = des.conds(l).blocks(inser);
@@ -229,6 +246,7 @@ else
                                 design = 0;
                             else
                                 nscans = length(job.group(g).select.subject{j}(k).scans);
+                                unit   = job.group(g).select.subject{j}(k).design.new_design.unit;
                                 % Create new design
                                 if ~isempty(job.group(g).select.subject{j}(k).design.new_design.multi_conds{1})
                                     multi_fname = job.group(g).select.subject{j}(k).design.new_design.multi_conds{1};
@@ -269,30 +287,56 @@ else
                                         conds(mc).cond_name  = multicond.names{mc};
                                         conds(mc).onsets     = multicond.onsets{mc};
                                         conds(mc).durations  = multicond.durations{mc};
-                                        if isfield(conds(mc),'rt_trial')
-                                            lons = length(conds(mc).onsets);
-                                            lreg = length(conds(mc).rt_trial);
-                                            if  lreg ~= lons
-                                                out.files{1} = [];
-                                                beep
-                                                sprintf('Number of regression targets must be the number of trials!')
-                                                disp('Please correct')
-                                                return
-                                            end
-                                        end
+%                                         if isfield(conds(mc),'rt_trial')
+%                                             lons = length(conds(mc).onsets);
+%                                             lreg = length(conds(mc).rt_trial);
+%                                             if  lreg ~= lons
+%                                                 out.files{1} = [];
+%                                                 beep
+%                                                 sprintf('Number of regression targets must be the number of trials!')
+%                                                 disp('Please correct')
+%                                                 return
+%                                             end
+%                                         end
                                     end
                                     design.conds = conds;
                                 else
                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
-                                end
-                                unit  = job.group(g).select.subject{j}(k).design.new_design.unit;
-                                covar = job.group(g).select.subject{j}(k).design.new_design.covar;
+                                    if ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar{1})
+                                        try
+                                            load(char(job.group(g).select.subject{j}(k).design.new_design.covar{1}));
+                                            if exist('R','var')
+                                                if size(R,1) == nscans
+                                                    covar = R;
+                                                else
+                                                    out.files{1} = [];
+                                                    beep
+                                                    sprintf('Number of covariates must be the number of scans! ')
+                                                    disp('Please correct!')
+                                                    return
+                                                end
+                                            else
+                                                out.files{1} = [];
+                                                beep
+                                                sprintf('Covariates file must contain ''R'' variable! ')
+                                                disp('Please correct!')
+                                                return
+                                            end
+                                        catch
+                                            beep
+                                            sprintf('Could not load %s file!',char(job.group(g).select.subject{j}(k).design.new_design.covar{1}))
+                                            out.files{1} = [];
+                                            return
+                                        end
+                                    else
+                                        covar = [];
+                                    end
+                                end                           
                                 ncond = length(design.conds);
                                 for c = 1:ncond
                                     lons = length(design.conds(c).onsets);
                                     ldur = length(design.conds(c).durations);
-                                    lreg = length(design.conds(c).rt_trial);
-                                    if ldur==1
+                                    if ldur == 1
                                         design.conds(c).durations = repmat(design.conds(c).durations, 1, lons);
                                         ldur = length(design.conds(c).durations);
                                     end
@@ -303,13 +347,16 @@ else
                                         disp('Please correct')
                                         return
                                     end
-                                    if ~isempty(design.conds(c).rt_trial) && lreg ~= lons
-                                        out.files{1} = [];
-                                        beep
-                                        sprintf('Number of regression targets must be the number of trials!')
-                                        disp('Please correct')
-                                        return
-                                    end
+%                                     if ~isempty(design.conds(c).rt_trial)
+%                                         lreg = length(design.conds(c).rt_trial);
+%                                         if lreg ~= lons
+%                                             out.files{1} = [];
+%                                             beep
+%                                             sprintf('Number of regression targets must be the number of trials!')
+%                                             disp('Please correct')
+%                                             return
+%                                         end
+%                                     end
                                 end
                                 checked_conds = prt_check_design(design.conds,TR,unit);
                                 design.conds  = checked_conds.conds;
@@ -322,11 +369,9 @@ else
                                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                     disp('Corresponding events were discarded')                                  
                                     for l = 1:length(design.conds)
-                                        ovser = find(design.conds(l).scans > nscans);
-                                        inser = find(design.conds(l).scans <= nscans);
+                                        ovser                          = find(design.conds(l).scans > nscans);
                                         design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
-                                        design.conds(l).scans          = design.conds(l).scans(inser);
-                                        design.conds(l).blocks         = design.conds(l).blocks(inser);
+                                        design.conds(l).scans          = design.conds(l).scans(design.conds(l).scans<=nscans);    
                                     end
                                 end
                             end
