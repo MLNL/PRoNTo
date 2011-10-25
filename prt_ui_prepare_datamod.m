@@ -1,22 +1,25 @@
 function varargout = prt_ui_prepare_datamod(varargin)
 % PRT_UI_KERNEL_MODALITY M-file for prt_ui_kernel_modality.fig
-%      PRT_UI_KERNEL_MODALITY, by itself, creates a new PRT_UI_KERNEL_MODALITY or raises the existing
-%      singleton*.
+% 
+% PRT_UI_KERNEL_MODALITY, by itself, creates a new PRT_UI_KERNEL_MODALITY 
+% or raises the existing singleton*.
 %
-%      H = PRT_UI_KERNEL_MODALITY returns the handle to a new PRT_UI_KERNEL_MODALITY or the handle to
-%      the existing singleton*.
+% H = PRT_UI_KERNEL_MODALITY returns the handle to a new 
+% PRT_UI_KERNEL_MODALITY or the handle to the existing singleton*.
 %
-%      PRT_UI_KERNEL_MODALITY('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_UI_KERNEL_MODALITY.M with the given input arguments.
+% PRT_UI_KERNEL_MODALITY('CALLBACK',hObject,eventData,handles,...) calls 
+% the local function named CALLBACK in PRT_UI_KERNEL_MODALITY.M with the 
+% given input arguments.
 %
-%      PRT_UI_KERNEL_MODALITY('Property','Value',...) creates a new PRT_UI_KERNEL_MODALITY or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_ui_kernel_modality_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_ui_kernel_modality_OpeningFcn via varargin.
+% PRT_UI_KERNEL_MODALITY('Property','Value',...) creates a new 
+% PRT_UI_KERNEL_MODALITY or raises the existing singleton*.  Starting from 
+% the left, property value pairs are applied to the GUI before 
+% prt_ui_kernel_modality_OpeningFcn gets called.  An unrecognized property 
+% name or invalid value makes property application stop.  All inputs are 
+% passed to prt_ui_kernel_modality_OpeningFcn via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%  instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 

@@ -1,22 +1,23 @@
 function varargout = prt_text_input(varargin)
 % PRT_TEXT_INPUT M-file for prt_text_input.fig
-%      PRT_TEXT_INPUT, by itself, creates a new PRT_TEXT_INPUT or raises the existing
-%      singleton*.
+% 
+% PRT_TEXT_INPUT, by itself, creates a new PRT_TEXT_INPUT or raises the 
+% existing singleton*.
 %
-%      H = PRT_TEXT_INPUT returns the handle to a new PRT_TEXT_INPUT or the handle to
-%      the existing singleton*.
+% H = PRT_TEXT_INPUT returns the handle to a new PRT_TEXT_INPUT or the 
+% handle to the existing singleton*.
 %
-%      PRT_TEXT_INPUT('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_TEXT_INPUT.M with the given input arguments.
+% PRT_TEXT_INPUT('CALLBACK',hObject,eventData,handles,...) calls the local
+% function named CALLBACK in PRT_TEXT_INPUT.M with the given input arguments.
 %
-%      PRT_TEXT_INPUT('Property','Value',...) creates a new PRT_TEXT_INPUT or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_text_input_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_text_input_OpeningFcn via varargin.
+% PRT_TEXT_INPUT('Property','Value',...) creates a new PRT_TEXT_INPUT or 
+% raises the existing singleton*.  Starting from the left, property value 
+% pairs are applied to the GUI before prt_text_input_OpeningFcn gets called.
+% An unrecognized property name or invalid value makes property application
+% stop.  All inputs are passed to prt_text_input_OpeningFcn via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%  instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 %__________________________________________________________________________

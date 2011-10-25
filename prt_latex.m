@@ -17,7 +17,7 @@ function prt_latex
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% John Ashburner & Christophe Phillips
+% Written by John Ashburner & Christophe Phillips
 % $Id$
 
 
@@ -31,16 +31,94 @@ end
 % end
 
 for i=1:numel(c.values),
+    bn = c.values{i}.tag;
     fp = fopen(fullfile(prt('dir'),'manual',['batch_',bn,'.tex']),'w');
     if fp==-1, sts = false; return; end;
     chapter(c.values{i},fp);
 end;
 
-%% picking all the function help files and put them into a .tex
-fp = fopen(fullfile(prt('dir'),'manual','functions.tex'),'w');
+%% picking all the functions help files and put them into functions.tex
+fp = fopen(fullfile(prt('dir'),'manual','adv_functions.tex'),'w');
 if fp==-1, sts = false; return; end;
+% l_subdirs = {'machines','batch'};
+l_subdirs = {'machines'};
+excl_files = {'Contents.m'};
+PRTdir = prt('dir');
+
+% Heading part
+fprintf(fp,'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n',...
+    texify('List of PRoNTo functions'),'ch_functions');
+fprintf(fp,'This is the list of PRoNTo functions, including the subdirectories: ');
+for ii=1:numel(l_subdirs)
+    fprintf(fp,'%s',texify(['{\tt ',l_subdirs{ii},'}']));
+    if ii<numel(l_subdirs)-1
+        fprintf(fp,', ');
+    elseif ii==numel(l_subdirs)-1
+        fprintf(fp,' and ');
+    else
+        fprintf(fp,'.\n\n');
+    end
+end
+
+% Deal with main directoy 1st
+f = spm_select('List',PRTdir,'.*\.m$');
+for ii=1:numel(excl_files)
+    f(strcmp(cellstr(f),excl_files{ii}),:) = [];
+end
+write_mfiles_help(f,fp);
+
+% Deal with subdirectories
+for ii = 1:numel(l_subdirs)
+    p = fullfile(PRTdir,l_subdirs{ii});
+    fprintf(fp,'\n\\%s{%s}\n','section',l_subdirs{ii});
+    f = spm_select('List',p,'.*\.m$');
+    write_mfiles_help(f,fp,l_subdirs(ii));
+end
 
 return;
+
+%==========================================================================
+function write_mfiles_help(f,fp,base_dir)
+
+if nargin<3,
+    base_dir = '';
+    lev = 1;
+else
+    lev = numel(base_dir)+1;
+    tmp = '';
+    for ii=1:numel(base_dir)
+        tmp = fullfile(tmp,base_dir{ii});
+    end
+    base_dir = tmp;
+end
+
+sec = {'section','subsection','subsubsection','paragraph','subparagraph', ...
+            'textbf','textsc','textsl','textit'};
+
+for ii=1:size(f,1)
+    % section
+    func_name = fullfile(base_dir,deblank(f(ii,:)));
+    fprintf(fp,'\n\\%s{%s}\n',sec{min(lev,length(sec))},texify(func_name));
+    fprintf(fp,'%s\n\n',texify('\begin{alltt}'));
+    
+    % help text, minus copyrights
+    htxt = textscan(fopen(func_name),'%s','delimiter','\n','whitespace','');
+    htxt = htxt{1};
+    i_beg = find(strncmp('% ',htxt,2)); i_beg = i_beg(1);
+    i_end = find(strncmp('% Copyright (C)',htxt,15))-2;
+    htxt = htxt(i_beg:i_end);
+    
+    for jj=1:numel(htxt)
+        if strcmp(htxt{jj},'%')
+            fprintf(fp,'%s\n',' ');
+        else
+            fprintf(fp,'%s\n',texify(htxt{jj}(2:end)));
+        end
+    end
+    fprintf(fp,'%s\n\n',texify('\end{alltt}'));
+end
+
+return
 
 %==========================================================================
 function sts = chapter(c,fp)

@@ -1,22 +1,23 @@
 function varargout = prt_ui_main(varargin)
 % PRT_UI_MAIN M-file for prt_ui_main.fig
-%      PRT_UI_MAIN, by itself, creates a new PRT_UI_MAIN or raises the existing
-%      singleton*.
+% 
+% PRT_UI_MAIN, by itself, creates a new PRT_UI_MAIN or raises the existing
+% singleton*.
 %
-%      H = PRT_UI_MAIN returns the handle to a new PRT_UI_MAIN or the handle to
-%      the existing singleton*.
+% H = PRT_UI_MAIN returns the handle to a new PRT_UI_MAIN or the handle to
+% the existing singleton*.
 %
-%      PRT_UI_MAIN('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_UI_MAIN.M with the given input arguments.
+% PRT_UI_MAIN('CALLBACK',hObject,eventData,handles,...) calls the local
+% function named CALLBACK in PRT_UI_MAIN.M with the given input arguments.
 %
-%      PRT_UI_MAIN('Property','Value',...) creates a new PRT_UI_MAIN or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_ui_main_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_ui_main_OpeningFcn via varargin.
+% PRT_UI_MAIN('Property','Value',...) creates a new PRT_UI_MAIN or raises 
+% the existing singleton*.  Starting from the left, property value pairs are
+% applied to the GUI before prt_ui_main_OpeningFcn gets called.  An
+% unrecognized property name or invalid value makes property application
+% stop.  All inputs are passed to prt_ui_main_OpeningFcn via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%  instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 %__________________________________________________________________________
