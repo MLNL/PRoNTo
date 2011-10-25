@@ -1,22 +1,25 @@
 function varargout = prt_data_conditions(varargin)
 % PRT_DATA_CONDITIONS M-file for prt_data_conditions.fig
-%      PRT_DATA_CONDITIONS, by itself, creates a new PRT_DATA_CONDITIONS or raises the existing
-%      singleton*.
+% 
+% PRT_DATA_CONDITIONS, by itself, creates a new PRT_DATA_CONDITIONS or 
+% raises the existing singleton*.
 %
-%      H = PRT_DATA_CONDITIONS returns the handle to a new PRT_DATA_CONDITIONS or the handle to
-%      the existing singleton*.
+% H = PRT_DATA_CONDITIONS returns the handle to a new PRT_DATA_CONDITIONS 
+% or the handle to the existing singleton*.
 %
-%      PRT_DATA_CONDITIONS('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_DATA_CONDITIONS.M with the given input arguments.
+% PRT_DATA_CONDITIONS('CALLBACK',hObject,eventData,handles,...) calls the 
+% local function named CALLBACK in PRT_DATA_CONDITIONS.M with the given 
+% input arguments.
 %
-%      PRT_DATA_CONDITIONS('Property','Value',...) creates a new PRT_DATA_CONDITIONS or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_data_conditions_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_data_conditions_OpeningFcn via varargin.
+% PRT_DATA_CONDITIONS('Property','Value',...) creates a new 
+% PRT_DATA_CONDITIONS or raises the existing singleton*.  Starting from the
+% left, property value pairs are applied to the GUI before 
+% prt_data_conditions_OpeningFcn gets called.  An unrecognized property name
+% or invalid value makes property application stop.  All inputs are passed 
+% to prt_data_conditions_OpeningFcn via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%  instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 %_______________________________________________________________________

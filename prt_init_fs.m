@@ -53,7 +53,6 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand
-
 % $Id$
 
 % find index for the new feature set

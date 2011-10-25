@@ -16,9 +16,10 @@ function stats = prt_stats(model, t)
 % stats.c_acc:   Accuracy by class (nClasses x 1 vector)
 % stats.c_pv:    Predictive value for each class (nClasses x 1 vector)
 %__________________________________________________________________________
-% Copyright (C) 2011 PRoNTo
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A. Marquand
+% $Id$
 
 % Do some checks ...
 if size(t,1) ~= size(model.predictions,1)

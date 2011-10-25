@@ -8,7 +8,7 @@ function block = prt_load_blocks(filenames, bs, br)
 % img = prt_load_blocks(filenames, block_size, block_range) just to specify
 % continuous blocks of data
 %
-%or
+% or
 %
 % img = prt_load_blocks(filenames, voxel_index) to access non continuous
 % blocks
@@ -16,7 +16,6 @@ function block = prt_load_blocks(filenames, bs, br)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand
-% Modified by J Schrouff, 12/10/2011
 % $Id$
 
 if nargin <2 || nargin >3

@@ -6,7 +6,7 @@ function prt_compute_weights(PRT,in)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by M.J.Rosa
-% $Id: $
+% $Id$
 
 % Find model
 % -------------------------------------------------------------------------

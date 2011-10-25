@@ -14,7 +14,7 @@ function prt_preproc(fname)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J.Rondina
-% Id:$
+% $Id$
 
 %--------------------------------------------------------------------------
 % Load PRT.mat

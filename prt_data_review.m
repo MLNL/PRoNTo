@@ -1,22 +1,24 @@
 function varargout = prt_data_review(varargin)
 % PRT_DATA_REVIEW M-file for prt_data_review.fig
-%      PRT_DATA_REVIEW, by itself, creates a new PRT_DATA_REVIEW or raises the existing
-%      singleton*.
 %
-%      H = PRT_DATA_REVIEW returns the handle to a new PRT_DATA_REVIEW or the handle to
-%      the existing singleton*.
+% PRT_DATA_REVIEW, by itself, creates a new PRT_DATA_REVIEW or raises the 
+% existing singleton*.
 %
-%      PRT_DATA_REVIEW('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_DATA_REVIEW.M with the given input arguments.
+% H = PRT_DATA_REVIEW returns the handle to a new PRT_DATA_REVIEW or the 
+% handle to the existing singleton*.
 %
-%      PRT_DATA_REVIEW('Property','Value',...) creates a new PRT_DATA_REVIEW or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_data_review_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_data_review_OpeningFcn via varargin.
+% PRT_DATA_REVIEW('CALLBACK',hObject,eventData,handles,...) calls the local
+% function named CALLBACK in PRT_DATA_REVIEW.M with the given input arguments.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+% PRT_DATA_REVIEW('Property','Value',...) creates a new PRT_DATA_REVIEW or 
+% raises the existing singleton*.  Starting from the left, property value 
+% pairs are applied to the GUI before prt_data_review_OpeningFcn gets 
+% called.  An unrecognized property name or invalid value makes property 
+% application stop.  All inputs are passed to prt_data_review_OpeningFcn 
+% via varargin.
+%
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%  instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 %_______________________________________________________________________
