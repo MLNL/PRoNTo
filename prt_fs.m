@@ -107,7 +107,7 @@ for b = 1:n_block
                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
                     datapr(sample_range,:) = (prt_load_blocks(fname,ind_ddmask))';
                     if in.mod(mid).detrend ~= 0
-                        TR=PRT.group.subject(sid).modality(mid).TR;
+                        TR=PRT.group.subject(sid).modality(mid).design.TR;
                         switch in.mod(mid).detrend
                             case 1
                                 c= poly_regressor(length(sample_range),in.mod(mid).param_dt);
@@ -126,12 +126,12 @@ for b = 1:n_block
             fpd_clean = fopen(fullfile(prt_dir,namedat), 'a'); % 'a' append
             if b==1
                 % write the data in file .dat
-                fwrite(fpd_clean, datapr, 'float32');
+                fwrite(fpd_clean, datapr, 'float64');
                 fclose(fpd_clean);
             else
                 % Append the data in file .dat
                 fseek(fpd_clean,0,'eof');
-                fwrite(fpd_clean, datapr, 'float32');
+                fwrite(fpd_clean, datapr, 'float64');
                 fclose(fpd_clean);
             end
             

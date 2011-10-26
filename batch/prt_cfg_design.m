@@ -116,7 +116,7 @@ scans.num     = [1 Inf];
 % ---------------------------------------------------------------------
 subjects         = cfg_files;
 subjects.tag     = 'subjects';
-subjects.name    = 'Scans/beta maps';
+subjects.name    = 'Files';
 subjects.help    = {['Select scans (images) for this modality. They must '...
                   'all have the same image dimensions, orientation, '...
                   'voxel size etc.']};

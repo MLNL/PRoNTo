@@ -269,7 +269,7 @@ else
             PRT.fas(mids(i)).dat = file_array(...
                 datname, ...                 % fname     - filename
                 [szm(i),n_vox],...           % dim       - dimensions (default = [0 0] )
-                spm_type('float32'), ...     % dtype     - datatype   (default = 'float')
+                spm_type('float64'), ...     % dtype     - datatype   (default = 'float')
                 0, ...                       % offset    - offset into file (default = 0)
                 1);                          % scl_slope - scalefactor (default = 1)
         else

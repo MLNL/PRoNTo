@@ -564,7 +564,8 @@ end
 %the batch
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.detrend;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).TR=mod.TR;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).covar=mod.covar;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).rt_subj=mod.rt_subj;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
 newlist=[get(handles.modality_list,'String'); {mod.name}];
@@ -610,7 +611,8 @@ end
 %update structure
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.detrend;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).TR=mod.TR;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).covar=mod.covar;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).rt_subj=mod.rt_subj;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
 
@@ -947,8 +949,6 @@ handles.cf=1;
 a=fileparts(prtname);
 set(handles.edit1,'String',a)
 set(handles.group_list,'String',{PRT.group(:).gr_name})
-handles.dat=PRT;
-handles.dat.dir=a;
 
 %set the 'rename' and 'modify' right-clicks
 %for groups
@@ -973,6 +973,23 @@ guidata(hObject, handles);
 set(handles.modality_list,'UIContextMenu',renm)
 handles=guidata(hObject);
 
+%Remove any field from previous computations
+if isfield(PRT,'fs')
+    PRT=rmfield(PRT,'fs');
+    beep
+    disp('Fields refering to feature sets have been found')
+    disp('These will be removed')
+    disp('Be sure to change the directory if you wan to keep trace of previous work')
+end
+if isfield(PRT,'fas')
+    PRT=rmfield(PRT,'fas');
+end
+if isfield(PRT,'model')
+    PRT=rmfield(PRT,'model');
+end
+
+handles.dat=PRT;
+handles.dat.dir=a;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -1025,6 +1042,16 @@ for i=1:length(handles.ds)
                 handles.ds{i}{k}{j}=1;
                 subj(k).modality(j)=handles.dat.group(i).subject(1).modality(j);
                 subj(k).modality(j).scans=subj(k).modality(j).scans(k,:);
+                if ~isempty(handles.dat.group(i).subject(1).modality(j).rt_subj)
+                    subj(k).modality(j).rt_subj=subj(k).modality(j).rt_subj(k);
+                else
+                    subj(k).modality(j).rt_subj=[];
+                end
+                if ~isempty(handles.dat.group(i).subject(1).modality(j).covar)
+                    subj(k).modality(j).covar=subj(k).modality(j).covar(k,:);
+                else
+                    subj(k).modality(j).covar=[];
+                end
             end
         end
         handles.dat.group(i).subject=subj;

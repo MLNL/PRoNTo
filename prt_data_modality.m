@@ -28,7 +28,7 @@ function varargout = prt_data_modality(varargin)
 
 % Edit the above text to modify the response to help prt_data_modality
 
-% Last Modified by GUIDE v2.5 12-Oct-2011 18:20:09
+% Last Modified by GUIDE v2.5 25-Oct-2011 18:14:12
 
 % Begin initialization code - DO NOT EDIT
 
@@ -71,13 +71,29 @@ set(handles.design_menu,...
 
 handles.mod=[];
 handles.mod.detrend=1;
-handles.mod.TR=[];
 handles.mod.design=0;
 handles.mod.scans=[];
 handles.mod.name={};
+handles.mod.covar=[];
+handles.mod.rt_subj=[];
 handles.subj1=0;
 
-if ~isempty(varargin) && strcmpi(varargin{1},'UserData')    
+if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
+    %Particular options if you select by 'scans'
+    if ~isempty(varargin{2}{2}) && strcmpi(varargin{2}{2}.subj_name,'Scans')
+        set(handles.design_menu,'Enable','off')
+        set(handles.edit_regt,'Enable','on')
+        set(handles.edit_regt,'Visible','on')
+        set(handles.edit_covar,'Enable','on')
+        set(handles.edit_covar,'Visible','on')
+    else
+        set(handles.design_menu,'Enable','on')
+        set(handles.edit_regt,'Enable','off')
+        set(handles.edit_regt,'Visible','off')
+        set(handles.edit_covar,'Enable','off')
+        set(handles.edit_covar,'Visible','off')
+    end
+        
     if ~isempty(varargin{2}{2}) && isfield(varargin{2}{2},'modality') && ...
             ~isempty(varargin{2}{2}.modality)
         handles.subjmod={varargin{2}{2}.modality(:).mod_name};
@@ -87,12 +103,12 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             valsel=find(strcmpi(modsel.mod_name,nlist));
             set(handles.modname,'String',nlist);
             set(handles.modname,'Value',valsel);
-            set(handles.edit_TR,'String',num2str(modsel.TR));
             handles.mod.detrend=modsel.detrend;
             handles.mod.design=modsel.design;
             handles.mod.scans=modsel.scans;
             handles.mod.name=modsel.mod_name;
-            handles.mod.TR=modsel.TR;
+            handles.mod.covar=modsel.covar;
+            handles.mod.rt_subj=modsel.rt_subj;
         else
             nlist=[varargin{2}{1}, {'Enter new'}];
             set(handles.modname,'String',nlist,'Value',length(nlist));  
@@ -255,8 +271,10 @@ elseif choice==4
     desn=handles.subj1(handles.indmods1).design;
 end
 handles.mod.design=desn;
-handles.mod.TR=desn.TR;
-set(handles.edit_TR,'String',num2str(desn.TR));
+if ~isempty(desn.covar)
+    set(handles.edit_covar,'String','Entered');
+    set(handles.edit_covar,'Visible','on');
+end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -267,31 +285,6 @@ function design_menu_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-function edit_TR_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_TR (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_TR as text
-%        str2double(get(hObject,'String')) returns contents of edit_TR as a double
-tre=str2double(get(handles.edit_TR,'String'));
-handles.mod.TR=tre;
-% Update handles structure
-guidata(hObject, handles);
-
-% --- Executes during object creation, after setting all properties.
-function edit_TR_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_TR (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
@@ -313,12 +306,136 @@ handles.mod.scans=t;
 guidata(hObject, handles);
 
 
+function edit_regt_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_regt (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_regt as text
+%        str2double(get(hObject,'String')) returns contents of edit_regt as a double
+
+%first option of loading: writing the values
+rt=get(handles.edit_regt,'String');
+eval(['rte=[',rt,'];']);
+%second option of loading: enter the name of a .mat file containing a
+%'rt_subj' variable
+if isnan(rte)
+    try
+        load(char(rt));
+    catch
+        beep
+        disp('Could not load file or read the regression targets')
+        disp('Please enter either a .mat file name or enter the values')
+        return
+    end
+    if ~exist('rt_subj','var')
+        beep
+        sprintf('Regression targets file must contain ''rt_subj'' variable! ')
+        disp('Please correct!')
+        return
+    else
+        rte=rt_subj;
+    end
+end
+handles.mod.rt_subj=rte;
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function edit_regt_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_regt (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function edit_covar_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_covar (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_covar as text
+%        str2double(get(hObject,'String')) returns contents of edit_covar as a double
+%first option of loading: writing the values
+rt=get(handles.edit_covar,'String');
+eval(['rte=[',rt,'];']);
+%second option of loading: enter the name of a .mat file containing a
+%'rt_subj' variable
+if isnan(rte)
+    try
+        load(char(rt));
+    catch
+        beep
+        disp('Could not load file or read the covariate values')
+        disp('Please enter either a .mat file name or enter the values')
+        return
+    end
+    if ~exist('R','var')
+        beep
+        sprintf('Covariates file must contain ''R'' variable! ')
+        disp('Please correct!')
+        return
+    else
+        rte=R;
+    end
+end
+handles.mod.covar=rte;
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function edit_covar_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_covar (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
 
 % --- Executes on button press in okbutton.
 function okbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to okbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+%check that the files were selected
+if isempty(handles.mod.scans)
+    beep
+    disp('Please, select the files before returning')
+    return
+end
+
+%check that the regression targets have the same number of elements as the
+%number of scans
+if ~isempty(handles.mod.rt_subj)
+    szrt=length(handles.mod.rt_subj);
+    if  size(handles.mod.scans,1)~=szrt
+        beep
+        disp('Number of regression targets must be the number of files selected! ')
+        disp('Please correct!')
+        return
+    end
+end
+%check that the covariates have the same number of elements as the
+%number of scans
+if ~isempty(handles.mod.covar)
+    szrt=size(handles.mod.covar);
+    if  ~any(size(handles.mod.scans,1)==szrt)
+        beep
+        disp('Number of covariates must be the number of files selected! ')
+        disp('Please correct!')
+        return
+    end
+end
+        
 modprop=handles.mod;
 handles.output=modprop;
 % Update handles structure

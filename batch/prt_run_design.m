@@ -233,8 +233,8 @@ else
                                 sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                 disp('Corresponding events were discarded')
                                 for l = 1:length(design.conds)
-                                    ovser = find(des.conds(l).scans>matdat(j,k));
-                                    inser = find(des.conds(l).scans<=matdat(j,k));
+                                    ovser = find(design.conds(l).scans > nscans);
+                                    inser = find(design.conds(l).scans <= nscans);
                                     des.conds(l).discardedscans = [des.conds(l).discardedscans, des.conds(l).scans(ovser)];
                                     des.conds(l).scans = des.conds(l).scans(inser);
                                     des.conds(l).blocks = des.conds(l).blocks(inser);
@@ -283,21 +283,27 @@ else
                                         out.files{1} = [];
                                         return
                                     end
+                                    try
+                                        multicond.rt_trial = rt_trial;
+                                    catch
+                                        multicond.rt_trial = cell(length(multicond.onsets),1);
+                                    end
                                     for mc = 1:length(multicond.onsets)
                                         conds(mc).cond_name  = multicond.names{mc};
                                         conds(mc).onsets     = multicond.onsets{mc};
                                         conds(mc).durations  = multicond.durations{mc};
-%                                         if isfield(conds(mc),'rt_trial')
-%                                             lons = length(conds(mc).onsets);
-%                                             lreg = length(conds(mc).rt_trial);
-%                                             if  lreg ~= lons
-%                                                 out.files{1} = [];
-%                                                 beep
-%                                                 sprintf('Number of regression targets must be the number of trials!')
-%                                                 disp('Please correct')
-%                                                 return
-%                                             end
-%                                         end
+                                        conds(mc).rt_trial   = multicond.rt_trial{mc};
+                                        if isfield(conds(mc),'rt_trial')
+                                            lons = length(conds(mc).onsets);
+                                            lreg = length(conds(mc).rt_trial);
+                                            if  lreg ~= lons
+                                                out.files{1} = [];
+                                                beep
+                                                sprintf('Number of regression targets must be the number of trials!')
+                                                disp('Please correct')
+                                                return
+                                            end
+                                        end
                                     end
                                     design.conds = conds;
                                 else
@@ -347,16 +353,18 @@ else
                                         disp('Please correct')
                                         return
                                     end
-%                                     if ~isempty(design.conds(c).rt_trial)
-%                                         lreg = length(design.conds(c).rt_trial);
-%                                         if lreg ~= lons
-%                                             out.files{1} = [];
-%                                             beep
-%                                             sprintf('Number of regression targets must be the number of trials!')
-%                                             disp('Please correct')
-%                                             return
-%                                         end
-%                                     end
+                                    if isfield(design.conds(c),'rt_trial') && ~isempty(design.conds(c).rt_trial)
+                                        lreg = length(design.conds(c).rt_trial);
+                                        if lreg ~= lons
+                                            out.files{1} = [];
+                                            beep
+                                            sprintf('Number of regression targets must be the number of trials!')
+                                            disp('Please correct')
+                                            return
+                                        end
+                                    elseif ~isfield(design.conds(c),'rt_trial')
+                                        design.conds(c).rt_trial=[];
+                                    end
                                 end
                                 checked_conds = prt_check_design(design.conds,TR,unit);
                                 design.conds  = checked_conds.conds;
@@ -369,9 +377,11 @@ else
                                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                     disp('Corresponding events were discarded')                                  
                                     for l = 1:length(design.conds)
-                                        ovser                          = find(design.conds(l).scans > nscans);
-                                        design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
-                                        design.conds(l).scans          = design.conds(l).scans(design.conds(l).scans<=nscans);    
+                                        ovser = find(design.conds(l).scans > nscans);
+                                    inser = find(design.conds(l).scans <= nscans);
+                                    des.conds(l).discardedscans = [des.conds(l).discardedscans, des.conds(l).scans(ovser)];
+                                    des.conds(l).scans = des.conds(l).scans(inser);
+                                    des.conds(l).blocks = des.conds(l).blocks(inser);   
                                     end
                                 end
                             end

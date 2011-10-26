@@ -68,7 +68,7 @@ handles.cond=struct();
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     des=varargin{2};
     szn=length(des.conds);    
-    dat=cell(szn,3);
+    dat=cell(szn,4);
     for i=1:szn
         try
             dat{i,1}=des.conds(i).cond_name;
@@ -77,28 +77,25 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         end
         handles.cond(i).cond_name=dat{i,1};
         try
-            text=[];
-            dur=des.conds(i).durations;
-            for j=1:length(dur)
-                text=[text, num2str(dur(j)),', '];
-            end
-            dat{i,3}=text(1:end-2);
-            handles.cond(i).durations=dur;
+            dat{i,3}=num2str(des.conds(i).durations,3);
+            handles.cond(i).durations=des.conds(i).durations;
         catch
             dat{i,3}='NaN';
             handles.cond(i).durations=[];
         end
         try
-            text=[];
-            ons=des.conds(i).onsets;
-            for j=1:length(ons)
-                text=[text, num2str(ons(j)),', '];
-            end
-            dat{i,2}=text(1:end-2);
-            handles.cond(i).onsets=ons;
+            dat{i,2}=num2str(des.conds(i).onsets,3);
+            handles.cond(i).onsets=des.conds(i).onsets;
         catch
             dat{i,2}='NaN';
             handles.cond(i).onsets=[];
+        end
+        try
+            dat{i,4}=num2str(des.conds(i).rt_trial,3);
+            handles.cond(i).onsets=des.conds(i).rt_trial;
+        catch
+            dat{i,4}='NaN';
+            handles.cond(i).rt_trial=[];
         end
     end
     set(handles.condtable,'visible','on');
@@ -113,26 +110,23 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     end
     set(handles.pop_unit,'Value',uv)
     if ~isempty(des.covar)
-        for j=1:length(des.covar)
-            text=[text, num2str(des.covar(j)),', '];
-        end
-        set(handles.covedit,'String',text(1:end-2));
+        set(handles.covedit,'String',num2str((des.covar(:))',3));
         handles.covar=des.covar;
     else
         handles.covar=[];
         set(handles.covedit,'String','');
     end
 else
-    dat={'cond1','0','0'};
+    dat={'cond1','0','0','[]'};
     set(handles.condtable,'visible','off');
     handles.trval=0;
     handles.covar=[];
 end
 set(handles.condtable,'Data',dat);
-set(handles.condtable,'ColumnName',{'Name','Onsets','Duration'});
-set(handles.condtable,'ColumnEditable',[true,true,true]);
-set(handles.condtable,'ColumnWidth',{'auto',130,130});
-set(handles.condtable,'ColumnFormat',{'char','char','char'});
+set(handles.condtable,'ColumnName',{'Name','Onsets','Duration','Regression targets (trials)'});
+set(handles.condtable,'ColumnEditable',[true,true,true,true]);
+set(handles.condtable,'ColumnWidth',{'auto',130,130,0});
+set(handles.condtable,'ColumnFormat',{'char','char','char','char'});
 set(handles.pop_unit,'String',{'Seconds','Scans'});
 set(handles.pop_unit,'Value',1);
 handles.unit=get(handles.pop_unit,'Value');
@@ -174,11 +168,12 @@ if choice==1
     if isnan(ncond)
         return
     end
-    dat=cell(ncond,3);
+    dat=cell(ncond,4);
     for i=1:ncond
         dat{i,1}=['cond ',num2str(i)];
         dat{i,2}='NaN';
         dat{i,3}='NaN';
+        dat{i,4}='[]';
     end
     set(handles.condtable,'visible','on');
     set(handles.condtable,'Data',dat);
@@ -212,8 +207,14 @@ else
         disp('No "onsets" found in the .mat file, please select another file')
         return
     end
+    try
+        rt=rt_trial;
+    catch
+        disp('No regression target (rt_trial) found in the .mat file')
+        disp('Only classification techniques will be used')
+    end
     szn=length(names);    
-    dat=cell(szn,3);
+    dat=cell(szn,4);
     for i=1:szn
         try
             dat{i,1}=na{i};
@@ -222,26 +223,25 @@ else
         end
         handles.cond(i).cond_name=dat{i,1};
         try
-            text=[];
-            for j=1:length(dur{i})
-                text=[text, num2str(dur{i}(j)),', '];
-            end
-            dat{i,3}=text(1:end-2);
+            dat{i,3}=num2str(dur{i},3);
             handles.cond(i).durations=dur{i};
         catch
             dat{i,3}='NaN';
             handles.cond(i).durations=[];
         end
         try
-            text=[];
-            for j=1:length(ons{i})
-                text=[text, num2str(ons{i}(j)),', '];
-            end
-            dat{i,2}=text(1:end-2);
+            dat{i,2}=num2str(ons{i},3);
             handles.cond(i).onsets=ons{i};
         catch
             dat{i,2}='NaN';
             handles.cond(i).onsets=[];
+        end
+        try
+            dat{i,4}=num2str(rt_trial{i},3);
+            handles.cond(i).rt_trial=rt_trial{i};
+        catch
+            dat{i,4}='NaN';
+            handles.cond(i).rt_trial=[];
         end
     end
     set(handles.condtable,'visible','on');
@@ -324,30 +324,27 @@ function covedit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of covedit as text
 %        str2double(get(hObject,'String')) returns contents of covedit as a double
-dat=deblank(get(handles.covedit,'String'));
-num=strfind(dat,',');
-if ~isempty(num)
-    j=1;
-    vect=zeros(1,length(num+1));
-    for i=1:length(num)
-        vect(i)=str2double(dat(j:num(i)-1));
-        j=num(i)+1;
-        if i==length(num)
-            vect(i+1)=str2double(dat(j:end));         
-        end
+dat=get(handles.covedit,'String');
+eval(['vect=[',dat,'];']);
+%second option of loading: enter the name of a .mat file containing a
+%'rt_subj' variable
+if isnan(vect)
+    try
+        load(char(vect));
+    catch
+        beep
+        disp('Could not load file or read the covariate values')
+        disp('Please enter either a .mat file name or enter the values')
+        return
     end
-else
-    vect=str2double(dat);
-end
-startsz=length(vect);
-vect=vect(~isnan(vect));
-vect=unique(vect);
-stopsz=length(vect);
-if startsz~=stopsz
-    beep
-    disp('Bad formatting of values or duplicated values found!')
-    disp('Please review and correct')
-    return
+    if ~exist('R','var')
+        beep
+        sprintf('Covariates file must contain ''R'' variable! ')
+        disp('Please correct!')
+        return
+    else
+        vect=R;
+    end
 end
 handles.covar=vect;
 % Update handles structure
@@ -380,48 +377,21 @@ function condtable_CellEditCallback(hObject, eventdata, handles)
 
 ind=eventdata.Indices;
 if ind(2)>1
-    num=strfind(eventdata.EditData,',');
-    if ~isempty(num)
-        dat=deblank(eventdata.EditData);
-    else
-        num=strfind(eventdata.EditData,';');
-        if ~isempty(num)
-            dat=deblank(eventdata.EditData);
-        else
-            num=strfind(eventdata.EditData,' ');
-            dat=eventdata.EditData;
-        end
-    end
-    if ~isempty(num)
-        j=1;
-        vect=zeros(1,length(num+1));
-        for i=1:length(num)
-            vect(i)=str2double(dat(j:num(i)-1));
-            j=num(i)+1;
-            if i==length(num)
-                vect(i+1)=str2double(dat(j:end));         
-            end
-        end
-    else
-        vect=str2double(dat);
-        if isnan(vect) || vect>10^6
-            beep
-            disp('Bad formatting of values found!')
-            sprintf('Please review and correct condition %d, column %d', ind(1), ind(2))
-            disp('Values should be entered in the time_evt1, time_evt2, time_evt3 format')
-            return
-        end
-    end
-    startsz=length(vect);
-    vect=vect(~isnan(vect));
-    if ind(2)<3
-        vect=unique(vect);
-    end
-    stopsz=length(vect);
-    if  startsz~=stopsz
+    dat=eventdata.EditData;
+    eval(['vect=[',dat,'];']);
+    if isnan(vect) || vect>10^6 || ~any(size(vect)==1)
         beep
-        disp('Bad formatting of values or duplicated values found!')
+        disp('Bad formatting of values found!')
         sprintf('Please review and correct condition %d, column %d', ind(1), ind(2))
+        return
+    end
+end
+if ind(2)==2  %check the unicity of the onsets
+    vectb=unique(vect);
+    if length(vect)~=length(vectb)
+        beep
+        disp('Duplicated values found in the onsets of condition %d', ind(1))
+        disp('Please correct')
         return
     end
 end
@@ -431,6 +401,8 @@ elseif ind(2)==2
     handles.cond(ind(1)).onsets=vect;
 elseif ind(2)==3
     handles.cond(ind(1)).durations=vect;
+elseif ind(2)==4
+    handles.cond(ind(1)).rt_trial=vect;
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -458,6 +430,7 @@ ncond=length(handles.cond);
 for i=1:ncond
     szon=length(handles.cond(i).onsets);
     szdur=length(handles.cond(i).durations);
+    szrt=length(handles.cond(i).rt_trial);
     if szdur==1
         handles.cond(i).durations=repmat(handles.cond(i).durations, 1, szon);
         szdur=length(handles.cond(i).durations);
@@ -466,6 +439,12 @@ for i=1:ncond
         beep
         sprintf('The onsets and durations of condition %d do not have the same size', i)
         disp('Please correct')
+        return
+    end
+    if szrt && szdur ~=szrt
+        beep
+        disp('The number of regression targets must be the number of trials!')
+        sprintf('Please correct condition %d',i)
         return
     end
 end
