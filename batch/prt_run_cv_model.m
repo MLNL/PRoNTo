@@ -27,8 +27,15 @@ load(fname);
 
 in.fname      = job.infile;
 in.model_name = job.model_name;
+mid = prt_init_model(PRT, in);
 
-prt_cv_model(PRT, in);
+% Special cross-validation for MCKR
+if strcmp(PRT.model(mid).input.machine.function,'prt_machine_mckr')
+    out=prt_cv_mckr(PRT,in);
+else
+    out=prt_cv_model(PRT, in);
+end
+
 
 % -------------------------------------------------------------------------
 % Function output
