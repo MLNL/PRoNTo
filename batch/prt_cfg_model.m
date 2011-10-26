@@ -69,7 +69,7 @@ fs_name.num     = [1 Inf];
 % ---------------------------------------------------------------------
 mod_name         = cfg_entry;
 mod_name.tag     = 'mod_name';
-mod_name.name    = 'Name';
+mod_name.name    = 'Modality name';
 mod_name.help    = {'Name of modality. Example: ''BOLD''. Must match design specification'};
 mod_name.strtype = 's';
 mod_name.num     = [1 Inf];
@@ -103,7 +103,7 @@ fsets.values  = {fset};
 % ---------------------------------------------------------------------
 gr_name         = cfg_entry;
 gr_name.tag     = 'gr_name';
-gr_name.name    = 'Name';
+gr_name.name    = 'Group name';
 gr_name.help    = {'Name of the group to include. Must exist in PRT.mat'};
 gr_name.strtype = 's';
 gr_name.num     = [1 Inf];
@@ -203,10 +203,10 @@ modalities.values  = {modality};
 % ---------------------------------------------------------------------
 subj_nums         = cfg_entry;
 subj_nums.tag     = 'subj_nums';
-subj_nums.name    = 'Subject number(s)';
+subj_nums.name    = 'Scan number(s)';
 subj_nums.help    = {
-    ['Subjects to be included in this class. Note that individual ',...
-     'subject numbers (e.g. 1), or a range of subject numbers ',...
+    ['Scans to be included in this class. Note that individual ',...
+     'scan numbers (e.g. 1), or a range of scan numbers ',...
      '(e.g. 3:5) can be entered'] };
 subj_nums.strtype = 'e';
 subj_nums.num     = [Inf 1];
@@ -268,10 +268,21 @@ classification.values  = {class};
 % ---------------------------------------------------------------------
 reg_targets         = cfg_entry;
 reg_targets.tag     = 'reg_targets';
-reg_targets.name    = 'Targets';
+reg_targets.name    = 'Regression targets';
 reg_targets.help    = {['Specify continuous valued target variables']};
 reg_targets.strtype = 'e';
 reg_targets.num     = [Inf 1];
+
+% ---------------------------------------------------------------------
+% mod_name Modality name
+% ---------------------------------------------------------------------
+mod_name2         = cfg_entry;
+mod_name2.tag     = 'mod_name2';
+mod_name2.name    = 'Modality name';
+mod_name2.help    = {'Name of modality. We only allow one modality for regression model per group at this moment' ...
+    'Example: ''BOLD''. Must match design specification'};
+mod_name2.strtype = 's';
+mod_name2.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
 % reg_group Regression group
@@ -280,7 +291,8 @@ reg_group         = cfg_branch;
 reg_group.tag     = 'reg_group';
 reg_group.name    = 'Group';
 reg_group.help    = {'Specify data and design for the group.'};
-reg_group.val     = {gr_name, subj_nums, conditions, reg_targets};
+%reg_group.val     = {gr_name, subj_nums, conditions, reg_targets};
+reg_group.val     = {gr_name, subj_nums,mod_name2 };
 
 % ---------------------------------------------------------------------
 % regression Regression
