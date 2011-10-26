@@ -86,7 +86,16 @@ function varargout = prt_ui_kernel_construction_OutputFcn(hObject, eventdata, ha
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+if isfield(handles,'output') && ~isempty(handles.output)
+    varargout{1} = handles.output;
+else
+    varargout{1}=[];
+end
+
+% The figure can be deleted now
+if isfield(handles,'figure1')
+    delete(handles.figure1);
+end
 
 
 % --- Executes on button press in br_prt.

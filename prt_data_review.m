@@ -114,6 +114,7 @@ if isempty(ind)
 else
     set(handles.des,'String','Yes')
     set(handles.modlist,'String',list)
+    set(handles.modlist,'Value',1)
     handles.ind=ind;
     set(handles.figure1,'CurrentAxes',handles.axes2)
     % Update handles structure
@@ -145,7 +146,17 @@ function varargout = prt_data_review_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+% Get default command line output from handles structure
+if isfield(handles,'output') && ~isempty(handles.output)
+    varargout{1} = handles.output;
+else
+    varargout{1}=[];
+end
+
+% The figure can be deleted now
+if isfield(handles,'figure1')
+    delete(handles.figure1);
+end
 
 
 % --- Executes on selection change in modlist.
@@ -156,6 +167,13 @@ function modlist_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns modlist contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from modlist
+warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+list=get(handles.modlist,'String');
+%handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
+if length(list)==1
+    set(handles.modlist,'Value',1)
+end
+
 val=get(handles.modlist,'Value');
 set(handles.figure1,'CurrentAxes',handles.axes2)
 prt_disp_conditions(handles.PRT,handles.ind(val),handles,hObject);

@@ -80,7 +80,7 @@ end
 mod_n={handles.PRT.masks(:).mod_name};
 set(handles.pop_mod,'String',mod_n)
 set(handles.pop_mod,'Value',1)
-set(handles.figure1,'Name',['Specify modality ',varargin{2}{2}])
+set(handles.figure1,'Name',['Specify modality ',char(varargin{2}{2})])
 set(handles.pop_cond,'String',{'All conditions','All scans'})
 set(handles.pop_cond,'Value',2)
 handles.mod=struct('mod_name',[],'mode',[],'mask',[],'detrend',[], ...
@@ -227,8 +227,14 @@ function pop_mod_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns pop_mod contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_mod
-val=get(handles.pop_mod,'Value');
+warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 list=get(handles.pop_mod,'String');
+%handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
+if length(list)==1
+    set(handles.pop_mod,'Value',1)
+end
+
+val=get(handles.pop_mod,'Value');
 handles.mod.mod_name=list(val);
 % Update handles structure
 guidata(hObject, handles);

@@ -30,7 +30,7 @@ function varargout = prt_data_conditions(varargin)
 
 % Edit the above text to modify the response to help prt_data_conditions
 
-% Last Modified by GUIDE v2.5 23-Sep-2011 16:35:58
+% Last Modified by GUIDE v2.5 26-Oct-2011 15:47:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -148,10 +148,16 @@ function varargout = prt_data_conditions_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+if isfield(handles,'output') && ~isempty(handles.output)
+    varargout{1} = handles.output;
+else
+    varargout{1}=[];
+end
 
 % The figure can be deleted now
-delete(handles.figure1);
+if isfield(handles,'figure1')
+    delete(handles.figure1);
+end
 
 
 % --- Executes on selection change in condmenu.
@@ -207,12 +213,12 @@ else
         disp('No "onsets" found in the .mat file, please select another file')
         return
     end
-    try
-        rt=rt_trial;
-    catch
-        disp('No regression target (rt_trial) found in the .mat file')
-        disp('Only classification techniques will be used')
-    end
+%     try
+%         rt=rt_trial;
+%     catch
+%         disp('No regression target (rt_trial) found in the .mat file')
+%         disp('Only classification techniques will be used')
+%     end
     szn=length(names);    
     dat=cell(szn,4);
     for i=1:szn
@@ -466,3 +472,4 @@ function cancelbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 uiresume(handles.figure1);
+

@@ -60,6 +60,7 @@ function prt_ui_design_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for prt_ui_design
 handles.output = hObject;
+set(handles.figure1,'Name','Specify data and design')
 
 handles.saved=0;
 
@@ -816,7 +817,14 @@ function mask_list_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns mask_list contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from mask_list
+
+warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 list=get(handles.mask_list,'String');
+%handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
+if length(list)==1
+    set(handles.mask_list,'Value',1)
+end
+
 val=list{get(handles.mask_list,'Value')};
 flag=0;
 if ~isfield(handles.dat.masks,'mod_name')

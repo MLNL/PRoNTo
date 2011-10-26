@@ -87,10 +87,16 @@ function varargout = prt_text_input_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+if isfield(handles,'output') && ~isempty(handles.output)
+    varargout{1} = handles.output;
+else
+    varargout{1}=[];
+end
 
 % The figure can be deleted now
-delete(handles.figure1);
+if isfield(handles,'figure1')
+    delete(handles.figure1);
+end
 
 
 function edit1_Callback(hObject, eventdata, handles)

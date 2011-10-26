@@ -126,6 +126,7 @@ end
 if length(varargin{2})==4 && ~isempty(varargin{2}{4})
     handles.subj1=varargin{2}{4};
 end
+warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 
 % Update handles structure
 guidata(hObject, handles);
@@ -142,10 +143,16 @@ function varargout = prt_data_modality_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+if isfield(handles,'output') && ~isempty(handles.output)
+    varargout{1} = handles.output;
+else
+    varargout{1}=[];
+end
 
 % The figure can be deleted now
-delete(handles.figure1);
+if isfield(handles,'figure1')
+    delete(handles.figure1);
+end
 
 
 % --- Executes on selection change in modname.
@@ -156,7 +163,13 @@ function modname_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns modname contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from modname
+warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 list=get(handles.modname,'String');
+%handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
+if length(list)==1
+    set(handles.modname,'Value',1)
+end
+
 if any(strfind(list{get(handles.modname,'Value')}, 'Enter'))
     modname=prt_text_input('Title','Enter modality name');
     if isnumeric(modname)
