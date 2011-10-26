@@ -12,7 +12,7 @@ function out = prt_run_model(varargin)
 %   out    - filename of saved data structure.
 %
 %   This function assembles a model structure with following fields:
-%   
+%
 %   model.fname:      filename for PRT.mat
 %   model.model_name: name for this cross-validation structure
 %   model.type:       'classification' or 'regression'
@@ -64,10 +64,10 @@ end
 % Note that we cycle through the groups to flatten out the structure, since
 % we potentially specify multiple subjects per group
 if isfield(job.model_type,'class')
-    model.type = 'classification'; 
+    model.type = 'classification';
     for c = 1:length(job.model_type.class)
         model.class(c).class_name = job.model_type.class(c).class_name;
-       
+        
         scount = 1;
         for g = 1:length(job.model_type.class(c).group)
             model.class(c).group(g).gr_name = ...
@@ -93,8 +93,23 @@ if isfield(job.model_type,'class')
             end
         end
     end
+elseif isfield(job.model_type,'reg_group')
+     model.type = 'regression';
+     scount = 1;
+     for g = 1:length(job.model_type.reg_group)
+         model.group(g).gr_name = job.model_type.reg_group(g).gr_name;
+         sids   =  job.model_type.reg_group(g).subj_nums;
+         for s = 1:length(sids)
+                model.group(g).subj(scount).num = sids(s);
+                 model.group(g).subj(scount).modality.mod_name =  job.model_type.reg_group(g).mod_name2;
+                scount=scount+1;
+         end
+     end
 else
-    error('regression not implemented yet');
+    error('this is not implemented yet');
+    
+    
+    
 end
 
 % insert machine fields
@@ -114,7 +129,7 @@ else
 end
 
 % assemble structure for performing cross-validation
-if isfield(job.cv_type,'cv_loso') 
+if isfield(job.cv_type,'cv_loso')
     model.cv.type = 'loso';
 elseif isfield(job.cv_type,'cv_losgo')
     model.cv.type = 'losgo';
