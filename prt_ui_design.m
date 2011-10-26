@@ -1096,9 +1096,8 @@ for i=1:ng
             disp('Possible errors in the modalities names, please correct')
             return
         end
-        m2=zeros(nm,1);
         for k=1:nm
-            m2(k)=find(strcmpi({handles.dat.group(i).subject(j).modality(:).mod_name},list(k)));
+            m2=find(strcmpi({handles.dat.group(i).subject(j).modality(:).mod_name},list(k)));
             matdat(j,k)=handles.ds{i}{j}{m2};
             if isstruct(handles.dat.group(i).subject(j).modality(m2).design)
                 des=handles.dat.group(i).subject(j).modality(m2).design;
@@ -1117,7 +1116,7 @@ for i=1:ng
                 end
             end
         end
-        handles.dat.group(i).subject(j).modality=handles.dat.group(i).subject(j).modality(m2);
+        handles.dat.group(i).subject(j).modality(k)=handles.dat.group(i).subject(j).modality(m2);
     end
 end
 

@@ -271,7 +271,7 @@ elseif choice==4
     desn=handles.subj1(handles.indmods1).design;
 end
 handles.mod.design=desn;
-if ~isempty(desn.covar)
+if isfield(desn,'covar') && ~isempty(desn.covar)
     set(handles.edit_covar,'String','Entered');
     set(handles.edit_covar,'Visible','on');
 end
