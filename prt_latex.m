@@ -47,7 +47,7 @@ PRTdir = prt('dir');
 
 % Heading part
 fprintf(fp,'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n',...
-    texify('List of PRoNTo functions'),'ch_functions');
+    texify('List of PRoNTo functions'),'sec:functions');
 fprintf(fp,'This is the list of PRoNTo functions, including the subdirectories: ');
 for ii=1:numel(l_subdirs)
     fprintf(fp,'%s',texify(['{\tt ',l_subdirs{ii},'}']));

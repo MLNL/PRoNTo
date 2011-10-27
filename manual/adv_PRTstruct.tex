@@ -1,6 +1,108 @@
 % $Id$
 
 \chapter{PRT structure}
+ \label{sec:PRTstruct}
 
-This is where we explain how the PRT structure is organised. \\ \\
-Lots of text to come!
+This is how the main {\tt PRT} structure is organised.
+
+{\tt PRT}
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.5cm}}
+\item type
+\item Nsamples
+\item Fsample
+\item timeOnset
+\item trials
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
+\item label
+\item onset
+\item repl
+\item bad
+\item events
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.5cm}}
+\item type()
+\item value()
+\item time()
+\item duration()
+\item offset()
+\end{list}
+
+\end{list}
+
+\item channels
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
+\item label()
+\item bad()
+\item type()
+\item X\_plot2D()
+\item Y\_plot2D()
+\item units()
+\end{list}
+
+\item data
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
+\item fnamedat
+\item datatype
+\item y
+\end{list}
+
+\item fname
+\item path
+\item sensors
+\item fiducials
+\item artifacts
+\item transform
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
+\item ID
+\end{list}
+
+\item other
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
+\item info
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.5cm}}
+\item date
+\item hour
+\end{list}
+
+\item CRC
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.5cm}}
+\item goodevents
+\end{list}
+
+\end{list}
+
+\item history
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
+\item fun
+\item args
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.5cm}}
+\item D
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.0cm}}
+\item fname
+\end{list}
+
+\end{list}
+
+\end{list}
+
+\item cache
+\item montage
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
+\item M
+\item Mind
+\end{list}
+
+\end{list}
+
