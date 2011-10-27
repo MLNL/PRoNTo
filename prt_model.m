@@ -8,7 +8,7 @@ function PRT = prt_model(PRT,in)
 %   model.fs(f).fs_features: feature selection mode ('all' or 'mask')
 %   model.fs(f).mask_file:   mask for this feature set (fs_features='mask')
 %
-% 
+%
 %   in.fname:      filename for PRT.mat
 %   in.model_name: name for this cross-validation structure
 %   in.type:       'classification' or 'regression'
@@ -38,7 +38,7 @@ function PRT = prt_model(PRT,in)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by A Marquand 
+% Written by A Marquand
 % $Id$
 
 % Populate basic fields in PRT.mat
@@ -59,8 +59,8 @@ for f = 1:length(in.fs)
     if length(PRT.fs(fid).modality) > 1 && length(in.fs) > 1
         error('prt_model:multipleFeatureSetsAppliedAsSamplesAndAsFeatures',...
             ['Feature set ',in.fs(f).fs_name,' contains multiple modalities ',...
-             'and job specifies that multiple feature sets should be ',...
-             'supplied to the machine. This usage is not supported.']);
+            'and job specifies that multiple feature sets should be ',...
+            'supplied to the machine. This usage is not supported.']);
     end
     
     PRT.model(modelid).input.fs(f).fs_name = in.fs(f).fs_name;
@@ -69,8 +69,11 @@ end
 
 % compute targets and samp_idx
 % -------------------------------------------------------------------------
-[targets, samp_idx, targ_allscans]     = compute_targets(PRT, in);
-
+if strcmp(in.type,'classification')
+    [targets, samp_idx, targ_allscans]     = compute_targets(PRT, in);
+else
+    [targets, samp_idx, targ_allscans] =compute_target_reg(PRT, in);
+end
 PRT.model(modelid).input.samp_idx      = samp_idx;
 PRT.model(modelid).input.targets       = targets;
 PRT.model(modelid).input.targ_allscans = targ_allscans;
@@ -147,17 +150,17 @@ for c = 1:length(in.class)
                     error('prt_model:groupNotFoundInPRT',...
                         ['Modality ',mod_name,' not found in PRT.mat']);
                 end
-              
+                
                 if isfield(in.class(c).group(g).subj(s).modality(m), 'all_scans')
                     % check whether this was included in the feature set
                     % using 'all conditions' (which is invalid)
                     if strcmpi(PRT.fs(fid).modality.mode,'all_cond')
                         error('prt_model:fsIsAllCondModelisAllScans',...
-                         ['''All scans'' selected for subject ',num2str(s),...
-                          ', group ',num2str(g), ', modality ', num2str(m),...
-                          ' but the feature set was constructed using ',...
-                          '''All conditions''. This syntax is invalid. ',...
-                          'Please use ''All Conditions'' instead.']);
+                            ['''All scans'' selected for subject ',num2str(s),...
+                            ', group ',num2str(g), ', modality ', num2str(m),...
+                            ' but the feature set was constructed using ',...
+                            '''All conditions''. This syntax is invalid. ',...
+                            'Please use ''All Conditions'' instead.']);
                     end
                     
                     % otherwise add all scans for each subject
@@ -170,11 +173,11 @@ for c = 1:length(in.class)
                     % check whether conditions were specified in the design
                     if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
                         error('prt_model:conditionsSpecifiedButNoneInDesign',...
-                         ['Conditions selected for subject ',num2str(s),...
-                          ', class ',num2str(c),', group ',num2str(g), ...
-                          ', modality ', num2str(m),' but there are none in the design. ',...
-                          'Please use ''All Scans'' or adjust design.']);
-                    end 
+                            ['Conditions selected for subject ',num2str(s),...
+                            ', class ',num2str(c),', group ',num2str(g), ...
+                            ', modality ', num2str(m),' but there are none in the design. ',...
+                            'Please use ''All Scans'' or adjust design.']);
+                    end
                     if isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
                         % all conditions
                         for cid = 1:length(conds)
@@ -213,10 +216,10 @@ function CV = compute_cv_mat(PRT, in, modelid)
 fid = prt_init_fs(PRT, in.fs(1));
 
 % id matrix only contains samples within the CV structure
-ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);   
+ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
 
 switch in.cv.type
-    case 'loso'        
+    case 'loso'
         % give each subject a unique id
         gids = unique(ID(:,1));
         gc = 0;
@@ -233,7 +236,7 @@ switch in.cv.type
         for s = 1:length(snums)
             G{s} = ones(snums(s),1);
         end
-        CV = blkdiag(G{:}) + 1;  
+        CV = blkdiag(G{:}) + 1;
         
     case 'losgo'
         sids = unique(ID(:,2));
@@ -252,7 +255,48 @@ switch in.cv.type
         
     otherwise
         error('prt_cv:unknownTypeSpecified',...
-             ['Unknown type specified for CV structure (',in.type',')']);
+            ['Unknown type specified for CV structure (',in.type',')']);
 end
 
+end
+
+function [targets, samp_idx, targ_allscans]=compute_target_reg(PRT, in)
+% Function to compute the prediction targets. Not much error checking yet
+
+% Set the reference feature set
+fid = prt_init_fs(PRT, in.fs(1));
+ID  = PRT.fs(fid).id_mat;
+n   = size(ID,1);
+
+modalities = {PRT.masks(:).mod_name};
+groups     = {PRT.group(:).gr_name};
+t_all = zeros(n,1);
+targ_allscans=zeros(n,1);
+
+for g = 1:length(in.group)
+    gr_name = in.group(g).gr_name;
+    if any(strcmpi(gr_name,groups))
+        gid = find(strcmpi(gr_name,groups));
+    else
+        error('prt_model:groupNotFoundInPRT',...
+            ['Group ',gr_name,' not found in PRT.mat']);
+    end
+    
+    % subjects
+    for s = 1:length(in.group(g).subj)
+        
+        % modalities, currently only one is allowed
+        m=1;
+        mod_name = in.group(g).subj(s).modality(m).mod_name;
+        if any(strcmpi(mod_name,modalities))
+            mid = find(strcmpi(mod_name,modalities));
+        else
+            error('prt_model:groupNotFoundInPRT',...
+                ['Modality ',mod_name,' not found in PRT.mat']);
+        end
+        samp_idx(s)=in.group(g).subj(s).num;
+        targets(s)= PRT.group(gid).subject( samp_idx(s)).modality(mid).rt_subj;
+    end
+end
+targ_allscans(samp_idx)=targets;
 end
