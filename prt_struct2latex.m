@@ -28,6 +28,8 @@ h_skip = .5; % horizontal skip increment
 
 struct2tex(fp,S,h_skip)
 
+fclose(fp);
+
 return
 
 %==========================================================================
