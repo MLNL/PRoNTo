@@ -235,9 +235,9 @@ else
                                 for l = 1:length(design.conds)
                                     ovser = find(design.conds(l).scans > nscans);
                                     inser = find(design.conds(l).scans <= nscans);
-                                    des.conds(l).discardedscans = [des.conds(l).discardedscans, des.conds(l).scans(ovser)];
-                                    des.conds(l).scans = des.conds(l).scans(inser);
-                                    des.conds(l).blocks = des.conds(l).blocks(inser);
+                                    design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
+                                    design.conds(l).scans = design.conds(l).scans(inser);
+                                    design.conds(l).blocks = design.conds(l).blocks(inser);
                                 end
                             end
                         else
@@ -308,7 +308,7 @@ else
                                     design.conds = conds;
                                 else
                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
-                                    if ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar{1})
+                                    if ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar)
                                         try
                                             load(char(job.group(g).select.subject{j}(k).design.new_design.covar{1}));
                                             if exist('R','var')
@@ -378,10 +378,10 @@ else
                                     disp('Corresponding events were discarded')                                  
                                     for l = 1:length(design.conds)
                                         ovser = find(design.conds(l).scans > nscans);
-                                    inser = find(design.conds(l).scans <= nscans);
-                                    des.conds(l).discardedscans = [des.conds(l).discardedscans, des.conds(l).scans(ovser)];
-                                    des.conds(l).scans = des.conds(l).scans(inser);
-                                    des.conds(l).blocks = des.conds(l).blocks(inser);   
+                                        inser = find(design.conds(l).scans <= nscans);
+                                        design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
+                                        design.conds(l).scans = design.conds(l).scans(inser);
+                                        design.conds(l).blocks = design.conds(l).blocks(inser);   
                                     end
                                 end
                             end
