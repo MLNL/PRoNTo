@@ -89,8 +89,10 @@ for f = 1:n_folds
     cvdata.use_kernel = PRT.model(mid).input.use_kernel;
     cvdata.pred_type  = PRT.model(mid).input.type;
     % additional parameters (e.g. for MCKR)
-    cvdata.tr_param  = prt_cv_opt_param(PRT, ID(tr_idx,:), CV(tr_idx,f));
-    cvdata.te_param  = prt_cv_opt_param(PRT, ID(te_idx,:), CV(te_idx,f));
+%    if  strcmp(PRT.model(mid).input.machine.function,'prt_machine_mckr')
+%         cvdata.tr_param  = prt_cv_opt_param(PRT, ID(tr_idx,:), CV(tr_idx,f));
+%         cvdata.te_param  = prt_cv_opt_param(PRT, ID(te_idx,:), CV(te_idx,f));
+%    end
 
     % Apply any operations specified
     ops = PRT.model(mid).input.operations(PRT.model(mid).input.operations ~=0 );
@@ -126,6 +128,15 @@ for f = 1:n_folds
     end
 end
 
+%Model level statistics (currently compatable with regression only)
+if strcmp(PRT.model(mid).output.fold(1).type,'regression')
+    t=[PRT.model(mid).output.fold(:).targets];
+    m.type=PRT.model(mid).output.fold(1).type;
+    m.predictions=[PRT.model(mid).output.fold(:).predictions];
+    m.func_val=[PRT.model(mid).output.fold(:).func_val];
+    stats=prt_stats(m,t,'model');
+    PRT.model(mid).output.stats=stats;
+end
 % Save PRT containing machine output
 % -------------------------------------------------------------------------
 outfile = [prt_dir, 'PRT'];
