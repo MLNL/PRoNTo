@@ -94,17 +94,17 @@ if isfield(job.model_type,'class')
         end
     end
 elseif isfield(job.model_type,'reg_group')
-     model.type = 'regression';
-     scount = 1;
-     for g = 1:length(job.model_type.reg_group)
-         model.group(g).gr_name = job.model_type.reg_group(g).gr_name;
-         sids   =  job.model_type.reg_group(g).subj_nums;
-         for s = 1:length(sids)
-                model.group(g).subj(scount).num = sids(s);
-                 model.group(g).subj(scount).modality.mod_name =  job.model_type.reg_group(g).mod_name2;
-                scount=scount+1;
-         end
-     end
+    model.type = 'regression';
+    scount = 1;
+    for g = 1:length(job.model_type.reg_group)
+        model.group(g).gr_name = job.model_type.reg_group(g).gr_name;
+        sids   =  job.model_type.reg_group(g).subj_nums;
+        for s = 1:length(sids)
+            model.group(g).subj(scount).num = sids(s);
+            model.group(g).subj(scount).modality.mod_name =  job.model_type.reg_group(g).mod_name2;
+            scount=scount+1;
+        end
+    end
 else
     error('this is not implemented yet');
     
@@ -122,6 +122,9 @@ elseif isfield(job.machine,'gpc')
 elseif isfield(job.machine,'krr')
     model.machine.function='prt_machine_krr';
     model.machine.args=job.machine.krr.krr_args;
+elseif isfield(job.machine,'rvr')
+    model.machine.function='prt_machine_rvr';
+    model.machine.args=[];
 else
     [pat, nam] = fileparts(char(job.machine.custom_machine.machine_func));
     model.machine.function = nam;

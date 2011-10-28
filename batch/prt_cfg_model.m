@@ -404,12 +404,22 @@ krr.help    = {'Kernel Ridge Regression.'};
 krr.val     = {krr_args};
 
 % ---------------------------------------------------------------------
+% RVR group
+% ---------------------------------------------------------------------
+rvr         = cfg_branch;
+rvr.tag     = 'rvr';
+rvr.name    = 'Relevance Vector Regression';
+rvr.help    = {'Relevance Vector Regression. Tipping, Michael E.; Smola, Alex (2001).' ...
+    '"Sparse Bayesian Learning and the Relevance Vector Machine". Journal of Machine Learning Research 1: 211?244.'};
+
+
+% ---------------------------------------------------------------------
 % machine Select Features
 % ---------------------------------------------------------------------
 machine        = cfg_choice;
 machine.tag    = 'machine';
 machine.name   = 'Machine';
-machine.values = {svm,gpc,krr,custom_machine};
+machine.values = {svm,gpc,krr,rvr,custom_machine};
 machine.val    =  {svm};
 machine.help   = {...
     ['Choose a prediction machine for this model']};
