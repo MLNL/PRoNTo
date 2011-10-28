@@ -250,6 +250,9 @@ switch in.cv.type
     case 'lobo'
         error('leave-one-block-out CV not implemented yet');
         
+    case 'loro'
+        warning('leave-one-run-out CV only implemented for MCKR');
+        
     case 'custom'
         error('custom CV not implemented yet');
         
@@ -298,5 +301,6 @@ for g = 1:length(in.group)
         targets(s)= PRT.group(gid).subject( samp_idx(s)).modality(mid).rt_subj;
     end
 end
+targets=targets';
 targ_allscans(samp_idx)=targets;
 end
