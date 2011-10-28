@@ -40,6 +40,7 @@ end
 % -------------------------------------------------------------------------
 % Function output
 % -------------------------------------------------------------------------
+out=[]; %prevent warning of overwriting 'char' class
 disp('Model execution complete.')
 out.files{1} = in.fname{1};
 disp('Done')
