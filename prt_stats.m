@@ -1,4 +1,4 @@
-function stats = prt_stats(model, t)
+function stats = prt_stats(model, t,flag)
 % Function to compute predictions machine performance statistcs statistics
 %
 % Inputs:
@@ -7,14 +7,20 @@ function stats = prt_stats(model, t)
 % model.type:        what type of prediction machine (e.g. 'classifier','regression') 
 %
 % t: true targets
-%
-% Outputs:
-% ----------------
+%flag:  'fold' for statistics in each fold 
+%         'model' for statistics in each model
+% Outputs: 
+%-------------------
+% Classification:
 % stats.con_mat: Confusion matrix (nClasses x nClasses matrix, pred x true)
 % stats.acc:     Accuracy (scalar)
 % stats.b_acc:   Balanced accuracy (nClasses x 1 vector)
 % stats.c_acc:   Accuracy by class (nClasses x 1 vector)
 % stats.c_pv:    Predictive value for each class (nClasses x 1 vector)
+%
+%Regression:
+%stats.mse:     Mean square error between test and prediction
+%stats.corr:     Correlation between test and prediction
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -40,7 +46,7 @@ switch model.type
         
     case 'regression'
         
-        disp ('Not implemented yet');
+         stats = compute_stats_regression(model, t);
         
     otherwise
         error('prt_stats:unknownTypeSpecified',...
@@ -72,4 +78,16 @@ function stats = compute_stats_classifier(model, t)
     stats.c_acc = zeros(k,1);
     stats.c_acc(nz) = Cc(nz) ./ Zc(nz);       
     stats.b_acc = mean(stats.c_acc);    
-  end
+end
+
+ function stats = compute_stats_regression(model, t)
+ 
+ if numel(t)<3
+    stats.corr=NaN;
+ else
+     coef=corrcoef(model.predictions,t);
+     stats.corr=coef(1,2);
+ end
+    stats.mse=mean((model.predictions-t).^2);
+ end
+ 
