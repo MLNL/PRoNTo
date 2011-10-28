@@ -135,6 +135,15 @@ if SANITYCHECK==true
                     'Error: Multi-kernel learning not supported yet!');
         end 
         
+        %6: Check validity of machines chosen.(e.g. use SVM to do
+        %regression is not valid
+        if  strcmp(d.pred_type,'regression') 
+            if ~any(strcmp(m.function,{'prt_machine_krr','prt_machine_rvr'}))
+                error('prt_machine:RgressionMachineSupport',...
+                    'Error: Regresion can only chose use KRR or RVR machines');
+            end
+        end
+        
         % 7: Check datasets properties (within cells)
         for k = 1:Nk_train,
             if ~isempty(d.train{k}) && ~isempty(d.test{k})
