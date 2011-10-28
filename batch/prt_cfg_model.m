@@ -522,6 +522,19 @@ cv_lobo.val     = {1};
 cv_lobo.help    = {...
     ['Leave out a single block or event from each subject each iteration. ', ...
      'Appropriate for single subject designs.']};
+ 
+ % ---------------------------------------------------------------------
+% cv_loro Leave--one-run-per-subject-out (leave one modality out per
+% subject)
+% ---------------------------------------------------------------------
+cv_loro         = cfg_const;
+cv_loro.tag     = 'cv_loro';
+cv_loro.name    = 'Leave one run/session out';
+cv_loro.val     = {1};
+cv_loro.help    = {...
+    ['Leave out a single run (modality) from each subject each iteration. ', ...
+     'Appropriate for single subject designs with multiple runs/sessions.']};
+  
   
 %  
 % % ---------------------------------------------------------------------
@@ -564,7 +577,7 @@ cv_custom.help   = {...
 cv_type        = cfg_choice;
 cv_type.tag    = 'cv_type';
 cv_type.name   = 'Cross-validation type';
-cv_type.values = {cv_loso, cv_losgo, cv_lobo, cv_custom};
+cv_type.values = {cv_loso, cv_losgo, cv_lobo, cv_loro,cv_custom};
 cv_type.val    = {cv_loso};
 cv_type.help   = {'Choose the type of cross-validation to be used'};
 
