@@ -7,15 +7,16 @@ featuresAsKernelMatrix=false;
 useMultipleKernels=false;
 useSynthData=true;         % use synthetic data
 % root of PRT mat
-p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot/october5_2011';
-fn_PRTtoUse='PRT_featureMatrix.mat'; % which PRT mat we want to use
+%p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot/october5_2011';
+p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot';
+fn_PRTtoUse='PRT.mat'; % which PRT mat we want to use
 
 %% generate data
 if useSynthData==true
     Ntr=96;                % number of training vectors
     D=64*64*64;                    % dimensionality of the feature space
     Nte=30;                 % number of testing vectors
-    classOffset=0.1;       % higher value = easier problem
+    classOffset=1;       % higher value = easier problem
     
     if useMultipleKernels==true
         
@@ -105,10 +106,12 @@ if featuresAsKernelMatrix==true
         t_d.test={t_d.test{1}*t_d.train{1}'};
         t_d.train={t_d.train{1}*t_d.train{1}'};
     end
-    t_d.usebf=true;
+    t_d.use_kernel=true;
 else
-    t_d.usebf=false;
+    t_d.use_kernel=false;
 end
+
+t_d.pred_type='classification';
 
 %% plot dataset
 figure;
