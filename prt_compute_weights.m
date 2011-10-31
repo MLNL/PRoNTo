@@ -22,7 +22,7 @@ end
 mfunc   = PRT.model(model_idx).input.machine.function;
 switch mfunc
     case 'prt_machine_svm_bin'
-        m.function  = 'prt_weights_svm_bin';
+        m.function  = 'prt_weights_bin_linkernel';
         m.args      = [];
         img_mach    = 'svm_weights.img';
 end
