@@ -5,9 +5,9 @@
 %% test setup
 featuresAsKernelMatrix=false;
 useMultipleKernels=false;
-useSynthData=false;         % use synthetic data
+useSynthData=true;         % use synthetic data
 % root of PRT mat
-p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot/';
+p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot/october5_2011';
 fn_PRTtoUse='PRT_featureMatrix.mat'; % which PRT mat we want to use
 
 %% generate data
@@ -36,6 +36,7 @@ else
     if length(PRT.group.subject.modality.design.conds)>2
         error('code not ready for >2 class testing')
     end
+    nClasses=2;
     
     load(fullfile(p_PRTroot,fn_PRTtoUse));
     % load mask
@@ -48,26 +49,51 @@ else
     T=size(PRT.file_arrays.Y,2);
     
     %%% retrieve scan indices
-    % make shortcut
+    % make shortcuts
     c1ScansIdx=PRT.group.subject.modality.design.conds(1).scans;
+    c1BlocksId=PRT.group.subject.modality.design.conds(1).blocks;
     c2ScansIdx=PRT.group.subject.modality.design.conds(2).scans;
-    % flag used scans
+    c2BlocksId=PRT.group.subject.modality.design.conds(2).blocks;
+    % flag used scans (maybe useless)
     c1Scans=zeros(1,T);
     c2Scans=c1Scans;
     c1Scans(c1ScansIdx)=1;
     c2Scans(c2ScansIdx)=1;
+    % recover block indices in terms of scan indices
+    blocks=zeros(2,T);
+    blocks(1,c1ScansIdx)=c1BlocksId;
+    blocks(2,c2ScansIdx)=c2BlocksId;
     
-    figure; subplot(211); bar(c1Scans); axis tight; xlabel('scans')
+    figure; subplot(211); stem(blocks(1,:),'fill'); axis tight;
+    xlabel('scan index'); ylabel('block'); grid on;
     title(['c1 - ' PRT.group.subject.modality.design.conds(1).cond_name]);
-    subplot(212); bar(c2Scans); axis tight; xlabel('scans')
+    subplot(212); stem(blocks(2,:),'fill'); axis tight;
+    xlabel('scan index'); ylabel('block'); grid on;
     title(['c2 - ' PRT.group.subject.modality.design.conds(2).cond_name]);
 
     
-    %%% lazy feature generation
-    X=zeros(length(nzvx),0);
-    for t=1:T
-        
+    %%% lazy feature generation - stupid block-mean extractor
+    nBlocks=([numel(unique(c1BlocksId)) numel(unique(c2BlocksId))]);
+    X=zeros(length(nzidx),sum(nBlocks));
+    exidx=1;
+    for c=1:nClasses
+        for b=1:nBlocks(c)
+            scansIdx=find(blocks(c,:)==b);
+            X(:,exidx)=mean(PRT.file_arrays.Y(nzidx,scansIdx),2);
+            %X(:,exidx)=X(:,exidx)./std(PRT.file_arrays.Y(nzidx,scansIdx),[],2);
+            exidx=exidx+1;
+        end
     end
+    figure; imagesc(X);
+    
+    %%% generate train/test labels for a 2-fold CV
+    Ntr1=ceil(nBlocks(1)/2); Nte1=floor(nBlocks(1)/2);
+    Ntr2=ceil(nBlocks(2)/2); Nte2=floor(nBlocks(2)/2);
+    tridx=zeros(sum(nBlocks),1);
+    tridx([1:Ntr1 XXX])=1; tridx(1:Ntr1)=1;
+    XXX t_d.tr_targets=([ones(ceil(Ntr/2,1)*1 ; ones(Ntr/2,1)*2]);
+    XXX te_targets=([ones(Nte/2,1)*1 ; ones(Nte/2,1)*2]);
+    XXX split into two arrays
 end
 
 % compute kernel if needed
