@@ -13,7 +13,7 @@ function weights = prt_weights_bin_linkernel (d,args)
 
 %--------------------------------------------------------------------------
 % Written by J.Mourao-Miranda and M.J.Rosa
-% $Id: prt_weights_svm_bin.m 192 2011-10-24 10:57:19Z mjrosa $
+% $Id: prt_weights_bin_linkernel.m 192 2011-10-24 10:57:19Z mjrosa $
 
 SANITYCHECK = true; % turn off for speed
 
