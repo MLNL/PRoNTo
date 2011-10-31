@@ -308,7 +308,7 @@ else
                                     design.conds = conds;
                                 else
                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
-                                    if ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar)
+                                    if ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar{1})
                                         try
                                             load(char(job.group(g).select.subject{j}(k).design.new_design.covar{1}));
                                             if exist('R','var')
