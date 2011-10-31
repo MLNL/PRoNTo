@@ -50,6 +50,7 @@ if SANITYCHECK==true
     
     output.predictions=d.test{1}*w(1:end-1)+w(end);
     output.func_val=output.predictions;
+     output.alpha=w(1:end-1);
   
 end
 
