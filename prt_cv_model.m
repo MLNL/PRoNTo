@@ -129,14 +129,14 @@ for f = 1:n_folds
 end
 
 %Model level statistics (currently compatable with regression only)
-if strcmp(PRT.model(mid).output.fold(1).type,'regression')
+%if strcmp(PRT.model(mid).output.fold(1).type,'regression')
     t=[PRT.model(mid).output.fold(:).targets];
     m.type=PRT.model(mid).output.fold(1).type;
     m.predictions=[PRT.model(mid).output.fold(:).predictions];
     m.func_val=[PRT.model(mid).output.fold(:).func_val];
     stats=prt_stats(m,t,'model');
     PRT.model(mid).output.stats=stats;
-end
+%end
 % Save PRT containing machine output
 % -------------------------------------------------------------------------
 outfile = [prt_dir, 'PRT'];
