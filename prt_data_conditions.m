@@ -438,7 +438,8 @@ ncond=length(handles.cond);
 for i=1:ncond
     szon=length(handles.cond(i).onsets);
     szdur=length(handles.cond(i).durations);
-    szrt=length(handles.cond(i).rt_trial);
+    %szrt=length(handles.cond(i).rt_trial); % XXX temp fix
+    szrt=0;                                 % XXX temp fix
     if szdur==1
         handles.cond(i).durations=repmat(handles.cond(i).durations, 1, szon);
         szdur=length(handles.cond(i).durations);

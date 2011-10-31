@@ -67,18 +67,35 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     %get number of groups and subjects/group
     PRT=varargin{2};
     ng=length(PRT.group);
+    if ng==0
+        beep
+        disp('No group found at this point')
+        disp('Please enter at least one completed group before reviewing')
+        return
+    end
     ns=zeros(ng,1);
     gname=cell(ng);
     handles.gname=gname;
     for i=1:ng
+        if ~isfield(PRT.group(i),'subject')
+            disp(['Group ' num2str(i) ' has no subject'])
+            disp('Please enter at least one completed group before reviewing')
+            return
+        end
         ns(i)=length(PRT.group(i).subject);
         gname{i}=PRT.group(i).gr_name;
     end
-    %get number of modalities and the index of those having designs
+    %get number of modalities and the index of those having design
+    if ~isfield(PRT.group(1).subject(1),'modality')
+        disp(['No modality has been defined.'])
+        disp('Please enter at least one completed group before reviewing')
+        return
+    end
     nm=length(PRT.group(1).subject(1).modality);
     ind=[];
     list={};
     for i=1:nm
+        % XXX should we check on the existence of 'design' field ?
         if isstruct(PRT.group(1).subject(1).modality(i).design)
             ind=[ind, i];
             list=[list, {PRT.group(1).subject(1).modality(i).mod_name}];
