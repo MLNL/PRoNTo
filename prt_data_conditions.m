@@ -385,7 +385,9 @@ ind=eventdata.Indices;
 if ind(2)>1
     dat=eventdata.EditData;
     eval(['vect=[',dat,'];']);
-    if isnan(vect) || vect>10^6 || ~any(size(vect)==1)
+    % vect is a vector - need to compute a scalar to be able to use ||
+    %if isnan(vect) || vect>10^6 || ~any(size(vect)==1)
+    if any(isnan(vect)) || any(vect>10^6) || ~any(size(vect)==1)
         beep
         disp('Bad formatting of values found!')
         sprintf('Please review and correct condition %d, column %d', ind(1), ind(2))
