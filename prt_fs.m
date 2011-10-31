@@ -107,7 +107,11 @@ for b = 1:n_block
                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
                     datapr(sample_range,:) = (prt_load_blocks(fname,ind_ddmask))';
                     if in.mod(mid).detrend ~= 0
-                        TR=PRT.group.subject(sid).modality(mid).design.TR;
+                        if  isfield(PRT.group.subject(sid).modality(mid).design,'TR')
+                            TR=PRT.group.subject(sid).modality(mid).design.TR;
+                        else
+                            TR=PRT.group.subject(sid).modality(mid).TR;
+                        end
                         switch in.mod(mid).detrend
                             case 1
                                 c= poly_regressor(length(sample_range),in.mod(mid).param_dt);
