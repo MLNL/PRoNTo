@@ -60,7 +60,7 @@ all_features.help    = {...
 fs_name         = cfg_entry;
 fs_name.tag     = 'fs_name';
 fs_name.name    = 'Name';
-fs_name.help    = {'Name of a feature set'};
+fs_name.help    = {'Name of a feature set. Must match design specification'};
 fs_name.strtype = 's';
 fs_name.num     = [1 Inf];
 
