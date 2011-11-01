@@ -69,18 +69,9 @@ for i = 1:nfas
 end
 idfeat = PRT.fas(fas_idx).idfeat_img;
 
-% Find mask
-% -------------------------------------------------------------------------
-nmod = length(PRT.masks);
-for i=1:nmod
-    if strcmp(PRT.masks(i).mod_name,PRT.fas(fas_idx).mod_name)
-        idx_mask = i;
-    end
-end
-
 % Create image
 % -------------------------------------------------------------------------
-hdr        = nifti(char(PRT.masks(idx_mask).fname));
+hdr        = PRT.fas(fas_idx).hdr.private;
 img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),...
              hdr.dat.dim(3),nfold],'float64-le',0,1,0);         
 nvox       = hdr.dat.dim(1)*hdr.dat.dim(2)*hdr.dat.dim(3);
@@ -118,6 +109,5 @@ No.dat     = img4d;            % change file_array
 No.descrip = 'Pronto weigths'; % description
 create(No);                    % write header
 
-return
 
 
