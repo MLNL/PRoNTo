@@ -493,7 +493,7 @@ machine.help   = {...
 % 
 
 % ---------------------------------------------------------------------
-% cv_loo Leave-one-out
+% cv_loso Leave-one-subject-out
 % ---------------------------------------------------------------------
 cv_loso         = cfg_const;
 cv_loso.tag     = 'cv_loso';
@@ -513,7 +513,7 @@ cv_losgo.help    = {...
      'Appropriate for repeated measures or paired samples designs.']};
  
 % ---------------------------------------------------------------------
-% cv_losgo Leave-one-subject-per-group-out
+% cv_lobo Leave-one-block-out
 % ---------------------------------------------------------------------
 cv_lobo         = cfg_const;
 cv_lobo.tag     = 'cv_lobo';
