@@ -43,7 +43,7 @@ n_mods=length(mids);
 def=prt_get_defaults('fs');
 
 % Load mask(s) and resize if necessary
-[mask,precmask,headers] = load_masks(PRT, prt_dir, in,mids);
+[mask,precmask,headers,PRT] = load_masks(PRT, prt_dir, in,mids);
 
 % Initialize the file arrays, kernel and feature set parameters
 [fid,PRT,tocomp] = prt_init_fs(PRT,in,mids,mask,precmask,headers);
@@ -106,6 +106,15 @@ for b = 1:n_block
                     sample_range=(1:n_vols_s)+max(sample_range);
                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
                     datapr(sample_range,:) = (prt_load_blocks(fname,ind_ddmask))';
+                    %check for NaNs, in case of beta maps
+                    [inan,jnan]=find(isnan(datapr(sample_range,:)));
+                    if ~isempty(inan)
+                        for inn=1:length(inan)
+                            datapr(sample_range(inan(inn)),jnan(inn))=0;
+                        end
+                    end
+                    
+                    %detrend if necessary
                     if in.mod(mid).detrend ~= 0
                         if  isfield(PRT.group.subject(sid).modality(mid).design,'TR')
                             TR=PRT.group.subject(sid).modality(mid).design.TR;
@@ -127,15 +136,15 @@ for b = 1:n_block
             
             % Write the detrended data into the file array
             namedat=['Data_matrix_',char(in.mod(mid).mod_name),'.dat'];
-            fpd_clean = fopen(fullfile(prt_dir,namedat), 'a'); % 'a' append
+            fpd_clean = fopen(fullfile(prt_dir,namedat), 'a','ieee-le.l64'); % 'a' append
             if b==1
                 % write the data in file .dat
-                fwrite(fpd_clean, datapr, 'float64');
+                fwrite(fpd_clean, datapr, 'float64',0,'ieee-le.l64');
                 fclose(fpd_clean);
             else
                 % Append the data in file .dat
                 fseek(fpd_clean,0,'eof');
-                fwrite(fpd_clean, datapr, 'float64');
+                fwrite(fpd_clean, datapr, 'float64',0,'ieee-le.l64');
                 fclose(fpd_clean);
             end
             
@@ -184,7 +193,7 @@ end
 % -------------------------------------------------------------------------
 % Private functions
 % -------------------------------------------------------------------------
-function [mask, precmask, headers] = load_masks(PRT, prt_dir, in, mids)
+function [mask, precmask, headers,PRT] = load_masks(PRT, prt_dir, in, mids)
 % function to load the mask for each modality
 % -------------------------------------------
 n_mods=length(mids);
@@ -241,6 +250,7 @@ for m = 1:n_mods
         mfile_new.fname = [prt_dir 'updated_kernel_mask_m',num2str(mid),'.img'];
         tmp             = spm_imcalc([N V2],mfile_new,'0.*i1+(i2>0)');
         mask{m}         = mfile_new.fname;
+        PRT.masks(mid).fname = mfile_new.fname;
     else
         mask{m} = ddmask;
         
@@ -260,6 +270,7 @@ for m = 1:n_mods
     clear M N precM V1 V2 mfile mfile_new
 end
 return
+
 function c=poly_regressor(n,order)
 %n: length of the series
 %order: the order of polynomial function to fit the tend

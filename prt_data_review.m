@@ -170,10 +170,6 @@ else
     varargout{1}=[];
 end
 
-% The figure can be deleted now
-if isfield(handles,'figure1')
-    delete(handles.figure1);
-end
 
 
 % --- Executes on selection change in modlist.
