@@ -31,10 +31,6 @@ if useSynthData==true
     t_d.tr_targets=([ones(Ntr/2,1)*1 ; ones(Ntr/2,1)*2]);
     te_targets=([ones(Nte/2,1)*1 ; ones(Nte/2,1)*2]);
 else
-    if featuresAsKernelMatrix==true
-        error('code not ready to test kernel matrix')
-    end
-    
     load(fullfile(p_PRTroot,fn_PRTtoUse));
     
     if length(PRT.group.subject.modality.design.conds)>2
@@ -83,9 +79,9 @@ else
     X=zeros(sum(nBlocks),D);
     exidx=1;
     for c=1:nClasses
-        disp(['Class ' num2str(c)]);
+        fprintf('Class %d block',c);
         for b=1:nBlocks(c)
-            fprintf(' %dmax',b);
+            fprintf(' %d',b);
             scansIdx=find(blocks(c,:)==b);
             X(exidx,:)=mean(PRT.fas.dat(scansIdx,:),1);
             %X(:,exidx)=X(:,exidx)./std(PRT.file_arrays.Y(nzidx,scansIdx),[],2);
@@ -93,7 +89,8 @@ else
         end
         fprintf('%s\n','.');
     end
-    figure; imagesc(X);
+    figure; imagesc(X); xlabel('voxel'); ylabel('example');
+    title('block means');
     
     %%% generate train/test labels for a 2-fold CV
     Ntr1=ceil(nBlocks(1)/2); Nte1=floor(nBlocks(1)/2);
@@ -135,8 +132,8 @@ end
 
 
 %% prepare machine
-myMachine.function='prt_machine_svm_bin';
-%myMachine.function='prt_machine_RT_bin';
+%myMachine.function='prt_machine_svm_bin';
+myMachine.function='prt_machine_RT_bin';
 
 if ~isempty(strfind(myMachine.function,'svm_bin'))
     if featuresAsKernelMatrix==true
@@ -165,8 +162,8 @@ output = prt_machine(t_d,myMachine);
 toc
 
 %% eval 
-figure; plot(te_targets,'g-','LineWidth',3); hold on;
-plot(output.predictions,'k:','LineWidth',2);
+figure; plot(te_targets,'go','LineWidth',3,'MarkerSize',10); hold on;
+plot(output.predictions,'k+','LineWidth',2,'MarkerSize',10);
 plot(output.func_val,'b--','LineWidth',2); 
 legend('true labels','hard prediction','soft prediction');
 grid on

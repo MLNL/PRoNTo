@@ -1,15 +1,19 @@
-function output = prt_machine_RT_bin(train,test,tr_lbs,args)
+function output = prt_machine_RT_bin(d,args)
 % Run binary Ensemble of Regression Tree - wrapper for Pierre Geurt's
 % RT code
-% FORMAT output = prt_machine_RT_bin(train,test,tr_lbs,args)
+% FORMAT output =  prt_machine_RT_bin(d,args)
 % Inputs:
-%    train   - training data (cell array of matrices of row vectors, each
-%              [Ntr x D]). each matrix contains one representation of the
-%              data. This is useful for approaches such as multiple kernel
-%              learning.
-%    test    - testing data  (cell array of matrices row vectors, each
-%              [Nte x D])
-%    tr_lbs  - training labels (column vector, [Ntr x 1])
+%   d         - structure with data information, with mandatory fields:
+%     .train      - training data (cell array of matrices of row vectors,
+%                   each [Ntr x D]). each matrix contains one representation
+%                   of the data. This is useful for approaches such as
+%                   multiple kernel learning.
+%     .test       - testing data  (cell array of matrices row vectors, each
+%                   [Nte x D])
+%     .tr_targets - training labels (for classification) or values (for
+%                   regression) (column vector, [Ntr x 1])
+%     .use_kernel - flag, is data in form of kernel matrices (true) of in 
+%                form of features (false)
 %    args    - vector of RT arguments
 %       args(1) - number of trees (default: 501)
 % Output:
@@ -25,6 +29,8 @@ function output = prt_machine_RT_bin(train,test,tr_lbs,args)
 %--------------------------------------------------------------------------
 % Written by J.Richiardi
 % $Id$
+
+% FIXME: don't return weights if we are in use_kernel mode!
 
 % FIXME: support for multiple kernels / feature representations
 % is not yet tested, there might be transposition or dimensionality errors.
@@ -50,7 +56,7 @@ if SANITYCHECK==true
     end
     
     % check it is indeed a two-class classification problem
-    uTL=unique(tr_lbs(:));
+    uTL=unique(d.tr_targets(:)); % unique training labels
     nC=numel(uTL);
     if nC>2
         error('prt_machine_RT_bin:problemNotBinary',['Error:'...
@@ -91,11 +97,11 @@ end % SANITYCHECK
 %--------------------------------------------------------------------------
 rtParams=init_rf(); % random forests
 rtParams.nbterms=args(1); % number of trees
-tridx=int32(1:numel(tr_lbs));  % (WARNING: int32 format is mandatory)
+tridx=int32(1:numel(d.tr_targets));  % (WARNING: int32 format is mandatory)
 verbose=0;   % TODO: make this a machine arg
 
-[output.func_val output.w trees]=rtenslearn_c(single(train{1}),...
-    single(tr_lbs),tridx,[],rtParams,single(test{1}),verbose);
+[output.func_val output.w trees]=rtenslearn_c(single(d.train{1}),...
+    single(d.tr_targets),tridx,[],rtParams,single(d.test{1}),verbose);
 
 % check if training succeeded:
 if isempty(output)
