@@ -19,12 +19,22 @@ end
 
 % Find machine
 % -------------------------------------------------------------------------
-mfunc   = PRT.model(model_idx).input.machine.function;
+mfunc       = PRT.model(model_idx).input.machine.function;
+m.args      = [];
+m.function  = 'prt_weights_bin_linkernel';
+
 switch mfunc
-    case 'prt_machine_svm_bin'
-        m.function  = 'prt_weights_bin_linkernel';
-        m.args      = [];
+    case 'prt_machine_svm_bin' 
         img_mach    = 'svm_weights.img';
+    case 'prt_machine_rvr'
+        img_mach    = 'rvr_weights.img';
+    case 'prt_machine_krr'
+        img_mach    = 'krr_weights.img';
+    case 'prt_machine_RT_bin'
+        img_mach    = 'rt_weights.img';
+    otherwise
+        error('prt_compute_weights:MachineNotSupported',...
+            'Error: weights computation not supported for this machine!');
 end
 
 if ~isempty(in.img_name)
@@ -59,7 +69,7 @@ for i = 1:nfas
 end
 idfeat = PRT.fas(fas_idx).idfeat_img;
 
-% Find modality
+% Find mask
 % -------------------------------------------------------------------------
 nmod = length(PRT.masks);
 for i=1:nmod
@@ -72,9 +82,8 @@ end
 % -------------------------------------------------------------------------
 hdr        = nifti(char(PRT.masks(idx_mask).fname));
 img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),...
-             hdr.dat.dim(3),nfold],'float64-le',0,1,0); 
-         
-nvox  = hdr.dat.dim(1)*hdr.dat.dim(2)*hdr.dat.dim(3);
+             hdr.dat.dim(3),nfold],'float64-le',0,1,0);         
+nvox       = hdr.dat.dim(1)*hdr.dat.dim(2)*hdr.dat.dim(3);
  
 for f = 1:nfold
     
@@ -84,7 +93,6 @@ for f = 1:nfold
     train          = samp_idx(train_idx);
    
     alphas         = PRT.model(model_idx).output.fold(f).alpha;
-    alphas         = alphas(alphas ~= 0);
 
     datamat        = PRT.fas(fas_idx).dat(train,:);
     
