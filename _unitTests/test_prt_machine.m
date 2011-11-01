@@ -8,7 +8,7 @@ useMultipleKernels=false;
 useSynthData=false;         % use synthetic data
 % root of PRT mat
 %p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot/october5_2011';
-p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot';
+p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot/GUITests';
 fn_PRTtoUse='PRT.mat'; % which PRT mat we want to use
 
 %% generate data
@@ -132,8 +132,8 @@ end
 
 
 %% prepare machine
-%myMachine.function='prt_machine_svm_bin';
-myMachine.function='prt_machine_RT_bin';
+myMachine.function='prt_machine_svm_bin';
+%myMachine.function='prt_machine_RT_bin';
 
 if ~isempty(strfind(myMachine.function,'svm_bin'))
     if featuresAsKernelMatrix==true

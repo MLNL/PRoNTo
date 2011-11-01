@@ -23,7 +23,8 @@ infile.help   = {'Select data/design structure file (PRT.mat).'};
 k_file         = cfg_entry;
 k_file.tag     = 'k_file';
 k_file.name    = 'Name';
-k_file.help    = {'Target filename for kernel matrix'};
+k_file.help    = {['Target name for kernel matrix. This should contain' ...
+                   'only alphanumerical characters or underscores (_).']};
 k_file.strtype = 's';
 k_file.num     = [1 Inf];
 
