@@ -34,20 +34,25 @@ else
     if featuresAsKernelMatrix==true
         error('code not ready to test kernel matrix')
     end
+    
+    load(fullfile(p_PRTroot,fn_PRTtoUse));
+    
     if length(PRT.group.subject.modality.design.conds)>2
         error('code not ready for >2 class testing')
     end
     nClasses=2;
     
-    load(fullfile(p_PRTroot,fn_PRTtoUse));
+    
+    % no need to do explicit masking - already done in feature preparation
     % load mask
-    VMi=spm_vol(PRT.masks.fname(1:end-2));
-    VM=spm_read_vols(VMi);
+    %VMi=spm_vol(PRT.masks.fname(1:end-2));
+    %VM=spm_read_vols(VMi);
     % find non-zero voxels (within the mask)
-    nzidx=find(VM>0); % no support for logical indexing in file_array :(
-    clear VM VMi;
-    %nzvx=PRT.file_arrays.Y(nzidx,:);
-    T=size(PRT.file_arrays.Y,2);
+    % nzidx=find(VM>0); % no support for logical indexing in file_array :(
+    %clear VM VMi;
+    
+    sz=size(PRT.fas.dat); % could also check size(PRT.fs.id_mat,1)
+    T=sz(1); D=sz(2);
     
     %%% retrieve scan indices
     % make shortcuts
@@ -75,26 +80,31 @@ else
     
     %%% lazy feature generation - stupid block-mean extractor
     nBlocks=([numel(unique(c1BlocksId)) numel(unique(c2BlocksId))]);
-    X=zeros(length(nzidx),sum(nBlocks));
+    X=zeros(sum(nBlocks),D);
     exidx=1;
     for c=1:nClasses
+        disp(['Class ' num2str(c)]);
         for b=1:nBlocks(c)
+            fprintf(' %dmax',b);
             scansIdx=find(blocks(c,:)==b);
-            X(:,exidx)=mean(PRT.file_arrays.Y(nzidx,scansIdx),2);
+            X(exidx,:)=mean(PRT.fas.dat(scansIdx,:),1);
             %X(:,exidx)=X(:,exidx)./std(PRT.file_arrays.Y(nzidx,scansIdx),[],2);
             exidx=exidx+1;
         end
+        fprintf('%s\n','.');
     end
     figure; imagesc(X);
     
     %%% generate train/test labels for a 2-fold CV
     Ntr1=ceil(nBlocks(1)/2); Nte1=floor(nBlocks(1)/2);
     Ntr2=ceil(nBlocks(2)/2); Nte2=floor(nBlocks(2)/2);
-    tridx=zeros(sum(nBlocks),1);
-    tridx([1:Ntr1 XXX])=1; tridx(1:Ntr1)=1;
-    XXX t_d.tr_targets=([ones(ceil(Ntr/2,1)*1 ; ones(Ntr/2,1)*2]);
-    XXX te_targets=([ones(Nte/2,1)*1 ; ones(Nte/2,1)*2]);
-    XXX split into two arrays
+    tridx=false(sum(nBlocks),1);
+    tridx(1:Ntr1)=true; tridx((nBlocks(1)+1):(nBlocks(1)+Ntr2))=true;
+    t_d.tr_targets=([ones(Ntr1,1)*1 ; ones(Ntr2,1)*2]);
+    te_targets=([ones(Nte1,1)*1 ; ones(Nte2,1)*2]);
+    % split into train and tes
+    t_d.train={X(tridx,:)};
+    t_d.test={X(~tridx,:)};
 end
 
 % compute kernel if needed
@@ -116,6 +126,7 @@ t_d.pred_type='classification';
 %% plot dataset
 figure;
 subplot(221); imagesc(t_d.train{1}); title('TR 1');
+xlabel('feature'); ylabel('example');
 subplot(223); imagesc(t_d.test{1}); title('TE 1');
 if useMultipleKernels==true
     subplot(222); imagesc(t_d.train{2}); title('TR 2');
@@ -153,7 +164,7 @@ tic
 output = prt_machine(t_d,myMachine);
 toc
 
-% eval 
+%% eval 
 figure; plot(te_targets,'g-','LineWidth',3); hold on;
 plot(output.predictions,'k:','LineWidth',2);
 plot(output.func_val,'b--','LineWidth',2); 
