@@ -5,7 +5,7 @@
 %% test setup
 featuresAsKernelMatrix=false;
 useMultipleKernels=false;
-useSynthData=true;         % use synthetic data
+useSynthData=false;         % use synthetic data
 % root of PRT mat
 %p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot/october5_2011';
 p_PRTroot='/Volumes/cs-research/intelsys/intelsys0/green/pattern/testdata/MoAEpilot';

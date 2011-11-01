@@ -410,7 +410,12 @@ elseif ind(2)==2
 elseif ind(2)==3
     handles.cond(ind(1)).durations=vect;
 elseif ind(2)==4
+     % will never trigger for this version of ProNTo
     handles.cond(ind(1)).rt_trial=vect;
+end
+% TODO - version 2 will have support for rt_trial
+if ~isfield(handles.cond(ind(1)),'rt_trial')
+    handles.cond(ind(1)).rt_trial=[];
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -438,8 +443,7 @@ ncond=length(handles.cond);
 for i=1:ncond
     szon=length(handles.cond(i).onsets);
     szdur=length(handles.cond(i).durations);
-    %szrt=length(handles.cond(i).rt_trial); % XXX temp fix
-    szrt=0;                                 % XXX temp fix
+    szrt=length(handles.cond(i).rt_trial);
     if szdur==1
         handles.cond(i).durations=repmat(handles.cond(i).durations, 1, szon);
         szdur=length(handles.cond(i).durations);
