@@ -57,6 +57,8 @@ model.use_kernel = job.use_kernel;
 % insert feature set fields
 for f = 1:length(job.fset)
     model.fs(f).fs_name = job.fset(f).fs_name;
+    fid=prt_init_fs(PRT,model.fs(f));
+    mods={PRT.fs(fid).modality(:).mod_name};
 end
 
 % Insert fields for generating the labels (ie. translate the fields coming
@@ -76,17 +78,15 @@ if isfield(job.model_type,'class')
             sids   = job.model_type.class(c).group(g).subj_nums;
             for s = 1:length(sids)
                 model.class(c).group(g).subj(scount).num = sids(s);
-                
-                model.class(c).group(g).subj(scount).modality.mod_name = ...
-                    job.model_type.class(c).group(g).modality.mod_name;
-                for m = 1: length(job.model_type.class(c).group(g).modality)
-                    if isfield(job.model_type.class(c).group(g).modality(m).conditions,'all_scans')
-                        model.class(c).group(g).subj(scount).modality.all_scans = true;
-                    elseif isfield(job.model_type.class(c).group(g).modality(m).conditions,'all_cond')
-                        model.class(c).group(g).subj(scount).modality.all_cond = true;
+                for m = 1: length(mods)
+                    model.class(c).group(g).subj(scount).modality(m).mod_name=mods{m};
+                    if isfield(job.model_type.class(c).group(g).conditions,'all_scans')
+                        model.class(c).group(g).subj(scount).modality(m).all_scans = true;
+                    elseif isfield(job.model_type.class(c).group(g).conditions,'all_cond')
+                        model.class(c).group(g).subj(scount).modality(m).all_cond = true;
                     else
                         model.class(c).group(g).subj(scount).modality(m).conds = ...
-                            job.model_type.class(c).group(g).modality(m).conditions.conds;
+                            job.model_type.class(c).group(g).conditions.conds;
                     end
                 end
                 scount = scount+1;
@@ -101,7 +101,7 @@ elseif isfield(job.model_type,'reg_group')
         sids   =  job.model_type.reg_group(g).subj_nums;
         for s = 1:length(sids)
             model.group(g).subj(scount).num = sids(s);
-            model.group(g).subj(scount).modality.mod_name =  job.model_type.reg_group(g).mod_name2;
+            model.group(g).subj(scount).modality.mod_name =  mods;
             scount=scount+1;
         end
     end

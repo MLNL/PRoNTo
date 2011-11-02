@@ -110,13 +110,14 @@ function crval_Callback(hObject, eventdata, handles)
 % hObject    handle to crval (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-prt_ui_cv
+prt_ui_model
 
 % --- Executes on button press in model.
 function model_Callback(hObject, eventdata, handles)
 % hObject    handle to model (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+% prt_ui_run_model
 
 % --- Executes on button press in appmod.
 function appmod_Callback(hObject, eventdata, handles)
@@ -158,6 +159,7 @@ function batchbutt_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 prt_batch
+delete(handles.figure1)
 
 % --- Executes on button press in credits.
 function credits_Callback(hObject, eventdata, handles)

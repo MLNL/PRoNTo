@@ -116,10 +116,10 @@ for b = 1:n_block
                     
                     %detrend if necessary
                     if in.mod(mid).detrend ~= 0
-                        if  isfield(PRT.group.subject(sid).modality(mid).design,'TR')
-                            TR=PRT.group.subject(sid).modality(mid).design.TR;
+                        if  isfield(PRT.group(gid).subject(sid).modality(mid).design,'TR')
+                            TR=PRT.group(gid).subject(sid).modality(mid).design.TR;
                         else
-                            TR=PRT.group.subject(sid).modality(mid).TR;
+                            TR=PRT.group(gid).subject(sid).modality(mid).TR;
                         end
                         switch in.mod(mid).detrend
                             case 1

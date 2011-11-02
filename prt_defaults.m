@@ -38,6 +38,7 @@ prt_def.datad.hrfw = 6; % HRF FWHM, used to compute the overlap between conditio
 
 
 % Preprocessing defaults
+%------------------------------------------------
 prt_def.prep.use1  = 5;      
 prt_def.prep.use2  = 'kk'; % pre
 % Put in whatever default value is useful for the preprocessing step. It
@@ -58,5 +59,11 @@ prt_def.dspec.use3 = [1 2];
 % Other default values should be added as sub-fields in the prt_def
 % structure. Values related to the same module should preferably be grouped
 % into a single substructure.
+
+% Parameters of the different machines
+%--------------------------------------------------
+prt_def.model.svmargs='-s 0 -t 4 -c 1';
+prt_def.model.gpcargs='-l erf -h';
+prt_def.model.krrargs={1};
 
 return
