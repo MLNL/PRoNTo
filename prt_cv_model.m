@@ -133,7 +133,7 @@ for f = 1:n_folds
     end
 end
 
-%Model level statistics
+%Model level (across folds) statistics
 t=[PRT.model(mid).output.fold(:).targets];
 m.type=PRT.model(mid).output.fold(1).type;
 m.predictions=[PRT.model(mid).output.fold(:).predictions];

@@ -30,8 +30,6 @@ function output = prt_machine_RT_bin(d,args)
 % Written by J.Richiardi
 % $Id$
 
-% FIXME: don't return weights if we are in use_kernel mode!
-
 % FIXME: support for multiple kernels / feature representations
 % is not yet tested, there might be transposition or dimensionality errors.
 
@@ -100,7 +98,7 @@ rtParams.nbterms=args(1); % number of trees
 tridx=int32(1:numel(d.tr_targets));  % (WARNING: int32 format is mandatory)
 verbose=1;   % TODO: make this a machine arg
 
-[output.func_val output.w trees]=rtenslearn_c(single(d.train{1}),...
+[output.func_val w trees]=rtenslearn_c(single(d.train{1}),...
     single(d.tr_targets),tridx,[],rtParams,single(d.test{1}),verbose);
 
 % check if training succeeded:
@@ -114,8 +112,12 @@ end
 % compute hard decisions
 output.predictions=round(output.func_val);
 
-% normalise importance to norm 1
-output.w=output.w/norm(output.w,1);
+if use_kernel==false
+    % normalise importance to norm 1
+    output.w=output.w/norm(output.w,1);
+else
+    % do nothing - we can't compute primal weights from inside here
+end
 
 % prepare output
 output.type        = 'classifier';
