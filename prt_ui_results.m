@@ -62,7 +62,7 @@ if ~isfield(handles,'notinit')
     load(PRT);
     handles.PRT = PRT;
     % Load models
-    nmodels = length(unique(PRT.model));
+    nmodels = length(PRT.model);
     for m = 1:nmodels
         model_name{m} = PRT.model(m).model_name;
     end
