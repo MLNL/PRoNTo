@@ -91,6 +91,7 @@ for f = 1:nfold
     d.datamat      = datamat;
     
     wimg           = prt_weights(d,m);
+    wimg           = wimg/norm(wimg,2); % normalise weights
     
     img3d          = zeros(1,nvox);
     img3d(idfeat)  = wimg;
