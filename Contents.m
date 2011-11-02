@@ -24,17 +24,17 @@
 % PRoNTo is  developed by the Machine Learning & Neuroimaging Laboratory,
 % Computer Science department, University College London, UK.
 % http://www.mlnl.cs.ucl.ac.uk and associated researchers.
-%
+% 
 % Main contributors, in alphabetical order: J. Ashburner, C. Chu, 
-% A. Marquand, J. Mourao-Miranda, C. Phillips, J. Richiardi, J. Rondina, 
-% M.J. Rosa, J. Schrouff,
+% A. Marquand, C. Phillips, J. Richiardi, J. Rondina, 
+% M.J. Rosa, J. Schrouff. Project Coordinator: J. Mourao-Miranda.
 % 
 % The development of PRoNTo was possible with the financial and logistic 
 % support of 
+% - PASCAL Harvest Programme (http://www.pascal-network.org/)
 % - the Department of Computer Science, University College London
 %   (http://www.cs.ucl.ac.uk)
 % - the Wellcome Trust
-% - PASCAL (http://www.pascal-network.org/)
 % - the Fonds de la Recherche Scientifique-FNRS, Belgium
 %   (http://www.fnrs.be)
 % - Swiss National Science Foundation (PP00P2-123438) and Center for
