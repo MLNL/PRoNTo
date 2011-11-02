@@ -269,44 +269,66 @@ m            = get(handles.classmenu,'Value');
 PRT          = handles.PRT;
 handles.plot = 1;
 
+% get data for the classes
+model   = get(handles.classmenu,'Value');
+targets = handles.PRT.model(model).input.targets;
+scores  = handles.PRT.model(model).output.fold(fold-1).predictions;
+
+targpos = targets == 2;
+
 switch plotchosen
     
     case '1'
+        % predictions
         
     case '2'
+        % ROC curve
+                
+        [y,idx] = sort(scores);
+        targpos = targpos(idx);
         
-        if fold ~=1
-            
-            model   = get(handles.classmenu,'Value');
-            targets = handles.PRT.model(model).input.targets;
-            scores  = handles.PRT.model(model).output.fold(fold-1).predictions;
-            
-            targpos = targets == 2;
-            
-            [y,idx] = sort(scores);
-            targpos = targpos(idx);
-            
-            fp      = cumsum(targpos)/sum(targpos);
-            tp      = cumsum(1-targpos)/sum(1-targpos);
-            
-            tp      = [0 ; tp ; 1];
-            fp      = [0 ; fp ; 1];
-            
-            n       = size(tp, 1);
-            A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
-            
-            plot(handles.axes5,fp,tp,'--ks','LineWidth',2, 'MarkerEdgeColor','k',...
-                'MarkerFaceColor','k',...
-                'MarkerSize',4);
-            title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %d',A));
-            xlabel(handles.axes5,'False positives')
-            ylabel(handles.axes5,'True positives')
-            
-        end
+        fp      = cumsum(single(targpos))/sum(single(targpos));
+        tp      = cumsum(single(~targpos))/sum(single(~targpos));
+        
+        tp      = [0 ; tp ; 1];
+        fp      = [0 ; fp ; 1];
+        
+        n       = size(tp, 1);
+        A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
+        
+        plot(handles.axes5,fp,tp,'--ks','LineWidth',2, 'MarkerEdgeColor','k',...
+            'MarkerFaceColor','k',...
+            'MarkerSize',4);
+        title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %d',A));
+        xlabel(handles.axes5,'False positives')
+        ylabel(handles.axes5,'True positives')
         
     case '3'
+        % func_val distributions
+        if isfield(handles.PRT.model(model).output.fold(fold-1),'func_val')
+            fVals  = handles.PRT.model(model).output.fold(fold-1).func_val;
+            myCols={'r','g'};
+            classNames{1}=handles.PRT.model(model).input.class(1).class_name;
+            classNames{2}=handles.PRT.model(model).input.class(2).class_name;
+            figure;
+            for c=1:2
+                func_vals=fVals(targpos);
+                if exist('ksdensity','file')==2
+                    [f,x] = ksdensity(func_vals,'width',width);
+                    plot(x, f,myCols{c});
+                    hold on;
+                else
+                    % plot Gaussian distributions
+                end
+            end
+            xlabel('function value');
+            legend(classNames{1},classNames{2});
+        else
+            % do nothing, no func_val available
+        end
         
     case '4'
+        % confusion matrix
         
         if fold == 1
             for f = 1:handles.nfold,
