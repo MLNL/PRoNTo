@@ -307,7 +307,7 @@ switch plotchosen
         % func_val distributions
         if isfield(handles.PRT.model(model).output.fold(fold-1),'func_val')
             fVals  = handles.PRT.model(model).output.fold(fold-1).func_val;
-            myCols={'r','g'};
+            myColours={'r','g'};
             classNames{1}=handles.PRT.model(model).input.class(1).class_name;
             classNames{2}=handles.PRT.model(model).input.class(2).class_name;
             figure;
@@ -315,12 +315,13 @@ switch plotchosen
                 func_vals=fVals(targpos);
                 if exist('ksdensity','file')==2
                     [f,x] = ksdensity(func_vals,'width',width);
-                    plot(x, f,myCols{c});
+                    plot(x, f,myColours{c});
                     hold on;
                 else
                     % can't plot density, be happy with a histogram
-                    %[myHist,myH] = hist(func_vals,100);
-                    % 
+                    [myHist,myX]=hist(func_vals,100);
+                    bar(myX,myHist,myColours{c});
+                    hold on;
                 end
             end
             xlabel('function value');
