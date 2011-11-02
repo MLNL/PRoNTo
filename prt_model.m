@@ -91,7 +91,7 @@ PRT.model(modelid).input.cv_type=in.cv.type;
 % -------------------------------------------------------------------------
 disp('Updating PRT.mat.......>>')
 if spm_matlab_version_chk('7') >= 0
-    save(in.fname,'-V6','PRT');
+    save(in.fname,'-V7','PRT');
 else
     save(in.fname,'-V6','PRT');
 end
