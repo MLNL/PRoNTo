@@ -256,7 +256,7 @@ switch in.cv.type
     case 'lobo'
         % leave-one-block-out
         % blocks already have a unique ID
-        snums = histc(ID(:,5),unique(ID(:,5))); % how many scans per subject
+        snums = histc(ID(:,5),unique(ID(:,5))); % how many scans per block
         G = cell(length(snums),1);
         for s = 1:length(snums)
             G{s} = ones(snums(s),1);
