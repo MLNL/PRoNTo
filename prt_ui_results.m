@@ -318,7 +318,9 @@ switch plotchosen
                     plot(x, f,myCols{c});
                     hold on;
                 else
-                    % plot Gaussian distributions
+                    % can't plot density, be happy with a histogram
+                    %[myHist,myH] = hist(func_vals,100);
+                    % 
                 end
             end
             xlabel('function value');
