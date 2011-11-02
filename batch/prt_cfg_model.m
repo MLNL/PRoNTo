@@ -349,7 +349,9 @@ custom_machine.val     = {machine_func, machine_args};
 svm_args         = cfg_entry;
 svm_args.tag     = 'svm_args';
 svm_args.name    = 'Arguments';
-svm_args.help    = {['Arguments for prt_machine_svm_bin.']};
+svm_args.help    = {['Arguments for prt_machine_svm_bin. You should use '...
+                    '-t 4 if you selected ''use kernels'' option, and ' ...
+                    '-t 0 otherwise. See libSVM documentation for details.']};
 svm_args.strtype = 's';
 svm_args.val     = {'-s 0 -t 4 -c 1'};
 svm_args.num     = [1 Inf];

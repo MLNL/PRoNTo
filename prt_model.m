@@ -216,10 +216,15 @@ function CV = compute_cv_mat(PRT, in, modelid)
 fid = prt_init_fs(PRT, in.fs(1));
 
 % id matrix only contains samples within the CV structure
+% it is initialised in prt_init_fs, and the columns contents are described
+% in PRT.fs(fid).id_col_names
+% ('group','subject','modality','condition','block','scan')
 ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
+
 
 switch in.cv.type
     case 'loso'
+        % leave-one-subject-out
         % give each subject a unique id
         gids = unique(ID(:,1));
         gc = 0;
@@ -239,6 +244,7 @@ switch in.cv.type
         CV = blkdiag(G{:}) + 1;
         
     case 'losgo'
+        % leave-one-subject-per-group-out
         sids = unique(ID(:,2));
         
         CV = zeros(size(ID,1),length(sids));
@@ -248,7 +254,19 @@ switch in.cv.type
         end
         
     case 'lobo'
-        error('leave-one-block-out CV not implemented yet');
+        % leave-one-block-out
+        % blocks already have a unique ID
+        snums = histc(ID(:,5),unique(ID(:,5))); % how many scans per subject
+        G = cell(length(snums),1);
+        for s = 1:length(snums)
+            G{s} = ones(snums(s),1);
+        end
+        CV = blkdiag(G{:}) + 1;
+        
+    case 'locbo'
+        % leave-one-condition-per-block-out
+        error('leave-one-condition-per-block-out not yet implemented');
+        
         
     case 'loro'
         warning('leave-one-run-out CV only implemented for MCKR');
