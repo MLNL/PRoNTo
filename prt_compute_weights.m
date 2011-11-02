@@ -30,8 +30,9 @@ switch mfunc
         img_mach    = 'rvr_weights.img';
     case 'prt_machine_krr'
         img_mach    = 'krr_weights.img';
-    case 'prt_machine_RT_bin'
-        img_mach    = 'rt_weights.img';
+    % weights computation not yet supported for RT
+    %case 'prt_machine_RT_bin'
+    %    img_mach    = 'rt_weights.img';
     case 'prt_machine_gpml'
         img_mach    = 'gpml_weights.img';
     otherwise
