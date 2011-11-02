@@ -22,7 +22,8 @@ infile.help   = {'Select PRT.mat (file containing data/design structure).'};
 model_name         = cfg_entry;
 model_name.tag     = 'model_name';
 model_name.name    = 'Model name';
-model_name.help    = {'Name of a feature set'};
+model_name.help    = {'Name of a model. Must match your entry in the '...
+                      '''Specify model'' batch module.'};
 model_name.strtype = 's';
 model_name.num     = [1 Inf];
 

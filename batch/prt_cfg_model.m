@@ -414,6 +414,28 @@ rvr.name    = 'Relevance Vector Regression';
 rvr.help    = {'Relevance Vector Regression. Tipping, Michael E.; Smola, Alex (2001).' ...
     '"Sparse Bayesian Learning and the Relevance Vector Machine". Journal of Machine Learning Research 1: 211?244.'};
 
+% ---------------------------------------------------------------------
+% rt_args Arguments to RT
+% ---------------------------------------------------------------------
+rt_args         = cfg_entry;
+rt_args.tag     = 'rt_args';
+rt_args.name    = 'Ntrees';
+rt_args.help    = {['Number of trees in the forest.']};
+rt_args.strtype = 'e';
+rt_args.val     = {601};
+rt_args.num     = [1 1];
+
+% ---------------------------------------------------------------------
+% RT group
+% ---------------------------------------------------------------------
+rt         = cfg_branch;
+rt.tag     = 'rt';
+rt.name    = 'Random Forest';
+rt.help    = {'Random Forest. Breiman, Leo (2001)."Random Forests". ' ...
+               'Machine Learning 45:5-32. This is a wrapper around ' ...
+               'Peter Geurt''s implementation in his Regression Tree ' ...
+               ' package.' };
+rt.val     = {rt_args};
 
 % ---------------------------------------------------------------------
 % machine Select Features
@@ -421,7 +443,7 @@ rvr.help    = {'Relevance Vector Regression. Tipping, Michael E.; Smola, Alex (2
 machine        = cfg_choice;
 machine.tag    = 'machine';
 machine.name   = 'Machine';
-machine.values = {svm,gpc,krr,rvr,custom_machine};
+machine.values = {svm,gpc,krr,rvr,rt,custom_machine};
 machine.val    =  {svm};
 machine.help   = {...
     ['Choose a prediction machine for this model']};

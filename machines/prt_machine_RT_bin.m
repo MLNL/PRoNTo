@@ -112,7 +112,7 @@ end
 % compute hard decisions
 output.predictions=round(output.func_val);
 
-if use_kernel==false
+if d.use_kernel==false
     % normalise importance to norm 1
     output.w=output.w/norm(output.w,1);
 else

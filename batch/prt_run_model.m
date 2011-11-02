@@ -125,6 +125,9 @@ elseif isfield(job.machine,'krr')
 elseif isfield(job.machine,'rvr')
     model.machine.function='prt_machine_rvr';
     model.machine.args=[];
+elseif isfield(job.machine,'rt')
+    model.machine.function='prt_machine_RT_bin';
+    model.machine.args=job.machine.rt.rt_args;
 else
     [pat, nam] = fileparts(char(job.machine.custom_machine.machine_func));
     model.machine.function = nam;
