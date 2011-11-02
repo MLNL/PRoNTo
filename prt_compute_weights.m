@@ -32,6 +32,8 @@ switch mfunc
         img_mach    = 'krr_weights.img';
     case 'prt_machine_RT_bin'
         img_mach    = 'rt_weights.img';
+    case 'prt_machine_gpml'
+        img_mach    = 'gpml_weights.img';
     otherwise
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
