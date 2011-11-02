@@ -80,13 +80,13 @@ if isfield(job.model_type,'class')
                 model.class(c).group(g).subj(scount).num = sids(s);
                 for m = 1: length(mods)
                     model.class(c).group(g).subj(scount).modality(m).mod_name=mods{m};
-                    if isfield(job.model_type.class(c).group(g).conditions,'all_scans')
+                    if isfield(job.model_type.class(c).group(g).modality(m).conditions,'all_scans')
                         model.class(c).group(g).subj(scount).modality(m).all_scans = true;
-                    elseif isfield(job.model_type.class(c).group(g).conditions,'all_cond')
+                    elseif isfield(job.model_type.class(c).group(g).modality(m).conditions,'all_cond')
                         model.class(c).group(g).subj(scount).modality(m).all_cond = true;
                     else
                         model.class(c).group(g).subj(scount).modality(m).conds = ...
-                            job.model_type.class(c).group(g).conditions.conds;
+                            job.model_type.class(c).group(g).modality(m).conditions.conds;
                     end
                 end
                 scount = scount+1;
@@ -160,5 +160,6 @@ prt_model(PRT,model);
 % Function output
 % -------------------------------------------------------------------------
 out.files{1} = fname;
+out.names{1} = model.model_name;
 disp('Model configuration complete.')
 end
