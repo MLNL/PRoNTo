@@ -139,7 +139,7 @@ end
     m.type=PRT.model(mid).output.fold(1).type;
     m.predictions=[PRT.model(mid).output.fold(:).predictions];
     m.func_val=[PRT.model(mid).output.fold(:).func_val];
-    stats=prt_stats(m,t,'model');
+    stats=prt_stats(m(:),t(:),'model');
     PRT.model(mid).output.stats=stats;
 %end
 % Save PRT containing machine output
