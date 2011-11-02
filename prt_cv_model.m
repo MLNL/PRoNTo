@@ -123,7 +123,8 @@ for f = 1:n_folds
     for fld = 1:length(flds)
         fldnm = char(flds(fld));
         if ~strcmpi(fldnm,'predictions')
-            eval(['PRT.model(mid).output.fold(f).',fldnm,'=model.',fldnm,';']);
+            %eval(['PRT.model(mid).output.fold(f).',fldnm,'=model.',fldnm,';']);
+            PRT.model(mid).output.fold(f).(fldnm)=model.(fldnm);
         end
     end
 end
