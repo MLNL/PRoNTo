@@ -112,5 +112,3 @@ No.dat     = img4d;            % change file_array
 No.descrip = 'Pronto weigths'; % description
 create(No);                    % write header
 
-
-
