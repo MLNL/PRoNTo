@@ -71,7 +71,7 @@ if ~isfield(handles,'notinit')
     % Load folds
     nfold = length(PRT.model.output.fold);
     handles.nfold = nfold;
-    folds{1} = 'Average';
+    folds{1} = 'Average / All folds';
     for f = 1:nfold
         folds{f+1} = num2str(f);
     end
@@ -271,10 +271,36 @@ handles.plot = 1;
 
 % get data for the classes
 model   = get(handles.classmenu,'Value');
-targets = handles.PRT.model(model).input.targets;
-scores  = handles.PRT.model(model).output.fold(fold-1).predictions;
-
-targpos = targets == 2;
+% if all folds
+if fold == 1
+    scores  = [];
+    fVals   = [];
+    targets = [];
+    targpos = [];
+    for f=1:handles.nfold
+        targets = [targets;handles.PRT.model(model).output.fold(f).targets];
+        scores  = [scores;...
+            handles.PRT.model(model).output.fold(f).predictions];
+        if isfield(handles.PRT.model(model).output.fold(f),'func_val')
+            fVvals_exist = 1;
+            fVals  = [fVals;handles.PRT.model(model).output.fold(f).func_val];
+        else
+            fVvals_exist = 0;
+        end
+    end
+    targpos = targets == 2;
+else
+    % if folds wise
+    targets = handles.PRT.model(model).output.fold(fold-1).targets;
+    targpos = targets == 2;
+    scores  = handles.PRT.model(model).output.fold(fold-1).predictions;
+    if isfield(handles.PRT.model(model).output.fold(fold-1),'func_val')
+        fVals  = handles.PRT.model(model).output.fold(fold-1).func_val;
+        fVvals_exist = 1;
+    else
+        fVvals_exist = 0;
+    end
+end
 
 switch plotchosen
     
@@ -305,27 +331,28 @@ switch plotchosen
         
     case '3'
         % func_val distributions
-        if isfield(handles.PRT.model(model).output.fold(fold-1),'func_val')
-            fVals  = handles.PRT.model(model).output.fold(fold-1).func_val;
+        if fVvals_exist
             myColours={'r','g'};
             classNames{1}=handles.PRT.model(model).input.class(1).class_name;
             classNames{2}=handles.PRT.model(model).input.class(2).class_name;
-            figure;
             for c=1:2
                 func_vals=fVals(targpos);
+                if c == 2, func_vals=fVals(~targpos); end
                 if exist('ksdensity','file')==2
+                    width = 6;
                     [f,x] = ksdensity(func_vals,'width',width);
-                    plot(x, f,myColours{c});
+                    plot(handles.axes5,x,f,myColours{c});
                     hold on;
                 else
                     % can't plot density, be happy with a histogram
                     [myHist,myX]=hist(func_vals,100);
-                    bar(myX,myHist,myColours{c});
+                    bar(handles.axes5,myX,myHist,myColours{c});
                     hold on;
                 end
+                if c == 2, hold off; end
             end
-            xlabel('function value');
-            legend(classNames{1},classNames{2});
+            xlabel(handles.axes5,'function value');
+            legend(handles.axes5,classNames{1},classNames{2});
         else
             % do nothing, no func_val available
         end
@@ -341,7 +368,12 @@ switch plotchosen
         else
             mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
         end
-        imagesc(mconmat);colorbar;colormap('Jet')
+        imagesc(mconmat,'Parent',handles.axes5);
+        colorbar('peer',handles.axes5);
+        colormap(handles.axes5,'Jet');
+        title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1));
+        xlabel(handles.axes5,'False positives')
+        ylabel(handles.axes5,'True positives')
 end
 
 guidata(hObject, handles);
