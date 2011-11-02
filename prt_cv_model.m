@@ -115,8 +115,12 @@ for f = 1:n_folds
     
     % update PRT 
     PRT.model(mid).output.fold(f).targets     = cvdata.te_targets;
-    PRT.model(mid).output.fold(f).predictions = model.predictions; 
+    PRT.model(mid).output.fold(f).predictions = model.predictions;
     PRT.model(mid).output.fold(f).stats       = stats;
+    % save func_val for later analysis if available
+    if isfield(model,'func_val')
+        PRT.model(mid).output.fold(f).func_val    = model.func_val; 
+    end
     
     % copy other fields from the model
     flds = fieldnames(model);
