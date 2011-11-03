@@ -196,9 +196,7 @@ st.callback = 'prt_ui_results(''showpos'')';
 
 % Display maps
 % -------------------------------------------------------------------------
-p1 = handles.p(1)-63.7713;
-p2 = handles.p(2)-2.0014;
-h  = spm_orthviews('Image', handles.wmap,[p1 p2 0.42 0.43]);
+h  = spm_orthviews('Image', handles.wmap,[0.062 0.07 0.42 0.43]);
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
 spm_orthviews('AddBlobs', h, XYZ, Z, M);
@@ -291,7 +289,6 @@ if fold == 1
     scores  = [];
     fVals   = [];
     targets = [];
-    targpos = [];
     for f=1:handles.nfold
         targets = [targets;handles.PRT.model(model).output.fold(f).targets];
         scores  = [scores;...
@@ -508,17 +505,21 @@ function anatomicalbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Check if weight map and anatomical image exist and reset orthviews
+% -------------------------------------------------------------------------
 if ~(isfield(handles,'wmap') && isfield(handles,'wmap')) 
     spm_orthviews('Reset');
     global st
-    st.fig      = handles.figure1;
+    st.fig = handles.figure1;
 end
 
+% Show anatomical image
+% -------------------------------------------------------------------------
 img    = spm_select(1,'image','Select anatomical image.');
 p1     = handles.p(1)-63.3033;
 p2     = handles.p(2)-2.0014;
 handle = spm_orthviews('Image', img,...
-    [p1 p2 0.42 0.430]);
+    [0.53 0.07 0.42 0.430]);
 
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
@@ -528,6 +529,8 @@ end;
 handles.aimg = img;
 handles.img  = 1;
 
+% Show file name
+% -------------------------------------------------------------------------
 set(handles.loadanatomical,'String',handles.aimg);
 
 guidata(hObject, handles);
@@ -545,6 +548,8 @@ function originbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Reset the crosshairs position
+% -------------------------------------------------------------------------
 if isfield(handles,'img')
     spm_orthviews('Reposition',[0 0 0]);
 end
@@ -557,6 +562,8 @@ function mmedit_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of mmedit as text
 %        str2double(get(hObject,'String')) returns contents of mmedit as a double
 
+% Move crosshairs position in mm
+% -------------------------------------------------------------------------
 if isfield(handles,'img')
     mp    = handles.mmedit;
     posmm = get(mp,'String');
@@ -586,6 +593,9 @@ function vxedit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of vxedit as text
 %        str2double(get(hObject,'String')) returns contents of vxedit as a double
+
+% Move crosshairs position in vx
+% -------------------------------------------------------------------------
 if isfield(handles,'img')
     mp    = handles.vxedit;
     posvx = get(mp,'String');
@@ -610,6 +620,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+% Show crosshairs position 
+% -------------------------------------------------------------------------
 function showpos()
  
 global st
