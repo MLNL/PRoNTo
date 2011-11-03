@@ -55,12 +55,33 @@ model.model_name = job.model_name;
 model.use_kernel = job.use_kernel;
 
 % insert feature set fields
-for f = 1:length(job.fsets)
-    model.fs(f).fs_name = job.fsets(f,:);
-    fid=prt_init_fs(PRT,model.fs(f));
-    mods={PRT.fs(fid).modality(:).mod_name};
-end
 
+model.fs(1).fs_name = job.fsets;
+fid=prt_init_fs(PRT,model.fs(1));
+mods={PRT.fs(fid).modality(:).mod_name};
+
+%get the conditions which are common to all subjects from all groups, only
+nm=length(mods);
+for i=1:nm
+    flag=1;
+    for j=1:ng
+        for k=1:length(PRT.group(j).subject)
+            m2= strcmpi(PRT.fs(fid).modality(nm).mod_name,mods);
+            des=PRT.group(j).subject(k).modality(m2).design;
+            if isstruct(des) && flag
+                if k==1 && nm==1
+                    lcond={des.conds(:).cond_name};
+                else
+                    tocmp={des.conds(:).cond_name};
+                    lcond=intersect(lcond,tocmp);
+                end
+            else
+                flag=0;
+                lcond={};
+            end
+        end
+    end
+end
 % Insert fields for generating the labels (ie. translate the fields coming
 % from matlabbatch to something more consistent for the prt_model function)
 % Note that we cycle through the groups to flatten out the structure, since
@@ -84,9 +105,24 @@ if isfield(job.model_type,'class')
                         model.class(c).group(g).subj(scount).modality(m).all_scans = true;
                     elseif isfield(job.model_type.class(c).group(g).conditions,'all_cond')
                         model.class(c).group(g).subj(scount).modality(m).all_cond = true;
+                        if isempty(lcond)
+                            beep
+                            disp('All conditions selected while no conditions were common to all subjects')
+                            disp('Please review the selection and/or the data and design')
+                            return
+                        end
                     else
                         model.class(c).group(g).subj(scount).modality(m).conds = ...
                             job.model_type.class(c).group(g).conditions.conds;
+                        for cc=1:length(job.model_type.class(c).group(g).conditions.conds)
+                            cname=job.model_type.class(c).group(g).conditions.conds(cc).cond_name;
+                            if ~any(intersect({cname},lcond))
+                                beep
+                                disp('This condition is not common to all subjects')
+                                disp('Please remove it from the selection')
+                                return
+                            end
+                        end
                     end
                 end
                 scount = scount+1;
@@ -106,10 +142,7 @@ elseif isfield(job.model_type,'reg_group')
         end
     end
 else
-    error('this is not implemented yet');
-    
-    
-    
+    error('this is not implemented yet');   
 end
 
 % insert machine fields
@@ -141,6 +174,11 @@ elseif isfield(job.cv_type,'cv_losgo')
     model.cv.type = 'losgo';
 elseif isfield(job.cv_type,'cv_lobo')
     model.cv.type = 'lobo';
+    if scount>1
+        beep
+        disp('Leave One Block Out Cross Validation only allowed for within subject modeling')
+        disp('Please correct')
+    end
 elseif isfield(job.cv_type,'cv_loro') %currently implemented for MCKR only
     model.cv.type = 'loro';
 else
@@ -153,29 +191,6 @@ if isfield(job.data_ops,'sel_ops')
     model.operations = [job.data_ops.sel_ops.data_op{:}];
 elseif isfield(job.data_ops,'no_op')
     model.operations = [];
-end
-
-%get the conditions which are common to all subjects from all groups, only
-nm=length(mods);
-for i=1:nm
-    flag=1;
-    for j=1:ng
-        for k=1:length(PRT.group(j).subject)
-            m2= strcmpi(PRT.fs(fid).modality(nm).mod_name,mods);
-            des=PRT.group(j).subject(k).modality(m2).design;
-            if isstruct(des) && flag
-                if k==1 && nm==1
-                    lcond={des.conds(:).cond_name};
-                else
-                    tocmp={des.conds(:).cond_name};
-                    lcond=intersect(lcond,tocmp);
-                end
-            else
-                flag=0;
-                lcond={};
-            end
-        end
-    end
 end
 
 

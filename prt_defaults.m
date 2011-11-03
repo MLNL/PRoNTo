@@ -31,24 +31,17 @@ prt_def.global.install_dir = fileparts(prt_loc);
 % Parameters for the data and design
 %-----------------------------------------------
 prt_def.datad.hrfd = 6; % HRF delay in seconds
-prt_def.datad.hrfw = 6; % HRF FWHM, used to compute the overlap between conditions
-%prt_def.datad.hrfd = 3; % HRF delay in seconds
-%prt_def.datad.hrfw = 1; % HRF FWHM, used to compute the overlap between conditions
+prt_def.datad.hrfw = 0; % HRF FWHM, used to compute the overlap between conditions
 
+prt_def.prep.default_mask  = [prt_def.global.install_dir,'/masks/SPM_mask_noeyes.hdr'];% default mask
 
 
 % Preprocessing defaults
 %------------------------------------------------
 prt_def.prep.use1  = 5;      
 prt_def.prep.use2  = 'kk'; % pre
-% Put in whatever default value is useful for the preprocessing step. It
-% could be a flag (value 1/0), some scalar or vector of values, or even
-% some strings...
 
-% default mask
-prt_def.prep.default_mask  = [prt_def.global.install_dir,'/masks/SPM_mask_noeyes.hdr'];
-
-% memory limit for kernel construction
+% memory limit for kernel/file arrays construction
 prt_def.fs.mem_limit = 64*1024*1024;  % bytes of memory to use
 prt_def.fs.writeraw = 0;               % flag to write the data detrended (default) or raw (to set to 1).
 
@@ -56,14 +49,11 @@ prt_def.fs.writeraw = 0;               % flag to write the data detrended (defau
 prt_def.dspec.use3 = [1 2];
 
 
-% Other default values should be added as sub-fields in the prt_def
-% structure. Values related to the same module should preferably be grouped
-% into a single substructure.
-
-% Parameters of the different machines
+% Specify model: Parameters of the different machines
 %--------------------------------------------------
 prt_def.model.svmargs='-s 0 -t 4 -c 1';
 prt_def.model.gpcargs='-l erf -h';
-prt_def.model.krrargs={1};
+prt_def.model.krrargs=1;
+prt_def.model.rtargs=601;
 
 return

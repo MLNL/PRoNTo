@@ -271,7 +271,7 @@ elseif val==2
     set(handles.butt_defclass,'String','Select subjects/scans')
     %set the list of machines
     set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
-        'Relevance Vector Regression'})
+        'Relevance Vector Regression','Random Forest'})
     set(handles.pop_machine,'Value',1)
     handles.machine.function='prt_machine_krr';
     handles.machine.args=handles.def.krrargs;
@@ -331,6 +331,9 @@ elseif any(strfind(mach{val},'Ridge'))
 elseif any(strfind(mach{val},'Relevance'))
     handles.machine.function='prt_machine_rvr';
     handles.machine.args=[];
+elseif any(strfind(mach{val},'Random'))
+    handles.machine.function='prt_machine_RT_bin';
+    handles.machine.args=handles.def.rtargs;    
 end
 % Update handles structure
 guidata(hObject, handles);
