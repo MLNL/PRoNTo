@@ -151,7 +151,7 @@ function resrev_Callback(hObject, eventdata, handles)
 % hObject    handle to resrev (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+prt_ui_results
 
 % --- Executes on button press in batchbutt.
 function batchbutt_Callback(hObject, eventdata, handles)
