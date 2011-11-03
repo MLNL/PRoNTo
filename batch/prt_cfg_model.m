@@ -77,25 +77,24 @@ mod_name.num     = [1 Inf];
 % ---------------------------------------------------------------------
 % fset Feature set
 % ---------------------------------------------------------------------
-fset         = cfg_branch;
-fset.tag     = 'fset';
-fset.name    = 'Feature set';
-fset.help    = {'Feature set to include in this model'};
-fset.val     = {fs_name};
+% fset         = cfg_branch;
+% fset.tag     = 'fset';
+% fset.name    = 'Feature set';
+% fset.help    = {'Feature set to include in this model'};
+% fset.val     = {fs_name};
             
 % ---------------------------------------------------------------------
 % fsets Feature sets
 % ---------------------------------------------------------------------
-fsets         = cfg_repeat;
+fsets         = cfg_entry;
 fsets.tag     = 'fsets';
 fsets.name    = 'Feature sets';
-fsets.help    = {['Select feature sets to include in this model. ',...
-                  'These can be kernels or feature matrices. ', ...
-                  'If multiple feature sets are included, they must all have ',...
-                  'the same number of rows']};
+fsets.help    = {['Enter the name of a feature set to include in this model. ',...
+                  'This can be kernel or a feature matrix. ', ...
+                  ]};
 fsets.num     = [1 Inf];
 %fsets.values  = {fsets};
-fsets.values  = {fset};
+fsets.strtype  = 's';
 
 
 % ---------------------------------------------------------------------
@@ -176,27 +175,27 @@ conditions.help   = {...
 % ---------------------------------------------------------------------
 % modality Modality
 % ---------------------------------------------------------------------
-modality      = cfg_branch;
-modality.tag  = 'modality';
-modality.name = 'Modality';
-modality.val  = {mod_name conditions};
-modality.help = {'Specify modality, such as name and data.'};
+% modality      = cfg_branch;
+% modality.tag  = 'modality';
+% modality.name = 'Modality';
+% modality.val  = {mod_name conditions};
+% modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
 % modalities Modalities
 % ---------------------------------------------------------------------
-modalities         = cfg_repeat;
-modalities.tag     = 'modalities';
-modalities.name    = 'Modalities';
-modalities.help    = {...
-    ['Add modalities. Note that if multiple modalities are entered here, ',...
-     'they will be added to the feature set as additional samples. ',...
-     'In other words, modalities are concatenated along the sample ',...
-     'dimension, not the feature dimension. For example, this is ',...
-     'appropriate for accommodating multiple fMRI runs from identical ',...
-     'subjects.']};
-modalities.num     = [1 Inf];
-modalities.values  = {modality};
+% modalities         = cfg_repeat;
+% modalities.tag     = 'modalities';
+% modalities.name    = 'Modalities';
+% modalities.help    = {...
+%     ['Add modalities. Note that if multiple modalities are entered here, ',...
+%      'they will be added to the feature set as additional samples. ',...
+%      'In other words, modalities are concatenated along the sample ',...
+%      'dimension, not the feature dimension. For example, this is ',...
+%      'appropriate for accommodating multiple fMRI runs from identical ',...
+%      'subjects.']};
+% modalities.num     = [1 Inf];
+% modalities.values  = {modality};
 
 % ---------------------------------------------------------------------
 % subj_num Subjects selected (per group)
@@ -218,7 +217,7 @@ group         = cfg_branch;
 group.tag     = 'group';
 group.name    = 'Group';
 group.help    = {'Specify data and design for the group.'};
-group.val     = {gr_name, subj_nums, modalities};
+group.val     = {gr_name, subj_nums, conditions};
 
 % ---------------------------------------------------------------------
 % class_name Class name
