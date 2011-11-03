@@ -52,10 +52,12 @@ function prt_ui_results_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_results (see VARARGIN)
 
+% Figure color
+% -------------------------------------------------------------------------
 set(handles.figure1,'Color',[0.86,0.86,0.86])
-p = get(handles.figure1,'Position');
-handles.p = p;
 
+% Initialize window
+% -------------------------------------------------------------------------
 if ~isfield(handles,'notinit')
     % Load PRT.mat
     PRT   = spm_select(1,'mat','Select PRT.mat');
@@ -66,15 +68,17 @@ if ~isfield(handles,'notinit')
     for m = 1:nmodels
         model_name{m} = PRT.model(m).model_name;
     end
+    % Set model pulldown menu
     handles.mnames = model_name;
     set(handles.classmenu,'String',handles.mnames);
-    % Load folds
-    nfold = length(PRT.model.output.fold);
+    % Get folds
+    nfold         = length(PRT.model(1).output.fold);
     handles.nfold = nfold;
-    folds{1} = 'Average / All folds';
+    folds{1}      = 'All folds / Average';
     for f = 1:nfold
         folds{f+1} = num2str(f);
     end
+    % Set folds pulldown menu for first model
     handles.folds = folds;
     set(handles.foldmenu,'String',handles.folds);    
     % Clear axes
@@ -139,21 +143,23 @@ zords_init    = ones(1,xdim*ydim);
 fold          = get(handles.foldmenu,'Value')-1;
 fold_coord    = fold*ones(1,xdim*ydim);
 
+% Get image values above zero for each fold and all folds
+% -------------------------------------------------------------------------
+xyz_above     = [];
 if fold == 0,
     z_fold    = [];
-    xyz_above = [];
     for f = 1:fdim
         z_above   = [];
         for z = 1:zdim,
             zords = z*zords_init;
-            xyz   = [xords(I); yords(I); zords(I); fold_coord];
+            xyz   = [xords(I); yords(I); zords(I); f*ones(1,xdim*ydim)];
             zvals = spm_get_data(V,xyz);
             above = find(zvals~=0);
             if ~isempty(above)
                 if f == 1
                     xyz_above = [xyz_above,xyz(:,above)];
                 end
-                z_above   = [z_above,zvals(above)];
+                z_above = [z_above,zvals(above)];
             end
         end
         z_fold = [z_fold; z_above];
@@ -161,8 +167,7 @@ if fold == 0,
     XYZ = xyz_above(1:3,:);
     Z   = mean(z_fold);
 else
-    xyz_above     = [];
-    z_above       = [];
+    z_above = [];
     for z = 1:zdim,
         zords = z*zords_init;
         xyz   = [xords(I); yords(I); zords(I); fold_coord];
@@ -173,10 +178,12 @@ else
             z_above   = [z_above,zvals(above)];
         end
     end
-    Z     = z_above;
     XYZ   = xyz_above(1:3,:);
+    Z     = z_above;
 end
 
+% Set spm_orthviews properties
+% -------------------------------------------------------------------------
 global st
 
 handles.notinit = 1;
@@ -187,16 +194,22 @@ st.fig      = handles.figure1;
 st.V        = V;
 st.callback = 'prt_ui_results(''showpos'')';
 
+% Display maps
+% -------------------------------------------------------------------------
 p1 = handles.p(1)-63.7713;
 p2 = handles.p(2)-2.0014;
-h = spm_orthviews('Image', handles.wmap,[p1 p2 0.42 0.43]);
+h  = spm_orthviews('Image', handles.wmap,[p1 p2 0.42 0.43]);
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
 spm_orthviews('AddBlobs', h, XYZ, Z, M);
 spm_orthviews('Redraw');
 
+% Show positions
+% -------------------------------------------------------------------------
 prt_ui_results('showpos');
 
+% Show file name
+% -------------------------------------------------------------------------
 set(handles.loadweight,'String',handles.wmap);
 
 guidata(hObject, handles);
@@ -263,15 +276,17 @@ function plotmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns plotmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from plotmenu
 
+% Read plot, model and fold
+% -------------------------------------------------------------------------
 plotchosen   = num2str(get(handles.plotmenu,'Value'));
 fold         = get(handles.foldmenu,'Value');
 m            = get(handles.classmenu,'Value');
 PRT          = handles.PRT;
 handles.plot = 1;
+model        = get(handles.classmenu,'Value');
 
-% get data for the classes
-model   = get(handles.classmenu,'Value');
-% if all folds
+% All folds
+% -------------------------------------------------------------------------
 if fold == 1
     scores  = [];
     fVals   = [];
@@ -302,6 +317,8 @@ else
     end
 end
 
+% Plot
+% -------------------------------------------------------------------------
 switch plotchosen
     
     case '1'
@@ -397,6 +414,8 @@ function quitbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Close and clear figure
+% -------------------------------------------------------------------------
 close(handles.figure1);
 clc;
 
@@ -409,11 +428,16 @@ function foldmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns foldmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from foldmenu
 
+% Reads model and fold
+% -------------------------------------------------------------------------
 fold  = get(handles.foldmenu,'Value');
 m     = get(handles.classmenu,'Value');
 PRT   = handles.PRT;
+
+% Read stats
+% -------------------------------------------------------------------------
 if fold == 1
-    for f=1:handles.nfold
+    for f = 1:handles.nfold
         acc(f)    = PRT.model(m).output.fold(f).stats.acc;
         bacc(f)   = PRT.model(m).output.fold(f).stats.b_acc;
         cacc(:,f) = PRT.model(m).output.fold(f).stats.c_acc;
@@ -427,14 +451,20 @@ else
     mcacc = PRT.model(m).output.fold(fold-1).stats.c_acc;
 end
 
+% Show stats
+% -------------------------------------------------------------------------
 set(handles.acctext,'String',sprintf('%.1f %%',macc));
 set(handles.bacctext,'String',sprintf('%.1f %%',mbacc));
 set(handles.cacctext,'String',sprintf('[%.1f %.1f] %%',mcacc(1),mcacc(2)));
 
+% Change weight map
+% -------------------------------------------------------------------------
 if isfield(handles,'vols')
     weightbutton_Callback(hObject, eventdata, handles);
 end
 
+% Change plot
+% -------------------------------------------------------------------------
 if isfield(handles,'plot')
    plotmenu_Callback(hObject, eventdata, handles); 
 end
