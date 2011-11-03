@@ -450,9 +450,10 @@ end
 
 % Show stats
 % -------------------------------------------------------------------------
-set(handles.acctext,'String',sprintf('%.1f %%',macc));
-set(handles.bacctext,'String',sprintf('%.1f %%',mbacc));
-set(handles.cacctext,'String',sprintf('[%.1f %.1f] %%',mcacc(1),mcacc(2)));
+set(handles.acctext,'String',sprintf('%3.1f %%',macc*100));
+set(handles.bacctext,'String',sprintf('%3.1f %%',mbacc*100));
+set(handles.cacctext,'String',sprintf('[%3.1f %3.1f] %%',...
+    mcacc(1)*100,mcacc(2)*100));
 
 % Change weight map
 % -------------------------------------------------------------------------
