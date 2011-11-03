@@ -434,23 +434,23 @@ PRT   = handles.PRT;
 % Read stats
 % -------------------------------------------------------------------------
 if fold == 1
-    for f = 1:handles.nfold
-        acc(f)    = PRT.model(m).output.fold(f).stats.acc;
-        bacc(f)   = PRT.model(m).output.fold(f).stats.b_acc;
-        cacc(:,f) = PRT.model(m).output.fold(f).stats.c_acc;
-    end
-    macc  = mean(acc);
-    mbacc = mean(bacc);
-    mcacc = mean(cacc,2);
+    macc  = PRT.model(m).output.stats.acc;  % overall acc
+    macc_lb  = PRT.model(m).output.stats.acc_lb; % lower bound
+    macc_ub  = PRT.model(m).output.stats.acc_ub; % upper bound
+    mbacc = PRT.model(m).output.stats.b_acc;
+    mcacc = PRT.model(m).output.stats.c_acc;
 else
     macc  = PRT.model(m).output.fold(fold-1).stats.acc;
+    macc_lb  = PRT.model(m).output.fold(fold-1).stats.acc_lb;
+    macc_ub  = PRT.model(m).output.fold(fold-1).stats.acc_ub;
     mbacc = PRT.model(m).output.fold(fold-1).stats.b_acc;
     mcacc = PRT.model(m).output.fold(fold-1).stats.c_acc;
 end
 
 % Show stats
 % -------------------------------------------------------------------------
-set(handles.acctext,'String',sprintf('%3.1f %%',macc*100));
+set(handles.acctext,'String',sprintf('%3.1f %% (%3.1f %%, %3.1f%%)',...
+    macc*100,macc_lb*100,macc_ub*100));
 set(handles.bacctext,'String',sprintf('%3.1f %%',mbacc*100));
 set(handles.cacctext,'String',sprintf('[%3.1f %3.1f] %%',...
     mcacc(1)*100,mcacc(2)*100));
