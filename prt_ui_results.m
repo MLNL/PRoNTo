@@ -60,9 +60,6 @@ set(handles.figure1,'Color',[0.86,0.86,0.86])
 % -------------------------------------------------------------------------
 if ~isfield(handles,'notinit')
     % Load PRT.mat
-    if exist('PRT','var')
-        clear PRT
-    end
     PRT   = spm_select(1,'mat','Select PRT.mat');
     load(PRT);
     handles.PRT = PRT;
@@ -90,6 +87,12 @@ end
 
 % Choose default command line output for prt_ui_results
 handles.output = hObject;
+
+% Reposition main window
+set(handles.figure1,'Units','normalized')
+p = get(handles.figure1,'Position');
+set(handles.figure1,'Position',[p(1) 1 p(3) p(4)])
+set(handles.figure1,'Units','characters')
 
 % Update handles structure
 guidata(hObject, handles);
@@ -120,6 +123,7 @@ function weightbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+disp('Loading weights...>>')
 % Select results (.img) for weight map
 % -------------------------------------------------------------------------
 if ~isfield(handles,'wmap')
@@ -144,7 +148,6 @@ xords         = xords(:)';  yords = yords(:)';
 I             = 1:xdim*ydim;
 zords_init    = ones(1,xdim*ydim);
 fold          = get(handles.foldmenu,'Value')-1;
-fold_coord    = fold*ones(1,xdim*ydim);
 
 % Get image values above zero for each fold and all folds
 % -------------------------------------------------------------------------
@@ -182,7 +185,8 @@ st.callback = 'prt_ui_results(''showpos'')';
 
 % Display maps
 % -------------------------------------------------------------------------
-h  = spm_orthviews('Image', handles.wmap,[0.062 0.07 0.42 0.43]);
+WS = spm('WinScale');
+h  = spm_orthviews('Image', handles.wmap,[0.0558 0.0630 0.3780 0.3870].*WS);
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
 spm_orthviews('AddBlobs', h, XYZ, Z, M);
@@ -191,6 +195,8 @@ spm_orthviews('Redraw');
 % Show positions
 % -------------------------------------------------------------------------
 prt_ui_results('showpos');
+
+disp('Done');
 
 % Show file name
 % -------------------------------------------------------------------------
@@ -335,20 +341,20 @@ switch plotchosen
             myColours={'r','g'};
             classNames{1}=handles.PRT.model(model).input.class(1).class_name;
             classNames{2}=handles.PRT.model(model).input.class(2).class_name;
-            for c=1:2
+            for cl=1:2
                 func_vals=fVals(targpos);
-                if c == 2, func_vals=fVals(~targpos); end
+                if cl == 2, func_vals=fVals(~targpos); end
                 if exist('ksdensity','file')==2
                     [f,x] = ksdensity(func_vals,'width',[]);
-                    plot(handles.axes5,x,f,myColours{c});
-                    hold on;
+                    plot(handles.axes5,x,f,myColours{cl});
+                    hold(handles.axes5,'on')
                 else
                     % can't plot density, be happy with a histogram
                     [myHist,myX]=hist(func_vals,100);
-                    bar(handles.axes5,myX,myHist,myColours{c});
-                    hold on;
+                    bar(handles.axes5,myX,myHist,myColours{cl});
+                    hold(handles.axes5,'on')
                 end
-                if c == 2, hold off; end
+                if cl == 2, hold(handles.axes5,'off'); end
             end
             xlabel(handles.axes5,'function value');
             legend(handles.axes5,classNames{1},classNames{2});
@@ -502,8 +508,8 @@ end
 % Show anatomical image
 % -------------------------------------------------------------------------
 img    = spm_select(1,'image','Select anatomical image.');
-handle = spm_orthviews('Image', img,...
-    [0.53 0.07 0.42 0.430]);
+WS     = spm('WinScale');
+handle = spm_orthviews('Image', img, [0.4770 0.0630 0.3780 0.3870].*WS);
 
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
