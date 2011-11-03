@@ -446,14 +446,52 @@ else
     in.group=handles.group;
 end
 
-% %checks
-% if strcmpi(in.cv.type,'lobo')
-%     if in.class
-%     end
-% end
-
-prt_model(handles.dat,in);
+%checks on the CV framework compared to the model entered
+if strcmpi(in.cv.type,'lobo')
+    if ~isfield(in,'class')
+        beep
+        disp('Leave One Block Out cross-validation only allowed for classification')
+        disp('Please correct')
+        return
+    else
+        for c=1:length(in.class)
+            for i=1:length(in.class(c).group)
+                if length(in.class(c).group(i).subj)>1
+                    beep
+                    disp('Leave One Block Out cross-validation only allowed for within-subject classification')
+                    disp('Please correct')
+                    return
+                end
+            end
+        end
+    end
+end
+if ~isfield(in,'class')
+    if ~strcmpi(in.cv.type,'loso')
+        beep
+        disp('Regression only allows a Leave One Subject Out cross-validation')
+        disp('Please correct')
+    end
+end
+PRT=prt_model(handles.dat,in);
+clear in
+in.fname      = get(handles.edit_prt,'String');
+in.model_name = handles.model_name;
+if exist('PRT','var')
+    clear PRT
+end
+load(in.fname)
+mid = prt_init_model(PRT, in);
+% Special cross-validation for MCKR
+if strcmpi(PRT.model(mid).input.machine.function,'prt_machine_mckr')
+    prt_cv_mckr(PRT,in);
+else
+    prt_cv_model(PRT, in);
+end
+disp('Model specification and estimation complete.')
+disp('Done...')
 delete(handles.figure1)
+
 
 % --- Executes on button press in buildbutt.
 function specbutt_Callback(hObject, eventdata, handles)
@@ -476,23 +514,38 @@ else
     in.group=handles.group;
 end
 
-PRT=prt_model(handles.dat,in);
-clear in
-in.fname      = get(handles.edit_prt,'String');
-in.model_name = handles.model_name;
-if exist('PRT','var')
-    clear PRT
+%checks on the CV framework compared to the model entered
+if strcmpi(in.cv.type,'lobo')
+    if ~isfield(in,'class')
+        beep
+        disp('Leave One Block Out cross-validation only allowed for classification')
+        disp('Please correct')
+        return
+    else
+        for c=1:length(in.class)
+            for i=1:length(in.class(c).group)
+                if length(in.class(c).group(i).subj)>1
+                    beep
+                    disp('Leave One Block Out cross-validation only allowed for within-subject classification')
+                    disp('Please correct')
+                    return
+                end
+            end
+        end
+    end
 end
-load(in.fname)
-mid = prt_init_model(PRT, in);
-% Special cross-validation for MCKR
-if strcmpi(PRT.model(mid).input.machine.function,'prt_machine_mckr')
-    prt_cv_mckr(PRT,in);
-else
-    prt_cv_model(PRT, in);
+if ~isfield(in,'class')
+    if ~strcmpi(in.cv.type,'loso')
+        beep
+        disp('Regression only allows a Leave One Subject Out cross-validation')
+        disp('Please correct')
+    end
 end
-disp('Model execution complete.')
-disp('Done')
+
+prt_model(handles.dat,in);
+
+disp('Model specification complete.')
+disp('Done...')
 delete(handles.figure1)
 
 

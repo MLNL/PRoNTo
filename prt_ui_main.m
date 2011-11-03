@@ -62,7 +62,7 @@ cc=get(handles.figure1,'Color');
 [A] = imread('PRoNTo_logo.png','BackgroundColor',cc);
 image(A)
 axis off
-
+set(handles.appmod,'Visible','off')
 % Choose default command line output for prt_ui_main
 handles.output = hObject;
 
