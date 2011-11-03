@@ -145,42 +145,25 @@ fold_coord    = fold*ones(1,xdim*ydim);
 
 % Get image values above zero for each fold and all folds
 % -------------------------------------------------------------------------
-xyz_above     = [];
+xyz_above = [];
+z_above   = [];
 if fold == 0,
-    z_fold    = [];
-    for f = 1:fdim
-        z_above   = [];
-        for z = 1:zdim,
-            zords = z*zords_init;
-            xyz   = [xords(I); yords(I); zords(I); f*ones(1,xdim*ydim)];
-            zvals = spm_get_data(V,xyz);
-            above = find(zvals~=0);
-            if ~isempty(above)
-                if f == 1
-                    xyz_above = [xyz_above,xyz(:,above)];
-                end
-                z_above = [z_above,zvals(above)];
-            end
-        end
-        z_fold = [z_fold; z_above];
-    end
-    XYZ = xyz_above(1:3,:);
-    Z   = mean(z_fold);
+    fold_coord = fdim*ones(1,xdim*ydim);
 else
-    z_above = [];
-    for z = 1:zdim,
-        zords = z*zords_init;
-        xyz   = [xords(I); yords(I); zords(I); fold_coord];
-        zvals = spm_get_data(V,xyz);
-        above = find(zvals~=0);
-        if ~isempty(above)
-            xyz_above = [xyz_above,xyz(:,above)];
-            z_above   = [z_above,zvals(above)];
-        end
-    end
-    XYZ   = xyz_above(1:3,:);
-    Z     = z_above;
+    fold_coord = fold*ones(1,xdim*ydim);
 end
+for z = 1:zdim,
+    zords = z*zords_init;
+    xyz   = [xords(I); yords(I); zords(I); fold_coord];
+    zvals = spm_get_data(V,xyz);
+    above = find(zvals~=0);
+    if ~isempty(above)
+        xyz_above = [xyz_above,xyz(:,above)];
+        z_above   = [z_above,zvals(above)];
+    end
+end
+XYZ   = xyz_above(1:3,:);
+Z     = z_above;
 
 % Set spm_orthviews properties
 % -------------------------------------------------------------------------
@@ -353,8 +336,7 @@ switch plotchosen
                 func_vals=fVals(targpos);
                 if c == 2, func_vals=fVals(~targpos); end
                 if exist('ksdensity','file')==2
-                    width = 6;
-                    [f,x] = ksdensity(func_vals,'width',width);
+                    [f,x] = ksdensity(func_vals,'width',[]);
                     plot(handles.axes5,x,f,myColours{c});
                     hold on;
                 else
@@ -517,8 +499,6 @@ end
 % Show anatomical image
 % -------------------------------------------------------------------------
 img    = spm_select(1,'image','Select anatomical image.');
-p1     = handles.p(1)-63.3033;
-p2     = handles.p(2)-2.0014;
 handle = spm_orthviews('Image', img,...
     [0.53 0.07 0.42 0.430]);
 
