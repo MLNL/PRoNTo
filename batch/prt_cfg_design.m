@@ -89,6 +89,17 @@ review.values  = {0 1};
 review.val     = {0};
 
 % ---------------------------------------------------------------------
+% hrfover HRF Overlap
+% ---------------------------------------------------------------------
+hrfover         = cfg_entry;
+hrfover.tag     = 'hrfover';
+hrfover.name    = 'HRF overlap';
+hrfover.help    = {'If using fMRI data please specify the width of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities.'};
+hrfover.strtype = 'e';
+hrfover.num     = [1 1];
+hrfover.def     = @(val)prt_get_defaults('datad.hrfw', val{:});
+
+% ---------------------------------------------------------------------
 % mod_name Name
 % ---------------------------------------------------------------------
 mod_name         = cfg_entry;
@@ -418,7 +429,7 @@ dir_name.num     = [1 1];
 data        = cfg_exbranch;
 data.tag    = 'data';
 data.name   = 'Data & Design';
-data.val    = {dir_name groups masks review};
+data.val    = {dir_name groups masks hrfover review};
 data.help   = {'Specify the group(s) of data set.'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;

@@ -46,7 +46,6 @@ if nmasks ~= length(mod_names_uniq);
     sprintf('Names of mask modalities repeated! Please correct!')
     return
 end
-    
 
 % Make PRT.mat
 % -------------------------------------------------------------------------
@@ -223,7 +222,7 @@ else
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
                             end                        
-                            checked_conds = prt_check_design(conds,TR,unit);
+                            checked_conds = prt_check_design(conds,TR,unit,job.hrfover);
                             design.conds  = checked_conds.conds;
                             design.stats  = checked_conds.stats;
                             design.TR     = TR;
@@ -366,7 +365,7 @@ else
                                         design.conds(c).rt_trial=[];
                                     end
                                 end
-                                checked_conds = prt_check_design(design.conds,TR,unit);
+                                checked_conds = prt_check_design(design.conds,TR,unit,job.hrfover);
                                 design.conds  = checked_conds.conds;
                                 design.stats  = checked_conds.stats;
                                 design.TR     = checked_conds.TR;
