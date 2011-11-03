@@ -116,7 +116,7 @@ if isfield(job.model_type,'class')
                             job.model_type.class(c).group(g).conditions.conds;
                         for cc=1:length(job.model_type.class(c).group(g).conditions.conds)
                             cname=job.model_type.class(c).group(g).conditions.conds(cc).cond_name;
-                            if ~any(intersect({cname},lcond))
+                            if isempty(intersect({cname},lcond))
                                 beep
                                 disp('This condition is not common to all subjects')
                                 disp('Please remove it from the selection')
