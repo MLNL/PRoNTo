@@ -422,7 +422,7 @@ end
 % Review
 % -------------------------------------------------------------------------
 if job.review
-    prt_data_review('UserData',PRT);
+    prt_data_review('UserData',{PRT,job.dir_name{1}});
 end
     
 % Function output
