@@ -338,7 +338,7 @@ switch plotchosen
     case '3'
         % func_val distributions
         if fVvals_exist
-            myColours={'r','g'};
+            myColours={'k','r'};
             classNames{1}=handles.PRT.model(model).input.class(1).class_name;
             classNames{2}=handles.PRT.model(model).input.class(2).class_name;
             for cl=1:2
@@ -346,7 +346,7 @@ switch plotchosen
                 if cl == 2, func_vals=fVals(~targpos); end
                 if exist('ksdensity','file')==2
                     [f,x] = ksdensity(func_vals,'width',[]);
-                    plot(handles.axes5,x,f,myColours{cl});
+                    plot(handles.axes5,x,f,myColours{cl},'LineWidth',2);
                     hold(handles.axes5,'on')
                 else
                     % can't plot density, be happy with a histogram
