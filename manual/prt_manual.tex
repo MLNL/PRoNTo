@@ -34,8 +34,18 @@
 \author{The PRoNTo Team}
 
 %-----------------------------------------------------------------------
-
+% Defining some new commands & character sequences
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
 \newcommand{\matlab}{\textsc{Matlab}}
+\newcommand{\bslash}{\texttt{\symbol{92}}}
+
+%\newcommand{\PRoNTo}{\textsc{PRoNTo}}
+%\newcommand{\PRoNTo}{{\it PRoNTo} }
+\def\PRoNTo{\hbox{\it P\hskip -1.5pt R\hskip -1.5pt o\hskip -1.5pt N\hskip -1.5pt T\hskip -1.5pt o }}
+\def\HPRoNTo{\hbox{\it P\hskip -4.5pt R\hskip -4.5pt o\hskip -4.5pt N\hskip -4.5pt T\hskip -4.5pt o }}
+\def\hPRoNTo{\hbox{\it P\hskip -3.5pt R\hskip -3.5pt o\hskip -3.5pt N\hskip -3.5pt T\hskip -3.5pt o }}
+
 
 %==========================================
 %==========================================
@@ -62,9 +72,9 @@
 \vspace*{\stretch{1}}
 \noindent\hspace*{\centeroffset}\makebox[0pt][l]{\begin{minipage}{\textwidth}
 \flushright
-\textbf{\Huge{PRoNTo Manual}}
+\textbf{\Huge{\HPRoNTo Manual}}
 {\noindent\rule[-1ex]{\textwidth}{5pt}\\[2.5ex]}
-\hfill{{\huge The PRoNTo Development Group} \\}
+\hfill{{\huge The \hPRoNTo Development Group} \\}
 \vspace{20mm}
 \hfill{
 John Ashburner \\
