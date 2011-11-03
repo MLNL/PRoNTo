@@ -1150,7 +1150,8 @@ function review_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 PRT=struct();
 PRT.group=handles.dat.group;
-prt_data_review('UserData',PRT);     
+PRT.masks=handles.dat.masks;
+prt_data_review('UserData',{PRT,handles.dat.dir});     
 
            
 

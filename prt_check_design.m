@@ -1,15 +1,16 @@
-function [conds] = prt_check_design(cond,tr,units)
-% FORMAT [conds] = prt_check_design(cond,tr,units)
+function [conds] = prt_check_design(cond,tr,units,hrfoverlap)
+% FORMAT [conds] = prt_check_design(cond,tr,units,hrfoverlap)
 %
 % Check the design and discards scans which are either overlapping between
 % conditions or which do not respect a minimum time interval between
 % conditions (due to the width of the HRF function).
 %
 % INPUT
-%   - cond  : structure containing the names, durations and onsets of the
-%             conditions
-%   - tr    : interscan interval (TR)
-%   - units : 1 for seconds, 0 for scans
+%   - cond  :   structure containing the names, durations and onsets of the
+%               conditions
+%   - tr    :   interscan interval (TR)
+%   - units :   1 for seconds, 0 for scans
+%   - hrfoverlap : value to correct for BOLD overlap (in seconds)
 %
 % OUTPUT
 % the same cond structure containing supplementary fields:
@@ -38,6 +39,14 @@ if nargin<3
     units=1;
 end
 
+%no correction for HRF BOLD overlap if none specified
+if nargin<4
+    hrfw=def.hrfw;
+else
+    hrfw=hrfoverlap;
+end
+    
+
 %check the level of overlapping between the different conditions
 all=[];
 conds=[];
@@ -63,9 +72,6 @@ for i=1:ncond
     for j=1:length(cs)
         temp=cs(j):cs(j)+cdur(j)-1;
         condsc=[condsc,temp];
-        % was:
-        % bl=[bl j*ones(length(temp))]; 
-        % but we probably want a vector here..
         bl=[bl j*ones(1,length(temp))]; 
     end
     cond(i).scans=unique(condsc);
@@ -106,7 +112,7 @@ end
 %Check for the overlapping between conditions: will not allow an
 %overlapping smaller than hrfw seconds (the Haemodynamic Response FWHM) / by
 %the TR.
-thresh=ceil(def.hrfw/tr);
+thresh=ceil(hrfw/tr);
 overlap=abs(diff(allgood));
 changecond=diff(conds);
 chan=find(changecond~=0);

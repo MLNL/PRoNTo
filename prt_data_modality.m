@@ -86,12 +86,16 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         set(handles.edit_regt,'Visible','on')
         set(handles.edit_covar,'Enable','on')
         set(handles.edit_covar,'Visible','on')
+        set(handles.text7,'Visible','on')
+        set(handles.text6,'Visible','on')
     else
         set(handles.design_menu,'Enable','on')
         set(handles.edit_regt,'Enable','off')
         set(handles.edit_regt,'Visible','off')
         set(handles.edit_covar,'Enable','off')
         set(handles.edit_covar,'Visible','off')
+        set(handles.text7,'Visible','off')
+        set(handles.text6,'Visible','off')
     end
         
     if ~isempty(varargin{2}{2}) && isfield(varargin{2}{2},'modality') && ...

@@ -590,8 +590,8 @@ function done_button_Callback(hObject, eventdata, handles)
 
 for i=1:size(handles.clas,1)
     list=get(handles.group_list,'String');
-    scount=1;
     for g=1:length(list)
+        scount=1;
         g2=find(strcmpi(list{g},{handles.dat.group(:).gr_name}));
         sids=handles.clas{i,2}{g,2};
         handles.class(i).group(g2).gr_name=list{g};

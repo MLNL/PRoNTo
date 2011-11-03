@@ -29,7 +29,7 @@ function varargout = prt_data_review(varargin)
 
 % Edit the above text to modify the response to help prt_data_review
 
-% Last Modified by GUIDE v2.5 05-Sep-2011 18:40:01
+% Last Modified by GUIDE v2.5 03-Nov-2011 11:52:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -65,7 +65,8 @@ handles.output = hObject;
 
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     %get number of groups and subjects/group
-    PRT=varargin{2};
+    PRT=varargin{2}{1};
+    handles.prtdir=varargin{2}{2};
     ng=length(PRT.group);
     if ng==0
         beep
@@ -128,7 +129,13 @@ if isempty(ind)
     set(handles.stdbef,'Visible','off')
     set(handles.maft,'Visible','off')
     set(handles.stdaft,'Visible','off')
+    set(handles.hrfover_txt,'Visible','off')
+    set(handles.hrfover_edit,'Visible','off')
+%     w=get(handles.figure1,'Position');
+%     set(handles.figure1,'Position',[w(1),w(2)+(2*w(4))/3,w(3),w(4)/3])
 else
+    def=prt_get_defaults('datad');
+    set(handles.hrfover_edit,'String',num2str(def.hrfw))
     set(handles.des,'String','Yes')
     set(handles.modlist,'String',list)
     set(handles.modlist,'Value',1)
@@ -207,6 +214,48 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+function hrfover_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to hrfover_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of hrfover_edit as text
+%        str2double(get(hObject,'String')) returns contents of hrfover_edit as a double
+val=str2double(get(handles.hrfover_edit,'String'));
+list=get(handles.modlist,'String');
+cm=get(handles.modlist,'Value');
+PRT=handles.PRT;
+for i=1:length(PRT.group)
+    for j=1:length(PRT.group(i).subject)
+        m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
+        dess=PRT.group(i).subject(j).modality(m).design;
+        desn=prt_check_design(dess.conds,dess.TR,dess.unit,val);
+        desn.covar=dess.covar;
+        PRT.group(i).subject(j).modality(m).design=desn;
+    end
+end
+save([handles.prtdir,filesep,'PRT.mat'],'PRT')
+handles.PRT=PRT;
+% Update handles structure
+guidata(hObject, handles);
+set(handles.figure1,'CurrentAxes',handles.axes2)
+prt_disp_conditions(PRT,handles.ind(cm),handles,hObject)
+% Update handles structure
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function hrfover_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to hrfover_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
 %--------------------------------------------------------------------------
 %---------------------- Subfunctions --------------------------------------
 %--------------------------------------------------------------------------
@@ -254,6 +303,7 @@ end
 
 %plot the results into bar graphs
 set(handles.figure1,'CurrentAxes',handles.axes2)
+cla
 ncond=size(meantp,2);
 vecty=2:2+ncond-1;
 y=vecty;
@@ -289,6 +339,7 @@ ylabel('Number of selected scans')
 set(handles.axes2,'XTickLabel',handles.gname)
 
 set(handles.figure1,'CurrentAxes',handles.axes3)
+cla
 bar(x,meantpdisc,0.9);
 hold on
 errorbar(y,meantpdisc,stdtpdisc,'.k')

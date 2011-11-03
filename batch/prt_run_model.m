@@ -55,8 +55,8 @@ model.model_name = job.model_name;
 model.use_kernel = job.use_kernel;
 
 % insert feature set fields
-for f = 1:length(job.fset)
-    model.fs(f).fs_name = job.fset(f).fs_name;
+for f = 1:length(job.fsets)
+    model.fs(f).fs_name = job.fsets(f,:);
     fid=prt_init_fs(PRT,model.fs(f));
     mods={PRT.fs(fid).modality(:).mod_name};
 end
@@ -70,8 +70,8 @@ if isfield(job.model_type,'class')
     for c = 1:length(job.model_type.class)
         model.class(c).class_name = job.model_type.class(c).class_name;
         
-        scount = 1;
         for g = 1:length(job.model_type.class(c).group)
+            scount = 1;
             model.class(c).group(g).gr_name = ...
                 job.model_type.class(c).group(g).gr_name;
             
@@ -154,6 +154,30 @@ if isfield(job.data_ops,'sel_ops')
 elseif isfield(job.data_ops,'no_op')
     model.operations = [];
 end
+
+%get the conditions which are common to all subjects from all groups, only
+nm=length(mods);
+for i=1:nm
+    flag=1;
+    for j=1:ng
+        for k=1:length(PRT.group(j).subject)
+            m2= strcmpi(PRT.fs(fid).modality(nm).mod_name,mods);
+            des=PRT.group(j).subject(k).modality(m2).design;
+            if isstruct(des) && flag
+                if k==1 && nm==1
+                    lcond={des.conds(:).cond_name};
+                else
+                    tocmp={des.conds(:).cond_name};
+                    lcond=intersect(lcond,tocmp);
+                end
+            else
+                flag=0;
+                lcond={};
+            end
+        end
+    end
+end
+
 
 prt_model(PRT,model);
 
