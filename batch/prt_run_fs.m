@@ -19,6 +19,9 @@ function out = prt_run_fs(varargin)
 % -------------------------------------------------------------------------
 job   = varargin{1};
 fname = char(job.infile);
+if exist('PRT','var')
+    clear PRT
+end
 load(fname);
 fs_name=job.k_file;
 

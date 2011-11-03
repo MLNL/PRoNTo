@@ -60,6 +60,9 @@ set(handles.figure1,'Color',[0.86,0.86,0.86])
 % -------------------------------------------------------------------------
 if ~isfield(handles,'notinit')
     % Load PRT.mat
+    if exist('PRT','var')
+        clear PRT
+    end
     PRT   = spm_select(1,'mat','Select PRT.mat');
     load(PRT);
     handles.PRT = PRT;

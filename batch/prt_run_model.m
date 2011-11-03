@@ -47,11 +47,20 @@ job   = varargin{1};
 % Load PRT.mat
 % -------------------------------------------------------------------------
 fname = char(job.infile);
+if exist('PRT','var')
+    clear PRT
+end
 load(fname);
 
 % assemble basic fields
 model.fname      = fname;
 model.model_name = job.model_name;
+if ~(prt_checkAlphaNumUnder(model.model_name))
+    beep
+    disp('Model name should be entered in alphanumeric format only')
+    disp('Please correct')
+    return
+end
 model.use_kernel = job.use_kernel;
 
 % insert feature set fields

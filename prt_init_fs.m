@@ -57,6 +57,12 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 
 % find index for the new feature set
 fs_exists = false;
+if ~(prt_checkAlphaNumUnder(in.fs_name))
+    beep
+    disp('Feature set name should be entered in alphanumeric format only')
+    disp('Please correct')
+    return
+end
 if isfield(PRT,'fs')
     if any(strcmpi(in.fs_name,{PRT.fs(:).fs_name}))
         fid = find(strcmpi(in.fs_name,{PRT.fs(:).fs_name}));

@@ -88,6 +88,9 @@ function edit_prt_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of edit_prt as text
 %        str2double(get(hObject,'String')) returns contents of edit_prt as a double
 fname=get(handles.edit_prt,'String');
+if exist('PRT','var')
+    clear PRT
+end
 try
     load(fname)
     handles.dat=PRT;
@@ -128,6 +131,9 @@ function br_prt_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 fname=spm_select(1,'.mat','Select PRT.mat',[],pwd,'PRT.mat');
+if exist('PRT','var')
+    clear PRT
+end
 try
     load(fname)
     handles.dat=PRT;
@@ -159,6 +165,12 @@ function edit_kname_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of edit_kname as text
 %        str2double(get(hObject,'String')) returns contents of edit_kname as a double
 handles.kname=get(handles.edit_kname,'String');
+if ~prt_checkAlphaNumUnder(handles.kname)
+    beep
+    disp('Kernel name should be entered in alphanumeric format only')
+    disp('Please correct')
+    return
+end
 % Update handles structure
 guidata(hObject, handles);
 
