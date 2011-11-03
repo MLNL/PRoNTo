@@ -89,10 +89,10 @@ end
 handles.output = hObject;
 
 % Reposition main window
-set(handles.figure1,'Units','normalized')
+set(handles.figure1,'Units','normalized');
 p = get(handles.figure1,'Position');
-set(handles.figure1,'Position',[p(1) 1 p(3) p(4)])
-set(handles.figure1,'Units','characters')
+set(handles.figure1,'Position',[p(1) 1 p(3) p(4)]);
+set(handles.figure1,'Units','characters');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -185,8 +185,7 @@ st.callback = 'prt_ui_results(''showpos'')';
 
 % Display maps
 % -------------------------------------------------------------------------
-WS = spm('WinScale');
-h  = spm_orthviews('Image', handles.wmap,[0.0558 0.0630 0.3780 0.3870].*WS);
+h  = spm_orthviews('Image', handles.wmap,[0.0619 0.0699 0.4196 0.4296]);
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
 spm_orthviews('AddBlobs', h, XYZ, Z, M);
@@ -508,9 +507,7 @@ end
 % Show anatomical image
 % -------------------------------------------------------------------------
 img    = spm_select(1,'image','Select anatomical image.');
-WS     = spm('WinScale');
-handle = spm_orthviews('Image', img, [0.4770 0.0630 0.3780 0.3870].*WS);
-
+handle = spm_orthviews('Image', img, [0.5295 0.0699 0.4196 0.4296]);
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
       spm_figure('Colormap','gray')
