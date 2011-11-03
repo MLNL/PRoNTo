@@ -23,25 +23,27 @@ mfunc       = PRT.model(model_idx).input.machine.function;
 m.args      = [];
 m.function  = 'prt_weights_bin_linkernel';
 
+% unfortunately a bug somewhere causes shifts in weight image if 
+% .nii is used...
 switch mfunc
     case 'prt_machine_svm_bin' 
-        img_mach    = 'svm_weights.nii';
+        img_mach    = 'svm_weights.img';
     case 'prt_machine_rvr'
-        img_mach    = 'rvr_weights.nii';
+        img_mach    = 'rvr_weights.img';
     case 'prt_machine_krr'
-        img_mach    = 'krr_weights.nii';
+        img_mach    = 'krr_weights.img';
     % weights computation not yet supported for RT
     %case 'prt_machine_RT_bin'
-    %    img_mach    = 'rt_weights.nii';
+    %    img_mach    = 'rt_weights.img';
     case 'prt_machine_gpml'
-        img_mach    = 'gpml_weights.nii';
+        img_mach    = 'gpml_weights.img';
     otherwise
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
 end
 
 if ~isempty(in.img_name)
-    img_name = [in.pathdir,in.img_name,'.nii'];
+    img_name = [in.pathdir,in.img_name,'.img'];
 else
     img_name = [in.pathdir,img_mach];
 end
@@ -76,9 +78,9 @@ idfeat = PRT.fas(fas_idx).idfeat_img;
 % -------------------------------------------------------------------------
 hdr        = PRT.fas(fas_idx).hdr.private;
 img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),...
-             hdr.dat.dim(3),nfold],'float64-le',0,1,0);         
+             hdr.dat.dim(3),nfold+1],'float64-le',0,1,0);         
 nvox       = hdr.dat.dim(1)*hdr.dat.dim(2)*hdr.dat.dim(3);
- 
+img3dav    = zeros(1,nvox); % average weight map
 for f = 1:nfold
     
     disp(sprintf('Computing weights: fold %d of %d',f,nfold))
@@ -98,6 +100,7 @@ for f = 1:nfold
     
     img3d          = zeros(1,nvox);
     img3d(idfeat)  = wimg;
+    img3dav(idfeat)= img3dav(idfeat)+wimg; % accumulate weights for avg map
     
     img3d          = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),...
                      hdr.dat.dim(3),1);      
@@ -105,6 +108,10 @@ for f = 1:nfold
     img4d(:,:,:,f) = img3d;
     
 end
+img3dav=img3dav/nfold;
+img4d(:,:,:,f+1)=reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),...
+                     hdr.dat.dim(3),1);      
+
 
 % Create weigths file
 %--------------------------------------------------------------------------
