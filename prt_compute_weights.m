@@ -81,6 +81,7 @@ img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),...
              hdr.dat.dim(3),nfold+1],'float64-le',0,1,0);         
 nvox       = hdr.dat.dim(1)*hdr.dat.dim(2)*hdr.dat.dim(3);
 img3dav    = zeros(1,nvox); % average weight map
+
 for f = 1:nfold
     
     disp(sprintf('Computing weights: fold %d of %d',f,nfold))
@@ -108,8 +109,10 @@ for f = 1:nfold
     img4d(:,:,:,f) = img3d;
     
 end
-img3dav=img3dav/nfold;
-img4d(:,:,:,f+1)=reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),...
+
+disp('Computing averaged weights')
+img3dav          = img3dav/nfold;
+img4d(:,:,:,f+1) = reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),...
                      hdr.dat.dim(3),1);      
 
 
