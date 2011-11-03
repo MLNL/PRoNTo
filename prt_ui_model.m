@@ -439,11 +439,25 @@ in.use_kernel=handles.use_kernel;
 in.operations=handles.operations;
 in.fs(1).fs_name=handles.fs(1).fs_name;
 in.cv=handles.cv;
-
+%check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')
-    in.class=handles.class;
+    if ~isfield(in,'class')
+        beep
+        disp('No class selected for classification')
+        disp('Please, define classes')
+        return
+    else
+        in.class=handles.class;
+    end
 else
-    in.group=handles.group;
+    if ~isfield(in,'group')
+        beep
+        disp('No subjects/scans selected for classification')
+        disp('Please, select subjects/scans')
+        return
+    else
+        in.group=handles.group;
+    end
 end
 
 %checks on the CV framework compared to the model entered
@@ -508,10 +522,25 @@ in.use_kernel=handles.use_kernel;
 in.operations=handles.operations;
 in.fs(1).fs_name=handles.fs(1).fs_name;
 in.cv=handles.cv;
+%check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')
-    in.class=handles.class;
+    if ~isfield(in,'class')
+        beep
+        disp('No class selected for classification')
+        disp('Please, define classes')
+        return
+    else
+        in.class=handles.class;
+    end
 else
-    in.group=handles.group;
+    if ~isfield(in,'group')
+        beep
+        disp('No subjects/scans selected for classification')
+        disp('Please, select subjects/scans')
+        return
+    else
+        in.group=handles.group;
+    end
 end
 
 %checks on the CV framework compared to the model entered

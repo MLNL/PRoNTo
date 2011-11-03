@@ -310,6 +310,7 @@ function done_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+flag=0;
 for i=1:size(handles.clas,1)
     list=get(handles.group_list,'String');
     for g=1:length(list)
@@ -317,17 +318,25 @@ for i=1:size(handles.clas,1)
         g2=find(strcmpi(list{g},{handles.dat.group(:).gr_name}));
         sids=handles.clas{i,2}{g,2};
         handles.class(i).group(g2).gr_name=list{g};
-        for s=1:length(sids)
-            handles.class(i).group(g2).subj(scount).num=sids(s);
-            listm={handles.dat.fs(handles.indfs).modality(:).mod_name};
-            for m=1:length(listm)
-                handles.class(i).group(g2).subj(scount).modality(m).mod_name=listm{m};
+        if ~isempty(sids) || any(sids)
+            flag=1;
+            for s=1:length(sids)
+                handles.class(i).group(g2).subj(scount).num=sids(s);
+                listm={handles.dat.fs(handles.indfs).modality(:).mod_name};
+                for m=1:length(listm)
+                    handles.class(i).group(g2).subj(scount).modality(m).mod_name=listm{m};
+                end
+                scount=scount+1;
             end
-            scount=scount+1;
         end
     end
 end
-
+if ~flag
+    beep
+    sprintf('No subjects found in the definition of the regression problem')
+    disp('Please select subjects/scans')
+    return
+end
 handles.output=handles.class.group;
 % Update handles structure
 guidata(hObject, handles);
