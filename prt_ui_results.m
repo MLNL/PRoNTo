@@ -186,9 +186,14 @@ st.callback = 'prt_ui_results(''showpos'')';
 % Display maps
 % -------------------------------------------------------------------------
 h  = spm_orthviews('Image', handles.wmap,[0.0619 0.0699 0.4196 0.4296]);
+handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
 spm_orthviews('AddBlobs', h, XYZ, Z, M);
+cmap = get(gcf,'Colormap');
+if size(cmap,1)~=128
+      spm_figure('Colormap','jet');
+end
 spm_orthviews('Redraw');
 
 % Show positions
@@ -267,12 +272,15 @@ function plotmenu_Callback(hObject, eventdata, handles)
 
 % Read plot, model and fold
 % -------------------------------------------------------------------------
-plotchosen   = num2str(get(handles.plotmenu,'Value'));
-fold         = get(handles.foldmenu,'Value');
-m            = get(handles.classmenu,'Value');
-PRT          = handles.PRT;
-handles.plot = 1;
-model        = get(handles.classmenu,'Value');
+plotchosen    = num2str(get(handles.plotmenu,'Value'));
+fold          = get(handles.foldmenu,'Value');
+m             = get(handles.classmenu,'Value');
+PRT           = handles.PRT;
+handles.plot  = 1;
+model         = get(handles.classmenu,'Value');
+classNames{1} = handles.PRT.model(model).input.class(1).class_name;
+classNames{2} = handles.PRT.model(model).input.class(2).class_name;
+myColours     = {'k','r'};
 
 % All folds
 % -------------------------------------------------------------------------
@@ -310,11 +318,53 @@ end
 switch plotchosen
     
     case '1'
+        cla(handles.axes5); 
+        colorbar('peer',handles.axes5,'off')
+        nms = 10;
         % predictions
+        if fVvals_exist
+            for f=2:handles.nfold+1
+                foldlabels{f} = num2str(f-1);
+                targets = handles.PRT.model(model).output.fold(f-1).targets;
+                targpos = targets == 2;
+                fVals   = handles.PRT.model(model).output.fold(f-1).func_val;
+                func_valsc1 = fVals(targpos);
+                func_valsc2 = fVals(~targpos);
+                yc1 = (f-1)*ones(length(func_valsc1),1);
+                yc2 = (f-1)*ones(length(func_valsc2),1);
+                if f==2
+                    maxfv = max([func_valsc1;func_valsc2]);
+                    minfv = min([func_valsc1;func_valsc2]);
+                else
+                    if max([func_valsc1;func_valsc2]) > maxfv;
+                        maxfv = max([func_valsc1;func_valsc2]);
+                    end
+                    if min([func_valsc1;func_valsc2]) < minfv;
+                        minfv = min([func_valsc1;func_valsc2]);
+                    end
+                end
+                plot(handles.axes5,func_valsc1,yc1,'kx','MarkerSize',nms)
+                hold(handles.axes5,'on');
+                plot(handles.axes5,func_valsc2,yc2,'rx','MarkerSize',nms)
+            end
+            x = zeros(handles.nfold+2,1);
+            y = [0:handles.nfold+1]';
+            plot(handles.axes5,x,y,'--b')
+            xlabel(handles.axes5,'function value','FontWeight','bold');
+            ylabel(handles.axes5,'folds','FontWeight','bold');
+            ylim(handles.axes5,[0 handles.nfold+1.3])
+            xlim(handles.axes5,[minfv-0.5 maxfv+0.5])
+            legend(handles.axes5,classNames{1},classNames{2});
+            set(handles.axes5,'YTick',0:handles.nfold)
+            set(handles.axes5,'YTickLabel',foldlabels)
+            hold(handles.axes5,'off');
+        else
+            % do nothing, no func_val available
+        end
         
     case '2'
         % ROC curve
-                
+        cla(handles.axes5);        
         [y,idx] = sort(scores);
         targpos = targpos(idx);
         
@@ -331,15 +381,12 @@ switch plotchosen
             'MarkerFaceColor','k',...
             'MarkerSize',4);
         title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %3.1f',A));
-        xlabel(handles.axes5,'False positives')
-        ylabel(handles.axes5,'True positives')
+        xlabel(handles.axes5,'False positives','FontWeight','bold')
+        ylabel(handles.axes5,'True positives','FontWeight','bold')
         
     case '3'
         % func_val distributions
         if fVvals_exist
-            myColours={'k','r'};
-            classNames{1}=handles.PRT.model(model).input.class(1).class_name;
-            classNames{2}=handles.PRT.model(model).input.class(2).class_name;
             for cl=1:2
                 func_vals=fVals(targpos);
                 if cl == 2, func_vals=fVals(~targpos); end
@@ -355,7 +402,7 @@ switch plotchosen
                 end
                 if cl == 2, hold(handles.axes5,'off'); end
             end
-            xlabel(handles.axes5,'function value');
+            xlabel(handles.axes5,'function value','FontWeight','bold');
             legend(handles.axes5,classNames{1},classNames{2});
         else
             % do nothing, no func_val available
@@ -363,7 +410,7 @@ switch plotchosen
         
     case '4'
         % confusion matrix
-        
+         cla(handles.axes5); 
         if fold == 1
             for f = 1:handles.nfold,
                 conmat(:,:,f) = PRT.model(m).output.fold(f).stats.con_mat;
@@ -382,8 +429,8 @@ switch plotchosen
         else
             title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1));
         end
-        xlabel(handles.axes5,'False positives')
-        ylabel(handles.axes5,'True positives')
+        xlabel(handles.axes5,'False positives','FontWeight','bold')
+        ylabel(handles.axes5,'True positives','FontWeight','bold')
         set(handles.axes5,'XTick',[1 2])
         set(handles.axes5,'XTickLabel',{'1','2'})
         set(handles.axes5,'YTick',[1 2])
@@ -518,13 +565,14 @@ end
 % -------------------------------------------------------------------------
 img    = spm_select(1,'image','Select anatomical image.');
 handle = spm_orthviews('Image', img, [0.5295 0.0699 0.4196 0.4296]);
-cmap = get(gcf,'Colormap');
+cmap   = get(gcf,'Colormap');
 if size(cmap,1)~=128
       spm_figure('Colormap','gray')
-end;
+end
 
-handles.aimg = img;
-handles.img  = 1;
+handles.aimgh = handle;
+handles.aimg  = img;
+handles.img   = 1;
 
 % Show file name
 % -------------------------------------------------------------------------
