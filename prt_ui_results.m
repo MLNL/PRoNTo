@@ -322,6 +322,8 @@ end
 % -------------------------------------------------------------------------
 switch plotchosen
     
+    % Predictions
+    % ---------------------------------------------------------------------
     case '1'
         cla(handles.axes5); 
         colorbar('peer',handles.axes5,'off')
@@ -354,11 +356,12 @@ switch plotchosen
             end
             x = zeros(handles.nfold+2,1);
             y = [0:handles.nfold+1]';
-            plot(handles.axes5,x,y,'--b')
+            plot(handles.axes5,x,y,'--','Color',[1 1 1]*.6)
             xlabel(handles.axes5,'function value','FontWeight','bold');
             ylabel(handles.axes5,'folds','FontWeight','bold');
             ylim(handles.axes5,[0 handles.nfold+1.3])
-            xlim(handles.axes5,[minfv-0.5 maxfv+0.5])
+            mlim = max([abs(maxfv), abs(minfv)]);
+            xlim(handles.axes5,[-mlim-0.5 mlim+0.5])
             legend(handles.axes5,classNames{1},classNames{2});
             set(handles.axes5,'YTick',0:handles.nfold)
             set(handles.axes5,'YTickLabel',foldlabels)
@@ -366,7 +369,9 @@ switch plotchosen
         else
             % do nothing, no func_val available
         end
-        
+     
+    % ROC / AUC
+    % ---------------------------------------------------------------------
     case '2'
         % ROC curve
         cla(handles.axes5);        
@@ -388,7 +393,9 @@ switch plotchosen
         title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %3.1f',A));
         xlabel(handles.axes5,'False positives','FontWeight','bold')
         ylabel(handles.axes5,'True positives','FontWeight','bold')
-        
+     
+    % Histograms
+    % ---------------------------------------------------------------------
     case '3'
         % func_val distributions
         if fVvals_exist
@@ -412,7 +419,9 @@ switch plotchosen
         else
             % do nothing, no func_val available
         end
-        
+     
+    % Confusion matrix
+    % ---------------------------------------------------------------------
     case '4'
         % confusion matrix
          cla(handles.axes5); 
