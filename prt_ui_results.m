@@ -63,6 +63,8 @@ if ~isfield(handles,'notinit')
     PRT   = spm_select(1,'mat','Select PRT.mat');
     load(PRT);
     handles.PRT = PRT;
+    % Flag to load new weights
+    handles.noloadw = 0;
     % Load models
     nmodels = length(PRT.model);
     for m = 1:nmodels
@@ -126,7 +128,7 @@ function weightbutton_Callback(hObject, eventdata, handles)
 disp('Loading weights...>>')
 % Select results (.img) for weight map
 % -------------------------------------------------------------------------
-if ~isfield(handles,'wmap')
+if ~isfield(handles,'wmap') || ~handles.noloadw
     wmap = spm_select(1,'image','Select weight map.');
     V    = spm_vol(wmap);
     handles.vols{1} = V;
@@ -201,6 +203,9 @@ spm_orthviews('Redraw');
 prt_ui_results('showpos');
 
 disp('Done');
+
+% Reset flag to load weights
+handles.noloadw = 0;
 
 % Show file name
 % -------------------------------------------------------------------------
@@ -505,6 +510,7 @@ set(handles.cacctext,'String',sprintf('[%3.1f %3.1f] %%',...
 % Change weight map
 % -------------------------------------------------------------------------
 if isfield(handles,'vols')
+    handles.noloadw = 1;
     weightbutton_Callback(hObject, eventdata, handles);
 end
 
