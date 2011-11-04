@@ -34,10 +34,12 @@ switch lower(Action)
         % Welcome message
         prt('ASCIIwelcome');
         
-        % add appropriate path, if necessary
+        % add appropriate paths, if necessary
+        % batch dir
         if ~exist('prt_batch','file')
             addpath(fullfile(prt('Dir'),'batch'));
         end
+        % machines
         if ~exist('prt_machine','file')
             pth_machines = fullfile(prt('Dir'),'machines');
             addpath(pth_machines);
@@ -47,6 +49,11 @@ switch lower(Action)
                 addpath(fullfile(pth_machines,ls_machinedir{ii}))
             end
         end
+        % utils - dirty check for the moment
+        if ~exist('prt_checkAlphaNumUnder','file')
+            addpath(fullfile(prt('Dir'),'utils'));
+        end
+        
         
         % in particular SPM's directories: matlabbatch
         if ~exist('cfg_util','file')
