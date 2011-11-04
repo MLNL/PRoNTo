@@ -308,14 +308,25 @@ for i=1:length(dat.group)
         overlbe(j)=des.stats.meanovl;
         overlaf(j)=des.stats.mgoodovl;
     end
-    meantp(i,:)=mean(nsc);
-    stdtp(i,:)=std(nsc);
-    meantpdisc(i,:)=mean(ndisc);
-    stdtpdisc(i,:)=std(ndisc);
-    mbef(i)=mean(overlbe);
-    stdbef(i)=std(overlbe);
-    maft(i)=mean(overlaf);
-    stdaft(i)=std(overlaf);
+    if size(nsc,1)==1
+        meantp(i,:)=nsc;
+        stdtp(i,:)=zeros(size(nsc));
+        meantpdisc(i,:)=ndisc;
+        stdtpdisc(i,:)=zeros(size(ndisc));
+        mbef(i)=overlbe;
+        stdbef(i)=zeros(size(overlbe));
+        maft(i)=overlaf;
+        stdaft(i)=zeros(size(overlaf));
+    else
+        meantp(i,:)=mean(nsc);
+        stdtp(i,:)=std(nsc);
+        meantpdisc(i,:)=mean(ndisc);
+        stdtpdisc(i,:)=std(ndisc);
+        mbef(i)=mean(overlbe);
+        stdbef(i)=std(overlbe);
+        maft(i)=mean(overlaf);
+        stdaft(i)=std(overlaf);
+    end
 end
 
 %plot the results into bar graphs
