@@ -65,10 +65,10 @@ block_size  = floor(mem/8/max([nfa, n])); % Block size (double = 8 bytes)
 n_block     = ceil(n_vox/block_size);
 
 bstart=1; bend=min(block_size,n_vox);
-h = waitbar(0,'Please wait while images are pre-processed');
+h = waitbar(0,'Please wait while preparing feature set');
 step=1;
 for b = 1:n_block
-    disp ([' > processing block: ', num2str(b),' of ',num2str(n_block),' ...'])
+    disp ([' > preparing block: ', num2str(b),' of ',num2str(n_block),' ...'])
     vox_range = bstart:bend;
     block_size=length(vox_range);
     kern_vols=zeros(block_size,n);

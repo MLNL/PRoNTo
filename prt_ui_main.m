@@ -28,7 +28,7 @@ function varargout = prt_ui_main(varargin)
 
 % Edit the above text to modify the response to help prt_ui_main
 
-% Last Modified by GUIDE v2.5 20-Oct-2011 12:50:28
+% Last Modified by GUIDE v2.5 04-Nov-2011 19:08:48
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -62,7 +62,6 @@ cc=get(handles.figure1,'Color');
 [A] = imread('PRoNTo_logo.png','BackgroundColor',cc);
 image(A)
 axis off
-set(handles.appmod,'Visible','off')
 % Choose default command line output for prt_ui_main
 handles.output = hObject;
 
@@ -117,13 +116,14 @@ function model_Callback(hObject, eventdata, handles)
 % hObject    handle to model (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% prt_ui_run_model
+prt_ui_cv_model
 
-% --- Executes on button press in appmod.
-function appmod_Callback(hObject, eventdata, handles)
-% hObject    handle to appmod (see GCBO)
+% --- Executes on button press in compweights.
+function compweights_Callback(hObject, eventdata, handles)
+% hObject    handle to compweights (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+prt_ui_compute_weights
 
 % --- Executes on button press in datarev.
 function datarev_Callback(hObject, eventdata, handles)
