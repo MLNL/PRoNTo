@@ -113,9 +113,9 @@ for f = 1:n_folds
     stats = prt_stats(model, cvdata.te_targets);
     %acc = stats.acc % for debugging
     
-    % update PRT 
-    PRT.model(mid).output.fold(f).targets     = cvdata.te_targets;
-    PRT.model(mid).output.fold(f).predictions = model.predictions;
+    % update PRT - ensuring column vectors throughout
+    PRT.model(mid).output.fold(f).targets     = cvdata.te_targets(:); 
+    PRT.model(mid).output.fold(f).predictions = model.predictions(:);
     PRT.model(mid).output.fold(f).stats       = stats;
     % save func_val for later analysis if available
     if isfield(model,'func_val')
@@ -134,10 +134,12 @@ for f = 1:n_folds
 end
 
 %Model level (across folds) statistics
-t=[PRT.model(mid).output.fold(:).targets];
+%t=[PRT.model(mid).output.fold(:).targets];
+t=vertcat(PRT.model(mid).output.fold(:).targets);
 m.type=PRT.model(mid).output.fold(1).type;
-m.predictions=[PRT.model(mid).output.fold(:).predictions];
-m.predictions=m.predictions(:);
+%m.predictions=[PRT.model(mid).output.fold(:).predictions];
+m.predictions=vertcat(PRT.model(mid).output.fold(:).predictions);
+%m.predictions=m.predictions(:);
 %m.func_val=[PRT.model(mid).output.fold(:).func_val];
 stats=prt_stats(m,t(:),'model');
 PRT.model(mid).output.stats=stats;
