@@ -61,6 +61,7 @@ function prt_ui_prepare_data_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_ui_kernel
 handles.output = hObject;
 set(handles.sel_mod,'Enable','off')
+handles.kname=[];
 % Update handles structure
 guidata(hObject, handles);
 
@@ -259,6 +260,11 @@ function buildbutt_Callback(hObject, eventdata, handles)
 
 input=struct('fname',[],'kname',[],'mod',[]);
 input.fname=handles.fname;
+if isempty(handles.kname)
+    beep
+    disp('Enter a name for the feature set to be saved')
+    return
+end
 input.fs_name=handles.kname;
 input.mod=handles.mod;
 load(input.fname);

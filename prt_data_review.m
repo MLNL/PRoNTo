@@ -115,8 +115,9 @@ set(handles.nummod,'String',num2str(nm));
 if isempty(ind)
     set(handles.des,'String','No')
     set(handles.modlist,'String',{'None'})
-    set(handles.modlist,'Enable','off')
+    set(handles.modlist,'Visible','off')
     set(handles.condask,'Visible','off')
+    set(handles.text10,'Visible','off')
     set(handles.axes2,'Visible','off')
     set(handles.axes3,'Visible','off')
     set(handles.numcond,'Visible','off')
@@ -131,8 +132,18 @@ if isempty(ind)
     set(handles.stdaft,'Visible','off')
     set(handles.hrfover_txt,'Visible','off')
     set(handles.hrfover_edit,'Visible','off')
-%     w=get(handles.figure1,'Position');
-%     set(handles.figure1,'Position',[w(1),w(2)+(2*w(4))/3,w(3),w(4)/3])
+    set(handles.uipanel4,'Visible','off')
+    %Only displays the number of subjects per group when no design:
+    x=get(handles.axes3,'Position');
+    set(handles.axes1,'Position',x);
+    x=get(handles.uipanel4,'Position');
+    w=get(handles.uipanel3,'Position');
+    set(handles.uipanel3,'Position',[x(1),x(2),w(3),w(4)]);
+    w=get(handles.figure1,'Position');
+    set(handles.figure1,'Position',[w(1),w(2)+(2*w(4)/2.5),w(3),w(4)/2.5])
+    w=get(handles.axes1,'Position');
+    x=get(handles.text1,'Position');
+    set(handles.text1,'Position',[x(1),w(2)+w(4)*1.07,x(3),x(4)])
 else
     def=prt_get_defaults('datad');
     set(handles.hrfover_edit,'String',num2str(def.hrfw))

@@ -453,7 +453,7 @@ in.fs(1).fs_name=handles.fs(1).fs_name;
 in.cv=handles.cv;
 %check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')
-    if ~isfield(in,'class')
+    if ~isfield(handles,'class')
         beep
         disp('No class selected for classification')
         disp('Please, define classes')
@@ -462,7 +462,7 @@ if strcmpi(in.type,'classification')
         in.class=handles.class;
     end
 else
-    if ~isfield(in,'group')
+    if ~isfield(handles,'group')
         beep
         disp('No subjects/scans selected for classification')
         disp('Please, select subjects/scans')
@@ -536,7 +536,7 @@ in.fs(1).fs_name=handles.fs(1).fs_name;
 in.cv=handles.cv;
 %check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')
-    if ~isfield(in,'class')
+    if ~isfield(handles,'class')
         beep
         disp('No class selected for classification')
         disp('Please, define classes')
@@ -545,7 +545,7 @@ if strcmpi(in.type,'classification')
         in.class=handles.class;
     end
 else
-    if ~isfield(in,'group')
+    if ~isfield(handles,'group')
         beep
         disp('No subjects/scans selected for classification')
         disp('Please, select subjects/scans')

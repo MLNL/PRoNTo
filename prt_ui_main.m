@@ -131,9 +131,10 @@ function datarev_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 fname=spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
+prtdir=fileparts(fname);
 try
     load(fname)
-    prt_data_review('UserData',PRT);
+    prt_data_review('UserData',{PRT,prtdir});
 catch
     beep
     disp('Could not load file')

@@ -489,6 +489,7 @@ if nsubj==1
         'String',{'none'},...
         'Value',1);
     handles.modlist={};
+    handles.dat.masks=[];
 elseif handles.cs==1 && nsubj>1
     nlist={list{2:end}};
     handles.dat.group(cgr).subject=handles.dat.group(cgr).subject(2:end);
@@ -1121,6 +1122,7 @@ for i=1:ng
                         des.conds(l).scans=des.conds(l).scans(inser);
                         des.conds(l).blocks=des.conds(l).blocks(inser);
                     end
+                    handles.dat.group(i).subject(j).modality(m2).design=des;
                 end
             end
         end
