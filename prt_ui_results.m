@@ -330,7 +330,7 @@ switch plotchosen
         plot(handles.axes5,fp,tp,'--ks','LineWidth',2, 'MarkerEdgeColor','k',...
             'MarkerFaceColor','k',...
             'MarkerSize',4);
-        title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %d',A));
+        title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %3.1f',A));
         xlabel(handles.axes5,'False positives')
         ylabel(handles.axes5,'True positives')
         
@@ -372,12 +372,22 @@ switch plotchosen
         else
             mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
         end
+        mincm = min(min(mconmat));
+        maxcm = max(max(mconmat));
         imagesc(mconmat,'Parent',handles.axes5);
-        colorbar('peer',handles.axes5);
-        colormap(handles.axes5,'Jet');
-        title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1));
+        colorbar('peer',handles.axes5,'CLim',[mincm maxcm])
+        colormap(handles.axes5,'Gray');
+        if fold == 1
+            title(handles.axes5,sprintf('Confusion matrix: all folds'));
+        else
+            title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1));
+        end
         xlabel(handles.axes5,'False positives')
         ylabel(handles.axes5,'True positives')
+        set(handles.axes5,'XTick',[1 2])
+        set(handles.axes5,'XTickLabel',{'1','2'})
+        set(handles.axes5,'YTick',[1 2])
+        set(handles.axes5,'YTickLabel',{'1','2'})
 end
 
 guidata(hObject, handles);
