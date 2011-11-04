@@ -63,6 +63,7 @@ function prt_ui_model_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_ui_kernel_construction
 handles.output = hObject;
 
+set(handles.figure1,'Name','PRoNTo :: Specify model')
 %Set defaults for some subfields and popup menus
 handles.def=prt_get_defaults('model');
 set(handles.usekern,'Value',1)

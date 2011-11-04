@@ -57,7 +57,7 @@ function prt_ui_main_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_main (see VARARGIN)
-
+set(handles.figure1,'Name','')
 cc=get(handles.figure1,'Color');
 [A] = imread('PRoNTo_logo.png','BackgroundColor',cc);
 image(A)

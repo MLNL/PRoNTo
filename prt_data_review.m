@@ -62,6 +62,7 @@ function prt_data_review_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_data_review
 handles.output = hObject;
 
+set(handles.figure1,'Name','PRoNTo :: Review data and design')
 
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     %get number of groups and subjects/group
@@ -146,7 +147,11 @@ if isempty(ind)
     set(handles.text1,'Position',[x(1),w(2)+w(4)*1.07,x(3),x(4)])
 else
     def=prt_get_defaults('datad');
-    set(handles.hrfover_edit,'String',num2str(def.hrfw))
+    if isfield(PRT.group,'hrfoverlap')
+        set(handles.hrfover_edit,'String',num2str(PRT.group.hrfoverlap))
+    else
+        set(handles.hrfover_edit,'String',num2str(def.hrfw))
+    end
     set(handles.des,'String','Yes')
     set(handles.modlist,'String',list)
     set(handles.modlist,'Value',1)
@@ -245,6 +250,7 @@ for i=1:length(PRT.group)
         PRT.group(i).subject(j).modality(m).design=desn;
     end
 end
+PRT.group.hrfoverlap=val;
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
 handles.PRT=PRT;
 % Update handles structure

@@ -60,6 +60,8 @@ function prt_ui_prepare_data_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for prt_ui_kernel
 handles.output = hObject;
+
+set(handles.figure1,'Name','PRoNTo :: Prepare feature set')
 set(handles.sel_mod,'Enable','off')
 handles.kname=[];
 % Update handles structure

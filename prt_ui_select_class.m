@@ -55,6 +55,7 @@ function prt_ui_select_class_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_ui_kernel_construction
 handles.output = hObject;
 
+set(handles.figure1,'Name','PRoNTo :: Specify classes')
 %set the different fields to disabled (will be enabled when choosing the
 %number of classes)
 set(handles.group_list,'Enable','off')
@@ -595,7 +596,7 @@ for i=1:size(handles.clas,1)
         scount=1;
         g2=find(strcmpi(list{g},{handles.dat.group(:).gr_name}));
         sids=handles.clas{i,2}{g,2};
-        if ~isempty(sids) || any(sids)
+        if ~isempty(sids) && any(sids)
             handles.class(i).group(g2).gr_name=list{g};
             flag=1;
             for s=1:length(sids)

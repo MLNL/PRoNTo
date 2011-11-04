@@ -60,7 +60,7 @@ function prt_ui_design_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for prt_ui_design
 handles.output = hObject;
-set(handles.figure1,'Name','Specify data and design')
+set(handles.figure1,'Name','PRoNTo :: Data and design')
 
 handles.saved=0;
 
@@ -923,16 +923,6 @@ if isfield(PRT,'group')
                                 handles.modlist=[handles.modlist, {mname}];
                             end
                         end
-                        %get the design if there is one and compute the
-                        %valid scans if this operation was not performed
-                        %earlier
-                        if isstruct(PRT.group(i).subject(j).modality(k).design)
-                            des=PRT.group(i).subject(j).modality(k).design;
-                            handles.saved=0;
-                            des=prt_check_design(des.conds,des.TR,des.unit);
-                            PRT.group(i).subject(j).modality(k).design=des;
-                            PRT.group(i).subject(j).modality(k).design.covar=[];
-                        end
                         handles.ds{i}{j}{k}=size(PRT.group(i).subject(j).modality(k).scans,1);
                     end
                 end
@@ -1130,10 +1120,13 @@ for i=1:ng
     end
 end
 
+def=prt_get_defaults('datad.hrfw');
+
 %save the data structure
 disp('Saving the data.....>>')
 PRT=struct();
 PRT.group=handles.dat.group;
+PRT.group.hrfoverlap=def;
 PRT.masks=handles.dat.masks;
 resn=fullfile(handles.dat.dir,'PRT.mat');
 save(resn,'PRT')

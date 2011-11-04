@@ -271,7 +271,7 @@ else
             PRT.fas(mids(i)).param_dt = in.mod(mids(i)).param_dt;
             PRT.fas(mids(i)).hdr = headers{i};
             PRT.fas(mids(i)).idfeat_img = PRT.fs(fid).modality(i).feat_idx_img;                % index of voxels in the full image (nifti)
-            datname=[prt_dir,filesep,'Data_matrix_',char(in.mod(mids(i)).mod_name),'.dat'];
+            datname=[prt_dir,filesep,'Feature_set_',char(in.mod(mids(i)).mod_name),'.dat'];
             PRT.fas(mids(i)).dat = file_array(...
                 datname, ...                 % fname     - filename
                 [szm(i),n_vox],...           % dim       - dimensions (default = [0 0] )

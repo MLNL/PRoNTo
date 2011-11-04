@@ -62,6 +62,8 @@ function prt_ui_prepare_datamod_OpeningFcn(hObject, eventdata, handles, varargin
 
 % Choose default command line output for prt_ui_kernel_modality
 handles.output = hObject;
+
+set(handles.figure1,'Name','PRoNTo :: Specify modality to include')
 set(handles.par_name,'Visible','off')
 set(handles.par_value,'Visible','off')
 set(handles.pop_det,'String',{'No', ...
@@ -80,7 +82,6 @@ end
 mod_n={handles.PRT.masks(:).mod_name};
 set(handles.pop_mod,'String',mod_n)
 set(handles.pop_mod,'Value',1)
-set(handles.figure1,'Name',['Specify modality ',char(varargin{2}{2})])
 set(handles.pop_cond,'String',{'All conditions','All scans'})
 set(handles.pop_cond,'Value',2)
 handles.mod=struct('mod_name',[],'mode',[],'mask',[],'detrend',[], ...

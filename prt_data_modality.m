@@ -63,7 +63,7 @@ function prt_data_modality_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_data_modality
 handles.output = hObject;
 
-
+set(handles.figure1,'Name','PRoNTo :: Specify modality')
 set(handles.design_menu,...
         'String',{'Load SPM.mat','Specify design','No design'},...
         'Value',3);

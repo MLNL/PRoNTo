@@ -55,6 +55,7 @@ function prt_ui_select_reg_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_ui_kernel_construction
 handles.output = hObject;
 
+set(handles.figure1,'Name','PRoNTo :: Specify subjects/scans to regress')
 %get information from the PRT.mat
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     handles.dat=varargin{2}{1};
@@ -318,7 +319,7 @@ for i=1:size(handles.clas,1)
         g2=find(strcmpi(list{g},{handles.dat.group(:).gr_name}));
         sids=handles.clas{i,2}{g,2};
         handles.class(i).group(g2).gr_name=list{g};
-        if ~isempty(sids) || any(sids)
+        if ~isempty(sids) && any(sids)
             flag=1;
             for s=1:length(sids)
                 handles.class(i).group(g2).subj(scount).num=sids(s);

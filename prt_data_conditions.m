@@ -62,6 +62,8 @@ function prt_data_conditions_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for prt_data_conditions
 handles.output = hObject;
+
+set(handles.figure1,'Name','PRoNTo :: Specify conditions')
 set(handles.condmenu,'String',{'Specify','From .mat file'})
 set(handles.condmenu,'Value',2)
 handles.cond=struct();
