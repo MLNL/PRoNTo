@@ -330,41 +330,49 @@ switch plotchosen
         nms = 10;
         % predictions
         if fVvals_exist
-            for f=2:handles.nfold+1
-                foldlabels{f} = num2str(f-1);
-                targets = handles.PRT.model(model).output.fold(f-1).targets;
-                targpos = targets == 2;
-                fVals   = handles.PRT.model(model).output.fold(f-1).func_val;
-                func_valsc1 = fVals(targpos);
-                func_valsc2 = fVals(~targpos);
-                yc1 = (f-1)*ones(length(func_valsc1),1);
-                yc2 = (f-1)*ones(length(func_valsc2),1);
-                if f==2
-                    maxfv = max([func_valsc1;func_valsc2]);
-                    minfv = min([func_valsc1;func_valsc2]);
-                else
-                    if max([func_valsc1;func_valsc2]) > maxfv;
+            if fold == 1
+                for f=2:handles.nfold+1
+                    foldlabels{f} = num2str(f-1);
+                    targets = handles.PRT.model(model).output.fold(f-1).targets;
+                    targpos = targets == 2;
+                    fVals   = handles.PRT.model(model).output.fold(f-1).func_val;
+                    func_valsc1 = fVals(targpos);
+                    func_valsc2 = fVals(~targpos);
+                    yc1 = (f-1)*ones(length(func_valsc1),1);
+                    yc2 = (f-1)*ones(length(func_valsc2),1);
+                    if f==2
                         maxfv = max([func_valsc1;func_valsc2]);
-                    end
-                    if min([func_valsc1;func_valsc2]) < minfv;
                         minfv = min([func_valsc1;func_valsc2]);
                     end
+                    plot(handles.axes5,func_valsc1,yc1,'kx','MarkerSize',nms)
+                    hold(handles.axes5,'on');
+                    plot(handles.axes5,func_valsc2,yc2,'ro','MarkerSize',nms-2)
                 end
+            else
+                foldlabels{1} = num2str(fold-1);
+                targets = handles.PRT.model(model).output.fold(fold-1).targets;
+                targpos = targets == 2;
+                fVals   = handles.PRT.model(model).output.fold(fold-1).func_val;
+                func_valsc1 = fVals(targpos);
+                func_valsc2 = fVals(~targpos);
+                yc1 = (fold-1)*ones(length(func_valsc1),1);
+                yc2 = (fold-1)*ones(length(func_valsc2),1);
+                maxfv = max([func_valsc1;func_valsc2]);
+                minfv = min([func_valsc1;func_valsc2]);
                 plot(handles.axes5,func_valsc1,yc1,'kx','MarkerSize',nms)
                 hold(handles.axes5,'on');
-                plot(handles.axes5,func_valsc2,yc2,'rx','MarkerSize',nms)
+                plot(handles.axes5,func_valsc2,yc2,'ro','MarkerSize',nms-2)
             end
             x = zeros(handles.nfold+2,1);
             y = [0:handles.nfold+1]';
             plot(handles.axes5,x,y,'--','Color',[1 1 1]*.6)
             xlabel(handles.axes5,'function value','FontWeight','bold');
-            ylabel(handles.axes5,'folds','FontWeight','bold');
+            ylabel(handles.axes5,'fold','FontWeight','bold');
             ylim(handles.axes5,[0 handles.nfold+1.3])
             mlim = max([abs(maxfv), abs(minfv)]);
             xlim(handles.axes5,[-mlim-0.5 mlim+0.5])
             legend(handles.axes5,classNames{1},classNames{2});
             set(handles.axes5,'YTick',0:handles.nfold)
-            set(handles.axes5,'YTickLabel',foldlabels)
             hold(handles.axes5,'off');
         else
             % do nothing, no func_val available
@@ -426,21 +434,18 @@ switch plotchosen
         % confusion matrix
          cla(handles.axes5); 
         if fold == 1
-            for f = 1:handles.nfold,
-                conmat(:,:,f) = PRT.model(m).output.fold(f).stats.con_mat;
-            end
-            mconmat = mean(conmat,3);
-        else
-            mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
-        end
-        mincm = min(min(mconmat));
-        maxcm = max(max(mconmat));
-        imagesc(mconmat,'Parent',handles.axes5);
-        colorbar('peer',handles.axes5,'CLim',[mincm maxcm])
-        colormap(handles.axes5,'Gray');
-        if fold == 1
+            mconmat(:,:) = PRT.model(m).output.stats.con_mat;
+            imagesc(mconmat,'Parent',handles.axes5);
+            cb = colorbar('peer',handles.axes5);
+            colormap(handles.axes5,'Gray');
+            caxis([0 sum(PRT.model(m).output.stats.con_mat(:))]);
             title(handles.axes5,sprintf('Confusion matrix: all folds'));
         else
+            mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
+            imagesc(mconmat,'Parent',handles.axes5);
+            cb = colorbar('peer',handles.axes5);
+            colormap(handles.axes5,'Gray');
+            caxis([0 sum(PRT.model(m).output.fold(fold-1).stats.con_mat(:))]);
             title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1));
         end
         xlabel(handles.axes5,'False positives','FontWeight','bold')
