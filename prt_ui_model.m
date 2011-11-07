@@ -81,6 +81,7 @@ set(handles.pop_reg,'Value',1)
 handles.type='classification';
 set(handles.pop_machine,'String',{'Binary support vector machine',...
     'Gaussian Process Classification'})
+set(handles.pop_machine,'Value',1)
 handles.machine.function='prt_machine_svm_bin';
 handles.machine.args=handles.def.svmargs;
 % Update handles structure
@@ -230,6 +231,11 @@ function pop_featset_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_featset contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_featset
 val=get(handles.pop_featset,'Value');
+if val==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_feaset,'Value',1)
+end
+val=get(handles.pop_featset,'Value');
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{val};
 handles.fs(1).indfs=val;
@@ -269,6 +275,11 @@ function pop_reg_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns pop_reg contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_reg
+val=get(handles.pop_reg,'Value');
+if val==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_reg,'Value',1)
+end
 val=get(handles.pop_reg,'Value');
 if val==1 %Classification
     handles.type='classification';
@@ -332,6 +343,11 @@ function pop_machine_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from pop_machine
 mach=get(handles.pop_machine,'String');
 val=get(handles.pop_machine,'Value');
+if val==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_machine,'Value',1)
+end
+val=get(handles.pop_machine,'Value');
 if any(strfind(mach{val},'support'))
     handles.machine.function='prt_machine_svm_bin';
     handles.machine.args=handles.def.svmargs;
@@ -374,6 +390,11 @@ function pop_cv_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from pop_cv
 % assemble structure for performing cross-validation
 val=get(handles.pop_cv,'Value');
+if val==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_cv,'Value',1)
+end
+val=get(handles.pop_cv,'Value');
 if val==1
     handles.cv.type = 'loso';
 elseif val==2
@@ -413,6 +434,11 @@ function pop_datop_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_datop contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from
 %        pop_datop
+val=get(handles.pop_datop,'Value');
+if val==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_datop,'Value',1)
+end
 val=get(handles.pop_datop,'Value');
 listop=get(handles.pop_datop,'String');
 % specify operations to apply to the data prior to prediction

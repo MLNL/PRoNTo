@@ -229,6 +229,11 @@ function pop_class_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_class contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_class
 vc=get(handles.pop_class,'Value');
+if vc==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_classes,'Value',1)
+end
+cl=get(handles.pop_class,'Value');
 cg=get(handles.group_list,'Value');
 list=handles.condm{1,3}{cg};
 clist=handles.condm{1,2};
@@ -296,6 +301,11 @@ function group_list_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns group_list contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from group_list
 cl=get(handles.pop_class,'Value');
+if cl==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_classes,'Value',1)
+end
+cl=get(handles.pop_class,'Value');
 cg=get(handles.group_list,'Value');
 list=handles.condm{1,3}{cg};
 %set subjects lists
@@ -339,6 +349,11 @@ function uns_list_Callback(hObject, eventdata, handles)
 val=get(handles.uns_list,'Value');
 induns=1:length(get(handles.uns_list,'String'));
 indok=setdiff(induns,val);
+cl=get(handles.pop_class,'Value');
+if cl==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_classes,'Value',1)
+end
 cl=get(handles.pop_class,'Value');
 cg=get(handles.group_list,'Value');
 if handles.clas{cl,2}{cg,2}==0
@@ -395,6 +410,11 @@ val=get(handles.sel_list,'Value');
 indsel=1:length(get(handles.sel_list,'String'));
 indok=setdiff(indsel,val);
 cl=get(handles.pop_class,'Value');
+if cl==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_classes,'Value',1)
+end
+cl=get(handles.pop_class,'Value');
 cg=get(handles.group_list,'Value');
 if handles.clas{cl,2}{cg,1}==0
     handles.clas{cl,2}{cg,1}=handles.clas{cl,2}{cg,2}(val);
@@ -444,6 +464,11 @@ function sel_all_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 cl=get(handles.pop_class,'Value');
+if cl==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_classes,'Value',1)
+end
+cl=get(handles.pop_class,'Value');
 cg=get(handles.group_list,'Value');
 list=handles.condm{1,3}{cg,1};
 indsel=1:length(list);
@@ -468,6 +493,11 @@ function uns_cond_list_Callback(hObject, eventdata, handles)
 val=get(handles.uns_cond_list,'Value');
 induns=1:length(get(handles.uns_cond_list,'String'));
 indok=setdiff(induns,val);
+cl=get(handles.pop_class,'Value');
+if cl==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_classes,'Value',1)
+end
 cl=get(handles.pop_class,'Value');
 if handles.clas{cl,4}==0
     handles.clas{cl,4}=handles.clas{cl,3}(val);
@@ -522,6 +552,11 @@ val=get(handles.sel_cond_list,'Value');
 induns=1:length(get(handles.sel_cond_list,'String'));
 indok=setdiff(induns,val);
 cl=get(handles.pop_class,'Value');
+if cl==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_classes,'Value',1)
+end
+cl=get(handles.pop_class,'Value');
 if handles.clas{cl,3}==0
     handles.clas{cl,3}=handles.clas{cl,4}(val);
 else
@@ -569,6 +604,11 @@ function sel_cond_all_Callback(hObject, eventdata, handles)
 % hObject    handle to sel_cond_all (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+cl=get(handles.pop_class,'Value');
+if cl==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_classes,'Value',1)
+end
 cl=get(handles.pop_class,'Value');
 list=handles.condm{1,2};
 indsel=1:length(list);
