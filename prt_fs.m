@@ -135,7 +135,7 @@ for b = 1:n_block
             end
             
             % Write the detrended data into the file array
-            namedat=['Data_matrix_',char(in.mod(mid).mod_name),'.dat'];
+            namedat=['Feature_set_',char(in.mod(mid).mod_name),'.dat'];
             fpd_clean = fopen(fullfile(prt_dir,namedat), 'a','ieee-le.l64'); % 'a' append
             if b==1
                 % write the data in file .dat

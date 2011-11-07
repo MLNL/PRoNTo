@@ -247,6 +247,19 @@ for i=1:length(PRT.group)
         dess=PRT.group(i).subject(j).modality(m).design;
         desn=prt_check_design(dess.conds,dess.TR,dess.unit,val);
         desn.covar=dess.covar;
+        maxcond=max([desn.conds(:).scans]);
+        lfiles=size(PRT.group(i).subject(j).modality(m).scans,1);
+        if lfiles<maxcond
+            sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',i,j,m)
+            disp('Corresponding events were discarded')
+            for l=1:length(desn.conds)
+                ovser=find(desn.conds(l).scans>lfiles);
+                inser=find(desn.conds(l).scans<lfiles);
+                desn.conds(l).discardedscans=[desn.conds(l).discardedscans, desn.conds(l).scans(ovser)];
+                desn.conds(l).scans=desn.conds(l).scans(inser);
+                desn.conds(l).blocks=desn.conds(l).blocks(inser);
+            end
+        end
         PRT.group(i).subject(j).modality(m).design=desn;
     end
 end

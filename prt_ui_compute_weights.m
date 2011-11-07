@@ -22,7 +22,7 @@ function varargout = prt_ui_compute_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_compute_weights
 
-% Last Modified by GUIDE v2.5 04-Nov-2011 18:56:18
+% Last Modified by GUIDE v2.5 07-Nov-2011 12:08:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,6 +55,7 @@ function prt_ui_compute_weights_OpeningFcn(hObject, eventdata, handles, varargin
 % Choose default command line output for prt_ui_compute_weights
 handles.output = hObject;
 set(handles.compbutt,'Enable','off')
+handles.img_name=[];
 % Update handles structure
 guidata(hObject, handles);
 
@@ -202,6 +203,35 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+function edit_imgname_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_imgname (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_imgname as text
+%        str2double(get(hObject,'String')) returns contents of edit_imgname as a double
+handles.img_name=get(handles.edit_imgname,'String');
+if ~prt_checkAlphaNumUnder(handles.img_name)
+    beep
+    disp('Name of the image should be in alphanumeric format (no extension)')
+    disp('Please correct')
+    return
+end
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function edit_imgname_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_imgname (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
 
 % --- Executes on button press in compbutt.
 function compbutt_Callback(hObject, eventdata, handles)
@@ -211,6 +241,6 @@ function compbutt_Callback(hObject, eventdata, handles)
 list={handles.dat.model(:).model_name};
 in.model_name=list{handles.selmod};
 in.pathdir=handles.prtdir;
-in.img_name=[];  %for the moment, coming soon
+in.img_name=handles.img_name;  %for the moment, coming soon
 prt_compute_weights(handles.dat,in)
 delete(handles.figure1)
