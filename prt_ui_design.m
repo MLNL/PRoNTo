@@ -888,6 +888,7 @@ end
 %complete the fields which might be missing (previous versions) and
 %initialize the handles structure
 
+handles.saved=1;
 %flag if the masks are not linked to a modality name
 if ~isfield(PRT.masks,'mod_name')
     flagmask=0;
@@ -935,6 +936,7 @@ if ~flagmask==1
     disp('The files for masking are not linked to a modality name')
     disp('The information was erased. Please select the mask files')
     PRT.masks=struct();
+    handles.saved=0;
 end
 if ~isempty(handles.modlist)
     set(handles.mask_list,'String',handles.modlist);
@@ -979,6 +981,7 @@ if isfield(PRT,'fs')
     disp('Fields refering to feature sets have been found')
     disp('These will be removed')
     disp('Be sure to change the directory if you wan to keep trace of previous work')
+    handles.saved=0;
 end
 if isfield(PRT,'fas')
     PRT=rmfield(PRT,'fas');
@@ -1126,7 +1129,9 @@ def=prt_get_defaults('datad.hrfw');
 disp('Saving the data.....>>')
 PRT=struct();
 PRT.group=handles.dat.group;
-PRT.group.hrfoverlap=def;
+if ~isfield(handles.dat.group,'hrfoverlap')
+    PRT.group.hrfoverlap=def;
+end
 PRT.masks=handles.dat.masks;
 resn=fullfile(handles.dat.dir,'PRT.mat');
 save(resn,'PRT')
@@ -1143,9 +1148,40 @@ function review_button_Callback(hObject, eventdata, handles)
 % hObject    handle to review_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-PRT=struct();
-PRT.group=handles.dat.group;
-PRT.masks=handles.dat.masks;
+try
+    nm=length(handles.dat.group(1).subject(1).modality);
+catch
+    beep
+    disp('Please enter at least one subject in one group before reviewing')
+    return
+end
+try
+    nma=length(handles.dat.masks);
+catch
+    beep
+    disp('A mask should be specified for each modality before reviewing')
+    return
+end
+if nm~=nma
+    beep
+    disp('Number of masks does not match number of modalities')
+    disp('Please, correct')
+    return
+end
+if ~(handles.saved)
+    PRT=struct();
+    PRT.group=handles.dat.group;
+    PRT.masks=handles.dat.masks;
+else
+    fname=[get(handles.edit1,'String'),filesep,'PRT.mat'];
+    try
+        load(fname)
+    catch
+        beep
+        disp('Could not load the saved PRT.mat')
+        return
+    end
+end
 prt_data_review('UserData',{PRT,handles.dat.dir});     
 
            
