@@ -222,6 +222,12 @@ function classmenu_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns classmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from classmenu
+warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+list = get(handles.classmenu,'String');
+% handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
+if length(list) == 1, set(handles.classmenu,'Value',1); end
+val = get(handles.classmenu,'Value');
+if val==0, set(handles.classmenu,'Value',1); end
 
 foldmenu_Callback(hObject, eventdata, handles);
 
@@ -276,6 +282,13 @@ function plotmenu_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns plotmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from plotmenu
+
+warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+list = get(handles.plotmenu,'String');
+% handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
+if length(list) == 1, set(handles.plotmenu,'Value',1); end
+val = get(handles.plotmenu,'Value');
+if val==0, set(handles.plotmenu,'Value',1); end
 
 % Read plot, model and fold
 % -------------------------------------------------------------------------
@@ -440,7 +453,7 @@ switch plotchosen
         else
             mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
         end
-        bar3(handles.axes5,mconmat,'detached','r');
+        bar3(handles.axes5,mconmat,'detached','w');
         if fold == 1
             title(handles.axes5,sprintf('Confusion matrix: all folds'),'FontWeight','bold');
         else
@@ -453,6 +466,8 @@ switch plotchosen
         set(handles.axes5,'YTick',[1 2]);
         set(handles.axes5,'YTickLabel',{'1','2'});
         grid(handles.axes5,'on');
+        set(handles.axes5,'Color',[0.8 0.8 0.8]);
+     
 end
 
 guidata(hObject, handles);
@@ -488,6 +503,13 @@ function foldmenu_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns foldmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from foldmenu
+
+warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+list = get(handles.foldmenu,'String');
+% handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
+if length(list) == 1, set(handles.foldmenu,'Value',1); end
+val = get(handles.foldmenu,'Value');
+if val==0, set(handles.foldmenu,'Value',1); end
 
 % Reads model and fold
 % -------------------------------------------------------------------------
