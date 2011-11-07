@@ -11,12 +11,14 @@ function prt_compute_weights(PRT,in)
 % Find model
 % -------------------------------------------------------------------------
 nmodel = length(PRT.model);
+model_idx = 0;
 for i = 1:nmodel
     if strcmp(PRT.model(i).model_name,in.model_name)
         model_idx = i;
     end
 end
-
+if model_idx == 0, error('prt_compute_weights:ModelNotFound',...
+            'Error: model not found in PRT.mat!'); end
 % Find machine
 % -------------------------------------------------------------------------
 mfunc       = PRT.model(model_idx).input.machine.function;
