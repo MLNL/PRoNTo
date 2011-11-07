@@ -265,6 +265,8 @@ function helpbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+beep;
+disp('Help not supported yet!')
 
 % --- Executes on selection change in plotmenu.
 function plotmenu_Callback(hObject, eventdata, handles)
@@ -432,28 +434,25 @@ switch plotchosen
     % ---------------------------------------------------------------------
     case '4'
         % confusion matrix
-         cla(handles.axes5); 
+        cla(handles.axes5);
         if fold == 1
             mconmat(:,:) = PRT.model(m).output.stats.con_mat;
-            imagesc(mconmat,'Parent',handles.axes5);
-            cb = colorbar('peer',handles.axes5);
-            colormap(handles.axes5,'Gray');
-            caxis([0 sum(PRT.model(m).output.stats.con_mat(:))]);
-            title(handles.axes5,sprintf('Confusion matrix: all folds'));
         else
             mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
-            imagesc(mconmat,'Parent',handles.axes5);
-            cb = colorbar('peer',handles.axes5);
-            colormap(handles.axes5,'Gray');
-            caxis([0 sum(PRT.model(m).output.fold(fold-1).stats.con_mat(:))]);
-            title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1));
         end
-        xlabel(handles.axes5,'False positives','FontWeight','bold')
-        ylabel(handles.axes5,'True positives','FontWeight','bold')
-        set(handles.axes5,'XTick',[1 2])
-        set(handles.axes5,'XTickLabel',{'1','2'})
-        set(handles.axes5,'YTick',[1 2])
-        set(handles.axes5,'YTickLabel',{'1','2'})
+        bar3(handles.axes5,mconmat,'detached','r');
+        if fold == 1
+            title(handles.axes5,sprintf('Confusion matrix: all folds'),'FontWeight','bold');
+        else
+            title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1),'FontWeight','bold');
+        end
+        xlabel(handles.axes5,'False positives','FontWeight','bold');
+        ylabel(handles.axes5,'True positives','FontWeight','bold');
+        set(handles.axes5,'XTick',[1 2]);
+        set(handles.axes5,'XTickLabel',{'1','2'});
+        set(handles.axes5,'YTick',[1 2]);
+        set(handles.axes5,'YTickLabel',{'1','2'});
+        grid(handles.axes5,'on');
 end
 
 guidata(hObject, handles);
@@ -469,7 +468,6 @@ function plotmenu_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 % --- Executes on button press in quitbutton.
 function quitbutton_Callback(hObject, eventdata, handles)
@@ -606,6 +604,8 @@ function savebutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+beep;
+disp('Save option not supported yet!')
 
 % --- Executes on button press in originbutton.
 function originbutton_Callback(hObject, eventdata, handles)
@@ -712,9 +712,5 @@ function permutbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-% --------------------------------------------------------------------
-function Untitled_1_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+beep;
+disp('Permutation test not supported yet!')
