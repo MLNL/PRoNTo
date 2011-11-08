@@ -29,7 +29,7 @@ function varargout = prt_data_review(varargin)
 
 % Edit the above text to modify the response to help prt_data_review
 
-% Last Modified by GUIDE v2.5 03-Nov-2011 11:52:32
+% Last Modified by GUIDE v2.5 08-Nov-2011 10:53:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -133,6 +133,8 @@ if isempty(ind)
     set(handles.stdaft,'Visible','off')
     set(handles.hrfover_txt,'Visible','off')
     set(handles.hrfover_edit,'Visible','off')
+    set(handles.txthrfdel,'Visible','off')
+    set(handles.edit_hrfdel,'Visible','off')
     set(handles.uipanel4,'Visible','off')
     %Only displays the number of subjects per group when no design:
     x=get(handles.axes3,'Position');
@@ -151,6 +153,11 @@ else
         set(handles.hrfover_edit,'String',num2str(PRT.group.hrfoverlap))
     else
         set(handles.hrfover_edit,'String',num2str(def.hrfw))
+    end
+    if isfield(PRT.group,'hrfdelay')
+        set(handles.edit_hrfdel,'String',num2str(PRT.group.hrfdelay))
+    else
+        set(handles.edit_hrfdel,'String',num2str(def.hrfd))
     end
     set(handles.des,'String','Yes')
     set(handles.modlist,'String',list)
@@ -238,6 +245,7 @@ function hrfover_edit_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of hrfover_edit as text
 %        str2double(get(hObject,'String')) returns contents of hrfover_edit as a double
 val=str2double(get(handles.hrfover_edit,'String'));
+del=str2double(get(handles.edit_hrfdel,'String'));
 list=get(handles.modlist,'String');
 cm=get(handles.modlist,'Value');
 PRT=handles.PRT;
@@ -245,7 +253,7 @@ for i=1:length(PRT.group)
     for j=1:length(PRT.group(i).subject)
         m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
         dess=PRT.group(i).subject(j).modality(m).design;
-        desn=prt_check_design(dess.conds,dess.TR,dess.unit,val);
+        desn=prt_check_design(dess.conds,dess.TR,dess.unit,val,del);
         desn.covar=dess.covar;
         maxcond=max([desn.conds(:).scans]);
         lfiles=size(PRT.group(i).subject(j).modality(m).scans,1);
@@ -264,6 +272,7 @@ for i=1:length(PRT.group)
     end
 end
 PRT.group.hrfoverlap=val;
+PRT.group.hrfdelay=del;
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
 handles.PRT=PRT;
 % Update handles structure
@@ -277,6 +286,63 @@ guidata(hObject, handles);
 % --- Executes during object creation, after setting all properties.
 function hrfover_edit_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to hrfover_edit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function edit_hrfdel_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_hrfdel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_hrfdel as text
+%        str2double(get(hObject,'String')) returns contents of edit_hrfdel as a double
+del=str2double(get(handles.edit_hrfdel,'String'));
+val=str2double(get(handles.hrfover_edit,'String'));
+list=get(handles.modlist,'String');
+cm=get(handles.modlist,'Value');
+PRT=handles.PRT;
+for i=1:length(PRT.group)
+    for j=1:length(PRT.group(i).subject)
+        m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
+        dess=PRT.group(i).subject(j).modality(m).design;
+        desn=prt_check_design(dess.conds,dess.TR,dess.unit,val,del);
+        desn.covar=dess.covar;
+        maxcond=max([desn.conds(:).scans]);
+        lfiles=size(PRT.group(i).subject(j).modality(m).scans,1);
+        if lfiles<maxcond
+            sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',i,j,m)
+            disp('Corresponding events were discarded')
+            for l=1:length(desn.conds)
+                ovser=find(desn.conds(l).scans>lfiles);
+                inser=find(desn.conds(l).scans<lfiles);
+                desn.conds(l).discardedscans=[desn.conds(l).discardedscans, desn.conds(l).scans(ovser)];
+                desn.conds(l).scans=desn.conds(l).scans(inser);
+                desn.conds(l).blocks=desn.conds(l).blocks(inser);
+            end
+        end
+        PRT.group(i).subject(j).modality(m).design=desn;
+    end
+end
+PRT.group.hrfoverlap=val;
+PRT.group.hrfdelay=del;
+save([handles.prtdir,filesep,'PRT.mat'],'PRT')
+handles.PRT=PRT;
+% Update handles structure
+guidata(hObject, handles);
+set(handles.figure1,'CurrentAxes',handles.axes2)
+prt_disp_conditions(PRT,handles.ind(cm),handles,hObject)
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function edit_hrfdel_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_hrfdel (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

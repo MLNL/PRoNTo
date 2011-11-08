@@ -101,7 +101,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     if ~isempty(varargin{2}{2}) && isfield(varargin{2}{2},'modality') && ...
             ~isempty(varargin{2}{2}.modality)
         handles.subjmod={varargin{2}{2}.modality(:).mod_name};
-        if length(varargin{2})==3 && ~isempty(varargin{2}{3})
+        if length(varargin{2})>=3 && ~isempty(varargin{2}{3})
             nlist=varargin{2}{1};
             modsel=varargin{2}{2}.modality(varargin{2}{3});
             valsel=find(strcmpi(modsel.mod_name,nlist));
@@ -109,6 +109,9 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             set(handles.modname,'Value',valsel);
             handles.mod.detrend=modsel.detrend;
             handles.mod.design=modsel.design;
+            if ~isempty(modsel.design)
+                set(handles.design_menu,'Value',2)
+            end
             handles.mod.scans=modsel.scans;
             handles.mod.name=modsel.mod_name;
             handles.mod.covar=modsel.covar;
@@ -127,8 +130,11 @@ else
     handles.subjmod={};
     set(handles.modname,'String',nlist,'Value',1);
 end
-if length(varargin{2})==4 && ~isempty(varargin{2}{4})
+if length(varargin{2})>=4 && ~isempty(varargin{2}{4})
     handles.subj1=varargin{2}{4};
+end
+if length(varargin{2})==5 && ~isempty(varargin{2}{5})
+    handles.PRT=varargin{2}{5};
 end
 warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 
@@ -274,11 +280,22 @@ if choice==1
     else
         units=1;
     end
-    desn=prt_check_design(conds,SPM.xX.K.RT,units);
+    def=prt_get_defaults('datad');
+    if isfield(handles.PRT.group,'hrfoverlap')
+        overl=handles.PRT.group.hrfoverlap;
+    else
+        overl=def.hrfw;
+    end
+    if isfield(handles.PRT.group,'hrfdelay')
+        del=handles.PRT.group.hrfdelay;
+    else
+        del=def.hrfd;
+    end
+    desn=prt_check_design(conds,SPM.xX.K.RT,units,overl,del);
     desn.covar = [];
 elseif choice==2
     if isstruct(handles.mod.design)
-        desn=prt_data_conditions('UserData',handles.mod.design);
+        desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT});
     else
         desn=prt_data_conditions;
     end

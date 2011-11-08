@@ -538,7 +538,8 @@ end
 in1=handles.modlist;
 in2=handles.dat.group(handles.cgr).subject(handles.cs);
 in3=[];
-mod=prt_data_modality('UserData',{in1,in2,in3,in4});
+in5=handles.dat;
+mod=prt_data_modality('UserData',{in1,in2,in3,in4,in5});
 if isnumeric(mod)
     return
 end
@@ -606,7 +607,9 @@ val=get(handles.modality_list,'Value');
 in1=handles.modlist;
 in2=handles.dat.group(handles.cgr).subject(handles.cs);
 in3=val;
-mod=prt_data_modality('UserData',{in1,in2,in3});
+in4=[];
+in5=handles.dat;
+mod=prt_data_modality('UserData',{in1,in2,in3,in4,in5});
 if isnumeric(mod)
     return
 end
@@ -1123,14 +1126,17 @@ for i=1:ng
     end
 end
 
-def=prt_get_defaults('datad.hrfw');
+def=prt_get_defaults('datad');
 
 %save the data structure
 disp('Saving the data.....>>')
 PRT=struct();
 PRT.group=handles.dat.group;
 if ~isfield(handles.dat.group,'hrfoverlap')
-    PRT.group.hrfoverlap=def;
+    PRT.group.hrfoverlap=def.hrfw;
+end
+if ~isfield(handles.dat.group,'hrfdelay')
+    PRT.group.hrfdelay=def.hrfd;
 end
 PRT.masks=handles.dat.masks;
 resn=fullfile(handles.dat.dir,'PRT.mat');
@@ -1182,7 +1188,9 @@ else
         return
     end
 end
-prt_data_review('UserData',{PRT,handles.dat.dir});     
+prt_data_review('UserData',{PRT,handles.dat.dir});
+% Update handles structure
+guidata(hObject, handles);
 
            
 

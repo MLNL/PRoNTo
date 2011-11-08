@@ -68,7 +68,7 @@ set(handles.condmenu,'String',{'Specify','From .mat file'})
 set(handles.condmenu,'Value',2)
 handles.cond=struct();
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
-    des=varargin{2};
+    des=varargin{2}{1};
     szn=length(des.conds);    
     dat=cell(szn,4);
     for i=1:szn
@@ -94,7 +94,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         end
         try
             dat{i,4}=num2str(des.conds(i).rt_trial,3);
-            handles.cond(i).onsets=des.conds(i).rt_trial;
+            handles.cond(i).rt_trial=des.conds(i).rt_trial;
         catch
             dat{i,4}='NaN';
             handles.cond(i).rt_trial=[];
@@ -105,12 +105,6 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     handles.trval=des.TR;
     set(handles.tredit,'String',num2str(des.TR));
     handles.unit=des.unit;
-    if des.unit
-        uv=1;
-    else
-        uv=2;
-    end
-    set(handles.pop_unit,'Value',uv)
     if ~isempty(des.covar)
         set(handles.covedit,'String',num2str((des.covar(:))',3));
         handles.covar=des.covar;
@@ -123,6 +117,7 @@ else
     set(handles.condtable,'visible','off');
     handles.trval=0;
     handles.covar=[];
+    des.unit=1;
 end
 set(handles.condtable,'Data',dat);
 set(handles.condtable,'ColumnName',{'Name','Onsets','Duration','Regression targets (trials)'});
@@ -130,11 +125,31 @@ set(handles.condtable,'ColumnEditable',[true,true,true,true]);
 set(handles.condtable,'ColumnWidth',{'auto',130,130,0});
 set(handles.condtable,'ColumnFormat',{'char','char','char','char'});
 set(handles.pop_unit,'String',{'Seconds','Scans'});
-set(handles.pop_unit,'Value',1);
+if des.unit
+    uv=1;
+else
+    uv=2;
+end
+set(handles.pop_unit,'Value',uv)
 handles.unit=get(handles.pop_unit,'Value');
 
 def=prt_get_defaults('datad');
-handles.def=def;
+if ~isempty(varargin) && length(varargin{2})>1
+    PRT=varargin{2}{2};
+    if isfield(PRT.group,'hrfdelay')
+        handles.hrfdel=PRT.group.hrfdelay;
+    else
+        handles.hrfdel=def.hrfd;
+    end
+    if isfield(PRT.group,'hrfoverlap')
+        handles.hrfover=PRT.group.hrfoverlap;
+    else
+        handles.hrfover=def.hrfw;
+    end
+else
+    handles.hrfdel=def.hrfd;
+    handles.hrfover=def.hrfw;
+end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -445,7 +460,7 @@ ncond=length(handles.cond);
 for i=1:ncond
     szon=length(handles.cond(i).onsets);
     szdur=length(handles.cond(i).durations);
-    szrt=length(handles.cond(i).rt_trial);
+%     szrt=length(handles.cond(i).rt_trial);
     if szdur==1
         handles.cond(i).durations=repmat(handles.cond(i).durations, 1, szon);
         szdur=length(handles.cond(i).durations);
@@ -456,17 +471,18 @@ for i=1:ncond
         disp('Please correct')
         return
     end
-    if szrt && szdur ~=szrt
-        beep
-        disp('The number of regression targets must be the number of trials!')
-        sprintf('Please correct condition %d',i)
-        return
-    end
+%     if szrt && szdur ~=szrt
+%         beep
+%         disp('The number of regression targets must be the number of trials!')
+%         sprintf('Please correct condition %d',i)
+%         return
+%     end
 end
 
 %Check that the conditions do not overlap, either directly or when taking
 %the width of the HRF into account
-conds=prt_check_design(handles.cond,handles.trval,handles.unit);
+conds=prt_check_design(handles.cond,handles.trval,handles.unit,...
+    handles.hrfover,handles.hrfdel);
 conds.covar=handles.covar;
 handles.output=conds;
 

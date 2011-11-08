@@ -1,4 +1,4 @@
-function [conds] = prt_check_design(cond,tr,units,hrfoverlap)
+function [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)
 % FORMAT [conds] = prt_check_design(cond,tr,units,hrfoverlap)
 %
 % Check the design and discards scans which are either overlapping between
@@ -11,6 +11,7 @@ function [conds] = prt_check_design(cond,tr,units,hrfoverlap)
 %   - tr    :   interscan interval (TR)
 %   - units :   1 for seconds, 0 for scans
 %   - hrfoverlap : value to correct for BOLD overlap (in seconds)
+%   - hrfdelay   : value to correct for BOLD delay (in seconds)
 %
 % OUTPUT
 % the same cond structure containing supplementary fields:
@@ -45,7 +46,12 @@ if nargin<4
 else
     hrfw=hrfoverlap;
 end
-    
+%no correction for HRF BOLD delay if none specified
+if nargin<5
+    hrfd=def.hrfd;
+else
+    hrfd=hrfdelay;
+end    
 
 %check the level of overlapping between the different conditions
 all=[];
@@ -54,10 +60,10 @@ for i=1:ncond
     condsc=[];
     bl=[];
     if units
-    	cs=round((cond(i).onsets+def.hrfd)/tr+1);
+    	cs=round((cond(i).onsets+hrfd)/tr+1);
         cdur=floor(cond(i).durations/tr);
     else
-        cs=round(cond(i).onsets+(def.hrfd/tr)+1);
+        cs=round(cond(i).onsets+(hrfd/tr)+1);
         cdur=round(cond(i).durations);
     end
     cdur=max(1,cdur);
