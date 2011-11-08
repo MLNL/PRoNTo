@@ -100,6 +100,17 @@ hrfover.num     = [1 1];
 hrfover.def     = @(val)prt_get_defaults('datad.hrfw', val{:});
 
 % ---------------------------------------------------------------------
+% hrfdel HRF Delay
+% ---------------------------------------------------------------------
+hrfdel         = cfg_entry;
+hrfdel.tag     = 'hrfdel';
+hrfdel.name    = 'HRF delay';
+hrfdel.help    = {'If using fMRI data please specify the delay of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities.'};
+hrfdel.strtype = 'e';
+hrfdel.num     = [1 1];
+hrfdel.def     = @(val)prt_get_defaults('datad.hrfd', val{:});
+
+% ---------------------------------------------------------------------
 % mod_name Name
 % ---------------------------------------------------------------------
 mod_name         = cfg_entry;
@@ -429,7 +440,7 @@ dir_name.num     = [1 1];
 data        = cfg_exbranch;
 data.tag    = 'data';
 data.name   = 'Data & Design';
-data.val    = {dir_name groups masks hrfover review};
+data.val    = {dir_name groups masks hrfover hrfdel review};
 data.help   = {'Specify the group(s) of data set.'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;
