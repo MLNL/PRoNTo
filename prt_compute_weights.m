@@ -17,8 +17,10 @@ for i = 1:nmodel
         model_idx = i;
     end
 end
+% Check if model exists
 if model_idx == 0, error('prt_compute_weights:ModelNotFound',...
             'Error: model not found in PRT.mat!'); end
+    
 % Find machine
 % -------------------------------------------------------------------------
 mfunc       = PRT.model(model_idx).input.machine.function;
@@ -35,13 +37,21 @@ switch mfunc
     case 'prt_machine_krr'
         img_mach    = 'krr_weights.img';
     % weights computation not yet supported for RT
-    %case 'prt_machine_RT_bin'
-    %    img_mach    = 'rt_weights.img';
+    case 'prt_machine_RT_bin'
+        error('prt_compute_weights:MachineNotSupported',...
+            'Error: weights computation not supported for this machine!');
     case 'prt_machine_gpml'
         img_mach    = 'gpml_weights.img';
     otherwise
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
+end
+
+% Image name
+% -------------------------------------------------------------------------
+if ~(prt_checkAlphaNumUnder(in.img_name))
+    error('prt_compute_weights:NameNotAlphaNumeric',...
+            'Error: image name should contain only alpha-numeric elements!');
 end
 
 if ~isempty(in.img_name)
