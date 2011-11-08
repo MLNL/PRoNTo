@@ -183,11 +183,11 @@ elseif isfield(job.cv_type,'cv_losgo')
     model.cv.type = 'losgo';
 elseif isfield(job.cv_type,'cv_lobo')
     model.cv.type = 'lobo';
-    if scount>1
-        beep
-        disp('Leave One Block Out Cross Validation only allowed for within subject modeling')
-        disp('Please correct')
-    end
+%     if scount>1
+%         beep
+%         disp('Leave One Block Out Cross Validation only allowed for within subject modeling')
+%         disp('Please correct')
+%     end
 elseif isfield(job.cv_type,'cv_loro') %currently implemented for MCKR only
     model.cv.type = 'loro';
 else
