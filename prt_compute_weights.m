@@ -49,12 +49,12 @@ end
 
 % Image name
 % -------------------------------------------------------------------------
-if ~(prt_checkAlphaNumUnder(in.img_name))
-    error('prt_compute_weights:NameNotAlphaNumeric',...
-            'Error: image name should contain only alpha-numeric elements!');
-end
 
 if ~isempty(in.img_name)
+    if ~(prt_checkAlphaNumUnder(in.img_name))
+        error('prt_compute_weights:NameNotAlphaNumeric',...
+            'Error: image name should contain only alpha-numeric elements!');
+    end
     img_name = [in.pathdir,in.img_name,'.img'];
 else
     img_name = [in.pathdir,img_mach];
