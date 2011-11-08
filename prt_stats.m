@@ -27,6 +27,8 @@ function stats = prt_stats(model, t,flag)
 % Written by A. Marquand
 % $Id$
 
+% FIXME: is any code using the 'flags' input argument? 
+
 % Do some checks ...
 if size(t,1) ~= size(model.predictions,1)
     error(['prt_stats:machineProvidesWrongNumberOfPredictions',...
@@ -80,6 +82,8 @@ stats.c_acc(nz) = Cc(nz) ./ Zc(nz);
 stats.b_acc = mean(stats.c_acc);
 
 % confidence interval
+% TODO: check IID assumption here (chunks in run_permutation.m)
+% before applying tests, and give nans if not applicable...
 [lb,ub] = computeWilsonBinomialCI(sum(Cc),sum(Zc));
 stats.acc_lb=lb;
 stats.acc_ub=ub;
