@@ -102,34 +102,29 @@ for f = 1:nfold
     train          = samp_idx(train_idx);
    
     alphas         = PRT.model(model_idx).output.fold(f).alpha;
-
-    datamat        = PRT.fas(fas_idx).dat(train,:);
     
     d.coeffs       = alphas;
-    d.datamat      = datamat;
+    d.datamat      = PRT.fas(fas_idx).dat(train,:);
     
     wimg           = prt_weights(d,m);
     wimg           = wimg/norm(wimg,2); % normalise weights
     
     img3d          = zeros(1,nvox);
     img3d(idfeat)  = wimg;
-    img3dav(idfeat)= img3dav(idfeat)+wimg; % accumulate weights for avg map
     
-    img3d          = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),...
+    img4d(:,:,:,f) = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),...
                      hdr.dat.dim(3),1);      
-
-    img4d(:,:,:,f) = img3d;
-    
+   
 end
 
+% Create average fold
+%--------------------------------------------------------------------------
 disp('Computing averaged weights')
-img3dav          = img3dav/nfold;
-img4d(:,:,:,f+1) = reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),...
-                     hdr.dat.dim(3),1);      
-
+img4d(:,:,:,f+1) = sum(img4d(:,:,:,:),4)/nfold;
 
 % Create weigths file
 %--------------------------------------------------------------------------
+disp('Creating image--------->>')
 No         = hdr;              % copy header
 No.dat     = img4d;            % change file_array
 No.descrip = 'Pronto weigths'; % description
