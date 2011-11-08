@@ -288,11 +288,11 @@ end
 PRT=handles.dat;
 list={PRT.model(:).model_name};
 for i=1:length(handles.models{2})
+    in.fname      = handles.fname;
+    in.model_name = list{handles.models{2}(i)};
     disp('--------------------------------------------------------')
     disp(['Running model ',char(in.model_name)])
     disp('--------------------------------------------------------')
-    in.fname      = handles.fname;
-    in.model_name = list{handles.models{2}(i)};
     mid = prt_init_model(PRT, in);
     % Special cross-validation for MCKR
     if strcmp(PRT.model(mid).input.machine.function,'prt_machine_mckr')
