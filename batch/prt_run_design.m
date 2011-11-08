@@ -20,6 +20,10 @@ function out = prt_run_design(varargin)
 % -------------------------------------------------------------------------
 job   = varargin{1};
 
+% Get defaults
+% -------------------------------------------------------------------------
+def = prt_get_defaults;
+
 % Directory
 % -------------------------------------------------------------------------
 fname   = 'PRT.mat';
@@ -222,7 +226,7 @@ else
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
                             end                        
-                            checked_conds = prt_check_design(conds,TR,unit,job.hrfover);
+                            checked_conds = prt_check_design(conds,TR,unit,job.hrfover,def.datad.hrfd);
                             design.conds  = checked_conds.conds;
                             design.stats  = checked_conds.stats;
                             design.TR     = TR;
@@ -365,7 +369,7 @@ else
                                         design.conds(c).rt_trial=[];
                                     end
                                 end
-                                checked_conds = prt_check_design(design.conds,TR,unit,job.hrfover);
+                                checked_conds = prt_check_design(design.conds,TR,unit,job.hrfover,def.datad.hrfd);
                                 design.conds  = checked_conds.conds;
                                 design.stats  = checked_conds.stats;
                                 design.TR     = checked_conds.TR;
