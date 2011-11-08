@@ -82,7 +82,29 @@ if ~isfield(handles,'notinit')
     end
     % Set folds pulldown menu for first model
     handles.folds = folds;
-    set(handles.foldmenu,'String',handles.folds);    
+    set(handles.foldmenu,'String',handles.folds);
+    % Set font sizes
+    set(handles.text10,'Unit','point','FontSize',11);
+    set(handles.classmenu,'Unit','point','FontSize',11);    
+    set(handles.text6,'Unit','point','FontSize',11);
+    set(handles.foldmenu,'Unit','point','FontSize',11);
+    set(handles.text14,'Unit','point','FontSize',11);
+    set(handles.plotmenu,'Unit','point','FontSize',11);
+    set(handles.statspanel,'Unit','point','FontSize',11);
+    set(handles.plotpanel,'Unit','point','FontSize',11);
+    set(handles.modelpanel,'Unit','point','FontSize',11);
+    set(handles.weightspanel,'Unit','point','FontSize',11);
+    set(handles.anatomicalpanel,'Unit','point','FontSize',11);
+    set(handles.permutbutton,'Unit','point','FontSize',11);
+    set(handles.accuracytext,'Unit','point','FontSize',11);
+    set(handles.acctext,'Unit','point','FontSize',11);
+    set(handles.baccuracytext,'Unit','point','FontSize',11);
+    set(handles.bacctext,'Unit','point','FontSize',11);
+    set(handles.classaccuracytext,'Unit','point','FontSize',11);
+    set(handles.cacctext,'Unit','point','FontSize',11);
+    set(handles.savebutton,'Unit','point','FontSize',11);
+    set(handles.helpbutton,'Unit','point','FontSize',11);
+    set(handles.quitbutton,'Unit','point','FontSize',11);
     % Clear axes
     cla(handles.axes5);     
 end
@@ -94,7 +116,7 @@ handles.output = hObject;
 set(handles.figure1,'Units','normalized');
 p = get(handles.figure1,'Position');
 set(handles.figure1,'Position',[p(1) 1 p(3) p(4)]);
-set(handles.figure1,'Units','characters');
+% set(handles.figure1,'Units','characters');
 
 % Update handles structure
 guidata(hObject, handles);
