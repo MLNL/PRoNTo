@@ -112,6 +112,8 @@ for f = 1:nfold
     img3d          = zeros(1,nvox);
     img3d(idfeat)  = wimg;
     
+    img3dav        = img3dav + img3d;
+    
     img4d(:,:,:,f) = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),...
                      hdr.dat.dim(3),1);      
    
@@ -120,7 +122,8 @@ end
 % Create average fold
 %--------------------------------------------------------------------------
 disp('Computing averaged weights')
-img4d(:,:,:,f+1) = sum(img4d(:,:,:,:),4)/nfold;
+img4d(:,:,:,nfold+1) = reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),...
+                     hdr.dat.dim(3),1)/nfold;
 
 % Create weigths file
 %--------------------------------------------------------------------------
