@@ -282,6 +282,7 @@ set(handles.unslist,'String',listu)
 set(handles.unslist,'Value',1)
 set(handles.sellist,'String',lists)
 set(handles.sellist,'Value',1)
+set(handles.runbutt,'Enable','on')
 % Update handles structure
 guidata(hObject, handles);
 
