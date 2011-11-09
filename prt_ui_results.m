@@ -515,7 +515,6 @@ function quitbutton_Callback(hObject, eventdata, handles)
 % Close and clear figure
 % -------------------------------------------------------------------------
 close(handles.figure1);
-clc;
 
 % --- Executes on selection change in foldmenu.
 function foldmenu_Callback(hObject, eventdata, handles)
