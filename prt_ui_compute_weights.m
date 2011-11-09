@@ -54,6 +54,7 @@ function prt_ui_compute_weights_OpeningFcn(hObject, eventdata, handles, varargin
 
 % Choose default command line output for prt_ui_compute_weights
 handles.output = hObject;
+set(handles.figure1,'Name','PRoNTo :: Compute weights')
 set(handles.compbutt,'Enable','off')
 handles.img_name=[];
 % Update handles structure
@@ -188,7 +189,7 @@ function pop_models_Callback(hObject, eventdata, handles)
 val=get(handles.pop_models,'Value');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_classes,'Value',1)
+    set(handles.pop_models,'Value',1)
     val=1;
 end
 handles.selmod=handles.indm(val);
