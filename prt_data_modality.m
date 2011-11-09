@@ -350,10 +350,12 @@ function edit_regt_Callback(hObject, eventdata, handles)
 
 %first option of loading: writing the values
 rt=get(handles.edit_regt,'String');
-eval(['rte=[',rt,'];']);
-%second option of loading: enter the name of a .mat file containing a
-%'rt_subj' variable
-if isnan(rte)
+if isempty(rt)
+    return
+end
+if ~isnan(str2double(rt(1)))
+    eval(['rte=[',rt,'];'])
+else
     try
         load(char(rt));
     catch
@@ -396,11 +398,13 @@ function edit_covar_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_covar as a double
 %first option of loading: writing the values
 rt=get(handles.edit_covar,'String');
-eval(['rte=[',rt,'];']);
-%second option of loading: enter the name of a .mat file containing a
-%'rt_subj' variable
-if isnan(rte)
-    try
+if isempty(rt)
+    return
+end
+if ~isnan(str2double(rt(1)))
+    eval(['rte=[',rt,'];'])
+else
+   try
         load(char(rt));
     catch
         beep
@@ -417,6 +421,7 @@ if isnan(rte)
         rte=R;
     end
 end
+
 handles.mod.covar=rte;
 % Update handles structure
 guidata(hObject, handles);
