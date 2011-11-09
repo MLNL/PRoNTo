@@ -255,14 +255,6 @@ if length(list) == 1, set(handles.classmenu,'Value',1); end
 val = get(handles.classmenu,'Value');
 if val==0, set(handles.classmenu,'Value',1); end
 
-PRT = handles.PRT;
-if strcmp(PRT.model(val).input.type,'classification')
-    handles.model_type = 1;
-else
-    handles.model_type = 0;
-end
-
-guidata(hObject, handles);
 foldmenu_Callback(hObject, eventdata, handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -569,8 +561,6 @@ if strcmp(PRT.model(m).input.type,'classification')
         if ~strcmp(PRT.model(m).input.cv_type,'lobo')
             macc_lb  = PRT.model(m).output.stats.acc_lb; % lower bound
             macc_ub  = PRT.model(m).output.stats.acc_ub; % upper bound
-        else
-            disp('Confidence intervals not displayed for LOBO cross-validation.')
         end
         mbacc = PRT.model(m).output.stats.b_acc;
         mcacc = PRT.model(m).output.stats.c_acc;
@@ -579,8 +569,6 @@ if strcmp(PRT.model(m).input.type,'classification')
         if ~strcmp(PRT.model(m).input.cv_type,'lobo')
             macc_lb  = PRT.model(m).output.fold(fold-1).stats.acc_lb;
             macc_ub  = PRT.model(m).output.fold(fold-1).stats.acc_ub;
-        else
-            disp('Confidence intervals not displayed for LOBO cross-validation.')
         end
         mbacc = PRT.model(m).output.fold(fold-1).stats.b_acc;
         mcacc = PRT.model(m).output.fold(fold-1).stats.c_acc;
