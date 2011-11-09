@@ -165,7 +165,7 @@ if ~isfield(handles.dat,'model')
 end
 handles.indm=[];
 for i=1:length(handles.dat.model)
-    if ~isempty(handles.dat.model.output)
+    if ~isempty(handles.dat.model(i).output)
         handles.indm=[handles.indm,i];
     end
 end   

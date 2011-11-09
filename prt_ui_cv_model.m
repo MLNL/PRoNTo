@@ -196,10 +196,14 @@ if isempty(handles.models{1})
 else
     listu=list(handles.models{1});
 end
-
+if any(handles.models{2}==0)
+    return
+end
 lists=list(handles.models{2});
 set(handles.unslist,'String',listu)
+set(handles.unslist,'Value',1)
 set(handles.sellist,'String',lists)
+set(handles.sellist,'Value',length(lists))
 set(handles.runbutt,'Enable','on')
 % Update handles structure
 guidata(hObject, handles);
@@ -240,9 +244,14 @@ if isempty(handles.models{2})
 else
     lists=list(handles.models{2});
 end
+if any(handles.models{1}==0)
+    return
+end
 listu=list(handles.models{1});
 set(handles.unslist,'String',listu)
+set(handles.unslist,'Value',length(listu))
 set(handles.sellist,'String',lists)
+set(handles.sellist,'Value',1)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -270,7 +279,9 @@ handles.models{2}=1:length(list);
 listu={''};
 lists=list(handles.models{2});
 set(handles.unslist,'String',listu)
+set(handles.unslist,'Value',1)
 set(handles.sellist,'String',lists)
+set(handles.sellist,'Value',1)
 % Update handles structure
 guidata(hObject, handles);
 
