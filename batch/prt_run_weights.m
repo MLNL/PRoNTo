@@ -20,7 +20,7 @@ job   = varargin{1};
 % -------------------------------------------------------------------------
 fname  = char(job.infile);
 load(fname);
-pathdir = [fileparts(fname),'/'];
+pathdir = regexprep(fname,'PRT.mat', '');
 
 % -------------------------------------------------------------------------
 % Input file
