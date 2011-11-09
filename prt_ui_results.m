@@ -105,6 +105,10 @@ if ~isfield(handles,'notinit')
     set(handles.savebutton,'Unit','point','FontSize',11);
     set(handles.helpbutton,'Unit','point','FontSize',11);
     set(handles.quitbutton,'Unit','point','FontSize',11);
+    set(handles.corrtext,'Unit','point','FontSize',11);
+    set(handles.msetext,'Unit','point','FontSize',11);
+    set(handles.corrvaltext,'Unit','point','FontSize',11);
+    set(handles.msevaltext,'Unit','point','FontSize',11);
     % Clear axes
     cla(handles.axes5);     
 end
@@ -251,6 +255,14 @@ if length(list) == 1, set(handles.classmenu,'Value',1); end
 val = get(handles.classmenu,'Value');
 if val==0, set(handles.classmenu,'Value',1); end
 
+PRT = handles.PRT;
+if strcmp(PRT.model(val).input.type,'classification')
+    handles.model_type = 1;
+else
+    handles.model_type = 0;
+end
+
+guidata(hObject, handles);
 foldmenu_Callback(hObject, eventdata, handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -320,9 +332,12 @@ m             = get(handles.classmenu,'Value');
 PRT           = handles.PRT;
 handles.plot  = 1;
 model         = get(handles.classmenu,'Value');
-classNames{1} = handles.PRT.model(model).input.class(1).class_name;
-classNames{2} = handles.PRT.model(model).input.class(2).class_name;
-myColours     = {'k','r'};
+
+if strcmp(PRT.model(m).input.type,'classification')
+    classNames{1} = handles.PRT.model(model).input.class(1).class_name;
+    classNames{2} = handles.PRT.model(model).input.class(2).class_name;
+    myColours     = {'k','r'};
+end
 
 % All folds
 % -------------------------------------------------------------------------
@@ -362,134 +377,142 @@ switch plotchosen
     % Predictions
     % ---------------------------------------------------------------------
     case '1'
-        cla(handles.axes5); 
-        colorbar('peer',handles.axes5,'off')
-        nms = 10;
-        % predictions
-        if fVvals_exist
-            if fold == 1
-                for f=2:handles.nfold+1
-                    foldlabels{f} = num2str(f-1);
-                    targets = handles.PRT.model(model).output.fold(f-1).targets;
+        if strcmp(PRT.model(m).input.type,'classification');
+            cla(handles.axes5);
+            colorbar('peer',handles.axes5,'off')
+            nms = 10;
+            % predictions
+            if fVvals_exist
+                if fold == 1
+                    for f=2:handles.nfold+1
+                        foldlabels{f} = num2str(f-1);
+                        targets = handles.PRT.model(model).output.fold(f-1).targets;
+                        targpos = targets == 2;
+                        fVals   = handles.PRT.model(model).output.fold(f-1).func_val;
+                        func_valsc1 = fVals(targpos);
+                        func_valsc2 = fVals(~targpos);
+                        yc1 = (f-1)*ones(length(func_valsc1),1);
+                        yc2 = (f-1)*ones(length(func_valsc2),1);
+                        if f==2
+                            maxfv = max([func_valsc1;func_valsc2]);
+                            minfv = min([func_valsc1;func_valsc2]);
+                        end
+                        plot(handles.axes5,func_valsc1,yc1,'kx','MarkerSize',nms)
+                        hold(handles.axes5,'on');
+                        plot(handles.axes5,func_valsc2,yc2,'ro','MarkerSize',nms-2)
+                    end
+                else
+                    foldlabels{1} = num2str(fold-1);
+                    targets = handles.PRT.model(model).output.fold(fold-1).targets;
                     targpos = targets == 2;
-                    fVals   = handles.PRT.model(model).output.fold(f-1).func_val;
+                    fVals   = handles.PRT.model(model).output.fold(fold-1).func_val;
                     func_valsc1 = fVals(targpos);
                     func_valsc2 = fVals(~targpos);
-                    yc1 = (f-1)*ones(length(func_valsc1),1);
-                    yc2 = (f-1)*ones(length(func_valsc2),1);
-                    if f==2
-                        maxfv = max([func_valsc1;func_valsc2]);
-                        minfv = min([func_valsc1;func_valsc2]);
-                    end
+                    yc1 = (fold-1)*ones(length(func_valsc1),1);
+                    yc2 = (fold-1)*ones(length(func_valsc2),1);
+                    maxfv = max([func_valsc1;func_valsc2]);
+                    minfv = min([func_valsc1;func_valsc2]);
                     plot(handles.axes5,func_valsc1,yc1,'kx','MarkerSize',nms)
                     hold(handles.axes5,'on');
                     plot(handles.axes5,func_valsc2,yc2,'ro','MarkerSize',nms-2)
                 end
+                x = zeros(handles.nfold+2,1);
+                y = [0:handles.nfold+1]';
+                plot(handles.axes5,x,y,'--','Color',[1 1 1]*.6)
+                xlabel(handles.axes5,'function value','FontWeight','bold');
+                ylabel(handles.axes5,'fold','FontWeight','bold');
+                ylim(handles.axes5,[0 handles.nfold+1.3])
+                mlim = max([abs(maxfv), abs(minfv)]);
+                xlim(handles.axes5,[-mlim-0.5 mlim+0.5])
+                legend(handles.axes5,classNames{1},classNames{2});
+                set(handles.axes5,'YTick',0:handles.nfold)
+                hold(handles.axes5,'off');
             else
-                foldlabels{1} = num2str(fold-1);
-                targets = handles.PRT.model(model).output.fold(fold-1).targets;
-                targpos = targets == 2;
-                fVals   = handles.PRT.model(model).output.fold(fold-1).func_val;
-                func_valsc1 = fVals(targpos);
-                func_valsc2 = fVals(~targpos);
-                yc1 = (fold-1)*ones(length(func_valsc1),1);
-                yc2 = (fold-1)*ones(length(func_valsc2),1);
-                maxfv = max([func_valsc1;func_valsc2]);
-                minfv = min([func_valsc1;func_valsc2]);
-                plot(handles.axes5,func_valsc1,yc1,'kx','MarkerSize',nms)
-                hold(handles.axes5,'on');
-                plot(handles.axes5,func_valsc2,yc2,'ro','MarkerSize',nms-2)
+                % do nothing, no func_val available
             end
-            x = zeros(handles.nfold+2,1);
-            y = [0:handles.nfold+1]';
-            plot(handles.axes5,x,y,'--','Color',[1 1 1]*.6)
-            xlabel(handles.axes5,'function value','FontWeight','bold');
-            ylabel(handles.axes5,'fold','FontWeight','bold');
-            ylim(handles.axes5,[0 handles.nfold+1.3])
-            mlim = max([abs(maxfv), abs(minfv)]);
-            xlim(handles.axes5,[-mlim-0.5 mlim+0.5])
-            legend(handles.axes5,classNames{1},classNames{2});
-            set(handles.axes5,'YTick',0:handles.nfold)
-            hold(handles.axes5,'off');
-        else
-            % do nothing, no func_val available
         end
-     
+        
     % ROC / AUC
     % ---------------------------------------------------------------------
     case '2'
         % ROC curve
-        cla(handles.axes5);        
-        [y,idx] = sort(scores);
-        targpos = targpos(idx);
+        if strcmp(PRT.model(m).input.type,'classification');
+            cla(handles.axes5);
+            [y,idx] = sort(scores);
+            targpos = targpos(idx);
+            
+            fp      = cumsum(single(targpos))/sum(single(targpos));
+            tp      = cumsum(single(~targpos))/sum(single(~targpos));
+            
+            tp      = [0 ; tp ; 1];
+            fp      = [0 ; fp ; 1];
+            
+            n       = size(tp, 1);
+            A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
+            
+            plot(handles.axes5,fp,tp,'--ks','LineWidth',2, 'MarkerEdgeColor','k',...
+                'MarkerFaceColor','k',...
+                'MarkerSize',4);
+            title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %3.1f',A));
+            xlabel(handles.axes5,'False positives','FontWeight','bold')
+            ylabel(handles.axes5,'True positives','FontWeight','bold')
+        end
         
-        fp      = cumsum(single(targpos))/sum(single(targpos));
-        tp      = cumsum(single(~targpos))/sum(single(~targpos));
-        
-        tp      = [0 ; tp ; 1];
-        fp      = [0 ; fp ; 1];
-        
-        n       = size(tp, 1);
-        A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
-        
-        plot(handles.axes5,fp,tp,'--ks','LineWidth',2, 'MarkerEdgeColor','k',...
-            'MarkerFaceColor','k',...
-            'MarkerSize',4);
-        title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %3.1f',A));
-        xlabel(handles.axes5,'False positives','FontWeight','bold')
-        ylabel(handles.axes5,'True positives','FontWeight','bold')
-     
     % Histograms
     % ---------------------------------------------------------------------
     case '3'
-        % func_val distributions
-        if fVvals_exist
-            for cl=1:2
-                func_vals=fVals(targpos);
-                if cl == 2, func_vals=fVals(~targpos); end
-                if exist('ksdensity','file')==2
-                    [f,x] = ksdensity(func_vals,'width',[]);
-                    plot(handles.axes5,x,f,myColours{cl},'LineWidth',2);
-                    hold(handles.axes5,'on')
-                else
-                    % can't plot density, be happy with a histogram
-                    [myHist,myX]=hist(func_vals,100);
-                    bar(handles.axes5,myX,myHist,myColours{cl});
-                    hold(handles.axes5,'on')
+        if strcmp(PRT.model(m).input.type,'classification');
+            cla(handles.axes5);
+            % func_val distributions
+            if fVvals_exist
+                for cl=1:2
+                    func_vals=fVals(targpos);
+                    if cl == 2, func_vals=fVals(~targpos); end
+                    if exist('ksdensity','file')==2
+                        [f,x] = ksdensity(func_vals,'width',[]);
+                        plot(handles.axes5,x,f,myColours{cl},'LineWidth',2);
+                        hold(handles.axes5,'on')
+                    else
+                        % can't plot density, be happy with a histogram
+                        [myHist,myX]=hist(func_vals,100);
+                        bar(handles.axes5,myX,myHist,myColours{cl});
+                        hold(handles.axes5,'on')
+                    end
+                    if cl == 2, hold(handles.axes5,'off'); end
                 end
-                if cl == 2, hold(handles.axes5,'off'); end
+                xlabel(handles.axes5,'function value','FontWeight','bold');
+                legend(handles.axes5,classNames{1},classNames{2});
+            else
+                % do nothing, no func_val available
             end
-            xlabel(handles.axes5,'function value','FontWeight','bold');
-            legend(handles.axes5,classNames{1},classNames{2});
-        else
-            % do nothing, no func_val available
         end
-     
+        
     % Confusion matrix
     % ---------------------------------------------------------------------
     case '4'
         % confusion matrix
-        cla(handles.axes5);
-        if fold == 1
-            mconmat(:,:) = PRT.model(m).output.stats.con_mat;
-        else
-            mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
-        end
-        bar3(handles.axes5,mconmat,'detached','w');
-        if fold == 1
-            title(handles.axes5,sprintf('Confusion matrix: all folds'),'FontWeight','bold');
-        else
-            title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1),'FontWeight','bold');
-        end
-        xlabel(handles.axes5,'False positives','FontWeight','bold');
-        ylabel(handles.axes5,'True positives','FontWeight','bold');
-        set(handles.axes5,'XTick',[1 2]);
-        set(handles.axes5,'XTickLabel',{'1','2'});
-        set(handles.axes5,'YTick',[1 2]);
-        set(handles.axes5,'YTickLabel',{'1','2'});
-        grid(handles.axes5,'on');
-        set(handles.axes5,'Color',[0.8 0.8 0.8]);
-     
+        if strcmp(PRT.model(m).input.type,'classification');
+            cla(handles.axes5);
+            if fold == 1
+                mconmat(:,:) = PRT.model(m).output.stats.con_mat;
+            else
+                mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
+            end
+            bar3(handles.axes5,mconmat,'detached','w');
+            if fold == 1
+                title(handles.axes5,sprintf('Confusion matrix: all folds'),'FontWeight','bold');
+            else
+                title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1),'FontWeight','bold');
+            end
+            xlabel(handles.axes5,'False positives','FontWeight','bold');
+            ylabel(handles.axes5,'True positives','FontWeight','bold');
+            set(handles.axes5,'XTick',[1 2]);
+            set(handles.axes5,'XTickLabel',{'1','2'});
+            set(handles.axes5,'YTick',[1 2]);
+            set(handles.axes5,'YTickLabel',{'1','2'});
+            grid(handles.axes5,'on');
+            set(handles.axes5,'Color',[0.8 0.8 0.8]);
+        end     
 end
 
 guidata(hObject, handles);
@@ -540,27 +563,68 @@ PRT   = handles.PRT;
 
 % Read stats
 % -------------------------------------------------------------------------
-if fold == 1
-    macc  = PRT.model(m).output.stats.acc;  % overall acc
-    macc_lb  = PRT.model(m).output.stats.acc_lb; % lower bound
-    macc_ub  = PRT.model(m).output.stats.acc_ub; % upper bound
-    mbacc = PRT.model(m).output.stats.b_acc;
-    mcacc = PRT.model(m).output.stats.c_acc;
+if strcmp(PRT.model(m).input.type,'classification')
+    if fold == 1
+        macc  = PRT.model(m).output.stats.acc;  % overall acc
+        if ~strcmp(PRT.model(m).input.cv_type,'lobo')
+            macc_lb  = PRT.model(m).output.stats.acc_lb; % lower bound
+            macc_ub  = PRT.model(m).output.stats.acc_ub; % upper bound
+        else
+            disp('Confidence intervals not displayed for LOBO cross-validation.')
+        end
+        mbacc = PRT.model(m).output.stats.b_acc;
+        mcacc = PRT.model(m).output.stats.c_acc;
+    else
+        macc  = PRT.model(m).output.fold(fold-1).stats.acc;
+        if ~strcmp(PRT.model(m).input.cv_type,'lobo')
+            macc_lb  = PRT.model(m).output.fold(fold-1).stats.acc_lb;
+            macc_ub  = PRT.model(m).output.fold(fold-1).stats.acc_ub;
+        else
+            disp('Confidence intervals not displayed for LOBO cross-validation.')
+        end
+        mbacc = PRT.model(m).output.fold(fold-1).stats.b_acc;
+        mcacc = PRT.model(m).output.fold(fold-1).stats.c_acc;
+    end
+    % Show stats
+    % -------------------------------------------------------------------------
+    set(handles.accuracytext,'String','Accuracy:');
+    set(handles.baccuracytext,'String','Balanced accuracy:');
+    set(handles.classaccuracytext,'String','Class accuracy:');
+    
+    if ~strcmp(PRT.model(m).input.cv_type,'lobo')
+        set(handles.acctext,'String',sprintf('%3.1f %% (%3.1f %%, %3.1f%%)',...
+            macc*100,macc_lb*100,macc_ub*100));
+    else
+        set(handles.acctext,'String',sprintf('%3.1f %% (Not IID)',...
+            macc*100));
+    end
+    set(handles.bacctext,'String',sprintf('%3.1f %%',mbacc*100));
+    set(handles.cacctext,'String',sprintf('[%3.1f %3.1f] %%',...
+        mcacc(1)*100,mcacc(2)*100));
+    set(handles.corrtext,'Visible','off');
+    set(handles.msetext,'Visible','off');
+    set(handles.corrvaltext,'Visible','off');
+    set(handles.msevaltext,'Visible','off');
 else
-    macc  = PRT.model(m).output.fold(fold-1).stats.acc;
-    macc_lb  = PRT.model(m).output.fold(fold-1).stats.acc_lb;
-    macc_ub  = PRT.model(m).output.fold(fold-1).stats.acc_ub;
-    mbacc = PRT.model(m).output.fold(fold-1).stats.b_acc;
-    mcacc = PRT.model(m).output.fold(fold-1).stats.c_acc;
+    if fold == 1
+        corr  = PRT.model(m).output.stats.corr;  % overall correlation
+        mse   = PRT.model(m).output.stats.mse;  % overall mse
+    else
+        corr  = PRT.model(m).output.fold(fold-1).stats.corr;  % overall correlation
+        mse   = PRT.model(m).output.fold(fold-1).stats.mse;  % overall mse
+    end
+    set(handles.corrtext,'String','Correlation:');
+    set(handles.msetext,'String','MSE:');
+    set(handles.corrvaltext,'String',sprintf('%3.1f',corr));
+    set(handles.msevaltext,'String',sprintf('%3.1f',mse));
+    set(handles.accuracytext,'Visible','off');
+    set(handles.baccuracytext,'Visible','off');
+    set(handles.classaccuracytext,'Visible','off');
+    set(handles.acctext,'Visible','off');
+    set(handles.bacctext,'Visible','off');
+    set(handles.cacctext,'Visible','off');
 end
 
-% Show stats
-% -------------------------------------------------------------------------
-set(handles.acctext,'String',sprintf('%3.1f %% (%3.1f %%, %3.1f%%)',...
-    macc*100,macc_lb*100,macc_ub*100));
-set(handles.bacctext,'String',sprintf('%3.1f %%',mbacc*100));
-set(handles.cacctext,'String',sprintf('[%3.1f %3.1f] %%',...
-    mcacc(1)*100,mcacc(2)*100));
 
 % Change weight map
 % -------------------------------------------------------------------------
