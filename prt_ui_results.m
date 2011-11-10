@@ -428,7 +428,13 @@ if strcmp(PRT.model(m).input.type,'classification')
                     ylabel(handles.axes5,'fold','FontWeight','bold');
                     ylim(handles.axes5,[0 handles.nfold+1.3])
                     mlim = max([abs(maxfv), abs(minfv)]);
-                    xlim(handles.axes5,[-mlim-0.5 mlim+0.5])
+                    % Change the x axis for gaussian process - change in
+                    % the future
+                    if strcmp(PRT.model(m).input.machine,'prt_machine_gpml');
+                        xlim(handles.axes5,[0 1]);
+                    else
+                        xlim(handles.axes5,[-mlim-0.5 mlim+0.5]);
+                    end
                     legend(handles.axes5,classNames{1},classNames{2});
                     set(handles.axes5,'YTick',0:handles.nfold)
                     hold(handles.axes5,'off');
