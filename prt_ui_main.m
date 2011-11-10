@@ -58,10 +58,10 @@ function prt_ui_main_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_main (see VARARGIN)
 set(handles.figure1,'Name','PRoNTo ::')
-cc=get(handles.figure1,'Color');
-[A] = imread('PRoNTo_logo.png','BackgroundColor',cc);
-image(A)
-axis off
+% cc=get(handles.figure1,'Color');
+% [A] = imread('PRoNTo_logo.png','BackgroundColor',cc);
+% image(A)
+% axis off
 % Choose default command line output for prt_ui_main
 handles.output = hObject;
 

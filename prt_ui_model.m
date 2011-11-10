@@ -289,7 +289,7 @@ if val==1 %Classification
     set(handles.pop_machine,'Value',1)
     handles.machine.function='prt_machine_svm_bin';
     handles.machine.args=handles.def.svmargs;
-    set(handles.butt_defclass,'Label','Define classes')
+    set(handles.butt_defclass,'String','Define classes')
 elseif val==2
     handles.type='regression';
     set(handles.butt_defclass,'String','Select subjects/scans')
@@ -585,6 +585,15 @@ if strcmpi(in.type,'classification')
         disp('Please, define classes')
         return
     else
+        for i=1:length(handles.class)
+            ind=[];
+            for g=1:length(handles.class(i).group)
+                if ~isempty(handles.class(i).group(g).gr_name)
+                    ind=[ind,g];
+                end
+            end
+            handles.class(i).group=handles.class(i).group(ind);
+        end
         in.class=handles.class;
     end
 else
@@ -594,6 +603,13 @@ else
         disp('Please, select subjects/scans')
         return
     else
+        ind=[];
+        for g=1:length(handles.group)
+            if ~isempty(handles.group(g).gr_name)
+                ind=[ind,g];
+            end
+        end
+        handles.group=handles.group(ind);
         in.group=handles.group;
     end
 end
