@@ -1125,18 +1125,20 @@ for i=1:ng
         handles.dat.group(i).subject(j).modality(k)=handles.dat.group(i).subject(j).modality(m2);
     end
 end
-
 def=prt_get_defaults('datad');
-
 %save the data structure
 disp('Saving the data.....>>')
 PRT=struct();
 PRT.group=handles.dat.group;
-if ~isfield(handles.dat.group,'hrfoverlap')
-    PRT.group.hrfoverlap=def.hrfw;
+if ~isfield(handles.dat.group(1),'hrfoverlap')
+    for i=1:ng
+        PRT.group(i).hrfoverlap=def.hrfw;
+    end
 end
-if ~isfield(handles.dat.group,'hrfdelay')
-    PRT.group.hrfdelay=def.hrfd;
+if ~isfield(handles.dat.group(1),'hrfdelay')
+    for i=1:ng
+        PRT.group.hrfdelay=def.hrfd;
+    end
 end
 PRT.masks=handles.dat.masks;
 resn=fullfile(handles.dat.dir,'PRT.mat');

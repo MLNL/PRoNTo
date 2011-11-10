@@ -137,12 +137,12 @@ def=prt_get_defaults('datad');
 if ~isempty(varargin) && length(varargin{2})>1
     PRT=varargin{2}{2};
     if isfield(PRT.group,'hrfdelay')
-        handles.hrfdel=PRT.group.hrfdelay;
+        handles.hrfdel=PRT.group(1).hrfdelay;
     else
         handles.hrfdel=def.hrfd;
     end
     if isfield(PRT.group,'hrfoverlap')
-        handles.hrfover=PRT.group.hrfoverlap;
+        handles.hrfover=PRT.group(1).hrfoverlap;
     else
         handles.hrfover=def.hrfw;
     end

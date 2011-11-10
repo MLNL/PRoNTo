@@ -328,9 +328,9 @@ for i=1:length(PRT.group)
         end
         PRT.group(i).subject(j).modality(m).design=desn;
     end
+    PRT.group(i).hrfoverlap=val;
+    PRT.group(i).hrfdelay=del;
 end
-PRT.group.hrfoverlap=val;
-PRT.group.hrfdelay=del;
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
 handles.PRT=PRT;
 % Update handles structure
