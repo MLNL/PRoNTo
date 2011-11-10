@@ -54,7 +54,7 @@ function prt_ui_results_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Figure color
 % -------------------------------------------------------------------------
-set(handles.figure1,'Color',[0.86,0.86,0.86])
+set(handles.figure1,'Color',[0.86,0.86,0.86]);
 
 % Initialize window
 % -------------------------------------------------------------------------
@@ -212,6 +212,7 @@ Z     = z_above;
 
 % Set spm_orthviews properties
 % -------------------------------------------------------------------------
+rotate3d off
 global st
 
 handles.notinit = 1;
@@ -336,6 +337,7 @@ PRT           = handles.PRT;
 handles.plot  = 1;
 model         = get(handles.classmenu,'Value');
 nms           = 7;
+rotate3d off
 
 if strcmp(PRT.model(m).input.type,'classification')
     
@@ -527,12 +529,8 @@ else
         preds(f,1) = PRT.model(m).output.fold(f).targets;
         preds(f,2) = PRT.model(m).output.fold(f).predictions;
         bar(handles.axes5,preds);        
-%         plot(handles.axes5,1:nfolds,tg,'ks','MarkerSize',nms);
-%         hold(handles.axes5,'on');
-%         plot(handles.axes5,1:nfolds,pd,'rs','MarkerSize',nms);
         xlabel(handles.axes5,'subjects','FontWeight','bold');
         ylabel(handles.axes5,'targets and predictions','FontWeight','bold');
-%         hold(handles.axes5,'off');
     end
     legend(handles.axes5,{'Target', 'Predicted'});
 end
@@ -706,6 +704,7 @@ end
 
 % Show anatomical image
 % -------------------------------------------------------------------------
+rotate3d off
 img    = spm_select(1,'image','Select anatomical image.');
 handle = spm_orthviews('Image', img, [0.5295 0.0699 0.4196 0.4296]);
 cmap   = get(gcf,'Colormap');
