@@ -150,12 +150,12 @@ if isempty(ind)
 else
     def=prt_get_defaults('datad');
     if isfield(PRT.group,'hrfoverlap')
-        set(handles.hrfover_edit,'String',num2str(PRT.group.hrfoverlap))
+        set(handles.hrfover_edit,'String',num2str(PRT.group(1).hrfoverlap))
     else
         set(handles.hrfover_edit,'String',num2str(def.hrfw))
     end
     if isfield(PRT.group,'hrfdelay')
-        set(handles.edit_hrfdel,'String',num2str(PRT.group.hrfdelay))
+        set(handles.edit_hrfdel,'String',num2str(PRT.group(1).hrfdelay))
     else
         set(handles.edit_hrfdel,'String',num2str(def.hrfd))
     end
@@ -201,6 +201,15 @@ else
 end
 
 
+% --- Closing the figure
+function figure1_DeleteFcn(hObject,eventdata,handles)
+% hObject    handle to datastruct (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.output=handles.PRT;
+% Update handles structure
+guidata(hObject, handles);
+delete(handles.figure1);
 
 % --- Executes on selection change in modlist.
 function modlist_Callback(hObject, eventdata, handles)

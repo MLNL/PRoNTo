@@ -1130,6 +1130,7 @@ def=prt_get_defaults('datad');
 disp('Saving the data.....>>')
 PRT=struct();
 PRT.group=handles.dat.group;
+
 if ~isfield(handles.dat.group(1),'hrfoverlap')
     for i=1:ng
         PRT.group(i).hrfoverlap=def.hrfw;
@@ -1191,6 +1192,9 @@ else
     end
 end
 prt_data_review('UserData',{PRT,handles.dat.dir});
+load(fname);
+handles.dat.group=PRT.group;
+handles.dat.masks=PRT.masks;
 % Update handles structure
 guidata(hObject, handles);
 

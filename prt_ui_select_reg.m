@@ -67,13 +67,11 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     list={handles.dat.group(1).subject(:).subj_name};
     set(handles.uns_list,'String',list);
     set(handles.sel_list,'String',{});
-    %get the conditions which are common to all groups and subjects for the
-    %different modalities comprised in the selected feature set
+    %get the subjects
     indfs=varargin{2}{2};
     handles.indfs=indfs;
     nm=length(handles.dat.fs(indfs).modality);
     handles.condm=cell(1,2);
-    %for each modality, get the conditions which are common to all subjects
     for i=1:nm
         handles.condm{1,1}=get(handles.group_list,'String');
         handles.condm{1,2}=cell(length(get(handles.group_list,'String')),1);
@@ -83,7 +81,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     end
     handles.clas{1,1}=1:length(handles.condm{1,1});
     handles.clas{1,2}=cell(length(handles.condm{1,1}),2);
-    for j=1:length(get(handles.group_list,'String'))
+    for j=1:length(get(handles.group_list,'String'))   
         handles.clas{1,2}{j,1}=1:length(handles.condm{1,2}{j});
         handles.clas{1,2}{j,2}=0;
     end
