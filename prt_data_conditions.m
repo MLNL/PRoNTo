@@ -131,7 +131,7 @@ else
     uv=2;
 end
 set(handles.pop_unit,'Value',uv)
-handles.unit=get(handles.pop_unit,'Value');
+handles.unit=des.unit;
 
 def=prt_get_defaults('datad');
 if ~isempty(varargin) && length(varargin{2})>1
