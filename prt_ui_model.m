@@ -486,6 +486,15 @@ if strcmpi(in.type,'classification')
         disp('Please, define classes')
         return
     else
+        for i=1:length(handles.class)
+            ind=[];
+            for g=1:length(handles.class(i).group)
+                if ~isempty(handles.class(i).group(g).gr_name)
+                    ind=[ind,g];
+                end
+            end
+            handles.class(i).group=handles.class(i).group(ind);
+        end
         in.class=handles.class;
     end
 else
@@ -495,6 +504,13 @@ else
         disp('Please, select subjects/scans')
         return
     else
+        ind=[];
+        for g=1:length(handles.group)
+            if ~isempty(handles.group(g).gr_name)
+                ind=[ind,g];
+            end
+        end
+        handles.group=handles.group(ind);
         in.group=handles.group;
     end
 end
