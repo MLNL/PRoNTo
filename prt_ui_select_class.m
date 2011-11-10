@@ -73,10 +73,8 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     list={handles.dat.group(:).gr_name};
     ng=length(list);
     set(handles.group_list,'String',list)
-    set(handles.group_list,'Value',1)
-    list={handles.dat.group(1).subject(:).subj_name};
-    set(handles.uns_list,'String',list);
-    set(handles.sel_list,'String',{});
+    
+    
     %get the conditions which are common to all groups and subjects for the
     %different modalities comprised in the selected feature set
     indfs=varargin{2}{2};
@@ -115,12 +113,86 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         disp('Classifying subjects only')
         handles.flagcond=0;
     end
+    if length(varargin{2})==2
+        handles.flagrev=0;
+        set(handles.group_list,'Value',1)
+        list={handles.dat.group(1).subject(:).subj_name};
+        set(handles.uns_list,'String',list);
+        set(handles.sel_list,'String',{});
+        % Update handles structure
+        guidata(hObject, handles);
+        % UIWAIT makes prt_ui_select_class wait for user response (see UIRESUME)
+        uiwait(handles.figure1);
+    else
+        %review the model
+        handles.flagrev=1;
+        indm=varargin{2}{3};
+        mod=handles.dat.model(indm).input;
+        %classification case
+        nc=length(mod.class);
+        set(handles.num_class,'String',num2str(nc))
+        set(handles.num_class,'Enable','off')
+        set(handles.edit2,'Enable','off')
+        handles.clas=cell(nc,4);
+        %set the names of the classes in the pop_class
+        cl={};
+        for i=1:nc
+            cl=[cl,{['Class ',num2str(i)]}];
+        end
+        set(handles.pop_class,'String',cl);
+        set(handles.pop_class,'Value',1);
+        for i=1:nc
+            handles.class(i).class_name=mod.class(i).class_name;
+            handles.clas{i,1}=1:length(handles.condm{1,1});
+            handles.clas{i,2}=cell(length(handles.condm{1,1}),2);
+            list=get(handles.group_list,'String');
+            for j=1:length(list)
+                indg=find(strcmpi(list{j},{mod.class(i).group(:).gr_name}));
+                if~isempty(indg)
+                    sel=[mod.class(i).group(indg).subj(:).num];
+                    all=1:length(handles.condm{1,3}{j});
+                    handles.clas{i,2}{j,1}=setdiff(all,sel);
+                    handles.clas{i,2}{j,2}=sel;
+                else
+                    handles.clas{i,2}{j,1}=1:length(handles.condm{1,3}{j});
+                    handles.clas{i,2}{j,2}=0;
+                end
+                if isempty(handles.clas{i,2}{j,1})
+                    handles.clas{i,2}{j,1}=0;
+                end
+                if isempty(handles.clas{i,2}{j,2})
+                    handles.clas{i,2}{j,2}=0;
+                end
+            end
+            if handles.flagcond
+                listc=handles.condm{1,2};
+                selc=[];
+                for icc=1:length(listc)
+                    indcc=strcmpi(listc{icc},{mod.class(i).group(1).subj(1).modality(1).conds(:).cond_name});
+                    if any(indcc)
+                        selc=[selc,icc];
+                    end
+                end
+                allc=1:length(handles.condm{1,2});
+                handles.clas{i,3}=setdiff(allc,selc);
+                handles.clas{i,4}=selc;
+                if isempty(handles.clas{i,3})
+                    handles.clas{i,3}=0;
+                end
+                if isempty(handles.clas{i,4})
+                    handles.clas{i,3}=0;
+                end
+            end
+            handles.class(i).class_name=mod.class(i).class_name;            
+        end
+        set(handles.group_list,'Enable','on');
+        % Update handles structure
+        guidata(hObject, handles);
+    end
 end
-% Update handles structure
-guidata(hObject, handles);
 
-% UIWAIT makes prt_ui_select_class wait for user response (see UIRESUME)
-uiwait(handles.figure1);
+
+
 
 
 % --- Outputs from this function are returned to the command line.
@@ -138,7 +210,7 @@ else
 end
 
 %This figure can be deleted now
-if isfield(handles,'figure1')
+if isfield(handles,'figure1') && ~handles.flagrev
     delete(handles.figure1)
 end
 
@@ -233,7 +305,6 @@ if vc==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_classes,'Value',1)
 end
-cl=get(handles.pop_class,'Value');
 cg=get(handles.group_list,'Value');
 list=handles.condm{1,3}{cg};
 clist=handles.condm{1,2};
@@ -269,13 +340,17 @@ if handles.flagcond
         set(handles.sel_cond_list,'Value',0);
         set(handles.sel_cond_list,'String',{});
     end
-    set(handles.uns_cond_list,'Enable','on');
-    set(handles.sel_cond_list,'Enable','on');
-    set(handles.sel_cond_all,'Enable','on');
+    if ~handles.flagrev
+        set(handles.uns_cond_list,'Enable','on');
+        set(handles.sel_cond_list,'Enable','on');
+        set(handles.sel_cond_all,'Enable','on');
+    end
 end
-set(handles.uns_list,'Enable','on');
-set(handles.sel_list,'Enable','on');
-set(handles.sel_all,'Enable','on');
+if ~handles.flagrev
+    set(handles.uns_list,'Enable','on');
+    set(handles.sel_list,'Enable','on');
+    set(handles.sel_all,'Enable','on');
+end
 set(handles.group_list,'Enable','on');
 % Update handles structure
 guidata(hObject, handles);
@@ -628,6 +703,10 @@ function done_button_Callback(hObject, eventdata, handles)
 % hObject    handle to done_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+if handles.flagrev
+    delete(handles.figure1)
+    return
+end
 
 for i=1:size(handles.clas,1)
     list=get(handles.group_list,'String');
@@ -673,5 +752,6 @@ end
 handles.output=handles.class;
 % Update handles structure
 guidata(hObject, handles);
-
-uiresume(handles.figure1)
+if ~handles.flagrev
+    uiresume(handles.figure1)
+end

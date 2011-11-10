@@ -150,7 +150,7 @@ fname=spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
 prtdir=fileparts(fname);
 try
     load(fname)
-    prt_ui_reviewCV('UserData',{PRT,prtdir});
+    prt_ui_reviewmodel('UserData',{PRT,prtdir});
 catch
     beep
     disp('Could not load file')
