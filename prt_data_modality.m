@@ -111,6 +111,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             handles.mod.design=modsel.design;
             if ~isempty(modsel.design)
                 set(handles.design_menu,'Value',2)
+                handles.desnmenu=2;
             end
             handles.mod.scans=modsel.scans;
             handles.mod.name=modsel.mod_name;
@@ -259,6 +260,11 @@ function design_menu_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns design_menu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from design_menu
 choice=get(handles.design_menu,'Value');
+%Mac and Matlab versions strange things with popup menus
+if choice==0
+    choice=handles.desnmenu;
+    set(handles.design_menu,'Value')
+end
 if choice==1
     desn=spm_select(1,'mat','Select SPM.mat file',[],[],'SPM.mat');
     try
