@@ -202,10 +202,10 @@ conditions.help   = {...
 % ---------------------------------------------------------------------
 subj_nums         = cfg_entry;
 subj_nums.tag     = 'subj_nums';
-subj_nums.name    = 'Scan number(s)';
+subj_nums.name    = 'Subjects';
 subj_nums.help    = {
-    ['Scans to be included in this class. Note that individual ',...
-     'scan numbers (e.g. 1), or a range of scan numbers ',...
+    ['Subject numbers to be included in this class. Note that individual ',...
+     'numbers (e.g. 1), or a range of numbers ',...
      '(e.g. 3:5) can be entered'] };
 subj_nums.strtype = 'e';
 subj_nums.num     = [Inf 1];
@@ -252,17 +252,6 @@ class.help    = {...
 class.val     = {class_name, groups};
 
 % ---------------------------------------------------------------------
-% classification Classification
-% ---------------------------------------------------------------------
-classification         = cfg_repeat;
-classification.tag     = 'classification';
-classification.name    = 'Classification';
-classification.help    = {['Specify which elements belong to this class. Click ''new'' '...
-                           'or ''repeat'' to add another class.']};
-classification.num     = [1 Inf];
-classification.values  = {class};
-
-% ---------------------------------------------------------------------
 % reg_targets Regression Targets
 % ---------------------------------------------------------------------
 reg_targets         = cfg_entry;
@@ -292,26 +281,6 @@ reg_group.name    = 'Group';
 reg_group.help    = {'Specify data and design for the group.'};
 %reg_group.val     = {gr_name, subj_nums, conditions, reg_targets};
 reg_group.val     = {gr_name, subj_nums,mod_name2 };
-
-% ---------------------------------------------------------------------
-% regression Regression
-% ---------------------------------------------------------------------
-regression         = cfg_repeat;
-regression.tag     = 'regression';
-regression.name    = 'Regression';
-regression.help    = {['Add one group to this regression model. Click ''new'' '...
-                    'or ''repeat'' to add another group.']};
-regression.num     = [1 Inf];
-regression.values  = {reg_group};
-
-% ---------------------------------------------------------------------
-% model_type Model type
-% ---------------------------------------------------------------------
-model_type        = cfg_choice;
-model_type.tag    = 'model_type';
-model_type.name   = 'Model Type ';
-model_type.values = {classification, regression};
-model_type.help   = {'Select which kind of predictive model is to be used.'};
 
 % ---------------------------------------------------------------------
 % machine_func Filename(s) of data
@@ -436,16 +405,87 @@ rt.help    = {'Random Forest. Breiman, Leo (2001)."Random Forests". ' ...
                ' package.' };
 rt.val     = {rt_args};
 
+% % ---------------------------------------------------------------------
+% % machine Select Features
+% % ---------------------------------------------------------------------
+% machine        = cfg_choice;
+% machine.tag    = 'machine';
+% machine.name   = 'Machine';
+% machine.values = {svm,gpc,krr,rvr,rt,custom_machine};
+% machine.val    =  {svm};
+% machine.help   = {...
+%     ['Choose a prediction machine for this model']};
+
 % ---------------------------------------------------------------------
-% machine Select Features
+% machine_cl Select Machine
 % ---------------------------------------------------------------------
-machine        = cfg_choice;
-machine.tag    = 'machine';
-machine.name   = 'Machine';
-machine.values = {svm,gpc,krr,rvr,rt,custom_machine};
-machine.val    =  {svm};
-machine.help   = {...
+machine_cl       = cfg_choice;
+machine_cl.tag    = 'machine_cl';
+machine_cl.name   = 'Machine';
+machine_cl.values = {svm,gpc,rt,custom_machine};
+machine_cl.val    =  {svm};
+machine_cl.help   = {...
     ['Choose a prediction machine for this model']};
+
+% ---------------------------------------------------------------------
+% machine_rg Select Machine
+% ---------------------------------------------------------------------
+machine_rg       = cfg_choice;
+machine_rg.tag    = 'machine_rg';
+machine_rg.name   = 'Machine';
+machine_rg.values = {krr,rvr,custom_machine};
+machine_rg.val    =  {krr};
+machine_rg.help   = {...
+    ['Choose a prediction machine for this model']};
+
+% ---------------------------------------------------------------------
+% regression Regression
+% ---------------------------------------------------------------------
+reggroups         = cfg_repeat;
+reggroups.tag     = 'reggroups';
+reggroups.name    = 'Groups';
+reggroups.help    = {['Add one group to this regression model. Click ''new'' '...
+                    'or ''repeat'' to add another group.']};
+reggroups.num     = [1 Inf];
+reggroups.values  = {reg_group};
+
+% ---------------------------------------------------------------------
+% regression Regression
+% ---------------------------------------------------------------------
+regression         = cfg_branch;
+regression.tag     = 'regression';
+regression.name    = 'Regression';
+regression.help    = {'Add group data and machine for regression.'};
+regression.val     = {reggroups, machine_rg};
+
+% ---------------------------------------------------------------------
+% classes Classes
+% ---------------------------------------------------------------------
+classes         = cfg_repeat;
+classes.tag     = 'classes';
+classes.name    = 'Classes';
+classes.help    = {['Specify which elements belong to this class. Click ''new'' '...
+                           'or ''repeat'' to add another class.']};
+classes.num     = [1 Inf];
+classes.values  = {class};
+
+% ---------------------------------------------------------------------
+% classification Classification
+% ---------------------------------------------------------------------
+classification         = cfg_branch;
+classification.tag     = 'classification';
+classification.name    = 'Classification';
+classification.help    = {'Specify classes and machine for classification.'};
+classification.val     = {classes, machine_cl};
+
+% ---------------------------------------------------------------------
+% model_type Model type
+% ---------------------------------------------------------------------
+model_type        = cfg_choice;
+model_type.tag    = 'model_type';
+model_type.name   = 'Model Type ';
+model_type.values = {classification, regression};
+model_type.help   = {'Select which kind of predictive model is to be used.'};
 
 % Old CV structure. Might be resuscitated at some point.
 % % ---------------------------------------------------------------------
@@ -557,8 +597,7 @@ cv_loro.val     = {1};
 cv_loro.help    = {...
     ['Leave out a single run (modality) from each subject each iteration. ', ...
      'Appropriate for single subject designs with multiple runs/sessions.']};
-  
-  
+   
 %  
 % % ---------------------------------------------------------------------
 % % cv_fold Cross-validation fold
@@ -685,7 +724,6 @@ model.val    = {infile, ...
                 use_kernel, ...
                 fsets, ...
                 model_type, ...
-                machine, ...
                 cv_type,...
                 data_ops};
 model.help   = {'Construct model according to design specified'};

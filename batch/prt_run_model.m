@@ -95,24 +95,24 @@ end
 % from matlabbatch to something more consistent for the prt_model function)
 % Note that we cycle through the groups to flatten out the structure, since
 % we potentially specify multiple subjects per group
-if isfield(job.model_type,'class')
+if isfield(job.model_type,'classification')
     model.type = 'classification';
-    for c = 1:length(job.model_type.class)
-        model.class(c).class_name = job.model_type.class(c).class_name;
+    for c = 1:length(job.model_type.classification.class)
+        model.class(c).class_name = job.model_type.classification.class(c).class_name;
         
-        for g = 1:length(job.model_type.class(c).group)
+        for g = 1:length(job.model_type.classification.class(c).group)
             scount = 1;
             model.class(c).group(g).gr_name = ...
-                job.model_type.class(c).group(g).gr_name;
+                job.model_type.classification.class(c).group(g).gr_name;
             
-            sids   = job.model_type.class(c).group(g).subj_nums;
+            sids   = job.model_type.classification.class(c).group(g).subj_nums;
             for s = 1:length(sids)
                 model.class(c).group(g).subj(scount).num = sids(s);
                 for m = 1: length(mods)
                     model.class(c).group(g).subj(scount).modality(m).mod_name=mods{m};
-                    if isfield(job.model_type.class(c).group(g).conditions,'all_scans')
+                    if isfield(job.model_type.classification.class(c).group(g).conditions,'all_scans')
                         model.class(c).group(g).subj(scount).modality(m).all_scans = true;
-                    elseif isfield(job.model_type.class(c).group(g).conditions,'all_cond')
+                    elseif isfield(job.model_type.classification.class(c).group(g).conditions,'all_cond')
                         model.class(c).group(g).subj(scount).modality(m).all_cond = true;
                         if isempty(lcond)
                             beep
@@ -122,9 +122,9 @@ if isfield(job.model_type,'class')
                         end
                     else
                         model.class(c).group(g).subj(scount).modality(m).conds = ...
-                            job.model_type.class(c).group(g).conditions.conds;
-                        for cc=1:length(job.model_type.class(c).group(g).conditions.conds)
-                            cname=job.model_type.class(c).group(g).conditions.conds(cc).cond_name;
+                            job.model_type.classification.class(c).group(g).conditions.conds;
+                        for cc=1:length(job.model_type.classification.class(c).group(g).conditions.conds)
+                            cname=job.model_type.classification.class(c).group(g).conditions.conds(cc).cond_name;
                             if isempty(intersect({cname},lcond))
                                 beep
                                 disp('This condition is not common to all subjects')
@@ -138,42 +138,48 @@ if isfield(job.model_type,'class')
             end
         end
     end
-elseif isfield(job.model_type,'reg_group')
+    % insert machine fields
+    if isfield(job.model_type.classification.machine_cl,'svm')
+        model.machine.function = 'prt_machine_svm_bin';
+        model.machine.args     = job.model_type.classification.machine_cl.svm.svm_args;
+    elseif isfield(job.model_type.classification.machine_cl,'gpc')
+        model.machine.function='prt_machine_gpml';
+        model.machine.args=job.model_type.classification.machine_cl.gpc.gpc_args;
+    elseif isfield(job.model_type.classification.machine_cl,'rt')
+        model.machine.function='prt_machine_RT_bin';
+        model.machine.args=job.model_type.classification.machine_cl.rt.rt_args;
+    else
+        [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
+        model.machine.function = nam;
+        model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
+    end
+
+elseif isfield(job.model_type,'regression')
     model.type = 'regression';
     scount = 1;
-    for g = 1:length(job.model_type.reg_group)
-        model.group(g).gr_name = job.model_type.reg_group(g).gr_name;
-        sids   =  job.model_type.reg_group(g).subj_nums;
+    for g = 1:length(job.model_type.regression.reg_group)
+        model.group(g).gr_name = job.model_type.regression.reg_group(g).gr_name;
+        sids   =  job.model_type.regression.reg_group(g).subj_nums;
         for s = 1:length(sids)
             model.group(g).subj(scount).num = sids(s);
             model.group(g).subj(scount).modality.mod_name =  mods;
             scount=scount+1;
         end
     end
+    
+    if isfield(job.model_type.regression.machine_rg,'krr')
+        model.machine.function='prt_machine_krr';
+        model.machine.args=job.model_type.regression.machine_rg.krr.krr_args;
+    elseif isfield(job.model_type.regression.machine_rg,'rvr')
+        model.machine.function='prt_machine_rvr';
+        model.machine.args=[];
+    else
+        [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
+        model.machine.function = nam;
+        model.machine.args = job.model_type.regression.machine_rg.custom_machine.machine_args;
+    end   
 else
     error('this is not implemented yet');   
-end
-
-% insert machine fields
-if isfield(job.machine,'svm')
-    model.machine.function = 'prt_machine_svm_bin';
-    model.machine.args     = job.machine.svm.svm_args;
-elseif isfield(job.machine,'gpc')
-    model.machine.function='prt_machine_gpml';
-    model.machine.args=job.machine.gpc.gpc_args;
-elseif isfield(job.machine,'krr')
-    model.machine.function='prt_machine_krr';
-    model.machine.args=job.machine.krr.krr_args;
-elseif isfield(job.machine,'rvr')
-    model.machine.function='prt_machine_rvr';
-    model.machine.args=[];
-elseif isfield(job.machine,'rt')
-    model.machine.function='prt_machine_RT_bin';
-    model.machine.args=job.machine.rt.rt_args;
-else
-    [pat, nam] = fileparts(char(job.machine.custom_machine.machine_func));
-    model.machine.function = nam;
-    model.machine.args = job.machine.custom_machine.machine_args;
 end
 
 % assemble structure for performing cross-validation
@@ -201,7 +207,6 @@ if isfield(job.data_ops,'sel_ops')
 elseif isfield(job.data_ops,'no_op')
     model.operations = [];
 end
-
 
 prt_model(PRT,model);
 
