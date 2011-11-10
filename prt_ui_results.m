@@ -77,12 +77,23 @@ if ~isfield(handles,'notinit')
     nfold         = length(PRT.model(1).output.fold);
     handles.nfold = nfold;
     folds{1}      = 'All folds / Average';
-    for f = 1:nfold
-        folds{f+1} = num2str(f);
+    m             = get(handles.plotmenu,'Value');
+    if strcmp(PRT.model(m).input.type,'classification');
+        for f = 1:nfold
+            folds{f+1} = num2str(f);
+        end
     end
     % Set folds pulldown menu for first model
     handles.folds = folds;
     set(handles.foldmenu,'String',handles.folds);
+    % Set plots menu
+    if strcmp(PRT.model(m).input.type,'classification');
+        plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
+       set(handles.plotmenu,'String',plots);
+    else
+        plots = {'Predictions'};
+       set(handles.plotmenu,'String',plots); 
+    end  
     % Set font sizes
     set(handles.text10,'Unit','point','FontSize',11);
     set(handles.classmenu,'Unit','point','FontSize',11);    
@@ -325,14 +336,17 @@ PRT           = handles.PRT;
 handles.plot  = 1;
 model         = get(handles.classmenu,'Value');
 
+
+
+
+% All folds
+% -------------------------------------------------------------------------
 if strcmp(PRT.model(m).input.type,'classification')
     classNames{1} = handles.PRT.model(model).input.class(1).class_name;
     classNames{2} = handles.PRT.model(model).input.class(2).class_name;
     myColours     = {'k','r'};
 end
 
-% All folds
-% -------------------------------------------------------------------------
 if fold == 1
     scores  = [];
     fVals   = [];
