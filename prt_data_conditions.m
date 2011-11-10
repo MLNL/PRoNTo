@@ -320,6 +320,10 @@ function pop_unit_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_unit contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_unit
 un=get(handles.pop_unit,'Value');
+if un==0
+    set(handles.pop_unit,'Value',1)
+    un=1;
+end
 if un==1
     handles.unit=1;
 else

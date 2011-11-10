@@ -1137,7 +1137,7 @@ if ~isfield(handles.dat.group(1),'hrfoverlap')
 end
 if ~isfield(handles.dat.group(1),'hrfdelay')
     for i=1:ng
-        PRT.group.hrfdelay=def.hrfd;
+        PRT.group(i).hrfdelay=def.hrfd;
     end
 end
 PRT.masks=handles.dat.masks;
