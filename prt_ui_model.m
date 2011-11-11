@@ -234,8 +234,8 @@ val=get(handles.pop_featset,'Value');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_feaset,'Value',1)
+    val=1;
 end
-val=get(handles.pop_featset,'Value');
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{val};
 handles.fs(1).indfs=val;
@@ -279,8 +279,8 @@ val=get(handles.pop_reg,'Value');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_reg,'Value',1)
+    val=1;
 end
-val=get(handles.pop_reg,'Value');
 if val==1 %Classification
     handles.type='classification';
     %set the list of machines
@@ -346,8 +346,8 @@ val=get(handles.pop_machine,'Value');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_machine,'Value',1)
+    val=1;
 end
-val=get(handles.pop_machine,'Value');
 if any(strfind(mach{val},'support'))
     handles.machine.function='prt_machine_svm_bin';
     handles.machine.args=handles.def.svmargs;
@@ -393,8 +393,8 @@ val=get(handles.pop_cv,'Value');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_cv,'Value',1)
+    val=1;
 end
-val=get(handles.pop_cv,'Value');
 if val==1
     handles.cv.type = 'loso';
 elseif val==2
@@ -438,8 +438,8 @@ val=get(handles.pop_datop,'Value');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_datop,'Value',1)
+    val=1;
 end
-val=get(handles.pop_datop,'Value');
 listop=get(handles.pop_datop,'String');
 % specify operations to apply to the data prior to prediction
 if val==length(listop)

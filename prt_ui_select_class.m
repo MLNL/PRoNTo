@@ -303,7 +303,8 @@ function pop_class_Callback(hObject, eventdata, handles)
 vc=get(handles.pop_class,'Value');
 if vc==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_classes,'Value',1)
+    set(handles.pop_class,'Value',1)
+    vc=1;
 end
 cg=get(handles.group_list,'Value');
 list=handles.condm{1,3}{cg};
