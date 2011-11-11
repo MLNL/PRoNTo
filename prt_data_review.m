@@ -446,9 +446,9 @@ else
     xl=max(x)+ncond-1;
 end
 scmax=max(max(meantp(:)),max(meantpdisc(:)));
-bar(x,meantp,0.9);
+bar(handles.axes2,x,meantp,0.9);
 hold on
-errorbar(y,meantp,stdtp,'.k')
+errorbar(handles.axes2,y,meantp,stdtp,'.k')
 ylim([0 1.1*scmax])
 xlim([1 xl])
 ylabel('Number of selected scans')
@@ -456,9 +456,9 @@ set(handles.axes2,'XTickLabel',handles.gname)
 
 set(handles.figure1,'CurrentAxes',handles.axes3)
 cla
-bar(x,meantpdisc,0.9);
+bar(handles.axes3,x,meantpdisc,0.9);
 hold on
-errorbar(y,meantpdisc,stdtpdisc,'.k')
+errorbar(handles.axes3,y,meantpdisc,stdtpdisc,'.k')
 ylim([0 1.1*scmax])
 xlim([1 xl])
 ylabel('Number of discarded scans')

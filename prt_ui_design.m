@@ -1182,16 +1182,16 @@ if ~(handles.saved)
     PRT.masks=handles.dat.masks;
 else
     fname=[get(handles.edit1,'String'),filesep,'PRT.mat'];
-    try
-        load(fname)
-    catch
+    PRT=prt_load(fname);
+    if isempty(PRT)
         beep
         disp('Could not load the saved PRT.mat')
         return
     end
 end
 prt_data_review('UserData',{PRT,handles.dat.dir});
-load(fname);
+fname=[get(handles.edit1,'String'),filesep,'PRT.mat'];
+PRT=prt_load(fname);
 handles.dat.group=PRT.group;
 handles.dat.masks=PRT.masks;
 % Update handles structure
