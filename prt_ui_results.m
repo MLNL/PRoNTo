@@ -856,7 +856,7 @@ function permutbutton_Callback(hObject, eventdata, handles)
 
 m    = get(handles.classmenu,'Value');
 if strcmp(handles.PRT.model(m).input.type,'classification');
-reps = get(handles.repedit,'Value');
+reps = str2num(get(handles.repedit,'String'));
 if  isnumeric(reps)
     if length(reps) ==1
         reps = round(reps);
