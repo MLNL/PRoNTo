@@ -22,7 +22,7 @@ function varargout = prt_ui_results(varargin)
 
 % Edit the above text to modify the response to help prt_ui_results
 
-% Last Modified by GUIDE v2.5 02-Nov-2011 16:22:23
+% Last Modified by GUIDE v2.5 11-Nov-2011 11:21:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,6 +61,8 @@ set(handles.figure1,'Color',[0.86,0.86,0.86]);
 if ~isfield(handles,'notinit')
     % Load PRT.mat
     PRT   = spm_select(1,'mat','Select PRT.mat');
+    pathdir = regexprep(PRT,'PRT.mat', '');
+    handles.pathdir = pathdir;
     load(PRT);
     handles.PRT = PRT;
     % Flag to load new weights
@@ -608,25 +610,27 @@ if strcmp(PRT.model(m).input.type,'classification')
         mcacc = PRT.model(m).output.fold(fold-1).stats.c_acc;
     end
     % Show stats
-    % -------------------------------------------------------------------------
-    set(handles.accuracytext,'String','Accuracy:');
-    set(handles.baccuracytext,'String','Balanced accuracy:');
-    set(handles.classaccuracytext,'String','Class accuracy:');
+    % ---------------------------------------------------------------------
+    set(handles.accuracytext,'String','Accuracy:','Visible','on');
+    set(handles.baccuracytext,'String','Balanced accuracy:','Visible','on');
+    set(handles.classaccuracytext,'String','Class accuracy:','Visible','on');
     
     if ~strcmp(PRT.model(m).input.cv_type,'lobo')
         set(handles.acctext,'String',sprintf('%3.1f %% (%3.1f %%, %3.1f%%)',...
-            macc*100,macc_lb*100,macc_ub*100));
+            macc*100,macc_lb*100,macc_ub*100),'Visible','on');
     else
         set(handles.acctext,'String',sprintf('%3.1f %% (Not IID)',...
-            macc*100));
+            macc*100),'Visible','on');
     end
-    set(handles.bacctext,'String',sprintf('%3.1f %%',mbacc*100));
+    set(handles.bacctext,'String',sprintf('%3.1f %%',mbacc*100),'Visible','on');
     set(handles.cacctext,'String',sprintf('[%3.1f %3.1f] %%',...
-        mcacc(1)*100,mcacc(2)*100));
+        mcacc(1)*100,mcacc(2)*100),'Visible','on');
     set(handles.corrtext,'Visible','off');
     set(handles.msetext,'Visible','off');
     set(handles.corrvaltext,'Visible','off');
     set(handles.msevaltext,'Visible','off');
+    set(handles.pbacc,'Visible','off');
+    set(handles.pcacc,'Visible','off');
 else
     if fold == 1
         corr  = PRT.model(m).output.stats.corr;  % overall correlation
@@ -635,16 +639,18 @@ else
         corr  = PRT.model(m).output.fold(fold-1).stats.corr;  % overall correlation
         mse   = PRT.model(m).output.fold(fold-1).stats.mse;  % overall mse
     end
-    set(handles.corrtext,'String','Correlation:');
-    set(handles.msetext,'String','MSE:');
-    set(handles.corrvaltext,'String',sprintf('%3.1f',corr));
-    set(handles.msevaltext,'String',sprintf('%3.1f',mse));
+    set(handles.corrtext,'String','Correlation:','Visible','on');
+    set(handles.msetext,'String','MSE:','Visible','on');
+    set(handles.corrvaltext,'String',sprintf('%3.1f',corr),'Visible','on');
+    set(handles.msevaltext,'String',sprintf('%3.1f',mse),'Visible','on');
     set(handles.accuracytext,'Visible','off');
     set(handles.baccuracytext,'Visible','off');
     set(handles.classaccuracytext,'Visible','off');
     set(handles.acctext,'Visible','off');
     set(handles.bacctext,'Visible','off');
     set(handles.cacctext,'Visible','off');
+    set(handles.pbacc,'Visible','off');
+    set(handles.pcacc,'Visible','off');
 end
 
 
@@ -842,5 +848,50 @@ function permutbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-beep;
-disp('Permutation test not supported yet!')
+m    = get(handles.classmenu,'Value');
+if strcmp(handles.PRT.model(m).input.type,'classification');
+reps = get(handles.repedit,'Value');
+if  isnumeric(reps)
+    if length(reps) ==1
+        reps = round(reps);
+        prt_permutation(handles.PRT, reps, m, handles.pathdir);
+    else
+        beep;
+        disp('Please enter only one value for the number of repetitions!');
+    end
+else
+    beep;
+    disp('Repetitions should be a number!');
+end
+% Load new PRT.mat
+PRTmat = fullfile(handles.pathdir,'PRT.mat');
+load(PRTmat);
+perm = PRT.model(m).output.stats.permutation;
+set(handles.pbacc,'String',sprintf('(%3.1f)',perm.pvalue_b_acc), 'Visible','on');
+set(handles.pcacc,'String',sprintf('(%3.1f, %3.1f)',perm.pvalue_c_acc(1),...
+    perm.pvalue_c_acc(2)),'Visible','on');
+else
+    disp('Permutation test for regression not supported yet!')
+end
+
+
+function repedit_Callback(hObject, eventdata, handles)
+% hObject    handle to repedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of repedit as text
+%        str2double(get(hObject,'String')) returns contents of repedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function repedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to repedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
