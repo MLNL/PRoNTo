@@ -88,10 +88,10 @@ handles.prtdir=fileparts(handles.fname);
 if exist('PRT','var')
     clear PRT
 end
-try
-    load(handles.fname)
+PRT=prt_load(handles.fname);
+if ~isempty(PRT)
     handles.dat=PRT;
-catch
+else
     beep
     disp('Could not load file')
     return
@@ -148,10 +148,10 @@ handles.prtdir=fileparts(handles.fname);
 if exist('PRT','var')
     clear PRT
 end
-try
-    load(handles.fname)
+PRT=prt_load(handles.fname);
+if ~isempty(PRT)
     handles.dat=PRT;
-catch
+else
     beep
     disp('Could not load file')
     return

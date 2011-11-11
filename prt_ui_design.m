@@ -878,14 +878,13 @@ function load_butt_Callback(hObject, eventdata, handles)
 
 %get and laod PRT.mat
 prtname=spm_select(1,'mat','Select PRT.mat');
-try
-    load(prtname);
-    handles.dat=PRT;
-catch
+PRT=prt_load(prtname);
+if isempty(PRT)
     beep
     disp('Could not load file')
     return
 end
+handles.dat=PRT;
 
 %Get the different fields and create the handles.ds cell array as well as
 %complete the fields which might be missing (previous versions) and

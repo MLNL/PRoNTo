@@ -19,7 +19,14 @@ job   = varargin{1};
 % Load PRT.mat
 % -------------------------------------------------------------------------
 fname  = char(job.infile);
-load(fname);
+PRT=prt_load(fname);
+if ~isempty(PRT)
+    handles.dat=PRT;
+else
+    beep
+    disp('Could not load file')
+    return
+end
 pathdir = regexprep(fname,'PRT.mat', '');
 
 % -------------------------------------------------------------------------

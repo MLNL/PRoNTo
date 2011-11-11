@@ -117,11 +117,11 @@ fname=spm_select(1,'.mat','Select PRT.mat',[],pwd,'PRT.mat');
 if exist('PRT','var')
     clear PRT
 end
-try
-    load(fname)
+PRT=prt_load(fname);
+if ~isempty(PRT)
     handles.dat=PRT;
     set(handles.edit_prt,'String',fname);
-catch
+else
     beep
     disp('Could not load file')
     return
@@ -155,11 +155,11 @@ fname=get(handles.edit_prt,'String');
 if exist('PRT','var')
     clear PRT
 end
-try
-    load(fname)
+PRT=prt_load(fname);
+if ~isempty(PRT)
     handles.dat=PRT;
     set(handles.edit_prt,'String',fname);
-catch
+else
     beep
     disp('Could not load file')
     return

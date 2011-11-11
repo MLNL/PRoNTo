@@ -50,7 +50,14 @@ fname = char(job.infile);
 if exist('PRT','var')
     clear PRT
 end
-load(fname);
+PRT=prt_load(fname);
+if ~isempty(PRT)
+    handles.dat=PRT;
+else
+    beep
+    disp('Could not load file')
+    return
+end
 
 % assemble basic fields
 model.fname      = fname;
