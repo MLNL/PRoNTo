@@ -68,6 +68,12 @@ if ~isfield(handles,'notinit')
     % Flag to load new weights
     handles.noloadw = 0;
     % Load models
+    if ~isfield(PRT,'model')
+        beep
+        disp('No model found in this PRT')
+        delete(handles.figure1)
+        return
+    end
     nmodels = length(PRT.model);
     for m = 1:nmodels
         model_name{m} = PRT.model(m).model_name;
