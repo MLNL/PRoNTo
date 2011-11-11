@@ -115,19 +115,23 @@ if ~isfield(handles,'notinit')
     set(handles.weightspanel,'Unit','point','FontSize',11);
     set(handles.anatomicalpanel,'Unit','point','FontSize',11);
     set(handles.permutbutton,'Unit','point','FontSize',11);
-    set(handles.accuracytext,'Unit','point','FontSize',11);
-    set(handles.acctext,'Unit','point','FontSize',11);
-    set(handles.baccuracytext,'Unit','point','FontSize',11);
-    set(handles.bacctext,'Unit','point','FontSize',11);
-    set(handles.classaccuracytext,'Unit','point','FontSize',11);
-    set(handles.cacctext,'Unit','point','FontSize',11);
+    set(handles.accuracytext,'Unit','point','FontSize',11,'Visible','off');
+    set(handles.acctext,'Unit','point','FontSize',11,'Visible','off');
+    set(handles.baccuracytext,'Unit','point','FontSize',11,'Visible','off');
+    set(handles.bacctext,'Unit','point','FontSize',11,'Visible','off');
+    set(handles.classaccuracytext,'Unit','point','FontSize',11,'Visible','off');
+    set(handles.cacctext,'Unit','point','FontSize',11,'Visible','off');
     set(handles.savebutton,'Unit','point','FontSize',11);
     set(handles.helpbutton,'Unit','point','FontSize',11);
     set(handles.quitbutton,'Unit','point','FontSize',11);
-    set(handles.corrtext,'Unit','point','FontSize',11);
-    set(handles.msetext,'Unit','point','FontSize',11);
-    set(handles.corrvaltext,'Unit','point','FontSize',11);
-    set(handles.msevaltext,'Unit','point','FontSize',11);
+    set(handles.corrtext,'Unit','point','FontSize',11,'Visible','off');
+    set(handles.msetext,'Unit','point','FontSize',11,'Visible','off');
+    set(handles.corrvaltext,'Unit','point','FontSize',11,'Visible','off');
+    set(handles.msevaltext,'Unit','point','FontSize',11,'Visible','off');
+    set(handles.pbacc,'Visible','off','FontSize',11);
+    set(handles.pcacc,'Visible','off','FontSize',11);
+    set(handles.pcorr, 'Visible','off','FontSize',11);
+    set(handles.pmse,'Visible','off','FontSize',11);
     % Clear axes
     cla(handles.axes5);     
 end
@@ -635,8 +639,6 @@ if strcmp(PRT.model(m).input.type,'classification')
     set(handles.msetext,'Visible','off');
     set(handles.corrvaltext,'Visible','off');
     set(handles.msevaltext,'Visible','off');
-    set(handles.pbacc,'Visible','off');
-    set(handles.pcacc,'Visible','off');
 else
     if fold == 1
         corr  = PRT.model(m).output.stats.corr;  % overall correlation
@@ -655,9 +657,11 @@ else
     set(handles.acctext,'Visible','off');
     set(handles.bacctext,'Visible','off');
     set(handles.cacctext,'Visible','off');
-    set(handles.pbacc,'Visible','off');
-    set(handles.pcacc,'Visible','off');
 end
+set(handles.pbacc,'Visible','off');
+set(handles.pcacc,'Visible','off');
+set(handles.pcorr, 'Visible','off');
+set(handles.pmse,'Visible','off');
 
 
 % Change weight map
@@ -854,32 +858,34 @@ function permutbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-m    = get(handles.classmenu,'Value');
-if strcmp(handles.PRT.model(m).input.type,'classification');
-reps = str2num(get(handles.repedit,'String'));
-if  isnumeric(reps)
-    if length(reps) ==1
-        reps = round(reps);
-        prt_permutation(handles.PRT, reps, m, handles.pathdir);
+if strcmp(get(handles.accuracytext,'Visible'),'on') || strcmp(get(handles.corrtext,'Visible'),'on')
+    m    = get(handles.classmenu,'Value');
+    reps = str2num(get(handles.repedit,'String'));
+    if  ~isempty(reps)
+        if length(reps) ==1
+            reps = round(reps);
+            prt_permutation(handles.PRT, reps, m, handles.pathdir);
+            % Load new PRT.mat
+            PRTmat = fullfile(handles.pathdir,'PRT.mat');
+            load(PRTmat);
+            perm = PRT.model(m).output.stats.permutation;
+            if strcmp(handles.PRT.model(m).input.type,'classification');
+                set(handles.pbacc,'String',sprintf('(%3.1f)',perm.pvalue_b_acc), 'Visible','on');
+                set(handles.pcacc,'String',sprintf('(%3.1f, %3.1f)',perm.pvalue_c_acc(1),...
+                    perm.pvalue_c_acc(2)),'Visible','on');
+            else
+                set(handles.pcorr,'String',sprintf('(%3.1f)',perm.pval_corr), 'Visible','on');
+                set(handles.pmse,'String',sprintf('(%3.1f, %3.1f)',perm.pval_mse),'Visible','on');
+            end
+        else
+            beep;
+            disp('Please enter only one value for the number of repetitions!');
+        end
     else
         beep;
-        disp('Please enter only one value for the number of repetitions!');
+        disp('Repetitions should be a number!');
     end
-else
-    beep;
-    disp('Repetitions should be a number!');
 end
-% Load new PRT.mat
-PRTmat = fullfile(handles.pathdir,'PRT.mat');
-load(PRTmat);
-perm = PRT.model(m).output.stats.permutation;
-set(handles.pbacc,'String',sprintf('(%3.1f)',perm.pvalue_b_acc), 'Visible','on');
-set(handles.pcacc,'String',sprintf('(%3.1f, %3.1f)',perm.pvalue_c_acc(1),...
-    perm.pvalue_c_acc(2)),'Visible','on');
-else
-    disp('Permutation test for regression not supported yet!')
-end
-
 
 function repedit_Callback(hObject, eventdata, handles)
 % hObject    handle to repedit (see GCBO)
