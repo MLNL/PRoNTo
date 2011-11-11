@@ -80,7 +80,7 @@ set(handles.pop_reg,'String',{'Classification','Regression'})
 set(handles.pop_reg,'Value',1)
 handles.type='classification';
 set(handles.pop_machine,'String',{'Binary support vector machine',...
-    'Gaussian Process Classification'})
+    'Gaussian Process Classification','Random Forest'})
 set(handles.pop_machine,'Value',1)
 handles.machine.function='prt_machine_svm_bin';
 handles.machine.args=handles.def.svmargs;
@@ -285,7 +285,7 @@ if val==1 %Classification
     handles.type='classification';
     %set the list of machines
     set(handles.pop_machine,'String',{'Binary support vector machine',...
-        'Gaussian Process Classification'})
+        'Gaussian Process Classification','Random Forest'})
     set(handles.pop_machine,'Value',1)
     handles.machine.function='prt_machine_svm_bin';
     handles.machine.args=handles.def.svmargs;
@@ -295,7 +295,7 @@ elseif val==2
     set(handles.butt_defclass,'String','Select subjects/scans')
     %set the list of machines
     set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
-        'Relevance Vector Regression','Random Forest'})
+        'Relevance Vector Regression'})
     set(handles.pop_machine,'Value',1)
     handles.machine.function='prt_machine_krr';
     handles.machine.args=handles.def.krrargs;
