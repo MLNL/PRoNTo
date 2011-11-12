@@ -1,24 +1,32 @@
 function varargout = prt_ui_select_class(varargin)
 % PRT_UI_SELECT_CLASS M-file for prt_ui_select_class.fig
-%      PRT_UI_SELECT_CLASS, by itself, creates a new PRT_UI_SELECT_CLASS or raises the existing
-%      singleton*.
+% 
+% PRT_UI_SELECT_CLASS, by itself, creates a new PRT_UI_SELECT_CLASS or 
+% raises the existing singleton*.
 %
-%      H = PRT_UI_SELECT_CLASS returns the handle to a new PRT_UI_SELECT_CLASS or the handle to
-%      the existing singleton*.
+% H = PRT_UI_SELECT_CLASS returns the handle to a new PRT_UI_SELECT_CLASS 
+% or the handle to the existing singleton*.
 %
-%      PRT_UI_SELECT_CLASS('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_UI_SELECT_CLASS.M with the given input arguments.
+% PRT_UI_SELECT_CLASS('CALLBACK',hObject,eventData,handles,...) calls the 
+% local function named CALLBACK in PRT_UI_SELECT_CLASS.M with the given 
+% input arguments.
 %
-%      PRT_UI_SELECT_CLASS('Property','Value',...) creates a new PRT_UI_SELECT_CLASS or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_ui_select_class_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_ui_select_class_OpeningFcn via varargin.
+% PRT_UI_SELECT_CLASS('Property','Value',...) creates a new PRT_UI_SELECT_CLASS
+% or raises the existing singleton*.  Starting from the left, property 
+% value pairs are applied to the GUI before prt_ui_select_class_OpeningFcn 
+% gets called.  An unrecognized property name or invalid value makes 
+% property application stop.  All inputs are passed to prt_ui_select_class_OpeningFcn
+% via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%  instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
+%__________________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
+% Written by J. Schrouff
+% $Id:$
 
 % Edit the above text to modify the response to help prt_ui_select_class
 

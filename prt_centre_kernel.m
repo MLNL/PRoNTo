@@ -7,6 +7,7 @@ function [C,C_s,C_ss] = prt_centre_kernel(K,K_s,K_ss)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by D. Hardoon, A. Marquand and J. Mourao-Miranda
+% Id:$
 
 if iscell(K), K = K{:}; end
 if iscell(K_s), K_s = K_s{:}; end

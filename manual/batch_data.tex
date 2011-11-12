@@ -88,10 +88,6 @@ Specify a vector of onset times for this condition type.
 Specify the event durations. Epoch and event-related responses are modeled in exactly the same way but by specifying their different durations.  Events are specified with a duration of 0.  If you enter a single number for the durations it will be assumed that all trials conform to this duration. If you have multiple different durations, then the number must match the number of onset times.
 
 
-\textit{Regression targets (trials)}
-Enter one regression target per trial.
-
-
 \textit{Multiple conditions}
 Select the *.mat file containing details of your multiple experimental conditions. 
 
@@ -151,7 +147,7 @@ The parametric modulator should be mean corrected if appropriate. Unused structu
 
 
 \textit{Covariates}
-Select a matrix/vector containing details of your covariates (i.e. any other data/information you would like to include in your design). If you enter a vector instead of a matrix, the entries of the vector will be repeated to create a matrix with the dimensions: number of scans x number of covariates (or vector entries.
+Select a .mat file containing your covariates (i.e. any other data/information you would like to include in your design). This file should contain a variable 'R' with the covariates.
 
 
 \textsl{No design}
@@ -170,16 +166,16 @@ Specify modality, such as name and data.
 Name of modality. Example: 'BOLD'.
 
 
-\textbf{Interscan interval}
-Specify interscan interval (TR). The units should be seconds.
-
-
-\textbf{Subjects}
+\textbf{Files}
 Select scans (images) for this modality. They must all have the same image dimensions, orientation, voxel size etc.
 
 
-\subsubsection{Regression targets (subjects)}
-Enter one regression target per subject. Enter matrix to specify targets for different modalities, [nsub x nmod]. The number of columns is the number of modalities. The number of rows is the number of subjects.
+\textbf{Regression targets (per scans)}
+Enter one regression target per scans. or enter the name of a variable  This variable should be a vector [Nscans x 1], where Nsubjs is the number of subjects.
+
+
+\textbf{Covariates}
+Select a .mat file containing your covariates (i.e. any other data/information you would like to include in your design). This file should contain a variable 'R' with the covariates.
 
 
 \section{Masks}
@@ -196,6 +192,14 @@ Name of modality. Example: 'BOLD'.
 
 \subsubsection{File}
 Select one mask for each modality.
+
+
+\section{HRF overlap}
+If using fMRI data please specify the width of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities.
+
+
+\section{HRF delay}
+If using fMRI data please specify the delay of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities.
 
 
 \section{Review}

@@ -1,14 +1,17 @@
-function PRT=prt_load(fname)
+function PRT = prt_load(fname)
 
-%function to load the PRT.mat and check its integrity regarding the kernels
-%and feature sets that it is supposed to contain. Updates the feature set
-%name if needed.
+% Function to load the PRT.mat and check its integrity regarding the 
+% kernels and feature sets that it is supposed to contain. Updates the  set
+% feature name if needed.
 %
-% input  : name of the PRT.mat, path comprised
+% input  : name of the PRT.mat, path included
 %
 % output : PRT structure updated
-%--------------------------------------------------------------------------
-%Written by J. Schrouff, 11/11/2011
+%_______________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
+% Written by J. Schrouff
+% $Id: $
 
 try
     load(fname)

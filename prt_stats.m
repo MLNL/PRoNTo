@@ -7,8 +7,9 @@ function stats = prt_stats(model, t,flag)
 % model.type:        what type of prediction machine (e.g. 'classifier','regression')
 %
 % t: true targets
-%flag:  'fold' for statistics in each fold
+% flag:  'fold' for statistics in each fold
 %         'model' for statistics in each model
+% 
 % Outputs:
 %-------------------
 % Classification:
@@ -18,9 +19,9 @@ function stats = prt_stats(model, t,flag)
 % stats.c_acc:   Accuracy by class (nClasses x 1 vector)
 % stats.c_pv:    Predictive value for each class (nClasses x 1 vector)
 %
-%Regression:
-%stats.mse:     Mean square error between test and prediction
-%stats.corr:     Correlation between test and prediction
+% Regression:
+% stats.mse:     Mean square error between test and prediction
+% stats.corr:     Correlation between test and prediction
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 

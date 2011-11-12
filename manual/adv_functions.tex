@@ -1,4 +1,4 @@
-\chapter{List of PRoNTo functions  \label{Chap:ch_functions}}
+\chapter{List of PRoNTo functions  \label{Chap:sec:functions}}
 \minitoc
 
 \vskip 1.5cm
@@ -51,20 +51,31 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
+\section{prt\_centre\_kernel.m}
+\begin{alltt}
+
+ FORMAT [C,C\_s,C\_ss] = Centre\_kernel(K,K\_s,K\_ss)
+ 
+ This function centres the kernel matrix using only the training data
+\end{alltt}
+
+
 \section{prt\_check\_design.m}
 \begin{alltt}
 
- FORMAT [conds] = prt\_check\_design(cond,tr,units)
+ FORMAT [conds] = prt\_check\_design(cond,tr,units,hrfoverlap)
  
  Check the design and discards scans which are either overlapping between
  conditions or which do not respect a minimum time interval between
  conditions (due to the width of the HRF function).
  
  INPUT
-   - cond  : structure containing the names, durations and onsets of the
-             conditions
-   - tr    : interscan interval (TR)
-   - units : 1 for seconds, 0 for scans
+   - cond  :   structure containing the names, durations and onsets of the
+               conditions
+   - tr    :   interscan interval (TR)
+   - units :   1 for seconds, 0 for scans
+   - hrfoverlap : value to correct for BOLD overlap (in seconds)
+   - hrfdelay   : value to correct for BOLD delay (in seconds)
  
  OUTPUT
  the same cond structure containing supplementary fields:
@@ -78,6 +89,15 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
    - stats:             struct containing the original time intervals, the
                         time interval with only the 'good' scans, their
                         means and standard deviation
+\end{alltt}
+
+
+\section{prt\_compute\_weights.m}
+\begin{alltt}
+
+ FORMAT prt\_compute\_weights(PRT,in)
+ 
+ This function calls prt\_weights to compute weights 
 \end{alltt}
 
 
@@ -147,23 +167,26 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \begin{alltt}
 
  PRT\_DATA\_CONDITIONS M-file for prt\_data\_conditions.fig
-      PRT\_DATA\_CONDITIONS, by itself, creates a new PRT\_DATA\_CONDITIONS or raises the existing
-      singleton*.
  
-      H = PRT\_DATA\_CONDITIONS returns the handle to a new PRT\_DATA\_CONDITIONS or the handle to
-      the existing singleton*.
+ PRT\_DATA\_CONDITIONS, by itself, creates a new PRT\_DATA\_CONDITIONS or 
+ raises the existing singleton*.
  
-      PRT\_DATA\_CONDITIONS('CALLBACK',hObject,eventData,handles,...) calls the local
-      function named CALLBACK in PRT\_DATA\_CONDITIONS.M with the given input arguments.
+ H = PRT\_DATA\_CONDITIONS returns the handle to a new PRT\_DATA\_CONDITIONS 
+ or the handle to the existing singleton*.
  
-      PRT\_DATA\_CONDITIONS('Property','Value',...) creates a new PRT\_DATA\_CONDITIONS or raises the
-      existing singleton*.  Starting from the left, property value pairs are
-      applied to the GUI before prt\_data\_conditions\_OpeningFcn gets called.  An
-      unrecognized property name or invalid value makes property application
-      stop.  All inputs are passed to prt\_data\_conditions\_OpeningFcn via varargin.
+ PRT\_DATA\_CONDITIONS('CALLBACK',hObject,eventData,handles,...) calls the 
+ local function named CALLBACK in PRT\_DATA\_CONDITIONS.M with the given 
+ input arguments.
  
-      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-      instance to run (singleton)".
+ PRT\_DATA\_CONDITIONS('Property','Value',...) creates a new 
+ PRT\_DATA\_CONDITIONS or raises the existing singleton*.  Starting from the
+ left, property value pairs are applied to the GUI before 
+ prt\_data\_conditions\_OpeningFcn gets called.  An unrecognized property name
+ or invalid value makes property application stop.  All inputs are passed 
+ to prt\_data\_conditions\_OpeningFcn via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+  instance to run (singleton)".
  
  See also: GUIDE, GUIDATA, GUIHANDLES
 \end{alltt}
@@ -173,23 +196,24 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \begin{alltt}
 
  PRT\_DATA\_MODALITY M-file for prt\_data\_modality.fig
-      PRT\_DATA\_MODALITY, by itself, creates a new PRT\_DATA\_MODALITY or raises the existing
-      singleton*.
  
-      H = PRT\_DATA\_MODALITY returns the handle to a new PRT\_DATA\_MODALITY or the handle to
-      the existing singleton*.
+ PRT\_DATA\_MODALITY, by itself, creates a new PRT\_DATA\_MODALITY or raises 
+ the existing singleton*.
  
-      PRT\_DATA\_MODALITY('CALLBACK',hObject,eventData,handles,...) calls the local
-      function named CALLBACK in PRT\_DATA\_MODALITY.M with the given input arguments.
+ H = PRT\_DATA\_MODALITY returns the handle to a new PRT\_DATA\_MODALITY or 
+ the handle to the existing singleton*.
  
-      PRT\_DATA\_MODALITY('Property','Value',...) creates a new PRT\_DATA\_MODALITY or raises the
-      existing singleton*.  Starting from the left, property value pairs are
-      applied to the GUI before prt\_data\_modality\_OpeningFcn gets called.  An
-      unrecognized property name or invalid value makes property application
-      stop.  All inputs are passed to prt\_data\_modality\_OpeningFcn via varargin.
+ PRT\_DATA\_MODALITY('CALLBACK',hObject,eventData,handles,...) calls the local
+ function named CALLBACK in PRT\_DATA\_MODALITY.M with the given input arguments.
  
-      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-      instance to run (singleton)".
+ PRT\_DATA\_MODALITY('Property','Value',...) creates a new PRT\_DATA\_MODALITY
+ or raises the existing singleton*.  Starting from the left, property value
+ pairs are applied to the GUI before prt\_data\_modality\_OpeningFcn gets called.  
+ An unrecognized property name or invalid value makes property application
+ stop.  All inputs are passed to prt\_data\_modality\_OpeningFcn via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+  instance to run (singleton)".
  
  See also: GUIDE, GUIDATA, GUIHANDLES
 \end{alltt}
@@ -199,23 +223,25 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \begin{alltt}
 
  PRT\_DATA\_REVIEW M-file for prt\_data\_review.fig
-      PRT\_DATA\_REVIEW, by itself, creates a new PRT\_DATA\_REVIEW or raises the existing
-      singleton*.
  
-      H = PRT\_DATA\_REVIEW returns the handle to a new PRT\_DATA\_REVIEW or the handle to
-      the existing singleton*.
+ PRT\_DATA\_REVIEW, by itself, creates a new PRT\_DATA\_REVIEW or raises the 
+ existing singleton*.
  
-      PRT\_DATA\_REVIEW('CALLBACK',hObject,eventData,handles,...) calls the local
-      function named CALLBACK in PRT\_DATA\_REVIEW.M with the given input arguments.
+ H = PRT\_DATA\_REVIEW returns the handle to a new PRT\_DATA\_REVIEW or the 
+ handle to the existing singleton*.
  
-      PRT\_DATA\_REVIEW('Property','Value',...) creates a new PRT\_DATA\_REVIEW or raises the
-      existing singleton*.  Starting from the left, property value pairs are
-      applied to the GUI before prt\_data\_review\_OpeningFcn gets called.  An
-      unrecognized property name or invalid value makes property application
-      stop.  All inputs are passed to prt\_data\_review\_OpeningFcn via varargin.
+ PRT\_DATA\_REVIEW('CALLBACK',hObject,eventData,handles,...) calls the local
+ function named CALLBACK in PRT\_DATA\_REVIEW.M with the given input arguments.
  
-      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-      instance to run (singleton)".
+ PRT\_DATA\_REVIEW('Property','Value',...) creates a new PRT\_DATA\_REVIEW or 
+ raises the existing singleton*.  Starting from the left, property value 
+ pairs are applied to the GUI before prt\_data\_review\_OpeningFcn gets 
+ called.  An unrecognized property name or invalid value makes property 
+ application stop.  All inputs are passed to prt\_data\_review\_OpeningFcn 
+ via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+  instance to run (singleton)".
  
  See also: GUIDE, GUIDATA, GUIHANDLES
 \end{alltt}
@@ -269,6 +295,22 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
+\section{prt\_func2html.m}
+\begin{alltt}
+
+ prt\_func2html
+ 
+ Script to generate the list of .m functions into html files which can be
+ browsed around with your favourite browser.
+ 
+ Note that this script relies on the M2HTML package which is *NOT*
+ distributed with PRoNTo!
+ 
+ For more information, please read the M2HTML tutorial and FAQ at:
+    $<$http://www.artefact.tk/software/matlab/m2html/$>$
+\end{alltt}
+
+
 \section{prt\_get\_defaults.m}
 \begin{alltt}
 
@@ -300,6 +342,8 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \section{prt\_get\_filename.m}
 \begin{alltt}
 
+ out = prt\_get\_filename(ids)
+ 
 \end{alltt}
 
 
@@ -309,13 +353,13 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  function to initialise the kernel data structure
  ------------------------------------------------
  
- FORMAT: Two modes are possible: 
+ FORMAT: Two modes are possible:
      fid = prt\_init\_fs(PRT, in)
      [fid, PRT, tocomp] = prt\_init\_fs(PRT, in)
  
- USAGE 1: 
+ USAGE 1:
  -------------------------------------------------------------------------
- function will return the id of a feature set or an error if it doesn't 
+ function will return the id of a feature set or an error if it doesn't
  exist in PRT.mat
  Input:
  ------
@@ -325,7 +369,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  -------
  fid : is the identifier for the feature set in PRT.mat
  
- USAGE 2: 
+ USAGE 2:
  -------------------------------------------------------------------------
  function will create the feature set in PRT.mat and overwrite it if it
  already exists.
@@ -425,6 +469,19 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
+\section{prt\_load.m}
+\begin{alltt}
+
+ Function to load the PRT.mat and check its integrity regarding the 
+ kernels and feature sets that it is supposed to contain. Updates the  set
+ feature name if needed.
+ 
+ input  : name of the PRT.mat, path included
+ 
+ output : PRT structure updated
+\end{alltt}
+
+
 \section{prt\_load\_blocks.m}
 \begin{alltt}
 
@@ -437,7 +494,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  img = prt\_load\_blocks(filenames, block\_size, block\_range) just to specify
  continuous blocks of data
  
-or
+ or
  
  img = prt\_load\_blocks(filenames, voxel\_index) to access non continuous
  blocks
@@ -497,6 +554,34 @@ or
 \end{alltt}
 
 
+\section{prt\_permutation.m}
+\begin{alltt}
+
+ Function to compute permutation test
+ 
+ Inputs:
+ -------
+ PRT: PRT structured including model
+ n\_permu: number of permutations
+ modelid: model ID
+ 
+ Outputs:
+ --------
+ 
+ for classification
+ permutation.c\_acc: Permuted accuracy per class
+ permutation.b\_acc: Permuted balanced accuracy
+ permutation.pvalue\_b\_acc: p-value for c\_acc
+ permutation.pvalue\_c\_acc: p-value for b\_acc
+ 
+ for regression
+ permutation.corr: Permuted correlation
+ permutation.mse: Permuted mean square error
+ permutation.corr: p-value for corr
+ permutation.mse: p-value for mse
+\end{alltt}
+
+
 \section{prt\_preproc.m}
 \begin{alltt}
 
@@ -516,6 +601,9 @@ or
 \section{prt\_remove\_confounds.m}
 \begin{alltt}
 
+ [Kr, R] = prt\_remove\_confounds(K,C)
+ 
+ Function to remove confounds from kernel.
 \end{alltt}
 
 
@@ -527,17 +615,37 @@ or
  Inputs:
  ----------------
  model.predictions: predictions derived from the predictive model
- model.type:        what type of prediction machine (e.g. 'classifier','regression') 
+ model.type:        what type of prediction machine (e.g. 'classifier','regression')
  
  t: true targets
+ flag:  'fold' for statistics in each fold
+         'model' for statistics in each model
  
  Outputs:
- ----------------
+-------------------
+ Classification:
  stats.con\_mat: Confusion matrix (nClasses x nClasses matrix, pred x true)
  stats.acc:     Accuracy (scalar)
  stats.b\_acc:   Balanced accuracy (nClasses x 1 vector)
  stats.c\_acc:   Accuracy by class (nClasses x 1 vector)
  stats.c\_pv:    Predictive value for each class (nClasses x 1 vector)
+ 
+ Regression:
+ stats.mse:     Mean square error between test and prediction
+ stats.corr:     Correlation between test and prediction
+\end{alltt}
+
+
+\section{prt\_struct2latex.m}
+\begin{alltt}
+
+ Function that takes in a structure S and writes down the latex code
+ describing the whole structure and substructures recursively.
+ The routine specifically generates the 'adv\_PRTstruct.tex' file that is
+ included, in the prt\_manual.
+ 
+ Bits of the code and copied/inspired by spm\_latex.m from the SPM8 
+ distribution: http://www.fil.ion.ucl.ac.uk/spm
 \end{alltt}
 
 
@@ -568,30 +676,59 @@ or
 \end{alltt}
 
 
-\section{prt\_ui\_cv.m}
+\section{prt\_ui\_compute\_weights.m}
 \begin{alltt}
 
- PRT\_UI\_KERNEL\_CONSTRUCTION M-file for prt\_ui\_kernel\_construction.fig
+ PRT\_UI\_COMPUTE\_WEIGHTS M-file for prt\_ui\_compute\_weights.fig
  
- PRT\_UI\_KERNEL\_CONSTRUCTION, by itself, creates a new 
- PRT\_UI\_KERNEL\_CONSTRUCTION or raises the existing singleton*.
+ PRT\_UI\_COMPUTE\_WEIGHTS, by itself, creates a new PRT\_UI\_COMPUTE\_WEIGHTS 
+ or raises the existing singleton*.
  
- H = PRT\_UI\_KERNEL\_CONSTRUCTION returns the handle to a new 
- PRT\_UI\_KERNEL\_CONSTRUCTION or the handle to the existing singleton*.
+ H = PRT\_UI\_COMPUTE\_WEIGHTS returns the handle to a new PRT\_UI\_COMPUTE\_WEIGHTS
+ or the handle to the existing singleton*.
  
- PRT\_UI\_KERNEL\_CONSTRUCTION('CALLBACK',hObject,eventData,handles,...)
- calls the local function named CALLBACK in PRT\_UI\_KERNEL\_CONSTRUCTION.M 
- with the given input arguments.
+ PRT\_UI\_COMPUTE\_WEIGHTS('CALLBACK',hObject,eventData,handles,...) calls 
+ the local function named CALLBACK in PRT\_UI\_COMPUTE\_WEIGHTS.M with the 
+ given input arguments.
  
- PRT\_UI\_KERNEL\_CONSTRUCTION('Property','Value',...) creates a new 
- PRT\_UI\_KERNEL\_CONSTRUCTION or raises the existing singleton*.  Starting 
- from the left, property value pairs are applied to the GUI before 
- prt\_ui\_kernel\_construction\_OpeningFcn gets called.  An unrecognized 
- property name or invalid value makes property application stop.  All 
- inputs are passed to prt\_ui\_kernel\_construction\_OpeningFcn via varargin.
+ PRT\_UI\_COMPUTE\_WEIGHTS('Property','Value',...) creates a new PRT\_UI\_COMPUTE\_WEIGHTS
+ or raises the existing singleton*.  Starting from the left, property 
+ value pairs are applied to the GUI before prt\_ui\_compute\_weights\_OpeningFcn
+ gets called.  An unrecognized property name or invalid value makes 
+ property application stop.  All inputs are passed to prt\_ui\_compute\_weights\_OpeningFcn
+ via varargin.
  
  *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
- instance to run (singleton)".
+  instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
+\end{alltt}
+
+
+\section{prt\_ui\_cv\_model.m}
+\begin{alltt}
+
+ PRT\_UI\_CV\_MODEL M-file for prt\_ui\_cv\_model.fig
+ 
+ PRT\_UI\_CV\_MODEL, by itself, creates a new PRT\_UI\_CV\_MODEL or raises the 
+ existing singleton*.
+ 
+ H = PRT\_UI\_CV\_MODEL returns the handle to a new PRT\_UI\_CV\_MODEL or the 
+ handle to the existing singleton*.
+ 
+ PRT\_UI\_CV\_MODEL('CALLBACK',hObject,eventData,handles,...) calls the local
+ function named CALLBACK in PRT\_UI\_CV\_MODEL.M with the given input 
+ arguments.
+ 
+ PRT\_UI\_CV\_MODEL('Property','Value',...) creates a new PRT\_UI\_CV\_MODEL or 
+ raises the existing singleton*.  Starting from the left, property value 
+ pairs are applied to the GUI before prt\_ui\_cv\_model\_OpeningFcn gets 
+ called. An unrecognized property name or invalid value makes property 
+ application stop.  All inputs are passed to prt\_ui\_cv\_model\_OpeningFcn 
+ via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+  instance to run (singleton)".
  
  See also: GUIDE, GUIDATA, GUIHANDLES
 \end{alltt}
@@ -678,6 +815,35 @@ or
 \end{alltt}
 
 
+\section{prt\_ui\_model.m}
+\begin{alltt}
+
+ PRT\_UI\_KERNEL\_CONSTRUCTION M-file for prt\_ui\_kernel\_construction.fig
+ 
+ PRT\_UI\_KERNEL\_CONSTRUCTION, by itself, creates a new 
+ PRT\_UI\_KERNEL\_CONSTRUCTION or raises the existing singleton*.
+ 
+ H = PRT\_UI\_KERNEL\_CONSTRUCTION returns the handle to a new 
+ PRT\_UI\_KERNEL\_CONSTRUCTION or the handle to the existing singleton*.
+ 
+ PRT\_UI\_KERNEL\_CONSTRUCTION('CALLBACK',hObject,eventData,handles,...)
+ calls the local function named CALLBACK in PRT\_UI\_KERNEL\_CONSTRUCTION.M 
+ with the given input arguments.
+ 
+ PRT\_UI\_KERNEL\_CONSTRUCTION('Property','Value',...) creates a new 
+ PRT\_UI\_KERNEL\_CONSTRUCTION or raises the existing singleton*.  Starting 
+ from the left, property value pairs are applied to the GUI before 
+ prt\_ui\_kernel\_construction\_OpeningFcn gets called.  An unrecognized 
+ property name or invalid value makes property application stop.  All 
+ inputs are passed to prt\_ui\_kernel\_construction\_OpeningFcn via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+ instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
+\end{alltt}
+
+
 \section{prt\_ui\_prepare\_data.m}
 \begin{alltt}
 
@@ -708,10 +874,184 @@ or
 \section{prt\_ui\_prepare\_datamod.m}
 \begin{alltt}
 
+ PRT\_UI\_KERNEL\_MODALITY M-file for prt\_ui\_kernel\_modality.fig
+ 
+ PRT\_UI\_KERNEL\_MODALITY, by itself, creates a new PRT\_UI\_KERNEL\_MODALITY 
+ or raises the existing singleton*.
+ 
+ H = PRT\_UI\_KERNEL\_MODALITY returns the handle to a new 
+ PRT\_UI\_KERNEL\_MODALITY or the handle to the existing singleton*.
+ 
+ PRT\_UI\_KERNEL\_MODALITY('CALLBACK',hObject,eventData,handles,...) calls 
+ the local function named CALLBACK in PRT\_UI\_KERNEL\_MODALITY.M with the 
+ given input arguments.
+ 
+ PRT\_UI\_KERNEL\_MODALITY('Property','Value',...) creates a new 
+ PRT\_UI\_KERNEL\_MODALITY or raises the existing singleton*.  Starting from 
+ the left, property value pairs are applied to the GUI before 
+ prt\_ui\_kernel\_modality\_OpeningFcn gets called.  An unrecognized property 
+ name or invalid value makes property application stop.  All inputs are 
+ passed to prt\_ui\_kernel\_modality\_OpeningFcn via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+  instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
+\end{alltt}
+
+
+\section{prt\_ui\_results.m}
+\begin{alltt}
+
+ PRT\_UI\_RESULTS MATLAB code for prt\_ui\_results.fig
+ 
+ PRT\_UI\_RESULTS, by itself, creates a new PRT\_UI\_RESULTS or raises the 
+ existing singleton*.
+ 
+ H = PRT\_UI\_RESULTS returns the handle to a new PRT\_UI\_RESULTS or the 
+ handle to the existing singleton*.
+ 
+ PRT\_UI\_RESULTS('CALLBACK',hObject,eventData,handles,...) calls the local
+ function named CALLBACK in PRT\_UI\_RESULTS.M with the given input 
+ arguments.
+ 
+ PRT\_UI\_RESULTS('Property','Value',...) creates a new PRT\_UI\_RESULTS or 
+ raises the existing singleton*.  Starting from the left, property value 
+ pairs are applied to the GUI before prt\_ui\_results\_OpeningFcn gets 
+ called.  An unrecognized property name or invalid value makes property 
+ application stop.  All inputs are passed to prt\_ui\_results\_OpeningFcn via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+ instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
+\end{alltt}
+
+
+\section{prt\_ui\_reviewCV.m}
+\begin{alltt}
+
+ PRT\_UI\_REVIEWCV M-file for prt\_ui\_reviewCV.fig
+ 
+ PRT\_UI\_REVIEWCV, by itself, creates a new PRT\_UI\_REVIEWCV or raises the 
+ existing singleton*.
+ 
+ H = PRT\_UI\_REVIEWCV returns the handle to a new PRT\_UI\_REVIEWCV or the 
+ handle to the existing singleton*.
+ 
+ PRT\_UI\_REVIEWCV('CALLBACK',hObject,eventData,handles,...) calls the local
+ function named CALLBACK in PRT\_UI\_REVIEWCV.M with the given input 
+ arguments.
+ 
+ PRT\_UI\_REVIEWCV('Property','Value',...) creates a new PRT\_UI\_REVIEWCV or 
+ raises the existing singleton*.  Starting from the left, property value 
+ pairs are applied to the GUI before prt\_ui\_reviewCV\_OpeningFcn gets 
+ called.  An unrecognized property name or invalid value makes property 
+ application stop.  All inputs are passed to prt\_ui\_reviewCV\_OpeningFcn 
+ via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+ instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
+\end{alltt}
+
+
+\section{prt\_ui\_reviewmodel.m}
+\begin{alltt}
+
+ PRT\_UI\_REVIEWMODEL M-file for prt\_ui\_reviewmodel.fig
+ 
+ PRT\_UI\_REVIEWMODEL, by itself, creates a new PRT\_UI\_REVIEWMODEL or raises
+ the existing singleton*.
+ 
+ H = PRT\_UI\_REVIEWMODEL returns the handle to a new PRT\_UI\_REVIEWMODEL or 
+ the handle to the existing singleton*.
+ 
+ PRT\_UI\_REVIEWMODEL('CALLBACK',hObject,eventData,handles,...) calls the 
+ local function named CALLBACK in PRT\_UI\_REVIEWMODEL.M with the given 
+ input arguments.
+ 
+ PRT\_UI\_REVIEWMODEL('Property','Value',...) creates a new PRT\_UI\_REVIEWMODEL
+ or raises the existing singleton*.  Starting from the left, property 
+ value pairs are applied to the GUI before prt\_ui\_reviewmodel\_OpeningFcn 
+ gets called.  An unrecognized property name or invalid value makes 
+ property application stop.  All inputs are passed to prt\_ui\_reviewmodel\_OpeningFcn
+ via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+  instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
+\end{alltt}
+
+
+\section{prt\_ui\_select\_class.m}
+\begin{alltt}
+
+ PRT\_UI\_SELECT\_CLASS M-file for prt\_ui\_select\_class.fig
+ 
+ PRT\_UI\_SELECT\_CLASS, by itself, creates a new PRT\_UI\_SELECT\_CLASS or 
+ raises the existing singleton*.
+ 
+ H = PRT\_UI\_SELECT\_CLASS returns the handle to a new PRT\_UI\_SELECT\_CLASS 
+ or the handle to the existing singleton*.
+ 
+ PRT\_UI\_SELECT\_CLASS('CALLBACK',hObject,eventData,handles,...) calls the 
+ local function named CALLBACK in PRT\_UI\_SELECT\_CLASS.M with the given 
+ input arguments.
+ 
+ PRT\_UI\_SELECT\_CLASS('Property','Value',...) creates a new PRT\_UI\_SELECT\_CLASS
+ or raises the existing singleton*.  Starting from the left, property 
+ value pairs are applied to the GUI before prt\_ui\_select\_class\_OpeningFcn 
+ gets called.  An unrecognized property name or invalid value makes 
+ property application stop.  All inputs are passed to prt\_ui\_select\_class\_OpeningFcn
+ via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+  instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
+\end{alltt}
+
+
+\section{prt\_ui\_select\_reg.m}
+\begin{alltt}
+
+ PRT\_UI\_SELECT\_REG M-file for prt\_ui\_select\_reg.fig
+ 
+ PRT\_UI\_SELECT\_REG, by itself, creates a new PRT\_UI\_SELECT\_REG or raises 
+ the existing singleton*.
+ 
+ H = PRT\_UI\_SELECT\_REG returns the handle to a new PRT\_UI\_SELECT\_REG or 
+ the handle to the existing singleton*.
+ 
+ PRT\_UI\_SELECT\_REG('CALLBACK',hObject,eventData,handles,...) calls the 
+ local function named CALLBACK in PRT\_UI\_SELECT\_REG.M with the given input
+ arguments.
+ 
+ PRT\_UI\_SELECT\_REG('Property','Value',...) creates a new PRT\_UI\_SELECT\_REG
+ or raises the existing singleton*.  Starting from the left, property 
+ value pairs are applied to the GUI before prt\_ui\_select\_reg\_OpeningFcn 
+ gets called.  An unrecognized property name or invalid value makes 
+ property application stop.  All inputs are passed to prt\_ui\_select\_reg\_OpeningFcn
+ via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+  instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
 \end{alltt}
 
 
 \section{machines}
+
+\subsection{machines/prt\_KRR.m}
+\begin{alltt}
+
+ w = prt\_KRR(K,t,reg)
+\end{alltt}
+
 
 \subsection{machines/prt\_machine.m}
 \begin{alltt}
@@ -755,15 +1095,19 @@ or
 
  Run binary Ensemble of Regression Tree - wrapper for Pierre Geurt's
  RT code
- FORMAT output = prt\_machine\_RT\_bin(train,test,tr\_lbs,args)
+ FORMAT output =  prt\_machine\_RT\_bin(d,args)
  Inputs:
-    train   - training data (cell array of matrices of row vectors, each
-              [Ntr x D]). each matrix contains one representation of the
-              data. This is useful for approaches such as multiple kernel
-              learning.
-    test    - testing data  (cell array of matrices row vectors, each
-              [Nte x D])
-    tr\_lbs  - training labels (column vector, [Ntr x 1])
+   d         - structure with data information, with mandatory fields:
+     .train      - training data (cell array of matrices of row vectors,
+                   each [Ntr x D]). each matrix contains one representation
+                   of the data. This is useful for approaches such as
+                   multiple kernel learning.
+     .test       - testing data  (cell array of matrices row vectors, each
+                   [Nte x D])
+     .tr\_targets - training labels (for classification) or values (for
+                   regression) (column vector, [Ntr x 1])
+     .use\_kernel - flag, is data in form of kernel matrices (true) of in 
+                form of features (false)
     args    - vector of RT arguments
        args(1) - number of trees (default: 501)
  Output:
@@ -818,6 +1162,62 @@ or
 \end{alltt}
 
 
+\subsection{machines/prt\_machine\_krr.m}
+\begin{alltt}
+
+ Kernel ridge regression
+ FORMAT output = prt\_machine\_svm\_bin(d,args)
+ Inputs:
+   d         - structure with data information, with mandatory fields:
+     .train      - training data (cell array of matrices of row vectors,
+                   each [Ntr x D]). each matrix contains one representation
+                   of the data. This is useful for approaches such as
+                   multiple kernel learning.
+     .test       - testing data  (cell array of matrices row vectors, each
+                   [Nte x D])
+     .tr\_targets - training labels (for classification) or values (for
+                   regression) (column vector, [Ntr x 1])
+     .use\_kernel - flag, is data in form of kernel matrices (true) of in
+                form of features (false)
+    args     - libSVM arguments
+ Output:
+    output  - output of machine (struct).
+     * Mandatory fields:
+      .predictions - predictions of classification or regression [Nte x D]
+     * Optional fields:
+      .func\_val - value of the decision function
+      .type     - which type of machine this is (here, 'classifier')
+\end{alltt}
+
+
+\subsection{machines/prt\_machine\_rvr.m}
+\begin{alltt}
+
+ Relevance vector regression (training and testing)
+ FORMAT output = prt\_machine\_svm\_bin(d,args)
+ Inputs:
+   d         - structure with data information, with mandatory fields:
+     .train      - training data (cell array of matrices of row vectors,
+                   each [Ntr x D]). each matrix contains one representation
+                   of the data. This is useful for approaches such as
+                   multiple kernel learning.
+     .test       - testing data  (cell array of matrices row vectors, each
+                   [Nte x D])
+     .tr\_targets - training labels (for classification) or values (for
+                   regression) (column vector, [Ntr x 1])
+     .use\_kernel - flag, is data in form of kernel matrices (true) of in
+                form of features (false)
+    args     - libSVM arguments
+ Output:
+    output  - output of machine (struct).
+     * Mandatory fields:
+      .predictions - predictions of classification or regression [Nte x D]
+     * Optional fields:
+      .func\_val - value of the decision function
+      .type     - which type of machine this is (here, 'classifier')
+\end{alltt}
+
+
 \subsection{machines/prt\_machine\_svm\_bin.m}
 \begin{alltt}
 
@@ -846,6 +1246,67 @@ or
 \end{alltt}
 
 
+\subsection{machines/prt\_rvr.m}
+\begin{alltt}
+
+ Optimisation for Relevance Vector Regression
+ 
+ [w,alpha,beta,ll]=spm\_rvr(Phi,t)
+ Phi   - MxM matrix derived from kernel function of vector pairs
+ t     - the values to be matched
+ w     - weights
+ alpha - 1/variance for the prior part of the model
+ beta  - 1/variance for the likelihood part of the model
+ ll    - the negative log-likelihood.
+ 
+ [w,alpha,beta,nu,ll]=spm\_rvr(K,t,opt)
+ K     - a cell-array of MxM dot-product matrices.
+ t     - the values to be matched
+ opt   - either 'Linear' or 'Gaussian RBF'
+         'Linear'       is for linear regression models, where
+                        the optimal kernel is generated by
+                        [nu(1)*K{1} + nu(1)*K{2}... ones(size(K{1},1),1)]
+         'Gaussian RBF' is for regression using Gaussian radial basis
+                        functions.  The kernel is generated from
+                        P1  = nu(1)*K{1} + nu(1)*K{2} ... ;
+                        P2  = repmat(diag(P1) ,1,size(P1,2)) +...
+                              repmat(diag(P1)',size(P1,1),1) - 2*P1;
+                        Phi = exp([-0.5*P2 ones(size(P1,1),1)]);
+ w     - weights
+ alpha - 1/variance for the prior part of the model
+ beta  - 1/variance for the likelihood part of the model
+ nu    - parameters that convert the dot-product matrices into
+         a kernel matrix (Phi).
+ ll    - the negative log-likelihood.
+ 
+ The first way of calling the routine simply optimises the
+ weights.  This involves estimating a restricted maximum
+ likelihood (REML) solution, which maximises P(alpha,beta$|$t,Phi).
+ Note that REML is also known as Type II Maximum Likelihood
+ (ML-II). The ML-II solution tends towards infinite weights for
+ some the regularisation terms (i.e. 1/alpha(i) approaches 0).
+ The appropriate columns are removed from the model when
+ this happens.
+ 
+ The second way of calling the routine also estimates additional
+ input scale parameters as described in Appendix C of Tipping (2001).
+ This method is much slower, as a full optimisation for the scale
+ parameters is done after each update of the alphas and beta.
+ 
+ see: http://research.microsoft.com/mlp/RVM/relevance.htm
+ 
+ Refs:
+ The Relevance Vector Machine.
+ In S. A. Solla, T. K. Leen, and K.-R. Müller (Eds.),
+ Advances in Neural Information Processing Systems 12,
+ pp.  652-658. Cambridge, Mass: MIT Press.
+ 
+ Michael E. Tipping
+ Sparse Bayesian Learning and the Relevance Vector Machine
+ Journal of Machine Learning Research 1 (2001) 211-244
+\end{alltt}
+
+
 \subsection{machines/prt\_weights.m}
 \begin{alltt}
 
@@ -858,6 +1319,21 @@ or
            .args     - function arguments
  Output:
        weights - weights vector [Nfeatures x 1]
+\end{alltt}
+
+
+\subsection{machines/prt\_weights\_bin\_linkernel.m}
+\begin{alltt}
+
+ Run function to compute weights for linear kernel binary classifiers
+ FORMAT weights = prt\_weights\_bin\_linkernel (d,args)
+ Inputs:
+       d              - data structure
+           .datamat   - data matrix [Nfeatures x Nexamples]
+           .coeffs    - coefficients vector [Nexamples x 1]
+       args           - function arguments (can be empty)
+ Output:
+       weights        - vector with weights [Nfeatures x 1]
 \end{alltt}
 
 

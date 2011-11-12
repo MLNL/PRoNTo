@@ -1,24 +1,32 @@
 function varargout = prt_ui_select_reg(varargin)
 % PRT_UI_SELECT_REG M-file for prt_ui_select_reg.fig
-%      PRT_UI_SELECT_REG, by itself, creates a new PRT_UI_SELECT_REG or raises the existing
-%      singleton*.
+% 
+% PRT_UI_SELECT_REG, by itself, creates a new PRT_UI_SELECT_REG or raises 
+% the existing singleton*.
 %
-%      H = PRT_UI_SELECT_REG returns the handle to a new PRT_UI_SELECT_REG or the handle to
-%      the existing singleton*.
+% H = PRT_UI_SELECT_REG returns the handle to a new PRT_UI_SELECT_REG or 
+% the handle to the existing singleton*.
 %
-%      PRT_UI_SELECT_REG('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_UI_SELECT_REG.M with the given input arguments.
+% PRT_UI_SELECT_REG('CALLBACK',hObject,eventData,handles,...) calls the 
+% local function named CALLBACK in PRT_UI_SELECT_REG.M with the given input
+% arguments.
 %
-%      PRT_UI_SELECT_REG('Property','Value',...) creates a new PRT_UI_SELECT_REG or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_ui_select_reg_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_ui_select_reg_OpeningFcn via varargin.
+% PRT_UI_SELECT_REG('Property','Value',...) creates a new PRT_UI_SELECT_REG
+% or raises the existing singleton*.  Starting from the left, property 
+% value pairs are applied to the GUI before prt_ui_select_reg_OpeningFcn 
+% gets called.  An unrecognized property name or invalid value makes 
+% property application stop.  All inputs are passed to prt_ui_select_reg_OpeningFcn
+% via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%  instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
+%__________________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
+% Written by J. Schrouff
+% $Id:$
 
 % Edit the above text to modify the response to help prt_ui_select_reg
 

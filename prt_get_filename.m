@@ -1,5 +1,7 @@
 function out = prt_get_filename(ids)
 
+% out = prt_get_filename(ids)
+% 
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -32,4 +34,4 @@ catch
     cond_prefix = '';
 end
 
- out = ['PRT_' group_prefix subj_prefix mod_prefix cond_prefix];
+out = ['PRT_' group_prefix subj_prefix mod_prefix cond_prefix];

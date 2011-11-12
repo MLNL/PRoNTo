@@ -1,5 +1,8 @@
 function [Kr, R] = prt_remove_confounds(K,C)
 
+% [Kr, R] = prt_remove_confounds(K,C)
+%
+% Function to remove confounds from kernel.
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 

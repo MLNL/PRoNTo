@@ -1,3 +1,5 @@
+% prt_func2html
+% 
 % Script to generate the list of .m functions into html files which can be
 % browsed around with your favourite browser.
 %
@@ -10,12 +12,12 @@
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Christophe Phillips
-
 % $Id$
 
-cd(fullfile(prt('dir'),'manual'))
-subdirs = {'..','machines','batch'}; % list of directories to include
+cd(prt('dir'))
+
+subdirs = {'.', 'machines','batch'}; % list of directories to include
 isubdirs = {'.svn','manual','LIB'}; % list of directories to exclude
-m2html('mfiles',subdirs, 'htmldir',fullfile('manual','html_doc'), 'recursive','on');
 
-
+m2html('mfiles',subdirs, 'htmldir',fullfile('manual','html_doc'), ...
+        'recursive','off');
