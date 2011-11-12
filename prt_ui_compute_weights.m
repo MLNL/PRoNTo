@@ -26,7 +26,7 @@ function varargout = prt_ui_compute_weights(varargin)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J.Schrouff
-% $Id: $
+% $Id$
 
 % Edit the above text to modify the response to help prt_ui_compute_weights
 

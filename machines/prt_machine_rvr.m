@@ -25,7 +25,7 @@ function output = prt_machine_rvr(d,args)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Carlton Chu
-% $Id:$
+% $Id$
 
 
 output.type=d.pred_type;

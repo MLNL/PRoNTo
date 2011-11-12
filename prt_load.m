@@ -11,7 +11,7 @@ function PRT = prt_load(fname)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Schrouff
-% $Id: $
+% $Id$
 
 try
     load(fname)

@@ -25,7 +25,7 @@ function output = prt_machine_krr(d,args)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by Carlton Chu
-% $Id: $
+% $Id$
 
 
 output.type=d.pred_type;

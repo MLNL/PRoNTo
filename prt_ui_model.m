@@ -26,7 +26,7 @@ function varargout = prt_ui_model(varargin)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Schrouff
-% $Id: prt_ui_model.m 211 2011-10-26 15:57:27Z schrouff $
+% $Id$
 
 % Edit the above text to modify the response to help prt_ui_kernel_construction
 

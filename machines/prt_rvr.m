@@ -58,7 +58,7 @@ function [varargout]=prt_rvr(varargin)
 % Copyright (C) 2011 Wellcome Department of Imaging Neuroscience & Machine Learning & Neuroimaging Laboratory
 
 % Written by John Ashburner
-% $Id:$
+% $Id$
 
 if isnumeric(varargin{1}),
     [varargout{1:nargout}]=regression0(varargin{:});

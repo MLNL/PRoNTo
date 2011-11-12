@@ -26,7 +26,7 @@ function varargout = prt_ui_prepare_datamod(varargin)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Schrouff
-% $Id:$
+% $Id$
 
 % Edit the above text to modify the response to help prt_ui_kernel_modality
 
