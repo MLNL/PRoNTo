@@ -65,7 +65,7 @@ This function calls:
 </ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li></ul>
+<li><a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_permutation.html" class="code" title="function [] = prt_permutation(PRT, n_perm, modelid, path)">prt_permutation</a>	Function to compute permutation test</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -107,7 +107,7 @@ This function is called by:
 0032 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0033 
 0034 <span class="comment">% Written by A Marquand</span>
-0035 <span class="comment">% $Id: prt_apply_operation.m 168 2011-10-19 08:50:04Z amarquan $</span>
+0035 <span class="comment">% $Id: prt_apply_operation.m 182 2011-10-20 15:06:07Z amarquan $</span>
 0036 
 0037 <span class="keyword">for</span> d = 1:length(in.train)
 0038     <span class="keyword">switch</span> opid
@@ -128,181 +128,190 @@ This function is called by:
 0053             out.tr_id = round(Ptr*in.tr_id);
 0054             out.te_id = round(Pte*in.te_id);
 0055             
-0056         <span class="keyword">case</span> 2  <span class="comment">% sample averaging</span>
-0057             Ptr = <a href="#_sub2" class="code" title="subfunction P = compute_sa_mat(ID)">compute_sa_mat</a>(in.tr_id);
-0058             Pte = <a href="#_sub2" class="code" title="subfunction P = compute_sa_mat(ID)">compute_sa_mat</a>(in.te_id);
-0059             
-0060             <span class="keyword">if</span> in.use_kernel
-0061                 out.train{d}    = Ptr*in.train{d}*Ptr';
-0062                 out.test{d}     = Pte*in.test{d}*Ptr';
-0063                 out.testcov{d}  = Pte*in.testcov{d}*Pte';
-0064             <span class="keyword">else</span>
-0065                 out.train{d} = Ptr*in.train{d};
-0066                 out.test{d}  = Pte*in.test{d};
-0067             <span class="keyword">end</span>
-0068             out.tr_targets = Ptr*in.tr_targets;
-0069             out.te_targets = Pte*in.te_targets;
-0070             out.tr_id = round(Ptr*in.tr_id);
-0071             out.te_id = round(Pte*in.te_id);
-0072             
-0073             out.tr_targets = round(out.tr_targets);
-0074             out.te_targets = round(out.te_targets);
-0075             
-0076         <span class="keyword">case</span> 3 <span class="comment">% mean centre features over subjects</span>
-0077             <span class="keyword">if</span> in.use_kernel
-0078                 [out.train{d}, out.test{d}, out.testcov{d}] = <span class="keyword">...</span>
-0079                     <a href="#_sub3" class="code" title="subfunction [C,Cs,Css] = centre_kernel(K, Ks, Kss)">centre_kernel</a>(in.train{d},in.test{d},in.testcov{d});
-0080             <span class="keyword">else</span>
-0081                 m = mean(in.train{d});
-0082                 
-0083                 out.train{d} = in.train{d} - repmat(m,size(in.train{d},2),1);
-0084                 out.test{d}  = in.test{d} - repmat(m,size(in.test{d},2),1);
-0085             <span class="keyword">end</span>
-0086             out.tr_targets = in.tr_targets;
-0087             out.te_targets = in.te_targets;
-0088             out.tr_id = in.tr_id;
-0089             out.te_id = in.te_id;
-0090             
-0091         <span class="keyword">case</span> 4 <span class="comment">% divide each feature vector by its norm</span>
-0092             <span class="keyword">if</span> in.use_kernel
-0093                 <span class="comment">% in this case, the operation is applied independently to</span>
-0094                 <span class="comment">% each data vector, so it is safe (and convenient) to apply</span>
-0095                 <span class="comment">% the operation to the whole kernel at once</span>
-0096                 Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
-0097                 Phi = <a href="#_sub4" class="code" title="subfunction C = normalise_kernel(K)">normalise_kernel</a>(Phi);
-0098                 
-0099                 tr = 1:size(in.train{d},1);
-0100                 te = (1:size(in.test{d},1))+max(tr);
-0101                 out.train{d}    = Phi(tr,tr);
-0102                 out.test{d}     = Phi(te,tr);
-0103                 out.testcov{d}  = Phi(te,te);
-0104             <span class="keyword">else</span>
-0105                 <span class="keyword">for</span> r = 1:size(in.train{d})
-0106                     in.train{d}(r,:) = in.train{d}(r,:) / norm(in.train{d}(r,:));
-0107                 <span class="keyword">end</span>
-0108                 <span class="keyword">for</span> r = 1:size(in.test{d})
-0109                     in.test{d}(r,:) = in.test{d}(r,:) / norm(in.test{d}(r,:));
-0110                 <span class="keyword">end</span>
-0111             <span class="keyword">end</span>
-0112             out.tr_targets = in.tr_targets;
-0113             out.te_targets = in.te_targets;
-0114             out.tr_id = in.tr_id;
-0115             out.te_id = in.te_id;
-0116             
-0117         <span class="keyword">case</span> 5 <span class="comment">% GLM</span>
-0118             error (<span class="string">'GLM not implemented yet'</span>);
-0119                         
-0120         <span class="keyword">otherwise</span>
-0121             error(<span class="string">'prt_apply_operation:UnknownOperationSpecified'</span>,<span class="keyword">...</span>
-0122                 <span class="string">'Unknown operation requested'</span>);
-0123     <span class="keyword">end</span>
-0124 <span class="keyword">end</span>
-0125 
-0126 out.use_kernel = in.use_kernel;
-0127 <span class="keyword">end</span>
-0128 
-0129 <span class="comment">% -------------------------------------------------------------------------</span>
-0130 <span class="comment">% Private Functions</span>
-0131 <span class="comment">% -------------------------------------------------------------------------</span>
-0132 
-0133 <a name="_sub1" href="#_subfunctions" class="code">function P = compute_tc_mat(ID)</a>
-0134 <span class="comment">% function to compute the block averaging matrix (P) necessary to apply</span>
-0135 <span class="comment">% temporal compression</span>
-0136 
-0137 <span class="comment">% give each block a unique id</span>
-0138 IDc = zeros(size(ID,1),1);
-0139 C = {}; 
-0140 ccount = 0; 
-0141 lastid = zeros(1,5);
-0142 <span class="keyword">for</span> c = 1:size(ID,1)
-0143     currid = ID(c,1:5);  
-0144     <span class="keyword">if</span> any(lastid ~= currid)
-0145         ccount = ccount + 1;
-0146     <span class="keyword">end</span>
-0147     lastid = currid;
-0148     IDc(c) = ccount;
-0149 <span class="keyword">end</span>
-0150 
-0151 <span class="comment">% Compute sample averaging matrix</span>
-0152 cids  = unique(IDc);
-0153 cnums = histc(IDc,cids);
-0154 C = cell(length(cnums),1);
-0155 <span class="keyword">for</span> c = 1:length(cnums)
-0156     C{c} = 1/cnums(c) .* ones(1,cnums(c));
-0157 <span class="keyword">end</span>
-0158 P = blkdiag(C{:});
-0159 <span class="keyword">end</span>
-0160 
-0161 <a name="_sub2" href="#_subfunctions" class="code">function P = compute_sa_mat(ID)</a>
-0162 <span class="comment">% function to compute the block averaging matrix (P) necessary to apply</span>
-0163 <span class="comment">% temporal compression</span>
-0164 
-0165 <span class="comment">% give each subject a unique id</span>
-0166 IDs = zeros(size(ID,1),1);
-0167 ccount = 0; 
-0168 lastid = zeros(1,2);
-0169 <span class="keyword">for</span> s = 1:size(ID,1)
-0170     currid = ID(s,1:2);  
-0171     <span class="keyword">if</span> any(lastid ~= currid)
-0172         ccount = ccount + 1;
-0173     <span class="keyword">end</span>
-0174     lastid = currid;
-0175     IDs(s) = ccount;
-0176 <span class="keyword">end</span>
-0177 
-0178 subs = unique(IDs);
-0179 
-0180 P = [];
-0181 <span class="keyword">for</span> s = 1:length(subs)
-0182     sidx = IDs == subs(s);
-0183     conds = unique(ID(sidx,4));
-0184     <span class="keyword">for</span> c = 1:length(conds)
-0185         p = (IDs == s &amp; ID(:,4) == conds(c))';
-0186         P = [P; 1./sum(p) * double(p)];
-0187     <span class="keyword">end</span>
-0188 <span class="keyword">end</span>
-0189 P = double(P);
-0190 <span class="keyword">end</span>
-0191 
-0192 <a name="_sub3" href="#_subfunctions" class="code">function [C,Cs,Css] = centre_kernel(K, Ks, Kss)</a>
-0193 
-0194 <span class="comment">% [C,C_tstr] = centre_kernel_train_test(K,Ks) : centers</span>
-0195 <span class="comment">% train/test kernels.</span>
-0196 
-0197 l = size(K,1);
-0198 j = ones(l,1);
-0199 C = K - (j*j'*K)/l - (K*j*j')/l + ((j'*K*j)*j*j')/(l^2);
+0056             <span class="keyword">if</span> strcmpi(in.pred_type,<span class="string">'classification'</span>);
+0057                 <span class="comment">% round labels to avoid numerical problems</span>
+0058                 out.tr_targets = round(out.tr_targets);
+0059                 out.te_targets = round(out.te_targets);
+0060             <span class="keyword">end</span>
+0061             
+0062         <span class="keyword">case</span> 2  <span class="comment">% sample averaging</span>
+0063             Ptr = <a href="#_sub2" class="code" title="subfunction P = compute_sa_mat(ID)">compute_sa_mat</a>(in.tr_id);
+0064             Pte = <a href="#_sub2" class="code" title="subfunction P = compute_sa_mat(ID)">compute_sa_mat</a>(in.te_id);
+0065             
+0066             <span class="keyword">if</span> in.use_kernel
+0067                 out.train{d}    = Ptr*in.train{d}*Ptr';
+0068                 out.test{d}     = Pte*in.test{d}*Ptr';
+0069                 out.testcov{d}  = Pte*in.testcov{d}*Pte';
+0070             <span class="keyword">else</span>
+0071                 out.train{d} = Ptr*in.train{d};
+0072                 out.test{d}  = Pte*in.test{d};
+0073             <span class="keyword">end</span>
+0074             out.tr_targets = Ptr*in.tr_targets;
+0075             out.te_targets = Pte*in.te_targets;
+0076             out.tr_id = round(Ptr*in.tr_id);
+0077             out.te_id = round(Pte*in.te_id);
+0078             
+0079             <span class="keyword">if</span> strcmpi(in.pred_type,<span class="string">'classification'</span>);
+0080                 <span class="comment">% round labels to avoid numerical problems</span>
+0081                 out.tr_targets = round(out.tr_targets);
+0082                 out.te_targets = round(out.te_targets);
+0083             <span class="keyword">end</span>
+0084             
+0085         <span class="keyword">case</span> 3 <span class="comment">% mean centre features over subjects</span>
+0086             <span class="keyword">if</span> in.use_kernel
+0087                 [out.train{d}, out.test{d}, out.testcov{d}] = <span class="keyword">...</span>
+0088                     <a href="#_sub3" class="code" title="subfunction [C,Cs,Css] = centre_kernel(K, Ks, Kss)">centre_kernel</a>(in.train{d},in.test{d},in.testcov{d});
+0089             <span class="keyword">else</span>
+0090                 m = mean(in.train{d});
+0091                 
+0092                 out.train{d} = in.train{d} - repmat(m,size(in.train{d},2),1);
+0093                 out.test{d}  = in.test{d} - repmat(m,size(in.test{d},2),1);
+0094             <span class="keyword">end</span>
+0095             out.tr_targets = in.tr_targets;
+0096             out.te_targets = in.te_targets;
+0097             out.tr_id = in.tr_id;
+0098             out.te_id = in.te_id;
+0099             
+0100         <span class="keyword">case</span> 4 <span class="comment">% divide each feature vector by its norm</span>
+0101             <span class="keyword">if</span> in.use_kernel
+0102                 <span class="comment">% in this case, the operation is applied independently to</span>
+0103                 <span class="comment">% each data vector, so it is safe (and convenient) to apply</span>
+0104                 <span class="comment">% the operation to the whole kernel at once</span>
+0105                 Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
+0106                 Phi = <a href="#_sub4" class="code" title="subfunction C = normalise_kernel(K)">normalise_kernel</a>(Phi);
+0107                 
+0108                 tr = 1:size(in.train{d},1);
+0109                 te = (1:size(in.test{d},1))+max(tr);
+0110                 out.train{d}    = Phi(tr,tr);
+0111                 out.test{d}     = Phi(te,tr);
+0112                 out.testcov{d}  = Phi(te,te);
+0113             <span class="keyword">else</span>
+0114                 <span class="keyword">for</span> r = 1:size(in.train{d})
+0115                     in.train{d}(r,:) = in.train{d}(r,:) / norm(in.train{d}(r,:));
+0116                 <span class="keyword">end</span>
+0117                 <span class="keyword">for</span> r = 1:size(in.test{d})
+0118                     in.test{d}(r,:) = in.test{d}(r,:) / norm(in.test{d}(r,:));
+0119                 <span class="keyword">end</span>
+0120             <span class="keyword">end</span>
+0121             out.tr_targets = in.tr_targets;
+0122             out.te_targets = in.te_targets;
+0123             out.tr_id = in.tr_id;
+0124             out.te_id = in.te_id;
+0125             
+0126         <span class="keyword">case</span> 5 <span class="comment">% GLM</span>
+0127             error (<span class="string">'GLM not implemented yet'</span>);
+0128                         
+0129         <span class="keyword">otherwise</span>
+0130             error(<span class="string">'prt_apply_operation:UnknownOperationSpecified'</span>,<span class="keyword">...</span>
+0131                 <span class="string">'Unknown operation requested'</span>);
+0132     <span class="keyword">end</span>
+0133 <span class="keyword">end</span>
+0134 
+0135 out.use_kernel = in.use_kernel;
+0136 <span class="keyword">end</span>
+0137 
+0138 <span class="comment">% -------------------------------------------------------------------------</span>
+0139 <span class="comment">% Private Functions</span>
+0140 <span class="comment">% -------------------------------------------------------------------------</span>
+0141 
+0142 <a name="_sub1" href="#_subfunctions" class="code">function P = compute_tc_mat(ID)</a>
+0143 <span class="comment">% function to compute the block averaging matrix (P) necessary to apply</span>
+0144 <span class="comment">% temporal compression</span>
+0145 
+0146 <span class="comment">% give each block a unique id</span>
+0147 IDc = zeros(size(ID,1),1);
+0148 C = {}; 
+0149 ccount = 0; 
+0150 lastid = zeros(1,5);
+0151 <span class="keyword">for</span> c = 1:size(ID,1)
+0152     currid = ID(c,1:5);  
+0153     <span class="keyword">if</span> any(lastid ~= currid)
+0154         ccount = ccount + 1;
+0155     <span class="keyword">end</span>
+0156     lastid = currid;
+0157     IDc(c) = ccount;
+0158 <span class="keyword">end</span>
+0159 
+0160 <span class="comment">% Compute sample averaging matrix</span>
+0161 cids  = unique(IDc);
+0162 cnums = histc(IDc,cids);
+0163 C = cell(length(cnums),1);
+0164 <span class="keyword">for</span> c = 1:length(cnums)
+0165     C{c} = 1/cnums(c) .* ones(1,cnums(c));
+0166 <span class="keyword">end</span>
+0167 P = blkdiag(C{:});
+0168 <span class="keyword">end</span>
+0169 
+0170 <a name="_sub2" href="#_subfunctions" class="code">function P = compute_sa_mat(ID)</a>
+0171 <span class="comment">% function to compute the block averaging matrix (P) necessary to apply</span>
+0172 <span class="comment">% temporal compression</span>
+0173 
+0174 <span class="comment">% give each subject a unique id</span>
+0175 IDs = zeros(size(ID,1),1);
+0176 ccount = 0; 
+0177 lastid = zeros(1,2);
+0178 <span class="keyword">for</span> s = 1:size(ID,1)
+0179     currid = ID(s,1:2);  
+0180     <span class="keyword">if</span> any(lastid ~= currid)
+0181         ccount = ccount + 1;
+0182     <span class="keyword">end</span>
+0183     lastid = currid;
+0184     IDs(s) = ccount;
+0185 <span class="keyword">end</span>
+0186 
+0187 subs = unique(IDs);
+0188 
+0189 P = [];
+0190 <span class="keyword">for</span> s = 1:length(subs)
+0191     sidx = IDs == subs(s);
+0192     conds = unique(ID(sidx,4));
+0193     <span class="keyword">for</span> c = 1:length(conds)
+0194         p = (IDs == s &amp; ID(:,4) == conds(c))';
+0195         P = [P; 1./sum(p) * double(p)];
+0196     <span class="keyword">end</span>
+0197 <span class="keyword">end</span>
+0198 P = double(P);
+0199 <span class="keyword">end</span>
 0200 
-0201 <span class="keyword">if</span>( nargin &gt; 1 )
-0202     tk =  (1/l)*sum(K,1); <span class="comment">% (1 x l)</span>
-0203     tl = ones(size(Ks,1),1); <span class="comment">% (n x 1)</span>
-0204     Cs = Ks - ( tl * tk); <span class="comment">% ( n x l )</span>
-0205     tk2 = (1/(size(Ks,2)))*sum(Cs,2); <span class="comment">% ( n x 1 )</span>
-0206     Cs = Cs - (tk2 * j'); <span class="comment">% ( n x l )</span>
-0207     
-0208     <span class="comment">% Two equivalent ways to achieve the same thing</span>
-0209     <span class="comment">%Cs = Ks - repmat(sum(K),size(Ks,1),1)/l - repmat(sum(Ks,2),1,size(Ks,2))/size(Ks,2) + repmat(j'*K*j,size(Ks,1),size(Ks,2))/(l^2);</span>
-0210     <span class="comment">%Cs = Ks - (tl*sum(K))/l - (sum(Ks,2)*j')/size(Ks,2) + ((j'*K*j)*tl*j')/(l^2);</span>
-0211     
-0212     <span class="keyword">if</span> nargin &gt; 2
-0213         ttj = ones(size(Kss,1),1);
-0214         Css = Kss - (sum(Ks,2)*ttj')/l - (ttj*sum(Ks,2)')/l + ((j'*K*j)*ttj*ttj')/(l^2);
-0215     <span class="keyword">end</span>
-0216 <span class="keyword">end</span> 
-0217 
-0218 <span class="keyword">end</span>
-0219 
-0220 <a name="_sub4" href="#_subfunctions" class="code">function C = normalise_kernel(K)</a>
-0221 
-0222 <span class="comment">% This function normalises the kernel matrix such that each entry is</span>
-0223 <span class="comment">% divided by the product of the std deviations, i.e.</span>
-0224 <span class="comment">% K_new(x,y) = K(x,y) / sqrt(var(x)*var(y))</span>
-0225 
-0226 d  = diag(K);
-0227 K0 = sqrt(repmat(d,[1,size(K,1)]).* repmat(d',[size(K,1),1]));
-0228 C  = K./K0;
-0229 
-0230 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 20-Oct-2011 11:56:23 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0201 <a name="_sub3" href="#_subfunctions" class="code">function [C,Cs,Css] = centre_kernel(K, Ks, Kss)</a>
+0202 
+0203 <span class="comment">% [C,C_tstr] = centre_kernel_train_test(K,Ks) : centers</span>
+0204 <span class="comment">% train/test kernels.</span>
+0205 
+0206 l = size(K,1);
+0207 j = ones(l,1);
+0208 C = K - (j*j'*K)/l - (K*j*j')/l + ((j'*K*j)*j*j')/(l^2);
+0209 
+0210 <span class="keyword">if</span>( nargin &gt; 1 )
+0211     tk =  (1/l)*sum(K,1); <span class="comment">% (1 x l)</span>
+0212     tl = ones(size(Ks,1),1); <span class="comment">% (n x 1)</span>
+0213     Cs = Ks - ( tl * tk); <span class="comment">% ( n x l )</span>
+0214     tk2 = (1/(size(Ks,2)))*sum(Cs,2); <span class="comment">% ( n x 1 )</span>
+0215     Cs = Cs - (tk2 * j'); <span class="comment">% ( n x l )</span>
+0216     
+0217     <span class="comment">% Two equivalent ways to achieve the same thing</span>
+0218     <span class="comment">%Cs = Ks - repmat(sum(K),size(Ks,1),1)/l - repmat(sum(Ks,2),1,size(Ks,2))/size(Ks,2) + repmat(j'*K*j,size(Ks,1),size(Ks,2))/(l^2);</span>
+0219     <span class="comment">%Cs = Ks - (tl*sum(K))/l - (sum(Ks,2)*j')/size(Ks,2) + ((j'*K*j)*tl*j')/(l^2);</span>
+0220     
+0221     <span class="keyword">if</span> nargin &gt; 2
+0222         ttj = ones(size(Kss,1),1);
+0223         Css = Kss - (sum(Ks,2)*ttj')/l - (ttj*sum(Ks,2)')/l + ((j'*K*j)*ttj*ttj')/(l^2);
+0224     <span class="keyword">end</span>
+0225 <span class="keyword">end</span> 
+0226 
+0227 <span class="keyword">end</span>
+0228 
+0229 <a name="_sub4" href="#_subfunctions" class="code">function C = normalise_kernel(K)</a>
+0230 
+0231 <span class="comment">% This function normalises the kernel matrix such that each entry is</span>
+0232 <span class="comment">% divided by the product of the std deviations, i.e.</span>
+0233 <span class="comment">% K_new(x,y) = K(x,y) / sqrt(var(x)*var(y))</span>
+0234 
+0235 d  = diag(K);
+0236 K0 = sqrt(repmat(d,[1,size(K,1)]).* repmat(d',[size(K,1),1]));
+0237 C  = K./K0;
+0238 
+0239 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2011 16:15:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

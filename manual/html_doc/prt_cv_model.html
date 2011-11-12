@@ -53,10 +53,10 @@ __________________________________________________________________________
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>	function to apply a data operation to the training, test and</li><li><a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>	function to initialise the kernel data structure</li><li><a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>	function to initialise the model data structure</li><li><a href="prt_stats.html" class="code" title="function stats = prt_stats(model, t)">prt_stats</a>	Function to compute predictions machine performance statistcs statistics</li></ul>
+<li><a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>	function to apply a data operation to the training, test and</li><li><a href="prt_centre_kernel.html" class="code" title="function [C,C_s,C_ss] = prt_centre_kernel(K,K_s,K_ss)">prt_centre_kernel</a>	FORMAT [C,C_s,C_ss] = Centre_kernel(K,K_s,K_ss)</li><li><a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>	function to initialise the kernel data structure</li><li><a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>	function to initialise the model data structure</li><li><a href="prt_stats.html" class="code" title="function stats = prt_stats(model, t,flag)">prt_stats</a>	Function to compute predictions machine performance statistcs statistics</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-</ul>
+<li><a href="prt_ui_cv_model.html" class="code" title="function varargout = prt_ui_cv_model(varargin)">prt_ui_cv_model</a>	PRT_UI_CV_MODEL M-file for prt_ui_cv_model.fig</li><li><a href="prt_ui_model.html" class="code" title="function varargout = prt_ui_model(varargin)">prt_ui_model</a>	PRT_UI_KERNEL_CONSTRUCTION M-file for prt_ui_kernel_construction.fig</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -88,7 +88,7 @@ This function is called by:
 0022 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0023 
 0024 <span class="comment">% Written by A Marquand</span>
-0025 <span class="comment">% $Id: prt_cv_model.m 169 2011-10-19 12:54:55Z amarquan $</span>
+0025 <span class="comment">% $Id: prt_cv_model.m 364 2011-11-11 16:48:26Z jmourao $</span>
 0026 
 0027 prt_dir = char(regexprep(in.fname,<span class="string">'PRT.mat'</span>, <span class="string">''</span>));
 0028 
@@ -142,105 +142,130 @@ This function is called by:
 0076     [Phi_tr, Phi_te, Phi_tt] = <span class="keyword">...</span>
 0077         <a href="#_sub1" class="code" title="subfunction [Phi_tr Phi_te Phi_tt] = split_data(Phi_all, tr_idx, te_idx, usebf)">split_data</a>(Phi_all, tr_idx, te_idx, PRT.model(mid).input.use_kernel);
 0078     
-0079     <span class="comment">% Assemble data structure to supply to machine</span>
-0080     cvdata.train      = Phi_tr;
-0081     cvdata.test       = Phi_te;
-0082     <span class="keyword">if</span> PRT.model(mid).input.use_kernel
-0083         cvdata.testcov    = Phi_tt;
-0084     <span class="keyword">end</span>
-0085     cvdata.tr_targets = t(tr_idx,:);
-0086     cvdata.te_targets = t(te_idx,:);
-0087     cvdata.tr_id      = ID(tr_idx,:);
-0088     cvdata.te_id      = ID(te_idx,:);
-0089     cvdata.use_kernel = PRT.model(mid).input.use_kernel;
-0090 
-0091     <span class="comment">% Apply any operations specified</span>
-0092     ops = PRT.model(mid).input.operations(PRT.model(mid).input.operations ~=0 );
-0093     <span class="keyword">for</span> o = 1:length(ops)
-0094         cvdata = <a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>(PRT, cvdata, ops(o));
-0095     <span class="keyword">end</span>
-0096     
-0097     <span class="comment">% train the prediction model</span>
-0098     model = prt_machine(cvdata, PRT.model(mid).input.machine);
-0099     
-0100     <span class="comment">% check that it produced a predictions field</span>
-0101     <span class="keyword">if</span> ~any(strcmpi(fieldnames(model),<span class="string">'predictions'</span>))
-0102         error([<span class="string">'prt_cv_model:machineDoesNotGivePredictions'</span>,<span class="keyword">...</span>
-0103             <span class="string">'Machine did not produce a predictions field'</span>]);
-0104     <span class="keyword">end</span>  
+0079     <span class="comment">%Centre kernel</span>
+0080     [Phi_tr, Phi_te, Phi_tt] = <a href="prt_centre_kernel.html" class="code" title="function [C,C_s,C_ss] = prt_centre_kernel(K,K_s,K_ss)">prt_centre_kernel</a>(Phi_tr, Phi_te, Phi_tt);
+0081     
+0082     <span class="comment">% Assemble data structure to supply to machine</span>
+0083     cvdata.train      = Phi_tr;
+0084     cvdata.test       = Phi_te;
+0085     <span class="keyword">if</span> PRT.model(mid).input.use_kernel
+0086         cvdata.testcov    = Phi_tt;
+0087     <span class="keyword">end</span>
+0088     cvdata.tr_targets = t(tr_idx,:);
+0089     cvdata.te_targets = t(te_idx,:);
+0090     cvdata.tr_id      = ID(tr_idx,:);
+0091     cvdata.te_id      = ID(te_idx,:);
+0092     cvdata.use_kernel = PRT.model(mid).input.use_kernel;
+0093     cvdata.pred_type  = PRT.model(mid).input.type;
+0094     <span class="comment">% additional parameters (e.g. for MCKR)</span>
+0095 <span class="comment">%    if  strcmp(PRT.model(mid).input.machine.function,'prt_machine_mckr')</span>
+0096 <span class="comment">%         cvdata.tr_param  = prt_cv_opt_param(PRT, ID(tr_idx,:), CV(tr_idx,f));</span>
+0097 <span class="comment">%         cvdata.te_param  = prt_cv_opt_param(PRT, ID(te_idx,:), CV(te_idx,f));</span>
+0098 <span class="comment">%    end</span>
+0099 
+0100     <span class="comment">% Apply any operations specified</span>
+0101     ops = PRT.model(mid).input.operations(PRT.model(mid).input.operations ~=0 );
+0102     <span class="keyword">for</span> o = 1:length(ops)
+0103         cvdata = <a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>(PRT, cvdata, ops(o));
+0104     <span class="keyword">end</span>
 0105     
-0106     <span class="comment">% compute stats</span>
-0107     stats = <a href="prt_stats.html" class="code" title="function stats = prt_stats(model, t)">prt_stats</a>(model, cvdata.te_targets);
-0108     acc = stats.acc <span class="comment">% for debugging</span>
-0109     
-0110     <span class="comment">% update PRT</span>
-0111     PRT.model(mid).output.fold(f).targets     = cvdata.te_targets;
-0112     PRT.model(mid).output.fold(f).predictions = model.predictions; 
-0113     PRT.model(mid).output.fold(f).stats       = stats;
+0106     <span class="comment">% train the prediction model</span>
+0107     model = prt_machine(cvdata, PRT.model(mid).input.machine);
+0108     
+0109     <span class="comment">% check that it produced a predictions field</span>
+0110     <span class="keyword">if</span> ~any(strcmpi(fieldnames(model),<span class="string">'predictions'</span>))
+0111         error([<span class="string">'prt_cv_model:machineDoesNotGivePredictions'</span>,<span class="keyword">...</span>
+0112             <span class="string">'Machine did not produce a predictions field'</span>]);
+0113     <span class="keyword">end</span>  
 0114     
-0115     <span class="comment">% copy other fields from the model</span>
-0116     flds = fieldnames(model);
-0117     <span class="keyword">for</span> fld = 1:length(flds)
-0118         fldnm = char(flds(fld));
-0119         <span class="keyword">if</span> ~strcmpi(fldnm,<span class="string">'predictions'</span>)
-0120             eval([<span class="string">'PRT.model(mid).output.fold(f).'</span>,fldnm,<span class="string">'=model.'</span>,fldnm,<span class="string">';'</span>]);
-0121         <span class="keyword">end</span>
-0122     <span class="keyword">end</span>
-0123 <span class="keyword">end</span>
-0124 
-0125 <span class="comment">% Save PRT containing machine output</span>
-0126 <span class="comment">% -------------------------------------------------------------------------</span>
-0127 outfile = [prt_dir, <span class="string">'PRT'</span>];
-0128 disp(<span class="string">'Updating PRT.mat.......&gt;&gt;'</span>)
-0129 <span class="keyword">if</span> spm_matlab_version_chk(<span class="string">'7'</span>) &gt;= 0
-0130     save(outfile,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
-0131 <span class="keyword">else</span>
-0132     save(outfile,<span class="string">'PRT'</span>);
-0133 <span class="keyword">end</span>
-0134 <span class="keyword">end</span>
-0135 
-0136 <span class="comment">% -------------------------------------------------------------------------</span>
-0137 <span class="comment">% Private functions</span>
-0138 <span class="comment">% -------------------------------------------------------------------------</span>
-0139         
-0140 <a name="_sub1" href="#_subfunctions" class="code">function [Phi_tr Phi_te Phi_tt] = split_data(Phi_all, tr_idx, te_idx, usebf)</a>
-0141 <span class="comment">% function to split the data matrix into training and test</span>
-0142 
-0143 n_mat = length(Phi_all);
-0144 
-0145 <span class="comment">% training</span>
-0146 Phi_tr = cell(1,n_mat);
-0147 <span class="keyword">for</span> i = 1:n_mat;
-0148     <span class="keyword">if</span> usebf
-0149         cols_tr = tr_idx;
-0150     <span class="keyword">else</span>
-0151         cols_tr = size(Phi_all{i},2);
-0152     <span class="keyword">end</span>
-0153     
-0154     Phi_tr{i} = Phi_all{i}(tr_idx,cols_tr);
-0155 <span class="keyword">end</span>
-0156 
-0157 <span class="comment">% test</span>
-0158 Phi_te  = cell(1,n_mat);
-0159 Phi_tt = cell(1,n_mat);
-0160 <span class="keyword">if</span> usebf
-0161     cols_tr = tr_idx;
-0162     cols_te = te_idx;
-0163 <span class="keyword">else</span>
-0164     cols_tr = size(Phi_all{i},2);
-0165     <span class="comment">%cols_te = size(Phi_all{i},2);</span>
-0166 <span class="keyword">end</span>
+0115     <span class="comment">% compute stats</span>
+0116     stats = <a href="prt_stats.html" class="code" title="function stats = prt_stats(model, t,flag)">prt_stats</a>(model, cvdata.te_targets);
+0117     <span class="comment">%acc = stats.acc % for debugging</span>
+0118     
+0119     <span class="comment">% update PRT - ensuring column vectors throughout</span>
+0120     PRT.model(mid).output.fold(f).targets     = cvdata.te_targets(:); 
+0121     PRT.model(mid).output.fold(f).predictions = model.predictions(:);
+0122     PRT.model(mid).output.fold(f).stats       = stats;
+0123     <span class="comment">% save func_val for later analysis if available</span>
+0124     <span class="keyword">if</span> isfield(model,<span class="string">'func_val'</span>)
+0125         PRT.model(mid).output.fold(f).func_val    = model.func_val; 
+0126     <span class="keyword">end</span>
+0127     
+0128     <span class="comment">% copy other fields from the model</span>
+0129     flds = fieldnames(model);
+0130     <span class="keyword">for</span> fld = 1:length(flds)
+0131         fldnm = char(flds(fld));
+0132         <span class="keyword">if</span> ~strcmpi(fldnm,<span class="string">'predictions'</span>)
+0133             <span class="comment">%eval(['PRT.model(mid).output.fold(f).',fldnm,'=model.',fldnm,';']);</span>
+0134             PRT.model(mid).output.fold(f).(fldnm)=model.(fldnm);
+0135         <span class="keyword">end</span>
+0136     <span class="keyword">end</span>
+0137 <span class="keyword">end</span>
+0138 
+0139 <span class="comment">%Model level (across folds) statistics</span>
+0140 <span class="comment">%t=[PRT.model(mid).output.fold(:).targets];</span>
+0141 t=vertcat(PRT.model(mid).output.fold(:).targets);
+0142 m.type=PRT.model(mid).output.fold(1).type;
+0143 <span class="comment">%m.predictions=[PRT.model(mid).output.fold(:).predictions];</span>
+0144 m.predictions=vertcat(PRT.model(mid).output.fold(:).predictions);
+0145 <span class="comment">%m.predictions=m.predictions(:);</span>
+0146 <span class="comment">%m.func_val=[PRT.model(mid).output.fold(:).func_val];</span>
+0147 stats=<a href="prt_stats.html" class="code" title="function stats = prt_stats(model, t,flag)">prt_stats</a>(m,t(:),<span class="string">'model'</span>);
+0148 PRT.model(mid).output.stats=stats;
+0149 
+0150 <span class="comment">% Save PRT containing machine output</span>
+0151 <span class="comment">% -------------------------------------------------------------------------</span>
+0152 outfile = [prt_dir, <span class="string">'PRT'</span>];
+0153 disp(<span class="string">'Updating PRT.mat.......&gt;&gt;'</span>)
+0154 <span class="keyword">if</span> spm_matlab_version_chk(<span class="string">'7'</span>) &gt;= 0
+0155     save(outfile,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
+0156 <span class="keyword">else</span>
+0157     save(outfile,<span class="string">'PRT'</span>);
+0158 <span class="keyword">end</span>
+0159 <span class="keyword">end</span>
+0160 
+0161 <span class="comment">% -------------------------------------------------------------------------</span>
+0162 <span class="comment">% Private functions</span>
+0163 <span class="comment">% -------------------------------------------------------------------------</span>
+0164         
+0165 <a name="_sub1" href="#_subfunctions" class="code">function [Phi_tr Phi_te Phi_tt] = split_data(Phi_all, tr_idx, te_idx, usebf)</a>
+0166 <span class="comment">% function to split the data matrix into training and test</span>
 0167 
-0168 <span class="keyword">for</span> i = 1:length(Phi_all)
-0169     Phi_te{i} = Phi_all{i}(te_idx, cols_tr);
-0170     <span class="keyword">if</span> usebf
-0171         Phi_tt{i} = Phi_all{i}(te_idx, cols_te);
-0172     <span class="keyword">else</span>
-0173         Phi_tt{i} = [];
-0174     <span class="keyword">end</span>
-0175 <span class="keyword">end</span>
-0176 <span class="keyword">end</span>
-0177</pre></div>
-<hr><address>Generated on Thu 20-Oct-2011 11:56:23 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0168 n_mat = length(Phi_all);
+0169 
+0170 <span class="comment">% training</span>
+0171 Phi_tr = cell(1,n_mat);
+0172 <span class="keyword">for</span> i = 1:n_mat;
+0173     <span class="keyword">if</span> usebf
+0174         cols_tr = tr_idx;
+0175     <span class="keyword">else</span>
+0176         cols_tr = size(Phi_all{i},2);
+0177     <span class="keyword">end</span>
+0178     
+0179     Phi_tr{i} = Phi_all{i}(tr_idx,cols_tr);
+0180 <span class="keyword">end</span>
+0181 
+0182 <span class="comment">% test</span>
+0183 Phi_te  = cell(1,n_mat);
+0184 Phi_tt = cell(1,n_mat);
+0185 <span class="keyword">if</span> usebf
+0186     cols_tr = tr_idx;
+0187     cols_te = te_idx;
+0188 <span class="keyword">else</span>
+0189     cols_tr = size(Phi_all{i},2);
+0190     <span class="comment">%cols_te = size(Phi_all{i},2);</span>
+0191 <span class="keyword">end</span>
+0192 
+0193 <span class="keyword">for</span> i = 1:length(Phi_all)
+0194     Phi_te{i} = Phi_all{i}(te_idx, cols_tr);
+0195     <span class="keyword">if</span> usebf
+0196         Phi_tt{i} = Phi_all{i}(te_idx, cols_te);
+0197     <span class="keyword">else</span>
+0198         Phi_tt{i} = [];
+0199     <span class="keyword">end</span>
+0200 <span class="keyword">end</span>
+0201 <span class="keyword">end</span>
+0202</pre></div>
+<hr><address>Generated on Sat 12-Nov-2011 16:15:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

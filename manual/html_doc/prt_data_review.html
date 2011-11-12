@@ -28,23 +28,25 @@
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> PRT_DATA_REVIEW M-file for prt_data_review.fig
-      PRT_DATA_REVIEW, by itself, creates a new PRT_DATA_REVIEW or raises the existing
-      singleton*.
 
-      H = PRT_DATA_REVIEW returns the handle to a new PRT_DATA_REVIEW or the handle to
-      the existing singleton*.
+ PRT_DATA_REVIEW, by itself, creates a new PRT_DATA_REVIEW or raises the 
+ existing singleton*.
 
-      PRT_DATA_REVIEW('CALLBACK',hObject,eventData,handles,...) calls the local
-      function named CALLBACK in PRT_DATA_REVIEW.M with the given input arguments.
+ H = PRT_DATA_REVIEW returns the handle to a new PRT_DATA_REVIEW or the 
+ handle to the existing singleton*.
 
-      PRT_DATA_REVIEW('Property','Value',...) creates a new PRT_DATA_REVIEW or raises the
-      existing singleton*.  Starting from the left, property value pairs are
-      applied to the GUI before prt_data_review_OpeningFcn gets called.  An
-      unrecognized property name or invalid value makes property application
-      stop.  All inputs are passed to prt_data_review_OpeningFcn via varargin.
+ PRT_DATA_REVIEW('CALLBACK',hObject,eventData,handles,...) calls the local
+ function named CALLBACK in PRT_DATA_REVIEW.M with the given input arguments.
 
-      *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one
-      instance to run (singleton)&quot;.
+ PRT_DATA_REVIEW('Property','Value',...) creates a new PRT_DATA_REVIEW or 
+ raises the existing singleton*.  Starting from the left, property value 
+ pairs are applied to the GUI before prt_data_review_OpeningFcn gets 
+ called.  An unrecognized property name or invalid value makes property 
+ application stop.  All inputs are passed to prt_data_review_OpeningFcn 
+ via varargin.
+
+ *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one
+  instance to run (singleton)&quot;.
 
  See also: GUIDE, GUIDATA, GUIHANDLES
 _______________________________________________________________________
@@ -54,7 +56,7 @@ _______________________________________________________________________
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-</ul>
+<li><a href="prt_check_design.html" class="code" title="function [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)">prt_check_design</a>	FORMAT [conds] = prt_check_design(cond,tr,units,hrfoverlap)</li><li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Get/set the defaults values associated with an identifier</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 <li><a href="prt_ui_design.html" class="code" title="function varargout = prt_ui_design(varargin)">prt_ui_design</a>	PRT_UI_DESIGN M-file for prt_ui_design.fig</li><li><a href="prt_ui_main.html" class="code" title="function varargout = prt_ui_main(varargin)">prt_ui_main</a>	PRT_UI_MAIN M-file for prt_ui_main.fig</li></ul>
@@ -62,285 +64,486 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function prt_data_review_OpeningFcn(hObject, eventdata, handles, varargin)</a></li><li><a href="#_sub2" class="code">function varargout = prt_data_review_OutputFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub3" class="code">function modlist_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub4" class="code">function modlist_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub5" class="code">function prt_disp_conditions(dat,ind,handles,hObject)</a></li></ul>
+<li><a href="#_sub1" class="code">function prt_data_review_OpeningFcn(hObject, eventdata, handles, varargin)</a></li><li><a href="#_sub2" class="code">function varargout = prt_data_review_OutputFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub3" class="code">function figure1_DeleteFcn(hObject,eventdata,handles)</a></li><li><a href="#_sub4" class="code">function modlist_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub5" class="code">function modlist_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub6" class="code">function hrfover_edit_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub7" class="code">function hrfover_edit_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub8" class="code">function edit_hrfdel_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub9" class="code">function edit_hrfdel_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub10" class="code">function prt_disp_conditions(dat,ind,handles,hObject)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = prt_data_review(varargin)</a>
 0002 <span class="comment">% PRT_DATA_REVIEW M-file for prt_data_review.fig</span>
-0003 <span class="comment">%      PRT_DATA_REVIEW, by itself, creates a new PRT_DATA_REVIEW or raises the existing</span>
-0004 <span class="comment">%      singleton*.</span>
-0005 <span class="comment">%</span>
-0006 <span class="comment">%      H = PRT_DATA_REVIEW returns the handle to a new PRT_DATA_REVIEW or the handle to</span>
-0007 <span class="comment">%      the existing singleton*.</span>
-0008 <span class="comment">%</span>
-0009 <span class="comment">%      PRT_DATA_REVIEW('CALLBACK',hObject,eventData,handles,...) calls the local</span>
-0010 <span class="comment">%      function named CALLBACK in PRT_DATA_REVIEW.M with the given input arguments.</span>
-0011 <span class="comment">%</span>
-0012 <span class="comment">%      PRT_DATA_REVIEW('Property','Value',...) creates a new PRT_DATA_REVIEW or raises the</span>
-0013 <span class="comment">%      existing singleton*.  Starting from the left, property value pairs are</span>
-0014 <span class="comment">%      applied to the GUI before prt_data_review_OpeningFcn gets called.  An</span>
-0015 <span class="comment">%      unrecognized property name or invalid value makes property application</span>
-0016 <span class="comment">%      stop.  All inputs are passed to prt_data_review_OpeningFcn via varargin.</span>
-0017 <span class="comment">%</span>
-0018 <span class="comment">%      *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one</span>
-0019 <span class="comment">%      instance to run (singleton)&quot;.</span>
-0020 <span class="comment">%</span>
-0021 <span class="comment">% See also: GUIDE, GUIDATA, GUIHANDLES</span>
-0022 <span class="comment">%_______________________________________________________________________</span>
-0023 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
-0024 
-0025 <span class="comment">% Written by J.Schrouff</span>
-0026 <span class="comment">% $Id: prt_data_review.m 135 2011-10-11 10:21:27Z amarquan $</span>
-0027 
-0028 <span class="comment">% Edit the above text to modify the response to help prt_data_review</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% PRT_DATA_REVIEW, by itself, creates a new PRT_DATA_REVIEW or raises the</span>
+0005 <span class="comment">% existing singleton*.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% H = PRT_DATA_REVIEW returns the handle to a new PRT_DATA_REVIEW or the</span>
+0008 <span class="comment">% handle to the existing singleton*.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% PRT_DATA_REVIEW('CALLBACK',hObject,eventData,handles,...) calls the local</span>
+0011 <span class="comment">% function named CALLBACK in PRT_DATA_REVIEW.M with the given input arguments.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% PRT_DATA_REVIEW('Property','Value',...) creates a new PRT_DATA_REVIEW or</span>
+0014 <span class="comment">% raises the existing singleton*.  Starting from the left, property value</span>
+0015 <span class="comment">% pairs are applied to the GUI before prt_data_review_OpeningFcn gets</span>
+0016 <span class="comment">% called.  An unrecognized property name or invalid value makes property</span>
+0017 <span class="comment">% application stop.  All inputs are passed to prt_data_review_OpeningFcn</span>
+0018 <span class="comment">% via varargin.</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">% *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one</span>
+0021 <span class="comment">%  instance to run (singleton)&quot;.</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% See also: GUIDE, GUIDATA, GUIHANDLES</span>
+0024 <span class="comment">%_______________________________________________________________________</span>
+0025 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0026 
+0027 <span class="comment">% Written by J.Schrouff</span>
+0028 <span class="comment">% $Id: prt_data_review.m 362 2011-11-11 16:03:39Z schrouff $</span>
 0029 
-0030 <span class="comment">% Last Modified by GUIDE v2.5 05-Sep-2011 18:40:01</span>
+0030 <span class="comment">% Edit the above text to modify the response to help prt_data_review</span>
 0031 
-0032 <span class="comment">% Begin initialization code - DO NOT EDIT</span>
-0033 gui_Singleton = 1;
-0034 gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
-0035                    <span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
-0036                    <span class="string">'gui_OpeningFcn'</span>, @<a href="#_sub1" class="code" title="subfunction prt_data_review_OpeningFcn(hObject, eventdata, handles, varargin)">prt_data_review_OpeningFcn</a>, <span class="keyword">...</span>
-0037                    <span class="string">'gui_OutputFcn'</span>,  @<a href="#_sub2" class="code" title="subfunction varargout = prt_data_review_OutputFcn(hObject, eventdata, handles)">prt_data_review_OutputFcn</a>, <span class="keyword">...</span>
-0038                    <span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
-0039                    <span class="string">'gui_Callback'</span>,   []);
-0040 <span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
-0041     gui_State.gui_Callback = str2func(varargin{1});
-0042 <span class="keyword">end</span>
-0043 
-0044 <span class="keyword">if</span> nargout
-0045     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
-0046 <span class="keyword">else</span>
-0047     gui_mainfcn(gui_State, varargin{:});
-0048 <span class="keyword">end</span>
-0049 <span class="comment">% End initialization code - DO NOT EDIT</span>
-0050 
-0051 
-0052 <span class="comment">% --- Executes just before prt_data_review is made visible.</span>
-0053 <a name="_sub1" href="#_subfunctions" class="code">function prt_data_review_OpeningFcn(hObject, eventdata, handles, varargin)</a>
-0054 <span class="comment">% This function has no output args, see OutputFcn.</span>
-0055 <span class="comment">% hObject    handle to figure</span>
-0056 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0057 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0058 <span class="comment">% varargin   command line arguments to prt_data_review (see VARARGIN)</span>
-0059 
-0060 <span class="comment">% Choose default command line output for prt_data_review</span>
-0061 handles.output = hObject;
-0062 
-0063 
-0064 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
-0065     <span class="comment">%get number of groups and subjects/group</span>
-0066     PRT=varargin{2};
-0067     ng=length(PRT.group);
-0068     ns=zeros(ng,1);
-0069     gname=cell(ng);
-0070     handles.gname=gname;
-0071     <span class="keyword">for</span> i=1:ng
-0072         ns(i)=length(PRT.group(i).subject);
-0073         gname{i}=PRT.group(i).gr_name;
-0074     <span class="keyword">end</span>
-0075     <span class="comment">%get number of modalities and the index of those having designs</span>
-0076     nm=length(PRT.group(1).subject(1).modality);
-0077     ind=[];
-0078     list={};
-0079     <span class="keyword">for</span> i=1:nm
-0080         <span class="keyword">if</span> isstruct(PRT.group(1).subject(1).modality(i).design)
-0081             ind=[ind, i];
-0082             list=[list, {PRT.group(1).subject(1).modality(i).mod_name}];
-0083         <span class="keyword">end</span>
-0084     <span class="keyword">end</span>   
-0085 <span class="keyword">else</span>
-0086     beep
-0087     disp(<span class="string">'No data structure found at this point'</span>)
-0088     disp(<span class="string">'Please enter at least one completed group before reviewing'</span>)
-0089     <span class="keyword">return</span>
-0090 <span class="keyword">end</span>
-0091 
-0092 <span class="comment">%Set the texts of the different fields</span>
-0093 set(handles.numgr,<span class="string">'String'</span>,num2str(ng))
-0094 set(handles.nummod,<span class="string">'String'</span>,num2str(nm));
-0095 <span class="keyword">if</span> isempty(ind)
-0096     set(handles.des,<span class="string">'String'</span>,<span class="string">'No'</span>)
-0097     set(handles.modlist,<span class="string">'String'</span>,{<span class="string">'None'</span>})
-0098     set(handles.modlist,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0099     set(handles.condask,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0100     set(handles.axes2,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0101     set(handles.axes3,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0102     set(handles.numcond,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0103     set(handles.pm1,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0104     set(handles.pm2,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0105     set(handles.intsc,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0106     set(handles.befcor,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0107     set(handles.aftcor,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0108     set(handles.mbef,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0109     set(handles.stdbef,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0110     set(handles.maft,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0111     set(handles.stdaft,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0112 <span class="keyword">else</span>
-0113     set(handles.des,<span class="string">'String'</span>,<span class="string">'Yes'</span>)
-0114     set(handles.modlist,<span class="string">'String'</span>,list)
-0115     handles.ind=ind;
-0116     set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
-0117     <span class="comment">% Update handles structure</span>
-0118     guidata(hObject, handles);
-0119     <a href="#_sub5" class="code" title="subfunction prt_disp_conditions(dat,ind,handles,hObject)">prt_disp_conditions</a>(PRT,ind(1),handles,hObject);   
-0120 <span class="keyword">end</span>
-0121 
-0122 <span class="comment">%Display the bar graph for the number of subjects/group</span>
-0123 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes1)
-0124 x=2:2:2*ng;
-0125 bar(handles.axes1,x,ns);
-0126 ylim([0 max(ns)+1])
-0127 xlim([1 max(x)+1])
-0128 set(handles.axes1,<span class="string">'XTickLabel'</span>,gname)
-0129 ylabel(<span class="string">'Number of subjects'</span>)
-0130 handles.PRT=PRT;
-0131 <span class="comment">% Update handles structure</span>
-0132 guidata(hObject, handles);
-0133 
-0134 <span class="comment">% UIWAIT makes prt_data_review wait for user response (see UIRESUME)</span>
-0135 <span class="comment">% uiwait(handles.figure1);</span>
-0136 
-0137 
-0138 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0139 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_data_review_OutputFcn(hObject, eventdata, handles) </a>
-0140 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0141 <span class="comment">% hObject    handle to figure</span>
-0142 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0143 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0144 
-0145 <span class="comment">% Get default command line output from handles structure</span>
-0146 varargout{1} = handles.output;
-0147 
-0148 
-0149 <span class="comment">% --- Executes on selection change in modlist.</span>
-0150 <a name="_sub3" href="#_subfunctions" class="code">function modlist_Callback(hObject, eventdata, handles)</a>
-0151 <span class="comment">% hObject    handle to modlist (see GCBO)</span>
-0152 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0153 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0154 
-0155 <span class="comment">% Hints: contents = get(hObject,'String') returns modlist contents as cell array</span>
-0156 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from modlist</span>
-0157 val=get(handles.modlist,<span class="string">'Value'</span>);
-0158 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
-0159 <a href="#_sub5" class="code" title="subfunction prt_disp_conditions(dat,ind,handles,hObject)">prt_disp_conditions</a>(handles.PRT,handles.ind(val),handles,hObject);
-0160 
-0161 <span class="comment">% Update handles structure</span>
-0162 guidata(hObject, handles);
-0163 
-0164 
-0165 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0166 <a name="_sub4" href="#_subfunctions" class="code">function modlist_CreateFcn(hObject, eventdata, handles)</a>
-0167 <span class="comment">% hObject    handle to modlist (see GCBO)</span>
-0168 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0169 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0170 
-0171 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0172 <span class="comment">%       See ISPC and COMPUTER.</span>
-0173 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0174     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0175 <span class="keyword">end</span>
-0176 
-0177 <span class="comment">%--------------------------------------------------------------------------</span>
-0178 <span class="comment">%---------------------- Subfunctions --------------------------------------</span>
-0179 <span class="comment">%--------------------------------------------------------------------------</span>
-0180 <a name="_sub5" href="#_subfunctions" class="code">function prt_disp_conditions(dat,ind,handles,hObject)</a>
-0181 
-0182 
-0183 mname=dat.group(1).subject(1).modality(ind).mod_name;
-0184 nco=length(dat.group(1).subject(1).modality(ind).design.conds);
-0185 set(handles.numcond,<span class="string">'String'</span>,num2str(nco));
+0032 <span class="comment">% Last Modified by GUIDE v2.5 08-Nov-2011 10:53:38</span>
+0033 
+0034 <span class="comment">% Begin initialization code - DO NOT EDIT</span>
+0035 gui_Singleton = 1;
+0036 gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
+0037                    <span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
+0038                    <span class="string">'gui_OpeningFcn'</span>, @<a href="#_sub1" class="code" title="subfunction prt_data_review_OpeningFcn(hObject, eventdata, handles, varargin)">prt_data_review_OpeningFcn</a>, <span class="keyword">...</span>
+0039                    <span class="string">'gui_OutputFcn'</span>,  @<a href="#_sub2" class="code" title="subfunction varargout = prt_data_review_OutputFcn(hObject, eventdata, handles)">prt_data_review_OutputFcn</a>, <span class="keyword">...</span>
+0040                    <span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
+0041                    <span class="string">'gui_Callback'</span>,   []);
+0042 <span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
+0043     gui_State.gui_Callback = str2func(varargin{1});
+0044 <span class="keyword">end</span>
+0045 
+0046 <span class="keyword">if</span> nargout
+0047     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+0048 <span class="keyword">else</span>
+0049     gui_mainfcn(gui_State, varargin{:});
+0050 <span class="keyword">end</span>
+0051 <span class="comment">% End initialization code - DO NOT EDIT</span>
+0052 
+0053 
+0054 <span class="comment">% --- Executes just before prt_data_review is made visible.</span>
+0055 <a name="_sub1" href="#_subfunctions" class="code">function prt_data_review_OpeningFcn(hObject, eventdata, handles, varargin)</a>
+0056 <span class="comment">% This function has no output args, see OutputFcn.</span>
+0057 <span class="comment">% hObject    handle to figure</span>
+0058 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0059 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0060 <span class="comment">% varargin   command line arguments to prt_data_review (see VARARGIN)</span>
+0061 
+0062 <span class="comment">% Choose default command line output for prt_data_review</span>
+0063 handles.output = hObject;
+0064 
+0065 set(handles.figure1,<span class="string">'Name'</span>,<span class="string">'PRoNTo :: Review data and design'</span>)
+0066 
+0067 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
+0068     <span class="comment">%get number of groups and subjects/group</span>
+0069     PRT=varargin{2}{1};
+0070     handles.prtdir=varargin{2}{2};
+0071     ng=length(PRT.group);
+0072     <span class="keyword">if</span> ng==0
+0073         beep
+0074         disp(<span class="string">'No group found at this point'</span>)
+0075         disp(<span class="string">'Please enter at least one completed group before reviewing'</span>)
+0076         <span class="keyword">return</span>
+0077     <span class="keyword">end</span>
+0078     ns=zeros(ng,1);
+0079     gname=cell(ng);
+0080     handles.gname=gname;
+0081     <span class="keyword">for</span> i=1:ng
+0082         <span class="keyword">if</span> ~isfield(PRT.group(i),<span class="string">'subject'</span>)
+0083             disp([<span class="string">'Group '</span> num2str(i) <span class="string">' has no subject'</span>])
+0084             disp(<span class="string">'Please enter at least one completed group before reviewing'</span>)
+0085             <span class="keyword">return</span>
+0086         <span class="keyword">end</span>
+0087         ns(i)=length(PRT.group(i).subject);
+0088         gname{i}=PRT.group(i).gr_name;
+0089     <span class="keyword">end</span>
+0090     <span class="comment">%get number of modalities and the index of those having design</span>
+0091     <span class="keyword">if</span> ~isfield(PRT.group(1).subject(1),<span class="string">'modality'</span>)
+0092         disp([<span class="string">'No modality has been defined.'</span>])
+0093         disp(<span class="string">'Please enter at least one completed group before reviewing'</span>)
+0094         <span class="keyword">return</span>
+0095     <span class="keyword">end</span>
+0096     nm=length(PRT.group(1).subject(1).modality);
+0097     ind=[];
+0098     list={};
+0099     <span class="keyword">for</span> i=1:nm
+0100         <span class="comment">% XXX should we check on the existence of 'design' field ?</span>
+0101         <span class="keyword">if</span> isstruct(PRT.group(1).subject(1).modality(i).design)
+0102             ind=[ind, i];
+0103             list=[list, {PRT.group(1).subject(1).modality(i).mod_name}];
+0104         <span class="keyword">end</span>
+0105     <span class="keyword">end</span>   
+0106 <span class="keyword">else</span>
+0107     beep
+0108     disp(<span class="string">'No data structure found at this point'</span>)
+0109     disp(<span class="string">'Please enter at least one completed group before reviewing'</span>)
+0110     <span class="keyword">return</span>
+0111 <span class="keyword">end</span>
+0112 
+0113 <span class="comment">%Set the texts of the different fields</span>
+0114 set(handles.numgr,<span class="string">'String'</span>,num2str(ng))
+0115 set(handles.nummod,<span class="string">'String'</span>,num2str(nm));
+0116 <span class="keyword">if</span> isempty(ind)
+0117     set(handles.des,<span class="string">'String'</span>,<span class="string">'No'</span>)
+0118     set(handles.modlist,<span class="string">'String'</span>,{<span class="string">'None'</span>})
+0119     set(handles.modlist,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0120     set(handles.condask,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0121     set(handles.text10,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0122     set(handles.axes2,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0123     set(handles.axes3,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0124     set(handles.numcond,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0125     set(handles.pm1,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0126     set(handles.pm2,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0127     set(handles.intsc,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0128     set(handles.befcor,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0129     set(handles.aftcor,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0130     set(handles.mbef,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0131     set(handles.stdbef,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0132     set(handles.maft,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0133     set(handles.stdaft,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0134     set(handles.hrfover_txt,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0135     set(handles.hrfover_edit,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0136     set(handles.txthrfdel,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0137     set(handles.edit_hrfdel,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0138     set(handles.uipanel4,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0139     <span class="comment">%Only displays the number of subjects per group when no design:</span>
+0140     x=get(handles.axes3,<span class="string">'Position'</span>);
+0141     set(handles.axes1,<span class="string">'Position'</span>,x);
+0142     x=get(handles.uipanel4,<span class="string">'Position'</span>);
+0143     w=get(handles.uipanel3,<span class="string">'Position'</span>);
+0144     set(handles.uipanel3,<span class="string">'Position'</span>,[x(1),x(2),w(3),w(4)]);
+0145     w=get(handles.figure1,<span class="string">'Position'</span>);
+0146     set(handles.figure1,<span class="string">'Position'</span>,[w(1),w(2)+(2*w(4)/2.5),w(3),w(4)/2.5])
+0147     w=get(handles.axes1,<span class="string">'Position'</span>);
+0148     x=get(handles.text1,<span class="string">'Position'</span>);
+0149     set(handles.text1,<span class="string">'Position'</span>,[x(1),w(2)+w(4)*1.07,x(3),x(4)])
+0150 <span class="keyword">else</span>
+0151     def=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'datad'</span>);
+0152     <span class="keyword">if</span> isfield(PRT.group,<span class="string">'hrfoverlap'</span>)
+0153         set(handles.hrfover_edit,<span class="string">'String'</span>,num2str(PRT.group(1).hrfoverlap))
+0154     <span class="keyword">else</span>
+0155         set(handles.hrfover_edit,<span class="string">'String'</span>,num2str(def.hrfw))
+0156     <span class="keyword">end</span>
+0157     <span class="keyword">if</span> isfield(PRT.group,<span class="string">'hrfdelay'</span>)
+0158         set(handles.edit_hrfdel,<span class="string">'String'</span>,num2str(PRT.group(1).hrfdelay))
+0159     <span class="keyword">else</span>
+0160         set(handles.edit_hrfdel,<span class="string">'String'</span>,num2str(def.hrfd))
+0161     <span class="keyword">end</span>
+0162     set(handles.des,<span class="string">'String'</span>,<span class="string">'Yes'</span>)
+0163     set(handles.modlist,<span class="string">'String'</span>,list)
+0164     set(handles.modlist,<span class="string">'Value'</span>,1)
+0165     handles.ind=ind;
+0166     set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
+0167     <span class="comment">% Update handles structure</span>
+0168     guidata(hObject, handles);
+0169     <a href="#_sub10" class="code" title="subfunction prt_disp_conditions(dat,ind,handles,hObject)">prt_disp_conditions</a>(PRT,ind(1),handles,hObject);   
+0170 <span class="keyword">end</span>
+0171 
+0172 <span class="comment">%Display the bar graph for the number of subjects/group</span>
+0173 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes1)
+0174 x=2:2:2*ng;
+0175 bar(handles.axes1,x,ns);
+0176 ylim([0 max(ns)+1])
+0177 xlim([1 max(x)+1])
+0178 set(handles.axes1,<span class="string">'XTickLabel'</span>,gname)
+0179 ylabel(<span class="string">'Number of subjects'</span>)
+0180 handles.PRT=PRT;
+0181 <span class="comment">% Update handles structure</span>
+0182 guidata(hObject, handles);
+0183 
+0184 <span class="comment">% UIWAIT makes prt_data_review wait for user response (see UIRESUME)</span>
+0185 <span class="comment">% uiwait(handles.figure1);</span>
 0186 
 0187 
-0188 meantp=zeros(length(dat.group),nco);
-0189 stdtp=zeros(length(dat.group),nco);
-0190 meantpdisc=zeros(length(dat.group),nco);
-0191 stdtpdisc=zeros(length(dat.group),nco);
-0192 mbef=zeros(length(dat.group),1);
-0193 stdbef=zeros(length(dat.group),1);
-0194 maft=zeros(length(dat.group),1);
-0195 stdaft=zeros(length(dat.group),1);
-0196 <span class="keyword">for</span> i=1:length(dat.group)
-0197     nsc=zeros(length(dat.group(i).subject),nco);
-0198     ndisc=zeros(length(dat.group(i).subject),nco);
-0199     overlbe=zeros(length(dat.group(i).subject),1);
-0200     overlaf=zeros(length(dat.group(i).subject),1);
-0201     <span class="keyword">for</span> j=1:length(dat.group(i).subject)
-0202         indm=find(strcmpi({dat.group(i).subject(j).modality(:).mod_name},mname));
-0203         ncond=length(dat.group(i).subject(j).modality(indm).design.conds);
-0204         des=dat.group(i).subject(j).modality(indm).design;
-0205         <span class="keyword">for</span> k=1:ncond
-0206             nsc(j,k)=length(des.conds(k).scans);
-0207             ndisc(j,k)=length(des.conds(k).discardedscans)+length(des.conds(k).hrfdiscardedscans);
-0208         <span class="keyword">end</span>
-0209         overlbe(j)=des.stats.meanovl;
-0210         overlaf(j)=des.stats.mgoodovl;
-0211     <span class="keyword">end</span>
-0212     meantp(i,:)=mean(nsc);
-0213     stdtp(i,:)=std(nsc);
-0214     meantpdisc(i,:)=mean(ndisc);
-0215     stdtpdisc(i,:)=std(ndisc);
-0216     mbef(i)=mean(overlbe);
-0217     stdbef(i)=std(overlbe);
-0218     maft(i)=mean(overlaf);
-0219     stdaft(i)=std(overlaf);
-0220 <span class="keyword">end</span>
-0221 
-0222 <span class="comment">%plot the results into bar graphs</span>
-0223 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
-0224 ncond=size(meantp,2);
-0225 vecty=2:2+ncond-1;
-0226 y=vecty;
-0227 <span class="keyword">for</span> i=2:size(meantp,1)
-0228     vecty=vecty+(ncond+1);
-0229     y=[y;vecty];
-0230 <span class="keyword">end</span>
-0231 x=mean(y,2);
-0232 <span class="keyword">if</span> length(x)==1
-0233     x=2:2+ncond-1;
-0234     xl=max(x)+1;
-0235     meantp=[meantp; zeros(1,ncond)];
-0236     stdtp=[stdtp; zeros(1,ncond)];
-0237     meantpdisc=[meantpdisc; zeros(1,ncond)];
-0238     stdtpdisc=[stdtpdisc; zeros(1,ncond)];
-0239     vecty=2:2+ncond-1;
-0240     y=vecty;
-0241     <span class="keyword">for</span> i=2:size(meantp,1)
-0242         vecty=vecty+(ncond+1);
-0243         y=[y;vecty];
-0244     <span class="keyword">end</span>
-0245     x=mean(y,2);
-0246 <span class="keyword">else</span>
-0247     xl=max(x)+ncond-1;
-0248 <span class="keyword">end</span>
-0249 bar(x,meantp,0.9);
-0250 hold on
-0251 errorbar(y,meantp,stdtp,<span class="string">'.k'</span>)
-0252 ylim([0 1.1*max(meantp(:))])
-0253 xlim([1 xl])
-0254 ylabel(<span class="string">'Number of selected scans'</span>)
-0255 set(handles.axes2,<span class="string">'XTickLabel'</span>,handles.gname)
-0256 
-0257 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes3)
-0258 bar(x,meantpdisc,0.9);
-0259 hold on
-0260 errorbar(y,meantpdisc,stdtpdisc,<span class="string">'.k'</span>)
-0261 ylim([0 1.1*max(meantp(:))])
-0262 xlim([1 xl])
-0263 ylabel(<span class="string">'Number of discarded scans'</span>)
-0264 set(handles.axes3,<span class="string">'XTickLabel'</span>,handles.gname)
-0265 legend({dat.group(1).subject(1).modality(ind).design.conds(:).cond_name},<span class="keyword">...</span>
-0266     <span class="string">'Location'</span>,<span class="string">'NorthEast'</span>)
-0267 
-0268 
-0269 <span class="comment">%set the overlaps before and after HRF correction</span>
-0270 set(handles.mbef,<span class="string">'String'</span>,num2str(mean(mbef)));
-0271 set(handles.stdbef,<span class="string">'String'</span>,num2str(mean(stdbef)));
-0272 set(handles.maft,<span class="string">'String'</span>,num2str(mean(maft)));
-0273 set(handles.stdaft,<span class="string">'String'</span>,num2str(mean(stdaft)));
-0274 
-0275 <span class="comment">% Update handles structure</span>
-0276 guidata(hObject, handles);</pre></div>
-<hr><address>Generated on Thu 20-Oct-2011 11:56:23 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0188 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0189 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_data_review_OutputFcn(hObject, eventdata, handles) </a>
+0190 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0191 <span class="comment">% hObject    handle to figure</span>
+0192 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0193 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0194 
+0195 <span class="comment">% Get default command line output from handles structure</span>
+0196 <span class="comment">% Get default command line output from handles structure</span>
+0197 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
+0198     varargout{1} = handles.output;
+0199 <span class="keyword">else</span>
+0200     varargout{1}=[];
+0201 <span class="keyword">end</span>
+0202 
+0203 
+0204 <span class="comment">% --- Closing the figure</span>
+0205 <a name="_sub3" href="#_subfunctions" class="code">function figure1_DeleteFcn(hObject,eventdata,handles)</a>
+0206 <span class="comment">% hObject    handle to datastruct (see GCBO)</span>
+0207 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0208 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0209 handles.output=handles.PRT;
+0210 <span class="comment">% Update handles structure</span>
+0211 guidata(hObject, handles);
+0212 delete(handles.figure1);
+0213 
+0214 <span class="comment">% --- Executes on selection change in modlist.</span>
+0215 <a name="_sub4" href="#_subfunctions" class="code">function modlist_Callback(hObject, eventdata, handles)</a>
+0216 <span class="comment">% hObject    handle to modlist (see GCBO)</span>
+0217 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0218 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0219 
+0220 <span class="comment">% Hints: contents = get(hObject,'String') returns modlist contents as cell array</span>
+0221 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from modlist</span>
+0222 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0223 list=get(handles.modlist,<span class="string">'String'</span>);
+0224 <span class="comment">%handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)</span>
+0225 <span class="keyword">if</span> length(list)==1
+0226     set(handles.modlist,<span class="string">'Value'</span>,1)
+0227 <span class="keyword">end</span>
+0228 
+0229 val=get(handles.modlist,<span class="string">'Value'</span>);
+0230 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
+0231 <a href="#_sub10" class="code" title="subfunction prt_disp_conditions(dat,ind,handles,hObject)">prt_disp_conditions</a>(handles.PRT,handles.ind(val),handles,hObject);
+0232 
+0233 <span class="comment">% Update handles structure</span>
+0234 guidata(hObject, handles);
+0235 
+0236 
+0237 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0238 <a name="_sub5" href="#_subfunctions" class="code">function modlist_CreateFcn(hObject, eventdata, handles)</a>
+0239 <span class="comment">% hObject    handle to modlist (see GCBO)</span>
+0240 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0241 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0242 
+0243 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0244 <span class="comment">%       See ISPC and COMPUTER.</span>
+0245 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0246     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0247 <span class="keyword">end</span>
+0248 
+0249 <a name="_sub6" href="#_subfunctions" class="code">function hrfover_edit_Callback(hObject, eventdata, handles)</a>
+0250 <span class="comment">% hObject    handle to hrfover_edit (see GCBO)</span>
+0251 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0252 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0253 
+0254 <span class="comment">% Hints: get(hObject,'String') returns contents of hrfover_edit as text</span>
+0255 <span class="comment">%        str2double(get(hObject,'String')) returns contents of hrfover_edit as a double</span>
+0256 val=str2double(get(handles.hrfover_edit,<span class="string">'String'</span>));
+0257 del=str2double(get(handles.edit_hrfdel,<span class="string">'String'</span>));
+0258 list=get(handles.modlist,<span class="string">'String'</span>);
+0259 cm=get(handles.modlist,<span class="string">'Value'</span>);
+0260 PRT=handles.PRT;
+0261 <span class="keyword">for</span> i=1:length(PRT.group)
+0262     <span class="keyword">for</span> j=1:length(PRT.group(i).subject)
+0263         m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
+0264         dess=PRT.group(i).subject(j).modality(m).design;
+0265         desn=<a href="prt_check_design.html" class="code" title="function [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)">prt_check_design</a>(dess.conds,dess.TR,dess.unit,val,del);
+0266         desn.covar=dess.covar;
+0267         maxcond=max([desn.conds(:).scans]);
+0268         lfiles=size(PRT.group(i).subject(j).modality(m).scans,1);
+0269         <span class="keyword">if</span> lfiles&lt;maxcond
+0270             sprintf(<span class="string">'Design of subject %d, group %d, modality %d, exceeds time series \n'</span>,i,j,m)
+0271             disp(<span class="string">'Corresponding events were discarded'</span>)
+0272             <span class="keyword">for</span> l=1:length(desn.conds)
+0273                 ovser=find(desn.conds(l).scans&gt;lfiles);
+0274                 inser=find(desn.conds(l).scans&lt;lfiles);
+0275                 desn.conds(l).discardedscans=[desn.conds(l).discardedscans, desn.conds(l).scans(ovser)];
+0276                 desn.conds(l).scans=desn.conds(l).scans(inser);
+0277                 desn.conds(l).blocks=desn.conds(l).blocks(inser);
+0278             <span class="keyword">end</span>
+0279         <span class="keyword">end</span>
+0280         PRT.group(i).subject(j).modality(m).design=desn;
+0281     <span class="keyword">end</span>
+0282 <span class="keyword">end</span>
+0283 PRT.group.hrfoverlap=val;
+0284 PRT.group.hrfdelay=del;
+0285 save([handles.prtdir,filesep,<span class="string">'PRT.mat'</span>],<span class="string">'PRT'</span>)
+0286 handles.PRT=PRT;
+0287 <span class="comment">% Update handles structure</span>
+0288 guidata(hObject, handles);
+0289 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
+0290 <a href="#_sub10" class="code" title="subfunction prt_disp_conditions(dat,ind,handles,hObject)">prt_disp_conditions</a>(PRT,handles.ind(cm),handles,hObject)
+0291 <span class="comment">% Update handles structure</span>
+0292 guidata(hObject, handles);
+0293 
+0294 
+0295 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0296 <a name="_sub7" href="#_subfunctions" class="code">function hrfover_edit_CreateFcn(hObject, eventdata, handles)</a>
+0297 <span class="comment">% hObject    handle to hrfover_edit (see GCBO)</span>
+0298 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0299 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0300 
+0301 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0302 <span class="comment">%       See ISPC and COMPUTER.</span>
+0303 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0304     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0305 <span class="keyword">end</span>
+0306 
+0307 <a name="_sub8" href="#_subfunctions" class="code">function edit_hrfdel_Callback(hObject, eventdata, handles)</a>
+0308 <span class="comment">% hObject    handle to edit_hrfdel (see GCBO)</span>
+0309 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0310 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0311 
+0312 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_hrfdel as text</span>
+0313 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_hrfdel as a double</span>
+0314 del=str2double(get(handles.edit_hrfdel,<span class="string">'String'</span>));
+0315 val=str2double(get(handles.hrfover_edit,<span class="string">'String'</span>));
+0316 list=get(handles.modlist,<span class="string">'String'</span>);
+0317 cm=get(handles.modlist,<span class="string">'Value'</span>);
+0318 PRT=handles.PRT;
+0319 <span class="keyword">for</span> i=1:length(PRT.group)
+0320     <span class="keyword">for</span> j=1:length(PRT.group(i).subject)
+0321         m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
+0322         dess=PRT.group(i).subject(j).modality(m).design;
+0323         desn=<a href="prt_check_design.html" class="code" title="function [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)">prt_check_design</a>(dess.conds,dess.TR,dess.unit,val,del);
+0324         desn.covar=dess.covar;
+0325         maxcond=max([desn.conds(:).scans]);
+0326         lfiles=size(PRT.group(i).subject(j).modality(m).scans,1);
+0327         <span class="keyword">if</span> lfiles&lt;maxcond
+0328             sprintf(<span class="string">'Design of subject %d, group %d, modality %d, exceeds time series \n'</span>,i,j,m)
+0329             disp(<span class="string">'Corresponding events were discarded'</span>)
+0330             <span class="keyword">for</span> l=1:length(desn.conds)
+0331                 ovser=find(desn.conds(l).scans&gt;lfiles);
+0332                 inser=find(desn.conds(l).scans&lt;lfiles);
+0333                 desn.conds(l).discardedscans=[desn.conds(l).discardedscans, desn.conds(l).scans(ovser)];
+0334                 desn.conds(l).scans=desn.conds(l).scans(inser);
+0335                 desn.conds(l).blocks=desn.conds(l).blocks(inser);
+0336             <span class="keyword">end</span>
+0337         <span class="keyword">end</span>
+0338         PRT.group(i).subject(j).modality(m).design=desn;
+0339     <span class="keyword">end</span>
+0340     PRT.group(i).hrfoverlap=val;
+0341     PRT.group(i).hrfdelay=del;
+0342 <span class="keyword">end</span>
+0343 save([handles.prtdir,filesep,<span class="string">'PRT.mat'</span>],<span class="string">'PRT'</span>)
+0344 handles.PRT=PRT;
+0345 <span class="comment">% Update handles structure</span>
+0346 guidata(hObject, handles);
+0347 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
+0348 <a href="#_sub10" class="code" title="subfunction prt_disp_conditions(dat,ind,handles,hObject)">prt_disp_conditions</a>(PRT,handles.ind(cm),handles,hObject)
+0349 <span class="comment">% Update handles structure</span>
+0350 guidata(hObject, handles);
+0351 
+0352 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0353 <a name="_sub9" href="#_subfunctions" class="code">function edit_hrfdel_CreateFcn(hObject, eventdata, handles)</a>
+0354 <span class="comment">% hObject    handle to edit_hrfdel (see GCBO)</span>
+0355 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0356 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0357 
+0358 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0359 <span class="comment">%       See ISPC and COMPUTER.</span>
+0360 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0361     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0362 <span class="keyword">end</span>
+0363 
+0364 <span class="comment">%--------------------------------------------------------------------------</span>
+0365 <span class="comment">%---------------------- Subfunctions --------------------------------------</span>
+0366 <span class="comment">%--------------------------------------------------------------------------</span>
+0367 <a name="_sub10" href="#_subfunctions" class="code">function prt_disp_conditions(dat,ind,handles,hObject)</a>
+0368 
+0369 
+0370 mname=dat.group(1).subject(1).modality(ind).mod_name;
+0371 nco=length(dat.group(1).subject(1).modality(ind).design.conds);
+0372 set(handles.numcond,<span class="string">'String'</span>,num2str(nco));
+0373 
+0374 
+0375 meantp=zeros(length(dat.group),nco);
+0376 stdtp=zeros(length(dat.group),nco);
+0377 meantpdisc=zeros(length(dat.group),nco);
+0378 stdtpdisc=zeros(length(dat.group),nco);
+0379 mbef=zeros(length(dat.group),1);
+0380 stdbef=zeros(length(dat.group),1);
+0381 maft=zeros(length(dat.group),1);
+0382 stdaft=zeros(length(dat.group),1);
+0383 <span class="keyword">for</span> i=1:length(dat.group)
+0384     nsc=zeros(length(dat.group(i).subject),nco);
+0385     ndisc=zeros(length(dat.group(i).subject),nco);
+0386     overlbe=zeros(length(dat.group(i).subject),1);
+0387     overlaf=zeros(length(dat.group(i).subject),1);
+0388     <span class="keyword">for</span> j=1:length(dat.group(i).subject)
+0389         indm=find(strcmpi({dat.group(i).subject(j).modality(:).mod_name},mname));
+0390         ncond=length(dat.group(i).subject(j).modality(indm).design.conds);
+0391         des=dat.group(i).subject(j).modality(indm).design;
+0392         <span class="keyword">for</span> k=1:ncond
+0393             nsc(j,k)=length(des.conds(k).scans);
+0394             ndisc(j,k)=length(des.conds(k).discardedscans)+length(des.conds(k).hrfdiscardedscans);
+0395         <span class="keyword">end</span>
+0396         overlbe(j)=des.stats.meanovl;
+0397         overlaf(j)=des.stats.mgoodovl;
+0398     <span class="keyword">end</span>
+0399     <span class="keyword">if</span> size(nsc,1)==1
+0400         meantp(i,:)=nsc;
+0401         stdtp(i,:)=zeros(size(nsc));
+0402         meantpdisc(i,:)=ndisc;
+0403         stdtpdisc(i,:)=zeros(size(ndisc));
+0404         mbef(i)=overlbe;
+0405         stdbef(i)=zeros(size(overlbe));
+0406         maft(i)=overlaf;
+0407         stdaft(i)=zeros(size(overlaf));
+0408     <span class="keyword">else</span>
+0409         meantp(i,:)=mean(nsc);
+0410         stdtp(i,:)=std(nsc);
+0411         meantpdisc(i,:)=mean(ndisc);
+0412         stdtpdisc(i,:)=std(ndisc);
+0413         mbef(i)=mean(overlbe);
+0414         stdbef(i)=std(overlbe);
+0415         maft(i)=mean(overlaf);
+0416         stdaft(i)=std(overlaf);
+0417     <span class="keyword">end</span>
+0418 <span class="keyword">end</span>
+0419 
+0420 <span class="comment">%plot the results into bar graphs</span>
+0421 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
+0422 cla
+0423 ncond=size(meantp,2);
+0424 vecty=2:2+ncond-1;
+0425 y=vecty;
+0426 <span class="keyword">for</span> i=2:size(meantp,1)
+0427     vecty=vecty+(ncond+1);
+0428     y=[y;vecty];
+0429 <span class="keyword">end</span>
+0430 x=mean(y,2);
+0431 <span class="keyword">if</span> length(x)==1
+0432     x=2:2+ncond-1;
+0433     xl=max(x)+1;
+0434     meantp=[meantp; zeros(1,ncond)];
+0435     stdtp=[stdtp; zeros(1,ncond)];
+0436     meantpdisc=[meantpdisc; zeros(1,ncond)];
+0437     stdtpdisc=[stdtpdisc; zeros(1,ncond)];
+0438     vecty=2:2+ncond-1;
+0439     y=vecty;
+0440     <span class="keyword">for</span> i=2:size(meantp,1)
+0441         vecty=vecty+(ncond+1);
+0442         y=[y;vecty];
+0443     <span class="keyword">end</span>
+0444     x=mean(y,2);
+0445 <span class="keyword">else</span>
+0446     xl=max(x)+ncond-1;
+0447 <span class="keyword">end</span>
+0448 scmax=max(max(meantp(:)),max(meantpdisc(:)));
+0449 bar(handles.axes2,x,meantp,0.9);
+0450 hold on
+0451 errorbar(handles.axes2,y,meantp,stdtp,<span class="string">'.k'</span>)
+0452 ylim([0 1.1*scmax])
+0453 xlim([1 xl])
+0454 ylabel(<span class="string">'Number of selected scans'</span>)
+0455 set(handles.axes2,<span class="string">'XTickLabel'</span>,handles.gname)
+0456 
+0457 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes3)
+0458 cla
+0459 bar(handles.axes3,x,meantpdisc,0.9);
+0460 hold on
+0461 errorbar(handles.axes3,y,meantpdisc,stdtpdisc,<span class="string">'.k'</span>)
+0462 ylim([0 1.1*scmax])
+0463 xlim([1 xl])
+0464 ylabel(<span class="string">'Number of discarded scans'</span>)
+0465 set(handles.axes3,<span class="string">'XTickLabel'</span>,handles.gname)
+0466 legend({dat.group(1).subject(1).modality(ind).design.conds(:).cond_name},<span class="keyword">...</span>
+0467     <span class="string">'Location'</span>,<span class="string">'NorthEast'</span>)
+0468 
+0469 
+0470 <span class="comment">%set the overlaps before and after HRF correction</span>
+0471 set(handles.mbef,<span class="string">'String'</span>,num2str(mean(mbef)));
+0472 set(handles.stdbef,<span class="string">'String'</span>,num2str(mean(stdbef)));
+0473 set(handles.maft,<span class="string">'String'</span>,num2str(mean(maft)));
+0474 set(handles.stdaft,<span class="string">'String'</span>,num2str(mean(stdaft)));
+0475 
+0476 <span class="comment">% Update handles structure</span>
+0477 guidata(hObject, handles);</pre></div>
+<hr><address>Generated on Sat 12-Nov-2011 16:15:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -30,13 +30,13 @@
 <div class="fragment"><pre class="comment"> function to initialise the kernel data structure
  ------------------------------------------------
 
- FORMAT: Two modes are possible: 
+ FORMAT: Two modes are possible:
      fid = prt_init_fs(PRT, in)
      [fid, PRT, tocomp] = prt_init_fs(PRT, in)
 
- USAGE 1: 
+ USAGE 1:
  -------------------------------------------------------------------------
- function will return the id of a feature set or an error if it doesn't 
+ function will return the id of a feature set or an error if it doesn't
  exist in PRT.mat
  Input:
  ------
@@ -46,7 +46,7 @@
  -------
  fid : is the identifier for the feature set in PRT.mat
 
- USAGE 2: 
+ USAGE 2:
  -------------------------------------------------------------------------
  function will create the feature set in PRT.mat and overwrite it if it
  already exists.
@@ -87,7 +87,7 @@ This function calls:
 </ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_fs.html" class="code" title="function [outfile]=prt_fs(PRT,in)">prt_fs</a>	Function to build file arrays containing the (linearly detrended) data</li><li><a href="prt_model.html" class="code" title="function PRT = prt_model(PRT,in)">prt_model</a>	Function to configure and build the PRT.model data structure</li></ul>
+<li><a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_fs.html" class="code" title="function [outfile]=prt_fs(PRT,in)">prt_fs</a>	Function to build file arrays containing the (linearly detrended) data</li><li><a href="prt_model.html" class="code" title="function PRT = prt_model(PRT,in)">prt_model</a>	Function to configure and build the PRT.model data structure</li><li><a href="prt_ui_reviewmodel.html" class="code" title="function varargout = prt_ui_reviewmodel(varargin)">prt_ui_reviewmodel</a>	PRT_UI_REVIEWMODEL M-file for prt_ui_reviewmodel.fig</li></ul>
 <!-- crossreference -->
 
 
@@ -147,250 +147,266 @@ This function is called by:
 0052 <span class="comment">%__________________________________________________________________________</span>
 0053 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0054 
-0055 <span class="comment">% $Id: prt_init_fs.m 159 2011-10-17 12:24:44Z amarquan $</span>
-0056 
-0057 <span class="comment">% find index for the new feature set</span>
-0058 fs_exists = false;
-0059 <span class="keyword">if</span> isfield(PRT,<span class="string">'fs'</span>)
-0060     <span class="keyword">if</span> any(strcmpi(in.fs_name,{PRT.fs(:).fs_name}))
-0061         fid = find(strcmpi(in.fs_name,{PRT.fs(:).fs_name}));
-0062         fs_exists = true;
-0063     <span class="keyword">else</span>
-0064         fid = length(PRT.fs)+1;
-0065     <span class="keyword">end</span>
-0066 <span class="keyword">else</span>
-0067     fid = 1;
-0068 <span class="keyword">end</span>
-0069 
-0070 <span class="keyword">if</span> nargout == 1
-0071     <span class="keyword">if</span> fs_exists
-0072         <span class="comment">% just display message and exit (returning id)</span>
-0073         disp([<span class="string">'Feature set '''</span>,in.fs_name,<span class="string">''' found in PRT.mat.'</span>]);
-0074     <span class="keyword">else</span>
-0075         error(<span class="string">'prt_init_fs:fsNotFoundinPRT'</span>,<span class="keyword">...</span>
-0076             [<span class="string">'Feature set '''</span>,in.fs_name,<span class="string">''' not found in PRT.mat.'</span>]);
-0077     <span class="keyword">end</span>
-0078 <span class="keyword">else</span>
-0079     <span class="comment">% initialise</span>
-0080     <span class="keyword">if</span> fs_exists
-0081         warning(<span class="string">'prt_init_fs:overwriteFsInPRT'</span>,<span class="keyword">...</span>
-0082             [<span class="string">'Feature set '''</span>,in.fs_name,<span class="string">''' found in PRT.mat. Overwriting ...'</span>]);
-0083     <span class="keyword">else</span>
-0084         <span class="comment">% doesn't exist. initialise the structure</span>
-0085         disp([<span class="string">'Feature set '''</span>,in.fs_name,<span class="string">''' not found in PRT.mat. Creating...'</span>])
-0086     <span class="keyword">end</span>
-0087     
-0088     PRT.fs(fid).fs_name = in.fs_name;
-0089     PRT.fs(fid).k_file = in.fs_name;
-0090     PRT.fs(fid).id_col_names = {<span class="string">'group'</span>,<span class="string">'subject'</span>,<span class="string">'modality'</span>,<span class="string">'condition'</span>,<span class="string">'block'</span>,<span class="string">'scan'</span>};
-0091     PRT.fs(fid).fas=struct(<span class="string">'im'</span>,[],<span class="string">'ifa'</span>,[]);
-0092     n_vox=0;
-0093     n_mods=length(mids);
-0094     <span class="keyword">for</span> m = 1:n_mods
-0095         PRT.fs(fid).modality(m).mod_name = in.mod(mids(m)).mod_name;
-0096         PRT.fs(fid).modality(m).detrend  = in.mod(mids(m)).detrend;
-0097         PRT.fs(fid).modality(m).param_dt = in.mod(mids(m)).param_dt;
-0098         PRT.fs(fid).modality(m).mode     = in.mod(mids(m)).mode;
-0099         <span class="comment">%get indexes from mask specified in the data and design step</span>
-0100         vm=spm_vol(mask{m});
-0101         vm=spm_read_vols(vm);
-0102         PRT.fs(fid).modality(m).feat_idx_img = find(vm&gt;0);
-0103         mid=mids(m);
-0104         <span class="keyword">if</span> m==1
-0105             n_vox=length(find(vm&gt;0));
-0106         <span class="keyword">end</span>
-0107         <span class="keyword">if</span> n_vox~=length(find(vm&gt;0))
-0108             error(<span class="string">'prt_prepare_data:MasksNotConsistent'</span>,<span class="keyword">...</span>
-0109                 <span class="string">'Masks access areas of different sizes across modalities'</span>)
-0110         <span class="keyword">end</span>
-0111         <span class="comment">%get subindexes from mask specified in the data prepare step</span>
-0112         <span class="keyword">if</span> ~isempty(precmask{m})
-0113             vm=spm_vol(precmask{m});
-0114             vm=spm_read_vols(vm);
-0115             [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm&gt;0));
-0116         <span class="keyword">else</span>
-0117             PRT.fs(fid).modality(m).idfeat_fas=[];
-0118         <span class="keyword">end</span>
-0119         PRT.fs(fid).modality(m).normalise=struct(<span class="string">'type'</span>,[],<span class="string">'scaling'</span>,[]);
-0120     <span class="keyword">end</span>
-0121     
-0122     indm = zeros(n_mods,1);
-0123     szm = zeros(n_mods,1);
-0124     
-0125     <span class="comment">% First count the total number of samples. Loops are needed since each</span>
-0126     <span class="comment">% subject may have a variable number of scans</span>
-0127     n = 0;
-0128     <span class="keyword">for</span> gid = 1:length(PRT.group) <span class="comment">% group</span>
-0129         <span class="keyword">for</span> sid = 1:length(PRT.group(gid).subject);  <span class="comment">% subject</span>
-0130             <span class="keyword">for</span> m = 1:n_mods
-0131                 mid = mids(m);
-0132                 <span class="keyword">if</span> strcmpi(in.mod(mid).mode,<span class="string">'all_scans'</span>);
-0133                     n = n + size(PRT.group(gid).subject(sid).modality(mid).scans,1);
-0134                 <span class="keyword">elseif</span> strcmpi(in.mod(mid).mode,<span class="string">'all_cond'</span>)
-0135                     <span class="keyword">if</span> ~isfield(PRT.group(gid).subject(sid).modality(mid).design,<span class="string">'conds'</span>)
-0136                         error(<span class="string">'prt_model:fsIsAllCondModelisAllScans'</span>,<span class="keyword">...</span>
-0137                             [<span class="string">'''All conditions'' selected for modality '</span>, num2str(m)<span class="keyword">...</span>
-0138                             <span class="string">' but no design was specified. This syntax is invalid, '</span><span class="keyword">...</span>
-0139                             <span class="string">'Please use ''All Scans'' instead.'</span>]);
-0140                     <span class="keyword">end</span>
-0141                     <span class="keyword">for</span> cid = 1:length(PRT.group(gid).subject(sid).modality(mid).design.conds)    <span class="comment">% condition</span>
-0142                         n = n + length(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans);
-0143                     <span class="keyword">end</span>
-0144                 <span class="keyword">end</span>
-0145             <span class="keyword">end</span>  <span class="comment">% modality</span>
-0146         <span class="keyword">end</span>  <span class="comment">% subject</span>
-0147     <span class="keyword">end</span>  <span class="comment">% group</span>
-0148     PRT.fs(fid).id_mat = zeros(n,length(PRT.fs(fid).id_col_names));
-0149     PRT.fs(fid).fas.im = zeros(n,1);
-0150     PRT.fs(fid).fas.ifa= zeros(n,1);
-0151     
-0152     <span class="comment">% Count the total number of samples and set sample ids for the kernel</span>
-0153     <span class="comment">% Set fas for the file arrays</span>
-0154     sample_range = 0;
-0155     <span class="keyword">for</span> gid = 1:length(PRT.group) <span class="comment">% group</span>
-0156         <span class="keyword">for</span> sid = 1:length(PRT.group(gid).subject);  <span class="comment">% subject</span>
-0157             <span class="keyword">for</span> m = 1:n_mods
-0158                 mid = mids(m);
-0159                 
-0160                 <span class="keyword">if</span> strcmpi(in.mod(mid).mode,<span class="string">'all_scans'</span>)
-0161                     n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
-0162                     
-0163                     <span class="comment">% configure indices</span>
-0164                     sample_range = (1:n_vols_s)+max(sample_range);
-0165                     PRT.fs(fid).id_mat(sample_range,1) = gid;
-0166                     PRT.fs(fid).id_mat(sample_range,2) = sid;
-0167                     PRT.fs(fid).id_mat(sample_range,3) = mid;
-0168                     
-0169                     <span class="keyword">if</span> isfield(PRT.group(gid).subject(sid).modality(mid).design,<span class="string">'conds'</span>)
-0170                         conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
-0171                         <span class="keyword">for</span> cid = 1:length(conds)
-0172                             scans  = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
-0173                             blocks = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
-0174                             
-0175                             PRT.fs(fid).id_mat(sample_range(scans),4) = cid;
-0176                             PRT.fs(fid).id_mat(sample_range(scans),5) = blocks;
-0177                             PRT.fs(fid).id_mat(sample_range(scans),6) = 1:length(scans);
-0178                         <span class="keyword">end</span>
-0179                     <span class="keyword">else</span>
-0180                         scans  = 1:size(PRT.group(gid).subject(sid).modality(mid).scans,1);
-0181                         PRT.fs(fid).id_mat(sample_range,6) = scans;
-0182                     <span class="keyword">end</span>
-0183                     
-0184                     sctoadd=(1:n_vols_s)+indm(m);
-0185                     PRT.fs(fid).fas.ifa(sample_range)=sctoadd';
-0186                     PRT.fs(fid).fas.im(sample_range)=mid*ones(n_vols_s,1);
-0187                     <span class="comment">%configure indices for the file array</span>
-0188                     indm(m)=n_vols_s+max(indm(m));
-0189                 <span class="keyword">elseif</span> strcmpi(in.mod(mid).mode,<span class="string">'all_cond'</span>)
-0190                     conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
-0191                     n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
-0192                     
-0193                     <span class="comment">% now loop over conditions</span>
-0194                     <span class="keyword">for</span> cid = 1:length(conds)    <span class="comment">% condition</span>
-0195                         scans = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
-0196                         blocks = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
-0197                         n_vol_s_c = length(scans);
-0198                         
-0199                         <span class="comment">% configure indices</span>
-0200                         sample_range = (1:n_vol_s_c)+max(sample_range);
-0201                         PRT.fs(fid).id_mat(sample_range,1) = gid;
-0202                         PRT.fs(fid).id_mat(sample_range,2) = sid;
-0203                         PRT.fs(fid).id_mat(sample_range,3) = mid;
-0204                         PRT.fs(fid).id_mat(sample_range,4) = cid;
-0205                         PRT.fs(fid).id_mat(sample_range,5) = blocks;
-0206                         PRT.fs(fid).id_mat(sample_range,6) = 1:length(sample_range);
-0207                         
-0208                         <span class="comment">%configure indices for the file array</span>
-0209                         sctoadd=scans+indm(m);
-0210                         PRT.fs(fid).fas.ifa(sample_range)=sctoadd';
-0211                         PRT.fs(fid).fas.im(sample_range)=mid*ones(n_vol_s_c,1);
-0212                     <span class="keyword">end</span>
-0213                     <span class="comment">%configure indices for the file array</span>
-0214                     indm(m)=n_vols_s+max(indm(m));
-0215                 <span class="keyword">end</span>
-0216                 szm(m)=szm(m)+size(PRT.group(gid).subject(sid).modality(mid).scans,1);
-0217             <span class="keyword">end</span>  <span class="comment">% modality</span>
-0218         <span class="keyword">end</span>  <span class="comment">% subject</span>
-0219     <span class="keyword">end</span>  <span class="comment">% group</span>
-0220     
-0221     <span class="comment">%initialize the file arrays if they do not exist already or if the</span>
-0222     <span class="comment">%detrending parameters were modified</span>
-0223     <span class="keyword">if</span> ~isfield(PRT,<span class="string">'fas'</span>);
-0224         <span class="comment">% initialise all modalities (not just those we're working on)</span>
-0225         <span class="keyword">for</span> m = 1:length(PRT.masks)
-0226             
-0227             PRT.fas(m)=struct(<span class="string">'mod_name'</span>,[],<span class="string">'dat'</span>,[],<span class="string">'detrend'</span>,[],<span class="string">'param_dt'</span>,[],<span class="string">'hdr'</span>,[]);
-0228             PRT.fas(m).mod_name = PRT.masks(m).mod_name;
-0229         <span class="keyword">end</span>
-0230     <span class="keyword">end</span>
-0231     tocomp=zeros(1,length(in.mod));
-0232     prt_dir=fileparts(in.fname);
-0233     <span class="keyword">for</span> i=1:n_mods
-0234         <span class="comment">% check whether we need to recreate the file array</span>
-0235         <span class="keyword">if</span> isempty(PRT.fas(mids(i)).dat) || PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  
-0236         
-0237             <span class="keyword">if</span> isempty(PRT.fas(mids(i)).dat)
-0238                 disp([<span class="string">'File array does not exist for modality '''</span>,<span class="keyword">...</span>
-0239                     char(in.mod(mids(i)).mod_name),<span class="string">'''. Creating...'</span>])
-0240             <span class="keyword">elseif</span> PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend <span class="keyword">...</span>
-0241                     &amp;&amp; any(strcmpi(fieldnames(PRT.fas(mids(i)).dat),<span class="string">'fname'</span>)) <span class="keyword">...</span>
-0242                     &amp;&amp; exist(PRT.fas(mids(i)).dat.fname,<span class="string">'file'</span>)
-0243                 
-0244                 warning(<span class="string">'prt_init_fs:overwriteFileArray'</span>,<span class="keyword">...</span>
-0245                     [<span class="string">'File array already exists for modality '''</span>,<span class="keyword">...</span>
-0246                     char(in.mod(mids(i)).mod_name),<span class="string">''', but parameters '</span>,<span class="keyword">...</span>
-0247                     <span class="string">'have changed. Re-creating ...'</span>]);
-0248                 
-0249                 delete(PRT.fas(mids(i)).dat.fname);
-0250             <span class="keyword">end</span>
-0251             
-0252             tocomp(mids(i))=1;
-0253             <span class="comment">%PRT.fas(mids(i)).mod_name = in.mod(mids(i)).mod_name;</span>
-0254             PRT.fas(mids(i)).detrend = in.mod(mids(i)).detrend;
-0255             PRT.fas(mids(i)).param_dt = in.mod(mids(i)).param_dt;
-0256             PRT.fas(mids(i)).hdr = headers{i};
-0257             PRT.fas(mids(i)).idfeat_img = PRT.fs(fid).modality(i).feat_idx_img;                <span class="comment">% index of voxels in the full image (nifti)</span>
-0258             datname=[prt_dir,filesep,<span class="string">'Data_matrix_'</span>,char(in.mod(mids(i)).mod_name),<span class="string">'.dat'</span>];
-0259             PRT.fas(mids(i)).dat = file_array(<span class="keyword">...</span>
-0260                 datname, <span class="keyword">...</span><span class="comment">                 % fname     - filename</span>
-0261                 [szm(i),n_vox],<span class="keyword">...</span><span class="comment">           % dim       - dimensions (default = [0 0] )</span>
-0262                 spm_type(<span class="string">'float32'</span>), <span class="keyword">...</span><span class="comment">     % dtype     - datatype   (default = 'float')</span>
-0263                 0, <span class="keyword">...</span><span class="comment">                       % offset    - offset into file (default = 0)</span>
-0264                 1);                          <span class="comment">% scl_slope - scalefactor (default = 1)</span>
-0265         <span class="keyword">else</span>
-0266             disp([<span class="string">'Using existing file array for modality '''</span>, <span class="keyword">...</span>
-0267                 char(in.mod(mids(i)).mod_name),<span class="string">'''.'</span>])
-0268         <span class="keyword">end</span>
-0269         
-0270         <span class="comment">% check that the input .mat for the scaling have the right size</span>
-0271         <span class="keyword">if</span> in.mod(mids(i)).normalise==2
-0272             <span class="keyword">try</span>
-0273                 load(in.mod(mids(i)).matnorm);
-0274             <span class="keyword">catch</span>
-0275                 error(<span class="string">'prt_prepare_data:ScalingMatUnloadable'</span>,<span class="keyword">...</span>
-0276                     <span class="string">'Could not load the .mat file containing the scaling'</span>)
-0277             <span class="keyword">end</span>
-0278             <span class="keyword">try</span>
-0279                 szin=length(scaling);
-0280             <span class="keyword">catch</span>
-0281                 error(<span class="string">'prt_prepare_data:ScalingNotinFile'</span>,<span class="keyword">...</span>
-0282                     <span class="string">'This file does not contain the &quot;scaling&quot; field required'</span>)
-0283             <span class="keyword">end</span>
-0284             <span class="keyword">if</span> szin~=szm(i)
-0285                 error(<span class="string">'prt_prepare_data:Scalingdimensionwrong'</span>,<span class="keyword">...</span>
-0286                     <span class="string">'The dimension of the .mat file does not correspond to the number of scans in that modality'</span>)
-0287             <span class="keyword">end</span>
-0288             PRT.fs(fid).modality(i).normalise.type=2;
-0289             PRT.fs(fid).modality(i).normalise.scaling=reshape(scaling,1,szm(i));
-0290         <span class="keyword">elseif</span> in.mod(mids(i)).normalise==1
-0291             PRT.fs(fid).modality(i).normalise.type=1;
-0292         <span class="keyword">else</span>
-0293             PRT.fs(fid).modality(i).normalise.type=0;
-0294         <span class="keyword">end</span>
-0295     <span class="keyword">end</span>
-0296     
-0297     PRT.fs(fid).modality=rmfield(PRT.fs(fid).modality,<span class="string">'feat_idx_img'</span>);
-0298 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 20-Oct-2011 11:56:23 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0055 <span class="comment">% Written by A Marquand</span>
+0056 <span class="comment">% $Id: prt_init_fs.m 309 2011-11-04 15:15:35Z schrouff $</span>
+0057 
+0058 <span class="comment">% find index for the new feature set</span>
+0059 fs_exists = false;
+0060 <span class="keyword">if</span> ~(prt_checkAlphaNumUnder(in.fs_name))
+0061     beep
+0062     disp(<span class="string">'Feature set name should be entered in alphanumeric format only'</span>)
+0063     disp(<span class="string">'Please correct'</span>)
+0064     <span class="keyword">return</span>
+0065 <span class="keyword">end</span>
+0066 <span class="keyword">if</span> isfield(PRT,<span class="string">'fs'</span>)
+0067     <span class="keyword">if</span> any(strcmpi(in.fs_name,{PRT.fs(:).fs_name}))
+0068         fid = find(strcmpi(in.fs_name,{PRT.fs(:).fs_name}));
+0069         fs_exists = true;
+0070     <span class="keyword">else</span>
+0071         fid = length(PRT.fs)+1;
+0072     <span class="keyword">end</span>
+0073 <span class="keyword">else</span>
+0074     fid = 1;
+0075 <span class="keyword">end</span>
+0076 
+0077 <span class="comment">% do we want to initialise the feature set?</span>
+0078 <span class="keyword">if</span> nargout == 1
+0079     <span class="keyword">if</span> fs_exists
+0080         <span class="comment">% just display message and exit (returning id)</span>
+0081         disp([<span class="string">'Feature set '''</span>,in.fs_name,<span class="string">''' found in PRT.mat.'</span>]);
+0082     <span class="keyword">else</span>
+0083         error(<span class="string">'prt_init_fs:fsNotFoundinPRT'</span>,<span class="keyword">...</span>
+0084             [<span class="string">'Feature set '''</span>,in.fs_name,<span class="string">''' not found in PRT.mat.'</span>]);
+0085     <span class="keyword">end</span>
+0086 <span class="keyword">else</span>
+0087     <span class="comment">% initialise</span>
+0088     
+0089     [pathName fileName]=fileparts(in.fname);
+0090     <span class="keyword">if</span> fs_exists
+0091         warning(<span class="string">'prt_init_fs:overwriteFsInPRT'</span>,<span class="keyword">...</span>
+0092             [<span class="string">'Feature set '''</span>,in.fs_name,<span class="string">''' found in PRT.mat. Overwriting ...'</span>]);
+0093     <span class="keyword">else</span>
+0094         <span class="comment">% doesn't exist. initialise the structure</span>
+0095         disp([<span class="string">'Feature set '''</span>,in.fs_name,<span class="string">''' not found in PRT.mat. Creating...'</span>])
+0096     <span class="keyword">end</span>
+0097     
+0098     PRT.fs(fid).fs_name = in.fs_name;
+0099     PRT.fs(fid).k_file = in.fs_name;
+0100     PRT.fs(fid).id_col_names = {<span class="string">'group'</span>,<span class="string">'subject'</span>,<span class="string">'modality'</span>,<span class="string">'condition'</span>,<span class="string">'block'</span>,<span class="string">'scan'</span>};
+0101     PRT.fs(fid).fas=struct(<span class="string">'im'</span>,[],<span class="string">'ifa'</span>,[]);
+0102     n_vox=0;
+0103     n_mods=length(mids);
+0104     <span class="keyword">for</span> m = 1:n_mods
+0105         PRT.fs(fid).modality(m).mod_name = in.mod(mids(m)).mod_name;
+0106         PRT.fs(fid).modality(m).detrend  = in.mod(mids(m)).detrend;
+0107         PRT.fs(fid).modality(m).param_dt = in.mod(mids(m)).param_dt;
+0108         PRT.fs(fid).modality(m).mode     = in.mod(mids(m)).mode;
+0109         <span class="comment">%get indexes from mask specified in the data and design step</span>
+0110         vm=spm_vol(mask{m});
+0111         vm=spm_read_vols(vm);
+0112         PRT.fs(fid).modality(m).feat_idx_img = find(vm&gt;0);
+0113         mid=mids(m);
+0114         <span class="keyword">if</span> m==1
+0115             n_vox=length(find(vm&gt;0));
+0116         <span class="keyword">end</span>
+0117         <span class="keyword">if</span> n_vox~=length(find(vm&gt;0))
+0118             error(<span class="string">'prt_prepare_data:MasksNotConsistent'</span>,<span class="keyword">...</span>
+0119                 <span class="string">'Masks access areas of different sizes across modalities'</span>)
+0120         <span class="keyword">end</span>
+0121         <span class="comment">%get subindexes from mask specified in the data prepare step</span>
+0122         <span class="keyword">if</span> ~isempty(precmask{m})
+0123             vm=spm_vol(precmask{m});
+0124             vm=spm_read_vols(vm);
+0125             [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm&gt;0));
+0126         <span class="keyword">else</span>
+0127             PRT.fs(fid).modality(m).idfeat_fas=[];
+0128         <span class="keyword">end</span>
+0129         PRT.fs(fid).modality(m).normalise=struct(<span class="string">'type'</span>,[],<span class="string">'scaling'</span>,[]);
+0130     <span class="keyword">end</span>
+0131     
+0132     indm = zeros(n_mods,1);
+0133     szm = zeros(n_mods,1);
+0134     
+0135     <span class="comment">% First count the total number of samples. Loops are needed since each</span>
+0136     <span class="comment">% subject may have a variable number of scans</span>
+0137     n = 0;
+0138     <span class="keyword">for</span> gid = 1:length(PRT.group) <span class="comment">% group</span>
+0139         <span class="keyword">for</span> sid = 1:length(PRT.group(gid).subject);  <span class="comment">% subject</span>
+0140             <span class="keyword">for</span> m = 1:n_mods
+0141                 mid = mids(m);
+0142                 <span class="keyword">if</span> strcmpi(in.mod(mid).mode,<span class="string">'all_scans'</span>);
+0143                     n = n + size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+0144                 <span class="keyword">elseif</span> strcmpi(in.mod(mid).mode,<span class="string">'all_cond'</span>)
+0145                     <span class="keyword">if</span> ~isfield(PRT.group(gid).subject(sid).modality(mid).design,<span class="string">'conds'</span>)
+0146                         error(<span class="string">'prt_model:fsIsAllCondModelisAllScans'</span>,<span class="keyword">...</span>
+0147                             [<span class="string">'''All conditions'' selected for modality '</span>, num2str(m)<span class="keyword">...</span>
+0148                             <span class="string">' but no design was specified. This syntax is invalid, '</span><span class="keyword">...</span>
+0149                             <span class="string">'Please use ''All Scans'' instead.'</span>]);
+0150                     <span class="keyword">end</span>
+0151                     <span class="keyword">for</span> cid = 1:length(PRT.group(gid).subject(sid).modality(mid).design.conds)    <span class="comment">% condition</span>
+0152                         n = n + length(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans);
+0153                     <span class="keyword">end</span>
+0154                 <span class="keyword">end</span>
+0155             <span class="keyword">end</span>  <span class="comment">% modality</span>
+0156         <span class="keyword">end</span>  <span class="comment">% subject</span>
+0157     <span class="keyword">end</span>  <span class="comment">% group</span>
+0158     PRT.fs(fid).id_mat = zeros(n,length(PRT.fs(fid).id_col_names));
+0159     PRT.fs(fid).fas.im = zeros(n,1);
+0160     PRT.fs(fid).fas.ifa= zeros(n,1);
+0161     
+0162     <span class="comment">% Count the total number of samples and set sample ids for the kernel</span>
+0163     <span class="comment">% Set fas for the file arrays</span>
+0164     sample_range = 0;
+0165     <span class="keyword">for</span> gid = 1:length(PRT.group) <span class="comment">% group</span>
+0166         <span class="keyword">for</span> sid = 1:length(PRT.group(gid).subject);  <span class="comment">% subject</span>
+0167             <span class="keyword">for</span> m = 1:n_mods
+0168                 mid = mids(m);
+0169                 
+0170                 <span class="keyword">if</span> strcmpi(in.mod(mid).mode,<span class="string">'all_scans'</span>)
+0171                     n_vols_s  = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+0172                     all_scans = 1:n_vols_s;
+0173                     
+0174                     <span class="comment">% configure indices</span>
+0175                     sample_range = (1:n_vols_s)+max(sample_range);
+0176                     PRT.fs(fid).id_mat(sample_range,1) = gid;
+0177                     PRT.fs(fid).id_mat(sample_range,2) = sid;
+0178                     PRT.fs(fid).id_mat(sample_range,3) = mid;
+0179                     
+0180                     <span class="keyword">if</span> isfield(PRT.group(gid).subject(sid).modality(mid).design,<span class="string">'conds'</span>)
+0181                         conds = PRT.group(gid).subject(sid).modality(mid).design.conds;
+0182                         <span class="keyword">for</span> cid = 1:length(conds)
+0183                             scans  = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
+0184                             blocks = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+0185                             
+0186                             PRT.fs(fid).id_mat(sample_range(scans),4) = cid;
+0187                             PRT.fs(fid).id_mat(sample_range(scans),5) = blocks;
+0188                             <span class="comment">%PRT.fs(fid).id_mat(sample_range(scans),6) = 1:length(scans);</span>
+0189                         <span class="keyword">end</span>
+0190                         
+0191                         PRT.fs(fid).id_mat(sample_range,6) = 1:length(all_scans);
+0192                     <span class="keyword">else</span>
+0193                         scans  = 1:size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+0194                         PRT.fs(fid).id_mat(sample_range,6) = scans;
+0195                     <span class="keyword">end</span>
+0196                     
+0197                     sctoadd=(1:n_vols_s)+indm(m);
+0198                     PRT.fs(fid).fas.ifa(sample_range)=sctoadd';
+0199                     PRT.fs(fid).fas.im(sample_range)=mid*ones(n_vols_s,1);
+0200                     <span class="comment">%configure indices for the file array</span>
+0201                     indm(m)=n_vols_s+max(indm(m));
+0202                 <span class="keyword">elseif</span> strcmpi(in.mod(mid).mode,<span class="string">'all_cond'</span>)
+0203                     conds     = PRT.group(gid).subject(sid).modality(mid).design.conds;
+0204                     n_vols_s  = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+0205                     
+0206                     <span class="comment">% now loop over conditions</span>
+0207                     <span class="keyword">for</span> cid = 1:length(conds)    <span class="comment">% condition</span>
+0208                         scans     = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
+0209                         blocks    = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+0210                         n_vol_s_c = length(scans);
+0211                         
+0212                         <span class="comment">% configure indices</span>
+0213                         sample_range = (1:n_vol_s_c)+max(sample_range);
+0214                         PRT.fs(fid).id_mat(sample_range,1) = gid;
+0215                         PRT.fs(fid).id_mat(sample_range,2) = sid;
+0216                         PRT.fs(fid).id_mat(sample_range,3) = mid;
+0217                         PRT.fs(fid).id_mat(sample_range,4) = cid;
+0218                         PRT.fs(fid).id_mat(sample_range,5) = blocks;
+0219                         <span class="comment">%PRT.fs(fid).id_mat(sample_range,6) = 1:length(sample_range);</span>
+0220                         PRT.fs(fid).id_mat(sample_range,6) = scans;
+0221                         
+0222                         <span class="comment">%configure indices for the file array</span>
+0223                         sctoadd=scans+indm(m);
+0224                         PRT.fs(fid).fas.ifa(sample_range)=sctoadd';
+0225                         PRT.fs(fid).fas.im(sample_range)=mid*ones(n_vol_s_c,1);
+0226                     <span class="keyword">end</span>
+0227                     <span class="comment">%configure indices for the file array</span>
+0228                     indm(m)=n_vols_s+max(indm(m));
+0229                 <span class="keyword">end</span>
+0230                 szm(m)=szm(m)+size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+0231             <span class="keyword">end</span>  <span class="comment">% modality</span>
+0232         <span class="keyword">end</span>  <span class="comment">% subject</span>
+0233     <span class="keyword">end</span>  <span class="comment">% group</span>
+0234     
+0235     <span class="comment">%initialize the file arrays if they do not exist already or if the</span>
+0236     <span class="comment">%detrending parameters were modified</span>
+0237     <span class="keyword">if</span> ~isfield(PRT,<span class="string">'fas'</span>);
+0238         <span class="comment">% initialise all modalities (not just those we're working on)</span>
+0239         <span class="keyword">for</span> m = 1:length(PRT.masks)
+0240             
+0241             PRT.fas(m)=struct(<span class="string">'mod_name'</span>,[],<span class="string">'dat'</span>,[],<span class="string">'detrend'</span>,[],<span class="string">'param_dt'</span>,[],<span class="string">'hdr'</span>,[]);
+0242             PRT.fas(m).mod_name = PRT.masks(m).mod_name;
+0243         <span class="keyword">end</span>
+0244     <span class="keyword">end</span>
+0245     tocomp=zeros(1,length(in.mod));
+0246     prt_dir=fileparts(in.fname);
+0247     <span class="keyword">for</span> i=1:n_mods
+0248         <span class="comment">% check whether we need to recreate the file array</span>
+0249         <span class="keyword">if</span> isempty(PRT.fas(mids(i)).dat) || exist(PRT.fas(mids(i)).dat.fname)==0 ||<span class="keyword">...</span>
+0250                 PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  || <span class="keyword">...</span>
+0251                 PRT.fas(mids(i)).param_dt~=in.mod(mids(i)).param_dt
+0252             
+0253             <span class="keyword">if</span> isempty(PRT.fas(mids(i)).dat)
+0254                 disp([<span class="string">'File array does not exist for modality '''</span>,<span class="keyword">...</span>
+0255                     char(in.mod(mids(i)).mod_name),<span class="string">'''. Creating...'</span>])
+0256             <span class="keyword">elseif</span> PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend <span class="keyword">...</span>
+0257                     &amp;&amp; any(strcmpi(fieldnames(PRT.fas(mids(i)).dat),<span class="string">'fname'</span>)) <span class="keyword">...</span>
+0258                     &amp;&amp; exist(PRT.fas(mids(i)).dat.fname,<span class="string">'file'</span>)
+0259                 
+0260                 warning(<span class="string">'prt_init_fs:overwriteFileArray'</span>,<span class="keyword">...</span>
+0261                     [<span class="string">'File array already exists for modality '''</span>,<span class="keyword">...</span>
+0262                     char(in.mod(mids(i)).mod_name),<span class="string">''', but parameters '</span>,<span class="keyword">...</span>
+0263                     <span class="string">'have changed. Re-creating ...'</span>]);
+0264                 
+0265                 delete(PRT.fas(mids(i)).dat.fname);
+0266             <span class="keyword">end</span>
+0267             
+0268             tocomp(mids(i))=1;
+0269             <span class="comment">%PRT.fas(mids(i)).mod_name = in.mod(mids(i)).mod_name;</span>
+0270             PRT.fas(mids(i)).detrend = in.mod(mids(i)).detrend;
+0271             PRT.fas(mids(i)).param_dt = in.mod(mids(i)).param_dt;
+0272             PRT.fas(mids(i)).hdr = headers{i};
+0273             PRT.fas(mids(i)).idfeat_img = PRT.fs(fid).modality(i).feat_idx_img;                <span class="comment">% index of voxels in the full image (nifti)</span>
+0274             datname=[prt_dir,filesep,<span class="string">'Feature_set_'</span>,char(in.mod(mids(i)).mod_name),<span class="string">'.dat'</span>];
+0275             PRT.fas(mids(i)).dat = file_array(<span class="keyword">...</span>
+0276                 datname, <span class="keyword">...</span><span class="comment">                 % fname     - filename</span>
+0277                 [szm(i),n_vox],<span class="keyword">...</span><span class="comment">           % dim       - dimensions (default = [0 0] )</span>
+0278                 spm_type(<span class="string">'float64'</span>), <span class="keyword">...</span><span class="comment">  % dtype     - datatype   (default = 'float')</span>
+0279                 0, <span class="keyword">...</span><span class="comment">                       % offset    - offset into file (default = 0)</span>
+0280                 1);                          <span class="comment">% scl_slope - scalefactor (default = 1)</span>
+0281         <span class="keyword">else</span>
+0282             disp([<span class="string">'Using existing file array for modality '''</span>, <span class="keyword">...</span>
+0283                 char(in.mod(mids(i)).mod_name),<span class="string">'''.'</span>])
+0284         <span class="keyword">end</span>
+0285         
+0286         <span class="comment">% check that the input .mat for the scaling have the right size</span>
+0287         <span class="keyword">if</span> in.mod(mids(i)).normalise==2
+0288             <span class="keyword">try</span>
+0289                 load(in.mod(mids(i)).matnorm);
+0290             <span class="keyword">catch</span>
+0291                 error(<span class="string">'prt_prepare_data:ScalingMatUnloadable'</span>,<span class="keyword">...</span>
+0292                     <span class="string">'Could not load the .mat file containing the scaling'</span>)
+0293             <span class="keyword">end</span>
+0294             <span class="keyword">try</span>
+0295                 szin=length(scaling);
+0296             <span class="keyword">catch</span>
+0297                 error(<span class="string">'prt_prepare_data:ScalingNotinFile'</span>,<span class="keyword">...</span>
+0298                     <span class="string">'This file does not contain the &quot;scaling&quot; field required'</span>)
+0299             <span class="keyword">end</span>
+0300             <span class="keyword">if</span> szin~=szm(i)
+0301                 error(<span class="string">'prt_prepare_data:Scalingdimensionwrong'</span>,<span class="keyword">...</span>
+0302                     <span class="string">'The dimension of the .mat file does not correspond to the number of scans in that modality'</span>)
+0303             <span class="keyword">end</span>
+0304             PRT.fs(fid).modality(i).normalise.type=2;
+0305             PRT.fs(fid).modality(i).normalise.scaling=reshape(scaling,1,szm(i));
+0306         <span class="keyword">elseif</span> in.mod(mids(i)).normalise==1
+0307             PRT.fs(fid).modality(i).normalise.type=1;
+0308         <span class="keyword">else</span>
+0309             PRT.fs(fid).modality(i).normalise.type=0;
+0310         <span class="keyword">end</span>
+0311     <span class="keyword">end</span>
+0312     
+0313     PRT.fs(fid).modality=rmfield(PRT.fs(fid).modality,<span class="string">'feat_idx_img'</span>);
+0314 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2011 16:15:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

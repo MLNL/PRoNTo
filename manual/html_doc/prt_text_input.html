@@ -28,23 +28,24 @@
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> PRT_TEXT_INPUT M-file for prt_text_input.fig
-      PRT_TEXT_INPUT, by itself, creates a new PRT_TEXT_INPUT or raises the existing
-      singleton*.
+ 
+ PRT_TEXT_INPUT, by itself, creates a new PRT_TEXT_INPUT or raises the 
+ existing singleton*.
 
-      H = PRT_TEXT_INPUT returns the handle to a new PRT_TEXT_INPUT or the handle to
-      the existing singleton*.
+ H = PRT_TEXT_INPUT returns the handle to a new PRT_TEXT_INPUT or the 
+ handle to the existing singleton*.
 
-      PRT_TEXT_INPUT('CALLBACK',hObject,eventData,handles,...) calls the local
-      function named CALLBACK in PRT_TEXT_INPUT.M with the given input arguments.
+ PRT_TEXT_INPUT('CALLBACK',hObject,eventData,handles,...) calls the local
+ function named CALLBACK in PRT_TEXT_INPUT.M with the given input arguments.
 
-      PRT_TEXT_INPUT('Property','Value',...) creates a new PRT_TEXT_INPUT or raises the
-      existing singleton*.  Starting from the left, property value pairs are
-      applied to the GUI before prt_text_input_OpeningFcn gets called.  An
-      unrecognized property name or invalid value makes property application
-      stop.  All inputs are passed to prt_text_input_OpeningFcn via varargin.
+ PRT_TEXT_INPUT('Property','Value',...) creates a new PRT_TEXT_INPUT or 
+ raises the existing singleton*.  Starting from the left, property value 
+ pairs are applied to the GUI before prt_text_input_OpeningFcn gets called.
+ An unrecognized property name or invalid value makes property application
+ stop.  All inputs are passed to prt_text_input_OpeningFcn via varargin.
 
-      *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one
-      instance to run (singleton)&quot;.
+ *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one
+  instance to run (singleton)&quot;.
 
  See also: GUIDE, GUIDATA, GUIHANDLES
 __________________________________________________________________________
@@ -67,145 +68,152 @@ This function is called by:
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = prt_text_input(varargin)</a>
 0002 <span class="comment">% PRT_TEXT_INPUT M-file for prt_text_input.fig</span>
-0003 <span class="comment">%      PRT_TEXT_INPUT, by itself, creates a new PRT_TEXT_INPUT or raises the existing</span>
-0004 <span class="comment">%      singleton*.</span>
-0005 <span class="comment">%</span>
-0006 <span class="comment">%      H = PRT_TEXT_INPUT returns the handle to a new PRT_TEXT_INPUT or the handle to</span>
-0007 <span class="comment">%      the existing singleton*.</span>
-0008 <span class="comment">%</span>
-0009 <span class="comment">%      PRT_TEXT_INPUT('CALLBACK',hObject,eventData,handles,...) calls the local</span>
-0010 <span class="comment">%      function named CALLBACK in PRT_TEXT_INPUT.M with the given input arguments.</span>
-0011 <span class="comment">%</span>
-0012 <span class="comment">%      PRT_TEXT_INPUT('Property','Value',...) creates a new PRT_TEXT_INPUT or raises the</span>
-0013 <span class="comment">%      existing singleton*.  Starting from the left, property value pairs are</span>
-0014 <span class="comment">%      applied to the GUI before prt_text_input_OpeningFcn gets called.  An</span>
-0015 <span class="comment">%      unrecognized property name or invalid value makes property application</span>
-0016 <span class="comment">%      stop.  All inputs are passed to prt_text_input_OpeningFcn via varargin.</span>
-0017 <span class="comment">%</span>
-0018 <span class="comment">%      *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one</span>
-0019 <span class="comment">%      instance to run (singleton)&quot;.</span>
-0020 <span class="comment">%</span>
-0021 <span class="comment">% See also: GUIDE, GUIDATA, GUIHANDLES</span>
-0022 <span class="comment">%__________________________________________________________________________</span>
-0023 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
-0024 
-0025 <span class="comment">% Written by J.Schrouff</span>
-0026 <span class="comment">% $Id: prt_text_input.m 135 2011-10-11 10:21:27Z amarquan $</span>
-0027 
-0028 <span class="comment">% Edit the above text to modify the response to help prt_text_input</span>
-0029 
-0030 <span class="comment">% Last Modified by GUIDE v2.5 24-Aug-2011 15:32:46</span>
-0031 
-0032 <span class="comment">% Begin initialization code - DO NOT EDIT</span>
-0033 gui_Singleton = 1;
-0034 gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
-0035                    <span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
-0036                    <span class="string">'gui_OpeningFcn'</span>, @<a href="#_sub1" class="code" title="subfunction prt_text_input_OpeningFcn(hObject, eventdata, handles, varargin)">prt_text_input_OpeningFcn</a>, <span class="keyword">...</span>
-0037                    <span class="string">'gui_OutputFcn'</span>,  @<a href="#_sub2" class="code" title="subfunction varargout = prt_text_input_OutputFcn(hObject, eventdata, handles)">prt_text_input_OutputFcn</a>, <span class="keyword">...</span>
-0038                    <span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
-0039                    <span class="string">'gui_Callback'</span>,   []);
-0040 <span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
-0041     gui_State.gui_Callback = str2func(varargin{1});
-0042 <span class="keyword">end</span>
-0043 
-0044 <span class="keyword">if</span> nargout
-0045     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
-0046 <span class="keyword">else</span>
-0047     gui_mainfcn(gui_State, varargin{:});
-0048 <span class="keyword">end</span>
-0049 <span class="comment">% End initialization code - DO NOT EDIT</span>
-0050 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% PRT_TEXT_INPUT, by itself, creates a new PRT_TEXT_INPUT or raises the</span>
+0005 <span class="comment">% existing singleton*.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% H = PRT_TEXT_INPUT returns the handle to a new PRT_TEXT_INPUT or the</span>
+0008 <span class="comment">% handle to the existing singleton*.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% PRT_TEXT_INPUT('CALLBACK',hObject,eventData,handles,...) calls the local</span>
+0011 <span class="comment">% function named CALLBACK in PRT_TEXT_INPUT.M with the given input arguments.</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">% PRT_TEXT_INPUT('Property','Value',...) creates a new PRT_TEXT_INPUT or</span>
+0014 <span class="comment">% raises the existing singleton*.  Starting from the left, property value</span>
+0015 <span class="comment">% pairs are applied to the GUI before prt_text_input_OpeningFcn gets called.</span>
+0016 <span class="comment">% An unrecognized property name or invalid value makes property application</span>
+0017 <span class="comment">% stop.  All inputs are passed to prt_text_input_OpeningFcn via varargin.</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">% *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one</span>
+0020 <span class="comment">%  instance to run (singleton)&quot;.</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">% See also: GUIDE, GUIDATA, GUIHANDLES</span>
+0023 <span class="comment">%__________________________________________________________________________</span>
+0024 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0025 
+0026 <span class="comment">% Written by J.Schrouff</span>
+0027 <span class="comment">% $Id: prt_text_input.m 211 2011-10-26 15:57:27Z schrouff $</span>
+0028 
+0029 <span class="comment">% Edit the above text to modify the response to help prt_text_input</span>
+0030 
+0031 <span class="comment">% Last Modified by GUIDE v2.5 24-Aug-2011 15:32:46</span>
+0032 
+0033 <span class="comment">% Begin initialization code - DO NOT EDIT</span>
+0034 gui_Singleton = 1;
+0035 gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
+0036                    <span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
+0037                    <span class="string">'gui_OpeningFcn'</span>, @<a href="#_sub1" class="code" title="subfunction prt_text_input_OpeningFcn(hObject, eventdata, handles, varargin)">prt_text_input_OpeningFcn</a>, <span class="keyword">...</span>
+0038                    <span class="string">'gui_OutputFcn'</span>,  @<a href="#_sub2" class="code" title="subfunction varargout = prt_text_input_OutputFcn(hObject, eventdata, handles)">prt_text_input_OutputFcn</a>, <span class="keyword">...</span>
+0039                    <span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
+0040                    <span class="string">'gui_Callback'</span>,   []);
+0041 <span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
+0042     gui_State.gui_Callback = str2func(varargin{1});
+0043 <span class="keyword">end</span>
+0044 
+0045 <span class="keyword">if</span> nargout
+0046     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+0047 <span class="keyword">else</span>
+0048     gui_mainfcn(gui_State, varargin{:});
+0049 <span class="keyword">end</span>
+0050 <span class="comment">% End initialization code - DO NOT EDIT</span>
 0051 
-0052 <span class="comment">% --- Executes just before prt_text_input is made visible.</span>
-0053 <a name="_sub1" href="#_subfunctions" class="code">function prt_text_input_OpeningFcn(hObject, eventdata, handles, varargin)</a>
-0054 <span class="comment">% This function has no output args, see OutputFcn.</span>
-0055 <span class="comment">% hObject    handle to figure</span>
-0056 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0057 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0058 <span class="comment">% varargin   command line arguments to prt_text_input (see VARARGIN)</span>
-0059 
-0060 <span class="comment">% Choose default command line output for prt_text_input</span>
-0061 handles.output = hObject;
-0062 
-0063 <span class="comment">% Update handles structure</span>
-0064 guidata(hObject, handles);
-0065 
-0066 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'Title'</span>)
-0067     set(gcf,<span class="string">'Name'</span>,varargin{2});
-0068     <span class="keyword">if</span> length(varargin)&gt;3 &amp;&amp; strcmpi(varargin{3},<span class="string">'UserData'</span>)
-0069         set(handles.edit1,<span class="string">'String'</span>,varargin{4})
-0070         handles.output = get(handles.edit1,<span class="string">'String'</span>);
-0071     <span class="keyword">end</span>
-0072 <span class="keyword">end</span>
-0073 
-0074 <span class="comment">% Update handles structure</span>
-0075 guidata(hObject, handles);
-0076 
-0077 <span class="comment">%UIWAIT makes prt_text_input wait for user response (see UIRESUME)</span>
-0078 uiwait(handles.figure1);
-0079 
+0052 
+0053 <span class="comment">% --- Executes just before prt_text_input is made visible.</span>
+0054 <a name="_sub1" href="#_subfunctions" class="code">function prt_text_input_OpeningFcn(hObject, eventdata, handles, varargin)</a>
+0055 <span class="comment">% This function has no output args, see OutputFcn.</span>
+0056 <span class="comment">% hObject    handle to figure</span>
+0057 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0058 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0059 <span class="comment">% varargin   command line arguments to prt_text_input (see VARARGIN)</span>
+0060 
+0061 <span class="comment">% Choose default command line output for prt_text_input</span>
+0062 handles.output = hObject;
+0063 
+0064 <span class="comment">% Update handles structure</span>
+0065 guidata(hObject, handles);
+0066 
+0067 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'Title'</span>)
+0068     set(gcf,<span class="string">'Name'</span>,varargin{2});
+0069     <span class="keyword">if</span> length(varargin)&gt;3 &amp;&amp; strcmpi(varargin{3},<span class="string">'UserData'</span>)
+0070         set(handles.edit1,<span class="string">'String'</span>,varargin{4})
+0071         handles.output = get(handles.edit1,<span class="string">'String'</span>);
+0072     <span class="keyword">end</span>
+0073 <span class="keyword">end</span>
+0074 
+0075 <span class="comment">% Update handles structure</span>
+0076 guidata(hObject, handles);
+0077 
+0078 <span class="comment">%UIWAIT makes prt_text_input wait for user response (see UIRESUME)</span>
+0079 uiwait(handles.figure1);
 0080 
-0081 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0082 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_text_input_OutputFcn(hObject, eventdata, handles) </a>
-0083 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0084 <span class="comment">% hObject    handle to figure</span>
-0085 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0086 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0087 
-0088 <span class="comment">% Get default command line output from handles structure</span>
-0089 varargout{1} = handles.output;
-0090 
-0091 <span class="comment">% The figure can be deleted now</span>
-0092 delete(handles.figure1);
-0093 
-0094 
-0095 <a name="_sub3" href="#_subfunctions" class="code">function edit1_Callback(hObject, eventdata, handles)</a>
-0096 <span class="comment">% hObject    handle to edit1 (see GCBO)</span>
-0097 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0098 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0099 
-0100 <span class="comment">% Hints: get(hObject,'String') returns contents of edit1 as text</span>
-0101 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit1 as a double</span>
-0102 handles.output = get(hObject,<span class="string">'String'</span>);
-0103 
-0104 <span class="comment">% Update handles structure</span>
-0105 guidata(hObject, handles);
+0081 
+0082 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0083 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_text_input_OutputFcn(hObject, eventdata, handles) </a>
+0084 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0085 <span class="comment">% hObject    handle to figure</span>
+0086 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0087 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0088 
+0089 <span class="comment">% Get default command line output from handles structure</span>
+0090 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
+0091     varargout{1} = handles.output;
+0092 <span class="keyword">else</span>
+0093     varargout{1}=[];
+0094 <span class="keyword">end</span>
+0095 
+0096 <span class="comment">% The figure can be deleted now</span>
+0097 <span class="keyword">if</span> isfield(handles,<span class="string">'figure1'</span>)
+0098     delete(handles.figure1);
+0099 <span class="keyword">end</span>
+0100 
+0101 
+0102 <a name="_sub3" href="#_subfunctions" class="code">function edit1_Callback(hObject, eventdata, handles)</a>
+0103 <span class="comment">% hObject    handle to edit1 (see GCBO)</span>
+0104 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0105 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
 0106 
-0107 
-0108 
-0109 
-0110 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0111 <a name="_sub4" href="#_subfunctions" class="code">function edit1_CreateFcn(hObject, eventdata, handles)</a>
-0112 <span class="comment">% hObject    handle to edit1 (see GCBO)</span>
-0113 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0114 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0107 <span class="comment">% Hints: get(hObject,'String') returns contents of edit1 as text</span>
+0108 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit1 as a double</span>
+0109 handles.output = get(hObject,<span class="string">'String'</span>);
+0110 
+0111 <span class="comment">% Update handles structure</span>
+0112 guidata(hObject, handles);
+0113 
+0114 
 0115 
-0116 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0117 <span class="comment">%       See ISPC and COMPUTER.</span>
-0118 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0119     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0120 <span class="keyword">end</span>
-0121 
+0116 
+0117 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0118 <a name="_sub4" href="#_subfunctions" class="code">function edit1_CreateFcn(hObject, eventdata, handles)</a>
+0119 <span class="comment">% hObject    handle to edit1 (see GCBO)</span>
+0120 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0121 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
 0122 
-0123 <span class="comment">% --- Executes on button press in okbutton.</span>
-0124 <a name="_sub5" href="#_subfunctions" class="code">function okbutton_Callback(hObject, eventdata, handles)</a>
-0125 <span class="comment">% hObject    handle to okbutton (see GCBO)</span>
-0126 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0127 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0123 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0124 <span class="comment">%       See ISPC and COMPUTER.</span>
+0125 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0126     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0127 <span class="keyword">end</span>
 0128 
-0129 <span class="comment">% Use UIRESUME instead of delete because the OutputFcn needs</span>
-0130 <span class="comment">% to get the updated handles structure.</span>
-0131 uiresume(handles.figure1);
-0132 
-0133 <span class="comment">% --- Executes on button press in cancelbutton.</span>
-0134 <a name="_sub6" href="#_subfunctions" class="code">function cancelbutton_Callback(hObject, eventdata, handles)</a>
-0135 <span class="comment">% hObject    handle to cancelbutton (see GCBO)</span>
-0136 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0137 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0138 <span class="comment">% Use UIRESUME instead of delete because the OutputFcn needs</span>
-0139 <span class="comment">% to get the updated handles structure.</span>
-0140 handles.output=[];
-0141 uiresume(handles.figure1);</pre></div>
-<hr><address>Generated on Thu 20-Oct-2011 11:56:23 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0129 
+0130 <span class="comment">% --- Executes on button press in okbutton.</span>
+0131 <a name="_sub5" href="#_subfunctions" class="code">function okbutton_Callback(hObject, eventdata, handles)</a>
+0132 <span class="comment">% hObject    handle to okbutton (see GCBO)</span>
+0133 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0134 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0135 
+0136 <span class="comment">% Use UIRESUME instead of delete because the OutputFcn needs</span>
+0137 <span class="comment">% to get the updated handles structure.</span>
+0138 uiresume(handles.figure1);
+0139 
+0140 <span class="comment">% --- Executes on button press in cancelbutton.</span>
+0141 <a name="_sub6" href="#_subfunctions" class="code">function cancelbutton_Callback(hObject, eventdata, handles)</a>
+0142 <span class="comment">% hObject    handle to cancelbutton (see GCBO)</span>
+0143 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0144 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0145 <span class="comment">% Use UIRESUME instead of delete because the OutputFcn needs</span>
+0146 <span class="comment">% to get the updated handles structure.</span>
+0147 handles.output=[];
+0148 uiresume(handles.figure1);</pre></div>
+<hr><address>Generated on Sat 12-Nov-2011 16:15:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

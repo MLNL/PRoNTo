@@ -1,0 +1,308 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_run_model</title>
+  <meta name="keywords" content="prt_run_model">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">batch</a> &gt; prt_run_model.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for batch&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_run_model
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function out = prt_run_model(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ PRoNTo job execution function
+ takes a harvested job data structure and rearrange data into &quot;proper&quot;
+ data structure, then save do what it has to do...
+ Here simply the harvested job structure in a mat file.
+
+ INPUT
+   job    - harvested job data structure (see matlabbatch help)
+
+ OUTPUT
+   out    - filename of saved data structure.
+
+   This function assembles a model structure with following fields:
+
+   model.fname:      filename for PRT.mat
+   model.model_name: name for this cross-validation structure
+   model.type:       'classification' or 'regression'
+   model.use_kernel: does this model use kernels or features?
+   model.operations: operations to apply before prediction
+
+   model.fs(f).fs_name:     feature set(s) this CV approach is defined for
+   model.fs(f).fs_features: feature selection mode ('all' or 'mask')
+   model.fs(f).mask_file:   mask for this feature set (fs_features='mask')
+
+   model.class(c).class_name
+   model.class(c).group(g).subj(s).num
+   model.class(c).group(g).subj(s).modality(m).mod_name
+   EITHER: model.class(c).group(g).subj(s).modality(m).conds(c).cond_name
+   OR:     model.class(c).group(g).subj(s).modality(m).all_scans
+   OR:     model.class(c).group(g).subj(s).modality(m).all_cond
+
+   model.cv.type:     type of cross-validation ('loso','losgo','custom')
+   model.cv.mat_file: file specifying CV matrix (if type = 'custom');
+
+   FIXME: add a more flexible interface for specifying custom CV
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_cfg_model.html" class="code" title="function model = prt_cfg_model">prt_cfg_model</a>	Data & design configuration file</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function out = prt_run_model(varargin)</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% PRoNTo job execution function</span>
+0004 <span class="comment">% takes a harvested job data structure and rearrange data into &quot;proper&quot;</span>
+0005 <span class="comment">% data structure, then save do what it has to do...</span>
+0006 <span class="comment">% Here simply the harvested job structure in a mat file.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% INPUT</span>
+0009 <span class="comment">%   job    - harvested job data structure (see matlabbatch help)</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% OUTPUT</span>
+0012 <span class="comment">%   out    - filename of saved data structure.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   This function assembles a model structure with following fields:</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   model.fname:      filename for PRT.mat</span>
+0017 <span class="comment">%   model.model_name: name for this cross-validation structure</span>
+0018 <span class="comment">%   model.type:       'classification' or 'regression'</span>
+0019 <span class="comment">%   model.use_kernel: does this model use kernels or features?</span>
+0020 <span class="comment">%   model.operations: operations to apply before prediction</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   model.fs(f).fs_name:     feature set(s) this CV approach is defined for</span>
+0023 <span class="comment">%   model.fs(f).fs_features: feature selection mode ('all' or 'mask')</span>
+0024 <span class="comment">%   model.fs(f).mask_file:   mask for this feature set (fs_features='mask')</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">%   model.class(c).class_name</span>
+0027 <span class="comment">%   model.class(c).group(g).subj(s).num</span>
+0028 <span class="comment">%   model.class(c).group(g).subj(s).modality(m).mod_name</span>
+0029 <span class="comment">%   EITHER: model.class(c).group(g).subj(s).modality(m).conds(c).cond_name</span>
+0030 <span class="comment">%   OR:     model.class(c).group(g).subj(s).modality(m).all_scans</span>
+0031 <span class="comment">%   OR:     model.class(c).group(g).subj(s).modality(m).all_cond</span>
+0032 <span class="comment">%</span>
+0033 <span class="comment">%   model.cv.type:     type of cross-validation ('loso','losgo','custom')</span>
+0034 <span class="comment">%   model.cv.mat_file: file specifying CV matrix (if type = 'custom');</span>
+0035 <span class="comment">%</span>
+0036 <span class="comment">%   FIXME: add a more flexible interface for specifying custom CV</span>
+0037 <span class="comment">%__________________________________________________________________________</span>
+0038 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0039 
+0040 <span class="comment">% Written by A Marquand</span>
+0041 <span class="comment">% $Id: prt_run_model.m 359 2011-11-11 13:37:01Z schrouff $</span>
+0042 
+0043 <span class="comment">% Job variable</span>
+0044 <span class="comment">% -------------------------------------------------------------------------</span>
+0045 job   = varargin{1};
+0046 
+0047 <span class="comment">% Load PRT.mat</span>
+0048 <span class="comment">% -------------------------------------------------------------------------</span>
+0049 fname = char(job.infile);
+0050 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0051     clear PRT
+0052 <span class="keyword">end</span>
+0053 PRT=prt_load(fname);
+0054 <span class="keyword">if</span> ~isempty(PRT)
+0055     handles.dat=PRT;
+0056 <span class="keyword">else</span>
+0057     beep
+0058     disp(<span class="string">'Could not load file'</span>)
+0059     <span class="keyword">return</span>
+0060 <span class="keyword">end</span>
+0061 
+0062 <span class="comment">% assemble basic fields</span>
+0063 model.fname      = fname;
+0064 model.model_name = job.model_name;
+0065 <span class="keyword">if</span> ~(prt_checkAlphaNumUnder(model.model_name))
+0066     beep
+0067     disp(<span class="string">'Model name should be entered in alphanumeric format only'</span>)
+0068     disp(<span class="string">'Please correct'</span>)
+0069     <span class="keyword">return</span>
+0070 <span class="keyword">end</span>
+0071 model.use_kernel = job.use_kernel;
+0072 
+0073 <span class="comment">% insert feature set fields</span>
+0074 
+0075 model.fs(1).fs_name = job.fsets;
+0076 fid=prt_init_fs(PRT,model.fs(1));
+0077 mods={PRT.fs(fid).modality(:).mod_name};
+0078 
+0079 <span class="comment">%get the conditions which are common to all subjects from all groups, only</span>
+0080 nm=length(mods);
+0081 <span class="keyword">for</span> i=1:nm
+0082     flag=1;
+0083     <span class="keyword">for</span> j=1:length(PRT.group)
+0084         <span class="keyword">for</span> k=1:length(PRT.group(j).subject)
+0085             m2= strcmpi(PRT.fs(fid).modality(nm).mod_name,mods);
+0086             des=PRT.group(j).subject(k).modality(m2).design;
+0087             <span class="keyword">if</span> isstruct(des) &amp;&amp; flag
+0088                 <span class="keyword">if</span> k==1 &amp;&amp; nm==1
+0089                     lcond={des.conds(:).cond_name};
+0090                 <span class="keyword">else</span>
+0091                     tocmp={des.conds(:).cond_name};
+0092                     lcond=intersect(lcond,tocmp);
+0093                 <span class="keyword">end</span>
+0094             <span class="keyword">else</span>
+0095                 flag=0;
+0096                 lcond={};
+0097             <span class="keyword">end</span>
+0098         <span class="keyword">end</span>
+0099     <span class="keyword">end</span>
+0100 <span class="keyword">end</span>
+0101 <span class="comment">% Insert fields for generating the labels (ie. translate the fields coming</span>
+0102 <span class="comment">% from matlabbatch to something more consistent for the prt_model function)</span>
+0103 <span class="comment">% Note that we cycle through the groups to flatten out the structure, since</span>
+0104 <span class="comment">% we potentially specify multiple subjects per group</span>
+0105 <span class="keyword">if</span> isfield(job.model_type,<span class="string">'classification'</span>)
+0106     model.type = <span class="string">'classification'</span>;
+0107     <span class="keyword">for</span> c = 1:length(job.model_type.classification.class)
+0108         model.class(c).class_name = job.model_type.classification.class(c).class_name;
+0109         
+0110         <span class="keyword">for</span> g = 1:length(job.model_type.classification.class(c).group)
+0111             scount = 1;
+0112             model.class(c).group(g).gr_name = <span class="keyword">...</span>
+0113                 job.model_type.classification.class(c).group(g).gr_name;
+0114             
+0115             sids   = job.model_type.classification.class(c).group(g).subj_nums;
+0116             <span class="keyword">for</span> s = 1:length(sids)
+0117                 model.class(c).group(g).subj(scount).num = sids(s);
+0118                 <span class="keyword">for</span> m = 1: length(mods)
+0119                     model.class(c).group(g).subj(scount).modality(m).mod_name=mods{m};
+0120                     <span class="keyword">if</span> isfield(job.model_type.classification.class(c).group(g).conditions,<span class="string">'all_scans'</span>)
+0121                         model.class(c).group(g).subj(scount).modality(m).all_scans = true;
+0122                     <span class="keyword">elseif</span> isfield(job.model_type.classification.class(c).group(g).conditions,<span class="string">'all_cond'</span>)
+0123                         model.class(c).group(g).subj(scount).modality(m).all_cond = true;
+0124                         <span class="keyword">if</span> isempty(lcond)
+0125                             beep
+0126                             disp(<span class="string">'All conditions selected while no conditions were common to all subjects'</span>)
+0127                             disp(<span class="string">'Please review the selection and/or the data and design'</span>)
+0128                             <span class="keyword">return</span>
+0129                         <span class="keyword">end</span>
+0130                     <span class="keyword">else</span>
+0131                         model.class(c).group(g).subj(scount).modality(m).conds = <span class="keyword">...</span>
+0132                             job.model_type.classification.class(c).group(g).conditions.conds;
+0133                         <span class="keyword">for</span> cc=1:length(job.model_type.classification.class(c).group(g).conditions.conds)
+0134                             cname=job.model_type.classification.class(c).group(g).conditions.conds(cc).cond_name;
+0135                             <span class="keyword">if</span> isempty(intersect({cname},lcond))
+0136                                 beep
+0137                                 disp(<span class="string">'This condition is not common to all subjects'</span>)
+0138                                 disp(<span class="string">'Please remove it from the selection'</span>)
+0139                                 <span class="keyword">return</span>
+0140                             <span class="keyword">end</span>
+0141                         <span class="keyword">end</span>
+0142                     <span class="keyword">end</span>
+0143                 <span class="keyword">end</span>
+0144                 scount = scount+1;
+0145             <span class="keyword">end</span>
+0146         <span class="keyword">end</span>
+0147     <span class="keyword">end</span>
+0148     <span class="comment">% insert machine fields</span>
+0149     <span class="keyword">if</span> isfield(job.model_type.classification.machine_cl,<span class="string">'svm'</span>)
+0150         model.machine.function = <span class="string">'prt_machine_svm_bin'</span>;
+0151         model.machine.args     = job.model_type.classification.machine_cl.svm.svm_args;
+0152     <span class="keyword">elseif</span> isfield(job.model_type.classification.machine_cl,<span class="string">'gpc'</span>)
+0153         model.machine.function=<span class="string">'prt_machine_gpml'</span>;
+0154         model.machine.args=job.model_type.classification.machine_cl.gpc.gpc_args;
+0155     <span class="keyword">elseif</span> isfield(job.model_type.classification.machine_cl,<span class="string">'rt'</span>)
+0156         model.machine.function=<span class="string">'prt_machine_RT_bin'</span>;
+0157         model.machine.args=job.model_type.classification.machine_cl.rt.rt_args;
+0158     <span class="keyword">else</span>
+0159         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
+0160         model.machine.function = nam;
+0161         model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
+0162     <span class="keyword">end</span>
+0163 
+0164 <span class="keyword">elseif</span> isfield(job.model_type,<span class="string">'regression'</span>)
+0165     model.type = <span class="string">'regression'</span>;
+0166     scount = 1;
+0167     <span class="keyword">for</span> g = 1:length(job.model_type.regression.reg_group)
+0168         model.group(g).gr_name = job.model_type.regression.reg_group(g).gr_name;
+0169         sids   =  job.model_type.regression.reg_group(g).subj_nums;
+0170         <span class="keyword">for</span> s = 1:length(sids)
+0171             model.group(g).subj(scount).num = sids(s);
+0172             model.group(g).subj(scount).modality.mod_name =  mods;
+0173             scount=scount+1;
+0174         <span class="keyword">end</span>
+0175     <span class="keyword">end</span>
+0176     
+0177     <span class="keyword">if</span> isfield(job.model_type.regression.machine_rg,<span class="string">'krr'</span>)
+0178         model.machine.function=<span class="string">'prt_machine_krr'</span>;
+0179         model.machine.args=job.model_type.regression.machine_rg.krr.krr_args;
+0180     <span class="keyword">elseif</span> isfield(job.model_type.regression.machine_rg,<span class="string">'rvr'</span>)
+0181         model.machine.function=<span class="string">'prt_machine_rvr'</span>;
+0182         model.machine.args=[];
+0183     <span class="keyword">else</span>
+0184         [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
+0185         model.machine.function = nam;
+0186         model.machine.args = job.model_type.regression.machine_rg.custom_machine.machine_args;
+0187     <span class="keyword">end</span>   
+0188 <span class="keyword">else</span>
+0189     error(<span class="string">'this is not implemented yet'</span>);   
+0190 <span class="keyword">end</span>
+0191 
+0192 <span class="comment">% assemble structure for performing cross-validation</span>
+0193 <span class="keyword">if</span> isfield(job.cv_type,<span class="string">'cv_loso'</span>)
+0194     model.cv.type = <span class="string">'loso'</span>;
+0195 <span class="keyword">elseif</span> isfield(job.cv_type,<span class="string">'cv_losgo'</span>)
+0196     model.cv.type = <span class="string">'losgo'</span>;
+0197 <span class="keyword">elseif</span> isfield(job.cv_type,<span class="string">'cv_lobo'</span>)
+0198     model.cv.type = <span class="string">'lobo'</span>;
+0199 <span class="comment">%     if scount&gt;1</span>
+0200 <span class="comment">%         beep</span>
+0201 <span class="comment">%         disp('Leave One Block Out Cross Validation only allowed for within subject modeling')</span>
+0202 <span class="comment">%         disp('Please correct')</span>
+0203 <span class="comment">%     end</span>
+0204 <span class="keyword">elseif</span> isfield(job.cv_type,<span class="string">'cv_loro'</span>) <span class="comment">%currently implemented for MCKR only</span>
+0205     model.cv.type = <span class="string">'loro'</span>;
+0206 <span class="keyword">else</span>
+0207     model.cv.type     = <span class="string">'custom'</span>;
+0208     model.cv.mat_file = job.cv_type;
+0209 <span class="keyword">end</span>
+0210 
+0211 <span class="comment">% specify operations to apply to the data prior to prediction</span>
+0212 <span class="keyword">if</span> isfield(job.data_ops,<span class="string">'sel_ops'</span>)
+0213     model.operations = [job.data_ops.sel_ops.data_op{:}];
+0214 <span class="keyword">elseif</span> isfield(job.data_ops,<span class="string">'no_op'</span>)
+0215     model.operations = [];
+0216 <span class="keyword">end</span>
+0217 
+0218 prt_model(PRT,model);
+0219 
+0220 <span class="comment">% Function output</span>
+0221 <span class="comment">% -------------------------------------------------------------------------</span>
+0222 out.files{1} = fname;
+0223 out.names{1} = model.model_name;
+0224 disp(<span class="string">'Model configuration complete.'</span>)
+0225 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2011 16:15:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

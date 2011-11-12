@@ -78,7 +78,7 @@ This function is called by:
 0018 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0019 
 0020 <span class="comment">% Written by Christophe Phillips</span>
-0021 <span class="comment">% $Id: prt_defaults.m 155 2011-10-14 14:04:01Z amarquan $</span>
+0021 <span class="comment">% $Id: prt_defaults.m 322 2011-11-08 11:05:34Z schrouff $</span>
 0022 
 0023 <span class="comment">%%</span>
 0024 <span class="keyword">global</span> prt_def
@@ -90,36 +90,33 @@ This function is called by:
 0030 
 0031 <span class="comment">% Parameters for the data and design</span>
 0032 <span class="comment">%-----------------------------------------------</span>
-0033 prt_def.datad.hrfd = 6; <span class="comment">% HRF delay in seconds</span>
-0034 prt_def.datad.hrfw = 6; <span class="comment">% HRF FWHM, used to compute the overlap between conditions</span>
-0035 <span class="comment">%prt_def.datad.hrfd = 3; % HRF delay in seconds</span>
-0036 <span class="comment">%prt_def.datad.hrfw = 1; % HRF FWHM, used to compute the overlap between conditions</span>
+0033 prt_def.datad.hrfd = 0; <span class="comment">% HRF delay in seconds</span>
+0034 prt_def.datad.hrfw = 0; <span class="comment">% HRF FWHM, used to compute the overlap between conditions</span>
+0035 
+0036 prt_def.prep.default_mask  = [prt_def.global.install_dir,<span class="string">'/masks/SPM_mask_noeyes.hdr'</span>];<span class="comment">% default mask</span>
 0037 
 0038 
-0039 
-0040 <span class="comment">% Preprocessing defaults</span>
+0039 <span class="comment">% Preprocessing defaults</span>
+0040 <span class="comment">%------------------------------------------------</span>
 0041 prt_def.prep.use1  = 5;      
 0042 prt_def.prep.use2  = <span class="string">'kk'</span>; <span class="comment">% pre</span>
-0043 <span class="comment">% Put in whatever default value is useful for the preprocessing step. It</span>
-0044 <span class="comment">% could be a flag (value 1/0), some scalar or vector of values, or even</span>
-0045 <span class="comment">% some strings...</span>
-0046 
-0047 <span class="comment">% default mask</span>
-0048 prt_def.prep.default_mask  = [prt_def.global.install_dir,<span class="string">'/masks/SPM_mask_noeyes.hdr'</span>];
-0049 
-0050 <span class="comment">% memory limit for kernel construction</span>
-0051 prt_def.fs.mem_limit = 64*1024*1024;  <span class="comment">% bytes of memory to use</span>
-0052 prt_def.fs.writeraw = 0;               <span class="comment">% flag to write the data detrended (default) or raw (to set to 1).</span>
-0053 
-0054 <span class="comment">% Design specification default</span>
-0055 prt_def.dspec.use3 = [1 2];
-0056 
-0057 
-0058 <span class="comment">% Other default values should be added as sub-fields in the prt_def</span>
-0059 <span class="comment">% structure. Values related to the same module should preferably be grouped</span>
-0060 <span class="comment">% into a single substructure.</span>
-0061 
-0062 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Thu 20-Oct-2011 11:56:23 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0043 
+0044 <span class="comment">% memory limit for kernel/file arrays construction</span>
+0045 prt_def.fs.mem_limit = 64*1024*1024;  <span class="comment">% bytes of memory to use</span>
+0046 prt_def.fs.writeraw = 0;               <span class="comment">% flag to write the data detrended (default) or raw (to set to 1).</span>
+0047 
+0048 <span class="comment">% Design specification default</span>
+0049 prt_def.dspec.use3 = [1 2];
+0050 
+0051 
+0052 <span class="comment">% Specify model: Parameters of the different machines</span>
+0053 <span class="comment">%--------------------------------------------------</span>
+0054 prt_def.model.svmargs=<span class="string">'-s 0 -t 4 -c 1'</span>;
+0055 prt_def.model.gpcargs=<span class="string">'-l erf -h'</span>;
+0056 prt_def.model.krrargs=1;
+0057 prt_def.model.rtargs=601;
+0058 
+0059 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Sat 12-Nov-2011 16:15:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
