@@ -31,9 +31,8 @@ function output = prt_machine(d,m)
 %       parameters of interest. For exemple for an SVM this could be the
 %       number of support vector used in the hyperplane weights computation
 %__________________________________________________________________________
-% Copyright (C) 2011 PRoNTo
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-%--------------------------------------------------------------------------
 % Written by M.J.Rosa and J.Richiardi
 % $Id$
 

@@ -9,9 +9,8 @@ function weights = prt_weights(d,m)
 % Output:
 %       weights - weights vector [Nfeatures x 1]
 %__________________________________________________________________________
-% Copyright (C) 2011 PRoNTo
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-%--------------------------------------------------------------------------
 % Written by M.J.Rosa and J.Mourao-Miranda
 % $Id$
 

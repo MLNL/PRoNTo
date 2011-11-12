@@ -22,9 +22,8 @@ function output = prt_machine_svm_bin(d,args)
 %      .func_val - value of the decision function
 %      .type     - which type of machine this is (here, 'classifier')
 %__________________________________________________________________________
-% Copyright (C) 2011 PRoNTo
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-%--------------------------------------------------------------------------
 % Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
 % $Id$
 

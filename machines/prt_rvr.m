@@ -54,11 +54,11 @@ function [varargout]=prt_rvr(varargin)
 % Michael E. Tipping
 % Sparse Bayesian Learning and the Relevance Vector Machine
 % Journal of Machine Learning Research 1 (2001) 211-244
-%_______________________________________________________________________
-% Copyright (C) 2011 Wellcome Department of Imaging Neuroscience
+%________________________________________________________________________
+% Copyright (C) 2011 Wellcome Department of Imaging Neuroscience & Machine Learning & Neuroimaging Laboratory
 
-% John Ashburner
-% $Id$
+% Written by John Ashburner
+% $Id:$
 
 if isnumeric(varargin{1}),
     [varargout{1:nargout}]=regression0(varargin{:});

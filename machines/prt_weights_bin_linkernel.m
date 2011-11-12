@@ -9,9 +9,8 @@ function weights = prt_weights_bin_linkernel (d,args)
 % Output:
 %       weights        - vector with weights [Nfeatures x 1]
 %__________________________________________________________________________
-% Copyright (C) 2011 PRoNTo
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-%--------------------------------------------------------------------------
 % Written by J.Mourao-Miranda and M.J.Rosa
 % $Id: prt_weights_bin_linkernel.m 192 2011-10-24 10:57:19Z mjrosa $
 

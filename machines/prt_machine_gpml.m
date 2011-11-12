@@ -36,7 +36,7 @@ function output = prt_machine_gpml(d,args)
 %      .sW       - likelihood matrix (see Rasmussen & Williams, 2006)
 %      .L        - Cholesky factor
 %__________________________________________________________________________
-% Copyright (C) 2011 PRoNTo
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand
 % $Id$
