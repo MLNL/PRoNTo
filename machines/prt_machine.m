@@ -152,9 +152,11 @@ if SANITYCHECK==true
         % 7: Check datasets properties (within cells)
         for k = 1:Nk_train,
             if ~isempty(d.train{k}) && ~isempty(d.test{k})
-                if ~prt_ismatrix(d.train{k}) || ~prt_ismatrix(d.test{k})
+                if (~prt_ismatrix(d.train{k}) && ~isvector(d.train{k}) ) || ...
+                        (~prt_ismatrix(d.test{k}) && ~isvector(d.test{k}) )
                     error('prt_machine:TrAndTeNotMatrices',...
-                        'Error: training and testing datasets should be matrices!');
+                        ['Error: training and testing datasets should ' ...
+                        ' be either matrices or vectors!']);
                 end
             else
                 error('prt_machine:TrAndTeEmpty',...
@@ -266,5 +268,5 @@ function out = prt_ismatrix(A)
 % implementation (based on Dan Vimont's Matlab libs at
 % http://www.aos.wisc.edu/~dvimont/matlab but with short-circuit AND for
 % "speed")
-out=(ndims(A)==2); %&& (min(size(A)) ~= 1);
+out=(ndims(A)==2) && (min(size(A)) ~= 1); % enable stricter check - a struct array should NOT pass.
 end
