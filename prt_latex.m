@@ -1,5 +1,4 @@
 function prt_latex(c)
-%
 % Extract information from the toolbox m-files and output them as usable
 % .tex files which can be directly included in the manual.
 %

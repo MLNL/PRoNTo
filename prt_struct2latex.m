@@ -1,5 +1,4 @@
 function prt_struct2latex(S)
-%
 % Function that takes in a structure S and writes down the latex code
 % describing the whole structure and substructures recursively.
 % The routine specifically generates the 'adv_PRTstruct.tex' file that is

@@ -1,7 +1,5 @@
-% prt_func2html
-% 
-% Script to generate the list of .m functions into html files which can be
-% browsed around with your favourite browser.
+% Script to generate the list of .m functions into html files 
+% which can be browsed around with your favourite browser.
 %
 % Note that this script relies on the M2HTML package which is *NOT*
 % distributed with PRoNTo!
@@ -16,7 +14,8 @@
 
 cd(prt('dir'))
 
-subdirs = {'.', 'machines','batch'}; % list of directories to include
+subdirs = {'.', ['.',filesep,'machines'],['.',filesep,'batch']}; 
+    % list of directories to include
 isubdirs = {'.svn','manual','LIB'}; % list of directories to exclude
 
 m2html('mfiles',subdirs, 'htmldir',fullfile('manual','html_doc'), ...
