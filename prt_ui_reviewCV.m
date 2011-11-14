@@ -104,10 +104,14 @@ cla(handles.axes3)
 
 %Plot the id_mat in the left part of the window
 set(handles.figure1,'CurrentAxes',handles.axes1)
-imagesc(handles.PRT.fs(indf).id_mat(:,1:5));
-set(gca,'XTick',1:5)
-set(gca,'XTickLabel',{'Group','Subject','Modality','Condition','Block'},...
-    'FontWeight','demi');
+dat=handles.PRT.fs(indf).id_mat(:,1:6);
+for i=1:6
+    dat(:,i)=dat(:,i)./max(dat(:,i));
+end
+imagesc(dat);
+set(gca,'XTick',1:6)
+set(gca,'XTickLabel',{'Group','Subject','Modality','Condition','Block','Scans'},...
+    'FontWeight','demi','FontSize',9);
 set(gca,'YTickLabel',{})
 colorbar('Location','WestOutside')
 set(get(gca,'Title'),'String','Feature set','FontWeight','bold')
@@ -126,7 +130,7 @@ xlabel('CV Folds','fontweight','demi')
 imagesc(CV_mat_full);
 set(gca,'XTick',1:i)
 set(gca,'YTickLabel',{})
-set(gca,'XTickLabel',xticksl,'FontWeight','demi')
+set(gca,'XTickLabel',xticksl,'FontWeight','demi','FontSize',9)
 colormap(gray)
 set(get(gca,'Title'),'String','Cross-Validation','FontWeight','bold')
 
