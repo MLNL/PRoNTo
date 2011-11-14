@@ -206,9 +206,6 @@ function figure1_DeleteFcn(hObject,eventdata,handles)
 % hObject    handle to datastruct (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.output=handles.PRT;
-% Update handles structure
-guidata(hObject, handles);
 delete(handles.figure1);
 
 % --- Executes on selection change in modlist.
