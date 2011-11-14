@@ -628,9 +628,9 @@ if strcmp(PRT.model(m).input.type,'classification')
     end
     % Show stats
     % ---------------------------------------------------------------------
-    set(handles.accuracytext,'String','Accuracy:','Visible','on');
-    set(handles.baccuracytext,'String','Balanced accuracy:','Visible','on');
-    set(handles.classaccuracytext,'String','Class accuracy:','Visible','on');
+    set(handles.accuracytext,'String','Accuracy (acc):','Visible','on');
+    set(handles.baccuracytext,'String','Balanced acc:','Visible','on');
+    set(handles.classaccuracytext,'String','Class acc:','Visible','on');
     
     if ~strcmp(PRT.model(m).input.cv_type,'lobo')
         set(handles.acctext,'String',sprintf('%3.1f %% (%3.1f %%, %3.1f%%)',...
@@ -871,14 +871,15 @@ if strcmp(get(handles.accuracytext,'Visible'),'on') || strcmp(get(handles.corrte
     if  ~isempty(reps)
         if length(reps) ==1
             reps = round(reps);
+            disp('Performing permutation test.........>>')
             prt_permutation(handles.PRT, reps, m, handles.pathdir);
             % Load new PRT.mat
             PRTmat = fullfile(handles.pathdir,'PRT.mat');
             load(PRTmat);
             perm = PRT.model(m).output.stats.permutation;
             if strcmp(handles.PRT.model(m).input.type,'classification');
-                set(handles.pbacc,'String',sprintf('(%3.1f)',perm.pvalue_b_acc), 'Visible','on');
-                set(handles.pcacc,'String',sprintf('(%3.1f, %3.1f)',perm.pvalue_c_acc(1),...
+                set(handles.pbacc,'String',sprintf('p: %3.2f',perm.pvalue_b_acc), 'Visible','on');
+                set(handles.pcacc,'String',sprintf('p: %3.2f, %3.2f',perm.pvalue_c_acc(1),...
                     perm.pvalue_c_acc(2)),'Visible','on');
             else
                 set(handles.pcorr,'String',sprintf('(%3.1f)',perm.pval_corr), 'Visible','on');
