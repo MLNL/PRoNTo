@@ -4,7 +4,7 @@
 <head>
   <title>Description of prt_func2html</title>
   <meta name="keywords" content="prt_func2html">
-  <meta name="description" content="prt_func2html">
+  <meta name="description" content="Script to generate the list of .m functions into html files">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,16 +21,14 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>prt_func2html</strong></div>
+<div class="box"><strong>Script to generate the list of .m functions into html files</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="box"><strong>This is a script file. </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> prt_func2html
- 
- Script to generate the list of .m functions into html files which can be
- browsed around with your favourite browser.
+<div class="fragment"><pre class="comment"> Script to generate the list of .m functions into html files 
+ which can be browsed around with your favourite browser.
 
  Note that this script relies on the M2HTML package which is *NOT*
  distributed with PRoNTo!
@@ -53,29 +51,28 @@ This function is called by:
 
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <span class="comment">% prt_func2html</span>
-0002 <span class="comment">%</span>
-0003 <span class="comment">% Script to generate the list of .m functions into html files which can be</span>
-0004 <span class="comment">% browsed around with your favourite browser.</span>
-0005 <span class="comment">%</span>
-0006 <span class="comment">% Note that this script relies on the M2HTML package which is *NOT*</span>
-0007 <span class="comment">% distributed with PRoNTo!</span>
-0008 <span class="comment">%</span>
-0009 <span class="comment">% For more information, please read the M2HTML tutorial and FAQ at:</span>
-0010 <span class="comment">%    &lt;http://www.artefact.tk/software/matlab/m2html/&gt;</span>
-0011 <span class="comment">%__________________________________________________________________________</span>
-0012 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
-0013 
-0014 <span class="comment">% Written by Christophe Phillips</span>
-0015 <span class="comment">% $Id: prt_func2html.m 367 2011-11-12 15:03:24Z cphillip $</span>
+<div class="fragment"><pre>0001 <span class="comment">% Script to generate the list of .m functions into html files</span>
+0002 <span class="comment">% which can be browsed around with your favourite browser.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Note that this script relies on the M2HTML package which is *NOT*</span>
+0005 <span class="comment">% distributed with PRoNTo!</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% For more information, please read the M2HTML tutorial and FAQ at:</span>
+0008 <span class="comment">%    &lt;http://www.artefact.tk/software/matlab/m2html/&gt;</span>
+0009 <span class="comment">%__________________________________________________________________________</span>
+0010 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0011 
+0012 <span class="comment">% Written by Christophe Phillips</span>
+0013 <span class="comment">% $Id: prt_func2html.m 371 2011-11-14 10:12:12Z cphillip $</span>
+0014 
+0015 cd(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>))
 0016 
-0017 cd(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>))
-0018 
-0019 subdirs = {<span class="string">'.'</span>, <span class="string">'machines'</span>,<span class="string">'batch'</span>}; <span class="comment">% list of directories to include</span>
-0020 isubdirs = {<span class="string">'.svn'</span>,<span class="string">'manual'</span>,<span class="string">'LIB'</span>}; <span class="comment">% list of directories to exclude</span>
-0021 
-0022 m2html(<span class="string">'mfiles'</span>,subdirs, <span class="string">'htmldir'</span>,fullfile(<span class="string">'manual'</span>,<span class="string">'html_doc'</span>), <span class="keyword">...</span>
-0023         <span class="string">'recursive'</span>,<span class="string">'off'</span>);</pre></div>
-<hr><address>Generated on Sat 12-Nov-2011 16:15:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0017 subdirs = {<span class="string">'.'</span>, [<span class="string">'.'</span>,filesep,<span class="string">'machines'</span>],[<span class="string">'.'</span>,filesep,<span class="string">'batch'</span>]}; 
+0018     <span class="comment">% list of directories to include</span>
+0019 isubdirs = {<span class="string">'.svn'</span>,<span class="string">'manual'</span>,<span class="string">'LIB'</span>}; <span class="comment">% list of directories to exclude</span>
+0020 
+0021 m2html(<span class="string">'mfiles'</span>,subdirs, <span class="string">'htmldir'</span>,fullfile(<span class="string">'manual'</span>,<span class="string">'html_doc'</span>), <span class="keyword">...</span>
+0022         <span class="string">'recursive'</span>,<span class="string">'off'</span>);</pre></div>
+<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
