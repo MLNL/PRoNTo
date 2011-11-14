@@ -118,7 +118,7 @@ set(get(gca,'Title'),'String','Feature set','FontWeight','bold')
 
 %Plot the CV matrix in the right part of the window
 set(handles.figure1,'CurrentAxes',handles.axes2)
-CV_mat_full=zeros(size(handles.PRT.fs.id_mat,1),...
+CV_mat_full=zeros(size(handles.PRT.fs(indf).id_mat,1),...
     size(handles.PRT.model(indm).input.cv_mat,2));
 xticksl=cell(1,size(handles.PRT.model(indm).input.cv_mat,2));
 for i=1:size(handles.PRT.model(indm).input.cv_mat,2)
