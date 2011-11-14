@@ -106,7 +106,7 @@ if ~isfield(handles,'notinit')
         plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
        set(handles.plotmenu,'String',plots);
     else
-        plots = {'Predictions'};
+        plots = {'Predictions (scatter)', 'Predictions (bar)'};
        set(handles.plotmenu,'String',plots); 
     end  
     % Set font sizes
@@ -149,6 +149,9 @@ handles.output = hObject;
 % Reposition main window
 set(handles.figure1,'Units','normalized');
 p = get(handles.figure1,'Position');
+% scrsz = get(0,'ScreenSize');
+% set(handles.figure1,'Position',[p(1) 1 scrsz*0.5 scrsz*0.75]);
+
 set(handles.figure1,'Position',[p(1) 1 p(3) p(4)]);
 % set(handles.figure1,'Units','characters');
 
@@ -246,7 +249,7 @@ st.callback = 'prt_ui_results(''showpos'')';
 % -------------------------------------------------------------------------
 h  = spm_orthviews('Image', handles.wmap,[0.0619 0.0699 0.4196 0.4296]);
 handles.wimgh = h;
-spm_orthviews('AddContext', h);
+spm_orthviews('AddContext', h);set(handles.figure1,'Units','normalized');
 spm_orthviews('MaxBB');
 spm_orthviews('AddBlobs', h, XYZ, Z, M);
 cmap = get(gcf,'Colormap');
@@ -267,7 +270,7 @@ handles.noloadw = 0;
 % Show file name
 % -------------------------------------------------------------------------
 set(handles.loadweight,'String',handles.wmap);
-
+set(handles.figure1,'Units','normalized');
 guidata(hObject, handles);
 
 
@@ -547,17 +550,30 @@ if strcmp(PRT.model(m).input.type,'classification')
     end
     
 else
-    cla(handles.axes5);
     nfolds = length(PRT.model(m).output.fold);
-    preds = zeros(nfolds,2);
-    for f = 1:nfolds
-        preds(f,1) = PRT.model(m).output.fold(f).targets;
-        preds(f,2) = PRT.model(m).output.fold(f).predictions;
-        bar(handles.axes5,preds);        
-        xlabel(handles.axes5,'subjects','FontWeight','bold');
-        ylabel(handles.axes5,'targets and predictions','FontWeight','bold');
+    switch plotchosen
+        case '1'
+            cla(handles.axes5);
+            preds = zeros(nfolds,2);
+            for f = 1:nfolds
+                preds(f,1) = PRT.model(m).output.fold(f).targets;
+                preds(f,2) = PRT.model(m).output.fold(f).predictions;
+                scatter(handles.axes5,preds(:,2),preds(:,1),'filled');
+                xlabel(handles.axes5,'predictions','FontWeight','bold');
+                ylabel(handles.axes5,'targets','FontWeight','bold');
+            end
+        case '2'
+            cla(handles.axes5);
+            preds = zeros(nfolds,2);
+            for f = 1:nfolds
+                preds(f,1) = PRT.model(m).output.fold(f).targets;
+                preds(f,2) = PRT.model(m).output.fold(f).predictions;
+                bar(handles.axes5,preds);
+                xlabel(handles.axes5,'subjects','FontWeight','bold');
+                ylabel(handles.axes5,'targets and predictions','FontWeight','bold');
+            end
+            legend(handles.axes5,{'Target', 'Predicted'});
     end
-    legend(handles.axes5,{'Target', 'Predicted'});
 end
 
 guidata(hObject, handles);
@@ -882,8 +898,8 @@ if strcmp(get(handles.accuracytext,'Visible'),'on') || strcmp(get(handles.corrte
                 set(handles.pcacc,'String',sprintf('p: %3.2f, %3.2f',perm.pvalue_c_acc(1),...
                     perm.pvalue_c_acc(2)),'Visible','on');
             else
-                set(handles.pcorr,'String',sprintf('(%3.1f)',perm.pval_corr), 'Visible','on');
-                set(handles.pmse,'String',sprintf('(%3.1f, %3.1f)',perm.pval_mse),'Visible','on');
+                set(handles.pcorr,'String',sprintf('p: %3.2f',perm.pval_corr), 'Visible','on');
+                set(handles.pmse,'String',sprintf('p: %3.2f',perm.pval_mse),'Visible','on');
             end
         else
             beep;
