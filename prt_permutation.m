@@ -27,7 +27,7 @@ function [] = prt_permutation(PRT, n_perm, modelid, path)
 % Written by J. Mourao-Miranda
 % $ID: $
 
-prt_dir = [ ];
+prt_dir = [path];
 
 % % prt_dir = char(regexprep(in.fname,'PRT.mat', ''));
 
