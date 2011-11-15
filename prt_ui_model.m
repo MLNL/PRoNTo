@@ -30,7 +30,7 @@ function varargout = prt_ui_model(varargin)
 
 % Edit the above text to modify the response to help prt_ui_kernel_construction
 
-% Last Modified by GUIDE v2.5 01-Nov-2011 17:19:14
+% Last Modified by GUIDE v2.5 15-Nov-2011 09:31:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -73,9 +73,6 @@ set(handles.pop_cv,'String',{'Leave One Subject Out','Leave One Subject per Grou
 set(handles.pop_cv,'Value',1)
 handles.cv.type='loso';
 handles.cv.mat_file=[];
-set(handles.pop_datop,'String',{'None'})
-set(handles.pop_datop,'Value',1)
-handles.operations=[];
 set(handles.pop_reg,'String',{'Classification','Regression'})
 set(handles.pop_reg,'Value',1)
 handles.type='classification';
@@ -84,6 +81,19 @@ set(handles.pop_machine,'String',{'Binary support vector machine',...
 set(handles.pop_machine,'Value',1)
 handles.machine.function='prt_machine_svm_bin';
 handles.machine.args=handles.def.svmargs;
+list={'Temporal Compression', ...
+    'Sample averaging',... %(average samples for each subject/condition)
+    'Mean centre features over subjects',...
+    'Divide data vectors by their norm',...
+    'Perform a GLM (fMRI only)'};
+handles.indop{1}=1:length(list);
+handles.indop{2}=0;
+set(handles.uns_list,'String',list)
+set(handles.sel_list,'String',{''})
+handles.operations = [];
+handles.namop=list;
+set(handles.uns_list,'Value',1)
+set(handles.sel_list,'Value',1)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -423,45 +433,102 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
-% --- Executes on selection change in pop_datop.
-function pop_datop_Callback(hObject, eventdata, handles)
-% hObject    handle to pop_datop (see GCBO)
+% --- Executes on selection change in uns_list.
+function uns_list_Callback(hObject, eventdata, handles)
+% hObject    handle to uns_list (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = get(hObject,'String') returns pop_datop contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from
-%        pop_datop
-val=get(handles.pop_datop,'Value');
+% Hints: contents = get(hObject,'String') returns uns_list contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from uns_list
+val=get(handles.uns_list,'Value');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_datop,'Value',1)
+    set(handles.uns_list,'Value',1)
     val=1;
 end
-listop=get(handles.pop_datop,'String');
 % specify operations to apply to the data prior to prediction
-if val==length(listop)
-    handles.operations = [];
+ind=handles.indop{1}(val);
+handles.operations=[handles.operations, ind];
+handles.indop{1}=setdiff(handles.indop{1},ind);
+if isempty(handles.indop{1})
+    handles.indop{1}=0;
+    set(handles.uns_list,'String',{''})
 else
-    handles.operations = [handles.operations,{listop{val}}];
+    set(handles.uns_list,'String',{handles.namop{handles.indop{1}}})    
 end
-handles.operations=unique(handles.operations);
+set(handles.uns_list,'Value',1)
+if handles.indop{2}==0
+    handles.indop{2}=ind;
+else
+    handles.indop{2}=[handles.indop{2},ind];
+end
+set(handles.sel_list,'String',{handles.namop{handles.indop{2}}})
+set(handles.sel_list,'Value',length(handles.indop{2}))
 % Update handles structure
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
-function pop_datop_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to pop_datop (see GCBO)
+function uns_list_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to uns_list (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
-% Hint: popupmenu controls usually have a white background on Windows.
+% Hint: listbox controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on selection change in sel_list.
+function sel_list_Callback(hObject, eventdata, handles)
+% hObject    handle to sel_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns sel_list contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from sel_list
+val=get(handles.sel_list,'Value');
+if val==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.sel_list,'Value',1)
+    val=1;
+end
+% specify operations to apply to the data prior to prediction
+ind=handles.indop{2}(val);
+handles.operations=setdiff(handles.operations, ind);
+handles.indop{2}=setdiff(handles.indop{2},ind);
+if isempty(handles.indop{2})
+    handles.indop{2}=0;
+    set(handles.sel_list,'String',{''})
+else
+    set(handles.sel_list,'String',{handles.namop{handles.indop{2}}})    
+end
+set(handles.sel_list,'Value',1)
+if handles.indop{1}==0
+    handles.indop{1}=ind;
+else
+    handles.indop{1}=[handles.indop{1},ind];
+end
+set(handles.uns_list,'String',{handles.namop{handles.indop{1}}})
+set(handles.uns_list,'Value',length(handles.indop{1}))
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function sel_list_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sel_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
 
 % --- Executes on button press in buildbutt.
 function buildbutt_Callback(hObject, eventdata, handles)
@@ -647,5 +714,3 @@ prt_model(handles.dat,in);
 disp('Model specification complete.')
 disp('Done...')
 delete(handles.figure1)
-
-
