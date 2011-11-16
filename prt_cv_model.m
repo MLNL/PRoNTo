@@ -77,7 +77,7 @@ for f = 1:n_folds
         split_data(Phi_all, tr_idx, te_idx, PRT.model(mid).input.use_kernel);
     
     %Centre kernel
-    [Phi_tr, Phi_te, Phi_tt] = prt_centre_kernel(Phi_tr, Phi_te, Phi_tt);
+    %[Phi_tr, Phi_te, Phi_tt] = prt_centre_kernel(Phi_tr, Phi_te, Phi_tt);
     
     % Assemble data structure to supply to machine
     cvdata.train      = Phi_tr;

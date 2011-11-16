@@ -116,7 +116,7 @@ for d = 1:length(in.train)
             if ~isfield(in,'test') 
                 % No test data
                 if in.use_kernel
-                    out.train{d} = centre_kernel(in.train{d});
+                    out.train{d} = prt_centre_kernel(in.train{d});
                 else
                     m = mean(in.train{d});
                     %out.train{d} = in.train{d} - repmat(m,size(in.train{d},2),1);
@@ -128,7 +128,7 @@ for d = 1:length(in.train)
             else % Test data supplied
                  if in.use_kernel
                     [out.train{d}, out.test{d}, out.testcov{d}] = ...
-                        centre_kernel(in.train{d},in.test{d},in.testcov{d});
+                        prt_centre_kernel(in.train{d},in.test{d},in.testcov{d});
                 else
                     m = mean(in.train{d});
                     %out.train{d} = in.train{d} - repmat(m,size(in.train{d},2),1);
@@ -161,7 +161,7 @@ for d = 1:length(in.train)
             if ~isfield(in,'test')
                 % No test data
                 if in.use_kernel
-                    Phi = normalise_kernel(in.train{d});
+                    Phi = prt_normalise_kernel(in.train{d});
                     tr = 1:size(in.train{d},1);
                     out.train{d} = Phi(tr,tr);
                 else
@@ -174,7 +174,7 @@ for d = 1:length(in.train)
                 
                 if in.use_kernel
                     Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
-                    Phi = normalise_kernel(Phi);
+                    Phi = prt_normalise_kernel(Phi);
                     
                     tr = 1:size(in.train{d},1);
                     te = (1:size(in.test{d},1))+max(tr);
@@ -281,42 +281,3 @@ end
 P = double(P);
 end
 
-function [C,Cs,Css] = centre_kernel(K, Ks, Kss)
-
-% [C,C_tstr] = centre_kernel_train_test(K,Ks) : centers
-% train/test kernels.
-
-l = size(K,1);
-j = ones(l,1);
-C = K - (j*j'*K)/l - (K*j*j')/l + ((j'*K*j)*j*j')/(l^2);
-
-if( nargin > 1 )
-    tk =  (1/l)*sum(K,1); % (1 x l) 
-    tl = ones(size(Ks,1),1); % (n x 1)
-    Cs = Ks - ( tl * tk); % ( n x l )
-    tk2 = (1/(size(Ks,2)))*sum(Cs,2); % ( n x 1 )   
-    Cs = Cs - (tk2 * j'); % ( n x l )
-    
-    % Two equivalent ways to achieve the same thing
-    %Cs = Ks - repmat(sum(K),size(Ks,1),1)/l - repmat(sum(Ks,2),1,size(Ks,2))/size(Ks,2) + repmat(j'*K*j,size(Ks,1),size(Ks,2))/(l^2);
-    %Cs = Ks - (tl*sum(K))/l - (sum(Ks,2)*j')/size(Ks,2) + ((j'*K*j)*tl*j')/(l^2);
-    
-    if nargin > 2
-        ttj = ones(size(Kss,1),1);
-        Css = Kss - (sum(Ks,2)*ttj')/l - (ttj*sum(Ks,2)')/l + ((j'*K*j)*ttj*ttj')/(l^2);
-    end
-end 
-
-end
-
-function C = normalise_kernel(K)
-
-% This function normalises the kernel matrix such that each entry is 
-% divided by the product of the std deviations, i.e.
-% K_new(x,y) = K(x,y) / sqrt(var(x)*var(y)) 
-
-d  = diag(K);
-K0 = sqrt(repmat(d,[1,size(K,1)]).* repmat(d',[size(K,1),1]));
-C  = K./K0;
-
-end
