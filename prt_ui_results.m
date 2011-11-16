@@ -149,11 +149,7 @@ handles.output = hObject;
 % Reposition main window
 set(handles.figure1,'Units','normalized');
 p = get(handles.figure1,'Position');
-% scrsz = get(0,'ScreenSize');
-% set(handles.figure1,'Position',[p(1) 1 scrsz*0.5 scrsz*0.75]);
-
 set(handles.figure1,'Position',[p(1) 1 p(3) p(4)]);
-% set(handles.figure1,'Units','characters');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -443,20 +439,22 @@ if strcmp(PRT.model(m).input.type,'classification')
                         hold(handles.axes5,'on');
                         plot(handles.axes5,func_valsc2,yc2,'ro','MarkerSize',nms)
                     end
-                    x = zeros(handles.nfold+2,1);
-                    y = [0:handles.nfold+1]';
-                    plot(handles.axes5,x,y,'--','Color',[1 1 1]*.6)
-                    xlabel(handles.axes5,'function value','FontWeight','bold');
-                    ylabel(handles.axes5,'fold','FontWeight','bold');
-                    ylim(handles.axes5,[0 handles.nfold+1.3])
-                    mlim = max([abs(maxfv), abs(minfv)]);
                     % Change the x axis for gaussian process - change in
                     % the future
-                    if strcmp(PRT.model(m).input.machine,'prt_machine_gpml');
+                    y = [0:handles.nfold+1]';
+                    if strcmp(PRT.model(m).input.machine.function,'prt_machine_gpml');
+                        x = 0.5*ones(handles.nfold+2,1);
+                        plot(handles.axes5,x,y,'--','Color',[1 1 1]*.6);
                         xlim(handles.axes5,[0 1]);
                     else
+                        x = zeros(handles.nfold+2,1);
+                        plot(handles.axes5,x,y,'--','Color',[1 1 1]*.6);
+                        mlim = max([abs(maxfv), abs(minfv)]);
                         xlim(handles.axes5,[-mlim-0.5 mlim+0.5]);
                     end
+                    ylim(handles.axes5,[0 handles.nfold+1.3]);
+                    xlabel(handles.axes5,'function value','FontWeight','bold');
+                    ylabel(handles.axes5,'fold','FontWeight','bold');
                     legend(handles.axes5,classNames{1},classNames{2});
                     set(handles.axes5,'YTick',0:handles.nfold)
                     hold(handles.axes5,'off');
