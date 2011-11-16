@@ -68,7 +68,7 @@ cvmat    = PRT.model(model_idx).input.cv_mat;
 samp_idx = PRT.model(model_idx).input.samp_idx;
 nfold    = length(PRT.model(model_idx).output.fold);
 
-% Find feature
+% Find feature set
 % -------------------------------------------------------------------------
 nfs = length(PRT.fs);
 for f = 1:nfs
@@ -76,6 +76,7 @@ for f = 1:nfs
         fs_idx = f;
     end
 end
+ID = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
 
 % Find modality
 % -------------------------------------------------------------------------
@@ -106,6 +107,16 @@ for f = 1:nfold
     
     d.coeffs       = alphas;
     d.datamat      = PRT.fas(fas_idx).dat(train,:);
+    
+    % Apply any operations specified during training 
+    ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
+    cvdata.train      = {d.datamat};
+    cvdata.tr_id      = ID(train_idx,:);
+    cvdata.use_kernel = false; % need to apply the operation to the data
+    for o = 1:length(ops)
+        cvdata = prt_apply_operation(PRT, cvdata, ops(o));
+    end
+    d.datamat = cvdata.train{:};
     
     wimg           = prt_weights(d,m);
     wimg           = wimg/norm(wimg,2); % normalise weights

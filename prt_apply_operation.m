@@ -1,14 +1,16 @@
 function out = prt_apply_operation(PRT, in, opid)
-
 % function to apply a data operation to the training, test and 
 % in.train:      training data
+% in.tr_id:      id matrix for training data
+% in.use_kernel: are the data in kernelised form
+% in.tr_targets: training targets (optional field)
+% in.pred_type:  'classification' or 'regression' (required for tr_targets)
+%
+% A test set may also be specified, which require the following fields:
 % in.test:       test data
 % in.testcov:    test covariance (only if use_kernel = true)
-% in.tr_targets: training targets
 % in.te_targets: test targets
-% in.tr_id:      id matrix for training data
 % in.te_id:      id matrix for test data
-% in.use_kernel: are the data in kernelised form
 %
 % opid specifies the operation to apply, where:
 %    1 = Temporal Compression
@@ -36,94 +38,172 @@ function out = prt_apply_operation(PRT, in, opid)
 
 for d = 1:length(in.train)
     switch opid
-        case 1  % temporal compression
+        case 1 
+            % temporal compression
+            % --------------------
+            % Training data
             Ptr = compute_tc_mat(in.tr_id);
-            Pte = compute_tc_mat(in.te_id);
-            
             if in.use_kernel
-                out.train{d}    = Ptr*in.train{d}*Ptr';
-                out.test{d}     = Pte*in.test{d}*Ptr';
-                out.testcov{d}  = Pte*in.testcov{d}*Pte';
+                out.train{d} = Ptr*in.train{d}*Ptr';
             else
                 out.train{d} = Ptr*in.train{d};
-                out.test{d}  = Pte*in.test{d};
             end
-            out.tr_targets = Ptr*in.tr_targets;
-            out.te_targets = Pte*in.te_targets;
             out.tr_id = round(Ptr*in.tr_id);
-            out.te_id = round(Pte*in.te_id);
-            
-            if strcmpi(in.pred_type,'classification');
-                % round labels to avoid numerical problems
-                out.tr_targets = round(out.tr_targets);
-                out.te_targets = round(out.te_targets);
+            if isfield(in,'tr_targets')
+                out.tr_targets = Ptr*in.tr_targets;
+                if strcmpi(in.pred_type,'classification');
+                    out.tr_targets = round(out.tr_targets);
+                end
             end
             
-        case 2  % sample averaging            
+            % Test data 
+            if isfield(in,'test')
+                Pte = compute_tc_mat(in.te_id);
+                if in.use_kernel
+                    out.test{d}     = Pte*in.test{d}*Ptr';
+                    out.testcov{d}  = Pte*in.testcov{d}*Pte';
+                else
+                    out.test{d}  = Pte*in.test{d};
+                end
+                out.te_id = round(Pte*in.te_id);
+                if isfield(in,'te_targets')
+                    out.te_targets = Pte*in.te_targets;
+                    if strcmpi(in.pred_type,'classification');
+                        out.te_targets = round(out.te_targets);
+                    end
+                end
+            end
+            
+        case 2  
+            % sample averaging
+            % ----------------
+            % Training data
             Ptr = compute_sa_mat(in.tr_id);
-            Pte = compute_sa_mat(in.te_id);
-            
             if in.use_kernel
-                out.train{d}    = Ptr*in.train{d}*Ptr';
-                out.test{d}     = Pte*in.test{d}*Ptr';
-                out.testcov{d}  = Pte*in.testcov{d}*Pte';
+                out.train{d} = Ptr*in.train{d}*Ptr';
             else
                 out.train{d} = Ptr*in.train{d};
-                out.test{d}  = Pte*in.test{d};
             end
-            out.tr_targets = Ptr*in.tr_targets;
-            out.te_targets = Pte*in.te_targets;
             out.tr_id = round(Ptr*in.tr_id);
-            out.te_id = round(Pte*in.te_id);
-            
-            if strcmpi(in.pred_type,'classification');
-                % round labels to avoid numerical problems
-                out.tr_targets = round(out.tr_targets);
-                out.te_targets = round(out.te_targets);
-            end
-            
-        case 3 % mean centre features over subjects
-            if in.use_kernel
-                [out.train{d}, out.test{d}, out.testcov{d}] = ...
-                    centre_kernel(in.train{d},in.test{d},in.testcov{d});
-            else
-                m = mean(in.train{d});
-                
-                out.train{d} = in.train{d} - repmat(m,size(in.train{d},2),1);
-                out.test{d}  = in.test{d} - repmat(m,size(in.test{d},2),1);
-            end
-            out.tr_targets = in.tr_targets;
-            out.te_targets = in.te_targets;
-            out.tr_id = in.tr_id;
-            out.te_id = in.te_id;
-            
-        case 4 % divide each feature vector by its norm
-            if in.use_kernel
-                % in this case, the operation is applied independently to
-                % each data vector, so it is safe (and convenient) to apply
-                % the operation to the whole kernel at once
-                Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
-                Phi = normalise_kernel(Phi);
-                
-                tr = 1:size(in.train{d},1);
-                te = (1:size(in.test{d},1))+max(tr);
-                out.train{d}    = Phi(tr,tr);
-                out.test{d}     = Phi(te,tr);
-                out.testcov{d}  = Phi(te,te);
-            else
-                for r = 1:size(in.train{d})
-                    in.train{d}(r,:) = in.train{d}(r,:) / norm(in.train{d}(r,:));
-                end
-                for r = 1:size(in.test{d})
-                    in.test{d}(r,:) = in.test{d}(r,:) / norm(in.test{d}(r,:));
+            if isfield(in,'tr_targets')
+                out.tr_targets = Ptr*in.tr_targets;
+                if strcmpi(in.pred_type,'classification');
+                    out.tr_targets = round(out.tr_targets);
                 end
             end
-            out.tr_targets = in.tr_targets;
-            out.te_targets = in.te_targets;
-            out.tr_id = in.tr_id;
-            out.te_id = in.te_id;
             
-        case 5 % GLM
+            % Test data
+            if isfield(in,'test')
+                Pte = compute_sa_mat(in.te_id);
+                if in.use_kernel
+                    out.test{d}     = Pte*in.test{d}*Ptr';
+                    out.testcov{d}  = Pte*in.testcov{d}*Pte';
+                else
+                    out.test{d}  = Pte*in.test{d};
+                end
+                out.te_id = round(Pte*in.te_id);
+                if isfield(in,'te_targets')
+                    out.te_targets = Pte*in.te_targets;
+                    if strcmpi(in.pred_type,'classification');
+                        out.te_targets = round(out.te_targets);
+                    end
+                end
+            end
+            
+        case 3 
+            % mean centre features over subjects
+            % ----------------------------------
+            if ~isfield(in,'test') 
+                % No test data
+                if in.use_kernel
+                    out.train{d} = centre_kernel(in.train{d});
+                else
+                    m = mean(in.train{d});
+                    %out.train{d} = in.train{d} - repmat(m,size(in.train{d},2),1);
+                    out.train{d} = zeros(size(in.train{d}));
+                    for r = 1:size(in.train{d},1)
+                        out.train{d}(r,:) = in.train{d}(r,:) - m;
+                    end
+                end
+            else % Test data supplied
+                 if in.use_kernel
+                    [out.train{d}, out.test{d}, out.testcov{d}] = ...
+                        centre_kernel(in.train{d},in.test{d},in.testcov{d});
+                else
+                    m = mean(in.train{d});
+                    %out.train{d} = in.train{d} - repmat(m,size(in.train{d},2),1);
+                    %out.test{d}  = in.test{d} - repmat(m,size(in.test{d},2),1);
+                    out.train{d} = zeros(size(in.train{d}));
+                    for r = 1:size(in.train{d},1)
+                        out.train{d}(r,:) = in.train{d}(r,:) - m;
+                    end
+                    out.test{d} = zeros(size(in.test{d}));
+                    for r = 1:size(in.test{d},1)
+                        out.test{d}(r,:)  = in.test{d}(r,:) - m;
+                    end
+                end
+                out.te_id = in.te_id;
+            end
+            out.tr_id = in.tr_id;
+            if isfield(in,'tr_targets')
+                out.tr_targets = in.tr_targets;
+            end
+            if isfield(in,'te_targets')
+                out.te_targets = in.te_targets;
+            end
+            
+        case 4 
+            % divide each feature vector by its norm
+            % --------------------------------------
+            % in this case, the operation is applied independently to
+            % each data vector, so it is safe (and convenient) to apply
+            % the operation to the whole kernel at once
+            if ~isfield(in,'test')
+                % No test data
+                if in.use_kernel
+                    Phi = normalise_kernel(in.train{d});
+                    tr = 1:size(in.train{d},1);
+                    out.train{d} = Phi(tr,tr);
+                else
+                    out.train{d} = zeros(size(in.train{d}));
+                    for r = 1:size(in.train{d})
+                        out.train{d}(r,:) = in.train{d}(r,:) / norm(in.train{d}(r,:));
+                    end
+                end
+            else % Test data
+                
+                if in.use_kernel
+                    Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
+                    Phi = normalise_kernel(Phi);
+                    
+                    tr = 1:size(in.train{d},1);
+                    te = (1:size(in.test{d},1))+max(tr);
+                    out.train{d}    = Phi(tr,tr);
+                    out.test{d}     = Phi(te,tr);
+                    out.testcov{d}  = Phi(te,te);
+                else
+                    out.train{d} = zeros(size(in.train{d}));
+                    for r = 1:size(in.train{d})
+                        out.train{d}(r,:) = in.train{d}(r,:) / norm(in.train{d}(r,:));
+                    end
+                    out.train{d} = zeros(size(in.test{d}));
+                    for r = 1:size(in.test{d})
+                        out.test{d}(r,:) = in.test{d}(r,:) / norm(in.test{d}(r,:));
+                    end
+                end
+                out.te_id = in.te_id;
+            end
+            out.tr_id = in.tr_id;
+            if isfield(in,'tr_targets')
+                out.tr_targets = in.tr_targets;
+            end
+            if isfield(in,'te_targets')
+                out.te_targets = in.te_targets;
+            end
+            
+        case 5 
+            % perform a GLM
+            % -------------
             error ('GLM not implemented yet');
                         
         otherwise
@@ -133,6 +213,9 @@ for d = 1:length(in.train)
 end
 
 out.use_kernel = in.use_kernel;
+if isfield(in,'pred_type');
+    out.pred_type  = in.pred_type;
+end
 end
 
 % -------------------------------------------------------------------------
@@ -208,7 +291,7 @@ j = ones(l,1);
 C = K - (j*j'*K)/l - (K*j*j')/l + ((j'*K*j)*j*j')/(l^2);
 
 if( nargin > 1 )
-    tk =  (1/l)*sum(K,1); % (1 x l)
+    tk =  (1/l)*sum(K,1); % (1 x l) 
     tl = ones(size(Ks,1),1); % (n x 1)
     Cs = Ks - ( tl * tk); % ( n x l )
     tk2 = (1/(size(Ks,2)))*sum(Cs,2); % ( n x 1 )   
