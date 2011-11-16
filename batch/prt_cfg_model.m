@@ -675,28 +675,53 @@ data_op.values  = {0 1 2 3 4 5};
 data_op.val     = {0};
 
 % ---------------------------------------------------------------------
+% data_op Operation
+% ---------------------------------------------------------------------
+data_op_mc         = cfg_menu;
+data_op_mc.tag     = 'data_op_mc';
+data_op_mc.name    = 'Mean centre features';
+data_op_mc.help    = {'Select an operation to apply.'};
+data_op_mc.labels  = {
+    'Yes'
+    'No'
+}';
+data_op_mc.values  = {0 1};
+data_op_mc.val     = {0};
+
+% ---------------------------------------------------------------------
 % data_ops Classification
 % ---------------------------------------------------------------------
-data_ops         = cfg_repeat;
-data_ops.tag     = 'data_ops';
-data_ops.name    = 'Operations';
-data_ops.help    = {...
+other_ops         = cfg_repeat;
+other_ops.tag     = 'other_ops';
+other_ops.name    = 'Select Operations';
+other_ops.help    = {...
     ['Add zero or more operations to be applied to the data before the ',...
      'prediction machine is called. These are executed within the ',...
      'cross-validation loop (i.e. they respect training/test independence) ',...
      'and will be executed in the order specified. ']};
-data_ops.num     = [1 Inf];
-data_ops.values  = {data_op};
+other_ops.num     = [1 Inf];
+other_ops.values  = {data_op};
+
+% ---------------------------------------------------------------------
+% cv_type Cross-validation type
+% ---------------------------------------------------------------------
+use_other_ops        = cfg_choice;
+use_other_ops.tag    = 'use_other_ops';
+use_other_ops.name   = 'Other Operations';
+use_other_ops.values = {no_op, other_ops };
+use_other_ops.val    = {no_op};
+use_other_ops.help   = {'Include other operations?'};
+
 
 % ---------------------------------------------------------------------
 % sel_ops Class
 % ---------------------------------------------------------------------
 sel_ops         = cfg_branch;
 sel_ops.tag     = 'sel_ops';
-sel_ops.name    = 'Specify operations';
+sel_ops.name    = 'Data operations';
 sel_ops.help    = {...
     ['Specify operations to apply']};
-sel_ops.val     = {data_ops};
+sel_ops.val     = {data_op_mc use_other_ops};
 
 
 % ---------------------------------------------------------------------
@@ -705,7 +730,7 @@ sel_ops.val     = {data_ops};
 data_ops        = cfg_choice;
 data_ops.tag    = 'data_ops';
 data_ops.name   = 'Data Operations';
-data_ops.values = {no_op, sel_ops};
+data_ops.values = {data_op_mc, sel_ops};
 data_ops.val    =  {no_op};
 data_ops.help   = {...
     ['This branch controls operations that can be applied to the data ',...
@@ -725,7 +750,7 @@ model.val    = {infile, ...
                 fsets, ...
                 model_type, ...
                 cv_type,...
-                data_ops};
+                sel_ops};
 model.help   = {'Construct model according to design specified'};
 model.prog   = @prt_run_model;
 model.vout   = @vout_data;

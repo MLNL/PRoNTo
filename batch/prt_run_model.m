@@ -209,10 +209,20 @@ else
 end
 
 % specify operations to apply to the data prior to prediction
-if isfield(job.data_ops,'sel_ops')
-    model.operations = [job.data_ops.sel_ops.data_op{:}];
-elseif isfield(job.data_ops,'no_op')
-    model.operations = [];
+% if isfield(job.data_ops,'data_ops')
+%     model.operations = [job.data_ops.sel_ops.data_op{:}];
+% elseif isfield(job.data_ops,'no_op')
+%     model.operations = [];
+% end
+if isfield(job.sel_ops.use_other_ops,'data_op')
+    ops = [job.sel_ops.use_other_ops.data_op{:}];
+elseif isfield(job.sel_ops.use_other_ops,'no_op')
+    ops = [];
+end
+if job.sel_ops.data_op_mc == 0
+    model.operations = [3 ops];
+else
+    model.operations = ops;
 end
 
 prt_model(PRT,model);
