@@ -20,7 +20,8 @@ function prt_latex(c)
 % $Id$
 
 
-%% Turning the cfg files into a .tex file
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% 1. Turning the cfg files into a .tex file
 if ~nargin,
     c = prt_cfg_batch;
 end
@@ -36,11 +37,12 @@ for i=1:numel(c.values),
     chapter(c.values{i},fp);
 end;
 
-%% picking all the functions help files and put them into functions.tex
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 2. picking all the functions help files and put them into functions.tex
 fp = fopen(fullfile(prt('dir'),'manual','adv_functions.tex'),'w');
 if fp==-1, sts = false; return; end;
 % l_subdirs = {'machines','batch'};
-l_subdirs = {'machines'};
+l_subdirs = {'machines','utils'};
 excl_files = {'Contents.m'};
 PRTdir = prt('dir');
 
@@ -69,7 +71,7 @@ write_mfiles_help(f,fp);
 % Deal with subdirectories
 for ii = 1:numel(l_subdirs)
     p = fullfile(PRTdir,l_subdirs{ii});
-    fprintf(fp,'\n\\%s{%s}\n','section',l_subdirs{ii});
+    fprintf(fp,'\n\\%s{%s}\n','section',texify(l_subdirs{ii}));
     f = spm_select('List',p,'.*\.m$');
     write_mfiles_help(f,fp,l_subdirs(ii));
 end
@@ -84,10 +86,13 @@ if nargin<3,
     lev = 1;
 else
     lev = numel(base_dir)+1;
-    tmp = '';
-    for ii=1:numel(base_dir)
+    tmp = base_dir{1};
+    ltmp = tmp;
+    for ii=2:numel(base_dir)
+        ltmp = [tmp,'\textbackslash ',base_dir{ii}];
         tmp = fullfile(tmp,base_dir{ii});
     end
+    lbase_dir = ltmp;
     base_dir = tmp;
 end
 
@@ -96,8 +101,13 @@ sec = {'section','subsection','subsubsection','paragraph','subparagraph', ...
 
 for ii=1:size(f,1)
     % section
+    if isempty(base_dir)
+        lfunc_name = deblank(f(ii,:));
+    else
+        lfunc_name = [lbase_dir,'\textbackslash ',deblank(f(ii,:))];
+    end
     func_name = fullfile(base_dir,deblank(f(ii,:)));
-    fprintf(fp,'\n\\%s{%s}\n',sec{min(lev,length(sec))},texify(func_name));
+    fprintf(fp,'\n\\%s{%s}\n',sec{min(lev,length(sec))},texify(lfunc_name));
     fprintf(fp,'%s\n\n',texify('\begin{alltt}'));
     
     % help text, minus copyrights
@@ -221,7 +231,7 @@ str  = strrep(str,'&','\&');
 str  = strrep(str,'^','\^');
 str  = strrep(str,'_','\_');
 str  = strrep(str,'#','\#');
-%str  = strrep(str,'\','$\\$');
+% str  = strrep(str,'\','$\\$');
 str  = strrep(str,'|','$|$');
 str  = strrep(str,'>','$>$');
 str  = strrep(str,'<','$<$');

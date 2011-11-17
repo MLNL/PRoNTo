@@ -14,9 +14,10 @@
 
 cd(prt('dir'))
 
-subdirs = {'.', ['.',filesep,'machines'],['.',filesep,'batch']}; 
+subdirs = {'.', ['.',filesep,'machines'], ...
+                            ['.',filesep,'batch'],['.',filesep,'utils']}; 
     % list of directories to include
-isubdirs = {'.svn','manual','LIB'}; % list of directories to exclude
+isubdirs = {'.svn','manual'}; % list of directories to exclude
 
 m2html('mfiles',subdirs, 'htmldir',fullfile('manual','html_doc'), ...
         'recursive','off');
