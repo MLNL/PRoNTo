@@ -210,19 +210,23 @@ Leave out a single run (modality) from each subject each iteration. Appropriate 
 Load a cross-validation matrix. Note that an interface will be provided for this functionality in a later release
 
 
-\section{Data Operations}
-This branch controls operations that can be applied to the data before the data is passed to the classifier. Add zero or more operations to be applied. These will be executed in the order specified. 
-
-
-\subsection{No operations}
-No design specified. This option can be used for modalities (e.g. structural scans) that do not have an experimental design or for an fMRI designwhere you want to include all scans in the timeseries
-
-
-\subsection{Specify operations}
+\section{Data operations}
 Specify operations to apply
 
 
-\subsubsection{Operations}
+\subsection{Mean centre features}
+Select an operation to apply.
+
+
+\subsection{Other Operations}
+Include other operations?
+
+
+\subsubsection{No operations}
+No design specified. This option can be used for modalities (e.g. structural scans) that do not have an experimental design or for an fMRI designwhere you want to include all scans in the timeseries
+
+
+\subsubsection{Select Operations}
 Add zero or more operations to be applied to the data before the prediction machine is called. These are executed within the cross-validation loop (i.e. they respect training/test independence) and will be executed in the order specified. 
 
 

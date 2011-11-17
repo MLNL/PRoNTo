@@ -1,108 +1,193 @@
-% $Id$
-
 \chapter{PRT structure}
- \label{sec:PRTstruct}
+\label{sec:PRTstruct}
+\minitoc
 
 This is how the main {\tt PRT} structure is organised.
 
 {\tt PRT}
 \begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.5cm}}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.2cm}}
+\item group
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item gr\_name
+\item subject
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item subj\_name()
+\item modality()
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item mod\_name
+\item TR
+\item scans
+\item design
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.2cm}}
+\item conds
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.7cm}}
+\item cond\_name()
+\item onsets()
+\item durations()
+\item rt\_trial()
+\item scans()
+\item blocks()
+\item discardedscans()
+\item hrfdiscardedscans()
+\end{list}
+\item stats
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.7cm}}
+\item overlap
+\item goodscans
+\item discscans
+\item meanovl
+\item stdovl
+\item mgoodovl
+\item sgoodovl
+\item goodovl
+\end{list}
+\item TR
+\item unit
+\item covar
+\end{list}
+\end{list}
+\end{list}
+\end{list}
+\item masks
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item mod\_name
+\item fname
+\end{list}
+\item fs
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item fs\_name
+\item k\_file
+\item id\_col\_names
+\item fas
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item im
+\item ifa
+\end{list}
+\item modality
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item mod\_name
+\item detrend
+\item param\_dt
+\item mode
+\item idfeat\_fas
+\item normalise
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
 \item type
-\item Nsamples
-\item Fsample
-\item timeOnset
-\item trials
-\begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
-\item label
-\item onset
-\item repl
-\item bad
-\item events
-\begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.5cm}}
-\item type()
-\item value()
-\item time()
-\item duration()
-\item offset()
+\item scaling
 \end{list}
-
 \end{list}
-
-\item channels
+\item id\_mat
+\end{list}
+\item fas
 \begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
-\item label()
-\item bad()
-\item type()
-\item X\_plot2D()
-\item Y\_plot2D()
-\item units()
-\end{list}
-
-\item data
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item mod\_name
+\item dat
+\item detrend
+\item param\_dt
+\item hdr
 \begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
-\item fnamedat
-\item datatype
-\item y
-\end{list}
-
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
 \item fname
-\item path
-\item sensors
-\item fiducials
-\item artifacts
-\item transform
-\begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
-\item ID
+\item dim
+\item mat
+\item pinfo
+\item dt
+\item n
+\item descrip
+\item private
 \end{list}
-
-\item other
-\begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
-\item info
-\begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.5cm}}
-\item date
-\item hour
+\item idfeat\_img
 \end{list}
-
-\item CRC
+\item model
 \begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.5cm}}
-\item goodevents
-\end{list}
-
-\end{list}
-
-\item history
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item model\_name()
+\item input()
 \begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
-\item fun
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item use\_kernel
+\item type
+\item machine
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item function
 \item args
+\end{list}
+\item class
 \begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.5cm}}
-\item D
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item class\_name()
+\item group()
 \begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.0cm}}
-\item fname
-\end{list}
-
-\end{list}
-
-\end{list}
-
-\item cache
-\item montage
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.2cm}}
+\item gr\_name
+\item subj
 \begin{list}{$\bullet$}
-	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.0cm}}
-\item M
-\item Mind
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.7cm}}
+\item num()
+\item modality()
 \end{list}
-
 \end{list}
-
+\end{list}
+\item fs
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item fs\_name
+\end{list}
+\item samp\_idx
+\item targets
+\item targ\_allscans
+\item cv\_mat
+\item operations
+\item cv\_type
+\end{list}
+\item output()
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item fold
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item targets()
+\item predictions()
+\item stats()
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.2cm}}
+\item con\_mat
+\item acc
+\item c\_acc
+\item b\_acc
+\item acc\_lb
+\item acc\_ub
+\end{list}
+\item func\_val()
+\item type()
+\item alpha()
+\item b()
+\item totalSV()
+\end{list}
+\item stats
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item con\_mat
+\item acc
+\item c\_acc
+\item b\_acc
+\item acc\_lb
+\item acc\_ub
+\end{list}
+\end{list}
+\end{list}
+\end{list}

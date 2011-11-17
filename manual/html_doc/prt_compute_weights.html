@@ -37,7 +37,7 @@ __________________________________________________________________________
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-</ul>
+<li><a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>	function to apply a data operation to the training, test and</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 <li><a href="prt_ui_compute_weights.html" class="code" title="function varargout = prt_ui_compute_weights(varargin)">prt_ui_compute_weights</a>	PRT_UI_COMPUTE_WEIGHTS M-file for prt_ui_compute_weights.fig</li></ul>
@@ -54,7 +54,7 @@ This function is called by:
 0006 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0007 
 0008 <span class="comment">% Written by M.J.Rosa</span>
-0009 <span class="comment">% $Id: prt_compute_weights.m 336 2011-11-09 16:14:01Z mjrosa $</span>
+0009 <span class="comment">% $Id: prt_compute_weights.m 384 2011-11-16 14:00:22Z amarquan $</span>
 0010 
 0011 <span class="comment">% Find model</span>
 0012 <span class="comment">% -------------------------------------------------------------------------</span>
@@ -116,7 +116,7 @@ This function is called by:
 0068 samp_idx = PRT.model(model_idx).input.samp_idx;
 0069 nfold    = length(PRT.model(model_idx).output.fold);
 0070 
-0071 <span class="comment">% Find feature</span>
+0071 <span class="comment">% Find feature set</span>
 0072 <span class="comment">% -------------------------------------------------------------------------</span>
 0073 nfs = length(PRT.fs);
 0074 <span class="keyword">for</span> f = 1:nfs
@@ -124,64 +124,75 @@ This function is called by:
 0076         fs_idx = f;
 0077     <span class="keyword">end</span>
 0078 <span class="keyword">end</span>
-0079 
-0080 <span class="comment">% Find modality</span>
-0081 <span class="comment">% -------------------------------------------------------------------------</span>
-0082 nfas = length(PRT.fas);
-0083 <span class="keyword">for</span> i = 1:nfas
-0084     <span class="keyword">if</span> strcmp(PRT.fas(i).mod_name,PRT.fs(fs_idx).modality.mod_name)
-0085         fas_idx = i;
-0086     <span class="keyword">end</span>
-0087 <span class="keyword">end</span>
-0088 idfeat = PRT.fas(fas_idx).idfeat_img;
-0089 
-0090 <span class="comment">% Create image</span>
-0091 <span class="comment">% -------------------------------------------------------------------------</span>
-0092 hdr        = PRT.fas(fas_idx).hdr.private;
-0093 img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
-0094              hdr.dat.dim(3),nfold+1],<span class="string">'float64-le'</span>,0,1,0);         
-0095 nvox       = hdr.dat.dim(1)*hdr.dat.dim(2)*hdr.dat.dim(3);
-0096 img3dav    = zeros(1,nvox); <span class="comment">% average weight map</span>
-0097 
-0098 <span class="keyword">for</span> f = 1:nfold
-0099     
-0100     disp(sprintf(<span class="string">'Computing weights: fold %d of %d'</span>,f,nfold))
-0101     
-0102     train_idx      = cvmat(:,f)==1;
-0103     train          = samp_idx(train_idx);
-0104    
-0105     alphas         = PRT.model(model_idx).output.fold(f).alpha;
-0106     
-0107     d.coeffs       = alphas;
-0108     d.datamat      = PRT.fas(fas_idx).dat(train,:);
-0109     
-0110     wimg           = prt_weights(d,m);
-0111     wimg           = wimg/norm(wimg,2); <span class="comment">% normalise weights</span>
-0112     
-0113     img3d          = zeros(1,nvox);
-0114     img3d(idfeat)  = wimg;
-0115     
-0116     img3dav        = img3dav + img3d;
-0117     
-0118     img4d(:,:,:,f) = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
-0119                      hdr.dat.dim(3),1);      
-0120    
-0121 <span class="keyword">end</span>
-0122 
-0123 <span class="comment">% Create average fold</span>
-0124 <span class="comment">%--------------------------------------------------------------------------</span>
-0125 disp(<span class="string">'Computing averaged weights'</span>)
-0126 img4d(:,:,:,nfold+1) = reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
-0127                      hdr.dat.dim(3),1)/nfold;
-0128 
-0129 <span class="comment">% Create weigths file</span>
-0130 <span class="comment">%--------------------------------------------------------------------------</span>
-0131 disp(<span class="string">'Creating image---------&gt;&gt;'</span>)
-0132 No         = hdr;              <span class="comment">% copy header</span>
-0133 No.dat     = img4d;            <span class="comment">% change file_array</span>
-0134 No.descrip = <span class="string">'Pronto weigths'</span>; <span class="comment">% description</span>
-0135 create(No);                    <span class="comment">% write header</span>
-0136</pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0079 ID = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
+0080 
+0081 <span class="comment">% Find modality</span>
+0082 <span class="comment">% -------------------------------------------------------------------------</span>
+0083 nfas = length(PRT.fas);
+0084 <span class="keyword">for</span> i = 1:nfas
+0085     <span class="keyword">if</span> strcmp(PRT.fas(i).mod_name,PRT.fs(fs_idx).modality.mod_name)
+0086         fas_idx = i;
+0087     <span class="keyword">end</span>
+0088 <span class="keyword">end</span>
+0089 idfeat = PRT.fas(fas_idx).idfeat_img;
+0090 
+0091 <span class="comment">% Create image</span>
+0092 <span class="comment">% -------------------------------------------------------------------------</span>
+0093 hdr        = PRT.fas(fas_idx).hdr.private;
+0094 img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
+0095              hdr.dat.dim(3),nfold+1],<span class="string">'float64-le'</span>,0,1,0);         
+0096 nvox       = hdr.dat.dim(1)*hdr.dat.dim(2)*hdr.dat.dim(3);
+0097 img3dav    = zeros(1,nvox); <span class="comment">% average weight map</span>
+0098 
+0099 <span class="keyword">for</span> f = 1:nfold
+0100     
+0101     disp(sprintf(<span class="string">'Computing weights: fold %d of %d'</span>,f,nfold))
+0102     
+0103     train_idx      = cvmat(:,f)==1;
+0104     train          = samp_idx(train_idx);
+0105    
+0106     alphas         = PRT.model(model_idx).output.fold(f).alpha;
+0107     
+0108     d.coeffs       = alphas;
+0109     d.datamat      = PRT.fas(fas_idx).dat(train,:);
+0110     
+0111     <span class="comment">% Apply any operations specified during training</span>
+0112     ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
+0113     cvdata.train      = {d.datamat};
+0114     cvdata.tr_id      = ID(train_idx,:);
+0115     cvdata.use_kernel = false; <span class="comment">% need to apply the operation to the data</span>
+0116     <span class="keyword">for</span> o = 1:length(ops)
+0117         cvdata = <a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>(PRT, cvdata, ops(o));
+0118     <span class="keyword">end</span>
+0119     d.datamat = cvdata.train{:};
+0120     
+0121     wimg           = prt_weights(d,m);
+0122     wimg           = wimg/norm(wimg,2); <span class="comment">% normalise weights</span>
+0123     
+0124     img3d          = zeros(1,nvox);
+0125     img3d(idfeat)  = wimg;
+0126     
+0127     img3dav        = img3dav + img3d;
+0128     
+0129     img4d(:,:,:,f) = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
+0130                      hdr.dat.dim(3),1);      
+0131    
+0132 <span class="keyword">end</span>
+0133 
+0134 <span class="comment">% Create average fold</span>
+0135 <span class="comment">%--------------------------------------------------------------------------</span>
+0136 disp(<span class="string">'Computing averaged weights'</span>)
+0137 img4d(:,:,:,nfold+1) = reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
+0138                      hdr.dat.dim(3),1)/nfold;
+0139 
+0140 <span class="comment">% Create weigths file</span>
+0141 <span class="comment">%--------------------------------------------------------------------------</span>
+0142 disp(<span class="string">'Creating image---------&gt;&gt;'</span>)
+0143 No         = hdr;              <span class="comment">% copy header</span>
+0144 No.dat     = img4d;            <span class="comment">% change file_array</span>
+0145 No.descrip = <span class="string">'Pronto weigths'</span>; <span class="comment">% description</span>
+0146 create(No);                    <span class="comment">% write header</span>
+0147</pre></div>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

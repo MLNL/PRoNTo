@@ -118,7 +118,7 @@ This function is called by:
 0038 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0039 
 0040 <span class="comment">% Written by A Marquand</span>
-0041 <span class="comment">% $Id: prt_run_model.m 359 2011-11-11 13:37:01Z schrouff $</span>
+0041 <span class="comment">% $Id: prt_run_model.m 392 2011-11-16 16:02:15Z amarquan $</span>
 0042 
 0043 <span class="comment">% Job variable</span>
 0044 <span class="comment">% -------------------------------------------------------------------------</span>
@@ -289,20 +289,30 @@ This function is called by:
 0209 <span class="keyword">end</span>
 0210 
 0211 <span class="comment">% specify operations to apply to the data prior to prediction</span>
-0212 <span class="keyword">if</span> isfield(job.data_ops,<span class="string">'sel_ops'</span>)
-0213     model.operations = [job.data_ops.sel_ops.data_op{:}];
-0214 <span class="keyword">elseif</span> isfield(job.data_ops,<span class="string">'no_op'</span>)
-0215     model.operations = [];
-0216 <span class="keyword">end</span>
-0217 
-0218 prt_model(PRT,model);
-0219 
-0220 <span class="comment">% Function output</span>
-0221 <span class="comment">% -------------------------------------------------------------------------</span>
-0222 out.files{1} = fname;
-0223 out.names{1} = model.model_name;
-0224 disp(<span class="string">'Model configuration complete.'</span>)
-0225 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0212 <span class="comment">% if isfield(job.data_ops,'data_ops')</span>
+0213 <span class="comment">%     model.operations = [job.data_ops.sel_ops.data_op{:}];</span>
+0214 <span class="comment">% elseif isfield(job.data_ops,'no_op')</span>
+0215 <span class="comment">%     model.operations = [];</span>
+0216 <span class="comment">% end</span>
+0217 <span class="keyword">if</span> isfield(job.sel_ops.use_other_ops,<span class="string">'data_op'</span>)
+0218     ops = [job.sel_ops.use_other_ops.data_op{:}];
+0219 <span class="keyword">elseif</span> isfield(job.sel_ops.use_other_ops,<span class="string">'no_op'</span>)
+0220     ops = [];
+0221 <span class="keyword">end</span>
+0222 <span class="keyword">if</span> job.sel_ops.data_op_mc == 0
+0223     model.operations = [3 ops];
+0224 <span class="keyword">else</span>
+0225     model.operations = ops;
+0226 <span class="keyword">end</span>
+0227 
+0228 prt_model(PRT,model);
+0229 
+0230 <span class="comment">% Function output</span>
+0231 <span class="comment">% -------------------------------------------------------------------------</span>
+0232 out.files{1} = fname;
+0233 out.names{1} = model.model_name;
+0234 disp(<span class="string">'Model configuration complete.'</span>)
+0235 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

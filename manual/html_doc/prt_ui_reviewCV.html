@@ -96,7 +96,7 @@ This function is called by:
 0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0027 
 0028 <span class="comment">% Written by J. Schrouff</span>
-0029 <span class="comment">% $Id: prt_ui_reviewCV.m 370 2011-11-12 15:30:53Z cphillip $</span>
+0029 <span class="comment">% $Id: prt_ui_reviewCV.m 378 2011-11-14 17:36:24Z amarquan $</span>
 0030 
 0031 <span class="comment">% Edit the above text to modify the response to help prt_ui_reviewCV</span>
 0032 
@@ -174,43 +174,47 @@ This function is called by:
 0104 
 0105 <span class="comment">%Plot the id_mat in the left part of the window</span>
 0106 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes1)
-0107 imagesc(handles.PRT.fs(indf).id_mat(:,1:5));
-0108 set(gca,<span class="string">'XTick'</span>,1:5)
-0109 set(gca,<span class="string">'XTickLabel'</span>,{<span class="string">'Group'</span>,<span class="string">'Subject'</span>,<span class="string">'Modality'</span>,<span class="string">'Condition'</span>,<span class="string">'Block'</span>},<span class="keyword">...</span>
-0110     <span class="string">'FontWeight'</span>,<span class="string">'demi'</span>);
-0111 set(gca,<span class="string">'YTickLabel'</span>,{})
-0112 colorbar(<span class="string">'Location'</span>,<span class="string">'WestOutside'</span>)
-0113 set(get(gca,<span class="string">'Title'</span>),<span class="string">'String'</span>,<span class="string">'Feature set'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
-0114 
-0115 <span class="comment">%Plot the CV matrix in the right part of the window</span>
-0116 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
-0117 CV_mat_full=zeros(size(handles.PRT.fs.id_mat,1),<span class="keyword">...</span>
-0118     size(handles.PRT.model(indm).input.cv_mat,2));
-0119 xticksl=cell(1,size(handles.PRT.model(indm).input.cv_mat,2));
-0120 <span class="keyword">for</span> i=1:size(handles.PRT.model(indm).input.cv_mat,2)
-0121     CV_mat_full(handles.PRT.model(indm).input.samp_idx,i)=handles.PRT.model(indm).input.cv_mat(:,i);
-0122     xticksl{i}=num2str(i);
-0123 <span class="keyword">end</span>
-0124 set(gca,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
-0125 xlabel(<span class="string">'CV Folds'</span>,<span class="string">'fontweight'</span>,<span class="string">'demi'</span>)
-0126 imagesc(CV_mat_full);
-0127 set(gca,<span class="string">'XTick'</span>,1:i)
-0128 set(gca,<span class="string">'YTickLabel'</span>,{})
-0129 set(gca,<span class="string">'XTickLabel'</span>,xticksl,<span class="string">'FontWeight'</span>,<span class="string">'demi'</span>)
-0130 colormap(gray)
-0131 set(get(gca,<span class="string">'Title'</span>),<span class="string">'String'</span>,<span class="string">'Cross-Validation'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
-0132 
-0133 <span class="comment">%Plot the 'legend' corresponding to the CV matrix in the right bottom part</span>
-0134 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes3)
-0135 leg=[0; 1; 2];
-0136 imagesc(leg);
-0137 set(gca,<span class="string">'YTick'</span>,[1,2,3])
-0138 set(gca,<span class="string">'YAxisLocation'</span>,<span class="string">'right'</span>)
-0139 set(gca,<span class="string">'YTickLabel'</span>,{<span class="string">'Unused'</span>,<span class="string">'Train'</span>,<span class="string">'Test'</span>});
-0140 set(gca,<span class="string">'XTickLabel'</span>,{})
-0141 
-0142 <span class="comment">% Update handles structure</span>
-0143 guidata(hObject, handles);</pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0107 dat=handles.PRT.fs(indf).id_mat(:,1:6);
+0108 <span class="keyword">for</span> i=1:6
+0109     dat(:,i)=dat(:,i)./max(dat(:,i));
+0110 <span class="keyword">end</span>
+0111 imagesc(dat);
+0112 set(gca,<span class="string">'XTick'</span>,1:6)
+0113 set(gca,<span class="string">'XTickLabel'</span>,{<span class="string">'Group'</span>,<span class="string">'Subject'</span>,<span class="string">'Modality'</span>,<span class="string">'Condition'</span>,<span class="string">'Block'</span>,<span class="string">'Scans'</span>},<span class="keyword">...</span>
+0114     <span class="string">'FontWeight'</span>,<span class="string">'demi'</span>,<span class="string">'FontSize'</span>,9);
+0115 set(gca,<span class="string">'YTickLabel'</span>,{})
+0116 colorbar(<span class="string">'Location'</span>,<span class="string">'WestOutside'</span>)
+0117 set(get(gca,<span class="string">'Title'</span>),<span class="string">'String'</span>,<span class="string">'Feature set'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0118 
+0119 <span class="comment">%Plot the CV matrix in the right part of the window</span>
+0120 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
+0121 CV_mat_full=zeros(size(handles.PRT.fs(indf).id_mat,1),<span class="keyword">...</span>
+0122     size(handles.PRT.model(indm).input.cv_mat,2));
+0123 xticksl=cell(1,size(handles.PRT.model(indm).input.cv_mat,2));
+0124 <span class="keyword">for</span> i=1:size(handles.PRT.model(indm).input.cv_mat,2)
+0125     CV_mat_full(handles.PRT.model(indm).input.samp_idx,i)=handles.PRT.model(indm).input.cv_mat(:,i);
+0126     xticksl{i}=num2str(i);
+0127 <span class="keyword">end</span>
+0128 set(gca,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0129 xlabel(<span class="string">'CV Folds'</span>,<span class="string">'fontweight'</span>,<span class="string">'demi'</span>)
+0130 imagesc(CV_mat_full);
+0131 set(gca,<span class="string">'XTick'</span>,1:i)
+0132 set(gca,<span class="string">'YTickLabel'</span>,{})
+0133 set(gca,<span class="string">'XTickLabel'</span>,xticksl,<span class="string">'FontWeight'</span>,<span class="string">'demi'</span>,<span class="string">'FontSize'</span>,9)
+0134 colormap(gray)
+0135 set(get(gca,<span class="string">'Title'</span>),<span class="string">'String'</span>,<span class="string">'Cross-Validation'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0136 
+0137 <span class="comment">%Plot the 'legend' corresponding to the CV matrix in the right bottom part</span>
+0138 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes3)
+0139 leg=[0; 1; 2];
+0140 imagesc(leg);
+0141 set(gca,<span class="string">'YTick'</span>,[1,2,3])
+0142 set(gca,<span class="string">'YAxisLocation'</span>,<span class="string">'right'</span>)
+0143 set(gca,<span class="string">'YTickLabel'</span>,{<span class="string">'Unused'</span>,<span class="string">'Train'</span>,<span class="string">'Test'</span>});
+0144 set(gca,<span class="string">'XTickLabel'</span>,{})
+0145 
+0146 <span class="comment">% Update handles structure</span>
+0147 guidata(hObject, handles);</pre></div>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

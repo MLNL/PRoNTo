@@ -3,7 +3,7 @@
 
 \vskip 1.5cm
 
-This is the list of PRoNTo functions, including the subdirectories: {\tt machines}.
+This is the list of PRoNTo functions, including the subdirectories: {\tt machines} and {\tt utils}.
 
 
 \section{prt.m}
@@ -22,13 +22,16 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 
  function to apply a data operation to the training, test and 
  in.train:      training data
+ in.tr\_id:      id matrix for training data
+ in.use\_kernel: are the data in kernelised form
+ in.tr\_targets: training targets (optional field)
+ in.pred\_type:  'classification' or 'regression' (required for tr\_targets)
+ 
+ A test set may also be specified, which require the following fields:
  in.test:       test data
  in.testcov:    test covariance (only if use\_kernel = true)
- in.tr\_targets: training targets
  in.te\_targets: test targets
- in.tr\_id:      id matrix for training data
  in.te\_id:      id matrix for test data
- in.use\_kernel: are the data in kernelised form
  
  opid specifies the operation to apply, where:
     1 = Temporal Compression
@@ -48,15 +51,6 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  classifier using kernel regression methods. Neuroimage. 58(2):560-71.
  Shawe-Taylor, J. and Cristianini, N. (2004). Kernel methods for Pattern
  analysis. Cambridge University Press.
-\end{alltt}
-
-
-\section{prt\_centre\_kernel.m}
-\begin{alltt}
-
- FORMAT [C,C\_s,C\_ss] = Centre\_kernel(K,K\_s,K\_ss)
- 
- This function centres the kernel matrix using only the training data
 \end{alltt}
 
 
@@ -298,10 +292,8 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \section{prt\_func2html.m}
 \begin{alltt}
 
- prt\_func2html
- 
- Script to generate the list of .m functions into html files which can be
- browsed around with your favourite browser.
+ Script to generate the list of .m functions into html files 
+ which can be browsed around with your favourite browser.
  
  Note that this script relies on the M2HTML package which is *NOT*
  distributed with PRoNTo!
@@ -644,7 +636,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  The routine specifically generates the 'adv\_PRTstruct.tex' file that is
  included, in the prt\_manual.
  
- Bits of the code and copied/inspired by spm\_latex.m from the SPM8 
+ Bits of the code and copied/inspired by spm\_latex.m from the SPM8
  distribution: http://www.fil.ion.ucl.ac.uk/spm
 \end{alltt}
 
@@ -1046,14 +1038,14 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 
 \section{machines}
 
-\subsection{machines/prt\_KRR.m}
+\subsection{machines\textbackslash prt\_KRR.m}
 \begin{alltt}
 
  w = prt\_KRR(K,t,reg)
 \end{alltt}
 
 
-\subsection{machines/prt\_machine.m}
+\subsection{machines\textbackslash prt\_machine.m}
 \begin{alltt}
 
  Run machine function for classification or regression
@@ -1090,7 +1082,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
-\subsection{machines/prt\_machine\_RT\_bin.m}
+\subsection{machines\textbackslash prt\_machine\_RT\_bin.m}
 \begin{alltt}
 
  Run binary Ensemble of Regression Tree - wrapper for Pierre Geurt's
@@ -1120,7 +1112,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
-\subsection{machines/prt\_machine\_gpml.m}
+\subsection{machines\textbackslash prt\_machine\_gpml.m}
 \begin{alltt}
 
  Run binary SVM - wrapper for libSVM
@@ -1162,7 +1154,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
-\subsection{machines/prt\_machine\_krr.m}
+\subsection{machines\textbackslash prt\_machine\_krr.m}
 \begin{alltt}
 
  Kernel ridge regression
@@ -1190,7 +1182,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
-\subsection{machines/prt\_machine\_rvr.m}
+\subsection{machines\textbackslash prt\_machine\_rvr.m}
 \begin{alltt}
 
  Relevance vector regression (training and testing)
@@ -1218,7 +1210,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
-\subsection{machines/prt\_machine\_svm\_bin.m}
+\subsection{machines\textbackslash prt\_machine\_svm\_bin.m}
 \begin{alltt}
 
  Run binary SVM - wrapper for libSVM
@@ -1246,7 +1238,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
-\subsection{machines/prt\_rvr.m}
+\subsection{machines\textbackslash prt\_rvr.m}
 \begin{alltt}
 
  Optimisation for Relevance Vector Regression
@@ -1307,7 +1299,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
-\subsection{machines/prt\_weights.m}
+\subsection{machines\textbackslash prt\_weights.m}
 \begin{alltt}
 
  Run function to compute weights
@@ -1322,7 +1314,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
-\subsection{machines/prt\_weights\_bin\_linkernel.m}
+\subsection{machines\textbackslash prt\_weights\_bin\_linkernel.m}
 \begin{alltt}
 
  Run function to compute weights for linear kernel binary classifiers
@@ -1337,7 +1329,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
-\subsection{machines/prt\_weights\_svm\_bin.m}
+\subsection{machines\textbackslash prt\_weights\_svm\_bin.m}
 \begin{alltt}
 
  Run function to compute weights for binary SVM
@@ -1349,5 +1341,43 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
        args           - function arguments (can be empty)
  Output:
        weights        - vector with weights [Nfeatures x 1]
+\end{alltt}
+
+
+\section{utils}
+
+\subsection{utils\textbackslash prt\_centre\_kernel.m}
+\begin{alltt}
+
+ This function centres the kernel matrix, respecting the independence of
+ training and test partitions. See Shawe-Taylor and Cristianini for
+ background on this approach.
+ 
+ Shawe-Taylor, J. and Cristianini, N. (2004). Kernel methods for Pattern
+ analysis. Cambridge University Press.
+\end{alltt}
+
+
+\subsection{utils\textbackslash prt\_checkAlphaNumUnder.m}
+\begin{alltt}
+
+ check whether a given string is alphanumerical or underscore
+ FORMAT out =  prt\_checkAlphaNumUnder(s)
+ Inputs:
+   s - a string of arbitrary length to check
+ Output:
+   out - logical 1 if the all chars in the string are alphanumerical
+         logical 0 otherwise
+ 
+ Based on isalpha\_num in the identification toolbox
+\end{alltt}
+
+
+\subsection{utils\textbackslash prt\_normalise\_kernel.m}
+\begin{alltt}
+
+ This function normalises the kernel matrix such that each entry is 
+ divided by the product of the std deviations, i.e.
+ K\_new(x,y) = K(x,y) / sqrt(var(x)*var(y)) 
 \end{alltt}
 

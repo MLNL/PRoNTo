@@ -78,242 +78,253 @@ This function is called by:
 0017 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0018 
 0019 <span class="comment">% Written by John Ashburner &amp; Christophe Phillips</span>
-0020 <span class="comment">% $Id: prt_latex.m 371 2011-11-14 10:12:12Z cphillip $</span>
+0020 <span class="comment">% $Id: prt_latex.m 394 2011-11-17 22:14:43Z cphillip $</span>
 0021 
 0022 
-0023 <span class="comment">%% Turning the cfg files into a .tex file</span>
-0024 <span class="keyword">if</span> ~nargin,
-0025     c = prt_cfg_batch;
-0026 <span class="keyword">end</span>
-0027 <span class="comment">% if nargin &amp;&amp; ischar(c),</span>
-0028 <span class="comment">%     clean_latex_compile;</span>
-0029 <span class="comment">%     return;</span>
-0030 <span class="comment">% end</span>
-0031 
-0032 <span class="keyword">for</span> i=1:numel(c.values),
-0033     bn = c.values{i}.tag;
-0034     fp = fopen(fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>),<span class="string">'manual'</span>,[<span class="string">'batch_'</span>,bn,<span class="string">'.tex'</span>]),<span class="string">'w'</span>);
-0035     <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
-0036     <a href="#_sub2" class="code" title="subfunction sts = chapter(c,fp)">chapter</a>(c.values{i},fp);
-0037 <span class="keyword">end</span>;
-0038 
-0039 <span class="comment">%% picking all the functions help files and put them into functions.tex</span>
-0040 fp = fopen(fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>),<span class="string">'manual'</span>,<span class="string">'adv_functions.tex'</span>),<span class="string">'w'</span>);
-0041 <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
-0042 <span class="comment">% l_subdirs = {'machines','batch'};</span>
-0043 l_subdirs = {<span class="string">'machines'</span>};
-0044 excl_files = {<span class="string">'Contents.m'</span>};
-0045 PRTdir = <a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>);
-0046 
-0047 <span class="comment">% Heading part</span>
-0048 fprintf(fp,<span class="string">'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n'</span>,<span class="keyword">...</span>
-0049     <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'List of PRoNTo functions'</span>),<span class="string">'sec:functions'</span>);
-0050 fprintf(fp,<span class="string">'This is the list of PRoNTo functions, including the subdirectories: '</span>);
-0051 <span class="keyword">for</span> ii=1:numel(l_subdirs)
-0052     fprintf(fp,<span class="string">'%s'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>([<span class="string">'{\tt '</span>,l_subdirs{ii},<span class="string">'}'</span>]));
-0053     <span class="keyword">if</span> ii&lt;numel(l_subdirs)-1
-0054         fprintf(fp,<span class="string">', '</span>);
-0055     <span class="keyword">elseif</span> ii==numel(l_subdirs)-1
-0056         fprintf(fp,<span class="string">' and '</span>);
-0057     <span class="keyword">else</span>
-0058         fprintf(fp,<span class="string">'.\n\n'</span>);
-0059     <span class="keyword">end</span>
-0060 <span class="keyword">end</span>
-0061 
-0062 <span class="comment">% Deal with main directoy 1st</span>
-0063 f = spm_select(<span class="string">'List'</span>,PRTdir,<span class="string">'.*\.m$'</span>);
-0064 <span class="keyword">for</span> ii=1:numel(excl_files)
-0065     f(strcmp(cellstr(f),excl_files{ii}),:) = [];
-0066 <span class="keyword">end</span>
-0067 <a href="#_sub1" class="code" title="subfunction write_mfiles_help(f,fp,base_dir)">write_mfiles_help</a>(f,fp);
-0068 
-0069 <span class="comment">% Deal with subdirectories</span>
-0070 <span class="keyword">for</span> ii = 1:numel(l_subdirs)
-0071     p = fullfile(PRTdir,l_subdirs{ii});
-0072     fprintf(fp,<span class="string">'\n\\%s{%s}\n'</span>,<span class="string">'section'</span>,l_subdirs{ii});
-0073     f = spm_select(<span class="string">'List'</span>,p,<span class="string">'.*\.m$'</span>);
-0074     <a href="#_sub1" class="code" title="subfunction write_mfiles_help(f,fp,base_dir)">write_mfiles_help</a>(f,fp,l_subdirs(ii));
-0075 <span class="keyword">end</span>
-0076 
-0077 <span class="keyword">return</span>;
-0078 
-0079 <span class="comment">%==========================================================================</span>
-0080 <a name="_sub1" href="#_subfunctions" class="code">function write_mfiles_help(f,fp,base_dir)</a>
+0023 <span class="comment">%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0024 <span class="comment">% 1. Turning the cfg files into a .tex file</span>
+0025 <span class="keyword">if</span> ~nargin,
+0026     <span class="keyword">if</span> ~exist(<span class="string">'prt_cfg_batch.m'</span>,<span class="string">'file'</span>), <a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>; <span class="keyword">end</span>
+0027     c = prt_cfg_batch;
+0028 <span class="keyword">end</span>
+0029 <span class="comment">% if nargin &amp;&amp; ischar(c),</span>
+0030 <span class="comment">%     clean_latex_compile;</span>
+0031 <span class="comment">%     return;</span>
+0032 <span class="comment">% end</span>
+0033 
+0034 <span class="keyword">for</span> i=1:numel(c.values),
+0035     bn = c.values{i}.tag;
+0036     fp = fopen(fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>),<span class="string">'manual'</span>,[<span class="string">'batch_'</span>,bn,<span class="string">'.tex'</span>]),<span class="string">'w'</span>);
+0037     <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
+0038     <a href="#_sub2" class="code" title="subfunction sts = chapter(c,fp)">chapter</a>(c.values{i},fp);
+0039 <span class="keyword">end</span>;
+0040 
+0041 <span class="comment">%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+0042 <span class="comment">% 2. picking all the functions help files and put them into functions.tex</span>
+0043 fp = fopen(fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>),<span class="string">'manual'</span>,<span class="string">'adv_functions.tex'</span>),<span class="string">'w'</span>);
+0044 <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
+0045 <span class="comment">% l_subdirs = {'machines','batch'};</span>
+0046 l_subdirs = {<span class="string">'machines'</span>,<span class="string">'utils'</span>};
+0047 excl_files = {<span class="string">'Contents.m'</span>};
+0048 PRTdir = <a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>);
+0049 
+0050 <span class="comment">% Heading part</span>
+0051 fprintf(fp,<span class="string">'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n'</span>,<span class="keyword">...</span>
+0052     <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'List of PRoNTo functions'</span>),<span class="string">'sec:functions'</span>);
+0053 fprintf(fp,<span class="string">'This is the list of PRoNTo functions, including the subdirectories: '</span>);
+0054 <span class="keyword">for</span> ii=1:numel(l_subdirs)
+0055     fprintf(fp,<span class="string">'%s'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>([<span class="string">'{\tt '</span>,l_subdirs{ii},<span class="string">'}'</span>]));
+0056     <span class="keyword">if</span> ii&lt;numel(l_subdirs)-1
+0057         fprintf(fp,<span class="string">', '</span>);
+0058     <span class="keyword">elseif</span> ii==numel(l_subdirs)-1
+0059         fprintf(fp,<span class="string">' and '</span>);
+0060     <span class="keyword">else</span>
+0061         fprintf(fp,<span class="string">'.\n\n'</span>);
+0062     <span class="keyword">end</span>
+0063 <span class="keyword">end</span>
+0064 
+0065 <span class="comment">% Deal with main directoy 1st</span>
+0066 f = spm_select(<span class="string">'List'</span>,PRTdir,<span class="string">'.*\.m$'</span>);
+0067 <span class="keyword">for</span> ii=1:numel(excl_files)
+0068     f(strcmp(cellstr(f),excl_files{ii}),:) = [];
+0069 <span class="keyword">end</span>
+0070 <a href="#_sub1" class="code" title="subfunction write_mfiles_help(f,fp,base_dir)">write_mfiles_help</a>(f,fp);
+0071 
+0072 <span class="comment">% Deal with subdirectories</span>
+0073 <span class="keyword">for</span> ii = 1:numel(l_subdirs)
+0074     p = fullfile(PRTdir,l_subdirs{ii});
+0075     fprintf(fp,<span class="string">'\n\\%s{%s}\n'</span>,<span class="string">'section'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(l_subdirs{ii}));
+0076     f = spm_select(<span class="string">'List'</span>,p,<span class="string">'.*\.m$'</span>);
+0077     <a href="#_sub1" class="code" title="subfunction write_mfiles_help(f,fp,base_dir)">write_mfiles_help</a>(f,fp,l_subdirs(ii));
+0078 <span class="keyword">end</span>
+0079 
+0080 <span class="keyword">return</span>;
 0081 
-0082 <span class="keyword">if</span> nargin&lt;3,
-0083     base_dir = <span class="string">''</span>;
-0084     lev = 1;
-0085 <span class="keyword">else</span>
-0086     lev = numel(base_dir)+1;
-0087     tmp = <span class="string">''</span>;
-0088     <span class="keyword">for</span> ii=1:numel(base_dir)
-0089         tmp = fullfile(tmp,base_dir{ii});
-0090     <span class="keyword">end</span>
-0091     base_dir = tmp;
-0092 <span class="keyword">end</span>
-0093 
-0094 sec = {<span class="string">'section'</span>,<span class="string">'subsection'</span>,<span class="string">'subsubsection'</span>,<span class="string">'paragraph'</span>,<span class="string">'subparagraph'</span>, <span class="keyword">...</span>
-0095             <span class="string">'textbf'</span>,<span class="string">'textsc'</span>,<span class="string">'textsl'</span>,<span class="string">'textit'</span>};
-0096 
-0097 <span class="keyword">for</span> ii=1:size(f,1)
-0098     <span class="comment">% section</span>
-0099     func_name = fullfile(base_dir,deblank(f(ii,:)));
-0100     fprintf(fp,<span class="string">'\n\\%s{%s}\n'</span>,sec{min(lev,length(sec))},<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(func_name));
-0101     fprintf(fp,<span class="string">'%s\n\n'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'\begin{alltt}'</span>));
-0102     
-0103     <span class="comment">% help text, minus copyrights</span>
-0104     htxt = textscan(fopen(func_name),<span class="string">'%s'</span>,<span class="string">'delimiter'</span>,<span class="string">'\n'</span>,<span class="string">'whitespace'</span>,<span class="string">''</span>);
-0105     htxt = htxt{1};
-0106     i_beg = find(strncmp(<span class="string">'% '</span>,htxt,2)); i_beg = i_beg(1);
-0107     i_end = find(strncmp(<span class="string">'% Copyright (C)'</span>,htxt,15))-2;
-0108     htxt = htxt(i_beg:i_end);
-0109     
-0110     <span class="keyword">for</span> jj=1:numel(htxt)
-0111         <span class="keyword">if</span> strcmp(htxt{jj},<span class="string">'%'</span>)
-0112             fprintf(fp,<span class="string">'%s\n'</span>,<span class="string">' '</span>);
-0113         <span class="keyword">else</span>
-0114             fprintf(fp,<span class="string">'%s\n'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(htxt{jj}(2:end)));
-0115         <span class="keyword">end</span>
-0116     <span class="keyword">end</span>
-0117     fprintf(fp,<span class="string">'%s\n\n'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'\end{alltt}'</span>));
-0118 <span class="keyword">end</span>
-0119 
-0120 <span class="keyword">return</span>
-0121 
-0122 <span class="comment">%==========================================================================</span>
-0123 <a name="_sub2" href="#_subfunctions" class="code">function sts = chapter(c,fp)</a>
-0124 bn = c.tag;
-0125 <span class="keyword">if</span> nargin&lt;2
-0126     fp = fopen(fullfile(pwd,<span class="string">'manual'</span>,[bn,<span class="string">'.tex'</span>]),<span class="string">'w'</span>);
-0127     <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
-0128 <span class="keyword">end</span>
-0129 
-0130 fprintf(fp,<span class="string">'%% $Id: prt_latex.m 371 2011-11-14 10:12:12Z cphillip $ \n\n'</span>);
-0131 fprintf(fp, <span class="keyword">...</span>
-0132     <span class="string">'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n'</span>, <span class="keyword">...</span>
-0133     <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(c.name),c.tag);
-0134 <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(c,fp);
-0135 
-0136 <span class="keyword">switch</span> class(c),
-0137     <span class="keyword">case</span> {<span class="string">'cfg_branch'</span>,<span class="string">'cfg_exbranch'</span>},
-0138         <span class="keyword">for</span> i=1:numel(c.val),
-0139             <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.val{i},fp);
-0140         <span class="keyword">end</span>;
-0141     <span class="keyword">case</span> {<span class="string">'cfg_repeat'</span>,<span class="string">'cfg_choice'</span>},
-0142         <span class="keyword">for</span> i=1:numel(c.values),
-0143             <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.values{i},fp);
-0144         <span class="keyword">end</span>;
-0145 <span class="keyword">end</span>;
-0146 fclose(fp);
-0147 sts = true;
-0148 <span class="keyword">return</span>;
-0149 
-0150 <span class="comment">%==========================================================================</span>
-0151 <a name="_sub3" href="#_subfunctions" class="code">function section(c,fp,lev)</a>
-0152 <span class="keyword">if</span> nargin&lt;3, lev = 1; <span class="keyword">end</span>;
-0153 sec = {<span class="string">'section'</span>,<span class="string">'subsection'</span>,<span class="string">'subsubsection'</span>,<span class="string">'paragraph'</span>,<span class="string">'subparagraph'</span>, <span class="keyword">...</span>
-0154             <span class="string">'textbf'</span>,<span class="string">'textsc'</span>,<span class="string">'textsl'</span>,<span class="string">'textit'</span>};
-0155 <span class="comment">% if lev&lt;=length(sec),</span>
-0156     fprintf(fp,<span class="string">'\n\\%s{%s}\n'</span>,sec{min(lev,length(sec))},<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(c.name));
-0157     <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(c,fp);
-0158     <span class="keyword">switch</span> class(c),
-0159         <span class="keyword">case</span> {<span class="string">'cfg_branch'</span>,<span class="string">'cfg_exbranch'</span>},
-0160             <span class="keyword">for</span> i=1:numel(c.val),
-0161                 <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.val{i},fp,lev+1);
-0162             <span class="keyword">end</span>;
-0163         <span class="keyword">case</span> {<span class="string">'cfg_repeat'</span>,<span class="string">'cfg_choice'</span>},
-0164             <span class="keyword">for</span> i=1:numel(c.values),
-0165                 <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.values{i},fp,lev+1);
-0166             <span class="keyword">end</span>;
-0167     <span class="keyword">end</span>;
-0168 <span class="comment">% else</span>
-0169 <span class="keyword">if</span> lev&gt;length(sec),
-0170     warning([<span class="string">'Too many nested levels... '</span>,c.name]); <span class="comment">%#ok&lt;WNTAG&gt;</span>
-0171 <span class="keyword">end</span>;
-0172 <span class="keyword">return</span>;
-0173 
-0174 <span class="comment">%==========================================================================</span>
-0175 <a name="_sub4" href="#_subfunctions" class="code">function write_help(hlp,fp)</a>
-0176 <span class="keyword">if</span> isa(hlp, <span class="string">'cfg_item'</span>),
-0177     <span class="keyword">if</span> ~isempty(hlp.help),
-0178         hlp = hlp.help;
-0179     <span class="keyword">else</span>
-0180         <span class="keyword">return</span>;
-0181     <span class="keyword">end</span>;
+0082 <span class="comment">%==========================================================================</span>
+0083 <a name="_sub1" href="#_subfunctions" class="code">function write_mfiles_help(f,fp,base_dir)</a>
+0084 
+0085 <span class="keyword">if</span> nargin&lt;3,
+0086     base_dir = <span class="string">''</span>;
+0087     lev = 1;
+0088 <span class="keyword">else</span>
+0089     lev = numel(base_dir)+1;
+0090     tmp = base_dir{1};
+0091     ltmp = tmp;
+0092     <span class="keyword">for</span> ii=2:numel(base_dir)
+0093         ltmp = [tmp,<span class="string">'\textbackslash '</span>,base_dir{ii}];
+0094         tmp = fullfile(tmp,base_dir{ii});
+0095     <span class="keyword">end</span>
+0096     lbase_dir = ltmp;
+0097     base_dir = tmp;
+0098 <span class="keyword">end</span>
+0099 
+0100 sec = {<span class="string">'section'</span>,<span class="string">'subsection'</span>,<span class="string">'subsubsection'</span>,<span class="string">'paragraph'</span>,<span class="string">'subparagraph'</span>, <span class="keyword">...</span>
+0101             <span class="string">'textbf'</span>,<span class="string">'textsc'</span>,<span class="string">'textsl'</span>,<span class="string">'textit'</span>};
+0102 
+0103 <span class="keyword">for</span> ii=1:size(f,1)
+0104     <span class="comment">% section</span>
+0105     <span class="keyword">if</span> isempty(base_dir)
+0106         lfunc_name = deblank(f(ii,:));
+0107     <span class="keyword">else</span>
+0108         lfunc_name = [lbase_dir,<span class="string">'\textbackslash '</span>,deblank(f(ii,:))];
+0109     <span class="keyword">end</span>
+0110     func_name = fullfile(base_dir,deblank(f(ii,:)));
+0111     fprintf(fp,<span class="string">'\n\\%s{%s}\n'</span>,sec{min(lev,length(sec))},<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(lfunc_name));
+0112     fprintf(fp,<span class="string">'%s\n\n'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'\begin{alltt}'</span>));
+0113     
+0114     <span class="comment">% help text, minus copyrights</span>
+0115     htxt = textscan(fopen(func_name),<span class="string">'%s'</span>,<span class="string">'delimiter'</span>,<span class="string">'\n'</span>,<span class="string">'whitespace'</span>,<span class="string">''</span>);
+0116     htxt = htxt{1};
+0117     i_beg = find(strncmp(<span class="string">'% '</span>,htxt,2)); i_beg = i_beg(1);
+0118     i_end = find(strncmp(<span class="string">'% Copyright (C)'</span>,htxt,15))-2;
+0119     htxt = htxt(i_beg:i_end);
+0120     
+0121     <span class="keyword">for</span> jj=1:numel(htxt)
+0122         <span class="keyword">if</span> strcmp(htxt{jj},<span class="string">'%'</span>)
+0123             fprintf(fp,<span class="string">'%s\n'</span>,<span class="string">' '</span>);
+0124         <span class="keyword">else</span>
+0125             fprintf(fp,<span class="string">'%s\n'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(htxt{jj}(2:end)));
+0126         <span class="keyword">end</span>
+0127     <span class="keyword">end</span>
+0128     fprintf(fp,<span class="string">'%s\n\n'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'\end{alltt}'</span>));
+0129 <span class="keyword">end</span>
+0130 
+0131 <span class="keyword">return</span>
+0132 
+0133 <span class="comment">%==========================================================================</span>
+0134 <a name="_sub2" href="#_subfunctions" class="code">function sts = chapter(c,fp)</a>
+0135 bn = c.tag;
+0136 <span class="keyword">if</span> nargin&lt;2
+0137     fp = fopen(fullfile(pwd,<span class="string">'manual'</span>,[bn,<span class="string">'.tex'</span>]),<span class="string">'w'</span>);
+0138     <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
+0139 <span class="keyword">end</span>
+0140 
+0141 fprintf(fp,<span class="string">'%% $Id: prt_latex.m 394 2011-11-17 22:14:43Z cphillip $ \n\n'</span>);
+0142 fprintf(fp, <span class="keyword">...</span>
+0143     <span class="string">'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n'</span>, <span class="keyword">...</span>
+0144     <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(c.name),c.tag);
+0145 <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(c,fp);
+0146 
+0147 <span class="keyword">switch</span> class(c),
+0148     <span class="keyword">case</span> {<span class="string">'cfg_branch'</span>,<span class="string">'cfg_exbranch'</span>},
+0149         <span class="keyword">for</span> i=1:numel(c.val),
+0150             <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.val{i},fp);
+0151         <span class="keyword">end</span>;
+0152     <span class="keyword">case</span> {<span class="string">'cfg_repeat'</span>,<span class="string">'cfg_choice'</span>},
+0153         <span class="keyword">for</span> i=1:numel(c.values),
+0154             <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.values{i},fp);
+0155         <span class="keyword">end</span>;
+0156 <span class="keyword">end</span>;
+0157 fclose(fp);
+0158 sts = true;
+0159 <span class="keyword">return</span>;
+0160 
+0161 <span class="comment">%==========================================================================</span>
+0162 <a name="_sub3" href="#_subfunctions" class="code">function section(c,fp,lev)</a>
+0163 <span class="keyword">if</span> nargin&lt;3, lev = 1; <span class="keyword">end</span>;
+0164 sec = {<span class="string">'section'</span>,<span class="string">'subsection'</span>,<span class="string">'subsubsection'</span>,<span class="string">'paragraph'</span>,<span class="string">'subparagraph'</span>, <span class="keyword">...</span>
+0165             <span class="string">'textbf'</span>,<span class="string">'textsc'</span>,<span class="string">'textsl'</span>,<span class="string">'textit'</span>};
+0166 <span class="comment">% if lev&lt;=length(sec),</span>
+0167     fprintf(fp,<span class="string">'\n\\%s{%s}\n'</span>,sec{min(lev,length(sec))},<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(c.name));
+0168     <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(c,fp);
+0169     <span class="keyword">switch</span> class(c),
+0170         <span class="keyword">case</span> {<span class="string">'cfg_branch'</span>,<span class="string">'cfg_exbranch'</span>},
+0171             <span class="keyword">for</span> i=1:numel(c.val),
+0172                 <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.val{i},fp,lev+1);
+0173             <span class="keyword">end</span>;
+0174         <span class="keyword">case</span> {<span class="string">'cfg_repeat'</span>,<span class="string">'cfg_choice'</span>},
+0175             <span class="keyword">for</span> i=1:numel(c.values),
+0176                 <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.values{i},fp,lev+1);
+0177             <span class="keyword">end</span>;
+0178     <span class="keyword">end</span>;
+0179 <span class="comment">% else</span>
+0180 <span class="keyword">if</span> lev&gt;length(sec),
+0181     warning([<span class="string">'Too many nested levels... '</span>,c.name]); <span class="comment">%#ok&lt;WNTAG&gt;</span>
 0182 <span class="keyword">end</span>;
-0183 <span class="keyword">if</span> iscell(hlp),
-0184     <span class="keyword">for</span> i=1:numel(hlp),
-0185         <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(hlp{i},fp);
-0186     <span class="keyword">end</span>;
-0187     <span class="keyword">return</span>;
-0188 <span class="keyword">end</span>;
-0189 str = <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(hlp);
-0190 fprintf(fp,<span class="string">'%s\n\n'</span>,str);
-0191 <span class="keyword">return</span>;
-0192 
-0193 <span class="comment">%==========================================================================</span>
-0194 <a name="_sub5" href="#_subfunctions" class="code">function str = texify(str0)</a>
-0195 st1  = strfind(str0,<span class="string">'/*'</span>);
-0196 en1  = strfind(str0,<span class="string">'*/'</span>);
-0197 st = [];
-0198 en = [];
-0199 <span class="keyword">for</span> i=1:numel(st1),
-0200     en1  = en1(en1&gt;st1(i));
-0201     <span class="keyword">if</span> ~isempty(en1),
-0202         st  = [st st1(i)];
-0203         en  = [en en1(1)];
-0204         en1 = en1(2:end);
-0205     <span class="keyword">end</span>;
-0206 <span class="keyword">end</span>;
-0207 
-0208 str = [];
-0209 pen = 1;
-0210 <span class="keyword">for</span> i=1:numel(st),
-0211     str = [str <a href="#_sub6" class="code" title="subfunction str = clean_latex(str)">clean_latex</a>(str0(pen:st(i)-1)) str0(st(i)+2:en(i)-1)];
-0212     pen = en(i)+2;
-0213 <span class="keyword">end</span>;
-0214 str = [str <a href="#_sub6" class="code" title="subfunction str = clean_latex(str)">clean_latex</a>(str0(pen:numel(str0)))];
-0215 <span class="keyword">return</span>;
-0216 
-0217 <span class="comment">%==========================================================================</span>
-0218 <a name="_sub6" href="#_subfunctions" class="code">function str = clean_latex(str)</a>
-0219 str  = strrep(str,<span class="string">'$'</span>,<span class="string">'\$'</span>);
-0220 str  = strrep(str,<span class="string">'&amp;'</span>,<span class="string">'\&amp;'</span>);
-0221 str  = strrep(str,<span class="string">'^'</span>,<span class="string">'\^'</span>);
-0222 str  = strrep(str,<span class="string">'_'</span>,<span class="string">'\_'</span>);
-0223 str  = strrep(str,<span class="string">'#'</span>,<span class="string">'\#'</span>);
-0224 <span class="comment">%str  = strrep(str,'\','$\\$');</span>
-0225 str  = strrep(str,<span class="string">'|'</span>,<span class="string">'$|$'</span>);
-0226 str  = strrep(str,<span class="string">'&gt;'</span>,<span class="string">'$&gt;$'</span>);
-0227 str  = strrep(str,<span class="string">'&lt;'</span>,<span class="string">'$&lt;$'</span>);
-0228 <span class="keyword">return</span>;
-0229 
-0230 <span class="comment">%==========================================================================</span>
-0231 <a name="_sub7" href="#_subfunctions" class="code">function bibcstr = get_bib(bibdir)</a>
-0232 biblist = dir(fullfile(bibdir,<span class="string">'*.bib'</span>));
-0233 bibcstr={};
-0234 <span class="keyword">for</span> k = 1:numel(biblist)
-0235     [p n e v] = spm_fileparts(biblist(k).name);
-0236     bibcstr{k}  = fullfile(bibdir,n);
-0237 <span class="keyword">end</span>
-0238 
-0239 <span class="comment">%==========================================================================</span>
-0240 <a name="_sub8" href="#_subfunctions" class="code">function clean_latex_compile</a>
-0241 PRTdir = <a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>);
-0242 p = fullfile(PRTdir,<span class="string">'manual'</span>);
-0243 [f, d] = spm_select(<span class="string">'FPlist'</span>,p,<span class="string">'.*\.aux$'</span>);
-0244 f = strvcat(f, spm_select(<span class="string">'FPlist'</span>,p,<span class="string">'.*\.tex$'</span>));
-0245 f = strvcat(f, spm_select(<span class="string">'FPlist'</span>,p,<span class="string">'^manual\..*$'</span>));
-0246 f(strcmp(cellstr(f),fullfile(PRTdir,<span class="string">'manual'</span>,<span class="string">'prt_manual.tex'</span>)),:) = [];
-0247 f(strcmp(cellstr(f),fullfile(PRTdir,<span class="string">'manual'</span>,<span class="string">'prt_manual.pdf'</span>)),:) = [];
-0248 <span class="keyword">for</span> i=1:size(d,1)
-0249     f = strvcat(f, spm_select(<span class="string">'FPlist'</span>,deblank(d(i,:)),<span class="string">'.*\.aux$'</span>));
-0250 <span class="keyword">end</span>
-0251 f(strcmp(cellstr(f),filesep),:) = [];
-0252 disp(f); pause
-0253 <span class="keyword">for</span> i=1:size(f,1)
-0254     spm_unlink(deblank(f(i,:)));
-0255 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0183 <span class="keyword">return</span>;
+0184 
+0185 <span class="comment">%==========================================================================</span>
+0186 <a name="_sub4" href="#_subfunctions" class="code">function write_help(hlp,fp)</a>
+0187 <span class="keyword">if</span> isa(hlp, <span class="string">'cfg_item'</span>),
+0188     <span class="keyword">if</span> ~isempty(hlp.help),
+0189         hlp = hlp.help;
+0190     <span class="keyword">else</span>
+0191         <span class="keyword">return</span>;
+0192     <span class="keyword">end</span>;
+0193 <span class="keyword">end</span>;
+0194 <span class="keyword">if</span> iscell(hlp),
+0195     <span class="keyword">for</span> i=1:numel(hlp),
+0196         <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(hlp{i},fp);
+0197     <span class="keyword">end</span>;
+0198     <span class="keyword">return</span>;
+0199 <span class="keyword">end</span>;
+0200 str = <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(hlp);
+0201 fprintf(fp,<span class="string">'%s\n\n'</span>,str);
+0202 <span class="keyword">return</span>;
+0203 
+0204 <span class="comment">%==========================================================================</span>
+0205 <a name="_sub5" href="#_subfunctions" class="code">function str = texify(str0)</a>
+0206 st1  = strfind(str0,<span class="string">'/*'</span>);
+0207 en1  = strfind(str0,<span class="string">'*/'</span>);
+0208 st = [];
+0209 en = [];
+0210 <span class="keyword">for</span> i=1:numel(st1),
+0211     en1  = en1(en1&gt;st1(i));
+0212     <span class="keyword">if</span> ~isempty(en1),
+0213         st  = [st st1(i)];
+0214         en  = [en en1(1)];
+0215         en1 = en1(2:end);
+0216     <span class="keyword">end</span>;
+0217 <span class="keyword">end</span>;
+0218 
+0219 str = [];
+0220 pen = 1;
+0221 <span class="keyword">for</span> i=1:numel(st),
+0222     str = [str <a href="#_sub6" class="code" title="subfunction str = clean_latex(str)">clean_latex</a>(str0(pen:st(i)-1)) str0(st(i)+2:en(i)-1)];
+0223     pen = en(i)+2;
+0224 <span class="keyword">end</span>;
+0225 str = [str <a href="#_sub6" class="code" title="subfunction str = clean_latex(str)">clean_latex</a>(str0(pen:numel(str0)))];
+0226 <span class="keyword">return</span>;
+0227 
+0228 <span class="comment">%==========================================================================</span>
+0229 <a name="_sub6" href="#_subfunctions" class="code">function str = clean_latex(str)</a>
+0230 str  = strrep(str,<span class="string">'$'</span>,<span class="string">'\$'</span>);
+0231 str  = strrep(str,<span class="string">'&amp;'</span>,<span class="string">'\&amp;'</span>);
+0232 str  = strrep(str,<span class="string">'^'</span>,<span class="string">'\^'</span>);
+0233 str  = strrep(str,<span class="string">'_'</span>,<span class="string">'\_'</span>);
+0234 str  = strrep(str,<span class="string">'#'</span>,<span class="string">'\#'</span>);
+0235 <span class="comment">% str  = strrep(str,'\','$\\$');</span>
+0236 str  = strrep(str,<span class="string">'|'</span>,<span class="string">'$|$'</span>);
+0237 str  = strrep(str,<span class="string">'&gt;'</span>,<span class="string">'$&gt;$'</span>);
+0238 str  = strrep(str,<span class="string">'&lt;'</span>,<span class="string">'$&lt;$'</span>);
+0239 <span class="keyword">return</span>;
+0240 
+0241 <span class="comment">%==========================================================================</span>
+0242 <a name="_sub7" href="#_subfunctions" class="code">function bibcstr = get_bib(bibdir)</a>
+0243 biblist = dir(fullfile(bibdir,<span class="string">'*.bib'</span>));
+0244 bibcstr={};
+0245 <span class="keyword">for</span> k = 1:numel(biblist)
+0246     [p n e v] = spm_fileparts(biblist(k).name);
+0247     bibcstr{k}  = fullfile(bibdir,n);
+0248 <span class="keyword">end</span>
+0249 
+0250 <span class="comment">%==========================================================================</span>
+0251 <a name="_sub8" href="#_subfunctions" class="code">function clean_latex_compile</a>
+0252 PRTdir = <a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>);
+0253 p = fullfile(PRTdir,<span class="string">'manual'</span>);
+0254 [f, d] = spm_select(<span class="string">'FPlist'</span>,p,<span class="string">'.*\.aux$'</span>);
+0255 f = strvcat(f, spm_select(<span class="string">'FPlist'</span>,p,<span class="string">'.*\.tex$'</span>));
+0256 f = strvcat(f, spm_select(<span class="string">'FPlist'</span>,p,<span class="string">'^manual\..*$'</span>));
+0257 f(strcmp(cellstr(f),fullfile(PRTdir,<span class="string">'manual'</span>,<span class="string">'prt_manual.tex'</span>)),:) = [];
+0258 f(strcmp(cellstr(f),fullfile(PRTdir,<span class="string">'manual'</span>,<span class="string">'prt_manual.pdf'</span>)),:) = [];
+0259 <span class="keyword">for</span> i=1:size(d,1)
+0260     f = strvcat(f, spm_select(<span class="string">'FPlist'</span>,deblank(d(i,:)),<span class="string">'.*\.aux$'</span>));
+0261 <span class="keyword">end</span>
+0262 f(strcmp(cellstr(f),filesep),:) = [];
+0263 disp(f); pause
+0264 <span class="keyword">for</span> i=1:size(f,1)
+0265     spm_unlink(deblank(f(i,:)));
+0266 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

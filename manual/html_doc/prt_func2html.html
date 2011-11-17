@@ -63,16 +63,17 @@ This function is called by:
 0010 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0011 
 0012 <span class="comment">% Written by Christophe Phillips</span>
-0013 <span class="comment">% $Id: prt_func2html.m 371 2011-11-14 10:12:12Z cphillip $</span>
+0013 <span class="comment">% $Id: prt_func2html.m 394 2011-11-17 22:14:43Z cphillip $</span>
 0014 
 0015 cd(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>))
 0016 
-0017 subdirs = {<span class="string">'.'</span>, [<span class="string">'.'</span>,filesep,<span class="string">'machines'</span>],[<span class="string">'.'</span>,filesep,<span class="string">'batch'</span>]}; 
-0018     <span class="comment">% list of directories to include</span>
-0019 isubdirs = {<span class="string">'.svn'</span>,<span class="string">'manual'</span>,<span class="string">'LIB'</span>}; <span class="comment">% list of directories to exclude</span>
-0020 
-0021 m2html(<span class="string">'mfiles'</span>,subdirs, <span class="string">'htmldir'</span>,fullfile(<span class="string">'manual'</span>,<span class="string">'html_doc'</span>), <span class="keyword">...</span>
-0022         <span class="string">'recursive'</span>,<span class="string">'off'</span>);</pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0017 subdirs = {<span class="string">'.'</span>, [<span class="string">'.'</span>,filesep,<span class="string">'machines'</span>], <span class="keyword">...</span>
+0018                             [<span class="string">'.'</span>,filesep,<span class="string">'batch'</span>],[<span class="string">'.'</span>,filesep,<span class="string">'utils'</span>]}; 
+0019     <span class="comment">% list of directories to include</span>
+0020 isubdirs = {<span class="string">'.svn'</span>,<span class="string">'manual'</span>}; <span class="comment">% list of directories to exclude</span>
+0021 
+0022 m2html(<span class="string">'mfiles'</span>,subdirs, <span class="string">'htmldir'</span>,fullfile(<span class="string">'manual'</span>,<span class="string">'html_doc'</span>), <span class="keyword">...</span>
+0023         <span class="string">'recursive'</span>,<span class="string">'off'</span>);</pre></div>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

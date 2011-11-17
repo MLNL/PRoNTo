@@ -32,7 +32,7 @@
  The routine specifically generates the 'adv_PRTstruct.tex' file that is
  included, in the prt_manual.
 
- Bits of the code and copied/inspired by spm_latex.m from the SPM8 
+ Bits of the code and copied/inspired by spm_latex.m from the SPM8
  distribution: http://www.fil.ion.ucl.ac.uk/spm
 _______________________________________________________________________
  Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
@@ -49,7 +49,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function struct2tex(fp,S,h_skip)</a></li><li><a href="#_sub2" class="code">function sts = chapter(c,fp)</a></li><li><a href="#_sub3" class="code">function section(c,fp,lev)</a></li><li><a href="#_sub4" class="code">function write_help(hlp,fp)</a></li><li><a href="#_sub5" class="code">function str = texify(str0)</a></li><li><a href="#_sub6" class="code">function str = clean_latex(str)</a></li></ul>
+<li><a href="#_sub1" class="code">function struct2tex(fp,S,h_skip,i_nest)</a></li><li><a href="#_sub2" class="code">function str = texify(str0)</a></li><li><a href="#_sub3" class="code">function str = clean_latex(str)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function prt_struct2latex(S)</a>
@@ -64,168 +64,109 @@ This function is called by:
 0010 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0011 
 0012 <span class="comment">% Written by Christophe Phillips</span>
-0013 <span class="comment">% $Id: prt_struct2latex.m 371 2011-11-14 10:12:12Z cphillip $</span>
+0013 <span class="comment">% $Id: prt_struct2latex.m 394 2011-11-17 22:14:43Z cphillip $</span>
 0014 
-0015 fp = fopen(fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>),<span class="string">'manual'</span>,<span class="string">'adv_PRTstruct.tex'</span>),<span class="string">'w'</span>);
-0016 <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
-0017 
-0018 <span class="comment">%% Heading part</span>
-0019 fprintf(fp,<span class="string">'%% $Id: prt_struct2latex.m 371 2011-11-14 10:12:12Z cphillip $\n\n'</span>);
-0020 fprintf(fp,<span class="string">'\\chapter{%s}\n \\label{sec:%s}\n\n'</span>,<span class="keyword">...</span>
-0021     <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'PRT structure'</span>),<span class="string">'PRTstruct'</span>);
-0022 fprintf(fp,<span class="string">'This is how the main {\\tt PRT} structure is organised.\n\n'</span>);
+0015 <span class="keyword">if</span> nargin&lt;1,
+0016     f = spm_select(1,<span class="string">'^PRT\.mat'</span>,<span class="string">'Select a PRT.mat file'</span>);
+0017     tmp = load(f);
+0018     S = tmp.PRT;
+0019 <span class="keyword">end</span>
+0020 
+0021 fp = fopen(fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>),<span class="string">'manual'</span>,<span class="string">'adv_PRTstruct.tex'</span>),<span class="string">'w'</span>);
+0022 <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
 0023 
-0024 <span class="comment">%% Deal with structure</span>
-0025 fprintf(fp,<span class="string">'{\\tt PRT}\n'</span>);
-0026 h_skip = .5; <span class="comment">% horizontal skip increment</span>
-0027 
-0028 <a href="#_sub1" class="code" title="subfunction struct2tex(fp,S,h_skip)">struct2tex</a>(fp,S,h_skip)
+0024 <span class="comment">%% Heading part</span>
+0025 <span class="comment">% fprintf(fp,'%% $Id: prt_struct2latex.m 394 2011-11-17 22:14:43Z cphillip $\n\n');</span>
+0026 fprintf(fp,<span class="string">'\\chapter{%s}\n\\label{sec:%s}\n\\minitoc\n\n'</span>,<span class="keyword">...</span>
+0027     <a href="#_sub2" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'PRT structure'</span>),<span class="string">'PRTstruct'</span>);
+0028 fprintf(fp,<span class="string">'This is how the main {\\tt PRT} structure is organised.\n\n'</span>);
 0029 
-0030 fclose(fp);
-0031 
-0032 <span class="keyword">return</span>
+0030 <span class="comment">%% Deal with structure</span>
+0031 fprintf(fp,<span class="string">'{\\tt PRT}\n'</span>);
+0032 h_skip = .2; <span class="comment">% horizontal skip increment</span>
 0033 
-0034 <span class="comment">%==========================================================================</span>
-0035 <a name="_sub1" href="#_subfunctions" class="code">function struct2tex(fp,S,h_skip)</a>
+0034 i_nest = 1;
+0035 <a href="#_sub1" class="code" title="subfunction struct2tex(fp,S,h_skip,i_nest)">struct2tex</a>(fp,S,h_skip,i_nest)
 0036 
-0037 <span class="keyword">if</span> nargin&lt;3, h_skip = .5; <span class="keyword">end</span>
+0037 fclose(fp);
 0038 
-0039 fieldn = fieldnames(S);
-0040 <span class="comment">% Begin list</span>
-0041 beg_txt = sprintf([<span class="string">'\\begin{list}{$\\bullet$}\n'</span> <span class="keyword">...</span>
-0042             <span class="string">'\t{\\setlength{\\labelsep}{.2cm}'</span> <span class="keyword">...</span>
-0043             <span class="string">'\\setlength{\\itemindent}{0cm}'</span> <span class="keyword">...</span>
-0044              <span class="string">'\\setlength{\\leftmargin}{%2.1fcm}}\n'</span>],h_skip);
-0045 fprintf(fp,<span class="string">'%s'</span>,beg_txt);
-0046 
-0047 <span class="comment">% List of fields</span>
-0048 <span class="keyword">for</span> ii=1:numel(fieldn)
-0049     fprintf(fp,<span class="string">'\\item %s'</span>,<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(fieldn{ii}));
-0050     <span class="keyword">if</span> numel(S)&gt;1
-0051         fprintf(fp,<span class="string">'()\n'</span>);
-0052     <span class="keyword">else</span>
-0053         fprintf(fp,<span class="string">'\n'</span>);
-0054     <span class="keyword">end</span>
-0055     <span class="keyword">if</span> isstruct(S(1).(fieldn{ii})) &amp; ~isempty(S(1).(fieldn{ii}))
-0056         <a href="#_sub1" class="code" title="subfunction struct2tex(fp,S,h_skip)">struct2tex</a>(fp,S(1).(fieldn{ii}),h_skip+.5)
-0057     <span class="keyword">end</span>
-0058 <span class="keyword">end</span>
-0059 
-0060 <span class="comment">% End list</span>
-0061 end_txt = <span class="string">'\end{list}'</span>;
-0062 fprintf(fp,<span class="string">'%s\n\n'</span>,end_txt);
-0063 
-0064 <span class="keyword">return</span>
-0065 
-0066 <span class="comment">%==========================================================================</span>
-0067 <a name="_sub2" href="#_subfunctions" class="code">function sts = chapter(c,fp)</a>
-0068 bn = c.tag;
-0069 <span class="keyword">if</span> nargin&lt;2
-0070     fp = fopen(fullfile(pwd,<span class="string">'manual'</span>,[bn,<span class="string">'.tex'</span>]),<span class="string">'w'</span>);
-0071     <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
-0072 <span class="keyword">end</span>
-0073 
-0074 fprintf(fp,<span class="string">'%% $Id: prt_struct2latex.m 371 2011-11-14 10:12:12Z cphillip $ \n\n'</span>);
-0075 fprintf(fp, <span class="keyword">...</span>
-0076     <span class="string">'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n'</span>, <span class="keyword">...</span>
-0077     <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(c.name),c.tag);
-0078 <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(c,fp);
-0079 
-0080 <span class="keyword">switch</span> class(c),
-0081     <span class="keyword">case</span> {<span class="string">'cfg_branch'</span>,<span class="string">'cfg_exbranch'</span>},
-0082         <span class="keyword">for</span> i=1:numel(c.val),
-0083             <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.val{i},fp);
-0084         <span class="keyword">end</span>;
-0085     <span class="keyword">case</span> {<span class="string">'cfg_repeat'</span>,<span class="string">'cfg_choice'</span>},
-0086         <span class="keyword">for</span> i=1:numel(c.values),
-0087             <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.values{i},fp);
-0088         <span class="keyword">end</span>;
-0089 <span class="keyword">end</span>;
-0090 fclose(fp);
-0091 sts = true;
-0092 <span class="keyword">return</span>;
-0093 
-0094 <span class="comment">%==========================================================================</span>
-0095 <a name="_sub3" href="#_subfunctions" class="code">function section(c,fp,lev)</a>
-0096 <span class="keyword">if</span> nargin&lt;3, lev = 1; <span class="keyword">end</span>;
-0097 sec = {<span class="string">'section'</span>,<span class="string">'subsection'</span>,<span class="string">'subsubsection'</span>,<span class="string">'paragraph'</span>,<span class="string">'subparagraph'</span>, <span class="keyword">...</span>
-0098             <span class="string">'textbf'</span>,<span class="string">'textsc'</span>,<span class="string">'textsl'</span>,<span class="string">'textit'</span>};
-0099 <span class="comment">% if lev&lt;=length(sec),</span>
-0100     fprintf(fp,<span class="string">'\n\\%s{%s}\n'</span>,sec{min(lev,length(sec))},<a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(c.name));
-0101     <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(c,fp);
-0102     <span class="keyword">switch</span> class(c),
-0103         <span class="keyword">case</span> {<span class="string">'cfg_branch'</span>,<span class="string">'cfg_exbranch'</span>},
-0104             <span class="keyword">for</span> i=1:numel(c.val),
-0105                 <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.val{i},fp,lev+1);
-0106             <span class="keyword">end</span>;
-0107         <span class="keyword">case</span> {<span class="string">'cfg_repeat'</span>,<span class="string">'cfg_choice'</span>},
-0108             <span class="keyword">for</span> i=1:numel(c.values),
-0109                 <a href="#_sub3" class="code" title="subfunction section(c,fp,lev)">section</a>(c.values{i},fp,lev+1);
-0110             <span class="keyword">end</span>;
-0111     <span class="keyword">end</span>;
-0112 <span class="comment">% else</span>
-0113 <span class="keyword">if</span> lev&gt;length(sec),
-0114     warning([<span class="string">'Too many nested levels... '</span>,c.name]); <span class="comment">%#ok&lt;WNTAG&gt;</span>
-0115 <span class="keyword">end</span>;
-0116 <span class="keyword">return</span>;
-0117 
-0118 <span class="comment">%==========================================================================</span>
-0119 <a name="_sub4" href="#_subfunctions" class="code">function write_help(hlp,fp)</a>
-0120 <span class="keyword">if</span> isa(hlp, <span class="string">'cfg_item'</span>),
-0121     <span class="keyword">if</span> ~isempty(hlp.help),
-0122         hlp = hlp.help;
-0123     <span class="keyword">else</span>
-0124         <span class="keyword">return</span>;
-0125     <span class="keyword">end</span>;
-0126 <span class="keyword">end</span>;
-0127 <span class="keyword">if</span> iscell(hlp),
-0128     <span class="keyword">for</span> i=1:numel(hlp),
-0129         <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(hlp{i},fp);
-0130     <span class="keyword">end</span>;
-0131     <span class="keyword">return</span>;
-0132 <span class="keyword">end</span>;
-0133 str = <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(hlp);
-0134 fprintf(fp,<span class="string">'%s\n\n'</span>,str);
-0135 <span class="keyword">return</span>;
-0136 
-0137 <span class="comment">%==========================================================================</span>
-0138 <a name="_sub5" href="#_subfunctions" class="code">function str = texify(str0)</a>
-0139 st1  = strfind(str0,<span class="string">'/*'</span>);
-0140 en1  = strfind(str0,<span class="string">'*/'</span>);
-0141 st = [];
-0142 en = [];
-0143 <span class="keyword">for</span> i=1:numel(st1),
-0144     en1  = en1(en1&gt;st1(i));
-0145     <span class="keyword">if</span> ~isempty(en1),
-0146         st  = [st st1(i)];
-0147         en  = [en en1(1)];
-0148         en1 = en1(2:end);
-0149     <span class="keyword">end</span>;
-0150 <span class="keyword">end</span>;
-0151 
-0152 str = [];
-0153 pen = 1;
-0154 <span class="keyword">for</span> i=1:numel(st),
-0155     str = [str <a href="#_sub6" class="code" title="subfunction str = clean_latex(str)">clean_latex</a>(str0(pen:st(i)-1)) str0(st(i)+2:en(i)-1)];
-0156     pen = en(i)+2;
-0157 <span class="keyword">end</span>;
-0158 str = [str <a href="#_sub6" class="code" title="subfunction str = clean_latex(str)">clean_latex</a>(str0(pen:numel(str0)))];
-0159 <span class="keyword">return</span>;
-0160 
-0161 <span class="comment">%==========================================================================</span>
-0162 <a name="_sub6" href="#_subfunctions" class="code">function str = clean_latex(str)</a>
-0163 str  = strrep(str,<span class="string">'$'</span>,<span class="string">'\$'</span>);
-0164 str  = strrep(str,<span class="string">'&amp;'</span>,<span class="string">'\&amp;'</span>);
-0165 str  = strrep(str,<span class="string">'^'</span>,<span class="string">'\^'</span>);
-0166 str  = strrep(str,<span class="string">'_'</span>,<span class="string">'\_'</span>);
-0167 str  = strrep(str,<span class="string">'#'</span>,<span class="string">'\#'</span>);
-0168 <span class="comment">%str  = strrep(str,'\','$\\$');</span>
-0169 str  = strrep(str,<span class="string">'|'</span>,<span class="string">'$|$'</span>);
-0170 str  = strrep(str,<span class="string">'&gt;'</span>,<span class="string">'$&gt;$'</span>);
-0171 str  = strrep(str,<span class="string">'&lt;'</span>,<span class="string">'$&lt;$'</span>);
-0172 <span class="keyword">return</span>;
-0173 
-0174 <span class="comment">%==========================================================================</span></pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0039 <span class="keyword">return</span>
+0040 
+0041 <span class="comment">%==========================================================================</span>
+0042 <a name="_sub1" href="#_subfunctions" class="code">function struct2tex(fp,S,h_skip,i_nest)</a>
+0043 
+0044 <span class="keyword">if</span> nargin&lt;3, h_skip = .5; <span class="keyword">end</span>
+0045 
+0046 fieldn = fieldnames(S);
+0047 <span class="keyword">if</span> i_nest&lt;7
+0048     <span class="comment">% Begin list</span>
+0049     beg_txt = sprintf([<span class="string">'\\begin{list}{$\\bullet$}\n'</span> <span class="keyword">...</span>
+0050         <span class="string">'\t{\\setlength{\\labelsep}{.2cm}'</span> <span class="keyword">...</span>
+0051         <span class="string">'\\setlength{\\itemindent}{0cm}'</span> <span class="keyword">...</span>
+0052         <span class="string">'\\setlength{\\leftmargin}{%2.1fcm}}\n'</span>],h_skip);
+0053     fprintf(fp,<span class="string">'%s'</span>,beg_txt);
+0054     
+0055     <span class="comment">% List of fields</span>
+0056     <span class="keyword">for</span> ii=1:numel(fieldn)
+0057         fprintf(fp,<span class="string">'\\item %s'</span>,<a href="#_sub2" class="code" title="subfunction str = texify(str0)">texify</a>(fieldn{ii}));
+0058         <span class="keyword">if</span> numel(S)&gt;1
+0059             fprintf(fp,<span class="string">'()\n'</span>);
+0060         <span class="keyword">else</span>
+0061             fprintf(fp,<span class="string">'\n'</span>);
+0062         <span class="keyword">end</span>
+0063         <span class="keyword">if</span> isstruct(S(1).(fieldn{ii})) &amp; ~isempty(S(1).(fieldn{ii}))
+0064             <a href="#_sub1" class="code" title="subfunction struct2tex(fp,S,h_skip,i_nest)">struct2tex</a>(fp,S(1).(fieldn{ii}),h_skip+.5,i_nest+1);
+0065         <span class="keyword">end</span>
+0066     <span class="keyword">end</span>
+0067     
+0068     <span class="comment">% End list</span>
+0069     end_txt = <span class="string">'\end{list}'</span>;
+0070     fprintf(fp,<span class="string">'%s\n'</span>,end_txt);
+0071 <span class="keyword">else</span>
+0072     <span class="comment">% Too many nested lists for Latex to handle!</span>
+0073     
+0074     <span class="comment">% TODO: deal with this case!</span>
+0075 <span class="keyword">end</span>
+0076 <span class="keyword">return</span>
+0077 
+0078 <span class="comment">%==========================================================================</span>
+0079 <a name="_sub2" href="#_subfunctions" class="code">function str = texify(str0)</a>
+0080 st1  = strfind(str0,<span class="string">'/*'</span>);
+0081 en1  = strfind(str0,<span class="string">'*/'</span>);
+0082 st = [];
+0083 en = [];
+0084 <span class="keyword">for</span> i=1:numel(st1),
+0085     en1  = en1(en1&gt;st1(i));
+0086     <span class="keyword">if</span> ~isempty(en1),
+0087         st  = [st st1(i)];
+0088         en  = [en en1(1)];
+0089         en1 = en1(2:end);
+0090     <span class="keyword">end</span>;
+0091 <span class="keyword">end</span>;
+0092 
+0093 str = [];
+0094 pen = 1;
+0095 <span class="keyword">for</span> i=1:numel(st),
+0096     str = [str <a href="#_sub3" class="code" title="subfunction str = clean_latex(str)">clean_latex</a>(str0(pen:st(i)-1)) str0(st(i)+2:en(i)-1)];
+0097     pen = en(i)+2;
+0098 <span class="keyword">end</span>;
+0099 str = [str <a href="#_sub3" class="code" title="subfunction str = clean_latex(str)">clean_latex</a>(str0(pen:numel(str0)))];
+0100 <span class="keyword">return</span>;
+0101 
+0102 <span class="comment">%==========================================================================</span>
+0103 <a name="_sub3" href="#_subfunctions" class="code">function str = clean_latex(str)</a>
+0104 str  = strrep(str,<span class="string">'$'</span>,<span class="string">'\$'</span>);
+0105 str  = strrep(str,<span class="string">'&amp;'</span>,<span class="string">'\&amp;'</span>);
+0106 str  = strrep(str,<span class="string">'^'</span>,<span class="string">'\^'</span>);
+0107 str  = strrep(str,<span class="string">'_'</span>,<span class="string">'\_'</span>);
+0108 str  = strrep(str,<span class="string">'#'</span>,<span class="string">'\#'</span>);
+0109 <span class="comment">%str  = strrep(str,'\','$\\$');</span>
+0110 str  = strrep(str,<span class="string">'|'</span>,<span class="string">'$|$'</span>);
+0111 str  = strrep(str,<span class="string">'&gt;'</span>,<span class="string">'$&gt;$'</span>);
+0112 str  = strrep(str,<span class="string">'&lt;'</span>,<span class="string">'$&lt;$'</span>);
+0113 <span class="keyword">return</span>;
+0114 
+0115 <span class="comment">%==========================================================================</span></pre></div>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

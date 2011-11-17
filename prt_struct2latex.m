@@ -14,7 +14,8 @@ function prt_struct2latex(S)
 
 if nargin<1,
     f = spm_select(1,'^PRT\.mat','Select a PRT.mat file');
-    load(f)
+    tmp = load(f);
+    S = tmp.PRT;
 end
 
 fp = fopen(fullfile(prt('dir'),'manual','adv_PRTstruct.tex'),'w');

@@ -56,7 +56,7 @@ __________________________________________________________________________
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>	function to apply a data operation to the training, test and</li><li><a href="prt_centre_kernel.html" class="code" title="function [C,C_s,C_ss] = prt_centre_kernel(K,K_s,K_ss)">prt_centre_kernel</a>	FORMAT [C,C_s,C_ss] = Centre_kernel(K,K_s,K_ss)</li><li><a href="prt_cv_opt_param.html" class="code" title="function param=prt_cv_opt_param(PRT,ID,CV)">prt_cv_opt_param</a>	Function to pass optional parameters into the classifier. This is</li><li><a href="prt_stats.html" class="code" title="function stats = prt_stats(model, t,flag)">prt_stats</a>	Function to compute predictions machine performance statistcs statistics</li></ul>
+<li><a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>	function to apply a data operation to the training, test and</li><li><a href="prt_cv_opt_param.html" class="code" title="function param=prt_cv_opt_param(PRT,ID,CV)">prt_cv_opt_param</a>	Function to pass optional parameters into the classifier. This is</li><li><a href="prt_stats.html" class="code" title="function stats = prt_stats(model, t,flag)">prt_stats</a>	Function to compute predictions machine performance statistcs statistics</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 <li><a href="prt_ui_results.html" class="code" title="function varargout = prt_ui_results(varargin)">prt_ui_results</a>	PRT_UI_RESULTS MATLAB code for prt_ui_results.fig</li></ul>
@@ -96,7 +96,7 @@ This function is called by:
 0027 <span class="comment">% Written by J. Mourao-Miranda</span>
 0028 <span class="comment">% $ID: $</span>
 0029 
-0030 prt_dir = [ ];
+0030 prt_dir = [path];
 0031 
 0032 <span class="comment">% % prt_dir = char(regexprep(in.fname,'PRT.mat', ''));</span>
 0033 
@@ -218,7 +218,7 @@ This function is called by:
 0149                 <a href="#_sub1" class="code" title="subfunction [Phi_tr Phi_te Phi_tt] = split_data(Phi_all, tr_idx, te_idx, usebf)">split_data</a>(Phi_all, tr_idx, te_idx, PRT.model(modelid).input.use_kernel);
 0150             
 0151             <span class="comment">%Centre kernel</span>
-0152             [Phi_tr, Phi_te, Phi_tt] = <a href="prt_centre_kernel.html" class="code" title="function [C,C_s,C_ss] = prt_centre_kernel(K,K_s,K_ss)">prt_centre_kernel</a>(Phi_tr, Phi_te, Phi_tt);
+0152             [Phi_tr, Phi_te, Phi_tt] = prt_centre_kernel(Phi_tr, Phi_te, Phi_tt);
 0153             
 0154             <span class="comment">% Assemble data structure to supply to machine</span>
 0155             cvdata.train      = Phi_tr;
@@ -395,6 +395,6 @@ This function is called by:
 0326     <span class="keyword">end</span>
 0327 <span class="keyword">end</span>
 0328 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

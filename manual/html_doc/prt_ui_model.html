@@ -65,7 +65,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function prt_ui_model_OpeningFcn(hObject, eventdata, handles, varargin)</a></li><li><a href="#_sub2" class="code">function varargout = prt_ui_model_OutputFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub3" class="code">function br_prt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub4" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub5" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub6" class="code">function edit_modelname_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub7" class="code">function edit_modelname_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub8" class="code">function pop_featset_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub9" class="code">function pop_featset_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub10" class="code">function usekern_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub11" class="code">function pop_reg_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub12" class="code">function pop_reg_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub13" class="code">function butt_defclass_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub14" class="code">function pop_machine_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub15" class="code">function pop_machine_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub16" class="code">function pop_cv_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub17" class="code">function pop_cv_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub18" class="code">function pop_datop_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub19" class="code">function pop_datop_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub20" class="code">function buildbutt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub21" class="code">function specbutt_Callback(hObject, eventdata, handles)</a></li></ul>
+<li><a href="#_sub1" class="code">function prt_ui_model_OpeningFcn(hObject, eventdata, handles, varargin)</a></li><li><a href="#_sub2" class="code">function varargout = prt_ui_model_OutputFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub3" class="code">function br_prt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub4" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub5" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub6" class="code">function edit_modelname_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub7" class="code">function edit_modelname_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub8" class="code">function pop_featset_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub9" class="code">function pop_featset_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub10" class="code">function usekern_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub11" class="code">function pop_reg_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub12" class="code">function pop_reg_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub13" class="code">function butt_defclass_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub14" class="code">function pop_machine_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub15" class="code">function pop_machine_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub16" class="code">function pop_cv_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub17" class="code">function pop_cv_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub18" class="code">function uns_list_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub19" class="code">function uns_list_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub20" class="code">function sel_list_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub21" class="code">function sel_list_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub22" class="code">function buildbutt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub23" class="code">function specbutt_Callback(hObject, eventdata, handles)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = prt_ui_model(varargin)</a>
@@ -96,11 +96,11 @@ This function is called by:
 0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0027 
 0028 <span class="comment">% Written by J. Schrouff</span>
-0029 <span class="comment">% $Id: prt_ui_model.m 370 2011-11-12 15:30:53Z cphillip $</span>
+0029 <span class="comment">% $Id: prt_ui_model.m 383 2011-11-15 17:11:58Z schrouff $</span>
 0030 
 0031 <span class="comment">% Edit the above text to modify the response to help prt_ui_kernel_construction</span>
 0032 
-0033 <span class="comment">% Last Modified by GUIDE v2.5 01-Nov-2011 17:19:14</span>
+0033 <span class="comment">% Last Modified by GUIDE v2.5 15-Nov-2011 09:31:07</span>
 0034 
 0035 <span class="comment">% Begin initialization code - DO NOT EDIT</span>
 0036 gui_Singleton = 1;
@@ -143,582 +143,647 @@ This function is called by:
 0073 set(handles.pop_cv,<span class="string">'Value'</span>,1)
 0074 handles.cv.type=<span class="string">'loso'</span>;
 0075 handles.cv.mat_file=[];
-0076 set(handles.pop_datop,<span class="string">'String'</span>,{<span class="string">'None'</span>})
-0077 set(handles.pop_datop,<span class="string">'Value'</span>,1)
-0078 handles.operations=[];
-0079 set(handles.pop_reg,<span class="string">'String'</span>,{<span class="string">'Classification'</span>,<span class="string">'Regression'</span>})
-0080 set(handles.pop_reg,<span class="string">'Value'</span>,1)
-0081 handles.type=<span class="string">'classification'</span>;
-0082 set(handles.pop_machine,<span class="string">'String'</span>,{<span class="string">'Binary support vector machine'</span>,<span class="keyword">...</span>
-0083     <span class="string">'Gaussian Process Classification'</span>,<span class="string">'Random Forest'</span>})
-0084 set(handles.pop_machine,<span class="string">'Value'</span>,1)
-0085 handles.machine.function=<span class="string">'prt_machine_svm_bin'</span>;
-0086 handles.machine.args=handles.def.svmargs;
-0087 <span class="comment">% Update handles structure</span>
-0088 guidata(hObject, handles);
-0089 
-0090 <span class="comment">% UIWAIT makes prt_ui_kernel_construction wait for user response (see UIRESUME)</span>
-0091 <span class="comment">% uiwait(handles.figure1);</span>
-0092 
-0093 
-0094 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0095 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_model_OutputFcn(hObject, eventdata, handles) </a>
-0096 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0097 <span class="comment">% hObject    handle to figure</span>
-0098 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0099 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0100 
-0101 <span class="comment">% Get default command line output from handles structure</span>
-0102 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
-0103     varargout{1} = handles.output;
-0104 <span class="keyword">else</span>
-0105     varargout{1}=[];
-0106 <span class="keyword">end</span>
-0107 
-0108 
-0109 
+0076 set(handles.pop_reg,<span class="string">'String'</span>,{<span class="string">'Classification'</span>,<span class="string">'Regression'</span>})
+0077 set(handles.pop_reg,<span class="string">'Value'</span>,1)
+0078 handles.type=<span class="string">'classification'</span>;
+0079 set(handles.pop_machine,<span class="string">'String'</span>,{<span class="string">'Binary support vector machine'</span>,<span class="keyword">...</span>
+0080     <span class="string">'Gaussian Process Classification'</span>,<span class="string">'Random Forest'</span>})
+0081 set(handles.pop_machine,<span class="string">'Value'</span>,1)
+0082 handles.machine.function=<span class="string">'prt_machine_svm_bin'</span>;
+0083 handles.machine.args=handles.def.svmargs;
+0084 list={<span class="string">'Temporal Compression'</span>, <span class="keyword">...</span>
+0085     <span class="string">'Sample averaging'</span>,<span class="keyword">...</span><span class="comment"> %(average samples for each subject/condition)</span>
+0086     <span class="string">'Mean centre features over subjects'</span>,<span class="keyword">...</span>
+0087     <span class="string">'Divide data vectors by their norm'</span>,<span class="keyword">...</span>
+0088     <span class="string">'Perform a GLM (fMRI only)'</span>};
+0089 handles.indop{1}=1:length(list);
+0090 handles.indop{2}=0;
+0091 set(handles.uns_list,<span class="string">'String'</span>,list)
+0092 set(handles.sel_list,<span class="string">'String'</span>,{<span class="string">''</span>})
+0093 handles.operations = [];
+0094 handles.namop=list;
+0095 set(handles.uns_list,<span class="string">'Value'</span>,1)
+0096 set(handles.sel_list,<span class="string">'Value'</span>,1)
+0097 <span class="comment">% Update handles structure</span>
+0098 guidata(hObject, handles);
+0099 
+0100 <span class="comment">% UIWAIT makes prt_ui_kernel_construction wait for user response (see UIRESUME)</span>
+0101 <span class="comment">% uiwait(handles.figure1);</span>
+0102 
+0103 
+0104 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0105 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_model_OutputFcn(hObject, eventdata, handles) </a>
+0106 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0107 <span class="comment">% hObject    handle to figure</span>
+0108 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0109 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
 0110 
-0111 <span class="comment">% --- Executes on button press in br_prt.</span>
-0112 <a name="_sub3" href="#_subfunctions" class="code">function br_prt_Callback(hObject, eventdata, handles)</a>
-0113 <span class="comment">% hObject    handle to br_prt (see GCBO)</span>
-0114 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0115 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0116 fname=spm_select(1,<span class="string">'.mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
-0117 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
-0118     clear PRT
-0119 <span class="keyword">end</span>
-0120 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(fname);
-0121 <span class="keyword">if</span> ~isempty(PRT)
-0122     handles.dat=PRT;
-0123     set(handles.edit_prt,<span class="string">'String'</span>,fname);
-0124 <span class="keyword">else</span>
-0125     beep
-0126     disp(<span class="string">'Could not load file'</span>)
-0127     <span class="keyword">return</span>
-0128 <span class="keyword">end</span>
-0129 
-0130 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'fs'</span>)
-0131     beep
-0132     disp(<span class="string">'No feature set found in the PRT.mat'</span>)
-0133     disp(<span class="string">'Please, prepare feature set before computing model'</span>)
-0134     <span class="keyword">return</span>
-0135 <span class="keyword">end</span>
-0136 set(handles.pop_featset,<span class="string">'String'</span>,{PRT.fs(:).fs_name})
-0137 set(handles.pop_featset,<span class="string">'Value'</span>,1)
-0138 list=get(handles.pop_featset,<span class="string">'String'</span>);
-0139 handles.fs(1).fs_name=list{1};
-0140 handles.fs(1).indfs=1;
-0141 
-0142 <span class="comment">% Update handles structure</span>
-0143 guidata(hObject, handles);
-0144 
-0145 
-0146 
-0147 <a name="_sub4" href="#_subfunctions" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a>
-0148 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
-0149 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0150 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0111 <span class="comment">% Get default command line output from handles structure</span>
+0112 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
+0113     varargout{1} = handles.output;
+0114 <span class="keyword">else</span>
+0115     varargout{1}=[];
+0116 <span class="keyword">end</span>
+0117 
+0118 
+0119 
+0120 
+0121 <span class="comment">% --- Executes on button press in br_prt.</span>
+0122 <a name="_sub3" href="#_subfunctions" class="code">function br_prt_Callback(hObject, eventdata, handles)</a>
+0123 <span class="comment">% hObject    handle to br_prt (see GCBO)</span>
+0124 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0125 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0126 fname=spm_select(1,<span class="string">'.mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
+0127 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0128     clear PRT
+0129 <span class="keyword">end</span>
+0130 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(fname);
+0131 <span class="keyword">if</span> ~isempty(PRT)
+0132     handles.dat=PRT;
+0133     set(handles.edit_prt,<span class="string">'String'</span>,fname);
+0134 <span class="keyword">else</span>
+0135     beep
+0136     disp(<span class="string">'Could not load file'</span>)
+0137     <span class="keyword">return</span>
+0138 <span class="keyword">end</span>
+0139 
+0140 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'fs'</span>)
+0141     beep
+0142     disp(<span class="string">'No feature set found in the PRT.mat'</span>)
+0143     disp(<span class="string">'Please, prepare feature set before computing model'</span>)
+0144     <span class="keyword">return</span>
+0145 <span class="keyword">end</span>
+0146 set(handles.pop_featset,<span class="string">'String'</span>,{PRT.fs(:).fs_name})
+0147 set(handles.pop_featset,<span class="string">'Value'</span>,1)
+0148 list=get(handles.pop_featset,<span class="string">'String'</span>);
+0149 handles.fs(1).fs_name=list{1};
+0150 handles.fs(1).indfs=1;
 0151 
-0152 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_prt as text</span>
-0153 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_prt as a double</span>
-0154 fname=get(handles.edit_prt,<span class="string">'String'</span>);
-0155 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
-0156     clear PRT
-0157 <span class="keyword">end</span>
-0158 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(fname);
-0159 <span class="keyword">if</span> ~isempty(PRT)
-0160     handles.dat=PRT;
-0161     set(handles.edit_prt,<span class="string">'String'</span>,fname);
-0162 <span class="keyword">else</span>
-0163     beep
-0164     disp(<span class="string">'Could not load file'</span>)
-0165     <span class="keyword">return</span>
-0166 <span class="keyword">end</span>
-0167 
-0168 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'fs'</span>)
-0169     beep
-0170     disp(<span class="string">'No feature set found in the PRT.mat'</span>)
-0171     disp(<span class="string">'Please, prepare feature set before computing model'</span>)
-0172     <span class="keyword">return</span>
-0173 <span class="keyword">end</span>
-0174 set(handles.pop_featset,<span class="string">'String'</span>,{PRT.fs(:).fs_name})
-0175 set(handles.pop_featset,<span class="string">'Value'</span>,1)
-0176 list=get(handles.pop_featset,<span class="string">'String'</span>);
-0177 handles.fs(1).fs_name=list{1};
-0178 handles.fs(1).indfs=1;
-0179 
-0180 <span class="comment">% Update handles structure</span>
-0181 guidata(hObject, handles);
-0182 
-0183 
-0184 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0185 <a name="_sub5" href="#_subfunctions" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a>
-0186 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
-0187 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0188 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0152 <span class="comment">% Update handles structure</span>
+0153 guidata(hObject, handles);
+0154 
+0155 
+0156 
+0157 <a name="_sub4" href="#_subfunctions" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a>
+0158 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
+0159 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0160 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0161 
+0162 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_prt as text</span>
+0163 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_prt as a double</span>
+0164 fname=get(handles.edit_prt,<span class="string">'String'</span>);
+0165 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0166     clear PRT
+0167 <span class="keyword">end</span>
+0168 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(fname);
+0169 <span class="keyword">if</span> ~isempty(PRT)
+0170     handles.dat=PRT;
+0171     set(handles.edit_prt,<span class="string">'String'</span>,fname);
+0172 <span class="keyword">else</span>
+0173     beep
+0174     disp(<span class="string">'Could not load file'</span>)
+0175     <span class="keyword">return</span>
+0176 <span class="keyword">end</span>
+0177 
+0178 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'fs'</span>)
+0179     beep
+0180     disp(<span class="string">'No feature set found in the PRT.mat'</span>)
+0181     disp(<span class="string">'Please, prepare feature set before computing model'</span>)
+0182     <span class="keyword">return</span>
+0183 <span class="keyword">end</span>
+0184 set(handles.pop_featset,<span class="string">'String'</span>,{PRT.fs(:).fs_name})
+0185 set(handles.pop_featset,<span class="string">'Value'</span>,1)
+0186 list=get(handles.pop_featset,<span class="string">'String'</span>);
+0187 handles.fs(1).fs_name=list{1};
+0188 handles.fs(1).indfs=1;
 0189 
-0190 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0191 <span class="comment">%       See ISPC and COMPUTER.</span>
-0192 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0193     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0194 <span class="keyword">end</span>
-0195 
-0196 <a name="_sub6" href="#_subfunctions" class="code">function edit_modelname_Callback(hObject, eventdata, handles)</a>
-0197 <span class="comment">% hObject    handle to edit_modelname (see GCBO)</span>
-0198 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0199 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0200 
-0201 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_modelname as text</span>
-0202 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_modelname as a double</span>
-0203 handles.model_name=get(handles.edit_modelname,<span class="string">'String'</span>);
-0204 <span class="keyword">if</span> ~(prt_checkAlphaNumUnder(handles.model_name))
-0205     beep
-0206     disp(<span class="string">'Model name should be entered in alphanumeric format only'</span>)
-0207     disp(<span class="string">'Please correct'</span>)
-0208     <span class="keyword">return</span>
-0209 <span class="keyword">end</span>
-0210 <span class="comment">% Update handles structure</span>
-0211 guidata(hObject, handles);
-0212 
-0213 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0214 <a name="_sub7" href="#_subfunctions" class="code">function edit_modelname_CreateFcn(hObject, eventdata, handles)</a>
-0215 <span class="comment">% hObject    handle to edit_modelname (see GCBO)</span>
-0216 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0217 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0218 
-0219 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0220 <span class="comment">%       See ISPC and COMPUTER.</span>
-0221 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0222     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0223 <span class="keyword">end</span>
-0224 
-0225 <span class="comment">% --- Executes on selection change in pop_featset.</span>
-0226 <a name="_sub8" href="#_subfunctions" class="code">function pop_featset_Callback(hObject, eventdata, handles)</a>
-0227 <span class="comment">% hObject    handle to pop_featset (see GCBO)</span>
-0228 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0229 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0230 
-0231 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_featset contents as cell array</span>
-0232 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_featset</span>
-0233 val=get(handles.pop_featset,<span class="string">'Value'</span>);
-0234 <span class="keyword">if</span> val==0
-0235     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0236     set(handles.pop_feaset,<span class="string">'Value'</span>,1)
-0237     val=1;
-0238 <span class="keyword">end</span>
-0239 list=get(handles.pop_featset,<span class="string">'String'</span>);
-0240 handles.fs(1).fs_name=list{val};
-0241 handles.fs(1).indfs=val;
-0242 <span class="comment">% Update handles structure</span>
-0243 guidata(hObject, handles);
-0244 
-0245 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0246 <a name="_sub9" href="#_subfunctions" class="code">function pop_featset_CreateFcn(hObject, eventdata, handles)</a>
-0247 <span class="comment">% hObject    handle to pop_featset (see GCBO)</span>
-0248 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0249 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0250 
-0251 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0252 <span class="comment">%       See ISPC and COMPUTER.</span>
-0253 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0254     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0255 <span class="keyword">end</span>
-0256 
-0257 
-0258 <span class="comment">% --- Executes on button press in usekern.</span>
-0259 <a name="_sub10" href="#_subfunctions" class="code">function usekern_Callback(hObject, eventdata, handles)</a>
-0260 <span class="comment">% hObject    handle to usekern (see GCBO)</span>
-0261 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0262 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0263 
-0264 <span class="comment">% Hint: get(hObject,'Value') returns toggle state of usekern</span>
-0265 handles.use_kernel=get(handles.usekern,<span class="string">'Value'</span>);
-0266 <span class="comment">% Update handles structure</span>
-0267 guidata(hObject, handles);
-0268 
-0269 
-0270 <span class="comment">% --- Executes on selection change in pop_reg.</span>
-0271 <a name="_sub11" href="#_subfunctions" class="code">function pop_reg_Callback(hObject, eventdata, handles)</a>
-0272 <span class="comment">% hObject    handle to pop_reg (see GCBO)</span>
-0273 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0274 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0275 
-0276 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_reg contents as cell array</span>
-0277 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_reg</span>
-0278 val=get(handles.pop_reg,<span class="string">'Value'</span>);
-0279 <span class="keyword">if</span> val==0
-0280     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0281     set(handles.pop_reg,<span class="string">'Value'</span>,1)
-0282     val=1;
-0283 <span class="keyword">end</span>
-0284 <span class="keyword">if</span> val==1 <span class="comment">%Classification</span>
-0285     handles.type=<span class="string">'classification'</span>;
-0286     <span class="comment">%set the list of machines</span>
-0287     set(handles.pop_machine,<span class="string">'String'</span>,{<span class="string">'Binary support vector machine'</span>,<span class="keyword">...</span>
-0288         <span class="string">'Gaussian Process Classification'</span>,<span class="string">'Random Forest'</span>})
-0289     set(handles.pop_machine,<span class="string">'Value'</span>,1)
-0290     handles.machine.function=<span class="string">'prt_machine_svm_bin'</span>;
-0291     handles.machine.args=handles.def.svmargs;
-0292     set(handles.butt_defclass,<span class="string">'String'</span>,<span class="string">'Define classes'</span>)
-0293 <span class="keyword">elseif</span> val==2
-0294     handles.type=<span class="string">'regression'</span>;
-0295     set(handles.butt_defclass,<span class="string">'String'</span>,<span class="string">'Select subjects/scans'</span>)
+0190 <span class="comment">% Update handles structure</span>
+0191 guidata(hObject, handles);
+0192 
+0193 
+0194 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0195 <a name="_sub5" href="#_subfunctions" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a>
+0196 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
+0197 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0198 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0199 
+0200 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0201 <span class="comment">%       See ISPC and COMPUTER.</span>
+0202 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0203     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0204 <span class="keyword">end</span>
+0205 
+0206 <a name="_sub6" href="#_subfunctions" class="code">function edit_modelname_Callback(hObject, eventdata, handles)</a>
+0207 <span class="comment">% hObject    handle to edit_modelname (see GCBO)</span>
+0208 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0209 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0210 
+0211 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_modelname as text</span>
+0212 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_modelname as a double</span>
+0213 handles.model_name=get(handles.edit_modelname,<span class="string">'String'</span>);
+0214 <span class="keyword">if</span> ~(prt_checkAlphaNumUnder(handles.model_name))
+0215     beep
+0216     disp(<span class="string">'Model name should be entered in alphanumeric format only'</span>)
+0217     disp(<span class="string">'Please correct'</span>)
+0218     <span class="keyword">return</span>
+0219 <span class="keyword">end</span>
+0220 <span class="comment">% Update handles structure</span>
+0221 guidata(hObject, handles);
+0222 
+0223 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0224 <a name="_sub7" href="#_subfunctions" class="code">function edit_modelname_CreateFcn(hObject, eventdata, handles)</a>
+0225 <span class="comment">% hObject    handle to edit_modelname (see GCBO)</span>
+0226 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0227 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0228 
+0229 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0230 <span class="comment">%       See ISPC and COMPUTER.</span>
+0231 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0232     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0233 <span class="keyword">end</span>
+0234 
+0235 <span class="comment">% --- Executes on selection change in pop_featset.</span>
+0236 <a name="_sub8" href="#_subfunctions" class="code">function pop_featset_Callback(hObject, eventdata, handles)</a>
+0237 <span class="comment">% hObject    handle to pop_featset (see GCBO)</span>
+0238 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0239 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0240 
+0241 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_featset contents as cell array</span>
+0242 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_featset</span>
+0243 val=get(handles.pop_featset,<span class="string">'Value'</span>);
+0244 <span class="keyword">if</span> val==0
+0245     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0246     set(handles.pop_feaset,<span class="string">'Value'</span>,1)
+0247     val=1;
+0248 <span class="keyword">end</span>
+0249 list=get(handles.pop_featset,<span class="string">'String'</span>);
+0250 handles.fs(1).fs_name=list{val};
+0251 handles.fs(1).indfs=val;
+0252 <span class="comment">% Update handles structure</span>
+0253 guidata(hObject, handles);
+0254 
+0255 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0256 <a name="_sub9" href="#_subfunctions" class="code">function pop_featset_CreateFcn(hObject, eventdata, handles)</a>
+0257 <span class="comment">% hObject    handle to pop_featset (see GCBO)</span>
+0258 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0259 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0260 
+0261 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0262 <span class="comment">%       See ISPC and COMPUTER.</span>
+0263 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0264     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0265 <span class="keyword">end</span>
+0266 
+0267 
+0268 <span class="comment">% --- Executes on button press in usekern.</span>
+0269 <a name="_sub10" href="#_subfunctions" class="code">function usekern_Callback(hObject, eventdata, handles)</a>
+0270 <span class="comment">% hObject    handle to usekern (see GCBO)</span>
+0271 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0272 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0273 
+0274 <span class="comment">% Hint: get(hObject,'Value') returns toggle state of usekern</span>
+0275 handles.use_kernel=get(handles.usekern,<span class="string">'Value'</span>);
+0276 <span class="comment">% Update handles structure</span>
+0277 guidata(hObject, handles);
+0278 
+0279 
+0280 <span class="comment">% --- Executes on selection change in pop_reg.</span>
+0281 <a name="_sub11" href="#_subfunctions" class="code">function pop_reg_Callback(hObject, eventdata, handles)</a>
+0282 <span class="comment">% hObject    handle to pop_reg (see GCBO)</span>
+0283 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0284 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0285 
+0286 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_reg contents as cell array</span>
+0287 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_reg</span>
+0288 val=get(handles.pop_reg,<span class="string">'Value'</span>);
+0289 <span class="keyword">if</span> val==0
+0290     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0291     set(handles.pop_reg,<span class="string">'Value'</span>,1)
+0292     val=1;
+0293 <span class="keyword">end</span>
+0294 <span class="keyword">if</span> val==1 <span class="comment">%Classification</span>
+0295     handles.type=<span class="string">'classification'</span>;
 0296     <span class="comment">%set the list of machines</span>
-0297     set(handles.pop_machine,<span class="string">'String'</span>,{<span class="string">'Kernel Ridge Regression'</span>,<span class="keyword">...</span>
-0298         <span class="string">'Relevance Vector Regression'</span>})
+0297     set(handles.pop_machine,<span class="string">'String'</span>,{<span class="string">'Binary support vector machine'</span>,<span class="keyword">...</span>
+0298         <span class="string">'Gaussian Process Classification'</span>,<span class="string">'Random Forest'</span>})
 0299     set(handles.pop_machine,<span class="string">'Value'</span>,1)
-0300     handles.machine.function=<span class="string">'prt_machine_krr'</span>;
-0301     handles.machine.args=handles.def.krrargs;
-0302 <span class="keyword">end</span>
-0303 <span class="comment">% Update handles structure</span>
-0304 guidata(hObject, handles);
-0305 
-0306 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0307 <a name="_sub12" href="#_subfunctions" class="code">function pop_reg_CreateFcn(hObject, eventdata, handles)</a>
-0308 <span class="comment">% hObject    handle to pop_reg (see GCBO)</span>
-0309 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0310 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0311 
-0312 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0313 <span class="comment">%       See ISPC and COMPUTER.</span>
-0314 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0315     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0316 <span class="keyword">end</span>
-0317 
-0318 
-0319 
-0320 <span class="comment">% --- Executes on button press in but_defclass.</span>
-0321 <a name="_sub13" href="#_subfunctions" class="code">function butt_defclass_Callback(hObject, eventdata, handles)</a>
-0322 <span class="comment">% hObject    handle to butt_def_class (see GCBO)</span>
-0323 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0324 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0325 <span class="keyword">if</span> strcmpi(handles.type,<span class="string">'classification'</span>)
-0326     speccl=<a href="prt_ui_select_class.html" class="code" title="function varargout = prt_ui_select_class(varargin)">prt_ui_select_class</a>(<span class="string">'UserData'</span>,{handles.dat,handles.fs(1).indfs});
-0327     handles.class=speccl;
-0328 <span class="keyword">else</span>
-0329     sel=<a href="prt_ui_select_reg.html" class="code" title="function varargout = prt_ui_select_reg(varargin)">prt_ui_select_reg</a>(<span class="string">'UserData'</span>,{handles.dat,handles.fs(1).indfs});
-0330     handles.group=sel;
-0331 <span class="keyword">end</span>
-0332 <span class="comment">% Update handles structure</span>
-0333 guidata(hObject, handles);
-0334 
-0335 
-0336 <span class="comment">% --- Executes on selection change in pop_machine.</span>
-0337 <a name="_sub14" href="#_subfunctions" class="code">function pop_machine_Callback(hObject, eventdata, handles)</a>
-0338 <span class="comment">% hObject    handle to pop_machine (see GCBO)</span>
-0339 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0340 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0341 
-0342 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_machine contents as cell array</span>
-0343 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_machine</span>
-0344 mach=get(handles.pop_machine,<span class="string">'String'</span>);
-0345 val=get(handles.pop_machine,<span class="string">'Value'</span>);
-0346 <span class="keyword">if</span> val==0
-0347     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0348     set(handles.pop_machine,<span class="string">'Value'</span>,1)
-0349     val=1;
-0350 <span class="keyword">end</span>
-0351 <span class="keyword">if</span> any(strfind(mach{val},<span class="string">'support'</span>))
-0352     handles.machine.function=<span class="string">'prt_machine_svm_bin'</span>;
-0353     handles.machine.args=handles.def.svmargs;
-0354 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Process'</span>))
-0355     handles.machine.function=<span class="string">'prt_machine_gpml'</span>;
-0356     handles.machine.args=handles.def.gpcargs;
-0357 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Ridge'</span>))
-0358     handles.machine.function=<span class="string">'prt_machine_krr'</span>;
-0359     handles.machine.args=handles.def.krrargs;
-0360 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Relevance'</span>))
-0361     handles.machine.function=<span class="string">'prt_machine_rvr'</span>;
-0362     handles.machine.args=[];
-0363 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Random'</span>))
-0364     handles.machine.function=<span class="string">'prt_machine_RT_bin'</span>;
-0365     handles.machine.args=handles.def.rtargs;    
-0366 <span class="keyword">end</span>
-0367 <span class="comment">% Update handles structure</span>
-0368 guidata(hObject, handles);
-0369 
-0370 
-0371 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0372 <a name="_sub15" href="#_subfunctions" class="code">function pop_machine_CreateFcn(hObject, eventdata, handles)</a>
-0373 <span class="comment">% hObject    handle to pop_machine (see GCBO)</span>
-0374 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0375 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0376 
-0377 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0378 <span class="comment">%       See ISPC and COMPUTER.</span>
-0379 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0380     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0381 <span class="keyword">end</span>
-0382 
-0383 <span class="comment">% --- Executes on selection change in pop_cv.</span>
-0384 <a name="_sub16" href="#_subfunctions" class="code">function pop_cv_Callback(hObject, eventdata, handles)</a>
-0385 <span class="comment">% hObject    handle to pop_cv (see GCBO)</span>
-0386 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0387 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0388 
-0389 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_cv contents as cell array</span>
-0390 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_cv</span>
-0391 <span class="comment">% assemble structure for performing cross-validation</span>
-0392 val=get(handles.pop_cv,<span class="string">'Value'</span>);
-0393 <span class="keyword">if</span> val==0
-0394     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0395     set(handles.pop_cv,<span class="string">'Value'</span>,1)
-0396     val=1;
-0397 <span class="keyword">end</span>
-0398 <span class="keyword">if</span> val==1
-0399     handles.cv.type = <span class="string">'loso'</span>;
-0400 <span class="keyword">elseif</span> val==2
-0401     handles.cv.type = <span class="string">'losgo'</span>;
-0402 <span class="keyword">elseif</span> val==3
-0403     handles.cv.type = <span class="string">'lobo'</span>;
-0404 <span class="keyword">elseif</span> val==4        <span class="comment">%currently implemented for MCKR only</span>
-0405     handles.cv.type = <span class="string">'loro'</span>;
-0406 <span class="keyword">else</span>
-0407     handles.cv.type     = <span class="string">'custom'</span>;
-0408     cvmatf=spm_select(1,<span class="string">'mat'</span>,<span class="string">'Select .mat file corresponding to the custom cross-validation'</span>);
-0409     handles.cv.mat_file = cvmatf;
-0410 <span class="keyword">end</span>
-0411 <span class="comment">% Update handles structure</span>
-0412 guidata(hObject, handles);
-0413 
-0414 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0415 <a name="_sub17" href="#_subfunctions" class="code">function pop_cv_CreateFcn(hObject, eventdata, handles)</a>
-0416 <span class="comment">% hObject    handle to pop_cv (see GCBO)</span>
-0417 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0418 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0419 
-0420 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0421 <span class="comment">%       See ISPC and COMPUTER.</span>
-0422 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0423     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0424 <span class="keyword">end</span>
-0425 
-0426 
-0427 
-0428 <span class="comment">% --- Executes on selection change in pop_datop.</span>
-0429 <a name="_sub18" href="#_subfunctions" class="code">function pop_datop_Callback(hObject, eventdata, handles)</a>
-0430 <span class="comment">% hObject    handle to pop_datop (see GCBO)</span>
-0431 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0432 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0433 
-0434 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_datop contents as cell array</span>
-0435 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from</span>
-0436 <span class="comment">%        pop_datop</span>
-0437 val=get(handles.pop_datop,<span class="string">'Value'</span>);
-0438 <span class="keyword">if</span> val==0
-0439     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0440     set(handles.pop_datop,<span class="string">'Value'</span>,1)
-0441     val=1;
-0442 <span class="keyword">end</span>
-0443 listop=get(handles.pop_datop,<span class="string">'String'</span>);
-0444 <span class="comment">% specify operations to apply to the data prior to prediction</span>
-0445 <span class="keyword">if</span> val==length(listop)
-0446     handles.operations = [];
-0447 <span class="keyword">else</span>
-0448     handles.operations = [handles.operations,{listop{val}}];
+0300     handles.machine.function=<span class="string">'prt_machine_svm_bin'</span>;
+0301     handles.machine.args=handles.def.svmargs;
+0302     set(handles.butt_defclass,<span class="string">'String'</span>,<span class="string">'Define classes'</span>)
+0303 <span class="keyword">elseif</span> val==2
+0304     handles.type=<span class="string">'regression'</span>;
+0305     set(handles.butt_defclass,<span class="string">'String'</span>,<span class="string">'Select subjects/scans'</span>)
+0306     <span class="comment">%set the list of machines</span>
+0307     set(handles.pop_machine,<span class="string">'String'</span>,{<span class="string">'Kernel Ridge Regression'</span>,<span class="keyword">...</span>
+0308         <span class="string">'Relevance Vector Regression'</span>})
+0309     set(handles.pop_machine,<span class="string">'Value'</span>,1)
+0310     handles.machine.function=<span class="string">'prt_machine_krr'</span>;
+0311     handles.machine.args=handles.def.krrargs;
+0312 <span class="keyword">end</span>
+0313 <span class="comment">% Update handles structure</span>
+0314 guidata(hObject, handles);
+0315 
+0316 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0317 <a name="_sub12" href="#_subfunctions" class="code">function pop_reg_CreateFcn(hObject, eventdata, handles)</a>
+0318 <span class="comment">% hObject    handle to pop_reg (see GCBO)</span>
+0319 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0320 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0321 
+0322 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0323 <span class="comment">%       See ISPC and COMPUTER.</span>
+0324 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0325     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0326 <span class="keyword">end</span>
+0327 
+0328 
+0329 
+0330 <span class="comment">% --- Executes on button press in but_defclass.</span>
+0331 <a name="_sub13" href="#_subfunctions" class="code">function butt_defclass_Callback(hObject, eventdata, handles)</a>
+0332 <span class="comment">% hObject    handle to butt_def_class (see GCBO)</span>
+0333 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0334 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0335 <span class="keyword">if</span> strcmpi(handles.type,<span class="string">'classification'</span>)
+0336     speccl=<a href="prt_ui_select_class.html" class="code" title="function varargout = prt_ui_select_class(varargin)">prt_ui_select_class</a>(<span class="string">'UserData'</span>,{handles.dat,handles.fs(1).indfs});
+0337     handles.class=speccl;
+0338 <span class="keyword">else</span>
+0339     sel=<a href="prt_ui_select_reg.html" class="code" title="function varargout = prt_ui_select_reg(varargin)">prt_ui_select_reg</a>(<span class="string">'UserData'</span>,{handles.dat,handles.fs(1).indfs});
+0340     handles.group=sel;
+0341 <span class="keyword">end</span>
+0342 <span class="comment">% Update handles structure</span>
+0343 guidata(hObject, handles);
+0344 
+0345 
+0346 <span class="comment">% --- Executes on selection change in pop_machine.</span>
+0347 <a name="_sub14" href="#_subfunctions" class="code">function pop_machine_Callback(hObject, eventdata, handles)</a>
+0348 <span class="comment">% hObject    handle to pop_machine (see GCBO)</span>
+0349 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0350 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0351 
+0352 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_machine contents as cell array</span>
+0353 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_machine</span>
+0354 mach=get(handles.pop_machine,<span class="string">'String'</span>);
+0355 val=get(handles.pop_machine,<span class="string">'Value'</span>);
+0356 <span class="keyword">if</span> val==0
+0357     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0358     set(handles.pop_machine,<span class="string">'Value'</span>,1)
+0359     val=1;
+0360 <span class="keyword">end</span>
+0361 <span class="keyword">if</span> any(strfind(mach{val},<span class="string">'support'</span>))
+0362     handles.machine.function=<span class="string">'prt_machine_svm_bin'</span>;
+0363     handles.machine.args=handles.def.svmargs;
+0364 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Process'</span>))
+0365     handles.machine.function=<span class="string">'prt_machine_gpml'</span>;
+0366     handles.machine.args=handles.def.gpcargs;
+0367 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Ridge'</span>))
+0368     handles.machine.function=<span class="string">'prt_machine_krr'</span>;
+0369     handles.machine.args=handles.def.krrargs;
+0370 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Relevance'</span>))
+0371     handles.machine.function=<span class="string">'prt_machine_rvr'</span>;
+0372     handles.machine.args=[];
+0373 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Random'</span>))
+0374     handles.machine.function=<span class="string">'prt_machine_RT_bin'</span>;
+0375     handles.machine.args=handles.def.rtargs;    
+0376 <span class="keyword">end</span>
+0377 <span class="comment">% Update handles structure</span>
+0378 guidata(hObject, handles);
+0379 
+0380 
+0381 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0382 <a name="_sub15" href="#_subfunctions" class="code">function pop_machine_CreateFcn(hObject, eventdata, handles)</a>
+0383 <span class="comment">% hObject    handle to pop_machine (see GCBO)</span>
+0384 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0385 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0386 
+0387 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0388 <span class="comment">%       See ISPC and COMPUTER.</span>
+0389 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0390     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0391 <span class="keyword">end</span>
+0392 
+0393 <span class="comment">% --- Executes on selection change in pop_cv.</span>
+0394 <a name="_sub16" href="#_subfunctions" class="code">function pop_cv_Callback(hObject, eventdata, handles)</a>
+0395 <span class="comment">% hObject    handle to pop_cv (see GCBO)</span>
+0396 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0397 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0398 
+0399 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_cv contents as cell array</span>
+0400 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_cv</span>
+0401 <span class="comment">% assemble structure for performing cross-validation</span>
+0402 val=get(handles.pop_cv,<span class="string">'Value'</span>);
+0403 <span class="keyword">if</span> val==0
+0404     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0405     set(handles.pop_cv,<span class="string">'Value'</span>,1)
+0406     val=1;
+0407 <span class="keyword">end</span>
+0408 <span class="keyword">if</span> val==1
+0409     handles.cv.type = <span class="string">'loso'</span>;
+0410 <span class="keyword">elseif</span> val==2
+0411     handles.cv.type = <span class="string">'losgo'</span>;
+0412 <span class="keyword">elseif</span> val==3
+0413     handles.cv.type = <span class="string">'lobo'</span>;
+0414 <span class="keyword">elseif</span> val==4        <span class="comment">%currently implemented for MCKR only</span>
+0415     handles.cv.type = <span class="string">'loro'</span>;
+0416 <span class="keyword">else</span>
+0417     handles.cv.type     = <span class="string">'custom'</span>;
+0418     cvmatf=spm_select(1,<span class="string">'mat'</span>,<span class="string">'Select .mat file corresponding to the custom cross-validation'</span>);
+0419     handles.cv.mat_file = cvmatf;
+0420 <span class="keyword">end</span>
+0421 <span class="comment">% Update handles structure</span>
+0422 guidata(hObject, handles);
+0423 
+0424 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0425 <a name="_sub17" href="#_subfunctions" class="code">function pop_cv_CreateFcn(hObject, eventdata, handles)</a>
+0426 <span class="comment">% hObject    handle to pop_cv (see GCBO)</span>
+0427 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0428 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0429 
+0430 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0431 <span class="comment">%       See ISPC and COMPUTER.</span>
+0432 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0433     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0434 <span class="keyword">end</span>
+0435 
+0436 <span class="comment">% --- Executes on selection change in uns_list.</span>
+0437 <a name="_sub18" href="#_subfunctions" class="code">function uns_list_Callback(hObject, eventdata, handles)</a>
+0438 <span class="comment">% hObject    handle to uns_list (see GCBO)</span>
+0439 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0440 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0441 
+0442 <span class="comment">% Hints: contents = get(hObject,'String') returns uns_list contents as cell array</span>
+0443 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from uns_list</span>
+0444 val=get(handles.uns_list,<span class="string">'Value'</span>);
+0445 <span class="keyword">if</span> val==0
+0446     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0447     set(handles.uns_list,<span class="string">'Value'</span>,1)
+0448     val=1;
 0449 <span class="keyword">end</span>
-0450 handles.operations=unique(handles.operations);
-0451 <span class="comment">% Update handles structure</span>
-0452 guidata(hObject, handles);
-0453 
-0454 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0455 <a name="_sub19" href="#_subfunctions" class="code">function pop_datop_CreateFcn(hObject, eventdata, handles)</a>
-0456 <span class="comment">% hObject    handle to pop_datop (see GCBO)</span>
-0457 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0458 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0459 
-0460 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0461 <span class="comment">%       See ISPC and COMPUTER.</span>
-0462 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0463     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0464 <span class="keyword">end</span>
-0465 
-0466 <span class="comment">% --- Executes on button press in buildbutt.</span>
-0467 <a name="_sub20" href="#_subfunctions" class="code">function buildbutt_Callback(hObject, eventdata, handles)</a>
-0468 <span class="comment">% hObject    handle to buildbutt (see GCBO)</span>
-0469 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0470 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0471 
-0472 <span class="comment">%fill the input of the 'prt_model' button</span>
-0473 in.fname=get(handles.edit_prt,<span class="string">'String'</span>);
-0474 in.model_name=handles.model_name;
-0475 in.type=handles.type;
-0476 in.machine=handles.machine;
-0477 in.use_kernel=handles.use_kernel;
-0478 in.operations=handles.operations;
-0479 in.fs(1).fs_name=handles.fs(1).fs_name;
-0480 in.cv=handles.cv;
-0481 <span class="comment">%check that classes/subjects/scans were defined</span>
-0482 <span class="keyword">if</span> strcmpi(in.type,<span class="string">'classification'</span>)
-0483     <span class="keyword">if</span> ~isfield(handles,<span class="string">'class'</span>)
-0484         beep
-0485         disp(<span class="string">'No class selected for classification'</span>)
-0486         disp(<span class="string">'Please, define classes'</span>)
-0487         <span class="keyword">return</span>
-0488     <span class="keyword">else</span>
-0489         <span class="keyword">for</span> i=1:length(handles.class)
-0490             ind=[];
-0491             <span class="keyword">for</span> g=1:length(handles.class(i).group)
-0492                 <span class="keyword">if</span> ~isempty(handles.class(i).group(g).gr_name)
-0493                     ind=[ind,g];
-0494                 <span class="keyword">end</span>
-0495             <span class="keyword">end</span>
-0496             handles.class(i).group=handles.class(i).group(ind);
-0497         <span class="keyword">end</span>
-0498         in.class=handles.class;
-0499     <span class="keyword">end</span>
-0500 <span class="keyword">else</span>
-0501     <span class="keyword">if</span> ~isfield(handles,<span class="string">'group'</span>)
-0502         beep
-0503         disp(<span class="string">'No subjects/scans selected for classification'</span>)
-0504         disp(<span class="string">'Please, select subjects/scans'</span>)
-0505         <span class="keyword">return</span>
-0506     <span class="keyword">else</span>
-0507         ind=[];
-0508         <span class="keyword">for</span> g=1:length(handles.group)
-0509             <span class="keyword">if</span> ~isempty(handles.group(g).gr_name)
-0510                 ind=[ind,g];
-0511             <span class="keyword">end</span>
-0512         <span class="keyword">end</span>
-0513         handles.group=handles.group(ind);
-0514         in.group=handles.group;
-0515     <span class="keyword">end</span>
-0516 <span class="keyword">end</span>
-0517 
-0518 <span class="comment">%checks on the CV framework compared to the model entered</span>
-0519 <span class="keyword">if</span> strcmpi(in.cv.type,<span class="string">'lobo'</span>)
-0520     <span class="keyword">if</span> ~isfield(in,<span class="string">'class'</span>)
-0521         beep
-0522         disp(<span class="string">'Leave One Block Out cross-validation only allowed for classification'</span>)
-0523         disp(<span class="string">'Please correct'</span>)
-0524         <span class="keyword">return</span>
-0525     <span class="keyword">else</span>
-0526         <span class="keyword">for</span> c=1:length(in.class)
-0527             <span class="keyword">for</span> i=1:length(in.class(c).group)
-0528                 <span class="keyword">if</span> length(in.class(c).group(i).subj)&gt;1
-0529                     beep
-0530                     disp(<span class="string">'Leave One Block Out cross-validation only allowed for within-subject classification'</span>)
-0531                     disp(<span class="string">'Please correct'</span>)
-0532                     <span class="keyword">return</span>
-0533                 <span class="keyword">end</span>
-0534             <span class="keyword">end</span>
-0535         <span class="keyword">end</span>
-0536     <span class="keyword">end</span>
-0537 <span class="keyword">end</span>
-0538 <span class="keyword">if</span> ~isfield(in,<span class="string">'class'</span>)
-0539     <span class="keyword">if</span> ~strcmpi(in.cv.type,<span class="string">'loso'</span>)
-0540         beep
-0541         disp(<span class="string">'Regression only allows a Leave One Subject Out cross-validation'</span>)
-0542         disp(<span class="string">'Please correct'</span>)
-0543     <span class="keyword">end</span>
-0544 <span class="keyword">end</span>
-0545 PRT=<a href="prt_model.html" class="code" title="function PRT = prt_model(PRT,in)">prt_model</a>(handles.dat,in);
-0546 clear in
-0547 in.fname      = get(handles.edit_prt,<span class="string">'String'</span>);
-0548 in.model_name = handles.model_name;
-0549 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
-0550     clear PRT
-0551 <span class="keyword">end</span>
-0552 load(in.fname)
-0553 mid = <a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>(PRT, in);
-0554 <span class="comment">% Special cross-validation for MCKR</span>
-0555 <span class="keyword">if</span> strcmpi(PRT.model(mid).input.machine.function,<span class="string">'prt_machine_mckr'</span>)
-0556     prt_cv_mckr(PRT,in);
-0557 <span class="keyword">else</span>
-0558     <a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>(PRT, in);
-0559 <span class="keyword">end</span>
-0560 disp(<span class="string">'Model specification and estimation complete.'</span>)
-0561 disp(<span class="string">'Done...'</span>)
-0562 delete(handles.figure1)
-0563 
-0564 
-0565 <span class="comment">% --- Executes on button press in buildbutt.</span>
-0566 <a name="_sub21" href="#_subfunctions" class="code">function specbutt_Callback(hObject, eventdata, handles)</a>
-0567 <span class="comment">% hObject    handle to buildbutt (see GCBO)</span>
-0568 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0569 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0570 
-0571 <span class="comment">%fill the input of the 'prt_model' button</span>
-0572 in.fname=get(handles.edit_prt,<span class="string">'String'</span>);
-0573 in.model_name=handles.model_name;
-0574 in.type=handles.type;
-0575 in.machine=handles.machine;
-0576 in.use_kernel=handles.use_kernel;
-0577 in.operations=handles.operations;
-0578 in.fs(1).fs_name=handles.fs(1).fs_name;
-0579 in.cv=handles.cv;
-0580 <span class="comment">%check that classes/subjects/scans were defined</span>
-0581 <span class="keyword">if</span> strcmpi(in.type,<span class="string">'classification'</span>)
-0582     <span class="keyword">if</span> ~isfield(handles,<span class="string">'class'</span>)
-0583         beep
-0584         disp(<span class="string">'No class selected for classification'</span>)
-0585         disp(<span class="string">'Please, define classes'</span>)
-0586         <span class="keyword">return</span>
-0587     <span class="keyword">else</span>
-0588         <span class="keyword">for</span> i=1:length(handles.class)
-0589             ind=[];
-0590             <span class="keyword">for</span> g=1:length(handles.class(i).group)
-0591                 <span class="keyword">if</span> ~isempty(handles.class(i).group(g).gr_name)
-0592                     ind=[ind,g];
-0593                 <span class="keyword">end</span>
-0594             <span class="keyword">end</span>
-0595             handles.class(i).group=handles.class(i).group(ind);
-0596         <span class="keyword">end</span>
-0597         in.class=handles.class;
-0598     <span class="keyword">end</span>
-0599 <span class="keyword">else</span>
-0600     <span class="keyword">if</span> ~isfield(handles,<span class="string">'group'</span>)
-0601         beep
-0602         disp(<span class="string">'No subjects/scans selected for classification'</span>)
-0603         disp(<span class="string">'Please, select subjects/scans'</span>)
-0604         <span class="keyword">return</span>
-0605     <span class="keyword">else</span>
-0606         ind=[];
-0607         <span class="keyword">for</span> g=1:length(handles.group)
-0608             <span class="keyword">if</span> ~isempty(handles.group(g).gr_name)
-0609                 ind=[ind,g];
-0610             <span class="keyword">end</span>
-0611         <span class="keyword">end</span>
-0612         handles.group=handles.group(ind);
-0613         in.group=handles.group;
-0614     <span class="keyword">end</span>
-0615 <span class="keyword">end</span>
-0616 
-0617 <span class="comment">%checks on the CV framework compared to the model entered</span>
-0618 <span class="keyword">if</span> strcmpi(in.cv.type,<span class="string">'lobo'</span>)
-0619     <span class="keyword">if</span> ~isfield(in,<span class="string">'class'</span>)
-0620         beep
-0621         disp(<span class="string">'Leave One Block Out cross-validation only allowed for classification'</span>)
-0622         disp(<span class="string">'Please correct'</span>)
-0623         <span class="keyword">return</span>
-0624     <span class="keyword">else</span>
-0625         <span class="keyword">for</span> c=1:length(in.class)
-0626             <span class="keyword">for</span> i=1:length(in.class(c).group)
-0627                 <span class="keyword">if</span> length(in.class(c).group(i).subj)&gt;1
-0628                     beep
-0629                     disp(<span class="string">'Leave One Block Out cross-validation only allowed for within-subject classification'</span>)
-0630                     disp(<span class="string">'Please correct'</span>)
-0631                     <span class="keyword">return</span>
-0632                 <span class="keyword">end</span>
-0633             <span class="keyword">end</span>
-0634         <span class="keyword">end</span>
-0635     <span class="keyword">end</span>
-0636 <span class="keyword">end</span>
-0637 <span class="keyword">if</span> ~isfield(in,<span class="string">'class'</span>)
-0638     <span class="keyword">if</span> ~strcmpi(in.cv.type,<span class="string">'loso'</span>)
-0639         beep
-0640         disp(<span class="string">'Regression only allows a Leave One Subject Out cross-validation'</span>)
-0641         disp(<span class="string">'Please correct'</span>)
-0642     <span class="keyword">end</span>
-0643 <span class="keyword">end</span>
-0644 
-0645 <a href="prt_model.html" class="code" title="function PRT = prt_model(PRT,in)">prt_model</a>(handles.dat,in);
-0646 
-0647 disp(<span class="string">'Model specification complete.'</span>)
-0648 disp(<span class="string">'Done...'</span>)
-0649 delete(handles.figure1)
-0650 
-0651</pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0450 <span class="comment">% specify operations to apply to the data prior to prediction</span>
+0451 ind=handles.indop{1}(val);
+0452 handles.operations=[handles.operations, ind];
+0453 handles.indop{1}=setdiff(handles.indop{1},ind);
+0454 <span class="keyword">if</span> isempty(handles.indop{1})
+0455     handles.indop{1}=0;
+0456     set(handles.uns_list,<span class="string">'String'</span>,{<span class="string">''</span>})
+0457 <span class="keyword">else</span>
+0458     set(handles.uns_list,<span class="string">'String'</span>,{handles.namop{handles.indop{1}}})    
+0459 <span class="keyword">end</span>
+0460 set(handles.uns_list,<span class="string">'Value'</span>,1)
+0461 <span class="keyword">if</span> handles.indop{2}==0
+0462     handles.indop{2}=ind;
+0463 <span class="keyword">else</span>
+0464     handles.indop{2}=[handles.indop{2},ind];
+0465 <span class="keyword">end</span>
+0466 set(handles.sel_list,<span class="string">'String'</span>,{handles.namop{handles.indop{2}}})
+0467 set(handles.sel_list,<span class="string">'Value'</span>,length(handles.indop{2}))
+0468 <span class="comment">% Update handles structure</span>
+0469 guidata(hObject, handles);
+0470 
+0471 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0472 <a name="_sub19" href="#_subfunctions" class="code">function uns_list_CreateFcn(hObject, eventdata, handles)</a>
+0473 <span class="comment">% hObject    handle to uns_list (see GCBO)</span>
+0474 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0475 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0476 
+0477 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0478 <span class="comment">%       See ISPC and COMPUTER.</span>
+0479 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0480     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0481 <span class="keyword">end</span>
+0482 
+0483 
+0484 <span class="comment">% --- Executes on selection change in sel_list.</span>
+0485 <a name="_sub20" href="#_subfunctions" class="code">function sel_list_Callback(hObject, eventdata, handles)</a>
+0486 <span class="comment">% hObject    handle to sel_list (see GCBO)</span>
+0487 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0488 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0489 
+0490 <span class="comment">% Hints: contents = get(hObject,'String') returns sel_list contents as cell array</span>
+0491 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from sel_list</span>
+0492 val=get(handles.sel_list,<span class="string">'Value'</span>);
+0493 <span class="keyword">if</span> val==0
+0494     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0495     set(handles.sel_list,<span class="string">'Value'</span>,1)
+0496     val=1;
+0497 <span class="keyword">end</span>
+0498 <span class="comment">% specify operations to apply to the data prior to prediction</span>
+0499 ind=handles.indop{2}(val);
+0500 handles.operations=setdiff(handles.operations, ind);
+0501 handles.indop{2}=setdiff(handles.indop{2},ind);
+0502 <span class="keyword">if</span> isempty(handles.indop{2})
+0503     handles.indop{2}=0;
+0504     set(handles.sel_list,<span class="string">'String'</span>,{<span class="string">''</span>})
+0505 <span class="keyword">else</span>
+0506     set(handles.sel_list,<span class="string">'String'</span>,{handles.namop{handles.indop{2}}})    
+0507 <span class="keyword">end</span>
+0508 set(handles.sel_list,<span class="string">'Value'</span>,1)
+0509 <span class="keyword">if</span> handles.indop{1}==0
+0510     handles.indop{1}=ind;
+0511 <span class="keyword">else</span>
+0512     handles.indop{1}=[handles.indop{1},ind];
+0513 <span class="keyword">end</span>
+0514 set(handles.uns_list,<span class="string">'String'</span>,{handles.namop{handles.indop{1}}})
+0515 set(handles.uns_list,<span class="string">'Value'</span>,length(handles.indop{1}))
+0516 <span class="comment">% Update handles structure</span>
+0517 guidata(hObject, handles);
+0518 
+0519 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0520 <a name="_sub21" href="#_subfunctions" class="code">function sel_list_CreateFcn(hObject, eventdata, handles)</a>
+0521 <span class="comment">% hObject    handle to sel_list (see GCBO)</span>
+0522 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0523 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0524 
+0525 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0526 <span class="comment">%       See ISPC and COMPUTER.</span>
+0527 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0528     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0529 <span class="keyword">end</span>
+0530 
+0531 
+0532 
+0533 <span class="comment">% --- Executes on button press in buildbutt.</span>
+0534 <a name="_sub22" href="#_subfunctions" class="code">function buildbutt_Callback(hObject, eventdata, handles)</a>
+0535 <span class="comment">% hObject    handle to buildbutt (see GCBO)</span>
+0536 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0537 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0538 
+0539 <span class="comment">%fill the input of the 'prt_model' button</span>
+0540 in.fname=get(handles.edit_prt,<span class="string">'String'</span>);
+0541 in.model_name=handles.model_name;
+0542 in.type=handles.type;
+0543 in.machine=handles.machine;
+0544 in.use_kernel=handles.use_kernel;
+0545 in.operations=handles.operations;
+0546 in.fs(1).fs_name=handles.fs(1).fs_name;
+0547 in.cv=handles.cv;
+0548 <span class="comment">%check that classes/subjects/scans were defined</span>
+0549 <span class="keyword">if</span> strcmpi(in.type,<span class="string">'classification'</span>)
+0550     <span class="keyword">if</span> ~isfield(handles,<span class="string">'class'</span>)
+0551         beep
+0552         disp(<span class="string">'No class selected for classification'</span>)
+0553         disp(<span class="string">'Please, define classes'</span>)
+0554         <span class="keyword">return</span>
+0555     <span class="keyword">else</span>
+0556         <span class="keyword">for</span> i=1:length(handles.class)
+0557             ind=[];
+0558             <span class="keyword">for</span> g=1:length(handles.class(i).group)
+0559                 <span class="keyword">if</span> ~isempty(handles.class(i).group(g).gr_name)
+0560                     ind=[ind,g];
+0561                 <span class="keyword">end</span>
+0562             <span class="keyword">end</span>
+0563             handles.class(i).group=handles.class(i).group(ind);
+0564         <span class="keyword">end</span>
+0565         in.class=handles.class;
+0566     <span class="keyword">end</span>
+0567 <span class="keyword">else</span>
+0568     <span class="keyword">if</span> ~isfield(handles,<span class="string">'group'</span>)
+0569         beep
+0570         disp(<span class="string">'No subjects/scans selected for classification'</span>)
+0571         disp(<span class="string">'Please, select subjects/scans'</span>)
+0572         <span class="keyword">return</span>
+0573     <span class="keyword">else</span>
+0574         ind=[];
+0575         <span class="keyword">for</span> g=1:length(handles.group)
+0576             <span class="keyword">if</span> ~isempty(handles.group(g).gr_name)
+0577                 ind=[ind,g];
+0578             <span class="keyword">end</span>
+0579         <span class="keyword">end</span>
+0580         handles.group=handles.group(ind);
+0581         in.group=handles.group;
+0582     <span class="keyword">end</span>
+0583 <span class="keyword">end</span>
+0584 
+0585 <span class="comment">%checks on the CV framework compared to the model entered</span>
+0586 <span class="keyword">if</span> strcmpi(in.cv.type,<span class="string">'lobo'</span>)
+0587     <span class="keyword">if</span> ~isfield(in,<span class="string">'class'</span>)
+0588         beep
+0589         disp(<span class="string">'Leave One Block Out cross-validation only allowed for classification'</span>)
+0590         disp(<span class="string">'Please correct'</span>)
+0591         <span class="keyword">return</span>
+0592     <span class="keyword">else</span>
+0593         <span class="keyword">for</span> c=1:length(in.class)
+0594             <span class="keyword">for</span> i=1:length(in.class(c).group)
+0595                 <span class="keyword">if</span> length(in.class(c).group(i).subj)&gt;1
+0596                     beep
+0597                     disp(<span class="string">'Leave One Block Out cross-validation only allowed for within-subject classification'</span>)
+0598                     disp(<span class="string">'Please correct'</span>)
+0599                     <span class="keyword">return</span>
+0600                 <span class="keyword">end</span>
+0601             <span class="keyword">end</span>
+0602         <span class="keyword">end</span>
+0603     <span class="keyword">end</span>
+0604 <span class="keyword">end</span>
+0605 <span class="keyword">if</span> ~isfield(in,<span class="string">'class'</span>)
+0606     <span class="keyword">if</span> ~strcmpi(in.cv.type,<span class="string">'loso'</span>)
+0607         beep
+0608         disp(<span class="string">'Regression only allows a Leave One Subject Out cross-validation'</span>)
+0609         disp(<span class="string">'Please correct'</span>)
+0610     <span class="keyword">end</span>
+0611 <span class="keyword">end</span>
+0612 PRT=<a href="prt_model.html" class="code" title="function PRT = prt_model(PRT,in)">prt_model</a>(handles.dat,in);
+0613 clear in
+0614 in.fname      = get(handles.edit_prt,<span class="string">'String'</span>);
+0615 in.model_name = handles.model_name;
+0616 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0617     clear PRT
+0618 <span class="keyword">end</span>
+0619 load(in.fname)
+0620 mid = <a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>(PRT, in);
+0621 <span class="comment">% Special cross-validation for MCKR</span>
+0622 <span class="keyword">if</span> strcmpi(PRT.model(mid).input.machine.function,<span class="string">'prt_machine_mckr'</span>)
+0623     prt_cv_mckr(PRT,in);
+0624 <span class="keyword">else</span>
+0625     <a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>(PRT, in);
+0626 <span class="keyword">end</span>
+0627 disp(<span class="string">'Model specification and estimation complete.'</span>)
+0628 disp(<span class="string">'Done...'</span>)
+0629 delete(handles.figure1)
+0630 
+0631 
+0632 <span class="comment">% --- Executes on button press in buildbutt.</span>
+0633 <a name="_sub23" href="#_subfunctions" class="code">function specbutt_Callback(hObject, eventdata, handles)</a>
+0634 <span class="comment">% hObject    handle to buildbutt (see GCBO)</span>
+0635 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0636 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0637 
+0638 <span class="comment">%fill the input of the 'prt_model' button</span>
+0639 in.fname=get(handles.edit_prt,<span class="string">'String'</span>);
+0640 in.model_name=handles.model_name;
+0641 in.type=handles.type;
+0642 in.machine=handles.machine;
+0643 in.use_kernel=handles.use_kernel;
+0644 in.operations=handles.operations;
+0645 in.fs(1).fs_name=handles.fs(1).fs_name;
+0646 in.cv=handles.cv;
+0647 <span class="comment">%check that classes/subjects/scans were defined</span>
+0648 <span class="keyword">if</span> strcmpi(in.type,<span class="string">'classification'</span>)
+0649     <span class="keyword">if</span> ~isfield(handles,<span class="string">'class'</span>)
+0650         beep
+0651         disp(<span class="string">'No class selected for classification'</span>)
+0652         disp(<span class="string">'Please, define classes'</span>)
+0653         <span class="keyword">return</span>
+0654     <span class="keyword">else</span>
+0655         <span class="keyword">for</span> i=1:length(handles.class)
+0656             ind=[];
+0657             <span class="keyword">for</span> g=1:length(handles.class(i).group)
+0658                 <span class="keyword">if</span> ~isempty(handles.class(i).group(g).gr_name)
+0659                     ind=[ind,g];
+0660                 <span class="keyword">end</span>
+0661             <span class="keyword">end</span>
+0662             handles.class(i).group=handles.class(i).group(ind);
+0663         <span class="keyword">end</span>
+0664         in.class=handles.class;
+0665     <span class="keyword">end</span>
+0666 <span class="keyword">else</span>
+0667     <span class="keyword">if</span> ~isfield(handles,<span class="string">'group'</span>)
+0668         beep
+0669         disp(<span class="string">'No subjects/scans selected for classification'</span>)
+0670         disp(<span class="string">'Please, select subjects/scans'</span>)
+0671         <span class="keyword">return</span>
+0672     <span class="keyword">else</span>
+0673         ind=[];
+0674         <span class="keyword">for</span> g=1:length(handles.group)
+0675             <span class="keyword">if</span> ~isempty(handles.group(g).gr_name)
+0676                 ind=[ind,g];
+0677             <span class="keyword">end</span>
+0678         <span class="keyword">end</span>
+0679         handles.group=handles.group(ind);
+0680         in.group=handles.group;
+0681     <span class="keyword">end</span>
+0682 <span class="keyword">end</span>
+0683 
+0684 <span class="comment">%checks on the CV framework compared to the model entered</span>
+0685 <span class="keyword">if</span> strcmpi(in.cv.type,<span class="string">'lobo'</span>)
+0686     <span class="keyword">if</span> ~isfield(in,<span class="string">'class'</span>)
+0687         beep
+0688         disp(<span class="string">'Leave One Block Out cross-validation only allowed for classification'</span>)
+0689         disp(<span class="string">'Please correct'</span>)
+0690         <span class="keyword">return</span>
+0691     <span class="keyword">else</span>
+0692         <span class="keyword">for</span> c=1:length(in.class)
+0693             <span class="keyword">for</span> i=1:length(in.class(c).group)
+0694                 <span class="keyword">if</span> length(in.class(c).group(i).subj)&gt;1
+0695                     beep
+0696                     disp(<span class="string">'Leave One Block Out cross-validation only allowed for within-subject classification'</span>)
+0697                     disp(<span class="string">'Please correct'</span>)
+0698                     <span class="keyword">return</span>
+0699                 <span class="keyword">end</span>
+0700             <span class="keyword">end</span>
+0701         <span class="keyword">end</span>
+0702     <span class="keyword">end</span>
+0703 <span class="keyword">end</span>
+0704 <span class="keyword">if</span> ~isfield(in,<span class="string">'class'</span>)
+0705     <span class="keyword">if</span> ~strcmpi(in.cv.type,<span class="string">'loso'</span>)
+0706         beep
+0707         disp(<span class="string">'Regression only allows a Leave One Subject Out cross-validation'</span>)
+0708         disp(<span class="string">'Please correct'</span>)
+0709     <span class="keyword">end</span>
+0710 <span class="keyword">end</span>
+0711 
+0712 <a href="prt_model.html" class="code" title="function PRT = prt_model(PRT,in)">prt_model</a>(handles.dat,in);
+0713 
+0714 disp(<span class="string">'Model specification complete.'</span>)
+0715 disp(<span class="string">'Done...'</span>)
+0716 delete(handles.figure1)</pre></div>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

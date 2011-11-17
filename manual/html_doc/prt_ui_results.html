@@ -94,7 +94,7 @@ This function is called by:
 0025 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0026 
 0027 <span class="comment">% Written by J. Schrouff</span>
-0028 <span class="comment">% $Id: prt_ui_results.m 370 2011-11-12 15:30:53Z cphillip $</span>
+0028 <span class="comment">% $Id: prt_ui_results.m 386 2011-11-16 15:22:26Z mjrosa $</span>
 0029 
 0030 <span class="comment">% Edit the above text to modify the response to help prt_ui_results</span>
 0031 
@@ -175,7 +175,7 @@ This function is called by:
 0106         plots = {<span class="string">'Predictions'</span>,<span class="string">'ROC'</span>,<span class="string">'Histogram'</span>,<span class="string">'Confusion Matrix'</span>};
 0107        set(handles.plotmenu,<span class="string">'String'</span>,plots);
 0108     <span class="keyword">else</span>
-0109         plots = {<span class="string">'Predictions'</span>};
+0109         plots = {<span class="string">'Predictions (scatter)'</span>, <span class="string">'Predictions (bar)'</span>};
 0110        set(handles.plotmenu,<span class="string">'String'</span>,plots); 
 0111     <span class="keyword">end</span>  
 0112     <span class="comment">% Set font sizes</span>
@@ -219,770 +219,785 @@ This function is called by:
 0150 set(handles.figure1,<span class="string">'Units'</span>,<span class="string">'normalized'</span>);
 0151 p = get(handles.figure1,<span class="string">'Position'</span>);
 0152 set(handles.figure1,<span class="string">'Position'</span>,[p(1) 1 p(3) p(4)]);
-0153 <span class="comment">% set(handles.figure1,'Units','characters');</span>
-0154 
-0155 <span class="comment">% Update handles structure</span>
-0156 guidata(hObject, handles);
-0157 
-0158 <span class="comment">% UIWAIT makes prt_ui_results wait for user response (see UIRESUME)</span>
-0159 <span class="comment">% uiwait(handles.figure1);</span>
+0153 
+0154 <span class="comment">% Update handles structure</span>
+0155 guidata(hObject, handles);
+0156 
+0157 <span class="comment">% UIWAIT makes prt_ui_results wait for user response (see UIRESUME)</span>
+0158 <span class="comment">% uiwait(handles.figure1);</span>
+0159 
 0160 
-0161 
-0162 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0163 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_results_OutputFcn(hObject, eventdata, handles) </a>
-0164 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0165 <span class="comment">% hObject    handle to figure</span>
-0166 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0167 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0168 
-0169 <span class="comment">% Get default command line output from handles structure</span>
-0170 varargout{1} = handles.output;
-0171 
-0172 <span class="comment">% --- Executes when figure1 is resized.</span>
-0173 <a name="_sub3" href="#_subfunctions" class="code">function figure1_ResizeFcn(hObject, eventdata, handles)</a>
-0174 <span class="comment">% hObject    handle to figure1 (see GCBO)</span>
-0175 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0176 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0177 
-0178 <span class="comment">% --- Executes on button press in weightbutton.</span>
-0179 <a name="_sub4" href="#_subfunctions" class="code">function weightbutton_Callback(hObject, eventdata, handles)</a>
-0180 <span class="comment">% hObject    handle to weightbutton (see GCBO)</span>
-0181 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0182 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0183 
-0184 disp(<span class="string">'Loading weights...&gt;&gt;'</span>)
-0185 <span class="comment">% Select results (.img) for weight map</span>
-0186 <span class="comment">% -------------------------------------------------------------------------</span>
-0187 <span class="keyword">if</span> ~isfield(handles,<span class="string">'wmap'</span>) || ~handles.noloadw
-0188     wmap = spm_select(1,<span class="string">'image'</span>,<span class="string">'Select weight map.'</span>);
-0189     V    = spm_vol(wmap);
-0190     handles.vols{1} = V;
-0191     handles.wmap    = wmap;
-0192     <span class="keyword">if</span> ~(isfield(handles,<span class="string">'wmap'</span>) &amp;&amp; isfield(handles,<span class="string">'aimg'</span>))
-0193         spm_orthviews(<span class="string">'Reset'</span>);
-0194     <span class="keyword">end</span>
-0195 <span class="keyword">end</span>
-0196 
-0197 <span class="comment">% Image dimensions</span>
-0198 <span class="comment">% -------------------------------------------------------------------------</span>
-0199 V             = handles.vols{1};
-0200 M             = V.mat;
-0201 DIM           = V.dim(1:3)'; 
-0202 xdim          = DIM(1); ydim  = DIM(2); zdim  = DIM(3);
-0203 fdim          = V.private.dat.dim(4);
-0204 [xords,yords] = ndgrid(1:xdim,1:ydim);
-0205 xords         = xords(:)';  yords = yords(:)';
-0206 I             = 1:xdim*ydim;
-0207 zords_init    = ones(1,xdim*ydim);
-0208 fold          = get(handles.foldmenu,<span class="string">'Value'</span>)-1;
-0209 
-0210 <span class="comment">% Get image values above zero for each fold and all folds</span>
-0211 <span class="comment">% -------------------------------------------------------------------------</span>
-0212 xyz_above = [];
-0213 z_above   = [];
-0214 <span class="keyword">if</span> fold == 0,
-0215     fold_coord = fdim*ones(1,xdim*ydim);
-0216 <span class="keyword">else</span>
-0217     fold_coord = fold*ones(1,xdim*ydim);
-0218 <span class="keyword">end</span>
-0219 <span class="keyword">for</span> z = 1:zdim,
-0220     zords = z*zords_init;
-0221     xyz   = [xords(I); yords(I); zords(I); fold_coord];
-0222     zvals = spm_get_data(V,xyz);
-0223     above = find(zvals~=0);
-0224     <span class="keyword">if</span> ~isempty(above)
-0225         xyz_above = [xyz_above,xyz(:,above)];
-0226         z_above   = [z_above,zvals(above)];
-0227     <span class="keyword">end</span>
-0228 <span class="keyword">end</span>
-0229 XYZ   = xyz_above(1:3,:);
-0230 Z     = z_above;
-0231 
-0232 <span class="comment">% Set spm_orthviews properties</span>
-0233 <span class="comment">% -------------------------------------------------------------------------</span>
-0234 rotate3d off
-0235 <span class="keyword">global</span> st
-0236 
-0237 handles.notinit = 1;
-0238 handles.img     = 1;
-0239 
-0240 st.handles  = handles;
-0241 st.fig      = handles.figure1;
-0242 st.V        = V;
-0243 st.callback = <span class="string">'prt_ui_results(''showpos'')'</span>;
-0244 
-0245 <span class="comment">% Display maps</span>
-0246 <span class="comment">% -------------------------------------------------------------------------</span>
-0247 h  = spm_orthviews(<span class="string">'Image'</span>, handles.wmap,[0.0619 0.0699 0.4196 0.4296]);
-0248 handles.wimgh = h;
-0249 spm_orthviews(<span class="string">'AddContext'</span>, h);
-0250 spm_orthviews(<span class="string">'MaxBB'</span>);
-0251 spm_orthviews(<span class="string">'AddBlobs'</span>, h, XYZ, Z, M);
-0252 cmap = get(gcf,<span class="string">'Colormap'</span>);
-0253 <span class="keyword">if</span> size(cmap,1)~=128
-0254       spm_figure(<span class="string">'Colormap'</span>,<span class="string">'jet'</span>);
-0255 <span class="keyword">end</span>
-0256 spm_orthviews(<span class="string">'Redraw'</span>);
-0257 
-0258 <span class="comment">% Show positions</span>
-0259 <span class="comment">% -------------------------------------------------------------------------</span>
-0260 <a href="prt_ui_results.html" class="code" title="function varargout = prt_ui_results(varargin)">prt_ui_results</a>(<span class="string">'showpos'</span>);
-0261 
-0262 disp(<span class="string">'Done'</span>);
-0263 
-0264 <span class="comment">% Reset flag to load weights</span>
-0265 handles.noloadw = 0;
-0266 
-0267 <span class="comment">% Show file name</span>
-0268 <span class="comment">% -------------------------------------------------------------------------</span>
-0269 set(handles.loadweight,<span class="string">'String'</span>,handles.wmap);
-0270 
-0271 guidata(hObject, handles);
+0161 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0162 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_results_OutputFcn(hObject, eventdata, handles) </a>
+0163 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0164 <span class="comment">% hObject    handle to figure</span>
+0165 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0166 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0167 
+0168 <span class="comment">% Get default command line output from handles structure</span>
+0169 varargout{1} = handles.output;
+0170 
+0171 <span class="comment">% --- Executes when figure1 is resized.</span>
+0172 <a name="_sub3" href="#_subfunctions" class="code">function figure1_ResizeFcn(hObject, eventdata, handles)</a>
+0173 <span class="comment">% hObject    handle to figure1 (see GCBO)</span>
+0174 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0175 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0176 
+0177 <span class="comment">% --- Executes on button press in weightbutton.</span>
+0178 <a name="_sub4" href="#_subfunctions" class="code">function weightbutton_Callback(hObject, eventdata, handles)</a>
+0179 <span class="comment">% hObject    handle to weightbutton (see GCBO)</span>
+0180 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0181 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0182 
+0183 disp(<span class="string">'Loading weights...&gt;&gt;'</span>)
+0184 <span class="comment">% Select results (.img) for weight map</span>
+0185 <span class="comment">% -------------------------------------------------------------------------</span>
+0186 <span class="keyword">if</span> ~isfield(handles,<span class="string">'wmap'</span>) || ~handles.noloadw
+0187     wmap = spm_select(1,<span class="string">'image'</span>,<span class="string">'Select weight map.'</span>);
+0188     V    = spm_vol(wmap);
+0189     handles.vols{1} = V;
+0190     handles.wmap    = wmap;
+0191     <span class="keyword">if</span> ~(isfield(handles,<span class="string">'wmap'</span>) &amp;&amp; isfield(handles,<span class="string">'aimg'</span>))
+0192         spm_orthviews(<span class="string">'Reset'</span>);
+0193     <span class="keyword">end</span>
+0194 <span class="keyword">end</span>
+0195 
+0196 <span class="comment">% Image dimensions</span>
+0197 <span class="comment">% -------------------------------------------------------------------------</span>
+0198 V             = handles.vols{1};
+0199 M             = V.mat;
+0200 DIM           = V.dim(1:3)'; 
+0201 xdim          = DIM(1); ydim  = DIM(2); zdim  = DIM(3);
+0202 fdim          = V.private.dat.dim(4);
+0203 [xords,yords] = ndgrid(1:xdim,1:ydim);
+0204 xords         = xords(:)';  yords = yords(:)';
+0205 I             = 1:xdim*ydim;
+0206 zords_init    = ones(1,xdim*ydim);
+0207 fold          = get(handles.foldmenu,<span class="string">'Value'</span>)-1;
+0208 
+0209 <span class="comment">% Get image values above zero for each fold and all folds</span>
+0210 <span class="comment">% -------------------------------------------------------------------------</span>
+0211 xyz_above = [];
+0212 z_above   = [];
+0213 <span class="keyword">if</span> fold == 0,
+0214     fold_coord = fdim*ones(1,xdim*ydim);
+0215 <span class="keyword">else</span>
+0216     fold_coord = fold*ones(1,xdim*ydim);
+0217 <span class="keyword">end</span>
+0218 <span class="keyword">for</span> z = 1:zdim,
+0219     zords = z*zords_init;
+0220     xyz   = [xords(I); yords(I); zords(I); fold_coord];
+0221     zvals = spm_get_data(V,xyz);
+0222     above = find(zvals~=0);
+0223     <span class="keyword">if</span> ~isempty(above)
+0224         xyz_above = [xyz_above,xyz(:,above)];
+0225         z_above   = [z_above,zvals(above)];
+0226     <span class="keyword">end</span>
+0227 <span class="keyword">end</span>
+0228 XYZ   = xyz_above(1:3,:);
+0229 Z     = z_above;
+0230 
+0231 <span class="comment">% Set spm_orthviews properties</span>
+0232 <span class="comment">% -------------------------------------------------------------------------</span>
+0233 rotate3d off
+0234 <span class="keyword">global</span> st
+0235 
+0236 handles.notinit = 1;
+0237 handles.img     = 1;
+0238 
+0239 st.handles  = handles;
+0240 st.fig      = handles.figure1;
+0241 st.V        = V;
+0242 st.callback = <span class="string">'prt_ui_results(''showpos'')'</span>;
+0243 
+0244 <span class="comment">% Display maps</span>
+0245 <span class="comment">% -------------------------------------------------------------------------</span>
+0246 h  = spm_orthviews(<span class="string">'Image'</span>, handles.wmap,[0.0619 0.0699 0.4196 0.4296]);
+0247 handles.wimgh = h;
+0248 spm_orthviews(<span class="string">'AddContext'</span>, h);set(handles.figure1,<span class="string">'Units'</span>,<span class="string">'normalized'</span>);
+0249 spm_orthviews(<span class="string">'MaxBB'</span>);
+0250 spm_orthviews(<span class="string">'AddBlobs'</span>, h, XYZ, Z, M);
+0251 cmap = get(gcf,<span class="string">'Colormap'</span>);
+0252 <span class="keyword">if</span> size(cmap,1)~=128
+0253       spm_figure(<span class="string">'Colormap'</span>,<span class="string">'jet'</span>);
+0254 <span class="keyword">end</span>
+0255 spm_orthviews(<span class="string">'Redraw'</span>);
+0256 
+0257 <span class="comment">% Show positions</span>
+0258 <span class="comment">% -------------------------------------------------------------------------</span>
+0259 <a href="prt_ui_results.html" class="code" title="function varargout = prt_ui_results(varargin)">prt_ui_results</a>(<span class="string">'showpos'</span>);
+0260 
+0261 disp(<span class="string">'Done'</span>);
+0262 
+0263 <span class="comment">% Reset flag to load weights</span>
+0264 handles.noloadw = 0;
+0265 
+0266 <span class="comment">% Show file name</span>
+0267 <span class="comment">% -------------------------------------------------------------------------</span>
+0268 set(handles.loadweight,<span class="string">'String'</span>,handles.wmap);
+0269 set(handles.figure1,<span class="string">'Units'</span>,<span class="string">'normalized'</span>);
+0270 guidata(hObject, handles);
+0271 
 0272 
-0273 
-0274 <span class="comment">% --- Executes on selection change in classmenu.</span>
-0275 <a name="_sub5" href="#_subfunctions" class="code">function classmenu_Callback(hObject, eventdata, handles)</a>
-0276 <span class="comment">% hObject    handle to classmenu (see GCBO)</span>
-0277 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0278 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0279 
-0280 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns classmenu contents as cell array</span>
-0281 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from classmenu</span>
-0282 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0283 list = get(handles.classmenu,<span class="string">'String'</span>);
-0284 <span class="comment">% handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)</span>
-0285 <span class="keyword">if</span> length(list) == 1, set(handles.classmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
-0286 val = get(handles.classmenu,<span class="string">'Value'</span>);
-0287 <span class="keyword">if</span> val==0, set(handles.classmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
-0288 
-0289 <a href="#_sub13" class="code" title="subfunction foldmenu_Callback(hObject, eventdata, handles)">foldmenu_Callback</a>(hObject, eventdata, handles);
-0290 
-0291 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0292 <a name="_sub6" href="#_subfunctions" class="code">function classmenu_CreateFcn(hObject, eventdata, handles)</a>
-0293 <span class="comment">% hObject    handle to classmenu (see GCBO)</span>
-0294 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0295 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0296 
-0297 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0298 <span class="comment">%       See ISPC and COMPUTER.</span>
-0299 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0300     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0301 <span class="keyword">end</span>
+0273 <span class="comment">% --- Executes on selection change in classmenu.</span>
+0274 <a name="_sub5" href="#_subfunctions" class="code">function classmenu_Callback(hObject, eventdata, handles)</a>
+0275 <span class="comment">% hObject    handle to classmenu (see GCBO)</span>
+0276 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0277 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0278 
+0279 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns classmenu contents as cell array</span>
+0280 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from classmenu</span>
+0281 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0282 list = get(handles.classmenu,<span class="string">'String'</span>);
+0283 <span class="comment">% handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)</span>
+0284 <span class="keyword">if</span> length(list) == 1, set(handles.classmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
+0285 val = get(handles.classmenu,<span class="string">'Value'</span>);
+0286 <span class="keyword">if</span> val==0, set(handles.classmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
+0287 
+0288 <a href="#_sub13" class="code" title="subfunction foldmenu_Callback(hObject, eventdata, handles)">foldmenu_Callback</a>(hObject, eventdata, handles);
+0289 
+0290 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0291 <a name="_sub6" href="#_subfunctions" class="code">function classmenu_CreateFcn(hObject, eventdata, handles)</a>
+0292 <span class="comment">% hObject    handle to classmenu (see GCBO)</span>
+0293 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0294 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0295 
+0296 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0297 <span class="comment">%       See ISPC and COMPUTER.</span>
+0298 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0299     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0300 <span class="keyword">end</span>
+0301 
 0302 
-0303 
-0304 <a name="_sub7" href="#_subfunctions" class="code">function loadweight_Callback(hObject, eventdata, handles)</a>
-0305 <span class="comment">% hObject    handle to loadweight (see GCBO)</span>
-0306 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0307 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0308 
-0309 <span class="comment">% Hints: get(hObject,'String') returns contents of loadweight as text</span>
-0310 <span class="comment">%        str2double(get(hObject,'String')) returns contents of loadweight as a double</span>
-0311 
-0312 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0313 <a name="_sub8" href="#_subfunctions" class="code">function loadweight_CreateFcn(hObject, eventdata, handles)</a>
-0314 <span class="comment">% hObject    handle to loadweight (see GCBO)</span>
-0315 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0316 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0317 
-0318 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0319 <span class="comment">%       See ISPC and COMPUTER.</span>
-0320 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0321     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0322 <span class="keyword">end</span>
+0303 <a name="_sub7" href="#_subfunctions" class="code">function loadweight_Callback(hObject, eventdata, handles)</a>
+0304 <span class="comment">% hObject    handle to loadweight (see GCBO)</span>
+0305 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0306 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0307 
+0308 <span class="comment">% Hints: get(hObject,'String') returns contents of loadweight as text</span>
+0309 <span class="comment">%        str2double(get(hObject,'String')) returns contents of loadweight as a double</span>
+0310 
+0311 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0312 <a name="_sub8" href="#_subfunctions" class="code">function loadweight_CreateFcn(hObject, eventdata, handles)</a>
+0313 <span class="comment">% hObject    handle to loadweight (see GCBO)</span>
+0314 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0315 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0316 
+0317 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0318 <span class="comment">%       See ISPC and COMPUTER.</span>
+0319 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0320     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0321 <span class="keyword">end</span>
+0322 
 0323 
-0324 
-0325 <span class="comment">% --- Executes on button press in helpbutton.</span>
-0326 <a name="_sub9" href="#_subfunctions" class="code">function helpbutton_Callback(hObject, eventdata, handles)</a>
-0327 <span class="comment">% hObject    handle to helpbutton (see GCBO)</span>
-0328 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0329 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0330 
-0331 beep;
-0332 disp(<span class="string">'Help not supported yet!'</span>)
-0333 
-0334 <span class="comment">% --- Executes on selection change in plotmenu.</span>
-0335 <a name="_sub10" href="#_subfunctions" class="code">function plotmenu_Callback(hObject, eventdata, handles)</a>
-0336 <span class="comment">% hObject    handle to plotmenu (see GCBO)</span>
-0337 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0338 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0339 
-0340 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns plotmenu contents as cell array</span>
-0341 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from plotmenu</span>
-0342 
-0343 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0344 list = get(handles.plotmenu,<span class="string">'String'</span>);
-0345 <span class="comment">% handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)</span>
-0346 <span class="keyword">if</span> length(list) == 1, set(handles.plotmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
-0347 val = get(handles.plotmenu,<span class="string">'Value'</span>);
-0348 <span class="keyword">if</span> val==0, set(handles.plotmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
-0349 
-0350 <span class="comment">% Read plot, model and fold</span>
-0351 <span class="comment">% -------------------------------------------------------------------------</span>
-0352 plotchosen    = num2str(get(handles.plotmenu,<span class="string">'Value'</span>));
-0353 fold          = get(handles.foldmenu,<span class="string">'Value'</span>);
-0354 m             = get(handles.classmenu,<span class="string">'Value'</span>);
-0355 PRT           = handles.PRT;
-0356 handles.plot  = 1;
-0357 model         = get(handles.classmenu,<span class="string">'Value'</span>);
-0358 nms           = 7;
-0359 rotate3d off
-0360 
-0361 <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>)
-0362     
-0363     <span class="comment">% All folds</span>
-0364     <span class="comment">% ---------------------------------------------------------------------</span>
-0365     classNames{1} = handles.PRT.model(model).input.class(1).class_name;
-0366     classNames{2} = handles.PRT.model(model).input.class(2).class_name;
-0367     myColours     = {<span class="string">'k'</span>,<span class="string">'r'</span>};
-0368     
-0369     <span class="keyword">if</span> fold == 1
-0370         scores  = [];
-0371         fVals   = [];
-0372         targets = [];
-0373         <span class="keyword">for</span> f=1:handles.nfold
-0374             targets = [targets;handles.PRT.model(model).output.fold(f).targets];
-0375             scores  = [scores;<span class="keyword">...</span>
-0376                 handles.PRT.model(model).output.fold(f).predictions];
-0377             <span class="keyword">if</span> isfield(handles.PRT.model(model).output.fold(f),<span class="string">'func_val'</span>)
-0378                 fVvals_exist = 1;
-0379                 fVals  = [fVals;handles.PRT.model(model).output.fold(f).func_val];
-0380             <span class="keyword">else</span>
-0381                 fVvals_exist = 0;
-0382             <span class="keyword">end</span>
-0383         <span class="keyword">end</span>
-0384         targpos = targets == 2;
-0385     <span class="keyword">else</span>
-0386         <span class="comment">% if folds wise</span>
-0387         targets = handles.PRT.model(model).output.fold(fold-1).targets;
-0388         targpos = targets == 2;
-0389         scores  = handles.PRT.model(model).output.fold(fold-1).predictions;
-0390         <span class="keyword">if</span> isfield(handles.PRT.model(model).output.fold(fold-1),<span class="string">'func_val'</span>)
-0391             fVals  = handles.PRT.model(model).output.fold(fold-1).func_val;
-0392             fVvals_exist = 1;
-0393         <span class="keyword">else</span>
-0394             fVvals_exist = 0;
-0395         <span class="keyword">end</span>
-0396     <span class="keyword">end</span>
-0397     
-0398     <span class="comment">% Plot</span>
-0399     <span class="comment">% ---------------------------------------------------------------------</span>
-0400     <span class="keyword">switch</span> plotchosen
-0401         
-0402         <span class="comment">% Predictions</span>
-0403         <span class="comment">% -----------------------------------------------------------------</span>
-0404         <span class="keyword">case</span> <span class="string">'1'</span>
-0405             <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>);
-0406                 cla(handles.axes5);
-0407                 colorbar(<span class="string">'peer'</span>,handles.axes5,<span class="string">'off'</span>)
-0408                 <span class="comment">% predictions</span>
-0409                 <span class="keyword">if</span> fVvals_exist
-0410                     <span class="keyword">if</span> fold == 1
-0411                         <span class="keyword">for</span> f=2:handles.nfold+1
-0412                             foldlabels{f} = num2str(f-1);
-0413                             targets = handles.PRT.model(model).output.fold(f-1).targets;
-0414                             targpos = targets == 2;
-0415                             fVals   = handles.PRT.model(model).output.fold(f-1).func_val;
-0416                             func_valsc1 = fVals(targpos);
-0417                             func_valsc2 = fVals(~targpos);
-0418                             yc1 = (f-1)*ones(length(func_valsc1),1);
-0419                             yc2 = (f-1)*ones(length(func_valsc2),1);
-0420                             <span class="keyword">if</span> f==2
-0421                                 maxfv = max([func_valsc1;func_valsc2]);
-0422                                 minfv = min([func_valsc1;func_valsc2]);
-0423                             <span class="keyword">end</span>
-0424                             plot(handles.axes5,func_valsc1,yc1,<span class="string">'kx'</span>,<span class="string">'MarkerSize'</span>,nms)
-0425                             hold(handles.axes5,<span class="string">'on'</span>);
-0426                             plot(handles.axes5,func_valsc2,yc2,<span class="string">'ro'</span>,<span class="string">'MarkerSize'</span>,nms)
-0427                         <span class="keyword">end</span>
-0428                     <span class="keyword">else</span>
-0429                         foldlabels{1} = num2str(fold-1);
-0430                         targets = handles.PRT.model(model).output.fold(fold-1).targets;
-0431                         targpos = targets == 2;
-0432                         fVals   = handles.PRT.model(model).output.fold(fold-1).func_val;
-0433                         func_valsc1 = fVals(targpos);
-0434                         func_valsc2 = fVals(~targpos);
-0435                         yc1 = (fold-1)*ones(length(func_valsc1),1);
-0436                         yc2 = (fold-1)*ones(length(func_valsc2),1);
-0437                         maxfv = max([func_valsc1;func_valsc2]);
-0438                         minfv = min([func_valsc1;func_valsc2]);
-0439                         plot(handles.axes5,func_valsc1,yc1,<span class="string">'kx'</span>,<span class="string">'MarkerSize'</span>,nms)
-0440                         hold(handles.axes5,<span class="string">'on'</span>);
-0441                         plot(handles.axes5,func_valsc2,yc2,<span class="string">'ro'</span>,<span class="string">'MarkerSize'</span>,nms)
-0442                     <span class="keyword">end</span>
-0443                     x = zeros(handles.nfold+2,1);
+0324 <span class="comment">% --- Executes on button press in helpbutton.</span>
+0325 <a name="_sub9" href="#_subfunctions" class="code">function helpbutton_Callback(hObject, eventdata, handles)</a>
+0326 <span class="comment">% hObject    handle to helpbutton (see GCBO)</span>
+0327 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0328 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0329 
+0330 beep;
+0331 disp(<span class="string">'Help not supported yet!'</span>)
+0332 
+0333 <span class="comment">% --- Executes on selection change in plotmenu.</span>
+0334 <a name="_sub10" href="#_subfunctions" class="code">function plotmenu_Callback(hObject, eventdata, handles)</a>
+0335 <span class="comment">% hObject    handle to plotmenu (see GCBO)</span>
+0336 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0337 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0338 
+0339 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns plotmenu contents as cell array</span>
+0340 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from plotmenu</span>
+0341 
+0342 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0343 list = get(handles.plotmenu,<span class="string">'String'</span>);
+0344 <span class="comment">% handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)</span>
+0345 <span class="keyword">if</span> length(list) == 1, set(handles.plotmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
+0346 val = get(handles.plotmenu,<span class="string">'Value'</span>);
+0347 <span class="keyword">if</span> val==0, set(handles.plotmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
+0348 
+0349 <span class="comment">% Read plot, model and fold</span>
+0350 <span class="comment">% -------------------------------------------------------------------------</span>
+0351 plotchosen    = num2str(get(handles.plotmenu,<span class="string">'Value'</span>));
+0352 fold          = get(handles.foldmenu,<span class="string">'Value'</span>);
+0353 m             = get(handles.classmenu,<span class="string">'Value'</span>);
+0354 PRT           = handles.PRT;
+0355 handles.plot  = 1;
+0356 model         = get(handles.classmenu,<span class="string">'Value'</span>);
+0357 nms           = 7;
+0358 rotate3d off
+0359 
+0360 <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>)
+0361     
+0362     <span class="comment">% All folds</span>
+0363     <span class="comment">% ---------------------------------------------------------------------</span>
+0364     classNames{1} = handles.PRT.model(model).input.class(1).class_name;
+0365     classNames{2} = handles.PRT.model(model).input.class(2).class_name;
+0366     myColours     = {<span class="string">'k'</span>,<span class="string">'r'</span>};
+0367     
+0368     <span class="keyword">if</span> fold == 1
+0369         scores  = [];
+0370         fVals   = [];
+0371         targets = [];
+0372         <span class="keyword">for</span> f=1:handles.nfold
+0373             targets = [targets;handles.PRT.model(model).output.fold(f).targets];
+0374             scores  = [scores;<span class="keyword">...</span>
+0375                 handles.PRT.model(model).output.fold(f).predictions];
+0376             <span class="keyword">if</span> isfield(handles.PRT.model(model).output.fold(f),<span class="string">'func_val'</span>)
+0377                 fVvals_exist = 1;
+0378                 fVals  = [fVals;handles.PRT.model(model).output.fold(f).func_val];
+0379             <span class="keyword">else</span>
+0380                 fVvals_exist = 0;
+0381             <span class="keyword">end</span>
+0382         <span class="keyword">end</span>
+0383         targpos = targets == 2;
+0384     <span class="keyword">else</span>
+0385         <span class="comment">% if folds wise</span>
+0386         targets = handles.PRT.model(model).output.fold(fold-1).targets;
+0387         targpos = targets == 2;
+0388         scores  = handles.PRT.model(model).output.fold(fold-1).predictions;
+0389         <span class="keyword">if</span> isfield(handles.PRT.model(model).output.fold(fold-1),<span class="string">'func_val'</span>)
+0390             fVals  = handles.PRT.model(model).output.fold(fold-1).func_val;
+0391             fVvals_exist = 1;
+0392         <span class="keyword">else</span>
+0393             fVvals_exist = 0;
+0394         <span class="keyword">end</span>
+0395     <span class="keyword">end</span>
+0396     
+0397     <span class="comment">% Plot</span>
+0398     <span class="comment">% ---------------------------------------------------------------------</span>
+0399     <span class="keyword">switch</span> plotchosen
+0400         
+0401         <span class="comment">% Predictions</span>
+0402         <span class="comment">% -----------------------------------------------------------------</span>
+0403         <span class="keyword">case</span> <span class="string">'1'</span>
+0404             <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>);
+0405                 cla(handles.axes5);
+0406                 colorbar(<span class="string">'peer'</span>,handles.axes5,<span class="string">'off'</span>)
+0407                 <span class="comment">% predictions</span>
+0408                 <span class="keyword">if</span> fVvals_exist
+0409                     <span class="keyword">if</span> fold == 1
+0410                         <span class="keyword">for</span> f=2:handles.nfold+1
+0411                             foldlabels{f} = num2str(f-1);
+0412                             targets = handles.PRT.model(model).output.fold(f-1).targets;
+0413                             targpos = targets == 2;
+0414                             fVals   = handles.PRT.model(model).output.fold(f-1).func_val;
+0415                             func_valsc1 = fVals(targpos);
+0416                             func_valsc2 = fVals(~targpos);
+0417                             yc1 = (f-1)*ones(length(func_valsc1),1);
+0418                             yc2 = (f-1)*ones(length(func_valsc2),1);
+0419                             <span class="keyword">if</span> f==2
+0420                                 maxfv = max([func_valsc1;func_valsc2]);
+0421                                 minfv = min([func_valsc1;func_valsc2]);
+0422                             <span class="keyword">end</span>
+0423                             plot(handles.axes5,func_valsc1,yc1,<span class="string">'kx'</span>,<span class="string">'MarkerSize'</span>,nms)
+0424                             hold(handles.axes5,<span class="string">'on'</span>);
+0425                             plot(handles.axes5,func_valsc2,yc2,<span class="string">'ro'</span>,<span class="string">'MarkerSize'</span>,nms)
+0426                         <span class="keyword">end</span>
+0427                     <span class="keyword">else</span>
+0428                         foldlabels{1} = num2str(fold-1);
+0429                         targets = handles.PRT.model(model).output.fold(fold-1).targets;
+0430                         targpos = targets == 2;
+0431                         fVals   = handles.PRT.model(model).output.fold(fold-1).func_val;
+0432                         func_valsc1 = fVals(targpos);
+0433                         func_valsc2 = fVals(~targpos);
+0434                         yc1 = (fold-1)*ones(length(func_valsc1),1);
+0435                         yc2 = (fold-1)*ones(length(func_valsc2),1);
+0436                         maxfv = max([func_valsc1;func_valsc2]);
+0437                         minfv = min([func_valsc1;func_valsc2]);
+0438                         plot(handles.axes5,func_valsc1,yc1,<span class="string">'kx'</span>,<span class="string">'MarkerSize'</span>,nms)
+0439                         hold(handles.axes5,<span class="string">'on'</span>);
+0440                         plot(handles.axes5,func_valsc2,yc2,<span class="string">'ro'</span>,<span class="string">'MarkerSize'</span>,nms)
+0441                     <span class="keyword">end</span>
+0442                     <span class="comment">% Change the x axis for gaussian process - change in</span>
+0443                     <span class="comment">% the future</span>
 0444                     y = [0:handles.nfold+1]';
-0445                     plot(handles.axes5,x,y,<span class="string">'--'</span>,<span class="string">'Color'</span>,[1 1 1]*.6)
-0446                     xlabel(handles.axes5,<span class="string">'function value'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
-0447                     ylabel(handles.axes5,<span class="string">'fold'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
-0448                     ylim(handles.axes5,[0 handles.nfold+1.3])
-0449                     mlim = max([abs(maxfv), abs(minfv)]);
-0450                     <span class="comment">% Change the x axis for gaussian process - change in</span>
-0451                     <span class="comment">% the future</span>
-0452                     <span class="keyword">if</span> strcmp(PRT.model(m).input.machine,<span class="string">'prt_machine_gpml'</span>);
-0453                         xlim(handles.axes5,[0 1]);
-0454                     <span class="keyword">else</span>
-0455                         xlim(handles.axes5,[-mlim-0.5 mlim+0.5]);
-0456                     <span class="keyword">end</span>
-0457                     legend(handles.axes5,classNames{1},classNames{2});
-0458                     set(handles.axes5,<span class="string">'YTick'</span>,0:handles.nfold)
-0459                     hold(handles.axes5,<span class="string">'off'</span>);
-0460                 <span class="keyword">else</span>
-0461                     <span class="comment">% do nothing, no func_val available</span>
-0462                 <span class="keyword">end</span>
-0463             <span class="keyword">end</span>
-0464             
-0465             <span class="comment">% ROC / AUC</span>
-0466             <span class="comment">% -------------------------------------------------------------</span>
-0467         <span class="keyword">case</span> <span class="string">'2'</span>
-0468             <span class="comment">% ROC curve</span>
-0469             <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>);
-0470                 cla(handles.axes5);
-0471                 [y,idx] = sort(scores);
-0472                 targpos = targpos(idx);
-0473                 
-0474                 fp      = cumsum(single(targpos))/sum(single(targpos));
-0475                 tp      = cumsum(single(~targpos))/sum(single(~targpos));
-0476                 
-0477                 tp      = [0 ; tp ; 1];
-0478                 fp      = [0 ; fp ; 1];
-0479                 
-0480                 n       = size(tp, 1);
-0481                 A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
-0482                 
-0483                 plot(handles.axes5,fp,tp,<span class="string">'--ks'</span>,<span class="string">'LineWidth'</span>,1, <span class="string">'MarkerEdgeColor'</span>,<span class="string">'k'</span>,<span class="keyword">...</span>
-0484                     <span class="string">'MarkerFaceColor'</span>,<span class="string">'k'</span>,<span class="keyword">...</span>
-0485                     <span class="string">'MarkerSize'</span>,2);
-0486                 title(handles.axes5,sprintf(<span class="string">'Receiver Operator Curve / Area Under Curve = %3.1f'</span>,A));
-0487                 xlabel(handles.axes5,<span class="string">'False positives'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
-0488                 ylabel(handles.axes5,<span class="string">'True positives'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
-0489             <span class="keyword">end</span>
-0490             
-0491             <span class="comment">% Histograms</span>
-0492             <span class="comment">% -------------------------------------------------------------</span>
-0493         <span class="keyword">case</span> <span class="string">'3'</span>
-0494             <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>);
-0495                 cla(handles.axes5);
-0496                 <span class="comment">% func_val distributions</span>
-0497                 <span class="keyword">if</span> fVvals_exist
-0498                     <span class="keyword">for</span> cl=1:2
-0499                         func_vals=fVals(targpos);
-0500                         <span class="keyword">if</span> cl == 2, func_vals=fVals(~targpos); <span class="keyword">end</span>
-0501                         <span class="keyword">if</span> exist(<span class="string">'ksdensity'</span>,<span class="string">'file'</span>)==2
-0502                             [f,x] = ksdensity(func_vals,<span class="string">'width'</span>,[]);
-0503                             plot(handles.axes5,x,f,myColours{cl},<span class="string">'LineWidth'</span>,2);
-0504                             hold(handles.axes5,<span class="string">'on'</span>)
-0505                         <span class="keyword">else</span>
-0506                             <span class="comment">% can't plot density, be happy with a histogram</span>
-0507                             [myHist,myX]=hist(func_vals,100);
-0508                             bar(handles.axes5,myX,myHist,myColours{cl});
-0509                             hold(handles.axes5,<span class="string">'on'</span>)
-0510                         <span class="keyword">end</span>
-0511                         <span class="keyword">if</span> cl == 2, hold(handles.axes5,<span class="string">'off'</span>); <span class="keyword">end</span>
-0512                     <span class="keyword">end</span>
-0513                     xlabel(handles.axes5,<span class="string">'function value'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
-0514                     legend(handles.axes5,classNames{1},classNames{2});
-0515                 <span class="keyword">else</span>
-0516                     <span class="comment">% do nothing, no func_val available</span>
-0517                 <span class="keyword">end</span>
-0518             <span class="keyword">end</span>
-0519             
-0520             <span class="comment">% Confusion matrix</span>
-0521             <span class="comment">% -------------------------------------------------------------</span>
-0522         <span class="keyword">case</span> <span class="string">'4'</span>
-0523             <span class="comment">% confusion matrix</span>
-0524             <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>);
-0525                 cla(handles.axes5);
-0526                 <span class="keyword">if</span> fold == 1
-0527                     mconmat(:,:) = PRT.model(m).output.stats.con_mat;
-0528                 <span class="keyword">else</span>
-0529                     mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
-0530                 <span class="keyword">end</span>
-0531                 bar3(handles.axes5,mconmat,<span class="string">'detached'</span>,<span class="string">'w'</span>);
-0532                 rotate3d on
-0533                 <span class="keyword">if</span> fold == 1
-0534                     title(handles.axes5,sprintf(<span class="string">'Confusion matrix: all folds'</span>),<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
-0535                 <span class="keyword">else</span>
-0536                     title(handles.axes5,sprintf(<span class="string">'Confusion matrix: fold %d'</span>,fold-1),<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
-0537                 <span class="keyword">end</span>
-0538                 xlabel(handles.axes5,<span class="string">'False positives'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
-0539                 ylabel(handles.axes5,<span class="string">'True positives'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
-0540                 set(handles.axes5,<span class="string">'XTick'</span>,[1 2]);
-0541                 set(handles.axes5,<span class="string">'XTickLabel'</span>,{<span class="string">'1'</span>,<span class="string">'2'</span>});
-0542                 set(handles.axes5,<span class="string">'YTick'</span>,[1 2]);
-0543                 set(handles.axes5,<span class="string">'YTickLabel'</span>,{<span class="string">'1'</span>,<span class="string">'2'</span>});
-0544                 grid(handles.axes5,<span class="string">'on'</span>);
-0545                 set(handles.axes5,<span class="string">'Color'</span>,[0.8 0.8 0.8]);
-0546             <span class="keyword">end</span>
-0547     <span class="keyword">end</span>
-0548     
-0549 <span class="keyword">else</span>
-0550     cla(handles.axes5);
+0445                     <span class="keyword">if</span> strcmp(PRT.model(m).input.machine.function,<span class="string">'prt_machine_gpml'</span>);
+0446                         x = 0.5*ones(handles.nfold+2,1);
+0447                         plot(handles.axes5,x,y,<span class="string">'--'</span>,<span class="string">'Color'</span>,[1 1 1]*.6);
+0448                         xlim(handles.axes5,[0 1]);
+0449                     <span class="keyword">else</span>
+0450                         x = zeros(handles.nfold+2,1);
+0451                         plot(handles.axes5,x,y,<span class="string">'--'</span>,<span class="string">'Color'</span>,[1 1 1]*.6);
+0452                         mlim = max([abs(maxfv), abs(minfv)]);
+0453                         xlim(handles.axes5,[-mlim-0.5 mlim+0.5]);
+0454                     <span class="keyword">end</span>
+0455                     ylim(handles.axes5,[0 handles.nfold+1.3]);
+0456                     xlabel(handles.axes5,<span class="string">'function value'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0457                     ylabel(handles.axes5,<span class="string">'fold'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0458                     legend(handles.axes5,classNames{1},classNames{2});
+0459                     set(handles.axes5,<span class="string">'YTick'</span>,0:handles.nfold)
+0460                     hold(handles.axes5,<span class="string">'off'</span>);
+0461                 <span class="keyword">else</span>
+0462                     <span class="comment">% do nothing, no func_val available</span>
+0463                 <span class="keyword">end</span>
+0464             <span class="keyword">end</span>
+0465             
+0466             <span class="comment">% ROC / AUC</span>
+0467             <span class="comment">% -------------------------------------------------------------</span>
+0468         <span class="keyword">case</span> <span class="string">'2'</span>
+0469             <span class="comment">% ROC curve</span>
+0470             <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>);
+0471                 cla(handles.axes5);
+0472                 [y,idx] = sort(scores);
+0473                 targpos = targpos(idx);
+0474                 
+0475                 fp      = cumsum(single(targpos))/sum(single(targpos));
+0476                 tp      = cumsum(single(~targpos))/sum(single(~targpos));
+0477                 
+0478                 tp      = [0 ; tp ; 1];
+0479                 fp      = [0 ; fp ; 1];
+0480                 
+0481                 n       = size(tp, 1);
+0482                 A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
+0483                 
+0484                 plot(handles.axes5,fp,tp,<span class="string">'--ks'</span>,<span class="string">'LineWidth'</span>,1, <span class="string">'MarkerEdgeColor'</span>,<span class="string">'k'</span>,<span class="keyword">...</span>
+0485                     <span class="string">'MarkerFaceColor'</span>,<span class="string">'k'</span>,<span class="keyword">...</span>
+0486                     <span class="string">'MarkerSize'</span>,2);
+0487                 title(handles.axes5,sprintf(<span class="string">'Receiver Operator Curve / Area Under Curve = %3.1f'</span>,A));
+0488                 xlabel(handles.axes5,<span class="string">'False positives'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0489                 ylabel(handles.axes5,<span class="string">'True positives'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0490             <span class="keyword">end</span>
+0491             
+0492             <span class="comment">% Histograms</span>
+0493             <span class="comment">% -------------------------------------------------------------</span>
+0494         <span class="keyword">case</span> <span class="string">'3'</span>
+0495             <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>);
+0496                 cla(handles.axes5);
+0497                 <span class="comment">% func_val distributions</span>
+0498                 <span class="keyword">if</span> fVvals_exist
+0499                     <span class="keyword">for</span> cl=1:2
+0500                         func_vals=fVals(targpos);
+0501                         <span class="keyword">if</span> cl == 2, func_vals=fVals(~targpos); <span class="keyword">end</span>
+0502                         <span class="keyword">if</span> exist(<span class="string">'ksdensity'</span>,<span class="string">'file'</span>)==2
+0503                             [f,x] = ksdensity(func_vals,<span class="string">'width'</span>,[]);
+0504                             plot(handles.axes5,x,f,myColours{cl},<span class="string">'LineWidth'</span>,2);
+0505                             hold(handles.axes5,<span class="string">'on'</span>)
+0506                         <span class="keyword">else</span>
+0507                             <span class="comment">% can't plot density, be happy with a histogram</span>
+0508                             [myHist,myX]=hist(func_vals,100);
+0509                             bar(handles.axes5,myX,myHist,myColours{cl});
+0510                             hold(handles.axes5,<span class="string">'on'</span>)
+0511                         <span class="keyword">end</span>
+0512                         <span class="keyword">if</span> cl == 2, hold(handles.axes5,<span class="string">'off'</span>); <span class="keyword">end</span>
+0513                     <span class="keyword">end</span>
+0514                     xlabel(handles.axes5,<span class="string">'function value'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0515                     legend(handles.axes5,classNames{1},classNames{2});
+0516                 <span class="keyword">else</span>
+0517                     <span class="comment">% do nothing, no func_val available</span>
+0518                 <span class="keyword">end</span>
+0519             <span class="keyword">end</span>
+0520             
+0521             <span class="comment">% Confusion matrix</span>
+0522             <span class="comment">% -------------------------------------------------------------</span>
+0523         <span class="keyword">case</span> <span class="string">'4'</span>
+0524             <span class="comment">% confusion matrix</span>
+0525             <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>);
+0526                 cla(handles.axes5);
+0527                 <span class="keyword">if</span> fold == 1
+0528                     mconmat(:,:) = PRT.model(m).output.stats.con_mat;
+0529                 <span class="keyword">else</span>
+0530                     mconmat(:,:) = PRT.model(m).output.fold(fold-1).stats.con_mat;
+0531                 <span class="keyword">end</span>
+0532                 bar3(handles.axes5,mconmat,<span class="string">'detached'</span>,<span class="string">'w'</span>);
+0533                 rotate3d on
+0534                 <span class="keyword">if</span> fold == 1
+0535                     title(handles.axes5,sprintf(<span class="string">'Confusion matrix: all folds'</span>),<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0536                 <span class="keyword">else</span>
+0537                     title(handles.axes5,sprintf(<span class="string">'Confusion matrix: fold %d'</span>,fold-1),<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0538                 <span class="keyword">end</span>
+0539                 xlabel(handles.axes5,<span class="string">'False positives'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0540                 ylabel(handles.axes5,<span class="string">'True positives'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0541                 set(handles.axes5,<span class="string">'XTick'</span>,[1 2]);
+0542                 set(handles.axes5,<span class="string">'XTickLabel'</span>,{<span class="string">'1'</span>,<span class="string">'2'</span>});
+0543                 set(handles.axes5,<span class="string">'YTick'</span>,[1 2]);
+0544                 set(handles.axes5,<span class="string">'YTickLabel'</span>,{<span class="string">'1'</span>,<span class="string">'2'</span>});
+0545                 grid(handles.axes5,<span class="string">'on'</span>);
+0546                 set(handles.axes5,<span class="string">'Color'</span>,[0.8 0.8 0.8]);
+0547             <span class="keyword">end</span>
+0548     <span class="keyword">end</span>
+0549     
+0550 <span class="keyword">else</span>
 0551     nfolds = length(PRT.model(m).output.fold);
-0552     preds = zeros(nfolds,2);
-0553     <span class="keyword">for</span> f = 1:nfolds
-0554         preds(f,1) = PRT.model(m).output.fold(f).targets;
-0555         preds(f,2) = PRT.model(m).output.fold(f).predictions;
-0556         bar(handles.axes5,preds);        
-0557         xlabel(handles.axes5,<span class="string">'subjects'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
-0558         ylabel(handles.axes5,<span class="string">'targets and predictions'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
-0559     <span class="keyword">end</span>
-0560     legend(handles.axes5,{<span class="string">'Target'</span>, <span class="string">'Predicted'</span>});
-0561 <span class="keyword">end</span>
-0562 
-0563 guidata(hObject, handles);
-0564 
-0565 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0566 <a name="_sub11" href="#_subfunctions" class="code">function plotmenu_CreateFcn(hObject, eventdata, handles)</a>
-0567 <span class="comment">% hObject    handle to plotmenu (see GCBO)</span>
-0568 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0569 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0570 
-0571 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0572 <span class="comment">%       See ISPC and COMPUTER.</span>
-0573 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0574     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0552     <span class="keyword">switch</span> plotchosen
+0553         <span class="keyword">case</span> <span class="string">'1'</span>
+0554             cla(handles.axes5);
+0555             preds = zeros(nfolds,2);
+0556             <span class="keyword">for</span> f = 1:nfolds
+0557                 preds(f,1) = PRT.model(m).output.fold(f).targets;
+0558                 preds(f,2) = PRT.model(m).output.fold(f).predictions;
+0559                 scatter(handles.axes5,preds(:,2),preds(:,1),<span class="string">'filled'</span>);
+0560                 xlabel(handles.axes5,<span class="string">'predictions'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0561                 ylabel(handles.axes5,<span class="string">'targets'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0562             <span class="keyword">end</span>
+0563         <span class="keyword">case</span> <span class="string">'2'</span>
+0564             cla(handles.axes5);
+0565             preds = zeros(nfolds,2);
+0566             <span class="keyword">for</span> f = 1:nfolds
+0567                 preds(f,1) = PRT.model(m).output.fold(f).targets;
+0568                 preds(f,2) = PRT.model(m).output.fold(f).predictions;
+0569                 bar(handles.axes5,preds);
+0570                 xlabel(handles.axes5,<span class="string">'subjects'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0571                 ylabel(handles.axes5,<span class="string">'targets and predictions'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0572             <span class="keyword">end</span>
+0573             legend(handles.axes5,{<span class="string">'Target'</span>, <span class="string">'Predicted'</span>});
+0574     <span class="keyword">end</span>
 0575 <span class="keyword">end</span>
 0576 
-0577 <span class="comment">% --- Executes on button press in quitbutton.</span>
-0578 <a name="_sub12" href="#_subfunctions" class="code">function quitbutton_Callback(hObject, eventdata, handles)</a>
-0579 <span class="comment">% hObject    handle to quitbutton (see GCBO)</span>
-0580 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0581 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0582 
-0583 <span class="comment">% Close and clear figure</span>
-0584 <span class="comment">% -------------------------------------------------------------------------</span>
-0585 close(handles.figure1);
-0586 
-0587 <span class="comment">% --- Executes on selection change in foldmenu.</span>
-0588 <a name="_sub13" href="#_subfunctions" class="code">function foldmenu_Callback(hObject, eventdata, handles)</a>
-0589 <span class="comment">% hObject    handle to foldmenu (see GCBO)</span>
-0590 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0591 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0592 
-0593 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns foldmenu contents as cell array</span>
-0594 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from foldmenu</span>
-0595 
-0596 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0597 list = get(handles.foldmenu,<span class="string">'String'</span>);
-0598 <span class="comment">% handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)</span>
-0599 <span class="keyword">if</span> length(list) == 1, set(handles.foldmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
-0600 val = get(handles.foldmenu,<span class="string">'Value'</span>);
-0601 <span class="keyword">if</span> val==0, set(handles.foldmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
-0602 
-0603 <span class="comment">% Reads model and fold</span>
-0604 <span class="comment">% -------------------------------------------------------------------------</span>
-0605 fold  = get(handles.foldmenu,<span class="string">'Value'</span>);
-0606 m     = get(handles.classmenu,<span class="string">'Value'</span>);
-0607 PRT   = handles.PRT;
-0608 
-0609 <span class="comment">% Read stats</span>
-0610 <span class="comment">% -------------------------------------------------------------------------</span>
-0611 <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>)
-0612     <span class="keyword">if</span> fold == 1
-0613         macc  = PRT.model(m).output.stats.acc;  <span class="comment">% overall acc</span>
-0614         <span class="keyword">if</span> ~strcmp(PRT.model(m).input.cv_type,<span class="string">'lobo'</span>)
-0615             macc_lb  = PRT.model(m).output.stats.acc_lb; <span class="comment">% lower bound</span>
-0616             macc_ub  = PRT.model(m).output.stats.acc_ub; <span class="comment">% upper bound</span>
-0617         <span class="keyword">end</span>
-0618         mbacc = PRT.model(m).output.stats.b_acc;
-0619         mcacc = PRT.model(m).output.stats.c_acc;
-0620     <span class="keyword">else</span>
-0621         macc  = PRT.model(m).output.fold(fold-1).stats.acc;
-0622         <span class="keyword">if</span> ~strcmp(PRT.model(m).input.cv_type,<span class="string">'lobo'</span>)
-0623             macc_lb  = PRT.model(m).output.fold(fold-1).stats.acc_lb;
-0624             macc_ub  = PRT.model(m).output.fold(fold-1).stats.acc_ub;
-0625         <span class="keyword">end</span>
-0626         mbacc = PRT.model(m).output.fold(fold-1).stats.b_acc;
-0627         mcacc = PRT.model(m).output.fold(fold-1).stats.c_acc;
-0628     <span class="keyword">end</span>
-0629     <span class="comment">% Show stats</span>
-0630     <span class="comment">% ---------------------------------------------------------------------</span>
-0631     set(handles.accuracytext,<span class="string">'String'</span>,<span class="string">'Accuracy:'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0632     set(handles.baccuracytext,<span class="string">'String'</span>,<span class="string">'Balanced accuracy:'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0633     set(handles.classaccuracytext,<span class="string">'String'</span>,<span class="string">'Class accuracy:'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0634     
-0635     <span class="keyword">if</span> ~strcmp(PRT.model(m).input.cv_type,<span class="string">'lobo'</span>)
-0636         set(handles.acctext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f %% (%3.1f %%, %3.1f%%)'</span>,<span class="keyword">...</span>
-0637             macc*100,macc_lb*100,macc_ub*100),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0638     <span class="keyword">else</span>
-0639         set(handles.acctext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f %% (Not IID)'</span>,<span class="keyword">...</span>
-0640             macc*100),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0641     <span class="keyword">end</span>
-0642     set(handles.bacctext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f %%'</span>,mbacc*100),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0643     set(handles.cacctext,<span class="string">'String'</span>,sprintf(<span class="string">'[%3.1f %3.1f] %%'</span>,<span class="keyword">...</span>
-0644         mcacc(1)*100,mcacc(2)*100),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0645     set(handles.corrtext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0646     set(handles.msetext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0647     set(handles.corrvaltext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0648     set(handles.msevaltext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0649 <span class="keyword">else</span>
-0650     <span class="keyword">if</span> fold == 1
-0651         corr  = PRT.model(m).output.stats.corr;  <span class="comment">% overall correlation</span>
-0652         mse   = PRT.model(m).output.stats.mse;  <span class="comment">% overall mse</span>
-0653     <span class="keyword">else</span>
-0654         corr  = PRT.model(m).output.fold(fold-1).stats.corr;  <span class="comment">% overall correlation</span>
-0655         mse   = PRT.model(m).output.fold(fold-1).stats.mse;  <span class="comment">% overall mse</span>
-0656     <span class="keyword">end</span>
-0657     set(handles.corrtext,<span class="string">'String'</span>,<span class="string">'Correlation:'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0658     set(handles.msetext,<span class="string">'String'</span>,<span class="string">'MSE:'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0659     set(handles.corrvaltext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f'</span>,corr),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0660     set(handles.msevaltext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f'</span>,mse),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0661     set(handles.accuracytext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0662     set(handles.baccuracytext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0663     set(handles.classaccuracytext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0664     set(handles.acctext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0665     set(handles.bacctext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0666     set(handles.cacctext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0667 <span class="keyword">end</span>
-0668 set(handles.pbacc,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0669 set(handles.pcacc,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0670 set(handles.pcorr, <span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0671 set(handles.pmse,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
-0672 
-0673 
-0674 <span class="comment">% Change weight map</span>
-0675 <span class="comment">% -------------------------------------------------------------------------</span>
-0676 <span class="keyword">if</span> isfield(handles,<span class="string">'vols'</span>)
-0677     handles.noloadw = 1;
-0678     <a href="#_sub4" class="code" title="subfunction weightbutton_Callback(hObject, eventdata, handles)">weightbutton_Callback</a>(hObject, eventdata, handles);
-0679 <span class="keyword">end</span>
-0680 
-0681 <span class="comment">% Change plot</span>
-0682 <span class="comment">% -------------------------------------------------------------------------</span>
-0683 <span class="keyword">if</span> isfield(handles,<span class="string">'plot'</span>)
-0684    <a href="#_sub10" class="code" title="subfunction plotmenu_Callback(hObject, eventdata, handles)">plotmenu_Callback</a>(hObject, eventdata, handles); 
-0685 <span class="keyword">end</span>
+0577 guidata(hObject, handles);
+0578 
+0579 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0580 <a name="_sub11" href="#_subfunctions" class="code">function plotmenu_CreateFcn(hObject, eventdata, handles)</a>
+0581 <span class="comment">% hObject    handle to plotmenu (see GCBO)</span>
+0582 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0583 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0584 
+0585 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0586 <span class="comment">%       See ISPC and COMPUTER.</span>
+0587 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0588     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0589 <span class="keyword">end</span>
+0590 
+0591 <span class="comment">% --- Executes on button press in quitbutton.</span>
+0592 <a name="_sub12" href="#_subfunctions" class="code">function quitbutton_Callback(hObject, eventdata, handles)</a>
+0593 <span class="comment">% hObject    handle to quitbutton (see GCBO)</span>
+0594 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0595 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0596 
+0597 <span class="comment">% Close and clear figure</span>
+0598 <span class="comment">% -------------------------------------------------------------------------</span>
+0599 close(handles.figure1);
+0600 
+0601 <span class="comment">% --- Executes on selection change in foldmenu.</span>
+0602 <a name="_sub13" href="#_subfunctions" class="code">function foldmenu_Callback(hObject, eventdata, handles)</a>
+0603 <span class="comment">% hObject    handle to foldmenu (see GCBO)</span>
+0604 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0605 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0606 
+0607 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns foldmenu contents as cell array</span>
+0608 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from foldmenu</span>
+0609 
+0610 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0611 list = get(handles.foldmenu,<span class="string">'String'</span>);
+0612 <span class="comment">% handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)</span>
+0613 <span class="keyword">if</span> length(list) == 1, set(handles.foldmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
+0614 val = get(handles.foldmenu,<span class="string">'Value'</span>);
+0615 <span class="keyword">if</span> val==0, set(handles.foldmenu,<span class="string">'Value'</span>,1); <span class="keyword">end</span>
+0616 
+0617 <span class="comment">% Reads model and fold</span>
+0618 <span class="comment">% -------------------------------------------------------------------------</span>
+0619 fold  = get(handles.foldmenu,<span class="string">'Value'</span>);
+0620 m     = get(handles.classmenu,<span class="string">'Value'</span>);
+0621 PRT   = handles.PRT;
+0622 
+0623 <span class="comment">% Read stats</span>
+0624 <span class="comment">% -------------------------------------------------------------------------</span>
+0625 <span class="keyword">if</span> strcmp(PRT.model(m).input.type,<span class="string">'classification'</span>)
+0626     <span class="keyword">if</span> fold == 1
+0627         macc  = PRT.model(m).output.stats.acc;  <span class="comment">% overall acc</span>
+0628         <span class="keyword">if</span> ~strcmp(PRT.model(m).input.cv_type,<span class="string">'lobo'</span>)
+0629             macc_lb  = PRT.model(m).output.stats.acc_lb; <span class="comment">% lower bound</span>
+0630             macc_ub  = PRT.model(m).output.stats.acc_ub; <span class="comment">% upper bound</span>
+0631         <span class="keyword">end</span>
+0632         mbacc = PRT.model(m).output.stats.b_acc;
+0633         mcacc = PRT.model(m).output.stats.c_acc;
+0634     <span class="keyword">else</span>
+0635         macc  = PRT.model(m).output.fold(fold-1).stats.acc;
+0636         <span class="keyword">if</span> ~strcmp(PRT.model(m).input.cv_type,<span class="string">'lobo'</span>)
+0637             macc_lb  = PRT.model(m).output.fold(fold-1).stats.acc_lb;
+0638             macc_ub  = PRT.model(m).output.fold(fold-1).stats.acc_ub;
+0639         <span class="keyword">end</span>
+0640         mbacc = PRT.model(m).output.fold(fold-1).stats.b_acc;
+0641         mcacc = PRT.model(m).output.fold(fold-1).stats.c_acc;
+0642     <span class="keyword">end</span>
+0643     <span class="comment">% Show stats</span>
+0644     <span class="comment">% ---------------------------------------------------------------------</span>
+0645     set(handles.accuracytext,<span class="string">'String'</span>,<span class="string">'Accuracy (acc):'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0646     set(handles.baccuracytext,<span class="string">'String'</span>,<span class="string">'Balanced acc:'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0647     set(handles.classaccuracytext,<span class="string">'String'</span>,<span class="string">'Class acc:'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0648     
+0649     <span class="keyword">if</span> ~strcmp(PRT.model(m).input.cv_type,<span class="string">'lobo'</span>)
+0650         set(handles.acctext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f %% (%3.1f %%, %3.1f%%)'</span>,<span class="keyword">...</span>
+0651             macc*100,macc_lb*100,macc_ub*100),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0652     <span class="keyword">else</span>
+0653         set(handles.acctext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f %% (Not IID)'</span>,<span class="keyword">...</span>
+0654             macc*100),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0655     <span class="keyword">end</span>
+0656     set(handles.bacctext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f %%'</span>,mbacc*100),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0657     set(handles.cacctext,<span class="string">'String'</span>,sprintf(<span class="string">'[%3.1f %3.1f] %%'</span>,<span class="keyword">...</span>
+0658         mcacc(1)*100,mcacc(2)*100),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0659     set(handles.corrtext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0660     set(handles.msetext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0661     set(handles.corrvaltext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0662     set(handles.msevaltext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0663 <span class="keyword">else</span>
+0664     <span class="keyword">if</span> fold == 1
+0665         corr  = PRT.model(m).output.stats.corr;  <span class="comment">% overall correlation</span>
+0666         mse   = PRT.model(m).output.stats.mse;  <span class="comment">% overall mse</span>
+0667     <span class="keyword">else</span>
+0668         corr  = PRT.model(m).output.fold(fold-1).stats.corr;  <span class="comment">% overall correlation</span>
+0669         mse   = PRT.model(m).output.fold(fold-1).stats.mse;  <span class="comment">% overall mse</span>
+0670     <span class="keyword">end</span>
+0671     set(handles.corrtext,<span class="string">'String'</span>,<span class="string">'Correlation:'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0672     set(handles.msetext,<span class="string">'String'</span>,<span class="string">'MSE:'</span>,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0673     set(handles.corrvaltext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f'</span>,corr),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0674     set(handles.msevaltext,<span class="string">'String'</span>,sprintf(<span class="string">'%3.1f'</span>,mse),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0675     set(handles.accuracytext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0676     set(handles.baccuracytext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0677     set(handles.classaccuracytext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0678     set(handles.acctext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0679     set(handles.bacctext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0680     set(handles.cacctext,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0681 <span class="keyword">end</span>
+0682 set(handles.pbacc,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0683 set(handles.pcacc,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0684 set(handles.pcorr, <span class="string">'Visible'</span>,<span class="string">'off'</span>);
+0685 set(handles.pmse,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
 0686 
-0687 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0688 <a name="_sub14" href="#_subfunctions" class="code">function foldmenu_CreateFcn(hObject, eventdata, handles)</a>
-0689 <span class="comment">% hObject    handle to foldmenu (see GCBO)</span>
-0690 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0691 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0692 
-0693 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0694 <span class="comment">%       See ISPC and COMPUTER.</span>
-0695 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0696     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0697 <span class="keyword">end</span>
-0698 
-0699 <a name="_sub15" href="#_subfunctions" class="code">function loadanatomical_Callback(hObject, eventdata, handles)</a>
-0700 <span class="comment">% hObject    handle to loadanatomical (see GCBO)</span>
-0701 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0702 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0703 
-0704 <span class="comment">% Hints: get(hObject,'String') returns contents of loadanatomical as text</span>
-0705 <span class="comment">%        str2double(get(hObject,'String')) returns contents of loadanatomical as a double</span>
+0687 
+0688 <span class="comment">% Change weight map</span>
+0689 <span class="comment">% -------------------------------------------------------------------------</span>
+0690 <span class="keyword">if</span> isfield(handles,<span class="string">'vols'</span>)
+0691     handles.noloadw = 1;
+0692     <a href="#_sub4" class="code" title="subfunction weightbutton_Callback(hObject, eventdata, handles)">weightbutton_Callback</a>(hObject, eventdata, handles);
+0693 <span class="keyword">end</span>
+0694 
+0695 <span class="comment">% Change plot</span>
+0696 <span class="comment">% -------------------------------------------------------------------------</span>
+0697 <span class="keyword">if</span> isfield(handles,<span class="string">'plot'</span>)
+0698    <a href="#_sub10" class="code" title="subfunction plotmenu_Callback(hObject, eventdata, handles)">plotmenu_Callback</a>(hObject, eventdata, handles); 
+0699 <span class="keyword">end</span>
+0700 
+0701 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0702 <a name="_sub14" href="#_subfunctions" class="code">function foldmenu_CreateFcn(hObject, eventdata, handles)</a>
+0703 <span class="comment">% hObject    handle to foldmenu (see GCBO)</span>
+0704 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0705 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
 0706 
-0707 
-0708 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0709 <a name="_sub16" href="#_subfunctions" class="code">function loadanatomical_CreateFcn(hObject, eventdata, handles)</a>
-0710 <span class="comment">% hObject    handle to loadanatomical (see GCBO)</span>
-0711 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0712 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0713 
-0714 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0715 <span class="comment">%       See ISPC and COMPUTER.</span>
-0716 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0717     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0718 <span class="keyword">end</span>
-0719 
-0720 <span class="comment">% --- Executes on button press in anatomicalbutton.</span>
-0721 <a name="_sub17" href="#_subfunctions" class="code">function anatomicalbutton_Callback(hObject, eventdata, handles)</a>
-0722 <span class="comment">% hObject    handle to anatomicalbutton (see GCBO)</span>
-0723 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0724 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0725 
-0726 <span class="comment">% Check if weight map and anatomical image exist and reset orthviews</span>
-0727 <span class="comment">% -------------------------------------------------------------------------</span>
-0728 <span class="keyword">if</span> ~(isfield(handles,<span class="string">'wmap'</span>) &amp;&amp; isfield(handles,<span class="string">'wmap'</span>)) 
-0729     spm_orthviews(<span class="string">'Reset'</span>);
-0730     <span class="keyword">global</span> st
-0731     st.fig = handles.figure1;
+0707 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0708 <span class="comment">%       See ISPC and COMPUTER.</span>
+0709 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0710     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0711 <span class="keyword">end</span>
+0712 
+0713 <a name="_sub15" href="#_subfunctions" class="code">function loadanatomical_Callback(hObject, eventdata, handles)</a>
+0714 <span class="comment">% hObject    handle to loadanatomical (see GCBO)</span>
+0715 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0716 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0717 
+0718 <span class="comment">% Hints: get(hObject,'String') returns contents of loadanatomical as text</span>
+0719 <span class="comment">%        str2double(get(hObject,'String')) returns contents of loadanatomical as a double</span>
+0720 
+0721 
+0722 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0723 <a name="_sub16" href="#_subfunctions" class="code">function loadanatomical_CreateFcn(hObject, eventdata, handles)</a>
+0724 <span class="comment">% hObject    handle to loadanatomical (see GCBO)</span>
+0725 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0726 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0727 
+0728 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0729 <span class="comment">%       See ISPC and COMPUTER.</span>
+0730 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0731     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
 0732 <span class="keyword">end</span>
 0733 
-0734 <span class="comment">% Show anatomical image</span>
-0735 <span class="comment">% -------------------------------------------------------------------------</span>
-0736 rotate3d off
-0737 img    = spm_select(1,<span class="string">'image'</span>,<span class="string">'Select anatomical image.'</span>);
-0738 handle = spm_orthviews(<span class="string">'Image'</span>, img, [0.5295 0.0699 0.4196 0.4296]);
-0739 cmap   = get(gcf,<span class="string">'Colormap'</span>);
-0740 <span class="keyword">if</span> size(cmap,1)~=128
-0741       spm_figure(<span class="string">'Colormap'</span>,<span class="string">'gray'</span>)
-0742 <span class="keyword">end</span>
-0743 
-0744 handles.aimgh = handle;
-0745 handles.aimg  = img;
-0746 handles.img   = 1;
+0734 <span class="comment">% --- Executes on button press in anatomicalbutton.</span>
+0735 <a name="_sub17" href="#_subfunctions" class="code">function anatomicalbutton_Callback(hObject, eventdata, handles)</a>
+0736 <span class="comment">% hObject    handle to anatomicalbutton (see GCBO)</span>
+0737 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0738 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0739 
+0740 <span class="comment">% Check if weight map and anatomical image exist and reset orthviews</span>
+0741 <span class="comment">% -------------------------------------------------------------------------</span>
+0742 <span class="keyword">if</span> ~(isfield(handles,<span class="string">'wmap'</span>) &amp;&amp; isfield(handles,<span class="string">'wmap'</span>)) 
+0743     spm_orthviews(<span class="string">'Reset'</span>);
+0744     <span class="keyword">global</span> st
+0745     st.fig = handles.figure1;
+0746 <span class="keyword">end</span>
 0747 
-0748 <span class="comment">% Show file name</span>
+0748 <span class="comment">% Show anatomical image</span>
 0749 <span class="comment">% -------------------------------------------------------------------------</span>
-0750 set(handles.loadanatomical,<span class="string">'String'</span>,handles.aimg);
-0751 
-0752 guidata(hObject, handles);
-0753 
-0754 <span class="comment">% --- Executes on button press in savebutton.</span>
-0755 <a name="_sub18" href="#_subfunctions" class="code">function savebutton_Callback(hObject, eventdata, handles)</a>
-0756 <span class="comment">% hObject    handle to savebutton (see GCBO)</span>
-0757 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0758 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0759 
-0760 beep;
-0761 disp(<span class="string">'Save option not supported yet!'</span>)
-0762 
-0763 <span class="comment">% --- Executes on button press in originbutton.</span>
-0764 <a name="_sub19" href="#_subfunctions" class="code">function originbutton_Callback(hObject, eventdata, handles)</a>
-0765 <span class="comment">% hObject    handle to originbutton (see GCBO)</span>
-0766 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0767 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0768 
-0769 <span class="comment">% Reset the crosshairs position</span>
-0770 <span class="comment">% -------------------------------------------------------------------------</span>
-0771 <span class="keyword">if</span> isfield(handles,<span class="string">'img'</span>)
-0772     spm_orthviews(<span class="string">'Reposition'</span>,[0 0 0]);
-0773 <span class="keyword">end</span>
-0774 
-0775 <a name="_sub20" href="#_subfunctions" class="code">function mmedit_Callback(hObject, eventdata, handles)</a>
-0776 <span class="comment">% hObject    handle to mmedit (see GCBO)</span>
-0777 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0778 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0779 
-0780 <span class="comment">% Hints: get(hObject,'String') returns contents of mmedit as text</span>
-0781 <span class="comment">%        str2double(get(hObject,'String')) returns contents of mmedit as a double</span>
+0750 rotate3d off
+0751 img    = spm_select(1,<span class="string">'image'</span>,<span class="string">'Select anatomical image.'</span>);
+0752 handle = spm_orthviews(<span class="string">'Image'</span>, img, [0.5295 0.0699 0.4196 0.4296]);
+0753 cmap   = get(gcf,<span class="string">'Colormap'</span>);
+0754 <span class="keyword">if</span> size(cmap,1)~=128
+0755       spm_figure(<span class="string">'Colormap'</span>,<span class="string">'gray'</span>)
+0756 <span class="keyword">end</span>
+0757 
+0758 handles.aimgh = handle;
+0759 handles.aimg  = img;
+0760 handles.img   = 1;
+0761 
+0762 <span class="comment">% Show file name</span>
+0763 <span class="comment">% -------------------------------------------------------------------------</span>
+0764 set(handles.loadanatomical,<span class="string">'String'</span>,handles.aimg);
+0765 
+0766 guidata(hObject, handles);
+0767 
+0768 <span class="comment">% --- Executes on button press in savebutton.</span>
+0769 <a name="_sub18" href="#_subfunctions" class="code">function savebutton_Callback(hObject, eventdata, handles)</a>
+0770 <span class="comment">% hObject    handle to savebutton (see GCBO)</span>
+0771 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0772 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0773 
+0774 beep;
+0775 disp(<span class="string">'Save option not supported yet!'</span>)
+0776 
+0777 <span class="comment">% --- Executes on button press in originbutton.</span>
+0778 <a name="_sub19" href="#_subfunctions" class="code">function originbutton_Callback(hObject, eventdata, handles)</a>
+0779 <span class="comment">% hObject    handle to originbutton (see GCBO)</span>
+0780 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0781 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
 0782 
-0783 <span class="comment">% Move crosshairs position in mm</span>
+0783 <span class="comment">% Reset the crosshairs position</span>
 0784 <span class="comment">% -------------------------------------------------------------------------</span>
 0785 <span class="keyword">if</span> isfield(handles,<span class="string">'img'</span>)
-0786     mp    = handles.mmedit;
-0787     posmm = get(mp,<span class="string">'String'</span>);
-0788     pos = sscanf(posmm, <span class="string">'%g %g %g'</span>);
-0789     <span class="keyword">if</span> length(pos)~=3
-0790         pos = spm_orthviews(<span class="string">'Pos'</span>);
-0791     <span class="keyword">end</span>
-0792     spm_orthviews(<span class="string">'Reposition'</span>,pos);
-0793 <span class="keyword">end</span>
-0794 
-0795 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0796 <a name="_sub21" href="#_subfunctions" class="code">function mmedit_CreateFcn(hObject, eventdata, handles)</a>
-0797 <span class="comment">% hObject    handle to mmedit (see GCBO)</span>
-0798 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0799 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0800 
-0801 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0802 <span class="comment">%       See ISPC and COMPUTER.</span>
-0803 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0804     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0805 <span class="keyword">end</span>
-0806 
-0807 <a name="_sub22" href="#_subfunctions" class="code">function vxedit_Callback(hObject, eventdata, handles)</a>
-0808 <span class="comment">% hObject    handle to vxedit (see GCBO)</span>
-0809 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0810 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0811 
-0812 <span class="comment">% Hints: get(hObject,'String') returns contents of vxedit as text</span>
-0813 <span class="comment">%        str2double(get(hObject,'String')) returns contents of vxedit as a double</span>
+0786     spm_orthviews(<span class="string">'Reposition'</span>,[0 0 0]);
+0787 <span class="keyword">end</span>
+0788 
+0789 <a name="_sub20" href="#_subfunctions" class="code">function mmedit_Callback(hObject, eventdata, handles)</a>
+0790 <span class="comment">% hObject    handle to mmedit (see GCBO)</span>
+0791 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0792 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0793 
+0794 <span class="comment">% Hints: get(hObject,'String') returns contents of mmedit as text</span>
+0795 <span class="comment">%        str2double(get(hObject,'String')) returns contents of mmedit as a double</span>
+0796 
+0797 <span class="comment">% Move crosshairs position in mm</span>
+0798 <span class="comment">% -------------------------------------------------------------------------</span>
+0799 <span class="keyword">if</span> isfield(handles,<span class="string">'img'</span>)
+0800     mp    = handles.mmedit;
+0801     posmm = get(mp,<span class="string">'String'</span>);
+0802     pos = sscanf(posmm, <span class="string">'%g %g %g'</span>);
+0803     <span class="keyword">if</span> length(pos)~=3
+0804         pos = spm_orthviews(<span class="string">'Pos'</span>);
+0805     <span class="keyword">end</span>
+0806     spm_orthviews(<span class="string">'Reposition'</span>,pos);
+0807 <span class="keyword">end</span>
+0808 
+0809 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0810 <a name="_sub21" href="#_subfunctions" class="code">function mmedit_CreateFcn(hObject, eventdata, handles)</a>
+0811 <span class="comment">% hObject    handle to mmedit (see GCBO)</span>
+0812 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0813 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
 0814 
-0815 <span class="comment">% Move crosshairs position in vx</span>
-0816 <span class="comment">% -------------------------------------------------------------------------</span>
-0817 <span class="keyword">if</span> isfield(handles,<span class="string">'img'</span>)
-0818     mp    = handles.vxedit;
-0819     posvx = get(mp,<span class="string">'String'</span>);
-0820     pos   = sscanf(posvx, <span class="string">'%g %g %g'</span>);
-0821     <span class="keyword">if</span> length(pos)~=3
-0822         pos = spm_orthviews(<span class="string">'pos'</span>,1);
-0823     <span class="keyword">end</span>
-0824     tmp = handles.vols{1}.mat;
-0825     pos = tmp(1:3,:)*[pos ; 1];
-0826     spm_orthviews(<span class="string">'Reposition'</span>,pos);
-0827 <span class="keyword">end</span>
+0815 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0816 <span class="comment">%       See ISPC and COMPUTER.</span>
+0817 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0818     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0819 <span class="keyword">end</span>
+0820 
+0821 <a name="_sub22" href="#_subfunctions" class="code">function vxedit_Callback(hObject, eventdata, handles)</a>
+0822 <span class="comment">% hObject    handle to vxedit (see GCBO)</span>
+0823 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0824 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0825 
+0826 <span class="comment">% Hints: get(hObject,'String') returns contents of vxedit as text</span>
+0827 <span class="comment">%        str2double(get(hObject,'String')) returns contents of vxedit as a double</span>
 0828 
-0829 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0830 <a name="_sub23" href="#_subfunctions" class="code">function vxedit_CreateFcn(hObject, eventdata, handles)</a>
-0831 <span class="comment">% hObject    handle to vxedit (see GCBO)</span>
-0832 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0833 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0834 
-0835 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0836 <span class="comment">%       See ISPC and COMPUTER.</span>
-0837 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0838     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0839 <span class="keyword">end</span>
-0840 
-0841 <span class="comment">% Show crosshairs position</span>
-0842 <span class="comment">% -------------------------------------------------------------------------</span>
-0843 <a name="_sub24" href="#_subfunctions" class="code">function showpos()</a>
-0844  
-0845 <span class="keyword">global</span> st
-0846 
-0847 mp13 = st.handles.mmedit;
-0848 mp14 = st.handles.vxedit;
-0849 tx20 = st.handles.posintensitytext;
-0850 
-0851 set(mp13,<span class="string">'String'</span>,sprintf(<span class="string">'%.1f %.1f %.1f'</span>,spm_orthviews(<span class="string">'Pos'</span>)));
-0852 pos = spm_orthviews(<span class="string">'Pos'</span>,1);
-0853 set(mp14,<span class="string">'String'</span>,sprintf(<span class="string">'%.1f %.1f %.1f'</span>,pos));
-0854 set(tx20,<span class="string">'String'</span>,sprintf(<span class="string">'%g'</span>,spm_sample_vol(st.V,pos(1),pos(2),pos(3),st.hld)));
-0855 
-0856 cmap = get(gcf,<span class="string">'Colormap'</span>);
-0857 <span class="keyword">if</span> size(cmap,1)~=128
-0858       spm_figure(<span class="string">'Colormap'</span>,<span class="string">'gray-jet'</span>);
-0859 <span class="keyword">end</span>
+0829 <span class="comment">% Move crosshairs position in vx</span>
+0830 <span class="comment">% -------------------------------------------------------------------------</span>
+0831 <span class="keyword">if</span> isfield(handles,<span class="string">'img'</span>)
+0832     mp    = handles.vxedit;
+0833     posvx = get(mp,<span class="string">'String'</span>);
+0834     pos   = sscanf(posvx, <span class="string">'%g %g %g'</span>);
+0835     <span class="keyword">if</span> length(pos)~=3
+0836         pos = spm_orthviews(<span class="string">'pos'</span>,1);
+0837     <span class="keyword">end</span>
+0838     tmp = handles.vols{1}.mat;
+0839     pos = tmp(1:3,:)*[pos ; 1];
+0840     spm_orthviews(<span class="string">'Reposition'</span>,pos);
+0841 <span class="keyword">end</span>
+0842 
+0843 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0844 <a name="_sub23" href="#_subfunctions" class="code">function vxedit_CreateFcn(hObject, eventdata, handles)</a>
+0845 <span class="comment">% hObject    handle to vxedit (see GCBO)</span>
+0846 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0847 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0848 
+0849 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0850 <span class="comment">%       See ISPC and COMPUTER.</span>
+0851 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0852     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0853 <span class="keyword">end</span>
+0854 
+0855 <span class="comment">% Show crosshairs position</span>
+0856 <span class="comment">% -------------------------------------------------------------------------</span>
+0857 <a name="_sub24" href="#_subfunctions" class="code">function showpos()</a>
+0858  
+0859 <span class="keyword">global</span> st
 0860 
-0861 
-0862 <span class="comment">% --- Executes on button press in permutbutton.</span>
-0863 <a name="_sub25" href="#_subfunctions" class="code">function permutbutton_Callback(hObject, eventdata, handles)</a>
-0864 <span class="comment">% hObject    handle to permutbutton (see GCBO)</span>
-0865 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0866 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0867 
-0868 <span class="keyword">if</span> strcmp(get(handles.accuracytext,<span class="string">'Visible'</span>),<span class="string">'on'</span>) || strcmp(get(handles.corrtext,<span class="string">'Visible'</span>),<span class="string">'on'</span>)
-0869     m    = get(handles.classmenu,<span class="string">'Value'</span>);
-0870     reps = str2num(get(handles.repedit,<span class="string">'String'</span>));
-0871     <span class="keyword">if</span>  ~isempty(reps)
-0872         <span class="keyword">if</span> length(reps) ==1
-0873             reps = round(reps);
-0874             <a href="prt_permutation.html" class="code" title="function [] = prt_permutation(PRT, n_perm, modelid, path)">prt_permutation</a>(handles.PRT, reps, m, handles.pathdir);
-0875             <span class="comment">% Load new PRT.mat</span>
-0876             PRTmat = fullfile(handles.pathdir,<span class="string">'PRT.mat'</span>);
-0877             load(PRTmat);
-0878             perm = PRT.model(m).output.stats.permutation;
-0879             <span class="keyword">if</span> strcmp(handles.PRT.model(m).input.type,<span class="string">'classification'</span>);
-0880                 set(handles.pbacc,<span class="string">'String'</span>,sprintf(<span class="string">'(%3.1f)'</span>,perm.pvalue_b_acc), <span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0881                 set(handles.pcacc,<span class="string">'String'</span>,sprintf(<span class="string">'(%3.1f, %3.1f)'</span>,perm.pvalue_c_acc(1),<span class="keyword">...</span>
-0882                     perm.pvalue_c_acc(2)),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0883             <span class="keyword">else</span>
-0884                 set(handles.pcorr,<span class="string">'String'</span>,sprintf(<span class="string">'(%3.1f)'</span>,perm.pval_corr), <span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0885                 set(handles.pmse,<span class="string">'String'</span>,sprintf(<span class="string">'(%3.1f, %3.1f)'</span>,perm.pval_mse),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0886             <span class="keyword">end</span>
-0887         <span class="keyword">else</span>
-0888             beep;
-0889             disp(<span class="string">'Please enter only one value for the number of repetitions!'</span>);
-0890         <span class="keyword">end</span>
-0891     <span class="keyword">else</span>
-0892         beep;
-0893         disp(<span class="string">'Repetitions should be a number!'</span>);
-0894     <span class="keyword">end</span>
-0895 <span class="keyword">end</span>
-0896 
-0897 <a name="_sub26" href="#_subfunctions" class="code">function repedit_Callback(hObject, eventdata, handles)</a>
-0898 <span class="comment">% hObject    handle to repedit (see GCBO)</span>
-0899 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0900 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0901 
-0902 <span class="comment">% Hints: get(hObject,'String') returns contents of repedit as text</span>
-0903 <span class="comment">%        str2double(get(hObject,'String')) returns contents of repedit as a double</span>
-0904 
-0905 
-0906 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0907 <a name="_sub27" href="#_subfunctions" class="code">function repedit_CreateFcn(hObject, eventdata, handles)</a>
-0908 <span class="comment">% hObject    handle to repedit (see GCBO)</span>
-0909 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0910 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0861 mp13 = st.handles.mmedit;
+0862 mp14 = st.handles.vxedit;
+0863 tx20 = st.handles.posintensitytext;
+0864 
+0865 set(mp13,<span class="string">'String'</span>,sprintf(<span class="string">'%.1f %.1f %.1f'</span>,spm_orthviews(<span class="string">'Pos'</span>)));
+0866 pos = spm_orthviews(<span class="string">'Pos'</span>,1);
+0867 set(mp14,<span class="string">'String'</span>,sprintf(<span class="string">'%.1f %.1f %.1f'</span>,pos));
+0868 set(tx20,<span class="string">'String'</span>,sprintf(<span class="string">'%g'</span>,spm_sample_vol(st.V,pos(1),pos(2),pos(3),st.hld)));
+0869 
+0870 cmap = get(gcf,<span class="string">'Colormap'</span>);
+0871 <span class="keyword">if</span> size(cmap,1)~=128
+0872       spm_figure(<span class="string">'Colormap'</span>,<span class="string">'gray-jet'</span>);
+0873 <span class="keyword">end</span>
+0874 
+0875 
+0876 <span class="comment">% --- Executes on button press in permutbutton.</span>
+0877 <a name="_sub25" href="#_subfunctions" class="code">function permutbutton_Callback(hObject, eventdata, handles)</a>
+0878 <span class="comment">% hObject    handle to permutbutton (see GCBO)</span>
+0879 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0880 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0881 
+0882 <span class="keyword">if</span> strcmp(get(handles.accuracytext,<span class="string">'Visible'</span>),<span class="string">'on'</span>) || strcmp(get(handles.corrtext,<span class="string">'Visible'</span>),<span class="string">'on'</span>)
+0883     m    = get(handles.classmenu,<span class="string">'Value'</span>);
+0884     reps = str2num(get(handles.repedit,<span class="string">'String'</span>));
+0885     <span class="keyword">if</span>  ~isempty(reps)
+0886         <span class="keyword">if</span> length(reps) ==1
+0887             reps = round(reps);
+0888             disp(<span class="string">'Performing permutation test.........&gt;&gt;'</span>)
+0889             <a href="prt_permutation.html" class="code" title="function [] = prt_permutation(PRT, n_perm, modelid, path)">prt_permutation</a>(handles.PRT, reps, m, handles.pathdir);
+0890             <span class="comment">% Load new PRT.mat</span>
+0891             PRTmat = fullfile(handles.pathdir,<span class="string">'PRT.mat'</span>);
+0892             load(PRTmat);
+0893             perm = PRT.model(m).output.stats.permutation;
+0894             <span class="keyword">if</span> strcmp(handles.PRT.model(m).input.type,<span class="string">'classification'</span>);
+0895                 set(handles.pbacc,<span class="string">'String'</span>,sprintf(<span class="string">'p: %3.2f'</span>,perm.pvalue_b_acc), <span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0896                 set(handles.pcacc,<span class="string">'String'</span>,sprintf(<span class="string">'p: %3.2f, %3.2f'</span>,perm.pvalue_c_acc(1),<span class="keyword">...</span>
+0897                     perm.pvalue_c_acc(2)),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0898             <span class="keyword">else</span>
+0899                 set(handles.pcorr,<span class="string">'String'</span>,sprintf(<span class="string">'p: %3.2f'</span>,perm.pval_corr), <span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0900                 set(handles.pmse,<span class="string">'String'</span>,sprintf(<span class="string">'p: %3.2f'</span>,perm.pval_mse),<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0901             <span class="keyword">end</span>
+0902         <span class="keyword">else</span>
+0903             beep;
+0904             disp(<span class="string">'Please enter only one value for the number of repetitions!'</span>);
+0905         <span class="keyword">end</span>
+0906     <span class="keyword">else</span>
+0907         beep;
+0908         disp(<span class="string">'Repetitions should be a number!'</span>);
+0909     <span class="keyword">end</span>
+0910 <span class="keyword">end</span>
 0911 
-0912 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0913 <span class="comment">%       See ISPC and COMPUTER.</span>
-0914 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0915     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0916 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0912 <a name="_sub26" href="#_subfunctions" class="code">function repedit_Callback(hObject, eventdata, handles)</a>
+0913 <span class="comment">% hObject    handle to repedit (see GCBO)</span>
+0914 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0915 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0916 
+0917 <span class="comment">% Hints: get(hObject,'String') returns contents of repedit as text</span>
+0918 <span class="comment">%        str2double(get(hObject,'String')) returns contents of repedit as a double</span>
+0919 
+0920 
+0921 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0922 <a name="_sub27" href="#_subfunctions" class="code">function repedit_CreateFcn(hObject, eventdata, handles)</a>
+0923 <span class="comment">% hObject    handle to repedit (see GCBO)</span>
+0924 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0925 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0926 
+0927 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0928 <span class="comment">%       See ISPC and COMPUTER.</span>
+0929 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0930     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0931 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

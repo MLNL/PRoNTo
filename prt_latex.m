@@ -23,6 +23,7 @@ function prt_latex(c)
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 % 1. Turning the cfg files into a .tex file
 if ~nargin,
+    if ~exist('prt_cfg_batch.m','file'), prt; end
     c = prt_cfg_batch;
 end
 % if nargin && ischar(c),

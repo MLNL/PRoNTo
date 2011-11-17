@@ -54,7 +54,7 @@ This function is called by:
 0005 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0006 
 0007 <span class="comment">% Written by Andre Marquand</span>
-0008 <span class="comment">% $Id: prt_cfg_model.m 350 2011-11-10 15:45:36Z mjrosa $</span>
+0008 <span class="comment">% $Id: prt_cfg_model.m 392 2011-11-16 16:02:15Z amarquan $</span>
 0009 
 0010 <span class="comment">% ---------------------------------------------------------------------</span>
 0011 <span class="comment">% filename Filename(s) of data</span>
@@ -724,73 +724,98 @@ This function is called by:
 0675 data_op.val     = {0};
 0676 
 0677 <span class="comment">% ---------------------------------------------------------------------</span>
-0678 <span class="comment">% data_ops Classification</span>
+0678 <span class="comment">% data_op Operation</span>
 0679 <span class="comment">% ---------------------------------------------------------------------</span>
-0680 data_ops         = cfg_repeat;
-0681 data_ops.tag     = <span class="string">'data_ops'</span>;
-0682 data_ops.name    = <span class="string">'Operations'</span>;
-0683 data_ops.help    = {<span class="keyword">...</span>
-0684     [<span class="string">'Add zero or more operations to be applied to the data before the '</span>,<span class="keyword">...</span>
-0685      <span class="string">'prediction machine is called. These are executed within the '</span>,<span class="keyword">...</span>
-0686      <span class="string">'cross-validation loop (i.e. they respect training/test independence) '</span>,<span class="keyword">...</span>
-0687      <span class="string">'and will be executed in the order specified. '</span>]};
-0688 data_ops.num     = [1 Inf];
-0689 data_ops.values  = {data_op};
+0680 data_op_mc         = cfg_menu;
+0681 data_op_mc.tag     = <span class="string">'data_op_mc'</span>;
+0682 data_op_mc.name    = <span class="string">'Mean centre features'</span>;
+0683 data_op_mc.help    = {<span class="string">'Select an operation to apply.'</span>};
+0684 data_op_mc.labels  = {
+0685     <span class="string">'Yes'</span>
+0686     <span class="string">'No'</span>
+0687 }';
+0688 data_op_mc.values  = {0 1};
+0689 data_op_mc.val     = {0};
 0690 
 0691 <span class="comment">% ---------------------------------------------------------------------</span>
-0692 <span class="comment">% sel_ops Class</span>
+0692 <span class="comment">% data_ops Classification</span>
 0693 <span class="comment">% ---------------------------------------------------------------------</span>
-0694 sel_ops         = cfg_branch;
-0695 sel_ops.tag     = <span class="string">'sel_ops'</span>;
-0696 sel_ops.name    = <span class="string">'Specify operations'</span>;
-0697 sel_ops.help    = {<span class="keyword">...</span>
-0698     [<span class="string">'Specify operations to apply'</span>]};
-0699 sel_ops.val     = {data_ops};
-0700 
-0701 
-0702 <span class="comment">% ---------------------------------------------------------------------</span>
-0703 <span class="comment">% data_ops Select Features</span>
-0704 <span class="comment">% ---------------------------------------------------------------------</span>
-0705 data_ops        = cfg_choice;
-0706 data_ops.tag    = <span class="string">'data_ops'</span>;
-0707 data_ops.name   = <span class="string">'Data Operations'</span>;
-0708 data_ops.values = {no_op, sel_ops};
-0709 data_ops.val    =  {no_op};
-0710 data_ops.help   = {<span class="keyword">...</span>
-0711     [<span class="string">'This branch controls operations that can be applied to the data '</span>,<span class="keyword">...</span>
-0712      <span class="string">'before the data is passed to the classifier. Add zero or more '</span>,<span class="keyword">...</span>
-0713      <span class="string">'operations to be applied. These will be executed in the order '</span>,<span class="keyword">...</span>
-0714      <span class="string">'specified. '</span>]};
+0694 other_ops         = cfg_repeat;
+0695 other_ops.tag     = <span class="string">'other_ops'</span>;
+0696 other_ops.name    = <span class="string">'Select Operations'</span>;
+0697 other_ops.help    = {<span class="keyword">...</span>
+0698     [<span class="string">'Add zero or more operations to be applied to the data before the '</span>,<span class="keyword">...</span>
+0699      <span class="string">'prediction machine is called. These are executed within the '</span>,<span class="keyword">...</span>
+0700      <span class="string">'cross-validation loop (i.e. they respect training/test independence) '</span>,<span class="keyword">...</span>
+0701      <span class="string">'and will be executed in the order specified. '</span>]};
+0702 other_ops.num     = [1 Inf];
+0703 other_ops.values  = {data_op};
+0704 
+0705 <span class="comment">% ---------------------------------------------------------------------</span>
+0706 <span class="comment">% cv_type Cross-validation type</span>
+0707 <span class="comment">% ---------------------------------------------------------------------</span>
+0708 use_other_ops        = cfg_choice;
+0709 use_other_ops.tag    = <span class="string">'use_other_ops'</span>;
+0710 use_other_ops.name   = <span class="string">'Other Operations'</span>;
+0711 use_other_ops.values = {no_op, other_ops };
+0712 use_other_ops.val    = {no_op};
+0713 use_other_ops.help   = {<span class="string">'Include other operations?'</span>};
+0714 
 0715 
 0716 <span class="comment">% ---------------------------------------------------------------------</span>
-0717 <span class="comment">% model Model</span>
+0717 <span class="comment">% sel_ops Class</span>
 0718 <span class="comment">% ---------------------------------------------------------------------</span>
-0719 model        = cfg_exbranch;
-0720 model.tag    = <span class="string">'model'</span>;
-0721 model.name   = <span class="string">'Specify model'</span>;
-0722 model.val    = {infile, <span class="keyword">...</span>
-0723                 model_name, <span class="keyword">...</span>
-0724                 use_kernel, <span class="keyword">...</span>
-0725                 fsets, <span class="keyword">...</span>
-0726                 model_type, <span class="keyword">...</span>
-0727                 cv_type,<span class="keyword">...</span>
-0728                 data_ops};
-0729 model.help   = {<span class="string">'Construct model according to design specified'</span>};
-0730 model.prog   = @<a href="prt_run_model.html" class="code" title="function out = prt_run_model(varargin)">prt_run_model</a>;
-0731 model.vout   = @<a href="#_sub1" class="code" title="subfunction cdep = vout_data(job)">vout_data</a>;
-0732 
-0733 <span class="comment">%------------------------------------------------------------------------</span>
-0734 <span class="comment">% Output function</span>
-0735 <span class="comment">%------------------------------------------------------------------------</span>
-0736 <a name="_sub1" href="#_subfunctions" class="code">function cdep = vout_data(job)</a>
-0737 <span class="comment">% Specifies the output from this modules, i.e. the filename of the mat file</span>
-0738 
-0739 cdep(1)            = cfg_dep;
-0740 cdep(1).sname      = <span class="string">'PRT.mat file'</span>;
-0741 cdep(1).src_output = substruct(<span class="string">'.'</span>,<span class="string">'files'</span>);
-0742 cdep(1).tgt_spec   = cfg_findspec({{<span class="string">'filter'</span>,<span class="string">'mat'</span>,<span class="string">'strtype'</span>,<span class="string">'e'</span>}});
-0743 <span class="comment">%------------------------------------------------------------------------</span>
-0744</pre></div>
-<hr><address>Generated on Mon 14-Nov-2011 11:14:03 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0719 sel_ops         = cfg_branch;
+0720 sel_ops.tag     = <span class="string">'sel_ops'</span>;
+0721 sel_ops.name    = <span class="string">'Data operations'</span>;
+0722 sel_ops.help    = {<span class="keyword">...</span>
+0723     [<span class="string">'Specify operations to apply'</span>]};
+0724 sel_ops.val     = {data_op_mc use_other_ops};
+0725 
+0726 
+0727 <span class="comment">% ---------------------------------------------------------------------</span>
+0728 <span class="comment">% data_ops Select Features</span>
+0729 <span class="comment">% ---------------------------------------------------------------------</span>
+0730 data_ops        = cfg_choice;
+0731 data_ops.tag    = <span class="string">'data_ops'</span>;
+0732 data_ops.name   = <span class="string">'Data Operations'</span>;
+0733 data_ops.values = {data_op_mc, sel_ops};
+0734 data_ops.val    =  {no_op};
+0735 data_ops.help   = {<span class="keyword">...</span>
+0736     [<span class="string">'This branch controls operations that can be applied to the data '</span>,<span class="keyword">...</span>
+0737      <span class="string">'before the data is passed to the classifier. Add zero or more '</span>,<span class="keyword">...</span>
+0738      <span class="string">'operations to be applied. These will be executed in the order '</span>,<span class="keyword">...</span>
+0739      <span class="string">'specified. '</span>]};
+0740 
+0741 <span class="comment">% ---------------------------------------------------------------------</span>
+0742 <span class="comment">% model Model</span>
+0743 <span class="comment">% ---------------------------------------------------------------------</span>
+0744 model        = cfg_exbranch;
+0745 model.tag    = <span class="string">'model'</span>;
+0746 model.name   = <span class="string">'Specify model'</span>;
+0747 model.val    = {infile, <span class="keyword">...</span>
+0748                 model_name, <span class="keyword">...</span>
+0749                 use_kernel, <span class="keyword">...</span>
+0750                 fsets, <span class="keyword">...</span>
+0751                 model_type, <span class="keyword">...</span>
+0752                 cv_type,<span class="keyword">...</span>
+0753                 sel_ops};
+0754 model.help   = {<span class="string">'Construct model according to design specified'</span>};
+0755 model.prog   = @<a href="prt_run_model.html" class="code" title="function out = prt_run_model(varargin)">prt_run_model</a>;
+0756 model.vout   = @<a href="#_sub1" class="code" title="subfunction cdep = vout_data(job)">vout_data</a>;
+0757 
+0758 <span class="comment">%------------------------------------------------------------------------</span>
+0759 <span class="comment">% Output function</span>
+0760 <span class="comment">%------------------------------------------------------------------------</span>
+0761 <a name="_sub1" href="#_subfunctions" class="code">function cdep = vout_data(job)</a>
+0762 <span class="comment">% Specifies the output from this modules, i.e. the filename of the mat file</span>
+0763 
+0764 cdep(1)            = cfg_dep;
+0765 cdep(1).sname      = <span class="string">'PRT.mat file'</span>;
+0766 cdep(1).src_output = substruct(<span class="string">'.'</span>,<span class="string">'files'</span>);
+0767 cdep(1).tgt_spec   = cfg_findspec({{<span class="string">'filter'</span>,<span class="string">'mat'</span>,<span class="string">'strtype'</span>,<span class="string">'e'</span>}});
+0768 <span class="comment">%------------------------------------------------------------------------</span>
+0769</pre></div>
+<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
