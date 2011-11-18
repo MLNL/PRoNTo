@@ -1,16 +1,15 @@
 %
 %
 % Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
-% Verion 0.1 (PRoNTo) 30-November-2011
+% Verion 1.0 (PRoNTo) 30-November-2011
 %__________________________________________________________________________
-%
 %     ____  ____        _   ________     
-%    / __ \/ __ \____  / | / /_  __/_ 
-%   / /_/ / /_/ / __ \/  |/ / / / __ \
-%  / ____/ _, _/ /_/ / /|  / / / /_/ /
-% /_/   /_/ |_|\____/_/ |_/ /_/\____/ 
+%    / __ \/ __ \____  / | / /_  __/_         ___ ___ 
+%   / /_/ / /_/ / __ \/  |/ / / / __ \   _  _<  // _ \
+%  / ____/ _, _/ /_/ / /|  / / / /_/ /  | |/ / // // /
+% /_/   /_/ |_|\____/_/ |_/ /_/\____/   |___/_(_)___/ 
 %
-%                              PRoNTO - http://www.mlnl.cs.ucl.ac.uk/pronto
+%                         PRoNTO v1.0 - http://www.mlnl.cs.ucl.ac.uk/pronto
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
@@ -18,7 +17,7 @@
 %
 %__________________________________________________________________________
 %
-% PRoNTo v1 (2011) is the deliverable of a Pascal Harvest project 
+% PRoNTo v1.0 (2011) is the deliverable of a Pascal Harvest project 
 % coordinated by Dr. Mourao-Miranda.
 % PRoNTo is  developed by the Machine Learning & Neuroimaging Laboratory,
 % Computer Science department, University College London, UK.
@@ -60,28 +59,84 @@
 %
 %__________________________________________________________________________
 %
-% List of files:
-%   prt_batch - launch the PRoNTo batch system
-%   prt_cfg_batch - (internal) add PRoNTo menu to batch system
-%   prt_cfg_cv.m - 
-%   prt_cfg_design - builds PRT.mat file containing data and design info
-%   prt_cfg_kernel_construction - 
-%   prt_cfg_preproc - 
-%   prt_check_design -
-%   prt_data_conditions -
-%   prt_data_modality - 
-%   prt_data_review - 
-%   prt_defaults - 
-%   prt_get_defaults - 
-%   prt_get_filename - 
-%   prt_load_blocks - 
-%   prt_normalise_kernel - 
-%   prt_preproc - XXX same as run_preproc
-%   prt_remove_confounds - 
-%   prt_run_cv - 
-%   prt_run_design - 
-%   prt_run_kernel_construction - 
-%   prt_run_preproc - 
-%   prt_text_input - 
-%   prt_ui_design - 
-%   prt_ui_main - 
+% List of .m files:
+% -----------------
+% Contents.m                    
+% prt.m                         
+% prt_apply_operation.m         
+% prt_check_design.m            
+% prt_compute_weights.m         
+% prt_cv_model.m                
+% prt_cv_opt_param.m            
+% prt_data_conditions.m         
+% prt_data_modality.m           
+% prt_data_review.m             
+% prt_defaults.m                
+% prt_fs.m                      
+% prt_func2html.m               
+% prt_get_defaults.m            
+% prt_get_filename.m            
+% prt_init_fs.m                 
+% prt_init_model.m              
+% prt_latex.m                   
+% prt_load.m                    
+% prt_load_blocks.m             
+% prt_model.m                   
+% prt_normalise_kernel.m        
+% prt_permutation.m             
+% prt_preproc.m                 
+% prt_remove_confounds.m        
+% prt_stats.m                   
+% prt_struct2latex.m            
+% prt_text_input.m              
+% prt_ui_compute_weights.m      
+% prt_ui_cv_model.m             
+% prt_ui_design.m               
+% prt_ui_kernel_construction.m  
+% prt_ui_main.m                 
+% prt_ui_model.m                
+% prt_ui_prepare_data.m         
+% prt_ui_prepare_datamod.m      
+% prt_ui_results.m              
+% prt_ui_reviewCV.m             
+% prt_ui_reviewmodel.m          
+% prt_ui_select_class.m         
+% prt_ui_select_reg.m  
+% _devUtils\
+%     verLessThanV6.m
+% _unitTests
+%     prt_compute_weights.m     
+%     prt_create_weight_maps.m  
+%     test_prt_machine.m   
+% batch\
+%     prt_batch.m         
+%     prt_cfg_batch.m     
+%     prt_cfg_cv_model.m  
+%     prt_cfg_design.m    
+%     prt_cfg_fs.m        
+%     prt_cfg_model.m     
+%     prt_cfg_weights.m   
+%     prt_run_cv_model.m  
+%     prt_run_design.m    
+%     prt_run_fs.m        
+%     prt_run_model.m     
+%     prt_run_weights.m  
+% machines\
+%     prt_KRR.m                    
+%     prt_machine.m                
+%     prt_machine_RT_bin.m         
+%     prt_machine_gpml.m           
+%     prt_machine_krr.m            
+%     prt_machine_rvr.m            
+%     prt_machine_svm_bin.m        
+%     prt_rvr.m                    
+%     prt_weights.m                
+%     prt_weights_bin_linkernel.m  
+%     prt_weights_svm_bin.m     
+% manual\
+% masks\
+% utils\
+%     prt_centre_kernel.m       
+%     prt_checkAlphaNumUnder.m  
+%     prt_normalise_kernel.m    
+

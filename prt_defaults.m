@@ -1,6 +1,6 @@
 function prt_defaults
-% Sets the defaults which are used by PRoNTo, Pattern Recognition in
-% Neuroimaging Toolbox
+% Sets the defaults which are used by the Pattern Recognition for
+% Neuroimaging Toolbox, aka. PRoNTo.
 %
 % FORMAT prt_defaults
 %_______________________________________________________________________
@@ -24,8 +24,9 @@ function prt_defaults
 global prt_def
 
 % Global defaults
-prt_loc = which('prt_batch');
-prt_def.global.install_dir = fileparts(prt_loc);
+% prt_loc = which('prt_batch');
+% prt_def.global.install_dir = fileparts(prt_loc);
+prt_def.global.install_dir = prt('dir');
 
 
 % Parameters for the data and design
@@ -33,17 +34,14 @@ prt_def.global.install_dir = fileparts(prt_loc);
 prt_def.datad.hrfd = 0; % HRF delay in seconds
 prt_def.datad.hrfw = 0; % HRF FWHM, used to compute the overlap between conditions
 
-prt_def.prep.default_mask  = [prt_def.global.install_dir,'/masks/SPM_mask_noeyes.hdr'];% default mask
-
+prt_def.prep.default_mask  = [prt_def.global.install_dir,...
+                            '/masks/SPM_mask_noeyes.hdr'];% default mask
 
 % Preprocessing defaults
 %------------------------------------------------
-prt_def.prep.use1  = 5;      
-prt_def.prep.use2  = 'kk'; % pre
-
 % memory limit for kernel/file arrays construction
 prt_def.fs.mem_limit = 64*1024*1024;  % bytes of memory to use
-prt_def.fs.writeraw = 0;               % flag to write the data detrended (default) or raw (to set to 1).
+prt_def.fs.writeraw = 0;              % flag to write the data detrended (default) or raw (to set to 1).
 
 % Design specification default
 prt_def.dspec.use3 = [1 2];
