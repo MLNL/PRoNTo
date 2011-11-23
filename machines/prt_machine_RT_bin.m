@@ -98,7 +98,7 @@ rtParams.nbterms=args(1); % number of trees
 tridx=int32(1:numel(d.tr_targets));  % (WARNING: int32 format is mandatory)
 verbose=1;   % TODO: make this a machine arg
 
-[output.func_val w trees]=rtenslearn_c(single(d.train{1}),...
+[output.func_val output.w trees]=rtenslearn_c(single(d.train{1}),...
     single(d.tr_targets),tridx,[],rtParams,single(d.test{1}),verbose);
 
 % check if training succeeded:
