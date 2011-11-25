@@ -1,4 +1,4 @@
-function K = covLINkernel(hyp, A, B, i)
+function K = covLINkcell(hyp, A, B, i)
 
 % Linear covariance function with a single hyperparameter. The covariance
 % function is parameterized as:

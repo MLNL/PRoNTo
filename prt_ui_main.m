@@ -170,7 +170,8 @@ function batchbutt_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 prt_batch
-delete(handles.figure1)
+% [afm] stopped this from closing the main window
+%delete(handles.figure1)
 
 % --- Executes on button press in credits.
 function credits_Callback(hObject, eventdata, handles)
