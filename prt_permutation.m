@@ -174,9 +174,15 @@ else
             end
             
             % train the prediction model
-            temp_model = prt_machine(cvdata, PRT.model(modelid).input.machine);
-            model.output.fold(f).targets     = cvdata.te_targets;
-            model.output.fold(f).predictions = temp_model.predictions;
+            try 
+                temp_model = prt_machine(cvdata, PRT.model(modelid).input.machine);
+                model.output.fold(f).predictions = temp_model.predictions;
+            catch err
+                warning('prt_permutation:modelDidNotReturn',...
+                        'Prediction method did not return [%s]',err.message);
+                temp_model.predictions = zeros(size(cvdata.te_targets));
+            end
+            model.output.fold(f).targets = cvdata.te_targets;
             
             
             
@@ -199,7 +205,7 @@ else
                 permutation.b_acc(p)=perm_stats.b_acc;
                 n_class = length(PRT.model(modelid).output.fold(1).stats.c_acc);
                 
-                if (perm_stats.b_acc > PRT.model.output.stats.b_acc)
+                if (perm_stats.b_acc > PRT.model(modelid).output.stats.b_acc)
                     total_greater_b_acc=total_greater_b_acc+1;
                 end
                 
