@@ -36,6 +36,8 @@
 % - PASCAL2 (http://www.pascal-network.org/) and its HARVEST programme;
 % - the Fonds de la Recherche Scientifique-FNRS, Belgium
 %   (http://www.fnrs.be);
+% - The Foundation for Science and Technology, Portugal 
+%   (http://www.fct.pt);
 % - Swiss National Science Foundation (PP00P2-123438) and Center for
 %   Biomedical Imaging (CIBM) of the EPFL and Universities and Hospitals
 %   of Lausanne and Geneva. 
