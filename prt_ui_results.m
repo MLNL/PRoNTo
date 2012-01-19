@@ -366,31 +366,30 @@ if strcmp(PRT.model(m).input.type,'classification')
     myColours     = {'k','r'};
     
     if fold == 1
-        scores  = [];
         fVals   = [];
         targets = [];
         for f=1:handles.nfold
             targets = [targets;handles.PRT.model(model).output.fold(f).targets];
-            scores  = [scores;...
-                handles.PRT.model(model).output.fold(f).predictions];
             if isfield(handles.PRT.model(model).output.fold(f),'func_val')
                 fVvals_exist = 1;
                 fVals  = [fVals;handles.PRT.model(model).output.fold(f).func_val];
             else
                 fVvals_exist = 0;
+                fVals  = [fVals;...
+                    handles.PRT.model(model).output.fold(f).predictions];
             end
         end
-        targpos = targets == 2;
+        targpos = targets == 1;
     else
         % if folds wise
         targets = handles.PRT.model(model).output.fold(fold-1).targets;
-        targpos = targets == 2;
-        scores  = handles.PRT.model(model).output.fold(fold-1).predictions;
+        targpos = targets == 1;
         if isfield(handles.PRT.model(model).output.fold(fold-1),'func_val')
             fVals  = handles.PRT.model(model).output.fold(fold-1).func_val;
             fVvals_exist = 1;
         else
             fVvals_exist = 0;
+            fVals  = handles.PRT.model(model).output.fold(fold-1).predictions;
         end
     end
     
@@ -469,7 +468,7 @@ if strcmp(PRT.model(m).input.type,'classification')
             % ROC curve
             if strcmp(PRT.model(m).input.type,'classification');
                 cla(handles.axes5);
-                [y,idx] = sort(scores);
+                [y,idx] = sort(fVals);
                 targpos = targpos(idx);
                 
                 fp      = cumsum(single(targpos))/sum(single(targpos));
