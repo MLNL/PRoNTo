@@ -12,7 +12,7 @@ function output = prt_machine(d,m)
 %                  [Nte x D])
 %    .tr_targets - training labels (for classification) or values (for
 %                  regression) (column vector, [Ntr x 1])
-%    .use_kernel - flag, is data in form of kernel matrices (true) of in 
+%    .use_kernel - flag, is data in form of kernel matrices (true) or in 
 %                  form of features (false)
 %    Optional fields: the machine is respnsible for dealing with this
 %                  optional fields (e.g. d.testcov)
