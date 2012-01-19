@@ -146,10 +146,15 @@ end
 % Choose default command line output for prt_ui_results
 handles.output = hObject;
 
+Rect = spm('WinSize','Graphics'); %-Graphics window rectangle
+S0   = spm('WinSize','0',1);
+Rect(3) = Rect(3)*1.8;
+set(handles.figure1,'Units','pixels');
+set(handles.figure1,'Position',[S0(1) S0(2) 0 0] + Rect);
+set(handles.figure1,'Resize','off');
+
 % Reposition main window
 set(handles.figure1,'Units','normalized');
-p = get(handles.figure1,'Position');
-set(handles.figure1,'Position',[p(1) 1 p(3) p(4)]);
 
 % Update handles structure
 guidata(hObject, handles);
