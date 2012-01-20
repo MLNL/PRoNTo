@@ -146,21 +146,20 @@ end
 % Choose default command line output for prt_ui_results
 handles.output = hObject;
 
+% Reposition main window
 Rect = spm('WinSize','Graphics'); %-Graphics window rectangle
 S0   = spm('WinSize','0',1);
 Rect(3) = Rect(3)*1.8;
+Rect(4) = Rect(4)*0.95;
 set(handles.figure1,'Units','pixels');
 set(handles.figure1,'Position',[S0(1) S0(2) 0 0] + Rect);
-set(handles.figure1,'Resize','off');
-
-% Reposition main window
 set(handles.figure1,'Units','normalized');
 
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes prt_ui_results wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% Resize fig
+figure1_ResizeFcn(hObject, eventdata, handles)
 
 
 % --- Outputs from this function are returned to the command line.
