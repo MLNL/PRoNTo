@@ -89,10 +89,10 @@ if ~isfield(handles,'notinit')
     handles.mnames = model_name;
     set(handles.classmenu,'String',handles.mnames);
     % Get folds
-    nfold         = length(PRT.model(1).output.fold);
+    m             = get(handles.classmenu,'Value');
+    nfold         = length(PRT.model(m).output.fold);
     handles.nfold = nfold;
     folds{1}      = 'All folds / Average';
-    m             = get(handles.plotmenu,'Value');
     if strcmp(PRT.model(m).input.type,'classification');
         for f = 1:nfold
             folds{f+1} = num2str(f);
@@ -289,6 +289,20 @@ if length(list) == 1, set(handles.classmenu,'Value',1); end
 val = get(handles.classmenu,'Value');
 if val==0, set(handles.classmenu,'Value',1); end
 
+% Get folds
+m             = get(handles.classmenu,'Value');
+nfold         = length(handles.PRT.model(m).output.fold);
+handles.nfold = nfold;
+folds{1}      = 'All folds / Average';
+if strcmp(handles.PRT.model(m).input.type,'classification');
+    for f = 1:nfold
+        folds{f+1} = num2str(f);
+    end
+end
+% Set folds pulldown menu for first model
+handles.folds = folds;
+set(handles.foldmenu,'String',handles.folds);
+
 foldmenu_Callback(hObject, eventdata, handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -368,10 +382,11 @@ if strcmp(PRT.model(m).input.type,'classification')
     classNames{1} = handles.PRT.model(model).input.class(1).class_name;
     classNames{2} = handles.PRT.model(model).input.class(2).class_name;
     myColours     = {'k','r'};
-    
+
     if fold == 1
         fVals   = [];
         targets = [];
+        
         for f=1:handles.nfold
             targets = [targets;handles.PRT.model(model).output.fold(f).targets];
             if isfield(handles.PRT.model(model).output.fold(f),'func_val')
@@ -396,7 +411,7 @@ if strcmp(PRT.model(m).input.type,'classification')
             fVals  = handles.PRT.model(model).output.fold(fold-1).predictions;
         end
     end
-    
+
     % Plot
     % ---------------------------------------------------------------------
     switch plotchosen
