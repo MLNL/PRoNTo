@@ -67,7 +67,7 @@ set(handles.figure1,'Color',[0.86,0.86,0.86]);
 % -------------------------------------------------------------------------
 if ~isfield(handles,'notinit')
     % Load PRT.mat
-    PRT   = spm_select(1,'mat','Select PRT.mat');
+    PRT   = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
     pathdir = regexprep(PRT,'PRT.mat', '');
     handles.pathdir = pathdir;
     load(PRT);
