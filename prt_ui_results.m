@@ -428,7 +428,7 @@ if strcmp(PRT.model(m).input.type,'classification')
                         for f=2:handles.nfold+1
                             foldlabels{f} = num2str(f-1);
                             targets = handles.PRT.model(model).output.fold(f-1).targets;
-                            targpos = targets == 2;
+                            targpos = targets == 1;
                             fVals   = handles.PRT.model(model).output.fold(f-1).func_val;
                             func_valsc1 = fVals(targpos);
                             func_valsc2 = fVals(~targpos);
@@ -445,7 +445,7 @@ if strcmp(PRT.model(m).input.type,'classification')
                     else
                         foldlabels{1} = num2str(fold-1);
                         targets = handles.PRT.model(model).output.fold(fold-1).targets;
-                        targpos = targets == 2;
+                        targpos = targets == 1;
                         fVals   = handles.PRT.model(model).output.fold(fold-1).func_val;
                         func_valsc1 = fVals(targpos);
                         func_valsc2 = fVals(~targpos);
