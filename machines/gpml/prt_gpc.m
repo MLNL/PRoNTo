@@ -124,7 +124,7 @@ else
   end
   Ltril = all(all(tril(L,-1)==0));            % is L an upper triangular matrix?
   % [afm] ns = size(xs,1);                                       % number of data points
-  if iscell(xs), ns = size(xs{1},1); else ns = size(xs,1); end % number of data points
+  if iscell(xs), ns = size(feval(cov{:}, hyp.cov, xss, 'diag'),1); else ns = size(xs,1); end % number of data points
   nperbatch = 1000;                       % number of data points per mini batch
   nact = 0;                       % number of already processed test data points
   ymu = zeros(ns,1); ys2 = ymu; fmu = ymu; fs2 = ymu; lp = ymu;   % allocate mem
