@@ -147,12 +147,14 @@ end
 p = exp(lp);
 output.predictions = real(p > 0.5) + 1;
 output.type        = mode;
-output.func_val  = p;
+output.func_val    = p;
 output.loghyper    = hyp;
 output.nlml        = min(nlmls);
 output.alpha       = post.alpha;
 output.sW          = post.sW;
 output.L           = post.L;
 
+output.predictions
+output.func_val
 end
 
