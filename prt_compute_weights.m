@@ -91,49 +91,77 @@ end
 hdr        = PRT.fas(fas_idx).hdr.private;
 img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),...
     hdr.dat.dim(3),nfold+1],'float64-le',0,1,0);
-nvox       = hdr.dat.dim(1)*hdr.dat.dim(2)*hdr.dat.dim(3);
-img3dav    = zeros(1,nvox); % average weight map
 
-for f = 1:nfold
+zdim    = hdr.dat.dim(3);
+xydim   = hdr.dat.dim(1)*hdr.dat.dim(2);
+norm3d  = 0;
+
+disp('Computing weights.......>>')
+
+for z = 1:zdim
     
-    disp(sprintf('Computing weights: fold %d of %d',f,nfold))
+    disp(sprintf('Slice: %d of %d',z,zdim))
     
-    train_idx      = PRT.model(model_idx).input.cv_mat(:,f)==1;
-    train          = samp_idx(train_idx);
+    img3dav  = zeros(1,xydim); % average weight map
     
-    alphas         = PRT.model(model_idx).output.fold(f).alpha;
+    feat_slc = find(PRT.fas(fas_idx).idfeat_img>=(xydim*(z-1)+1) & ...
+        PRT.fas(fas_idx).idfeat_img<=(xydim*z));
     
-    d.coeffs       = alphas;
-    d.datamat      = PRT.fas(fas_idx).dat(train,:);
-    
-    % Apply any operations specified during training
-    ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
-    cvdata.train      = {d.datamat};
-    cvdata.tr_id      = ID(train_idx,:);
-    cvdata.use_kernel = false; % need to apply the operation to the data
-    for o = 1:length(ops)
-        cvdata = prt_apply_operation(PRT, cvdata, ops(o));
+    if isempty(feat_slc)
+        
+        img4d(:,:,z,:) = zeros(hdr.dat.dim(1),hdr.dat.dim(2),1,nfold+1);
+        
+    else
+        
+        for f = 1:nfold
+            
+            train_idx      = PRT.model(model_idx).input.cv_mat(:,f)==1;
+            train          = samp_idx(train_idx);
+            
+            d.coeffs       = PRT.model(model_idx).output.fold(f).alpha;
+            
+            d.datamat      = PRT.fas(fas_idx).dat(train,feat_slc);
+            
+            % Apply any operations specified during training
+            ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
+            cvdata.train      = {d.datamat};
+            cvdata.tr_id      = ID(train_idx,:);
+            cvdata.use_kernel = false; % need to apply the operation to the data
+            for o = 1:length(ops)
+                cvdata = prt_apply_operation(PRT, cvdata, ops(o));
+            end
+            d.datamat = cvdata.train{:};
+            
+            wimg           = prt_weights(d,m);
+            
+            img3d          = zeros(1,xydim);
+            
+            img3d(PRT.fas(fas_idx).idfeat_img(feat_slc)-xydim*(z-1)) = wimg;
+            
+            norm3d(f)      = sum(img3d.^2);
+            
+            img3dav        = img3dav + img3d;
+            
+            img4d(:,:,z,f) = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),1,1);
+            
+        end
+        
+        norm4d(z,:) = norm3d;
+        
+        % Create average fold
+        %--------------------------------------------------------------------------
+        img4d(:,:,z,nfold+1) = reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),...
+            1,1)/nfold;        
     end
-    d.datamat = cvdata.train{:};
-    
-    wimg           = prt_weights(d,m);
-    wimg           = wimg/norm(wimg,2); % normalise weights
-    
-    img3d          = zeros(1,nvox);
-    img3d(PRT.fas(fas_idx).idfeat_img)  = wimg;
-    
-    img3dav        = img3dav + img3d;
-    
-    img4d(:,:,:,f) = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),...
-        hdr.dat.dim(3),1);
     
 end
 
-% Create average fold
-%--------------------------------------------------------------------------
-disp('Computing averaged weights')
-img4d(:,:,:,nfold+1) = reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),...
-    hdr.dat.dim(3),1)/nfold;
+norm4d = sqrt(sum(norm4d,1));
+
+disp('Normalising weights--------->>')
+for f = 1:nfold,
+    img4d(:,:,:,f) = img4d(:,:,:,f)./norm4d(1,f);
+end
 
 % Create weigths file
 %--------------------------------------------------------------------------
@@ -142,4 +170,4 @@ No         = hdr;              % copy header
 No.dat     = img4d;            % change file_array
 No.descrip = 'Pronto weigths'; % description
 create(No);                    % write header
-
+disp('Done.')
