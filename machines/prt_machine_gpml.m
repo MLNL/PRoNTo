@@ -60,20 +60,20 @@ if SANITYCHECK==true
     % check it is indeed a two-class classification problem
     uTL=unique(d.tr_targets(:));
     nC=numel(uTL);
-    if nC>2
-        error('prt_machine_gpml:problemNotBinary',['Error:'...
-            ' This machine is only for two-class problems but the' ...
-            ' current problem has ' num2str(nC) ' ! ' ...
-            'SOLUTION: Please select another machine']);
-    end
+    %if nC>2
+    %    error('prt_machine_gpml:problemNotBinary',['Error:'...
+    %        ' This machine is only for two-class problems but the' ...
+    %        ' current problem has ' num2str(nC) ' ! ' ...
+    %        'SOLUTION: Please select another machine']);
+    %end
     % check it is indeed labelled correctly (probably should be done 
-    if ~all(uTL==[1 2]')
-        error('prt_machine_gpml:LabellingIncorect',['Error:'...
-            ' This machine needs labels to be in {1,2} ' ...
-            ' but they are ' mat2str(uTL) ' ! ' ...
-            'SOLUTION: Please relabel your classes by changing the '...
-            ' ''tr_targets'' argument to prt_machine_gpml']);
-    end
+    %if ~all(uTL==[1 2]')
+    %    error('prt_machine_gpml:LabellingIncorect',['Error:'...
+    %        ' This machine needs labels to be in {1,2} ' ...
+    %        ' but they are ' mat2str(uTL) ' ! ' ...
+    %        'SOLUTION: Please relabel your classes by changing the '...
+    %        ' ''tr_targets'' argument to prt_machine_gpml']);
+    %end
     % are we using a kernel
     if ~d.use_kernel
         error('prt_machine_gpml:LabellingIncorect',['Error:'...
@@ -98,7 +98,8 @@ else
 end
 
 % convert labels to +1/-1
-y =  2 * d.tr_targets - 3;
+%y =  2 * d.tr_targets - 3;  %wrong!
+y = -1*(2 * d.tr_targets - 3);
 
 % Configure data matrices & train GP model
 % -------------------------------------------------------------------------
@@ -145,7 +146,7 @@ end
 % Outputs
 % -------------------------------------------------------------------------
 p = exp(lp);
-output.predictions = real(p > 0.5) + 1;
+output.predictions = (1-real(p > 0.5)) + 1;
 output.type        = mode;
 output.func_val    = p;
 output.loghyper    = hyp;
