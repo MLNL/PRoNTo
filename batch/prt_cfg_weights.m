@@ -14,7 +14,8 @@ infile.tag    = 'infile';
 infile.name   = 'Load PRT.mat';
 infile.filter = 'mat';
 infile.num    = [1 1];
-infile.help   = {'Select PRT.mat (file containing data/design structure).'};
+infile.help   = {['Select PRT.mat (file containing data/design/models ',...
+                 'structure).']};
 
 % ---------------------------------------------------------------------
 % model_name Feature set name
@@ -34,7 +35,8 @@ model_name.num     = [1 Inf];
 img_name         = cfg_entry;
 img_name.tag     = 'img_name';
 img_name.name    = 'Image name (optional)';
-img_name.help    = {'Name of the file with weights.'};
+img_name.help    = {['Name of the file with weights (optional). If left empty ',...
+                    ' an automatic name will be generated.']};
 img_name.strtype = 's';
 img_name.num     = [0 Inf];
 img_name.val     = {''};
@@ -46,8 +48,11 @@ weights        = cfg_exbranch;
 weights.tag    = 'weights';
 weights.name   = 'Compute weights';
 weights.val    = {infile model_name img_name};
-weights.help   = {...
-    'Compute weights.'};
+weights.help   = {[
+    'Compute weights. This module computes the linear weights of a classifier ',...
+    'and saves them as a 4D image. 3 dimensions correspond to the image dimensions specified in ',...
+    'the second-level mask, while the extra dimension corresponds to the number of folds. ',...
+    'There is one 3D weights image per fold.']};
 weights.prog   = @prt_run_weights;
 weights.vout   = @vout_data;
 
