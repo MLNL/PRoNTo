@@ -754,7 +754,7 @@ function classmenu_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from classmenu
 
 % Get folds
-m             = get(handles.classmenu,'Value');
+m             = ceil(get(handles.classmenu,'Value'));
 handles.nfold = length(handles.PRT.model(m).output.fold);
 folds{1}      = 'All folds / Average';
 for f = 1:handles.nfold
