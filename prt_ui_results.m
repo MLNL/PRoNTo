@@ -19,6 +19,11 @@ function varargout = prt_ui_results(varargin)
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
+%__________________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
+% Written by M. J. Rosa
+% $Id$
 
 % Edit the above text to modify the response to help prt_ui_results
 
