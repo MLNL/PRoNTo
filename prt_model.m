@@ -3,11 +3,10 @@ function PRT = prt_model(PRT,in)
 %
 % Input:
 % ------
-%
+%   PRT fields:
 %   model.fs(f).fs_name:     feature set(s) this CV approach is defined for
 %   model.fs(f).fs_features: feature selection mode ('all' or 'mask')
 %   model.fs(f).mask_file:   mask for this feature set (fs_features='mask')
-%
 %
 %   in.fname:      filename for PRT.mat
 %   in.model_name: name for this cross-validation structure
@@ -66,26 +65,30 @@ for f = 1:length(in.fs)
     PRT.model(modelid).input.fs(f).fs_name = in.fs(f).fs_name;
 end
 
-
 % compute targets and samp_idx
 % -------------------------------------------------------------------------
 if strcmp(in.type,'classification')
-    [targets, samp_idx, targ_allscans]     = compute_targets(PRT, in);
+    [targets, samp_idx, t_allscans, samp_allscans] = compute_targets(PRT, in);
 else
-    [targets, samp_idx, targ_allscans] =compute_target_reg(PRT, in);
+    [targets, samp_idx, t_allscans] = compute_target_reg(PRT, in);
 end
-PRT.model(modelid).input.samp_idx      = samp_idx;
-PRT.model(modelid).input.targets       = targets;
-PRT.model(modelid).input.targ_allscans = targ_allscans;
-
-%
+%[afm]
+if isfield(in,'include_allscans') && in.include_allscans   
+    PRT.model(modelid).input.samp_idx = samp_allscans;
+    PRT.model(modelid).input.include_allscans = in.include_allscans;
+else
+    PRT.model(modelid).input.samp_idx = samp_idx;
+    PRT.model(modelid).input.include_allscans = false;
+end
+PRT.model(modelid).input.targets          = targets;
+PRT.model(modelid).input.targ_allscans    = t_allscans;
 
 % compute cross-validation matrix and specify operations to apply
 % -------------------------------------------------------------------------
 PRT.model(modelid).input.cv_mat     = compute_cv_mat(PRT,in, modelid);
 PRT.model(modelid).input.operations = in.operations;
 
-%Added by Carlton
+% Added by Carlton
 PRT.model(modelid).input.cv_type=in.cv.type;
 % Save PRT.mat
 % -------------------------------------------------------------------------
@@ -102,7 +105,7 @@ end
 % Private Functions
 % -------------------------------------------------------------------------
 
-function [targets, samp_idx, t_all] = compute_targets(PRT, in)
+function [targets, samp_idx, t_all samp_all] = compute_targets(PRT, in)
 % Function to compute the prediction targets. Also does some error checking
 
 % Set the reference feature set
@@ -125,7 +128,8 @@ end
 modalities = {PRT.masks(:).mod_name};
 groups     = {PRT.group(:).gr_name};
 
-t_all = zeros(n,1);
+t_all    = zeros(n,1);
+samp_all = zeros(n,1);
 for c = 1:length(in.class)
     
     % groups
@@ -140,7 +144,7 @@ for c = 1:length(in.class)
         
         % subjects
         for s = 1:length(in.class(c).group(g).subj)
-            
+            sid = in.class(c).group(g).subj(s).num;
             % modalities
             for m = 1:length(in.class(c).group(g).subj(s).modality)
                 mod_name = in.class(c).group(g).subj(s).modality(m).mod_name;
@@ -164,10 +168,11 @@ for c = 1:length(in.class)
                     end
                     
                     % otherwise add all scans for each subject
-                    idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid;
+                    %[afm] idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid;
+                    idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
                     t_all(idx) = c;
                 else % conditions have been specified
-                    sid = in.class(c).group(g).subj(s).num;
+                    %[afm]sid = in.class(c).group(g).subj(s).num;
                     conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
                     
                     % check whether conditions were specified in the design
@@ -199,6 +204,8 @@ for c = 1:length(in.class)
                             t_all(idx) = c;
                         end
                     end
+                    s_idx_mod = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
+                    samp_all(s_idx_mod) = 1;
                 end
             end
         end
@@ -206,6 +213,7 @@ for c = 1:length(in.class)
 end
 
 samp_idx = find(t_all);
+samp_all = find(samp_all);
 targets  = t_all(samp_idx);
 
 end
@@ -215,12 +223,16 @@ function CV = compute_cv_mat(PRT, in, modelid)
 
 fid = prt_init_fs(PRT, in.fs(1));
 
-% id matrix only contains samples within the CV structure
-% it is initialised in prt_init_fs, and the columns contents are described
-% in PRT.fs(fid).id_col_names
-% ('group','subject','modality','condition','block','scan')
-ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
-
+if isfield(in,'include_allscans') && in.include_allscans
+    % use the full id matrix
+    ID = PRT.fs(fid).id_mat;
+else
+    % id matrix only contains samples within the CV structure
+    % it is initialised in prt_init_fs. The columns contents are described
+    % in PRT.fs(fid).id_col_names
+    % ('group','subject','modality','condition','block','scan')
+    ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
+end
 
 switch in.cv.type
     case 'loso'
@@ -236,6 +248,10 @@ switch in.cv.type
         
         % Compute CV matrix
         snums = histc(ID(:,2),unique(ID(:,2)));
+        if length(snums) == 1
+            error('prt_model:losoSelectedWithOneSubject',...
+            'LOSO CV selected but only one subject is included');
+        end
         %snums = accumarray(ID(:,2),1);
         G = cell(length(snums),1);
         for s = 1:length(snums)
@@ -246,6 +262,10 @@ switch in.cv.type
     case 'losgo'
         % leave-one-subject-per-group-out
         sids = unique(ID(:,2));
+        if length(sids) == 1
+            error('prt_model:losoSelectedWithOneSubject',...
+            'LOSGO CV selected but only one subject is included');
+        end
         
         CV = zeros(size(ID,1),length(sids));
         for s = 1:length(sids)
@@ -268,10 +288,17 @@ switch in.cv.type
         % leave-one-condition-per-block-out
         error('leave-one-condition-per-block-out not yet implemented');
         
-        
     case 'loro'
-        warning('leave-one-run-out CV only implemented for MCKR');
+        % leave-one-run-out
         
+        mids = unique(ID(:,3));
+        
+        CV = zeros(size(ID,1),length(mids));
+        for m = 1:length(mids)
+            midx = ID(:,3) == mids(m);
+            CV(:,m) = double(midx) + 1;
+        end
+
     case 'custom'
         error('custom CV not implemented yet');
         
@@ -292,7 +319,7 @@ n   = size(ID,1);
 
 modalities = {PRT.masks(:).mod_name};
 groups     = {PRT.group(:).gr_name};
-t_all = zeros(n,1);
+%t_all = zeros(n,1);
 targ_allscans=zeros(n,1);
 
 for g = 1:length(in.group)
@@ -306,18 +333,18 @@ for g = 1:length(in.group)
     
     % subjects
     for s = 1:length(in.group(g).subj)
-        
         % modalities, currently only one is allowed
         m=1;
         mod_name = in.group(g).subj(s).modality(m).mod_name;
         if any(strcmpi(mod_name,modalities))
             mid = find(strcmpi(mod_name,modalities));
         else
-            error('prt_model:groupNotFoundInPRT',...
+            error('prt_model:modalityNotFoundInPRT',...
                 ['Modality ',mod_name,' not found in PRT.mat']);
         end
-        samp_idx(s)=in.group(g).subj(s).num;
-        targets(s)= PRT.group(gid).subject( samp_idx(s)).modality(mid).rt_subj;
+        samp_idx(s) = in.group(g).subj(s).num;
+        targets(s)  = PRT.group(gid).subject(samp_idx(s)).modality(mid).rt_subj;
+        
     end
 end
 targets=targets';

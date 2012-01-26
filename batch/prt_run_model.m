@@ -76,7 +76,7 @@ model.fs(1).fs_name = job.fsets;
 fid=prt_init_fs(PRT,model.fs(1));
 mods={PRT.fs(fid).modality(:).mod_name};
 
-%get the conditions which are common to all subjects from all groups, only
+%get the conditions which are common to all subjects from all groups
 nm=length(mods);
 for i=1:nm
     flag=1;
@@ -85,7 +85,7 @@ for i=1:nm
             m2= strcmpi(PRT.fs(fid).modality(nm).mod_name,mods);
             des=PRT.group(j).subject(k).modality(m2).design;
             if isstruct(des) && flag
-                if k==1 && nm==1
+                if k==1 && j==1
                     lcond={des.conds(:).cond_name};
                 else
                     tocmp={des.conds(:).cond_name};
@@ -207,6 +207,8 @@ else
     model.cv.type     = 'custom';
     model.cv.mat_file = job.cv_type;
 end
+
+model.include_allscans = job.include_allscans;
 
 % specify operations to apply to the data prior to prediction
 % if isfield(job.data_ops,'data_ops')

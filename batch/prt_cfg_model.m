@@ -7,6 +7,8 @@ function model = prt_cfg_model
 % Written by Andre Marquand
 % $Id$
 
+def = prt_get_defaults;
+
 % ---------------------------------------------------------------------
 % filename Filename(s) of data
 % ---------------------------------------------------------------------
@@ -341,7 +343,7 @@ gpc_args.tag     = 'gpc_args';
 gpc_args.name    = 'Arguments';
 gpc_args.help    = {['Arguments for prt_machine_gpml.']};
 gpc_args.strtype = 's';
-gpc_args.val     = {'-l erf -h'};
+gpc_args.val     = {def.model.gpcargs};
 gpc_args.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
@@ -487,74 +489,6 @@ model_type.name   = 'Model Type ';
 model_type.values = {classification, regression};
 model_type.help   = {'Select which kind of predictive model is to be used.'};
 
-% Old CV structure. Might be resuscitated at some point.
-% % ---------------------------------------------------------------------
-% % cv_train Cross-validation training set
-% % ---------------------------------------------------------------------
-% cv_train         = cfg_repeat;
-% cv_train.tag     = 'cv_train';
-% cv_train.name    = 'Train';
-% cv_train.help    = {['Specify training set.']};
-% cv_train.num     = [1 Inf];
-% cv_train.values  = {group};
-% 
-% % ---------------------------------------------------------------------
-% % cv_use_test Use test set
-% % ---------------------------------------------------------------------
-% cv_use_test         = cfg_repeat;
-% cv_use_test.tag     = 'cv_use_test';
-% cv_use_test.name    = 'Specify test set';
-% cv_use_test.help    = {['Include a test set in this fold']};
-% cv_use_test.num     = [1 Inf];
-% cv_use_test.values  = {group};
-% 
-% % ---------------------------------------------------------------------
-% % cv_no_test No test set
-% % ---------------------------------------------------------------------
-% cv_no_test         = cfg_const;
-% cv_no_test.tag     = 'cv_no_test';
-% cv_no_test.name    = 'No test set';
-% cv_no_test.val     = {0};
-% cv_no_test.help    = {['Do not use a test set for this fold']};
-% % ---------------------------------------------------------------------
-% % cv_test Cross-validation test set
-% % ---------------------------------------------------------------------
-% cv_test        = cfg_choice;
-% cv_test.tag    = 'cv_test';
-% cv_test.name   = 'Test';
-% cv_test.help   = {'Specify test set (if any).'};
-% cv_test.values = {cv_no_test, cv_use_test };
-% 
-% % ---------------------------------------------------------------------
-% % cv_use_valid Use validation set
-% % ---------------------------------------------------------------------
-% cv_use_valid         = cfg_repeat;
-% cv_use_valid.tag     = 'cv_use_valid';
-% cv_use_valid.name    = 'Specify validation set';
-% cv_use_valid.help    = {['Use a validation set for this fold']};
-% cv_use_valid.num     = [1 Inf];
-% cv_use_valid.values  = {group};
-% 
-% % ---------------------------------------------------------------------
-% % cv_no_valid No validation set
-% % ---------------------------------------------------------------------
-% cv_no_valid         = cfg_const;
-% cv_no_valid.tag     = 'cv_no_valid';
-% cv_no_valid.name    = 'No validation set';
-% cv_no_valid.val     = {0};
-% cv_no_valid.help    = {['Do not use a validation set for this fold']};
-% 
-% % ---------------------------------------------------------------------
-% % cv_valid Cross-validation validation set
-% % ---------------------------------------------------------------------
-% cv_valid        = cfg_choice;
-% cv_valid.tag    = 'cv_valid';
-% cv_valid.name   = 'Validation';
-% cv_valid.help   = {'Specify validation set (if any).'};
-% cv_valid.values = {cv_no_valid, cv_use_valid };
-% %cv_valid.val    = {cv_no_valid};
-% 
-
 % ---------------------------------------------------------------------
 % cv_loso Leave-one-subject-out
 % ---------------------------------------------------------------------
@@ -586,7 +520,7 @@ cv_lobo.help    = {...
     ['Leave out a single block or event from each subject each iteration. ', ...
      'Appropriate for single subject designs.']};
  
- % ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
 % cv_loro Leave--one-run-per-subject-out (leave one modality out per
 % subject)
 % ---------------------------------------------------------------------
@@ -598,28 +532,6 @@ cv_loro.help    = {...
     ['Leave out a single run (modality) from each subject each iteration. ', ...
      'Appropriate for single subject designs with multiple runs/sessions.']};
    
-%  
-% % ---------------------------------------------------------------------
-% % cv_fold Cross-validation fold
-% % ---------------------------------------------------------------------
-% cv_fold         = cfg_branch;
-% cv_fold.tag     = 'cv_fold';
-% cv_fold.name    = 'Fold';
-% cv_fold.help    = {...
-%     ['Specify the groups, subjects, modalities and conditions to be ',...
-%      'included in this fold']};
-% cv_fold.val     = {cv_train cv_test cv_valid};
-% 
-% % ---------------------------------------------------------------------
-% % cv_custom_fold Custom cross-validation fold
-% % ---------------------------------------------------------------------
-% cv_custom         = cfg_repeat;
-% cv_custom.tag     = 'cv_custom';
-% cv_custom.name    = 'Custom';
-% cv_custom.help    = {'Specify a custom cross-validation approach.'};
-% cv_custom.num     = [1 Inf];
-% cv_custom.values  = {cv_fold};
-
 % ---------------------------------------------------------------------
 % cv_custom Feature set mask
 % ---------------------------------------------------------------------
@@ -643,6 +555,25 @@ cv_type.values = {cv_loso, cv_losgo, cv_lobo, cv_loro,cv_custom};
 cv_type.val    = {cv_loso};
 cv_type.help   = {'Choose the type of cross-validation to be used'};
 
+% ---------------------------------------------------------------------
+% include_allscans Include unused scans
+% ---------------------------------------------------------------------
+include_allscans         = cfg_menu;
+include_allscans.tag     = 'include_allscans';
+include_allscans.name    = 'Include all scans';
+include_allscans.labels  = {
+    'Yes'
+    'No'
+}';
+include_allscans.values  = {1 0};
+include_allscans.val     = {0};
+include_allscans.help    = {[...
+    'This option can be used to pass all the scans for each subject to ',...
+    'the learning machine, regardless of whether they are directly ',...
+    'involved in the classification or regression problem. For example, ',...
+    'this can be used to estimate a GLM from the whole timeseries ',...
+    'for each subject prior to prediction. This would allow the resulting ',...
+    'regression coefficient images to be used as samples.']};
 
 % ---------------------------------------------------------------------
 % no_op All scans
@@ -689,7 +620,7 @@ data_op_mc.values  = {0 1};
 data_op_mc.val     = {0};
 
 % ---------------------------------------------------------------------
-% data_ops Classification
+% other_ops Other Operations
 % ---------------------------------------------------------------------
 other_ops         = cfg_repeat;
 other_ops.tag     = 'other_ops';
@@ -703,7 +634,7 @@ other_ops.num     = [1 Inf];
 other_ops.values  = {data_op};
 
 % ---------------------------------------------------------------------
-% cv_type Cross-validation type
+% use_other_ops Use other operations
 % ---------------------------------------------------------------------
 use_other_ops        = cfg_choice;
 use_other_ops.tag    = 'use_other_ops';
@@ -711,7 +642,6 @@ use_other_ops.name   = 'Other Operations';
 use_other_ops.values = {no_op, other_ops };
 use_other_ops.val    = {no_op};
 use_other_ops.help   = {'Include other operations?'};
-
 
 % ---------------------------------------------------------------------
 % sel_ops Class
@@ -736,8 +666,8 @@ data_ops.help   = {...
     ['This branch controls operations that can be applied to the data ',...
      'before the data is passed to the classifier. Add zero or more ',...
      'operations to be applied. These will be executed in the order ',...
-     'specified. ']};
-
+     'specified. ']}; 
+ 
 % ---------------------------------------------------------------------
 % model Model
 % ---------------------------------------------------------------------
@@ -750,6 +680,7 @@ model.val    = {infile, ...
                 fsets, ...
                 model_type, ...
                 cv_type,...
+                include_allscans,...
                 sel_ops};
 model.help   = {'Construct model according to design specified'};
 model.prog   = @prt_run_model;

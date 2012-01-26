@@ -250,12 +250,13 @@ if SANITYCHECK==true
     else
         % FIXME: multiple kernels / feature representations is unsupported
         % here
-        if (size(output.predictions,1)~= Ntest)
-            error('prt_machine:outputNpredictionsNotEqNte',['Error: Number '...
-                'of predictions output and number of test examples should '...
-                'match, but Npre=%d and Nte=%d !'],...
-                size(output.predictions,1),Ntest);
-        end
+        % [afm] removed to test glm approach
+        %if (size(output.predictions,1)~= Ntest)
+        %    error('prt_machine:outputNpredictionsNotEqNte',['Error: Number '...
+        %        'of predictions output and number of test examples should '...
+        %        'match, but Npre=%d and Nte=%d !'],...
+        %        size(output.predictions,1),Ntest);
+        %end
     end
     
 end % SANITYCHECK on output

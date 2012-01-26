@@ -102,7 +102,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
                 m2= strcmpi(handles.dat.fs(indfs).modality(nm).mod_name,modnam);
                 des=handles.dat.group(j).subject(k).modality(m2).design;
                 if isstruct(des) && flag
-                    if k==1 && nm==1
+                    if k==1 && j == 1 % [afm] && nm==1
                         lcond={des.conds(:).cond_name};
                     else
                         tocmp={des.conds(:).cond_name};

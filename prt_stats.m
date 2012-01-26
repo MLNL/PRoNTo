@@ -29,13 +29,6 @@ function stats = prt_stats(model, t,flag)
 % $Id$
 
 % FIXME: is any code using the 'flags' input argument? 
-
-% Do some checks ...
-if size(t,1) ~= size(model.predictions,1)
-    error(['prt_stats:machineProvidesWrongNumberOfPredictions',...
-        'Number of predictions is not equal to the number of targets']);
-end
-
 if ~isfield(model,'type')
     warning('prt_stats:modelDoesNotProvideTypeField',...
         'model.type not specified, defaulting to classifier');

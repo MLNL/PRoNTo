@@ -1,5 +1,5 @@
 function output = prt_machine_gpml(d,args)
-% Run binary SVM - wrapper for libSVM
+% Run Gaussian process model - wrapper for gpml toolbox
 % FORMAT output = prt_machine_gpml(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:
@@ -13,16 +13,31 @@ function output = prt_machine_gpml(d,args)
 %                   each [Nte x Nte])
 %     .tr_targets - training labels (for classification) or values (for
 %                   regression) (column vector, [Ntr x 1])
-%     .use_kernel - flag, is data in form of kernel matrices (true) of in 
-%                form of features (false)
+%     .use_kernel - flag, is data in form of kernel matrices (true) or in 
+%                   form of features (false)
 %    args     - argument string, where
-%       -h        - optimise hyperparameters (otherwise don't)
-%       -l lik    - likelihood function. Currently only lik = 'erf' is
-%                   supported
-%       -c cov    - covariance function:
-%                       'lin'  - simple dot product (no hyperparameters)
-%                       'linb' - dot product with bias (one hyperparameter)
-%                       
+%       -h         - optimise hyperparameters (otherwise don't)
+%       -f iter    - max # iterations for optimiser (ignored if -h not set)
+%       -l likfun  - likelihood function:
+%                       'likErf' - erf/probit likelihood (binary only)
+%       -c covfun  - covariance function:
+%                       'covLINkcell' - simple dot product
+%                       'covLINglm'   - construct a GLM
+%       -m meanfun - mean function:
+%                       'meanConstcell' - suitable for dot product
+%                       'meanConstglm'  - suitable for GLM
+%       -i inffun  - inference function:
+%                       'prt_infEP' - Expectation Propagation
+%    experimental args (use at your own risk):
+%       -p         - use priors for the hyperparameters. If specified, this
+%                    indicates that a maximum a posteriori (MAP) approach
+%                    will be used to set covariance function
+%                    hyperparameters. The priors are obtained from the
+%                    by calling prt_gp_priors('covFuncName')
+%
+%       N.B.: for the arguments specifying functions, pass in a string, not
+%       a function handle. This script will generate a function handle
+% 
 % Output:
 %    output  - output of machine (struct).
 %     * Mandatory fields:
@@ -82,66 +97,122 @@ if SANITYCHECK==true
     end
 end
 
+% configure default parameters for GP optimisation
+meanfunc  = @meanConstcell; %hyp.mean = 0;
+covfunc   = @covLINkcell;   %hyp.cov = 0;
+likfunc   = @likErf;
+inffunc   = @prt_infEP;
+maxeval   = -100;
+mode      = 'classifier';
+
 % parse input arguments
 % -------------------------------------------------------------------------
-if ~isempty(regexp(args,'-l\s+erf','once'))
-    mode = 'classifier';
-else
-    error('regression with gps not yet supported');
-end
-
-% optimise hyperparameters
+% hyperparameters
 if ~isempty(regexp(args,'-h','once'))
     optimise_theta = true;
+    eargs = regexp(args,'-f\s+[\0-9]*','match');
+    if ~isempty(eargs)
+        eargs = regexp(cell2mat(eargs),'-f\s+','split');
+        maxeval  = str2num(['-',cell2mat(eargs(2))]);
+    end
 else
     optimise_theta = false;
 end
+% likelihood function
+largs = regexp(args,'-l\s+[a-zA-Z0-9_]*','match');
+if ~isempty(largs)
+    largs = regexp(cell2mat(largs),'-l\s+','split');
+    likfunc = str2func(cell2mat(largs(2)));
+    if ~strcmpi(cell2mat(largs(2)),'likErf')
+        error('regression with gps not yet supported');
+        mode = 'regression';
+    end
+end
+% covariance function
+cargs = regexp(args,'-c\s+[a-zA-Z0-9_]*','match');
+if ~isempty(cargs)
+    cargs = regexp(cell2mat(cargs),'-c\s+','split');
+    covfunc = str2func(cell2mat(cargs(2)));
+end
+% mean function
+margs = regexp(args,'-m\s+[a-zA-Z0-9_]*','match');
+if ~isempty(margs)
+    margs = regexp(cell2mat(margs),'-m\s+','split');
+    meanfunc = str2func(cell2mat(margs(2)));
+end
+% inference function
+iargs = regexp(args,'-i\s+[a-zA-Z0-9_]*','match');
+if ~isempty(iargs)
+    iargs = regexp(cell2mat(iargs),'-i\s+','split');
+    inffunc = str2func(cell2mat(iargs(2)));
+end
+% priors
+if ~isempty(regexp(args,'-p','once'))
+    disp('Empirical priors specified. Using MAP for hyperparameters')
+    priors = prt_gp_priors(func2str(covfunc));
+    map = true;
+else
+    map = false;
+end
 
-% convert labels to +1/-1
-%y =  2 * d.tr_targets - 3;  %wrong!
-y = -1*(2 * d.tr_targets - 3);
-
-% Configure data matrices & train GP model
+% Set default hyperparameters
 % -------------------------------------------------------------------------
-meanfunc = @meanConstcell; hyp.mean = 0;
-covfunc  = @covLINkcell; hyp.cov = 0;
-likfunc  = @likErf;
-maxeval  = -100;
+nhyp = str2num([feval(covfunc); feval(likfunc); feval(meanfunc)]);
+if nhyp(1) > 0
+    hyp.cov = zeros(nhyp(1),1);
+end
+if nhyp(2) > 0
+    hyp.lik = zeros(nhyp(2),1);
+end
+if nhyp(3) > 0 
+    hyp.mean = zeros(nhyp(3),1);
+end
 
-K   = d.train;
-Ks  = d.test;
-Kss = d.testcov;
+% Assemble data matrices
+% -------------------------------------------------------------------------
+% handle the glm as a special case (for now)
+if strcmpi(func2str(covfunc),'covLINglm')
+    %K   = {d.train{:}, d.tr_param};
+    %Ks  = {d.test{:},  d.te_param};
+    %Kss = {d.testcov{:},   d.te_param};
+    K   = [d.train(:)'   {d.tr_param}];
+    Ks  = [d.test(:)'    {d.te_param}];
+    Kss = [d.testcov(:)' {d.te_param}];
+    
+    hyp.cov = log(prt_glm_design);
+    
+    [tmp1 tmp2 tmp3 tr_lbs] = prt_glm_design(hyp.cov, d.tr_param);
+    [tmp1 tmp2 tmp3 te_lbs] = prt_glm_design(hyp.cov, d.te_param);
+    
+    y = -1*(2 * tr_lbs - 3);
+    
+    output.tr_targets = tr_lbs;
+    output.te_targets = te_lbs;
+else
+    % configure covariances
+    K   = d.train;
+    Ks  = d.test;
+    Kss = d.testcov;
+    
+    % convert labels to +1/-1
+    y = -1*(2 * d.tr_targets - 3);
+end
 
+% Train and test GP model
+% -------------------------------------------------------------------------
+% train
 if optimise_theta
-      [hyp nlmls] = minimize(hyp, @prt_gpc, maxeval, @prt_infEP, meanfunc, covfunc, likfunc, K, y);
+    if map
+        [hyp nlmls] = minimize(hyp, @prt_gp_map, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y, priors);
+    else
+        [hyp nlmls] = minimize(hyp, @prt_gpc, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y);
+    end
 else
     nlmls = NaN;
 end
 
 % make predictions
-[a b c d lp post] = prt_gpc(hyp, @prt_infEP, @meanConstcell, @covLINkcell, likfunc, ...
-                           K, y, d.test, zeros(size(Ks{1},1),1), Kss);
-
-% %old method (doesn't use a cell array directly)
-% meanfunc = @meanConst; hyp.mean = 0;
-% covfunc  = @covLINkernel; hyp.cov = 0;
-% likfunc  = @likErf;
-% maxeval  = -100;
-% 
-% K   = d.train{1};
-% Ks  = d.test{1};
-% Kss = d.testcov{1};
-%
-% % optimise hyperparameters
-% if optimise_theta
-%     [hyp nlmls] = minimize(hyp, @prt_gp, maxeval, @infEP, meanfunc, covfunc, likfunc, K, y);    
-% else
-%     nlmls = NaN;
-% end
-% 
-% % make predictions
-% [a b c d lp post] = prt_gp(hyp, @infEP, meanfunc, covfunc, likfunc, ...
-%                            K, y, Ks, zeros(size(Ks,1),1), Kss);
+[tmp1 tmp2 tmp3 tmp4 lp post] = prt_gpc(hyp, inffunc, meanfunc, covfunc, likfunc,K, y, Ks, zeros(size(Ks{1},1),1), Kss);
 
 % Outputs
 % -------------------------------------------------------------------------
@@ -155,7 +226,8 @@ output.alpha       = post.alpha;
 output.sW          = post.sW;
 output.L           = post.L;
 
-output.predictions
-output.func_val
+% debugging
+%output.predictions
+%output.func_val
 end
 

@@ -36,6 +36,9 @@ function out = prt_apply_operation(PRT, in, opid)
 % Written by A Marquand
 % $Id$
 
+% copy input fields to output
+out = in;
+
 for d = 1:length(in.train)
     switch opid
         case 1 
@@ -212,10 +215,10 @@ for d = 1:length(in.train)
     end
 end
 
-out.use_kernel = in.use_kernel;
-if isfield(in,'pred_type');
-    out.pred_type  = in.pred_type;
-end
+%out.use_kernel = in.use_kernel;
+%if isfield(in,'pred_type');
+%    out.pred_type  = in.pred_type;
+%end
 end
 
 % -------------------------------------------------------------------------

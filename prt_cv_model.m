@@ -36,12 +36,18 @@ n_Phi    = length(PRT.model(mid).input.fs); % number of data matrices
 samp_idx = PRT.model(mid).input.samp_idx;   % which samples are in the model
 
 % targets
-t = PRT.model(mid).input.targets;
+if isfield(PRT.model(mid).input,'include_allscans') && ...
+   PRT.model(mid).input.include_allscans
+    t = PRT.model(mid).input.targ_allscans;
+else
+    t = PRT.model(mid).input.targets;
+end
 
 % load data files and configure ID matrix
 disp('Loading data files.....>>');
 Phi_all = cell(1,n_Phi);
-for i = 1:size(PRT.fs,1)
+%for i = 1:size(PRT.fs,1)
+for i = 1:length(PRT.model(mid).input.fs)
     fid = prt_init_fs(PRT, PRT.model(mid).input.fs(i));
     
     if i == 1
@@ -58,10 +64,11 @@ for i = 1:size(PRT.fs,1)
         eval(['Phi_all{',num2str(i),'}=',vname,'(samp_idx,:);']);
     end
     % check size of data matrix
-    if size(t,1) ~= size(Phi_all{i},1)
-        error('prt_cv_model:fsSizeDoesNotMatchTargets',...
-            ['size of Feature set ',num2str(fid),' does not match targets']);
-    end
+    % [afm]
+    %if size(t,1) ~= size(Phi_all{i},1)
+    %    error('prt_cv_model:fsSizeDoesNotMatchTargets',...
+    %        ['size of Feature set ',num2str(fid),' does not match targets']);
+    %end
 end
 
 % Begin cross-validation loop
@@ -71,31 +78,29 @@ for f = 1:n_folds
     disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
     % configure training and test indices (validation is done later)
     tr_idx = CV(:,f) == 1;
-    te_idx = CV(:,f) == 2;    
+    te_idx = CV(:,f) == 2;   
     
     [Phi_tr, Phi_te, Phi_tt] = ...
         split_data(Phi_all, tr_idx, te_idx, PRT.model(mid).input.use_kernel);
-    
-    %Centre kernel
-    %[Phi_tr, Phi_te, Phi_tt] = prt_centre_kernel(Phi_tr, Phi_te, Phi_tt);
-    
+ 
     % Assemble data structure to supply to machine
     cvdata.train      = Phi_tr;
     cvdata.test       = Phi_te;
     if PRT.model(mid).input.use_kernel
         cvdata.testcov    = Phi_tt;
     end
+
+    % configure basic CV parameters
     cvdata.tr_targets = t(tr_idx,:);
     cvdata.te_targets = t(te_idx,:);
     cvdata.tr_id      = ID(tr_idx,:);
     cvdata.te_id      = ID(te_idx,:);
     cvdata.use_kernel = PRT.model(mid).input.use_kernel;
     cvdata.pred_type  = PRT.model(mid).input.type;
-    % additional parameters (e.g. for MCKR)
-%    if  strcmp(PRT.model(mid).input.machine.function,'prt_machine_mckr')
-%         cvdata.tr_param  = prt_cv_opt_param(PRT, ID(tr_idx,:), CV(tr_idx,f));
-%         cvdata.te_param  = prt_cv_opt_param(PRT, ID(te_idx,:), CV(te_idx,f));
-%    end
+    
+    % configure additional CV parameters (e.g. needed to compute a GLM)
+    cvdata.tr_param = prt_cv_opt_param(PRT, ID(tr_idx,:), mid);
+    cvdata.te_param = prt_cv_opt_param(PRT, ID(te_idx,:), mid);
 
     % Apply any operations specified
     ops = PRT.model(mid).input.operations(PRT.model(mid).input.operations ~=0 );
@@ -112,12 +117,19 @@ for f = 1:n_folds
             'Machine did not produce a predictions field']);
     end  
     
+    % does the model alter the target vector (e.g. change its dimension) ?
+    if isfield(model,'te_targets');
+        true_te_targets = model.te_targets(:);
+    else
+        true_te_targets = cvdata.te_targets(:);
+    end
+    
     % compute stats
-    stats = prt_stats(model, cvdata.te_targets);
-    %acc = stats.acc % for debugging
+    stats = prt_stats(model, true_te_targets);
     
     % update PRT - ensuring column vectors throughout
-    PRT.model(mid).output.fold(f).targets     = cvdata.te_targets(:); 
+    %PRT.model(mid).output.fold(f).targets     = cvdata.te_targets(:); 
+    PRT.model(mid).output.fold(f).targets     = true_te_targets; 
     PRT.model(mid).output.fold(f).predictions = model.predictions(:);
     PRT.model(mid).output.fold(f).stats       = stats;
     % save func_val for later analysis if available
@@ -136,15 +148,13 @@ for f = 1:n_folds
     end
 end
 
-%Model level (across folds) statistics
-%t=[PRT.model(mid).output.fold(:).targets];
-t=vertcat(PRT.model(mid).output.fold(:).targets);
-m.type=PRT.model(mid).output.fold(1).type;
-%m.predictions=[PRT.model(mid).output.fold(:).predictions];
-m.predictions=vertcat(PRT.model(mid).output.fold(:).predictions);
-%m.predictions=m.predictions(:);
+% Model level statistics (across folds)
+t             = vertcat(PRT.model(mid).output.fold(:).targets);
+m.type        = PRT.model(mid).output.fold(1).type;
+m.predictions = vertcat(PRT.model(mid).output.fold(:).predictions);
 %m.func_val=[PRT.model(mid).output.fold(:).func_val];
-stats=prt_stats(m,t(:),'model');
+stats         = prt_stats(m,t(:),'model');
+
 PRT.model(mid).output.stats=stats;
 
 % Save PRT containing machine output
