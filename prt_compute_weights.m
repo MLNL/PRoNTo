@@ -2,6 +2,18 @@ function prt_compute_weights(PRT,in)
 % FORMAT prt_compute_weights(PRT,in)
 %
 % This function calls prt_weights to compute weights 
+% Inputs:
+%       PRT             - data/design/model structure (it needs to contain
+%                         at least one estimated model).
+%         in            - structure with specific information to create
+%                         weights
+%           .model_name - model name (string)
+%           .img_name   - (optional) name of the file to be created
+%                         (string)
+%           .pathdir    - directory path where to save weights (same as the
+%                         one for PRT.mat) (string)
+% Output:
+%       empty           - does not return anything (it creates an .img file)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
