@@ -5,7 +5,7 @@ function weights = prt_weights_svm_bin (d,args)
 %       d              - data structure
 %           .datamat   - data matrix [Nfeatures x Nexamples]
 %           .coeffs    - coefficients vector [Nexamples x 1]
-%       args           - function arguments (can be empty)
+%       args           - function arguments (can be left empty)
 % Output:
 %       weights        - vector with weights [Nfeatures x 1]
 %__________________________________________________________________________

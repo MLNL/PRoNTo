@@ -3,6 +3,7 @@ function weights = prt_weights(d,m)
 % FORMAT weights = prt_weights(d,m)
 % Inputs:
 %       d   - data structure
+%             (fields of .d can vary depending on weights function)
 %       m   - machine structure
 %           .function - function to compute weights (string)
 %           .args     - function arguments
