@@ -16,7 +16,8 @@ covar.name    = 'Covariates';
 covar.help    = {['Select a .mat file containing '...
                   'your covariates (i.e. any other data/information '...
                   'you would like to include in your design). This file '...
-                  'should contain a variable ''R'' with the covariates.']};
+                  'should contain a variable ''R'' with a matrix of '...
+                  'covariates.']};
 covar.val{1}  = {''};
 covar.filter  = 'mat';
 covar.ufilter = '.*';
@@ -28,10 +29,11 @@ covar.num     = [0 1];
 rt_subj         = cfg_entry;
 rt_subj.tag     = 'rt_subj';
 rt_subj.name    = 'Regression targets (per scans)';
-rt_subj.help    = {['Enter one regression target per scans. '...
-                     'or enter the name of a variable '...
+rt_subj.help    = {['Enter one regression target per scan. '...
+                     'or enter the name of a variable. '...
                      ' This variable should be a vector '...
-                     '[Nscans x 1], where Nsubjs is the number of subjects.']};
+                     '[Nscans x 1], where Nscans is the number of '...
+                     'scans/images.']};
 rt_subj.strtype = 'e';
 rt_subj.val     = {[]};
 rt_subj.num     = [Inf 0];
@@ -45,7 +47,7 @@ rt_trial.name    = 'Regression targets (trials)';
 rt_trial.help    = {['Enter one regression target per trial. '...
                      'This vector should have the following dimensions: '...
                      '[Ntrials x 1], where Ntrials is the number of trials.']
-}';
+};
 rt_trial.strtype = 'e';
 rt_trial.val     = {[]};
 rt_trial.num     = [Inf 0];
@@ -66,7 +68,8 @@ TR.num     = [Inf 1];
 unit         = cfg_menu;
 unit.tag     = 'unit';
 unit.name    = 'Units for design';
-unit.help    = {'The onsets of events or blocks can be specified in either scans or seconds.'};
+unit.help    = {['The onsets of events or blocks can be specified in '...
+                 'either scans or seconds.']};
 unit.labels  = {
                 'Scans'
                 'Seconds'
@@ -80,7 +83,8 @@ unit.val     = {1};
 review         = cfg_menu;
 review.tag     = 'review';
 review.name    = 'Review';
-review.help    = {'Would you like to review the design?.'};
+review.help    = {['Choose ''Yes'' if you would like to review your '...
+                   'data and design in a separate window.']};
 review.labels  = {
                'No'
                'Yes'
@@ -94,7 +98,10 @@ review.val     = {0};
 hrfover         = cfg_entry;
 hrfover.tag     = 'hrfover';
 hrfover.name    = 'HRF overlap';
-hrfover.help    = {'If using fMRI data please specify the width of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities.'};
+hrfover.help    = {['If using fMRI data please specify the width of the '...
+                    'hemodynamic response function (HRF). This will be '...
+                    'used to calculate the overlap between events. '...
+                    'Leave as 0 for other modalities (other than fMRI).']};
 hrfover.strtype = 'e';
 hrfover.num     = [1 1];
 hrfover.def     = @(val)prt_get_defaults('datad.hrfw', val{:});
@@ -105,7 +112,10 @@ hrfover.def     = @(val)prt_get_defaults('datad.hrfw', val{:});
 hrfdel         = cfg_entry;
 hrfdel.tag     = 'hrfdel';
 hrfdel.name    = 'HRF delay';
-hrfdel.help    = {'If using fMRI data please specify the delay of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities.'};
+hrfdel.help    = {['If using fMRI data please specify the delay of the '...
+                  'hemodynamic response function (HRF). This will be '...
+                  'used to calculate the overlap between events. Leave '...
+                  'as 0 for other modalities (other than fMRI).']};
 hrfdel.strtype = 'e';
 hrfdel.num     = [1 1];
 hrfdel.def     = @(val)prt_get_defaults('datad.hrfd', val{:});
@@ -116,7 +126,9 @@ hrfdel.def     = @(val)prt_get_defaults('datad.hrfd', val{:});
 mod_name         = cfg_entry;
 mod_name.tag     = 'mod_name';
 mod_name.name    = 'Name';
-mod_name.help    = {'Name of modality. Example: ''BOLD''.'};
+mod_name.help    = {['Name of modality. Example: ''BOLD''. The names '...
+                     'should be consistent accross subjects/groups '...
+                     'and the same names specified in the masks.']};
 mod_name.strtype = 's';
 mod_name.num     = [1 Inf];
 
@@ -161,10 +173,16 @@ images        = cfg_repeat;
 images.tag    = 'images';
 images.name   = 'Scans';
 images.values = {modality };
-images.help   = {[...
-    'Select this option if you have many subjects to spatially ',...
+images.help   = {['Depending on the type of data at hand, you may have many images (scans) '...
+ 'per subject, such as a fMRI time series, or you may have many '...
+ 'subjects with only one or a small number of images (scans) per subject, '...
+ 'such as PET images. ',...
+    'Select this option if you have many subjects per modality to spatially ',...
     'normalise, but there is one or a small number of scans for '...
-    'each subject.']};
+    'each subject. This is a faster option with less information to specify '...
+    'than the ''select by subjects'' option. Both options create the same '...
+    '''PRT.mat'' but ''select by scans'' is optimised for modalities '...
+    'with no design.']};
 
 % ---------------------------------------------------------------------
 % fmask File name
@@ -175,14 +193,20 @@ fmask.name   = 'File';
 fmask.filter = 'image';
 fmask.ufilter = '.*';
 fmask.num    = [1 1];
-fmask.help   = {'Select one mask for each modality.'};
+fmask.help   = {['Select one first-level mask (image) for each modality. ',... 
+                 'This mask is used to optimise the prepare data step. ',...
+                 'In ''specify model'' there is an option to enter a ',...
+                 'second-level mask, which might be used to select only ',...
+                 'a few areas of the brain for subsequent analyses.']};
 % ---------------------------------------------------------------------
 % mask Modality
 % ---------------------------------------------------------------------
 mask         = cfg_branch;
 mask.tag     = 'mask';
 mask.name    = 'Modality';
-mask.help    = {'Specify name of modality and file for each mask.'};
+mask.help    = {['Specify name of modality and file for each mask. ',...
+                 'The name should be consistent with the names chosen ',...
+                 'for the modalities (subjects/scans).']};
 mask.val     = {mod_name, fmask };
             
 % ---------------------------------------------------------------------
@@ -214,7 +238,7 @@ load_SPM.num     = [1 1];
 cond_name         = cfg_entry;
 cond_name.tag     = 'cond_name';
 cond_name.name    = 'Name';
-cond_name.help    = {'Name of condition.'};
+cond_name.help    = {'Name of condition (alphanumeric strings only).'};
 cond_name.strtype = 's';
 cond_name.num     = [1 Inf];
 
@@ -253,7 +277,6 @@ conds         = cfg_branch;
 conds.tag     = 'conds';
 conds.name    = 'Condition';
 conds.help    = {'Specify condition: name, onsets and duration.'};
-%temporarily remove the rt_trial
 conds.val     = {cond_name, onsets, durations};
 
 % ---------------------------------------------------------------------
@@ -356,7 +379,7 @@ subject      = cfg_branch;
 subject.tag  = 'subject';
 subject.name = 'Modality';
 subject.val  = {mod_name, TR, scans, design };
-subject.help = {'Add new data modality.'};
+subject.help = {'Add new modality.'};
 
 % ---------------------------------------------------------------------
 % gr_name Name
@@ -383,7 +406,7 @@ ind_subj.values  = {subject };
 subjs         = cfg_repeat;
 subjs.tag     = 'subjs';
 subjs.name    = 'Subjects';
-subjs.help    = {'Add subjects.'};
+subjs.help    = {'Add subjects/scans.'};
 subjs.values  = {ind_subj };
 
 % ---------------------------------------------------------------------
@@ -441,7 +464,7 @@ data        = cfg_exbranch;
 data.tag    = 'data';
 data.name   = 'Data & Design';
 data.val    = {dir_name groups masks hrfover hrfdel review};
-data.help   = {'Specify the group(s) of data set.'};
+data.help   = {'Specify the data and design for each group (minimum one group).'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;
 
