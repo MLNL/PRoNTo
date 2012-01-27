@@ -91,6 +91,13 @@ if ~isfield(handles,'notinit')
     
     % Get folds pulldown menu
     m             = get(handles.classmenu,'Value');
+   
+    % Avoid error with popupmenus in certain Matlab versions
+    if m == 0 || isempty(m)
+        set(handles.classmenu,'Value',1)
+        m = 1;
+    end
+    
     % Load model names
     if ~isfield(PRT.model(m),'output')
         beep
@@ -754,7 +761,14 @@ function classmenu_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from classmenu
 
 % Get folds
-m             = ceil(get(handles.classmenu,'Value'));
+m = get(handles.classmenu,'Value');
+
+% Avoid error with popupmenus in certain Matlab versions
+if m == 0 || isempty(m) || rem(m,1) ~= 0 
+    set(handles.classmenu,'Value',1)
+    m = 1;
+end
+
 handles.nfold = length(handles.PRT.model(m).output.fold);
 folds{1}      = 'All folds / Average';
 for f = 1:handles.nfold
