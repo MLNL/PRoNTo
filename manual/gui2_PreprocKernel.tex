@@ -1,7 +1,97 @@
 % $Id: gui_preproc.tex 395 2011-11-17 22:34:59Z cphillip $
+%
+% Written by Jessica Schrouff
+%_______________________________________________
 
-\chapter{Preprocessing \& kernel calculation}
+\chapter{Prepare feature set}
+\label{chap:PrepFeat}
 \minitoc
 
-This is where we explain how data are preprocessed and a kernel built.\\
-Lots of text to come!
+\section{Introduction}
+%===============
+\label{sec:prep_intro}
+One of the main inputs of a machine learning algorithm consists in a $N_{samples} \times N_{features}$ data matrix, containing the values of selected features for each sample. This matrix can either be input directly into the machine or be used to compute a similarity matrix, or kernel, of the size $N_{samples} \times N_{samples}$, which is then input into the classification/regression algorithm [kernel trick, ref].
+
+The "Prepare Feature Set" step computes both the feature and similarity matrices from one or more modalities, as defined in the previously built dataset (see chapter \ref{chap:DataDesign}). It allows detrending the features in the case of time series (such as fMRI) and scaling each image by a constant factor (input by the user) in the case of quantitative modalities (such as PET). Masks can be specified to perform the classification/regression on specific voxels only (e.g. Regions of Interest).
+
+{\bf Please note} that only modalities containing the same number of features (i.e. selected voxels) can be included in the same FS. This will be typically the case when more than one run was acquired for each subject, the different runs being entered as different 'modalities' in the dataset building (e.g. modality 1 is 'fMRI\_run1', modality 2 is 'fMRI\_run2',...). In all other cases, a feature set has to be computed for each modality.
+
+\section{Methods and resources}
+%========================
+
+After the selection of the dataset and of which modality to include in the FS, the toolbox accesses each image, i.e. it gets the value of the voxels which are comprised in the first level mask selected for that modality (mask specified at the data and design step, see chapter "Data and Design"). This access is performed by 'blocks' of features, not to overload the RAM memory. In the case of time-series, the user can specify detrending methods and parameters to apply to the time course of each feature. Methods comprise a polynomial detrending (parameter: order of the polynomial) or a Discrete Cosine Transform high-pass filter (SPM, ref, parameter: frequency cutoff in seconds). An example of a linear detrending (polynomial detrending of order 1) was represented in Fig. \.ref{fig:lindetrend}.
+\begin{figure}[!htbp]
+  \begin{center}
+      \includegraphics[height=7cm]{images/fig1_lindetrend.png}
+   \caption{Example of detrending: the original signal over time of one feature (in blue) was approximated by a polynomial of order 1 (red line), which was then substracted from the original signal to give the detrended signal (in green).}
+    \label{fig:lindetrend}
+  \end{center}
+\end{figure}
+
+For each modality, the (detrended) features are then written in a file array (SPM, ref, with a '.dat' extension), on the hard drive (in the same directory as the dataset). Please note that in the case of large datasets, this operation may require many Gb of free space on the hard drive and long computational times. Therefore, if the first condition can't be fulfilled, we recommend the use of external drives for the whole analysis. Regarding the computational expenses, we tried to minimize their effect by computing the features only once per modality: when preparing other feature sets using the same modality and detrending parameters, the same file array will be accessed. 
+
+{\bf Be careful} that using the same modality but different detrending methods and/or parameters will force the re-computation of the file array for the considered modality. In the same way, changing the dataset ({\tt PRT.mat}) from directory might lead to the re-computation of the feature sets if the file arrays were not moved accordingly. 
+
+From the feature set(s), the kernel (similarity matrix) can then be computed. Different options can be specified:
+\begin{itemize}
+\item All scans/ All conds: In all scans the similarity will be computed between all scans within the time series of all subjects and in the all conds the similarity is computed only between the scans corresponding to the specified conditions of interest (see "Data and Design"). By default, the toolbox will use all scans to compute the kernel. With large datasets however, computational expenses can be reduced by selecting the last option. We would therefore recommend this last option for cases similar to multi-subject fMRI studies with designed stimulation.
+\item Additional mask for selected modality: this option allows  the specification of a 'second-level' mask, which would for example define Regions of Interest (ROIs) on which the classification/regression can be performed. In this case, the voxels used to compute the kernel (and only the kernel) would be the ones contained in both the first and second levels masks. Therefore, using one first-level mask and two second-level masks would create two kernels but one file array.
+\item Normalisation (has to be called scaling): allows the specification of constant values to scale each scan. The user has to enter a .mat containing a variable called 'scaling' and of the same size as the number of scans in that modality. In case of quantitative modalities such as PET, this step is required since it insures the convergence of the machine learning algorithm.
+\end{itemize}
+
+These three options are performed at the kernel level only. This means that any change in one of these options would lead to the computation of a new kernel but not to the (re)computation of the file arrays. The use of different second-level masks or scaling parameters can therefore be easily envisaged.
+
+The {\tt PRT.mat} structure saves all information linked to the file arrays in a {\tt fas} field (standing for ``File Array Structure''), which size corresponds to the number of selected modality in all feature sets. The selected options and link to the kernel are stored in a {\tt fs} field (standing for ``Feature Set''), which size corresponds to the number of feature sets defined by the user.
+
+\section{Graphical User interfaces}
+%==========================
+
+After clicking on the ``Prepare Feature Set'' button in the main interface (see Fig. \ref{fig:mainprep}), a second window will appear, allowing the user to select a dataset (Fig. \ref{fig:FSmainl}.A), to name the FS (Fig. \ref{fig:FSmainl}.B) and to define the number of modalities which should be included in the FS (Fig. \ref{fig:FSmainl}.C), see section \ref{sec:prep_intro} for a comment on this last point). 
+\begin{figure}[!htbp]
+  \begin{center}
+      \includegraphics[height=7cm]{images/fig2_main_prt.png}
+   \caption{Main interface: button to launch the 'Prepare Feature Set' step.}
+    \label{fig:mainprep}
+  \end{center}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \begin{center}
+      \includegraphics[height=7cm]{images/fig3_main_FS.png}
+   \caption{Interface of the 'Prepare Feature Set' step: A. Dataset selection: type the full name (with path) or browse to select the dataset to prepare. B. Type the FS name, which will be used to save the kernel as a .mat on the hard drive. C. Number of modalities to select. D. List containing the names of the modalities included in the FS (no user interaction possible). E. Click to build the feature set and kernel.}
+    \label{fig:FSmainl}
+  \end{center}
+\end{figure}
+
+To define the number of modalities to include, the user should click in the appropriate box (Fig. \ref{fig:FSmainl}.C), type the number and then 'return' (arrow for return?). This will launch a third window, allowing the specification of the different options and parameters for each modality (Fig. \ref{fig:modFS}). When the dataset contains only one modality, this window is launched automatically.
+\begin{figure}[!htbp]
+  \begin{center}
+      \includegraphics[height=7cm]{images/fig4_mod_FS.png}
+   \caption{Specification of options and parameters for each modality: A. Select the modality name from a pull-down menu. B. All scans/All conds. C. Second-level mask selection. D. Detrend and its parameter. E. Scaling of the scans or not.}
+    \label{fig:modFS}
+  \end{center}
+\end{figure}
+
+In this third window, the user has to choose which modality to include based on its name (Fig. \ref{fig:modFS}.A) and  which scans to use to build the kernel (all or only those linked to the design, Fig. \ref{fig:modFS}.B). All other options are facultative. They include:
+\begin{itemize}
+\item the specification of a second-level mask (Fig. \ref{fig:modFS}.C): type the full name (with path) of the mask or browse to select the mask image. When left empty or untouched, voxels are selected from the first-level mask specified in the data and design step.
+\item the detrending parameters (Fig. \ref{fig:modFS}.D): by default, the parameter is set to 'No detrending'. However, we recommend to perform a detrending in the case of time series data such as fMRI (and only in that case). When selecting polynomial, the 'order' parameter will appear, with a default value of 1. Changing this value will increase the order of the polynomial used to fit the data. If 'Discrete Cosine Transform' is selected, the editable parameter corresponds to the cutoff frequency (in seconds) of the high-pass filter. Please note that, when including more than one run ('modality') into a feature set, nothing will prevent the user from using different detrending methods/parameters. We however highly recommend to use a consistent detrending in the same FS.
+\item the scaling (Fig. \ref{fig:modFS}.E): `no scaling' is the default option. However, when dealing with quantitative modalities such as PET, the user should provide one value per scan, stored in a vector in a .mat file under the variable name 'scaling'.
+\end{itemize}
+
+When working with Graphical User Interfaces (GUIs), some messages might appear in \matlab workspace. These can display information about the operations currently performed or explain why the toolbox does not do as the user expected (e.g. when a file could not be loaded or if information was input in a wrong format). Therefore we strongly encourage the user to have a look at \matlab prompt when using GUIs.
+
+\section{Matlab batch interface}
+%=======================
+
+The Matlab Batch system allows the input/selection of all parameters and options aforementioned. Just note that the batch is based on the names of the modalities and/or conditions. Therefore, for the batch to work properly, names should be consistent across all steps, starting from data and design to the model specification and running. The hierarchy for the case of a feature set containing one fMRI modality is displayed in (Fig. \ref{fig:batchFS}).
+
+\begin{figure}[!htbp]
+  \begin{center}
+      \includegraphics[height=7cm]{images/fig5_batchFS.png}
+   \caption{Matlabbatch GUI.}
+    \label{fig:batchFS}
+  \end{center}
+\end{figure}
+
+{\bf Note:} Defining all important steps in one batch and running that batch will overwrite the {\tt PRT.mat} previously created and thus delete the links between the {\tt PRT.mat} and the computed kernel(s) and feature set(s). The file arrays would then be recomputed each time the batch is launched. For large datasets, we therefore recommend splitting the batch in two parts: a data and design and prepare feature set part and a second part comprising the model specification, run model and compute weights modules. This would indeed allow changing, e.g. model parameters, without recomputing the feature sets and kernels. 
