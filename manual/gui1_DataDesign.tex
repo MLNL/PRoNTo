@@ -45,7 +45,7 @@ Importantly, it is good to have in mind that if there is too much overlap, i.e. 
 
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics[height=2.2in]{images/HRF.png}
+      \includegraphics[height=2.2in]{images/Figure1.png}
    \caption{HRF correction. On the left is the standard HRF response. On the right is the effect of the delay and overlap on the number of independent scans (C1, C2 and C3 correspond to three different experimental conditions and the blue boxes correspond to various scans acquired during each condition). In fMRI datasets, the nature of the HRF (i.e. being a delayed and dispersed version of the neuronal response to an experimental event) might lead to less independent scans/events than the ones originally acquired. In PRoNTo, this issue is accounted for by discarding overlapping scans.}
     \label{Fig2.1}
   \end{center}
@@ -60,7 +60,7 @@ The graphical user interface to specify the data and design is presented in Figu
 
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics[height=2.7in]{images/Figure1.png}
+      \includegraphics[height=2.7in]{images/Figure2.png}
    \caption{Data and design graphical user interface. This interface allows the user to enter all the information relative to the data, including the experimental design and masks. After introducing all the fields, PRoNTo creates the PRT structure, which is saved in the specified directory, as `PRT.mat' file.}
     \label{Fig2.2}
   \end{center}
@@ -84,7 +84,7 @@ The following panel after `Groups' is `Subjects/Scans'. Here, as mentioned above
 
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics[height=3.5in]{images/Figure2.png}
+      \includegraphics[height=3.5in]{images/Figure3.png}
    \caption{Data and design graphical user interface. If one chooses to specify everything using the `Scans' option (tick box below the `Subjects/Scans' panel), one can introduce the data for all subjects at once for each modality, but one cannot specify any design. This is the optimised approach when one has a lot of subjects with only one image/scan per subject, such can be the case of MRI and PET datasets.}
     \label{Fig2.3}
   \end{center}
@@ -100,7 +100,7 @@ The modalities panel works like the group and subjects panel, but allows one to 
 
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics[height=3in]{images/Figure3.png}
+      \includegraphics[height=3in]{images/Figure4.png}
    \caption{Data and design graphical user interface. The design menu in the modality window (when one uses the select by subject option) allows one to load a previously specified design from an SPM.mat file, create a new design or simply select no design, which usually applies to modalities where there is no experimental task, such as MRI or PET.}
     \label{Fig2.4}
   \end{center}
@@ -112,7 +112,7 @@ One issue to have in mind when specifying the design is the following: if there 
 
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics[height=3.5in]{images/Figure4.png}
+      \includegraphics[height=3.5in]{images/Figure5.png}
    \caption{Data and design graphical user interface. The `specify conditions' window is available from the modality interface when the user chooses to enter the data by subjects and clicks `specify design'. This window is used to enter the conditions (names, onsets and durations) as well as the units of design, TR and covariates. }
     \label{Fig2.5}
   \end{center}
@@ -122,7 +122,7 @@ One issue to have in mind when specifying the design is the following: if there 
 
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics[height=3.2in]{images/Figure5.png}
+      \includegraphics[height=3.2in]{images/Figure6.png}
    \caption{This window is called when one clicks `Files' and is used to select the scans/images for each subject/modality.}
     \label{Fig2.6}
   \end{center}
@@ -132,7 +132,7 @@ All that is needed for each group, subject and modality has been specified and c
 
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics[height=2.85in]{images/Figure6.png}
+      \includegraphics[height=2.85in]{images/Figure7.png}
    \caption{Data and design graphical user interface. After filling in all the fields using the select by subject option (the select by scans case is very similar) the data and design interface should look like this example figure.}
     \label{Fig2.7}
   \end{center}
@@ -151,7 +151,7 @@ PRT.group(g).subject(s).modality(m).design.conds(c).hrfdiscardedscans.
 
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics[height=3.7in]{images/Figure7.png}
+      \includegraphics[height=3.7in]{images/Figure8.png}
    \caption{Data and design graphical user interface - `Review' window. This window allows the user to check the data and design, including the number of subjects per group. It also allows the user to change the HRF delay and overlap parameters that control the number of discarded scans (appropriate only for modalities such as fMRI). When there is no experimental design only the top plot and information is shown.}
     \label{Fig2.8}
   \end{center}
@@ -173,7 +173,7 @@ As mentioned in the Introduction, the batch job can be saved as a .mat, and load
 
 \begin{figure}[!htbp]
   \begin{center}
-      \includegraphics[height=4in]{images/Figure8.png}
+      \includegraphics[height=4in]{images/Figure9.png}
    \caption{Data and design module in Matlab batch. The Matlab batch contains two extra options relative to the Data and Design interface. These options allow one to specify the delay and overlap of the HRF response (in the GUI it can only be changed in the `Review' window), and which are then used to determine the number of discard scans.}
     \label{Fig2.9}
   \end{center}
