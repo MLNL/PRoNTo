@@ -41,7 +41,7 @@ For datasets such as fMRI, there is a very important issue that needs to be care
 
 When using the GUI, the default value for the HRF parameters is 0 seconds and can only be changed in the `Review' window (as shown below). Therefore, for fMRI, the user should review the data and design and change these parameters to a more appropriate value (e.g. 6 seconds each). In the Matlab batch, the default value for these parameters is also 0 seconds but can be changed directly within the batch (no need to open Review window). Again, for fMRI, these values should be changed (e.g. to 6 seconds).
 
-Importantly, it is good to have in mind that if there is too much overlap, i.e. the number of discarded scans is very high, it is preferable to use beta images than the actual fMRI scans.
+Importantly, if one wants to avoid discarding scans and having to correct for the shape of the HRF, as explained in the above paragraph, one should use as input the beta (coefficients) images obtained by first running a GLM analysis on the original data. This is normally the best approach in case of rapid event-related design experiments, in which there can be a lot of overlap, i.e. the number of discarded scans can be very high.
 
 \begin{figure}[!htbp]
   \begin{center}
@@ -50,7 +50,6 @@ Importantly, it is good to have in mind that if there is too much overlap, i.e. 
     \label{Fig2.1}
   \end{center}
 \end{figure}
-
 
 The steps to specify the information relative to the data and design using both the GUI and the Matlab batch system are described in the following sections.
 
@@ -92,7 +91,9 @@ The following panel after `Groups' is `Subjects/Scans'. Here, as mentioned above
 
 \subsection{Modalities} 
 
-The modalities panel works like the group and subjects panel, but allows one to add and remove modalities. When a modality is added, a name needs to be provided (unless the modality has already been defined for a previous subject or through the masks menu, see below). The following steps are slightly different if one ticks the `scans' box or not.
+The modalities panel works like the group and subjects panel, but allows one to add and remove modalities. When a modality is added, a name needs to be provided (unless the modality has already been defined for a previous subject or through the masks menu, see below). It is important to note that a different modality can be a different type of data, such as fMRI and PET, or a different session of the same type of data, e.g. different runs/sessions of the same fMRI experiment. This way the different sessions can be integrated later into the same model and analysis.
+
+The steps to enter the modality information are slightly different if one ticks the `scans' box or not.
 
 \paragraph{Select by scans} Here the data is assumed to have been acquired without an experimental design, and therefore the `No design' option is automatically selected and cannot be changed (bottom window in Figure \ref{Fig2.3}). However, in select by scans, the user can also introduce `Covariates', i.e. a variable that covaries with the data (subjects) but of no interest to the subsequent analyses. This option is not yet functional in version 1.0 of PRoNTo! The last empty field can be used to enter `Regression targets'  (Figure \ref{Fig2.3}). This option allows the users to introduce a real number per subject to be used later for regression if that is the case.
 
