@@ -110,7 +110,7 @@ mode      = 'classifier';
 % hyperparameters
 if ~isempty(regexp(args,'-h','once'))
     optimise_theta = true;
-    eargs = regexp(args,'-f\s+[\0-9]*','match');
+    eargs = regexp(args,'-f\s+[0-9]*','match');
     if ~isempty(eargs)
         eargs = regexp(cell2mat(eargs),'-f\s+','split');
         maxeval  = str2num(['-',cell2mat(eargs(2))]);
@@ -123,9 +123,8 @@ largs = regexp(args,'-l\s+[a-zA-Z0-9_]*','match');
 if ~isempty(largs)
     largs = regexp(cell2mat(largs),'-l\s+','split');
     likfunc = str2func(cell2mat(largs(2)));
-    if ~strcmpi(cell2mat(largs(2)),'likErf')
-        error('regression with gps not yet supported');
-        mode = 'regression';
+    if strcmpi(cell2mat(largs(2)),'Erf')
+        likfunc   = @likErf;
     end
 end
 % covariance function
@@ -171,7 +170,7 @@ end
 % Assemble data matrices
 % -------------------------------------------------------------------------
 % handle the glm as a special case (for now)
-if strcmpi(func2str(covfunc),'covLINglm')
+if strcmpi(func2str(covfunc),'covLINglm') || strcmpi(func2str(covfunc),'covLINglm_2class')
     %K   = {d.train{:}, d.tr_param};
     %Ks  = {d.test{:},  d.te_param};
     %Kss = {d.testcov{:},   d.te_param};
@@ -203,7 +202,8 @@ end
 % train
 if optimise_theta
     if map
-        [hyp nlmls] = minimize(hyp, @prt_gp_map, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y, priors);
+        %[hyp nlmls] = minimize(hyp, @prt_gp_map, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y, priors);
+        [hyp,nlmls] = minimize(hyp, @prt_gp_map, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y, priors);
     else
         [hyp nlmls] = minimize(hyp, @prt_gpc, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y);
     end

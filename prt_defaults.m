@@ -49,8 +49,7 @@ prt_def.dspec.use3 = [1 2];
 % Specify model: Parameters of the different machines
 %--------------------------------------------------
 prt_def.model.svmargs='-s 0 -t 4 -c 1';
-%prt_def.model.gpcargs='-l erf -h';
-prt_def.model.gpcargs='-h -l likErf -c covLINkcell -m meanConstcell -i prt_infEP -f 100';
+prt_def.model.gpcargs='-l erf -h';
 prt_def.model.krrargs=1;
 prt_def.model.rtargs=601;
 
