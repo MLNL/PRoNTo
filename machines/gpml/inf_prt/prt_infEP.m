@@ -1,4 +1,4 @@
-function [post nlZ dnlZ] = infEP(hyp, mean, cov, lik, x, y)
+function [post nlZ dnlZ] = prt_infEP(hyp, mean, cov, lik, x, y)
 
 % Expectation Propagation approximation to the posterior Gaussian Process.
 % The function takes a specified covariance function (see covFunction.m) and
@@ -11,7 +11,8 @@ function [post nlZ dnlZ] = infEP(hyp, mean, cov, lik, x, y)
 %
 % See also INFMETHODS.M.
 
-persistent last_ttau last_tnu              % keep tilde parameters between calls
+%persistent last_ttau last_tnu              % keep tilde parameters between calls
+last_ttau = []; last_tnu = [];
 tol = 1e-4; max_sweep = 10; min_sweep = 2;     % tolerance to stop EP iterations
 
 if ~ischar(lik), lik = func2str(lik); end    % make likelihood variable a string

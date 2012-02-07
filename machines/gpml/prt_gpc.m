@@ -105,6 +105,7 @@ catch
   if nargin > 7, error('Inference method failed [%s]', msgstr); else 
     warning('Inference method failed [%s] .. attempting to continue',msgstr)
     dnlZ = struct('cov',0*hyp.cov, 'mean',0*hyp.mean, 'lik',0*hyp.lik);
+    clear(func2str(inf))
     varargout = {NaN, dnlZ}; return                    % continue with a warning
   end
 end
