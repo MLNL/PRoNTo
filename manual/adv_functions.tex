@@ -92,6 +92,18 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  FORMAT prt\_compute\_weights(PRT,in)
  
  This function calls prt\_weights to compute weights 
+ Inputs:
+       PRT             - data/design/model structure (it needs to contain
+                         at least one estimated model).
+         in            - structure with specific information to create
+                         weights
+           .model\_name - model name (string)
+           .img\_name   - (optional) name of the file to be created
+                         (string)
+           .pathdir    - directory path where to save weights (same as the
+                         one for PRT.mat) (string)
+ Output:
+       empty           - does not return anything (it creates an .img file)
 \end{alltt}
 
 
@@ -140,20 +152,9 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  Outputs:
  --------
  Provides the following fields for use by the classifier
- param.cv\_fold:   the vector from the CV matrix controlling this CV fold
-      .id\_fold:   the id matrix for this fold
-      .group:     group data for subjects included in this fold (copied
-                  from PRT)
-      .onsets:    matrix of event onsets (n\_events x n\_conditions)
-      .durations: matrix of event durations (n\_events x n\_conditions)
-      .TR:        TR for this group/subject/modality/event
-      .unit:      units for this design 0 = scans, 1 = seconds
-      .ids:       reduced id matrix (group,subject,modality)
- 
- N.B.: - The onsets, durations, TR, Unit and ids fields will only be
- populated for subjects that have a design specified that has the same
- number of events for all subjects included. This should probably be
- improved in the future.
+ param.id\_fold:   the id matrix for this fold
+ param.model\_id:  id for the model being computed
+ param.PRT:       PRT data structure
 \end{alltt}
 
 
@@ -244,8 +245,8 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \section{prt\_defaults.m}
 \begin{alltt}
 
- Sets the defaults which are used by PRoNTo, Pattern Recognition in
- Neuroimaging Toolbox
+ Sets the defaults which are used by the Pattern Recognition for
+ Neuroimaging Toolbox, aka. PRoNTo.
  
  FORMAT prt\_defaults
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
@@ -500,11 +501,10 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  
  Input:
  ------
- 
+   PRT fields:
    model.fs(f).fs\_name:     feature set(s) this CV approach is defined for
    model.fs(f).fs\_features: feature selection mode ('all' or 'mask')
    model.fs(f).mask\_file:   mask for this feature set (fs\_features='mask')
- 
  
    in.fname:      filename for PRT.mat
    in.model\_name: name for this cross-validation structure
@@ -896,25 +896,23 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \begin{alltt}
 
  PRT\_UI\_RESULTS MATLAB code for prt\_ui\_results.fig
+      PRT\_UI\_RESULTS, by itself, creates a new PRT\_UI\_RESULTS or raises the existing
+      singleton*.
  
- PRT\_UI\_RESULTS, by itself, creates a new PRT\_UI\_RESULTS or raises the 
- existing singleton*.
+      H = PRT\_UI\_RESULTS returns the handle to a new PRT\_UI\_RESULTS or the handle to
+      the existing singleton*.
  
- H = PRT\_UI\_RESULTS returns the handle to a new PRT\_UI\_RESULTS or the 
- handle to the existing singleton*.
+      PRT\_UI\_RESULTS('CALLBACK',hObject,eventData,handles,...) calls the local
+      function named CALLBACK in PRT\_UI\_RESULTS.M with the given input arguments.
  
- PRT\_UI\_RESULTS('CALLBACK',hObject,eventData,handles,...) calls the local
- function named CALLBACK in PRT\_UI\_RESULTS.M with the given input 
- arguments.
+      PRT\_UI\_RESULTS('Property','Value',...) creates a new PRT\_UI\_RESULTS or raises the
+      existing singleton*.  Starting from the left, property value pairs are
+      applied to the GUI before prt\_ui\_results\_OpeningFcn gets called.  An
+      unrecognized property name or invalid value makes property application
+      stop.  All inputs are passed to prt\_ui\_results\_OpeningFcn via varargin.
  
- PRT\_UI\_RESULTS('Property','Value',...) creates a new PRT\_UI\_RESULTS or 
- raises the existing singleton*.  Starting from the left, property value 
- pairs are applied to the GUI before prt\_ui\_results\_OpeningFcn gets 
- called.  An unrecognized property name or invalid value makes property 
- application stop.  All inputs are passed to prt\_ui\_results\_OpeningFcn via varargin.
- 
- *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
- instance to run (singleton)".
+      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+      instance to run (singleton)".
  
  See also: GUIDE, GUIDATA, GUIHANDLES
 \end{alltt}
@@ -1036,6 +1034,12 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
+\section{prt\_ui\_stats.m}
+\begin{alltt}
+
+\end{alltt}
+
+
 \section{machines}
 
 \subsection{machines\textbackslash prt\_KRR.m}
@@ -1061,7 +1065,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
                   [Nte x D])
     .tr\_targets - training labels (for classification) or values (for
                   regression) (column vector, [Ntr x 1])
-    .use\_kernel - flag, is data in form of kernel matrices (true) of in 
+    .use\_kernel - flag, is data in form of kernel matrices (true) or in 
                   form of features (false)
     Optional fields: the machine is respnsible for dealing with this
                   optional fields (e.g. d.testcov)
@@ -1115,7 +1119,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \subsection{machines\textbackslash prt\_machine\_gpml.m}
 \begin{alltt}
 
- Run binary SVM - wrapper for libSVM
+ Run Gaussian process model - wrapper for gpml toolbox
  FORMAT output = prt\_machine\_gpml(d,args)
  Inputs:
    d         - structure with data information, with mandatory fields:
@@ -1129,16 +1133,31 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
                    each [Nte x Nte])
      .tr\_targets - training labels (for classification) or values (for
                    regression) (column vector, [Ntr x 1])
-     .use\_kernel - flag, is data in form of kernel matrices (true) of in 
-                form of features (false)
+     .use\_kernel - flag, is data in form of kernel matrices (true) or in 
+                   form of features (false)
     args     - argument string, where
-       -h        - optimise hyperparameters (otherwise don't)
-       -l lik    - likelihood function. Currently only lik = 'erf' is
-                   supported
-       -c cov    - covariance function:
-                       'lin'  - simple dot product (no hyperparameters)
-                       'linb' - dot product with bias (one hyperparameter)
-                       
+       -h         - optimise hyperparameters (otherwise don't)
+       -f iter    - max \# iterations for optimiser (ignored if -h not set)
+       -l likfun  - likelihood function:
+                       'likErf' - erf/probit likelihood (binary only)
+       -c covfun  - covariance function:
+                       'covLINkcell' - simple dot product
+                       'covLINglm'   - construct a GLM
+       -m meanfun - mean function:
+                       'meanConstcell' - suitable for dot product
+                       'meanConstglm'  - suitable for GLM
+       -i inffun  - inference function:
+                       'prt\_infEP' - Expectation Propagation
+    experimental args (use at your own risk):
+       -p         - use priors for the hyperparameters. If specified, this
+                    indicates that a maximum a posteriori (MAP) approach
+                    will be used to set covariance function
+                    hyperparameters. The priors are obtained from the
+                    by calling prt\_gp\_priors('covFuncName')
+ 
+       N.B.: for the arguments specifying functions, pass in a string, not
+       a function handle. This script will generate a function handle
+ 
  Output:
     output  - output of machine (struct).
      * Mandatory fields:
@@ -1306,6 +1325,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  FORMAT weights = prt\_weights(d,m)
  Inputs:
        d   - data structure
+             (fields of .d can vary depending on weights function)
        m   - machine structure
            .function - function to compute weights (string)
            .args     - function arguments
@@ -1338,7 +1358,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
        d              - data structure
            .datamat   - data matrix [Nfeatures x Nexamples]
            .coeffs    - coefficients vector [Nexamples x 1]
-       args           - function arguments (can be empty)
+       args           - function arguments (can be left empty)
  Output:
        weights        - vector with weights [Nfeatures x 1]
 \end{alltt}

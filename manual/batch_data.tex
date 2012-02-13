@@ -5,7 +5,7 @@
 
 \vskip 1.5cm
 
-Specify the group(s) of data set.
+Specify the data and design for each group (minimum one group).
 
 
 \section{Directory}
@@ -29,7 +29,7 @@ Depending on the type of data at hand, you may have many images (scans) per subj
 
 
 \paragraph{Subjects}
-Add subjects.
+Add subjects/scans.
 
 
 \subparagraph{Subject}
@@ -37,11 +37,11 @@ Add new modality for this subject.
 
 
 \textbf{Modality}
-Add new data modality.
+Add new modality.
 
 
 \textsc{Name}
-Name of modality. Example: 'BOLD'.
+Name of modality. Example: 'BOLD'. The names should be consistent accross subjects/groups and the same names specified in the masks.
 
 
 \textsc{Interscan interval}
@@ -77,7 +77,7 @@ Specify condition: name, onsets and duration.
 
 
 \textit{Name}
-Name of condition.
+Name of condition (alphanumeric strings only).
 
 
 \textit{Onsets}
@@ -147,7 +147,7 @@ The parametric modulator should be mean corrected if appropriate. Unused structu
 
 
 \textit{Covariates}
-Select a .mat file containing your covariates (i.e. any other data/information you would like to include in your design). This file should contain a variable 'R' with the covariates.
+Select a .mat file containing your covariates (i.e. any other data/information you would like to include in your design). This file should contain a variable 'R' with a matrix of covariates.
 
 
 \textsl{No design}
@@ -155,7 +155,7 @@ Do not specify design. This option can be used for modalities (e.g. structural s
 
 
 \paragraph{Scans}
-Select this option if you have many subjects to spatially normalise, but there is one or a small number of scans for each subject.
+Depending on the type of data at hand, you may have many images (scans) per subject, such as a fMRI time series, or you may have many subjects with only one or a small number of images (scans) per subject, such as PET images. Select this option if you have many subjects per modality to spatially normalise, but there is one or a small number of scans for each subject. This is a faster option with less information to specify than the 'select by subjects' option. Both options create the same 'PRT.mat' but 'select by scans' is optimised for modalities with no design.
 
 
 \subparagraph{Modality}
@@ -163,7 +163,7 @@ Specify modality, such as name and data.
 
 
 \textbf{Name}
-Name of modality. Example: 'BOLD'.
+Name of modality. Example: 'BOLD'. The names should be consistent accross subjects/groups and the same names specified in the masks.
 
 
 \textbf{Files}
@@ -171,11 +171,11 @@ Select scans (images) for this modality. They must all have the same image dimen
 
 
 \textbf{Regression targets (per scans)}
-Enter one regression target per scans. or enter the name of a variable  This variable should be a vector [Nscans x 1], where Nsubjs is the number of subjects.
+Enter one regression target per scan. or enter the name of a variable.  This variable should be a vector [Nscans x 1], where Nscans is the number of scans/images.
 
 
 \textbf{Covariates}
-Select a .mat file containing your covariates (i.e. any other data/information you would like to include in your design). This file should contain a variable 'R' with the covariates.
+Select a .mat file containing your covariates (i.e. any other data/information you would like to include in your design). This file should contain a variable 'R' with a matrix of covariates.
 
 
 \section{Masks}
@@ -183,25 +183,25 @@ Select first-level (pre-processing) mask for each modality. The name of the moda
 
 
 \subsection{Modality}
-Specify name of modality and file for each mask.
+Specify name of modality and file for each mask. The name should be consistent with the names chosen for the modalities (subjects/scans).
 
 
 \subsubsection{Name}
-Name of modality. Example: 'BOLD'.
+Name of modality. Example: 'BOLD'. The names should be consistent accross subjects/groups and the same names specified in the masks.
 
 
 \subsubsection{File}
-Select one mask for each modality.
+Select one first-level mask (image) for each modality. This mask is used to optimise the prepare data step. In 'specify model' there is an option to enter a second-level mask, which might be used to select only a few areas of the brain for subsequent analyses.
 
 
 \section{HRF overlap}
-If using fMRI data please specify the width of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities.
+If using fMRI data please specify the width of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities (other than fMRI).
 
 
 \section{HRF delay}
-If using fMRI data please specify the delay of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities.
+If using fMRI data please specify the delay of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities (other than fMRI).
 
 
 \section{Review}
-Would you like to review the design?.
+Choose 'Yes' if you would like to review your data and design in a separate window.
 

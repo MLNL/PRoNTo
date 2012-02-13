@@ -210,6 +210,10 @@ Leave out a single run (modality) from each subject each iteration. Appropriate 
 Load a cross-validation matrix. Note that an interface will be provided for this functionality in a later release
 
 
+\section{Include all scans}
+This option can be used to pass all the scans for each subject to the learning machine, regardless of whether they are directly involved in the classification or regression problem. For example, this can be used to estimate a GLM from the whole timeseries for each subject prior to prediction. This would allow the resulting regression coefficient images to be used as samples.
+
+
 \section{Data operations}
 Specify operations to apply
 
