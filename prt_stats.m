@@ -115,7 +115,7 @@ function [lb,ub] = computeWilsonBinomialCI(k,n)
 
 alpha=0.05;
 
-l=norminv(1-alpha/2,0,1);
+l=spm_invNcdf(1-alpha/2,0,1); % 
 p=k/n;                    % sample proportion of success
 q=1-p;
 
