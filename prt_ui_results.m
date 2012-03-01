@@ -695,6 +695,7 @@ if strcmp(PRT.model(model).input.type,'classification')
                 set(handles.axes5,'YTickLabel',{'1','2'});
                 grid(handles.axes5,'on');
                 set(handles.axes5,'Color',[0.8 0.8 0.8]);
+                axis square; axis vis3d;
     end
     
 else
