@@ -1,8 +1,29 @@
 % $Id: gui_disres.tex 395 2011-11-17 22:34:59Z cphillip $
+%
+% Written by Jonas Richiardi
+%_______________________________________________
+
 
 \chapter{Results display}
+\label{chap:DisRes}
 \minitoc
 
-This is where we explain how you can display results within the GUI. 
-In particular, what are all the nice results we can show/use to write good papers.
-Lots of text to come!
+\section{Introduction}
+
+Once a machine (e.g. a classifier or a regression function) has been specified, 
+its parameters have been estimated over training data, and its performance has been
+evaluated over a test set in cross-validation, it is necessary to examine the outcome
+of the whole procedure in details. For example, if the machine cannot perform above
+chance, it could be due to an inappropriate experimental paradigm, noisy data, insufficient
+amount of data, wrong choice of features, wrong choice of machine. It is important to
+recognise that any of these factors could cause the modelling to fail. The results window
+can help pinpointing the source of error.
+
+Another important aspect at this stage is to see what the machine has learned - some brain 
+areas are probably more informative about class membership than others. For example, in a visual
+task, we would expect discriminative information in the occipital lobe. This is 
+called \textit{information mapping}, and it is of particular import to be critical at this stage - if
+the discriminative weight of a machine is concentrated in the eyes, for example, it is important
+to correct the analysis mask that was used to exclude them. The question to ask is
+``which voxels drive the modelling, and do they make sense with respect to the experimental
+paradigm and neurophysiology'' ?
