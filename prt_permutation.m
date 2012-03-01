@@ -189,10 +189,10 @@ else
         end
         
         %Model level statistics
-        t=[model.output.fold(:).targets];
+        t=cat(1,model.output.fold(:).targets); % account for unequal fold sizes
         m.type=PRT.model(modelid).output.fold(1).type;
-        m.predictions=[model.output.fold(:).predictions];
-        m.predictions=m.predictions(:);
+        m.predictions=cat(1,model.output.fold(:).predictions);
+        m.predictions=m.predictions(:); % make extra sure (this can't really happen)
         t=t(:);
         perm_stats=prt_stats(m,t,'model');
         %permutation.perm_stats(p)=stats;
