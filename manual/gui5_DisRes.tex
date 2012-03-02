@@ -128,13 +128,13 @@ classifier performance, where higher is better (1 represents perfect performance
 the AUC is but one way of comparing performance of machines, and cannot be used alone
 to declare a machine statistically significantly superior to another on a given dataset.
 
-Figure~\ref{prt_ui_results_plots_ROC} shows an example of such a plot.
+Figure~\ref{fig_prt_ui_results_plots_ROC} shows an example of such a plot.
 
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=8cm]{images/prt_ui_results_plots_ROC.png}
 \caption{Example ROC curve for a two-class problem modelled by an SVM.}
-\label{prt_ui_results_plots_ROC}
+\label{fig_prt_ui_results_plots_ROC}
 \end{center}
 \end{figure}
 
@@ -145,36 +145,14 @@ plot, showing how function values are distributed. A good classifier
 would have minute overlap between the densities. The error rate of the
 classifier is proportional to the area of the overlap.
 
-Figure~\ref{prt_ui_results_plots_hist} shows an example of such a plot.
+Figure~\ref{fig_prt_ui_results_plots_hist} shows an example of such a plot.
 
 
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=8cm]{images/prt_ui_results_plots_hist.png}
 \caption{Example function values histogram curve for a two-class problem modelled by an SVM.}
-\label{prt_ui_results_plots_hist}
-\end{center}
-\end{figure}
-
-\subsection{Confusion matrix}
-
-The confusion matrix shows counts of predicted class labels (in rows) versus true class labels
-(in columns). An ideal confusion matrix is diagonal: all predicted class labels correspond to the truth.
-Off-diagonal elements represent errors. It is important to check that none of the classes is
-``sacrificed'' to gain accuracy in other classes - in other words, if all classes are equally
-important to classify, no class should have more off-diagonal than on-diagonal entries. Many
-summary statistics, including class accuracy, total accuracy, sensitivity, and specificity,
-can be computed from the confusion matrix (see next section).
-
-Figure~\ref{prt_ui_results_plots_hist} shows an example of a confusion matrix.
-
-
-\begin{figure}[htbp]
-
-\begin{center}
-\includegraphics[width=8cm]{images/prt_ui_results_plots_confMat.png}
-\caption{Example confusion matrix for all folds of a two-class problem modelled by an SVM.}
-\label{prt_ui_results_plots_confMat}
+\label{fig_prt_ui_results_plots_hist}
 \end{center}
 \end{figure}
 
@@ -182,21 +160,87 @@ Figure~\ref{prt_ui_results_plots_hist} shows an example of a confusion matrix.
 \section{Statistical analysis of a machine's performance}
 \label{s:DisRes_stats}
 
-XXX
+One of the main questions to ask of a model is how precise its predictions are.
+In regression, goodness-of-fit is often assesed. In classification, a common practice
+is to compute prediction accuracy, both for each class and for all test data. Once an accuracy
+value has been obtained, it is also possible to obtain a p-value for the accuracy, reflecting
+how certain we are that the result is not due to chance.
+
+\subsection{Confusion matrix plot}
+
+The confusion matrix shows counts of predicted class labels (in rows) versus true class labels
+(in columns). An ideal confusion matrix is diagonal: all predicted class labels correspond to the truth.
+Off-diagonal elements represent errors. It is important to check that none of the classes is
+``sacrificed'' to gain accuracy in other classes - in other words, if all classes are equally
+important to classify, no class should have more off-diagonal than on-diagonal entries. Many
+summary statistics, including class accuracy, total accuracy, sensitivity, and specificity,
+can be computed from the confusion matrix.
+
+Figure~\ref{fig_prt_ui_results_plots_hist} shows an example of a confusion matrix.
+
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{images/prt_ui_results_plots_confMat.png}
+\caption{Example confusion matrix for all folds of a two-class problem modelled by an SVM.}
+\label{fig_prt_ui_results_plots_confMat}
+\end{center}
+\end{figure}
 
 \subsection{The statistics table}
 
-XXX stats table
+The statistics table (see Figure~\ref{fig_prt_ui_results_statsTable} for an example in a classification
+setting) gives a summary of the model's performance. Accuracy is the number of correctly classified
+test samples divided by the number of test samples. Balanced accuracy takes the number of samples
+in each class into account, and gives equal weight to the accuracies of each class. This is the measure
+of choice when classes are imbalanced (one class has much more data than others). The table also
+gives class-specific accuracies, useful to check whether the model favours some classes over others.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{images/prt_ui_results_statsTable.png}
+\caption{Example statistics tables for all folds of a two-class problem modelled by an SVM.}
+\label{fig_prt_ui_results_statsTable}
+\end{center}
+\end{figure}
 
 \subsection{Permutation testing}
 
-XXX permutation test.
+Because the IID assumption is often not met in neuroimaging problems (due to e.g. within-run correlations),
+classical estimates of confidence intervals (such as the binomial confidence interval) may not always
+be appropriate. Permutation testing is a non-parametric procedure that allows to obtain meaningful 
+confidence intervals and p-values in this case. Because it requires retraining the model a number of times, 
+which can be costly in computation time, this is not done by default. After filling in the {\tt repetitions}
+field with a number of repetitions $R$, pressing the {\tt Permutation test} button will run for the specified number of times, and produce a 
+p-value for accuracy statistics (see Figure~\ref{fig_prt_ui_results_statsTable}). The smallest increment in p-value
+is proportional to $1/R$ (e.g. 20 repetitions gives you increments of 0.05). At least several hundreds of permutations should be performed XXXREF for this?.
 
-XXX Maybe ref Golland TR
+% XXX Maybe ref Golland TR
 
 
-\section{Visualising an information map}
+\section{Visualising a weight map}
 
-XXX
+By clicking on the {\tt ...} button next to the {\tt Load weight map} field, 
+a dialogue opens that allows you to select the weight map {\tt .img} file that 
+was computed previously (see Chapter~\ref{chap:ComputeWeights} for the procedure).
+Similarly, a co-registered anatomical image can be loaded in the {\tt Anatomical img}
+pane of the window. See Figure~\ref{fig_prt_ui_results_WM_anatomical} for an example.
 
-XXX weight maps, anatomical image (should be coreg'd)
+The weight map is then displayed with a cross-hair and a colorbar. The colorbar indicates the
+relative importance of the voxel in the decision function of the machine. This value is also
+indicated in the {\tt intensity} field of the {\tt Anatomical img} pane. Note that all voxels
+in the mask contribute to the decision function, since the analysis is multivariate. Contrary
+to common practice in Statistical Parametric Mapping, which is a mass-univariate approach, {\em it does
+not make sense to isolate part of the pattern and report only on the peaks of the distribution
+of the decision function's weight map}. 
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{images/prt_ui_results_WM_anatomical.png}
+\caption{Example weight map over all folds for a two-class problem modelled by an SVM.
+In this rest versus auditory condition example, the voxels with the highest relative weight are located
+around auditory areas (notably Heschl's gyrus), bilaterally.}
+\label{fig_prt_ui_results_WM_anatomical}
+\end{center}
+\end{figure}
+
