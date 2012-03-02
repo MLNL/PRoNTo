@@ -687,8 +687,8 @@ if strcmp(PRT.model(model).input.type,'classification')
                 else
                     title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1),'FontWeight','bold');
                 end
-                xlabel(handles.axes5,'Predicted','FontWeight','bold');
-                ylabel(handles.axes5,'True','FontWeight','bold');
+                xlabel(handles.axes5,'True','FontWeight','bold');
+                ylabel(handles.axes5,'Predicted','FontWeight','bold');
                 set(handles.axes5,'XTick',[1 2]);
                 set(handles.axes5,'XTickLabel',{'1','2'});
                 set(handles.axes5,'YTick',[1 2]);
@@ -697,6 +697,7 @@ if strcmp(PRT.model(model).input.type,'classification')
                 set(handles.axes5,'Color',[0.8 0.8 0.8]);
                 axis square; axis vis3d; axis tight;
                 % add values
+                mconmat
                 for foo_row=1:size(mconmat,1)
                     for foo_col=1:size(mconmat,2)
                         foo_zval=mconmat(foo_row,foo_col);
