@@ -13,13 +13,12 @@
 Once a machine (e.g. a classifier or a regression function) has been specified, 
 its parameters have been estimated over training data, and its performance has been
 evaluated over a test set in cross-validation, it is necessary to examine the outcome
-of the whole procedure in details. For example, if the machine cannot perform above
-chance, it could be due to an inappropriate experimental paradigm, noisy data, insufficient
-amount of data, wrong choice of features, wrong choice of machine. It is important to
-recognise that any of these factors could cause the modelling to fail. The results window
-can help pinpointing the source of error.
+of the whole procedure in details. The results windows helps make various useful
+statistical statements about the predictive power of a machine, which (if any) subjects
+or conditions are modelled best, and which machine has the lowest error rate on a given
+dataset.
 
-Another important aspect at this stage is to see what the machine has learned - some brain 
+Another important aspect is to see what the machine has learned - some brain 
 areas are probably more informative about class membership than others. For example, in a visual
 task, we would expect discriminative information in the occipital lobe. This is 
 called \textit{information mapping}, and it is of particular import to be critical at this stage - if
@@ -28,11 +27,176 @@ to correct the analysis mask that was used to exclude them. The question to ask 
 ``which voxels drive the modelling, and do they make sense with respect to the experimental
 paradigm and neurophysiology'' ?
 
+Finally, examining model output and parameters is helpful in diagnosing the potentially
+bad performance of a particular mode - for example, if the machine cannot perform above
+chance, it could be due to an inappropriate experimental paradigm, noisy data, insufficient
+amount of data, wrong choice of features, wrong choice of machine. It is important to
+recognise that any of these factors could cause the modelling to fail. The results window
+can help pinpointing the source of error.
+
+
 \section{Launching results display}
 
 Make sure all previous steps have been performed (Data and Design, Chapter~\ref{chap:DataDesign};
 Prepare feature set, Chapter~\ref{chap:PrepFeat}; Specify Model and Run Model, Chapter~\ref{chap:ModelCrossV} ).
-Optionally, you may want to generate a weight map for your machine (Compute Weights~\ref{chap:ComputeWeights}), 
+Optionally, you may want to generate a weight map for your machine (Compute Weights, Chapter~\ref{chap:ComputeWeights}), 
 but this is not mandatory.
 
-In the Review Options panel, press {\tt Display Results} to bring up the results main window.
+In the {\tt Review Options} panel, press {\tt Display Results}. At the ``Select PRT.mat'' window,
+navigate to where your {\tt PRT.mat} file is stored (using the left column), and select it in the
+right column. The window should then look something like Figure~\ref{fig_prt_ui_results_selectPRT}.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[height=7cm]{images/prt_ui_results_selectPRT.png}
+\caption{Selecting a PRT.mat for results display.}
+\label{fig_prt_ui_results_selectPRT}
+\end{center}
+\end{figure}
+
+Click on {\tt Done}, and the main results window opens (see an example initial state in
+Figure~\ref{fig_prt_ui_results_emptyWin}). In the {\tt Model} pane in the top-right
+corner, you can check that you have loaded the correct  {\tt PRT.mat} by checking
+the list of model names appearing in the {\tt Model} selector. For example, in Figure~\ref{fig_prt_ui_results_emptyWin},
+we have one single model called {\tt mySVM\_AudRest}, with several cross-validation folds.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=10cm]{images/prt_ui_results_emptyWin.png}
+\caption{Initial state of the results display main window.}
+\label{fig_prt_ui_results_emptyWin} 
+\end{center}
+\end{figure}
+
+\section{The main results display window}
+
+The window is divided into four panes; going clockwise from top left to bottom left, they
+are:
+\begin{description}
+\item[Plot]: this pane displays the plots for the various analyses that can be performed on
+test results. With the exception of the confusion matrix plot, these cannot be interacted with.
+\item[Model]: this pane allows the user to select the model to analyse, whether to analyse a
+particular fold or all folds at once, and which plot to produce. The {\tt stats} sub-pane allows
+the user to generate a variety of statistics on the test, including accuracy statistics for classifiers,
+and p-values on these parameters via permutation testing.
+\item[Weight map]: if a weight map has been computed (see Chapter~\ref{chap:ComputeWeights}) and
+loaded, this displays three projections of the map and allows to navigate it.
+\item[Anatomical img]: if an anatomical image has been loaded, this will display three projections,
+and the cross-hair will be synchronised with the weight map.
+\end{description}
+
+To populate the Plot pane, first click on a model in the {\tt Model} selector, then on
+'all folds' (or a particular fold) in the {\tt Fold} selector, and finally on a plot
+in the {\tt Plot} selector. The next section details the plots available.
+
+\section{Analysing a machine's performance graphically}
+
+Looking at a machine output's graphically can often yield insights into the performance
+of the machine, and where modelling assumptions may prove false.
+
+\subsection{Predictions plot}
+
+A predictions plot displays, for a particular fold, the output value of the machine's
+decision function for each test sample (e.g., for a linear SVM, this could be $\mathbf{w}^T\mathbf{x}_i + b$,
+for a probabilistic classifier this could be a posterior probability $P(\Omega=\omega | \mathbf{x}_i)$).
+A well-performing classifier will yield very different function values for samples of different
+classes. By observing which fold have more or less overlapping function values, it is possible
+to understand which block / subject / condition might have a test distribution of features that
+departs from the training set.
+
+On the plot, each class is represented by a different marker, and indicated in the legend.
+Figure~\ref{fig_prt_ui_results_plots_pred} shows an example predictions plot.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{images/prt_ui_results_plots_pred.png}
+\caption{Example predictions plot for a two-class problem modelled by an SVM.}
+\label{fig_prt_ui_results_plots_pred}
+\end{center}
+\end{figure}
+
+\subsection{Receiver Operating Characteristic (ROC) plot}
+
+In two-class classification, there is always a trade-off between class 1
+and class 2 errors. Indeed, a classifier predicting class 1 regardless of input
+would have excellent accuracy on class 1, but bad accuracy on class2. The 
+ROC curve is a graphical depiction of this trade-off, showing how one error rate
+varies as a function of the other. An ideal classifier would have an ROC passing
+through the top-left corner. The area under curve (AUC) is a summary measure of 
+classifier performance, where higher is better (1 represents perfect performance,
+0.5 represents random performance). As with all summary measures,
+the AUC is but one way of comparing performance of machines, and cannot be used alone
+to declare a machine statistically significantly superior to another on a given dataset.
+
+Figure~\ref{prt_ui_results_plots_ROC} shows an example of such a plot.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{images/prt_ui_results_plots_ROC.png}
+\caption{Example ROC curve for a two-class problem modelled by an SVM.}
+\label{prt_ui_results_plots_ROC}
+\end{center}
+\end{figure}
+
+\subsection{Histogram plot}
+
+The histogram plot is a smoothed density version of the predictions
+plot, showing how function values are distributed. A good classifier
+would have minute overlap between the densities. The error rate of the
+classifier is proportional to the area of the overlap.
+
+Figure~\ref{prt_ui_results_plots_hist} shows an example of such a plot.
+
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{images/prt_ui_results_plots_hist.png}
+\caption{Example function values histogram curve for a two-class problem modelled by an SVM.}
+\label{prt_ui_results_plots_hist}
+\end{center}
+\end{figure}
+
+\subsection{Confusion matrix}
+
+The confusion matrix shows counts of predicted class labels (in rows) versus true class labels
+(in columns). An ideal confusion matrix is diagonal: all predicted class labels correspond to the truth.
+Off-diagonal elements represent errors. It is important to check that none of the classes is
+``sacrificed'' to gain accuracy in other classes - in other words, if all classes are equally
+important to classify, no class should have more off-diagonal than on-diagonal entries. Many
+summary statistics, including class accuracy, total accuracy, sensitivity, and specificity,
+can be computed from the confusion matrix (see next section).
+
+Figure~\ref{prt_ui_results_plots_hist} shows an example of a confusion matrix.
+
+
+\begin{figure}[htbp]
+
+\begin{center}
+\includegraphics[width=8cm]{images/prt_ui_results_plots_confMat.png}
+\caption{Example confusion matrix for all folds of a two-class problem modelled by an SVM.}
+\label{prt_ui_results_plots_confMat}
+\end{center}
+\end{figure}
+
+
+\section{Statistical analysis of a machine's performance}
+\label{s:DisRes_stats}
+
+XXX
+
+\subsection{The statistics table}
+
+XXX stats table
+
+\subsection{Permutation testing}
+
+XXX permutation test.
+
+XXX Maybe ref Golland TR
+
+
+\section{Visualising an information map}
+
+XXX
+
+XXX weight maps, anatomical image (should be coreg'd)
