@@ -31,8 +31,8 @@ prt_def.global.install_dir = prt('dir');
 
 % Parameters for the data and design
 %-----------------------------------------------
-prt_def.datad.hrfd = 0; % HRF delay in seconds
-prt_def.datad.hrfw = 0; % HRF FWHM, used to compute the overlap between conditions
+prt_def.datad.hrfd = 4; % HRF delay in seconds
+prt_def.datad.hrfw = 6; % HRF FWHM, used to compute the overlap between conditions
 
 prt_def.prep.default_mask  = [prt_def.global.install_dir,...
                             '/masks/SPM_mask_noeyes.hdr'];% default mask

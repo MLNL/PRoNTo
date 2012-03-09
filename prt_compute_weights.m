@@ -87,20 +87,26 @@ for f = 1:nfs
         fs_idx = f;
     end
 end
-ID = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
+ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
+ID_all = PRT.fs(fs_idx).id_mat;
 
 % Find modality
 % -------------------------------------------------------------------------
 nfas = length(PRT.fas);
+mods = {PRT.fs(fs_idx).modality.mod_name};
+fas  = zeros(1,nfas);
 for i = 1:nfas
-    if strcmp(PRT.fas(i).mod_name,PRT.fs(fs_idx).modality.mod_name)
-        fas_idx = i;
+    for j = 1:length(mods)
+        if strcmpi(PRT.fas(i).mod_name,mods{j})
+            fas(i) = 1;
+        end
     end
 end
+fas_idx = find(fas);
 
 % Create image
 % -------------------------------------------------------------------------
-hdr        = PRT.fas(fas_idx).hdr.private;
+hdr        = PRT.fas(fas_idx(1)).hdr.private;
 img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),...
     hdr.dat.dim(3),nfold+1],'float64-le',0,1,0);
 
@@ -116,8 +122,8 @@ for z = 1:zdim
     
     img3dav  = zeros(1,xydim); % average weight map
     
-    feat_slc = find(PRT.fas(fas_idx).idfeat_img>=(xydim*(z-1)+1) & ...
-        PRT.fas(fas_idx).idfeat_img<=(xydim*z));
+    feat_slc = find(PRT.fas(fas_idx(1)).idfeat_img>=(xydim*(z-1)+1) & ...
+        PRT.fas(fas_idx(1)).idfeat_img<=(xydim*z));
     
     if isempty(feat_slc)
         
@@ -129,10 +135,20 @@ for z = 1:zdim
             
             train_idx      = PRT.model(model_idx).input.cv_mat(:,f)==1;
             train          = samp_idx(train_idx);
+            train_all      = zeros(size(ID_all,1),1); train_all(train) = 1;
             
             d.coeffs       = PRT.model(model_idx).output.fold(f).alpha;
             
-            d.datamat      = PRT.fas(fas_idx).dat(train,feat_slc);
+            d.datamat = zeros(length(train), length(feat_slc));
+            for i = 1:length(fas_idx)
+                % indexes to access the file array
+                indm = PRT.fs(fs_idx).fas.im == fas_idx(i) & train_all; 
+                ifa  = PRT.fs(fs_idx).fas.ifa(indm);
+                
+                % index for the target data matrix
+                indtr = ID(train_idx,3) == fas_idx(i);
+                d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,feat_slc);
+            end
             
             % Apply any operations specified during training
             ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
@@ -148,7 +164,7 @@ for z = 1:zdim
             
             img3d          = zeros(1,xydim);
             
-            img3d(PRT.fas(fas_idx).idfeat_img(feat_slc)-xydim*(z-1)) = wimg;
+            img3d(PRT.fas(fas_idx(1)).idfeat_img(feat_slc)-xydim*(z-1)) = wimg;
             
             norm3d(f)      = sum(img3d.^2);
             
