@@ -27,7 +27,7 @@ function varargout = prt_ui_results(varargin)
 
 % Edit the above text to modify the response to help prt_ui_results
 
-% Last Modified by GUIDE v2.5 24-Jan-2012 19:18:41
+% Last Modified by GUIDE v2.5 11-Mar-2012 00:01:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -250,8 +250,7 @@ function quitbutton_Callback(hObject, eventdata, handles)
 
 % Close and clear figure
 % -------------------------------------------------------------------------
-figHandles = findall(0,'Type','figure');
-close(figHandles);
+close(handles.figure1);
 
 
 function loadweight_Callback(hObject, eventdata, handles)
@@ -287,17 +286,26 @@ disp('Loading weights...>>')
 % -------------------------------------------------------------------------
 if ~isfield(handles,'wmap') || ~handles.noloadw
     wmap            = spm_select(1,'image','Select weight map.');
+    % Remove number in file name
+    if strcmp(wmap(end-1),',')
+        wmap = wmap(1:end-2);
+    end
     V               = spm_vol(wmap);
     handles.vols{1} = V;
     handles.wmap    = wmap;
-     if ~(isfield(handles,'wmap') && isfield(handles,'aimg'))
-        spm_orthviews('Reset');
-    end
+   
+end
+
+spm_orthviews('Reset');
+if isfield(handles,'aimg')
+    anatomicalbutton_Callback(hObject, eventdata, handles);
 end
 
 % Image dimensions
 % -------------------------------------------------------------------------
-V             = handles.vols{1};
+fold          = get(handles.foldmenu,'Value')-1;
+Vfolds        = handles.vols{1};
+V             = Vfolds(1);
 M             = V.mat;
 DIM           = V.dim(1:3)'; 
 xdim          = DIM(1); ydim  = DIM(2); zdim  = DIM(3);
@@ -306,7 +314,6 @@ fdim          = V.private.dat.dim(4);
 xords         = xords(:)';  yords = yords(:)';
 I             = 1:xdim*ydim;
 zords_init    = ones(1,xdim*ydim);
-fold          = get(handles.foldmenu,'Value')-1;
 
 % Get image values above zero for each fold and all folds
 % -------------------------------------------------------------------------
@@ -314,13 +321,16 @@ xyz_above = [];
 z_above   = [];
 if fold == 0,
     fold_coord = fdim*ones(1,xdim*ydim);
+    V = Vfolds(fdim);
 else
     fold_coord = fold*ones(1,xdim*ydim);
+    V = Vfolds(fold);
 end
+
 for z = 1:zdim,
     zords = z*zords_init;
     xyz   = [xords(I); yords(I); zords(I); fold_coord];
-    zvals = spm_get_data(V,xyz);
+    zvals = spm_get_data(V,xyz);     
     above = find(zvals~=0);
     if ~isempty(above)
         xyz_above = [xyz_above,xyz(:,above)];
@@ -363,7 +373,7 @@ prt_ui_results('showpos');
 disp('Done');
 
 % Reset flag to load weights
-handles.noloadw = 0;
+handles.noloadw = 1;
 
 % Show file name
 % -------------------------------------------------------------------------
@@ -400,25 +410,31 @@ function anatomicalbutton_Callback(hObject, eventdata, handles)
 
 % Check if weight map and anatomical image exist and reset orthviews
 % -------------------------------------------------------------------------
-if ~(isfield(handles,'wmap') && isfield(handles,'wmap')) 
+if ~isfield(handles,'wmap')
     spm_orthviews('Reset');
-    global st
-    st.fig = handles.figure1;
+end
+global st
+st.fig = handles.figure1;
+if ~isfield(handles,'aimg') || ~handles.noloadi
+    img    = spm_select(1,'image','Select anatomical image.');
+else
+    img = handles.aimg;
 end
 
 % Show anatomical image
 % -------------------------------------------------------------------------
 rotate3d off
-img    = spm_select(1,'image','Select anatomical image.');
+st.fig = handles.figure1;
 handle = spm_orthviews('Image', img, [0.5295 0.0859 0.4196 0.4196]);
 cmap   = get(gcf,'Colormap');
 if size(cmap,1)~=128
       spm_figure('Colormap','gray')
 end
 
-handles.aimgh = handle;
-handles.aimg  = img;
-handles.img   = 1;
+handles.aimgh   = handle;
+handles.aimg    = img;
+handles.img     = 1;
+handles.noloadi = 1;
 
 % Show file name
 % -------------------------------------------------------------------------
@@ -941,3 +957,15 @@ cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
       spm_figure('Colormap','gray-jet');
 end
+
+
+% --- Executes on button press in resetbutton.
+function resetbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to resetbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+spm_orthviews('Reset');
+if isfield(handles, 'wmap'), handles = rmfield(handles, 'wmap'); end
+if isfield(handles, 'aimg'), handles = rmfield(handles,'aimg'); end
+handles.noloadw = 0;
+guidata(hObject, handles);
