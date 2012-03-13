@@ -27,7 +27,7 @@ function varargout = prt_ui_results(varargin)
 
 % Edit the above text to modify the response to help prt_ui_results
 
-% Last Modified by GUIDE v2.5 11-Mar-2012 00:01:11
+% Last Modified by GUIDE v2.5 13-Mar-2012 11:23:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -231,7 +231,7 @@ function savebutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 beep;
-disp('Save option not supported yet!')
+disp('Save option: NOT SUPPORTED YET!')
 
 % --- Executes on button press in helpbutton.
 function helpbutton_Callback(hObject, eventdata, handles)
@@ -240,7 +240,8 @@ function helpbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 beep;
-disp('Help option not supported yet!')
+disp('Help window for PRoNTo results has been launched.')
+prt_ui_results_help;
 
 % --- Executes on button press in quitbutton.
 function quitbutton_Callback(hObject, eventdata, handles)
