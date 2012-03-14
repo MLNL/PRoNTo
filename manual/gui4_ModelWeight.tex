@@ -1,9 +1,46 @@
 % $Id: gui_bmodel.tex 395 2011-11-17 22:34:59Z cphillip $
 
-\chapter{Model \& feature weights estimation}
+\chapter{Model and Weights Estimation}
 \label{chap:ComputeWeights}
 
 \minitoc
 
-This is where we explain how we run the model and calculate the weights. \\
-Lots of text to come!
+\section{Introduction}
+
+The previous module allowed the user to specify one or more models. These include the machine to be used, the cross-validation scheme and the classification/regression problem. After model specification one needs to learn the models, i.e. use the training and test datasets to estimate the parameters of the classifiers/regressors, and test how good the model is at making predictions. This is done in the module of PRoNTo called `Run model(s)'.
+
+In addition, for linear models, PRoNTo provides the option of recovering the model weights in the original feature (voxel) space, and transforming the weights vector into an image, or map. These maps contain at each voxel the corresponding weight of the linear model (together defining the optimal hyperplane), and which related to how much this particular voxel contributed to the classification/regression task in question. The weights can later be displayed using the `Display results' module (described below).
+
+\section{Methods}
+
+After running the model specification module described above, the PRT structure (stored in PRT.mat) contains all the required inputs to run the model estimation. This information can be found in `PRT.model(\textit{m}).input', where \textit{m} is the index of the model. The inputs, which include the cross-validation matrix, the target values or labels, and the machine (e.g. binary SVM, Random Forests, etc.), are fed to the estimation routines, which will then add to the PRT an output field (PRT.model(\textit{m}).output) containing the estimated parameters, statistics, and other information from the learning process.
+
+The output of a linear model includes the coefficients from the primal/dual optimisation problem. These coefficients are then multiplied by the training examples to obtain the model weights (optimal hyperplane). The vector of model weights has the same dimensions of the original voxel space, and can therefore be converted to a 3D image. This computation is done for each fold. The resulting 3D images for all folds are then assembled into a single 4D NIFTI file with dimensions [3D x (number of folds + 1)], where $1$ corresponds to an extra 3D image with the averaged weights over all folds. The NIFTI file is saved in the same directory as PRT.mat.
+
+\section{Graphical user interface}
+
+Using the GUI, PRoNTo allows the user to estimate one or more models at one go. Clicking the `Run model' button on PRoNTo's main window will launch a small window shown in Figure \ref{RunModel}. The first thing that needs to be done using this window is to specify which PRT we would like to work with. PRoNTo will then read the available models from this structure and display the list of models on the left panel. These models can be selected (the selected models will show on the right panel) by clicking each model individually or by clicking the `Select all' button in the middle of the panels. Finally, to estimate the model(s), one needs only to click the bottom button `Run model(s)'.
+
+\begin{figure}[!htbp]
+\begin{center}
+	\includegraphics[width=10cm]{images/RunModel.png}
+	\caption{Model estimation GUI.}
+	\label{RunModel}
+\end{center}
+\end{figure}
+
+If the user wants to create images of the weights, using the GUI, the user first needs to click the `Compute weights' button on the main PRoNTo window. This will launch the window shown in Fig \ref{CompWeights}. To estimate the weights and create the weight maps the user needs again to select a PRT.mat file. Then PRoNTo will show the list of available models below, and the user can choose one model for which to estimate the weights. The last option refers to the name of the image file, which is saved in the same directory as PRT.mat, and that can have a name given by the user. Alternatively, if left empty PRoNTo will name the file according to the machine corresponding to the selected model.
+
+\begin{figure}[!htbp]
+\begin{center}
+	\includegraphics[width=10cm]{images/CompWeights.png}
+	\caption{Weights computation GUI.}
+	\label{CompWeights}
+\end{center}
+\end{figure}
+
+\section{Matlab batch interface}
+
+The corresponding Matlab batch module to estimate the models can be found on PRoNTo's batch menu as `Run model'. The options are the same as in the GUI: one option to choose the PRT.mat and another to choose the model. The difference here is that the model names will not appear automatically and the user needs to write down the name (string) of the model to run. This needs to be exactly the name that was given to the model in the previous step. Another difference is the fact that only one model can be specified for each batch module. To run more than one model, more than one `Run model' modules can be added to the jobs list and run sequentially.
+
+The Matlab batch module to compute the weights has exactly the same options has the GUI. The only difference being that instead of listing the available models in a given PRT, it will ask for the name (string) of the model to be used. Again the name of the model should be exactly the name given in `Specify model'.
