@@ -99,10 +99,22 @@ for i = 1:nfas
     for j = 1:length(mods)
         if strcmpi(PRT.fas(i).mod_name,mods{j})
             fas(i) = 1;
+            mm=j;
         end
     end
 end
 fas_idx = find(fas);
+
+% Get the indexes of the voxels which are in the second level mask
+% -------------------------------------------------------------------------
+idfeat=PRT.fas(fas_idx(1)).idfeat_img;
+if ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas)
+    mask_train=idfeat(PRT.fs(fs_idx).modality(mm).idfeat_fas);
+    voxtr=find(ismember(idfeat,mask_train));
+else
+    mask_train=idfeat;
+    voxtr=1:length(idfeat);
+end
 
 % Create image
 % -------------------------------------------------------------------------
@@ -122,8 +134,8 @@ for z = 1:zdim
     
     img3dav  = zeros(1,xydim); % average weight map
     
-    feat_slc = find(PRT.fas(fas_idx(1)).idfeat_img>=(xydim*(z-1)+1) & ...
-        PRT.fas(fas_idx(1)).idfeat_img<=(xydim*z));
+    feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
+        mask_train<=(xydim*z));
     
     if isempty(feat_slc)
         
@@ -147,7 +159,7 @@ for z = 1:zdim
                 
                 % index for the target data matrix
                 indtr = ID(train_idx,3) == fas_idx(i);
-                d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,feat_slc);
+                d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,voxtr(feat_slc));
             end
             
             % Apply any operations specified during training
@@ -164,7 +176,7 @@ for z = 1:zdim
             
             img3d          = zeros(1,xydim);
             
-            img3d(PRT.fas(fas_idx(1)).idfeat_img(feat_slc)-xydim*(z-1)) = wimg;
+            img3d(mask_train(feat_slc)-xydim*(z-1)) = wimg;
             
             norm3d(f)      = sum(img3d.^2);
             

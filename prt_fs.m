@@ -154,7 +154,7 @@ for b = 1:n_block
             % if a scaling was entered, apply it now
             if ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
                 kern_vols(:,indm) = kern_vols(:,indm)./ ...
-                    reshape(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
+                    repmat(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
             end
             clear datapr
         else
@@ -163,7 +163,7 @@ for b = 1:n_block
             % if a scaling was entered, apply it now
             if ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
                 kern_vols(:,indm) = kern_vols(:,indm)./ ...
-                    reshape(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
+                    repmat(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
             end
             
         end
@@ -247,7 +247,7 @@ for m = 1:n_mods
         
         V2 = spm_vol(char(ddmask));
         mfile_new       = N;
-        mfile_new.fname = [prt_dir 'updated_kernel_mask_m',num2str(mid),'.img'];
+        mfile_new.fname = [prt_dir 'updated_1stlevel_mask_m',num2str(mid),'.img'];
         tmp             = spm_imcalc([N V2],mfile_new,'0.*i1+(i2>0)');
         mask{m}         = mfile_new.fname;
         PRT.masks(mid).fname = mfile_new.fname;
@@ -260,9 +260,9 @@ for m = 1:n_mods
             'Preprocessing mask has different dimensions to the image files. Resizing...');
         
         V2 = spm_vol(char(mfile));
-        mfile_new       = precM;
-        mfile_new.fname = [prt_dir 'updated_kernel_mask_m',num2str(mid),'.img'];
-        tmp             = spm_imcalc([precM V2],mfile_new,'0.*i1+(i2>0)');
+        mfile_new       = N;
+        mfile_new.fname = [prt_dir 'updated_2ndlevel_mask_m',num2str(mid),'.img'];
+        tmp             = spm_imcalc([N V2],mfile_new,'0.*i1+(i2>0)');
         precmask{m}     = mfile_new.fname;
     else
         precmask{m} = mfile;

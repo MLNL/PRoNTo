@@ -46,7 +46,7 @@ end
 block=zeros(length(data_range),length(N));
 if n_vol==1
     for i=1:length(N)
-        dat_r = reshape(N(i).dat,prod(dm(1:3)),1);
+        dat_r = reshape(N(i).dat(:,:,:),prod(dm(1:3)),1);
         block(:,i) = dat_r(data_range);
     end
 else

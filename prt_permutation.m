@@ -55,10 +55,11 @@ else
     
     % load data files and configure ID matrix
     Phi_all = cell(1,n_Phi);
-    for i = 1:size(PRT.fs,1)
+    for i = 1:length(PRT.model(modelid).input.fs)
         if i == 1
             ID = PRT.fs(i).id_mat(PRT.model(modelid).input.samp_idx,:);
         end
+        fid=find(strcmp({PRT.fs(:).fs_name},PRT.model(modelid).input.fs(i).fs_name));
         
         if PRT.model(modelid).input.use_kernel
             load(fullfile(prt_dir, PRT.fs(i).k_file));
@@ -76,7 +77,7 @@ else
     % Find chunks in the data (e.g. temporal correlated samples)
     % -------------------------------------------------------------------------
     
-    ids = PRT.fs.id_mat(PRT.model(modelid).input.samp_idx,:);
+    ids = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
     i=1;
     samp_g=unique(ids(:,1));%number of groups
     for gid = 1: length(samp_g)
