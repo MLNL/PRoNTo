@@ -96,7 +96,7 @@ input.mod=mod;
 prt_fs(PRT,input);
 
 out.fname{1} = fname;
-disp('Kernel construction done.')
+disp('Done.')
 end
 
 
