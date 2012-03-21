@@ -189,6 +189,7 @@ else
     save(outfile,'PRT');
     save(fs_file,'Phi');
 end
+disp('Done.')
 
 % -------------------------------------------------------------------------
 % Private functions

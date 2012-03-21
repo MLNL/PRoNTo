@@ -877,7 +877,7 @@ function load_butt_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 %get and laod PRT.mat
-prtname=spm_select(1,'mat','Select PRT.mat');
+prtname = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
 PRT=prt_load(prtname);
 if isempty(PRT)
     beep
