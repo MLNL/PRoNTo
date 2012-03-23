@@ -41,7 +41,7 @@ The PRoNTo user interface provides a mechanism for flexible definition of which 
 
 \subsection{Classification}
 
-The class selection panel is displayed in figure \ref{fig_specify_classes}. First, define the number of classes, noting that that some classification algorithms (e.g. support vector machines) are limited to binary classification, while other classification algorithms (e.g. Gaussian processes) support more than two classes. Enter a name for each class - again, it is a good idea to make these names informative but short. Notice that immediately after the number of classes has been specified, the group-, subject- and condition selection panels are greyed out. To enable them, simply select one of the classes from the drop-down menu.
+The class selection panel is displayed in figure \ref{fig_specify_classesC}. First, define the number of classes, noting that that some classification algorithms (e.g. support vector machines) are limited to binary classification, while other classification algorithms (e.g. Gaussian processes) support more than two classes. Enter a name for each class - again, it is a good idea to make these names informative but short. Notice that immediately after the number of classes has been specified, the group-, subject- and condition selection panels are greyed out. To enable them, simply select one of the classes from the drop-down menu.
 
 For each class, select the subjects and conditions (if any) that collectively define that class. It is possible to select multiple experimental conditions in the same class, but this complicates model interpretability and potentially also model performance (since by definition conditions are not identically distributed). If a condition or subject is erroneously selected, click on it in the "selected subject(s)" or "selected condition(s)" panel and it will be removed from the list. 
 
@@ -49,19 +49,19 @@ For each class, select the subjects and conditions (if any) that collectively de
 \begin{center}
 \includegraphics[height=3.5in]{images/prt_ui_model_classes.PNG}
 \caption{Subject / condition selection panel for classification models}
- \label{fig_specify_classes}
+ \label{fig_specify_classesC}
 \end{center}
 \end{figure}
 
 \subsection{Regression}
 
-The specification of which subjects and scans to include in regression models is similar to that for classification and for the purposes of model specification in PRoNTo, regression can be thought of as a classification problem with a single class. In the current release, regression is only supported if there is a single scan per subject (e.g. structural images or parameter estimate images from a GLM analysis). In a future release it will be possible to perform regression where an independent regression target is supplied for each trial, block or condition. Accordingly, the regression targets for each subject are specified during the experimental design phase (see chapter \ref{chap:DataDesign}), it is not necessary to specify them here.  
+The specification of which subjects and scans to include in regression models is similar to that for classification, see Figure  \ref{fig_specify_classesR} and for the purposes of model specification in PRoNTo, regression can be thought of as a classification problem with a single class. In the current release, regression is only supported if there is a single scan per subject (e.g. structural images or parameter estimate images from a GLM analysis). In a future release it will be possible to perform regression where an independent regression target is supplied for each trial, block or condition. Accordingly, the regression targets for each subject are specified during the experimental design phase (see chapter \ref{chap:DataDesign}), it is not necessary to specify them here.  
 
 \begin{figure}
 \begin{center}
 \includegraphics[height=3.5in]{images/prt_ui_model_regression.PNG}
 \caption{Subject / condition selection panel for regression models}
- \label{fig_specify_classes}
+ \label{fig_specify_classesR}
 \end{center}
 \end{figure}
 
