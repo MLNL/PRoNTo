@@ -195,7 +195,10 @@ for i = 1:model.totalSV
     ind        = model.SVs(i);
     alpha(ind) = model.sv_coef(i);
 end
-alpha = model.Label(1)*alpha;
+
+% alpha = model.Label(1)*alpha;
+sgn = -1*(2 * model.Label(1) - 3);
+alpha = sgn*alpha;
 
 end
 
