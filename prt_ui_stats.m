@@ -62,10 +62,25 @@ for i=1:length(aa)
         bb=get(aa(i),'children');
         if ~isempty(bb)
             for j=1:length(bb)
-                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                if strcmpi(get(bb(j),'type'),'uipanel')
+                    set(bb(j),'BackgroundColor',color.bg2)
+                    cc=get(bb(j),'children');
+                    for k=1:length(cc)
+                        if strcmpi(get(cc(k),'type'),'uicontrol') && ...
+                            ~isempty(find(strcmpi(get(cc(k),'Style'),{'text',...
+                                'radiobutton','checkbox'}))) 
+                            set(cc(k),'BackgroundColor',color.bg2)
+                        elseif strcmpi(get(cc(k),'type'),'uicontrol') && ...
+                            ~isempty(find(strcmpi(get(cc(k),'Style'),'pushbutton'))) 
+                            set(cc(k),'BackgroundColor',color.fr)
+                        end
+                    end
+                elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
+                    ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
                         'radiobutton','checkbox'}))) 
                     set(bb(j),'BackgroundColor',color.bg2)
-                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
+                        ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
                     set(bb(j),'BackgroundColor',color.fr)
                 end
             end

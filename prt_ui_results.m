@@ -69,9 +69,11 @@ for i=1:length(aa)
             for j=1:length(bb)
                 if strcmpi(get(bb(j),'type'),'uipanel')
                     cc=get(bb(j),'children');
+                    set(bb(j),'BackgroundColor',color.bg2)
                     for k=1:length(cc)
                         if strcmpi(get(cc(k),'type'),'uipanel')
                             dd=get(cc(k),'children');
+                            set(cc(k),'BackgroundColor',color.bg2)
                             for l=1:length(dd)
                                 if strcmpi(get(dd(l),'type'),'uicontrol')
                                     if ~isempty(find(strcmpi(get(dd(l),'Style'),{'text',...
