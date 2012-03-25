@@ -28,6 +28,17 @@ global prt_def
 % prt_def.global.install_dir = fileparts(prt_loc);
 prt_def.global.install_dir = prt('dir');
 
+% Default colors of the different elements
+%-----------------------------------------------
+% prt_def.color.bg1=[0 0.8 1];
+% prt_def.color.bg2=[0.9,0.6,0.3];
+% prt_def.color.fr=[1,0.5,0.7];
+% prt_def.color.high=[0.2,0.2,0.8];
+
+prt_def.color.bg1=[0.83,0.83,0.83];
+prt_def.color.bg2=[0.88,0.88,0.88];
+prt_def.color.fr=[0.92,0.92,0.92];
+prt_def.color.high=[0.8 0 0];
 
 % Parameters for the data and design
 %-----------------------------------------------

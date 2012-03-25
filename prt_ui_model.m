@@ -30,7 +30,7 @@ function varargout = prt_ui_model(varargin)
 
 % Edit the above text to modify the response to help prt_ui_kernel_construction
 
-% Last Modified by GUIDE v2.5 15-Nov-2011 09:31:07
+% Last Modified by GUIDE v2.5 24-Mar-2012 11:44:44
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -64,18 +64,63 @@ function prt_ui_model_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 set(handles.figure1,'Name','PRoNTo :: Specify model')
+% Choose the color of the different backgrounds and figure parameters
+color=prt_get_defaults('color');
+handles.color=color;
+set(handles.figure1,'Color',color.bg1)
+aa=get(handles.figure1,'children');
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        set(aa(i),'BackgroundColor',color.bg2)
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                        'radiobutton','checkbox'}))) 
+                    set(bb(j),'BackgroundColor',color.bg2)
+                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                    set(bb(j),'BackgroundColor',color.fr)
+                end
+            end
+        end                    
+    elseif strcmpi(get(aa(i),'type'),'uicontrol')
+        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                'radiobutton','checkbox'})))
+            set(aa(i),'BackgroundColor',color.bg1)
+        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+            set(aa(i),'BackgroundColor',color.fr)
+        end
+    end
+end
+
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+FS= spm('FontSizes');       %-Scaled font sizes
+refres=[1 1 1280 800];
+ratio=S0./refres;
+set(handles.figure1,'DefaultTextFontSize',FS(10))
+% hAxes = findall(handles.figure1,'type','axes');
+% hText = findall(hAxes,'type','text');
+% hUIControls = findall(handles.figure1,'type','uicontrol');
+% set([hAxes; hText;hUIControls],...
+%     'units','normalized','fontunits','normalized');
+set(handles.figure1,'Units','normalized')
+set(handles.figure1,'Resize','on')
+set(handles.figure1,'Position',ratio.*[0.3,0.2,0.39,0.78])
+
+
+
 %Set defaults for some subfields and popup menus
 handles.def=prt_get_defaults('model');
 set(handles.usekern,'Value',1)
 handles.use_kernel=1;
-set(handles.pop_cv,'String',{'Leave One Subject Out','Leave One Subject per Group Out',...
-    'Leave One Block Out','Leave One Run/Session Out','Custom'})
+set(handles.pop_cv,'String',{'Leave One Subject Out','Custom'})
 set(handles.pop_cv,'Value',1)
 handles.cv.type='loso';
 handles.cv.mat_file=[];
 set(handles.pop_reg,'String',{'Classification','Regression'})
 set(handles.pop_reg,'Value',1)
 handles.type='classification';
+set(handles.butt_defclass,'ForegroundColor',handles.color.high)
 set(handles.pop_machine,'String',{'Binary support vector machine',...
     'Gaussian Process Classification','Random Forest'})
 set(handles.pop_machine,'Value',1)
@@ -141,6 +186,7 @@ if ~isfield(handles.dat,'fs')
     beep
     disp('No feature set found in the PRT.mat')
     disp('Please, prepare feature set before computing model')
+    delete(handles.figure1)
     return
 end
 set(handles.pop_featset,'String',{PRT.fs(:).fs_name})
@@ -179,6 +225,7 @@ if ~isfield(handles.dat,'fs')
     beep
     disp('No feature set found in the PRT.mat')
     disp('Please, prepare feature set before computing model')
+    delete(handles.figure1)
     return
 end
 set(handles.pop_featset,'String',{PRT.fs(:).fs_name})
@@ -249,6 +296,12 @@ end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{val};
 handles.fs(1).indfs=val;
+if length(handles.dat.fs(val).modality)>1
+    list=get(handles.pop_cv,'String');
+    list=[list;{'Leave One Run/Session Out'}];
+    set(handles.pop_cv,'String',list)
+    set(handles.pop_cv,'Value',1)
+end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -310,6 +363,7 @@ elseif val==2
     handles.machine.function='prt_machine_krr';
     handles.machine.args=handles.def.krrargs;
 end
+set(handles.butt_defclass,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -334,11 +388,24 @@ function butt_defclass_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if strcmpi(handles.type,'classification')
     speccl=prt_ui_select_class('UserData',{handles.dat,handles.fs(1).indfs});
-    handles.class=speccl;
+    handles.class=speccl.class;
+    if (speccl.design)
+        list=get(handles.pop_cv,'String');
+        list=[list;{'Leave One Block Out'}];
+        set(handles.pop_cv,'String',list)
+        set(handles.pop_cv,'Value',1)
+    end
+    if (speccl.loospg)
+        list=get(handles.pop_cv,'String');
+        list=[list;{'Leave One One Subject per Group Out'}];
+        set(handles.pop_cv,'String',list)
+        set(handles.pop_cv,'Value',1)
+    end
 else
     sel=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
     handles.group=sel;
 end
+set(handles.butt_defclass,'ForegroundColor',[0 0 0])
 % Update handles structure
 guidata(hObject, handles);
 
@@ -400,18 +467,19 @@ function pop_cv_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from pop_cv
 % assemble structure for performing cross-validation
 val=get(handles.pop_cv,'Value');
+mach=get(handles.pop_cv,'String');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_cv,'Value',1)
     val=1;
 end
-if val==1
+if any(strfind(mach{val},'Subject Out'))
     handles.cv.type = 'loso';
-elseif val==2
+elseif any(strfind(mach{val},'Subject per Group'))
     handles.cv.type = 'losgo';
-elseif val==3
+elseif any(strfind(mach{val},'Block'))
     handles.cv.type = 'lobo';
-elseif val==4        %currently implemented for MCKR only
+elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type = 'loro';
 else
     handles.cv.type     = 'custom';
@@ -714,3 +782,148 @@ prt_model(handles.dat,in);
 disp('Model specification complete.')
 disp('Done...')
 delete(handles.figure1)
+
+
+% --- Executes on selection change in pop_cv.
+function popupmenu14_Callback(hObject, eventdata, handles)
+% hObject    handle to pop_cv (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns pop_cv contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from pop_cv
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu14_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pop_cv (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in uns_list.
+function listbox8_Callback(hObject, eventdata, handles)
+% hObject    handle to uns_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns uns_list contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from uns_list
+
+
+% --- Executes during object creation, after setting all properties.
+function listbox8_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to uns_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in sel_list.
+function listbox9_Callback(hObject, eventdata, handles)
+% hObject    handle to sel_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns sel_list contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from sel_list
+
+
+% --- Executes during object creation, after setting all properties.
+function listbox9_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sel_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu11.
+function popupmenu11_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns popupmenu11 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu11
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu11_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in pop_reg.
+function popupmenu12_Callback(hObject, eventdata, handles)
+% hObject    handle to pop_reg (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns pop_reg contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from pop_reg
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu12_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pop_reg (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in pop_machine.
+function popupmenu13_Callback(hObject, eventdata, handles)
+% hObject    handle to pop_machine (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns pop_machine contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from pop_machine
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu13_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pop_machine (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in butt_defclass.
+function pushbutton7_Callback(hObject, eventdata, handles)
+% hObject    handle to butt_defclass (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

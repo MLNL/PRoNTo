@@ -64,6 +64,48 @@ function prt_ui_select_class_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 set(handles.figure1,'Name','PRoNTo :: Specify classes')
+color=prt_get_defaults('color');
+set(handles.figure1,'Color',color.bg1)
+aa=get(handles.figure1,'children');
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        set(aa(i),'BackgroundColor',color.bg2)
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                        'radiobutton','checkbox'}))) 
+                    set(bb(j),'BackgroundColor',color.bg2)
+                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                    set(bb(j),'BackgroundColor',color.fr)
+                end
+            end
+        end                    
+    elseif strcmpi(get(aa(i),'type'),'uicontrol')
+        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                'radiobutton','checkbox'})))
+            set(aa(i),'BackgroundColor',color.bg1)
+        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+            set(aa(i),'BackgroundColor',color.fr)
+        end
+    end
+end
+
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+FS= spm('FontSizes');       %-Scaled font sizes
+refres=[1 1 1280 800];
+ratio=S0./refres;
+set(handles.figure1,'DefaultTextFontSize',FS(10))
+% hAxes = findall(handles.figure1,'type','axes');
+% hText = findall(hAxes,'type','text');
+% hUIControls = findall(handles.figure1,'type','uicontrol');
+% set([hAxes; hText;hUIControls],...
+%     'units','normalized','fontunits','normalized');
+set(handles.figure1,'Units','normalized')
+set(handles.figure1,'Resize','on')
+set(handles.figure1,'Position',ratio.*[0.4,0.25,0.4,0.64])
+
+
 %set the different fields to disabled (will be enabled when choosing the
 %number of classes)
 set(handles.group_list,'Enable','off')
@@ -716,10 +758,12 @@ if handles.flagrev
     delete(handles.figure1)
     return
 end
-
+ncc=[];
+scc=zeros(size(handles.clas,1),1);
 for i=1:size(handles.clas,1)
     list=get(handles.group_list,'String');
     flag=0;
+    ncs=[];
     for g=1:length(list)
         scount=1;
         g2=find(strcmpi(list{g},{handles.dat.group(:).gr_name}));
@@ -734,6 +778,7 @@ for i=1:size(handles.clas,1)
                     handles.class(i).group(g2).subj(scount).modality(m).mod_name=listm{m};
                     if isempty(handles.condm{1,2})
                         handles.class(i).group(g2).subj(scount).modality(m).all_scans=true;
+                        ncs=[ncs;0];
                     else %design and conditions selected
                         if isempty(handles.clas{i,3}) || any(handles.clas{i,3}==0) %all conditions were selected
                             handles.class(i).group(g2).subj(scount).modality(m).all_cond=true;
@@ -743,10 +788,12 @@ for i=1:size(handles.clas,1)
                                     handles.condm{1,2}{handles.clas{i,4}(ic)};
                             end
                         end
+                        ncs=[ncs;length(handles.clas{i,4})];
                     end
                 end
                 scount=scount+1;
             end
+            scc(i)=scc(i)+scount;
         end
     end
     if ~flag
@@ -755,10 +802,38 @@ for i=1:size(handles.clas,1)
         disp('Please select subjects (and conditions) for that class')
         return
     end
+    if length(unique(ncs))~=1
+        beep
+        sprintf('Different numbers of conditions found in the definition of class %d',i)
+        disp('Please select the same conditions for each subject/group of that class')
+        return
+    else
+        ncc=[ncc;unique(ncs)];
+    end
+    if length(find(ncc==0))~=length(ncc)
+        beep
+        sprintf('Class %d does not have the same number of conditions as class 1',i)
+        disp('Please select either at least one condition for each class or none')
+        return
+    end
 end
 
+if ~any(ncc) %no conditions specified
+    handles.design=0;
+else
+    handles.design=1;
+end
+if length(unique(scc))~=1  %different numbers of subject per class
+    handles.loospg=0;  %no leave-one-subject per group-out CV
+else
+    handles.loospg=1;
+end
 
-handles.output=handles.class;
+aa=struct();
+aa.class=handles.class;
+aa.design=handles.design;
+aa.loospg=handles.loospg;
+handles.output=aa;
 % Update handles structure
 guidata(hObject, handles);
 if ~handles.flagrev

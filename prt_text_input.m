@@ -58,6 +58,37 @@ function prt_text_input_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_text_input (see VARARGIN)
 
+% Choose the color of the different backgrounds and figure parameters
+color=prt_get_defaults('color');
+set(handles.figure1,'Color',color.bg1)
+aa=get(handles.figure1,'children');
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        set(aa(i),'BackgroundColor',color.bg2)
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                        'radiobutton','checkbox'}))) 
+                    set(bb(j),'BackgroundColor',color.bg2)
+                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                    set(bb(j),'BackgroundColor',color.fr)
+                end
+            end
+        end                    
+    elseif strcmpi(get(aa(i),'type'),'uicontrol')
+        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                'radiobutton','checkbox','listbox'})))
+            set(aa(i),'BackgroundColor',color.bg1)
+        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+            set(aa(i),'BackgroundColor',color.fr)
+        end
+    end
+end
+set(handles.figure1,'Units','normalized')
+set(handles.figure1,'Resize','on')
+set(handles.figure1,'Position',[0.45,0.5,0.2,0.12])
+
 % Choose default command line output for prt_text_input
 handles.output = hObject;
 
@@ -145,4 +176,7 @@ function cancelbutton_Callback(hObject, eventdata, handles)
 % Use UIRESUME instead of delete because the OutputFcn needs
 % to get the updated handles structure.
 handles.output=[];
+% Update handles structure
+guidata(hObject, handles);
+
 uiresume(handles.figure1);

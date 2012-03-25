@@ -64,6 +64,50 @@ function prt_ui_prepare_datamod_OpeningFcn(hObject, eventdata, handles, varargin
 handles.output = hObject;
 
 set(handles.figure1,'Name','PRoNTo :: Specify modality to include')
+% Choose the color of the different backgrounds and figure parameters
+color=prt_get_defaults('color');
+set(handles.figure1,'Color',color.bg1)
+aa=get(handles.figure1,'children');
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        set(aa(i),'BackgroundColor',color.bg2)
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                        'radiobutton','checkbox'}))) 
+                    set(bb(j),'BackgroundColor',color.bg2)
+                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                    set(bb(j),'BackgroundColor',color.fr)
+                end
+            end
+        end                    
+    elseif strcmpi(get(aa(i),'type'),'uicontrol')
+        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                'radiobutton','checkbox'})))
+            set(aa(i),'BackgroundColor',color.bg1)
+        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+            set(aa(i),'BackgroundColor',color.fr)
+        end
+    end
+end
+
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+FS= spm('FontSizes');       %-Scaled font sizes
+refres=[1 1 1280 800];
+ratio=S0./refres;
+set(handles.figure1,'DefaultTextFontSize',FS(10))
+% hAxes = findall(handles.figure1,'type','axes');
+% hText = findall(hAxes,'type','text');
+% hUIControls = findall(handles.figure1,'type','uicontrol');
+% set([hAxes; hText;hUIControls],...
+%     'units','normalized','fontunits','normalized');
+set(handles.figure1,'Units','normalized')
+set(handles.figure1,'Resize','on')
+set(handles.figure1,'Position',ratio.*[0.4,0.25,0.3,0.45])
+
+
+%GUI specific initialization
 set(handles.par_name,'Visible','off')
 set(handles.par_value,'Visible','off')
 set(handles.pop_det,'String',{'No', ...
@@ -82,8 +126,14 @@ end
 mod_n={handles.PRT.masks(:).mod_name};
 set(handles.pop_mod,'String',mod_n)
 set(handles.pop_mod,'Value',1)
-set(handles.pop_cond,'String',{'All conditions','All scans'})
-set(handles.pop_cond,'Value',2)
+% if only one modality and no design, suppress the "all conditions" option
+if length(mod_n)==1 && (isempty(handles.PRT.group(1).subject(1).modality(1).design) ...
+        || ~(handles.PRT.group(1).subject(1).modality(1).design))
+    set(handles.pop_cond,'String',{'All scans'})
+else
+    set(handles.pop_cond,'String',{'All scans','All conditions'})
+end
+set(handles.pop_cond,'Value',1)
 handles.mod=struct('mod_name',[],'mode',[],'mask',[],'detrend',[], ...
         'param_dt',[],'normalise',[],'matnorm',[]);
 handles.mod.mod_name=mod_n(1);
@@ -106,9 +156,12 @@ function varargout = prt_ui_prepare_datamod_OutputFcn(hObject, eventdata, handle
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
-% The figure can be deleted now
-delete(handles.figure1);
+if ~isempty(handles)
+    varargout{1} = handles.output;
+    % The figure can be deleted now
+    delete(handles.figure1);
+end
+
 
 
 
@@ -252,6 +305,17 @@ if val==0
 end
 val=get(handles.pop_mod,'Value');
 handles.mod.mod_name=list(val);
+
+% if only one modality and no design, suppress the "all conditions" option
+im=find(strcmpi(list(val),{handles.PRT.group(1).subject(1).modality(:).mod_name}));
+if isempty(handles.PRT.group(1).subject(1).modality(1).design) ...
+        || ~(handles.PRT.group(1).subject(1).modality(im).design)
+    set(handles.pop_cond,'String',{'All scans'})
+else
+    set(handles.pop_cond,'String',{'All scans','All conditions'})
+end
+set(handles.pop_cond,'Value',1)
+
 % Update handles structure
 guidata(hObject, handles);
 

@@ -63,6 +63,48 @@ function prt_data_review_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 set(handles.figure1,'Name','PRoNTo :: Review data and design')
+% Choose the color of the different backgrounds and figure parameters
+color=prt_get_defaults('color');
+set(handles.figure1,'Color',color.bg1)
+aa=get(handles.figure1,'children');
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        set(aa(i),'BackgroundColor',color.bg2)
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                        'radiobutton','checkbox'}))) 
+                    set(bb(j),'BackgroundColor',color.bg2)
+                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                    set(bb(j),'BackgroundColor',color.fr)
+                end
+            end
+        end                    
+    elseif strcmpi(get(aa(i),'type'),'uicontrol')
+        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                'radiobutton','checkbox','listbox'})))
+            set(aa(i),'BackgroundColor',color.bg1)
+        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+            set(aa(i),'BackgroundColor',color.fr)
+        end
+    end
+end
+
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+FS= spm('FontSizes');       %-Scaled font sizes
+refres=[1 1 1280 800];
+ratio=S0./refres;
+set(handles.figure1,'DefaultTextFontSize',FS(10))
+% hAxes = findall(handles.figure1,'type','axes');
+% hText = findall(hAxes,'type','text');
+% hUIControls = findall(handles.figure1,'type','uicontrol');
+% set([hAxes; hText;hUIControls],...
+%     'units','normalized','fontunits','normalized');
+set(handles.figure1,'Units','normalized')
+set(handles.figure1,'Resize','on')
+set(handles.figure1,'Position',ratio.*[0.45,0.2,0.55,0.73])
+
 
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     %get number of groups and subjects/group
@@ -138,15 +180,15 @@ if isempty(ind)
     set(handles.uipanel4,'Visible','off')
     %Only displays the number of subjects per group when no design:
     x=get(handles.axes3,'Position');
-    set(handles.axes1,'Position',x);
+    set(handles.axes1,'Position',[x(1),x(2)*1.5,x(3),3*x(4)]);
     x=get(handles.uipanel4,'Position');
     w=get(handles.uipanel3,'Position');
-    set(handles.uipanel3,'Position',[x(1),x(2),w(3),w(4)]);
+    set(handles.uipanel3,'Position',[x(1),x(2)*1.5,w(3),2.7*w(4)]);
     w=get(handles.figure1,'Position');
     set(handles.figure1,'Position',[w(1),w(2)+(2*w(4)/2.5),w(3),w(4)/2.5])
     w=get(handles.axes1,'Position');
     x=get(handles.text1,'Position');
-    set(handles.text1,'Position',[x(1),w(2)+w(4)*1.07,x(3),x(4)])
+    set(handles.text1,'Position',[x(1),(w(4)+x(4))*1.2,x(3),x(4)*1.3])
 else
     def=prt_get_defaults('datad');
     if isfield(PRT.group,'hrfoverlap')

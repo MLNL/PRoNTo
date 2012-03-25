@@ -62,6 +62,51 @@ function prt_ui_prepare_data_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 set(handles.figure1,'Name','PRoNTo :: Prepare feature set')
+
+% Choose the color of the different backgrounds and figure parameters
+color=prt_get_defaults('color');
+set(handles.figure1,'Color',color.bg1)
+handles.color=color;
+aa=get(handles.figure1,'children');
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        set(aa(i),'BackgroundColor',color.bg2)
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                        'radiobutton','checkbox'}))) 
+                    set(bb(j),'BackgroundColor',color.bg2)
+                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                    set(bb(j),'BackgroundColor',color.fr)
+                end
+            end
+        end                    
+    elseif strcmpi(get(aa(i),'type'),'uicontrol')
+        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                'radiobutton','checkbox'})))
+            set(aa(i),'BackgroundColor',color.bg1)
+        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+            set(aa(i),'BackgroundColor',color.fr)
+        end
+    end
+end
+
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+FS= spm('FontSizes');       %-Scaled font sizes
+refres=[1 1 1280 800];
+ratio=S0./refres;
+set(handles.figure1,'DefaultTextFontSize',FS(10))
+% hAxes = findall(handles.figure1,'type','axes');
+% hText = findall(hAxes,'type','text');
+% hUIControls = findall(handles.figure1,'type','uicontrol');
+% set([hAxes; hText;hUIControls],...
+%     'units','normalized','fontunits','normalized');
+set(handles.figure1,'Units','normalized')
+set(handles.figure1,'Resize','on')
+set(handles.figure1,'Position',ratio.*[0.3,0.2,0.37,0.47])
+
+
 set(handles.sel_mod,'Enable','off')
 handles.kname=[];
 % Update handles structure
@@ -106,10 +151,18 @@ end
 n_mod=length(PRT.group(1).subject(1).modality);
 handles.modnames={PRT.masks(:).mod_name};
 if n_mod==1
-    set(handles.num_mod,'Value',1)
-    set(handles.num_mod,'String',1)
-    set(handles.sel_mod,'String',{PRT.masks(1).mod_name})
-    handles.mod=prt_ui_prepare_datamod('UserData',{PRT,1});
+    try
+        handles.mod=prt_ui_prepare_datamod('UserData',{PRT,1});
+        set(handles.num_mod,'Value',1)
+        set(handles.num_mod,'String',1)
+        set(handles.sel_mod,'String',{PRT.masks(1).mod_name})
+    catch
+        set(handles.edit_prt,'String','');
+        return
+    end
+    set(handles.edit_kname,'ForegroundColor',handles.color.high)
+else
+    set(handles.text8,'ForegroundColor',handles.color.high)
 end
 handles.fname=fname;
 % Update handles structure
@@ -150,10 +203,18 @@ end
 n_mod=length(PRT.group(1).subject(1).modality);
 handles.modnames={PRT.masks(:).mod_name};
 if n_mod==1
-    set(handles.num_mod,'Value',1)
-    set(handles.num_mod,'String',1)
-    set(handles.sel_mod,'String',{PRT.masks(1).mod_name})
-    handles.mod=prt_ui_prepare_datamod('UserData',{PRT,1});
+    try
+        handles.mod=prt_ui_prepare_datamod('UserData',{PRT,1});
+        set(handles.num_mod,'Value',1)
+        set(handles.num_mod,'String',1)
+        set(handles.sel_mod,'String',{PRT.masks(1).mod_name})
+    catch
+        set(handles.edit_prt,'String','');
+        return
+    end
+    set(handles.edit_kname,'ForegroundColor',handles.color.high)
+else
+    set(handles.text8,'ForegroundColor',handles.color.high)
 end
 handles.fname=fname;
 % Update handles structure
@@ -173,6 +234,8 @@ if ~prt_checkAlphaNumUnder(handles.kname)
     disp('Kernel name should be entered in alphanumeric format only')
     disp('Please correct')
     return
+else
+    set(handles.edit_kname,'ForegroundColor',[0 0 0])
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -199,6 +262,7 @@ function num_mod_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of num_mod as text
 %        str2double(get(hObject,'String')) returns contents of num_mod as a double
 val=str2double(get(handles.num_mod,'String'));
+set(handles.text8,'ForegroundColor',handles.color.high)
 n_mod=length(handles.modnames);
 %handles.mod=struct();
 list=[];
@@ -209,7 +273,11 @@ for i=1:n_mod
 end
 %get information for the selected modalities 
 for i=1:val
-    tmp=prt_ui_prepare_datamod('UserData',{handles.dat,i});
+    try
+        tmp=prt_ui_prepare_datamod('UserData',{handles.dat,i});
+    catch
+        return
+    end
     list=[list,tmp.mod_name];
     set(handles.sel_mod,'String',list)
     ind=find(strcmpi(handles.modnames,tmp.mod_name));
@@ -265,9 +333,17 @@ input.fname=handles.fname;
 if isempty(handles.kname)
     beep
     disp('Enter a name for the feature set to be saved')
+    set(handles.edit_kname,'ForegroundColor',handles.color.high)
     return
 end
 input.fs_name=handles.kname;
+if ~isfield(handles,'mod') || isempty(handles.mod)
+    beep
+    disp('No modality was selected to build the dataset!')
+    disp('Please, enter a number of modalities to use')
+    set(handles.text8,'ForegroundColor',handles.color.high)
+    return
+end
 input.mod=handles.mod;
 load(input.fname);
 prt_fs(PRT,input);

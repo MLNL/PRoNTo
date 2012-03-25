@@ -61,8 +61,55 @@ function prt_ui_design_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_ui_design
 handles.output = hObject;
 set(handles.figure1,'Name','PRoNTo :: Data and design')
+% Choose the color of the different backgrounds and figure parameters
+color=prt_get_defaults('color');
+set(handles.figure1,'Color',color.bg1)
+handles.color=color;
+aa=get(handles.figure1,'children');
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        set(aa(i),'BackgroundColor',color.bg2)
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                        'radiobutton','checkbox'}))) 
+                    set(bb(j),'BackgroundColor',color.bg2)
+                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                    set(bb(j),'BackgroundColor',color.fr)
+                end
+            end
+        end                    
+    else
+        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                'radiobutton','checkbox'})))
+            set(aa(i),'BackgroundColor',color.bg1)
+        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+            set(aa(i),'BackgroundColor',color.fr)
+        end
+    end
+end
+
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+FS= spm('FontSizes');       %-Scaled font sizes
+refres=[1 1 1280 800];
+ratio=S0./refres;
+set(handles.figure1,'DefaultTextFontSize',FS(10))
+% hAxes = findall(handles.figure1,'type','axes');
+% hText = findall(hAxes,'type','text');
+% hUIControls = findall(handles.figure1,'type','uicontrol');
+% set(hUIControls,'FontUnits','points')
+%     'units','normalized','fontunits','normalized');
+set(handles.figure1,'Units','normalized')
+set(handles.figure1,'Resize','on')
+set(handles.figure1,'Position',ratio.*[0.3,0.2,0.7,0.6])
+
 
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
+set(handles.save_data,'FontWeight','bold')
+set(handles.text6,'ForegroundColor',handles.color.high)
+
 
 handles.cgr=1; %current group
 handles.cs=1;
@@ -217,6 +264,7 @@ function br_res_dir_Callback(hObject, eventdata, handles)
 handles.dat.dir=uigetdir(cd,'Directory to write results');
 set(handles.edit1,'String',handles.dat.dir,'FontAngle','normal')
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -230,6 +278,7 @@ function edit1_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit1 as a double
 handles.dat.dir=get(handles.edit1,'String');
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -283,6 +332,7 @@ guidata(hObject, handles);
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -292,6 +342,9 @@ function rengroup(hObject,eventdata)
 handles=guidata(hObject);
 val=get(handles.group_list,'Value');
 renam=prt_text_input('Title','Rename group');
+if isempty(renam)
+    return
+end
 handles.dat.group(val).gr_name=renam;
 list=get(handles.group_list,'String');
 list{val}=renam;
@@ -317,6 +370,7 @@ if ngr==1
     set(handles.mask_list,...
         'String',{'none'},...
         'Value',1);
+    set(handles.text6,'ForegroundColor',handles.color.high)
     handles.modlist={};
 elseif handles.cgr==1 && ngr>1
     nlist={list{2:end}};
@@ -353,6 +407,7 @@ end
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -405,6 +460,7 @@ guidata(hObject, handles);
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -419,6 +475,9 @@ if usesc
     return
 end
 renam=prt_text_input('Title','Rename subject');
+if isempty(renam)
+    return
+end
 if ~isempty(strfind(lower(renam),'scan'))
     beep
     disp('Scan(s) is a reserved name. Please correct')
@@ -464,7 +523,7 @@ guidata(hObject, handles);
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
-
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -488,6 +547,7 @@ if nsubj==1
     set(handles.mask_list,...
         'String',{'none'},...
         'Value',1);
+    set(handles.text6,'ForegroundColor',handles.color.high)
     handles.modlist={};
     handles.dat.masks=[];
 elseif handles.cs==1 && nsubj>1
@@ -516,6 +576,7 @@ set(handles.subjects_list,'String',nlist);
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -597,6 +658,8 @@ guidata(hObject, handles);
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -772,6 +835,7 @@ end
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -808,6 +872,7 @@ guidata(hObject, handles);
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -853,7 +918,23 @@ if ~isempty(mname)
     handles.dat.masks(indm).fname=mname;
 end
 
+%check if the masks structure was completely filled by user
+if length(handles.modlist)==length(handles.dat.masks)
+    f=0;
+    for i=1:length(handles.modlist)
+        if ~isempty(handles.dat.masks(i))
+            f=f+1;
+        end
+    end
+    if f==length(handles.modlist)
+        set(handles.text6,'ForegroundColor',[0 0 0])
+    else
+        set(handles.text6,'ForegroundColor',handles.color.high)
+    end
+end
+    
 handles.saved=0;
+set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
         
@@ -885,7 +966,7 @@ if isempty(PRT)
     return
 end
 handles.dat=PRT;
-
+set(handles.save_data,'ForegroundColor',[0 0 0])
 %Get the different fields and create the handles.ds cell array as well as
 %complete the fields which might be missing (previous versions) and
 %initialize the handles structure
@@ -911,6 +992,7 @@ if isfield(PRT,'group')
             for j=1:ns
                 if ~isfield(PRT.group(i).subject,'subj_name')
                     handles.saved=0;
+                    set(handles.save_data,'ForegroundColor',handles.color.high)
                     PRT.group(i).subject(j).subj_name=['S',num2str(j)];
                 end
                 if isfield(PRT.group(i).subject(j),'modality')
@@ -939,6 +1021,8 @@ if ~flagmask==1
     disp('The information was erased. Please select the mask files')
     PRT.masks=struct();
     handles.saved=0;
+    set(handles.save_data,'ForegroundColor',handles.color.high)
+    set(handles.text6,'ForegroundColor',handles.color.high)
 end
 if ~isempty(handles.modlist)
     set(handles.mask_list,'String',handles.modlist);
@@ -978,18 +1062,11 @@ handles=guidata(hObject);
 
 %Remove any field from previous computations
 if isfield(PRT,'fs')
-    PRT=rmfield(PRT,'fs');
     beep
     disp('Fields refering to feature sets have been found')
-    disp('These will be removed')
+    disp('These will be removed if modification to the dataset are performed')
+    disp('Previously computed models will also be deleted')
     disp('Be sure to change the directory if you wan to keep trace of previous work')
-    handles.saved=0;
-end
-if isfield(PRT,'fas')
-    PRT=rmfield(PRT,'fas');
-end
-if isfield(PRT,'model')
-    PRT=rmfield(PRT,'model');
 end
 
 handles.dat=PRT;
@@ -999,6 +1076,7 @@ guidata(hObject, handles);
 
 update_display_data(hObject,handles);
 handles=guidata(hObject);
+set(handles.text6,'ForegroundColor',[0 0 0])
 % Update handles structure
 guidata(hObject, handles);
 
@@ -1141,11 +1219,30 @@ if ~isfield(handles.dat.group(1),'hrfdelay')
     end
 end
 PRT.masks=handles.dat.masks;
+
+%Remove any field from previous computations if the PRT is loaded and then
+%modified
+if isfield(PRT,'fs')
+    PRT=rmfield(PRT,'fs');
+    beep
+    disp('Fields refering to feature sets have been found')
+    disp('These will be removed')
+    disp('Be sure to change the directory if you want to keep trace of previous work')
+end
+if isfield(PRT,'fas')
+    PRT=rmfield(PRT,'fas');
+end
+if isfield(PRT,'model')
+    PRT=rmfield(PRT,'model');
+end
+
+
 resn=fullfile(handles.dat.dir,'PRT.mat');
 save(resn,'PRT')
 
 handles.saved=1;
 disp('Save Done')
+set(handles.save_data,'ForegroundColor',[0 0 0])
 
 % Update handles structure
 guidata(hObject, handles);
