@@ -57,6 +57,75 @@ function prt_ui_results_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_results (see VARARGIN)
 
+set(handles.figure1,'Name','PRoNTo :: Review Model Specification')
+color=prt_get_defaults('color');
+set(handles.figure1,'Color',color.bg1)
+aa=get(handles.figure1,'children');
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        set(aa(i),'BackgroundColor',color.bg2)
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                if strcmpi(get(bb(j),'type'),'uipanel')
+                    cc=get(bb(j),'children');
+                    for k=1:length(cc)
+                        if strcmpi(get(cc(k),'type'),'uipanel')
+                            dd=get(cc(k),'children');
+                            for l=1:length(dd)
+                                if strcmpi(get(dd(l),'type'),'uicontrol')
+                                    if ~isempty(find(strcmpi(get(dd(l),'Style'),{'text',...
+                                        'radiobutton','checkbox'}))) 
+                                        set(dd(l),'BackgroundColor',color.bg2)
+                                    elseif ~isempty(find(strcmpi(get(dd(l),'Style'),'pushbutton'))) 
+                                        set(dd(l),'BackgroundColor',color.fr)
+                                    end
+                                end
+                            end
+                        elseif strcmpi(get(cc(k),'type'),'uicontrol') && ...
+                                ~isempty(find(strcmpi(get(cc(k),'Style'),{'text',...
+                            'radiobutton','checkbox'}))) 
+                            set(cc(k),'BackgroundColor',color.bg2)
+                        elseif strcmpi(get(cc(k),'type'),'uicontrol')&& ...
+                                ~isempty(find(strcmpi(get(cc(k),'Style'),'pushbutton'))) 
+                            set(cc(k),'BackgroundColor',color.fr)
+                        end
+                    end                               
+                elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
+                    ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                        'radiobutton','checkbox'}))) 
+                    set(bb(j),'BackgroundColor',color.bg2)
+                elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
+                        ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                    set(bb(j),'BackgroundColor',color.fr)
+                end
+            end
+        end                    
+    elseif strcmpi(get(aa(i),'type'),'uicontrol')
+        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                'radiobutton','checkbox'})))
+            set(aa(i),'BackgroundColor',color.bg1)
+        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+            set(aa(i),'BackgroundColor',color.fr)
+        end
+    end
+end
+
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+FS= spm('FontSizes');       %-Scaled font sizes
+refres=[1 1 1280 800];
+ratio=S0./refres;
+set(handles.figure1,'DefaultTextFontSize',FS(10))
+% hAxes = findall(handles.figure1,'type','axes');
+% hText = findall(hAxes,'type','text');
+% hUIControls = findall(handles.figure1,'type','uicontrol');
+% set([hAxes; hText;hUIControls],...
+%     'units','normalized','fontunits','normalized');
+set(handles.figure1,'Units','normalized')
+set(handles.figure1,'Resize','on')
+set(handles.figure1,'Position',ratio.*[0.4,0.2,0.53,0.835])
+
+
 % Initialize window
 % -------------------------------------------------------------------------
 if ~isfield(handles,'notinit')
@@ -96,6 +165,12 @@ if ~isfield(handles,'notinit')
     if ~isfield(PRT.model(m),'output')
         beep
         disp('This model has not been estimated yet!')
+        delete(handles.figure1)
+        return
+    end
+    if isempty(PRT.model(m).output)
+        beep
+        disp('This model could not be estimated!')
         delete(handles.figure1)
         return
     end

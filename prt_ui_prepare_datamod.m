@@ -215,9 +215,9 @@ if val==0
 end
 val=get(handles.pop_cond,'Value');
 if val==1
-    handles.mod.mode='all_cond';
-else
     handles.mod.mode='all_scans';
+else
+    handles.mod.mode='all_cond';
 end
 % Update handles structure
 guidata(hObject, handles);
