@@ -85,9 +85,20 @@ for i=1:length(aa)
         end
     end
 end
-set(handles.figure1,'Units','normalized')
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+FS= spm('FontSizes');       %-Scaled font sizes
+PF= spm_platform('fonts');     %-Font names (for this platform)
+tmp  = [S0(3)/1280 (S0(4)-50)/800];
+ratio=min(tmp)*[1 1 1 1];
+x=get(handles.figure1,'Position');
+set(handles.figure1,'DefaultTextFontSize',FS(10),...
+    'DefaultUicontrolFontSize',FS(10),...
+    'DefaultTextFontName',PF.helvetica,...
+    'DefaultAxesFontName',PF.helvetica,...
+    'DefaultUicontrolFontName',PF.helvetica)
+set(handles.figure1,'Position',ratio.*x)
+% set(handles.figure1,'Units','normalized')
 set(handles.figure1,'Resize','on')
-set(handles.figure1,'Position',[0.45,0.5,0.2,0.12])
 
 % Choose default command line output for prt_text_input
 handles.output = hObject;

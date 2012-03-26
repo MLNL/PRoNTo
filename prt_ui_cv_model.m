@@ -90,20 +90,20 @@ for i=1:length(aa)
         end
     end
 end
-
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
 FS= spm('FontSizes');       %-Scaled font sizes
-refres=[1 1 1280 800];
-ratio=S0./refres;
-set(handles.figure1,'DefaultTextFontSize',FS(10))
-% hAxes = findall(handles.figure1,'type','axes');
-% hText = findall(hAxes,'type','text');
-% hUIControls = findall(handles.figure1,'type','uicontrol');
-% set([hAxes; hText;hUIControls],...
-%     'units','normalized','fontunits','normalized');
-set(handles.figure1,'Units','normalized')
+PF= spm_platform('fonts');     %-Font names (for this platform)
+tmp  = [S0(3)/1280 (S0(4)-50)/800];
+ratio=min(tmp)*[1 1 1 1];
+x=get(handles.figure1,'Position');
+set(handles.figure1,'DefaultTextFontSize',FS(10),...
+    'DefaultUicontrolFontSize',FS(10),...
+    'DefaultTextFontName',PF.helvetica,...
+    'DefaultAxesFontName',PF.helvetica,...
+    'DefaultUicontrolFontName',PF.helvetica)
+set(handles.figure1,'Position',ratio.*x)
+% set(handles.figure1,'Units','normalized')
 set(handles.figure1,'Resize','on')
-set(handles.figure1,'Position',ratio.*[0.4,0.25,0.35,0.5])
 
 
 set(handles.unslist,'Enable','off')
