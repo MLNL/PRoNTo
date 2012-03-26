@@ -128,7 +128,7 @@ set(handles.pop_mod,'String',mod_n)
 set(handles.pop_mod,'Value',1)
 % if only one modality and no design, suppress the "all conditions" option
 if length(mod_n)==1 && (isempty(handles.PRT.group(1).subject(1).modality(1).design) ...
-        || ~(handles.PRT.group(1).subject(1).modality(1).design))
+        || ~isstruct(handles.PRT.group(1).subject(1).modality(1).design))
     set(handles.pop_cond,'String',{'All scans'})
 else
     set(handles.pop_cond,'String',{'All scans','All conditions'})
@@ -309,7 +309,7 @@ handles.mod.mod_name=list(val);
 % if only one modality and no design, suppress the "all conditions" option
 im=find(strcmpi(list(val),{handles.PRT.group(1).subject(1).modality(:).mod_name}));
 if isempty(handles.PRT.group(1).subject(1).modality(1).design) ...
-        || ~(handles.PRT.group(1).subject(1).modality(im).design)
+        || ~isstruct(handles.PRT.group(1).subject(1).modality(im).design)
     set(handles.pop_cond,'String',{'All scans'})
 else
     set(handles.pop_cond,'String',{'All scans','All conditions'})
