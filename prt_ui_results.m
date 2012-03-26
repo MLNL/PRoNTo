@@ -152,9 +152,27 @@ if ~isfield(handles,'notinit')
         return
     end
     nmodels = length(PRT.model);
+    mi  = [];
+    nmi = 0;
     for m = 1:nmodels
-        model_name{m} = PRT.model(m).model_name;
+        if isfield(PRT.model(m),'input') && ~isempty(PRT.model(m).input)
+            if isfield(PRT.model(m),'output') && ~isempty(PRT.model(m).output)
+                nmi = nmi +1;
+                model_name{nmi} = PRT.model(m).model_name;
+                mi = [mi, m];
+            else
+                beep;
+                disp(sprintf('Model %s not estimated! It will not be displayed',PRT.model(m).model_name));
+            end
+        else
+            beep;
+            disp(sprintf('Model %s not properly specified! It will not be displayed',PRT.model(m).model_name));
+        end
+        
     end
+    if ~nmi, error('There are no estimated/good models in this PRT!'); end
+    
+    handles.mi = mi;
     
     % Set model pulldown menu
     handles.mnames = model_name;
@@ -162,21 +180,7 @@ if ~isfield(handles,'notinit')
     
     % Get folds pulldown menu
     m             = get(handles.classmenu,'Value');
-    
-    % Load model names
-    if ~isfield(PRT.model(m),'output')
-        beep
-        disp('This model has not been estimated yet!')
-        delete(handles.figure1)
-        return
-    end
-    if isempty(PRT.model(m).output)
-        beep
-        disp('This model could not be estimated!')
-        delete(handles.figure1)
-        return
-    end
-    handles.nfold = length(PRT.model(m).output.fold);
+    handles.nfold = length(PRT.model(mi(m)).output.fold);
     folds{1}      = 'All folds / Average';
     for f = 1:handles.nfold
         folds{f+1} = num2str(f);
@@ -185,7 +189,7 @@ if ~isfield(handles,'notinit')
     set(handles.foldmenu,'String',handles.folds);
     
     % Set plots menu for first model
-    if strcmp(PRT.model(m).input.type,'classification');
+    if strcmp(PRT.model(mi(m)).input.type,'classification');
         plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
     else
         plots = {'Predictions (scatter)', 'Predictions (bar)'};
@@ -539,16 +543,16 @@ if ~handles.model_button
     end
 end
 
-% Change stats
-% -------------------------------------------------------------------------
-if isfield(handles,'stats')
-    statsbutton_Callback(hObject, eventdata, handles);
-end
-
 % Change plot
 % -------------------------------------------------------------------------
 if isfield(handles,'plot')
    plotmenu_Callback(hObject, eventdata, handles); 
+end
+
+% Change stats
+% -------------------------------------------------------------------------
+if isfield(handles,'stats')
+    statsbutton_Callback(hObject, eventdata, handles);
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -576,6 +580,8 @@ function plotmenu_Callback(hObject, eventdata, handles)
 plotchosen    = num2str(get(handles.plotmenu,'Value'));
 fold          = get(handles.foldmenu,'Value');
 model         = get(handles.classmenu,'Value');
+mi            = handles.mi;
+model         = mi(model);
 PRT           = handles.PRT;
 handles.plot  = 1;
 nms           = 7;
@@ -860,7 +866,7 @@ function classmenu_Callback(hObject, eventdata, handles)
 % Get folds
 m = get(handles.classmenu,'Value');
 
-handles.nfold = length(handles.PRT.model(m).output.fold);
+handles.nfold = length(handles.PRT.model(mi(m)).output.fold);
 folds{1}      = 'All folds / Average';
 for f = 1:handles.nfold
     folds{f+1} = num2str(f);
@@ -933,10 +939,10 @@ if  ~isempty(reps)
         % Load new PRT.mat
         PRTmat = fullfile(handles.pathdir,'PRT.mat');
         load(PRTmat);
-        perm     = PRT.model(m).output.stats.permutation;
+        perm     = PRT.model(mi(m)).output.stats.permutation;
         stats.perm      = perm;
         stats.show_perm = 1;
-        if strcmp(handles.PRT.model(m).input.type,'classification');
+        if strcmp(handles.PRT.model(mi(m)).input.type,'classification');
             stats.type = 'class';
         else
             stats.type = 'reg';
@@ -966,6 +972,7 @@ function statsbutton_Callback(hObject, eventdata, handles)
 % Reads model and fold
 % -------------------------------------------------------------------------
 fold  = get(handles.foldmenu,'Value');
+mi    = handles.mi;
 m     = get(handles.classmenu,'Value');
 PRT   = handles.PRT;
 
@@ -977,15 +984,15 @@ end
 
 % Read stats
 % -------------------------------------------------------------------------
-if strcmp(PRT.model(m).input.type,'classification')
+if strcmp(PRT.model(mi(m)).input.type,'classification')
     if fold == 1
-        macc  = PRT.model(m).output.stats.acc;  % overall acc
-        mbacc = PRT.model(m).output.stats.b_acc;
-        mcacc = PRT.model(m).output.stats.c_acc;
+        macc  = PRT.model(mi(m)).output.stats.acc;  % overall acc
+        mbacc = PRT.model(mi(m)).output.stats.b_acc;
+        mcacc = PRT.model(mi(m)).output.stats.c_acc;
     else
-        macc  = PRT.model(m).output.fold(fold-1).stats.acc;
-        mbacc = PRT.model(m).output.fold(fold-1).stats.b_acc;
-        mcacc = PRT.model(m).output.fold(fold-1).stats.c_acc;
+        macc  = PRT.model(mi(m)).output.fold(fold-1).stats.acc;
+        mbacc = PRT.model(mi(m)).output.fold(fold-1).stats.b_acc;
+        mcacc = PRT.model(mi(m)).output.fold(fold-1).stats.c_acc;
     end
 
     stats.macc  = macc;
@@ -997,11 +1004,11 @@ if strcmp(PRT.model(m).input.type,'classification')
     
 else
     if fold == 1
-        corr  = PRT.model(m).output.stats.corr;  % overall correlation
-        mse   = PRT.model(m).output.stats.mse;  % overall mse
+        corr  = PRT.model(mi(m)).output.stats.corr;  % overall correlation
+        mse   = PRT.model(mi(m)).output.stats.mse;  % overall mse
     else
-        corr  = PRT.model(m).output.fold(fold-1).stats.corr;  % overall correlation
-        mse   = PRT.model(m).output.fold(fold-1).stats.mse;  % overall mse
+        corr  = PRT.model(mi(m)).output.fold(fold-1).stats.corr;  % overall correlation
+        mse   = PRT.model(mi(m)).output.fold(fold-1).stats.mse;  % overall mse
     end
 
     stats.corr = corr;

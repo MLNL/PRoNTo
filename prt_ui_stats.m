@@ -53,6 +53,7 @@ function prt_ui_stats_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to prt_ui_stats (see VARARGIN)
 
 % set(handles.figure1,'Name','PRoNTo :: Stats table)
+rotate3d off
 color=prt_get_defaults('color');
 set(handles.figure1,'Color',color.bg1)
 aa=get(handles.figure1,'children');
@@ -118,8 +119,8 @@ if ~isempty(varargin)
         
         switch stats.type
             
+            
             case 'class'
-                
                 
                 set(handles.corrtext,'Visible','off');
                 set(handles.corrvaltext,'Visible','off');
@@ -203,7 +204,7 @@ if ~isempty(varargin)
         
 end
 
-
+rotate3d off
 % Choose default command line output for prt_ui_stats
 handles.output = hObject;
 
