@@ -153,18 +153,23 @@ if ~isfield(handles.dat,'model')
     disp('Please specify model first')
     delete(handles.figure1)
 end
+
 handles.indm=[];
-for i=1:length(handles.dat.model)
-    if ~isempty(handles.dat.model.output)
-        handles.indm=[handles.indm,i];
+for m = 1:length(handles.dat.model)
+    if isfield(handles.dat.model(m),'input') && ~isempty(handles.dat.model(m).input)
+        if isfield(handles.dat.model(m),'output') && ~isempty(handles.dat.model(m).output)
+            handles.indm=[handles.indm,m];
+        end
     end
 end
+
 if isempty(handles.indm)
     beep
     disp('No model computed in this PRT')
     disp('Please specify AND run model before computing weights')
     return
 end
+
 list={handles.dat.model(:).model_name};
 set(handles.pop_models,'String',list(handles.indm))
 set(handles.pop_models,'Value',1)
