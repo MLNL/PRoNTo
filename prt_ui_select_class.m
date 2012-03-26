@@ -810,7 +810,7 @@ for i=1:size(handles.clas,1)
     else
         ncc=[ncc;unique(ncs)];
     end
-    if length(find(ncc==0))~=length(ncc)
+    if ~isempty(find(ncc==0)) && length(find(ncc==0))~=length(ncc)
         beep
         sprintf('Class %d does not have the same number of conditions as class 1',i)
         disp('Please select either at least one condition for each class or none')
