@@ -57,7 +57,7 @@ function prt_ui_results_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_results (see VARARGIN)
 
-set(handles.figure1,'Name','PRoNTo :: Review Model Specification')
+set(handles.figure1,'Name','PRoNTo :: Results')
 color=prt_get_defaults('color');
 set(handles.figure1,'Color',color.bg1)
 aa=get(handles.figure1,'children');
