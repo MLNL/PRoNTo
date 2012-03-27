@@ -57,7 +57,30 @@ function prt_ui_results_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_results (see VARARGIN)
 
+
 set(handles.figure1,'Name','PRoNTo :: Results')
+%set size of the window, taking screen resolution and platform into account
+%--------------------------------------------------------------------------
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+if ispc
+    PF='MS Sans Serif';
+else
+    PF= spm_platform('fonts');     %-Font names (for this platform)
+    PF=PF.helvetica;
+end
+tmp  = [S0(3)/1280 (S0(4))/800];
+ratio=min(tmp)*[1 1 1 1];
+FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
+x=get(handles.figure1,'Position');
+% set(handles.figure1,'DefaultTextFontSize',FS*12,...
+%     'DefaultUicontrolFontSize',FS*12,...
+%     'DefaultTextFontName',PF,...
+%     'DefaultAxesFontName',PF,...
+%     'DefaultUicontrolFontName',PF)
+set(handles.figure1,'Position',ratio.*x)
+set(handles.figure1,'Resize','on')
+
+
 color=prt_get_defaults('color');
 set(handles.figure1,'Color',color.bg1)
 aa=get(handles.figure1,'children');
@@ -83,26 +106,35 @@ for i=1:length(aa)
                                         set(dd(l),'BackgroundColor',color.fr)
                                     end
                                 end
+                                xf=get(dd(l),'FontSize');
+                                set(dd(l),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                    'FontUnits','normalized','Units','normalized')
                             end
                         elseif strcmpi(get(cc(k),'type'),'uicontrol') && ...
                                 ~isempty(find(strcmpi(get(cc(k),'Style'),{'text',...
-                            'radiobutton','checkbox'}))) 
+                                'radiobutton','checkbox'})))
                             set(cc(k),'BackgroundColor',color.bg2)
                         elseif strcmpi(get(cc(k),'type'),'uicontrol')&& ...
-                                ~isempty(find(strcmpi(get(cc(k),'Style'),'pushbutton'))) 
+                                ~isempty(find(strcmpi(get(cc(k),'Style'),'pushbutton')))
                             set(cc(k),'BackgroundColor',color.fr)
                         end
-                    end                               
+                        xf=get(cc(k),'FontSize');
+                        set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
+                            'FontUnits','normalized','Units','normalized')
+                    end
                 elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
-                    ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
-                        'radiobutton','checkbox'}))) 
+                        ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                        'radiobutton','checkbox'})))
                     set(bb(j),'BackgroundColor',color.bg2)
                 elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
-                        ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                        ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
                     set(bb(j),'BackgroundColor',color.fr)
                 end
+                xf=get(bb(j),'FontSize');
+                set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                    'FontUnits','normalized','Units','normalized')
             end
-        end                    
+        end
     elseif strcmpi(get(aa(i),'type'),'uicontrol')
         if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
                 'radiobutton','checkbox'})))
@@ -111,21 +143,10 @@ for i=1:length(aa)
             set(aa(i),'BackgroundColor',color.fr)
         end
     end
+    xf=get(aa(i),'FontSize');
+    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+        'FontUnits','normalized','Units','normalized')
 end
-S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
-FS= spm('FontSizes');       %-Scaled font sizes
-PF= spm_platform('fonts');     %-Font names (for this platform)
-tmp  = [S0(3)/1280 (S0(4)-50)/800];
-ratio=min(tmp)*[1 1 1 1];
-x=get(handles.figure1,'Position');
-set(handles.figure1,'DefaultTextFontSize',FS(10),...
-    'DefaultUicontrolFontSize',FS(10),...
-    'DefaultTextFontName',PF.helvetica,...
-    'DefaultAxesFontName',PF.helvetica,...
-    'DefaultUicontrolFontName',PF.helvetica)
-set(handles.figure1,'Position',ratio.*x)
-% set(handles.figure1,'Units','normalized')
-set(handles.figure1,'Resize','on')
 
 
 % Initialize window
