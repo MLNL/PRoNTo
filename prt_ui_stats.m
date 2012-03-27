@@ -134,6 +134,8 @@ if ~isempty(varargin)
                 set(handles.accuracytext,'String','Accuracy (acc):','Visible','on');
                 set(handles.baccuracytext,'String','Balanced acc:','Visible','on');
                 set(handles.classaccuracytext,'String','Class acc:','Visible','on');
+                set(handles.ppvtext,'String','PPV: not yet available','Visible','on');
+                set(handles.npvtext,'String','NPV: not yet available','Visible','on');
                 
                 set(handles.acctext,'String',sprintf('%3.1f %%',stats.macc*100),'Visible','on');
                 set(handles.bacctext,'String',sprintf('%3.1f %%',stats.mbacc*100),'Visible','on');
@@ -173,6 +175,9 @@ if ~isempty(varargin)
                 set(handles.acctext,'Visible','off');
                 set(handles.bacctext,'Visible','off');
                 set(handles.cacctext,'Visible','off');
+                
+                set(handles.ppvtext,'Visible','off');
+                set(handles.npvtext,'Visible','off');
                 
                 set(handles.corrtext,'String','Correlation:','Visible','on');
                 set(handles.corrvaltext,'String',sprintf('%3.1f',stats.corr),'Visible','on');
