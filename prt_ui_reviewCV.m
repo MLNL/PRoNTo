@@ -178,6 +178,19 @@ for i=1:size(handles.PRT.model(indm).input.cv_mat,2)
     CV_mat_full(handles.PRT.model(indm).input.samp_idx,i)=handles.PRT.model(indm).input.cv_mat(:,i);
     xticksl{i}=num2str(i);
 end
+%inverting unused and test for colour purposes
+if max(range(CV_mat_full))>1
+    indun=find(CV_mat_full==0);
+    indt=find(CV_mat_full==2);
+    CV_mat_full(indun)=2;
+    CV_mat_full(indt)=0;
+else
+    indtr=find(CV_mat_full==1);
+    indt=find(CV_mat_full==2);
+    CV_mat_full(indtr)=2;
+    CV_mat_full(indt)=1;
+end
+
 set(gca,'FontWeight','bold')
 xlabel('CV Folds','fontweight','demi')
 imagesc(CV_mat_full);
@@ -193,12 +206,12 @@ if max(range(CV_mat_full))>1
     leg=[0; 1; 2];
     imagesc(leg);
     set(gca,'YTick',[1,2,3])
-    set(gca,'YTickLabel',{'Unused','Train''Test',});
+    set(gca,'YTickLabel',{'Test','Train','Unused'});
 else
     leg=[1; 2];
     imagesc(leg);
     set(gca,'YTick',[1,2])
-    set(gca,'YTickLabel',{'Train','Test'});
+    set(gca,'YTickLabel',{'Test','Train'});
 end
 set(gca,'YAxisLocation','right')
 set(gca,'XTickLabel',{})
