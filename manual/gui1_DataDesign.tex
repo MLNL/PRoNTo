@@ -71,7 +71,7 @@ The first thing the user should specify is the directory in which to save the PR
 
 \subsection{Groups}
 
-The group panel allows one to add or remove a group of subjects. The minimum number of groups is one, but there is no maximum number. When `Add' is clicked, the user should provide a name to the group. Any alphanumeric string is sufficient. When `Remove' is clicked, all the information relative to this group (including all subjects and corresponding data) is deleted. PRoNTo does not restore the deleted information and it can only be re-entered again by clicking `Add'.
+The group panel allows one to add or remove a group of subjects. The minimum number of groups is one, but there is no maximum number. When `Add' is clicked, the user should provide a name to the group. Any alphanumeric string is sufficient. The name of the group can be later modified by right clicking on the name. When `Remove' is clicked, all the information relative to this group (including all subjects and corresponding data) is deleted. PRoNTo does not restore the deleted information and it can only be re-entered again by clicking `Add'.
 
 The following panel after `Groups' is `Subjects/Scans'. Here, as mentioned above, there are two ways of entering the data: by `subjects' or by `scans'. The former is chosen by clicking `Add' under the `Subjects/Scans' panel and filling in the fields for each added subject at a time. The latter is done by clicking the tick box `Scans' under the `Subjects/Scans' panel. The subjects panel is then de-activated and the user can enter the modalities and files straight away. The fields to be filled under these two options are described below.
 
@@ -79,7 +79,7 @@ The following panel after `Groups' is `Subjects/Scans'. Here, as mentioned above
 
 \paragraph{Select by scans} The `select by scans' option allows the users to skip the subject step. To identify that this option has been selected, PRoNTo writes `scans' in the subjects panel (Figure \ref{Fig2.3}). The user can then add modalities and for each modality a new window will appear (bottom of Figure \ref{Fig2.3}). It is important to remember that when the `scans' box is clicked all the information in the subjects panel is automatically deleted! Unselecting the `scans' box also deletes all the information!
 
-\paragraph{Select by subjects} The `Subjects/Scans' panel allows the user to add/remove subjects. This panel works exactly like the groups panel, but the subject name is automatically generated. For each subject one can then specify the modalities in the next panel.
+\paragraph{Select by subjects} The `Subjects/Scans' panel allows the user to add/remove subjects. This panel works exactly like the groups panel, but the subject name is automatically generated. This name can be later modified by right clicking on it. For each subject one can then specify the modalities in the next panel.
 
 \begin{figure}[!htbp]
   \begin{center}
@@ -130,6 +130,7 @@ One issue to have in mind when specifying the design is the following: if there 
 \end{figure}
 
 All that is needed for each group, subject and modality has been specified and can now be viewed on the main window (Figure \ref{Fig2.7}) under each panel. The last panel shows which files have been entered for each modality and can be modified directly (click Modify). When Modify is clicked and no files are then selected all the previous files are deleted! Figure \ref{Fig2.7} shows how the data and design interface should look like once all the fields have been specified (using select by subject).
+The design and files for each modality can also be modified by right clicking on the modality name in the modality panel. This option can be useful to visualise the design (onsets and durations) that has been previously entered and change it if necessary. For instance, one can check the design of the first subject and if changes are needed these can then be replicated for all other subjects as explained above.
 
 \begin{figure}[!htbp]
   \begin{center}
