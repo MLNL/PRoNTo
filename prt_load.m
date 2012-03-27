@@ -27,7 +27,7 @@ prtdir=fileparts(fname);
 
 %for each feature set, check that the corresponding .dat is present in the
 %same directory and update the name of the file array if needed
-if isfield(PRT,'fas')
+if isfield(PRT,'fas') && ~isempty(PRT.fas)
     ind=[];
     for i=1:length(PRT.fas)
         %get the name of the file array

@@ -68,6 +68,26 @@ set(handles.design_menu,...
         'String',{'Load SPM.mat','Specify design','No design'},...
         'Value',3);
     
+%set size of the window, taking screen resolution and platform into account
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+if ispc
+    PF='MS Sans Serif';
+else
+    PF= spm_platform('fonts');     %-Font names (for this platform)
+    PF=PF.helvetica;
+end
+tmp  = [S0(3)/1280 (S0(4))/800];
+ratio=min(tmp)*[1 1 1 1];
+FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
+x=get(handles.figure1,'Position');
+set(handles.figure1,'DefaultTextFontSize',FS*8,...
+    'DefaultUicontrolFontSize',FS*8,...
+    'DefaultTextFontName',PF,...
+    'DefaultAxesFontName',PF,...
+    'DefaultUicontrolFontName',PF)
+set(handles.figure1,'Position',ratio.*x)
+set(handles.figure1,'Resize','on') 
+
 % Choose the color of the different backgrounds and figure parameters
 color=prt_get_defaults('color');
 set(handles.figure1,'Color',color.bg1)
@@ -84,6 +104,9 @@ for i=1:length(aa)
                 elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
                     set(bb(j),'BackgroundColor',color.fr)
                 end
+                xf=get(bb(j),'FontSize');
+                set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                    'FontUnits','normalized','Units','normalized')
             end
         end                    
     else
@@ -94,22 +117,11 @@ for i=1:length(aa)
             set(aa(i),'BackgroundColor',color.fr)
         end
     end
+    xf=get(aa(i),'FontSize');
+    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+        'FontUnits','normalized','Units','normalized')
 end
 
-S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
-FS= spm('FontSizes');       %-Scaled font sizes
-PF= spm_platform('fonts');     %-Font names (for this platform)
-tmp  = [S0(3)/1280 (S0(4)-50)/800];
-ratio=min(tmp)*[1 1 1 1];
-x=get(handles.figure1,'Position');
-set(handles.figure1,'DefaultTextFontSize',FS(10),...
-    'DefaultUicontrolFontSize',FS(10),...
-    'DefaultTextFontName',PF.helvetica,...
-    'DefaultAxesFontName',PF.helvetica,...
-    'DefaultUicontrolFontName',PF.helvetica)
-set(handles.figure1,'Position',ratio.*x)
-% set(handles.figure1,'Units','normalized')
-set(handles.figure1,'Resize','on')
 
 
 

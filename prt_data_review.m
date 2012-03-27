@@ -63,6 +63,21 @@ function prt_data_review_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 set(handles.figure1,'Name','PRoNTo :: Review data and design')
+%set size of the window, taking screen resolution and platform into account
+S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+if ispc
+    PF='MS Sans Serif';
+else
+    PF= spm_platform('fonts');     %-Font names (for this platform)
+    PF=PF.helvetica;
+end
+tmp  = [S0(3)/1280 (S0(4))/800];
+ratio=min(tmp)*[1 1 1 1];
+FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
+x=get(handles.figure1,'Position');
+set(handles.figure1,'Position',ratio.*x)
+set(handles.figure1,'Resize','on')
+
 % Choose the color of the different backgrounds and figure parameters
 color=prt_get_defaults('color');
 set(handles.figure1,'Color',color.bg1)
@@ -76,11 +91,14 @@ for i=1:length(aa)
                 if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
                         'radiobutton','checkbox'}))) 
                     set(bb(j),'BackgroundColor',color.bg2)
-                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
                     set(bb(j),'BackgroundColor',color.fr)
                 end
+                xf=get(bb(j),'FontSize');
+                set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                    'FontUnits','normalized','Units','normalized')
             end
-        end                    
+        end
     elseif strcmpi(get(aa(i),'type'),'uicontrol')
         if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
                 'radiobutton','checkbox','listbox'})))
@@ -89,22 +107,10 @@ for i=1:length(aa)
             set(aa(i),'BackgroundColor',color.fr)
         end
     end
+    xf=get(aa(i),'FontSize');
+    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+        'FontUnits','normalized','Units','normalized')
 end
-
-S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
-FS= spm('FontSizes');       %-Scaled font sizes
-PF= spm_platform('fonts');     %-Font names (for this platform)
-tmp  = [S0(3)/1280 (S0(4)-50)/800];
-ratio=min(tmp)*[1 1 1 1];
-x=get(handles.figure1,'Position');
-set(handles.figure1,'DefaultTextFontSize',FS(10),...
-    'DefaultUicontrolFontSize',FS(10),...
-    'DefaultTextFontName',PF.helvetica,...
-    'DefaultAxesFontName',PF.helvetica,...
-    'DefaultUicontrolFontName',PF.helvetica)
-set(handles.figure1,'Position',ratio.*x)
-% set(handles.figure1,'Units','normalized')
-set(handles.figure1,'Resize','on')
 
 
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
@@ -189,7 +195,7 @@ if isempty(ind)
     set(handles.figure1,'Position',[w(1),w(2)+(2*w(4)/2.5),w(3),w(4)/2.5])
     w=get(handles.axes1,'Position');
     x=get(handles.text1,'Position');
-    set(handles.text1,'Position',[x(1),(w(4)+x(4))*1.2,x(3),x(4)*1.3])
+    set(handles.text1,'Position',[x(1),(w(4)+x(4))*1.1,x(3),x(4)*3])
 else
     def=prt_get_defaults('datad');
     if isfield(PRT.group,'hrfoverlap')
@@ -219,7 +225,8 @@ bar(handles.axes1,x,ns);
 ylim([0 max(ns)+1])
 xlim([1 max(x)+1])
 set(handles.axes1,'XTickLabel',gname)
-ylabel('Number of subjects')
+h=ylabel('Number of subjects');
+set(h,'Rotation',90)
 handles.PRT=PRT;
 % Update handles structure
 guidata(hObject, handles);
