@@ -408,12 +408,11 @@ if strcmpi(handles.type,'classification')
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',1)
     end
-    if (speccl.loospg)
-        list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One One Subject per Group Out'}];
-        set(handles.pop_cv,'String',list)
-        set(handles.pop_cv,'Value',1)
-    end
+    handles.loospg=speccl.loospg;
+    list=get(handles.pop_cv,'String');
+    list=[list;{'Leave One One Subject per Group Out'}];
+    set(handles.pop_cv,'String',list)
+    set(handles.pop_cv,'Value',1)
 else
     sel=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
     handles.group=sel;
@@ -489,6 +488,11 @@ end
 if any(strfind(mach{val},'Subject Out'))
     handles.cv.type = 'loso';
 elseif any(strfind(mach{val},'Subject per Group'))
+    if ~handles.loospg
+        beep
+        disp('Subjects are not balanced across classes')
+        disp('All will not be used for training/testing')
+    end
     handles.cv.type = 'losgo';
 elseif any(strfind(mach{val},'Block'))
     handles.cv.type = 'lobo';
@@ -796,147 +800,3 @@ disp('Model specification complete.')
 disp('Done...')
 delete(handles.figure1)
 
-
-% --- Executes on selection change in pop_cv.
-function popupmenu14_Callback(hObject, eventdata, handles)
-% hObject    handle to pop_cv (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns pop_cv contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from pop_cv
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu14_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to pop_cv (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in uns_list.
-function listbox8_Callback(hObject, eventdata, handles)
-% hObject    handle to uns_list (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns uns_list contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from uns_list
-
-
-% --- Executes during object creation, after setting all properties.
-function listbox8_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to uns_list (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in sel_list.
-function listbox9_Callback(hObject, eventdata, handles)
-% hObject    handle to sel_list (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns sel_list contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from sel_list
-
-
-% --- Executes during object creation, after setting all properties.
-function listbox9_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to sel_list (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in popupmenu11.
-function popupmenu11_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu11 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns popupmenu11 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu11
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu11_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu11 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in pop_reg.
-function popupmenu12_Callback(hObject, eventdata, handles)
-% hObject    handle to pop_reg (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns pop_reg contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from pop_reg
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu12_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to pop_reg (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in pop_machine.
-function popupmenu13_Callback(hObject, eventdata, handles)
-% hObject    handle to pop_machine (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns pop_machine contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from pop_machine
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu13_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to pop_machine (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in butt_defclass.
-function pushbutton7_Callback(hObject, eventdata, handles)
-% hObject    handle to butt_defclass (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
