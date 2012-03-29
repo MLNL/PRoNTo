@@ -22,7 +22,7 @@ function varargout = prt_ui_stats(varargin)
 
 % Edit the above text to modify the response to help prt_ui_stats
 
-% Last Modified by GUIDE v2.5 24-Jan-2012 22:25:54
+% Last Modified by GUIDE v2.5 29-Mar-2012 11:29:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -120,9 +120,11 @@ for i=1:length(aa)
             set(aa(i),'BackgroundColor',color.fr)
         end
     end
-    xf=get(aa(i),'FontSize');
-    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-        'FontUnits','normalized','Units','normalized')
+    if ~strcmpi(get(aa(i),'type'),'uimenu')
+        xf=get(aa(i),'FontSize');
+        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+            'FontUnits','normalized','Units','normalized')
+    end 
 end
 
 
@@ -220,7 +222,7 @@ if ~isempty(varargin)
                     set(handles.pmse,'Visible','off');
                 end
         end
-        
+        handles.prtdir=varargin{2};
         
 end
 
@@ -244,3 +246,128 @@ function varargout = prt_ui_stats_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
+
+
+
+% --------------------------------------------------------------------
+function savemenu_Callback(hObject, eventdata, handles)
+% hObject    handle to savemenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+wd=cd;
+cd(handles.prtdir)
+[filename, pathname] = uiputfile( ...
+{'*.png','Portable Network Graphics (*.png)';...
+ '*.jpeg','JPEG figure (*.jpeg)';...
+ '*.tiff','Compressed TIFF figure (*.tiff)';... 
+ '*.fig','Matlab figure (*.fig)';...
+ '*.pdf','Color PDF file (*.pdf)';...
+ '*.epsc',  'Encapsulated PostScript (*.eps)'},...
+ 'Save figure as','Stats_table.png');
+[a,b,c]=fileparts(filename);
+ext=['-d',c(2:end)];
+
+% Set the color of the different backgrounds and figure parameters to white
+cf=get(handles.figure1,'Color');
+set(handles.figure1,'Color',[1,1,1])
+aa=get(handles.figure1,'children');
+xc=[];
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        try
+            xc=[xc;get(aa(i),'BackgroundColor')];
+            set(aa(i),'BackgroundColor',[1 1 1])
+        end
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                try
+                    xc=[xc;get(bb(j),'BackgroundColor')];
+                    set(bb(j),'BackgroundColor',[1 1 1])
+                end
+                if strcmpi(get(bb(j),'type'),'uipanel')
+                    cc=get(bb(j),'children');
+                    if ~isempty(cc)
+                        for k=1:length(cc)
+                            try
+                                xc=[xc;get(cc(k),'BackgroundColor')];
+                                set(cc(k),'BackgroundColor',[1 1 1])
+                            end
+                            if strcmpi(get(cc(k),'type'),'uipanel')
+                                dd=get(cc(k),'children');
+                                if ~isempty(dd)
+                                    for l=1:length(dd)
+                                        try
+                                            xc=[xc;get(dd(l),'BackgroundColor')];
+                                            set(dd(l),'BackgroundColor',[1 1 1])
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if ~strcmpi(get(aa(i),'type'),'uimenu')
+        try
+            xc=[xc;get(aa(i),'BackgroundColor')];
+            set(aa(i),'BackgroundColor',[1 1 1])
+        end
+    end
+end
+
+print(handles.figure1,ext,[pathname,filesep,b],'-r500')
+
+% Set the color of the different backgrounds and figure parameters to white
+set(handles.figure1,'Color',cf)
+scount=1;
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        try
+            set(aa(i),'BackgroundColor',xc(scount,:))
+            scount=scount+1;
+        end
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                try
+                    set(bb(j),'BackgroundColor',xc(scount,:))
+                    scount=scount+1;
+                end
+                if strcmpi(get(bb(j),'type'),'uipanel')
+                    cc=get(bb(j),'children');
+                    if ~isempty(cc)
+                        for k=1:length(cc)
+                            try
+                                set(cc(k),'BackgroundColor',xc(scount,:))
+                                scount=scount+1;
+                            end
+                            if strcmpi(get(cc(k),'type'),'uipanel')
+                                dd=get(cc(k),'children');
+                                if ~isempty(dd)
+                                    for l=1:length(dd)
+                                        try
+                                            set(dd(l),'BackgroundColor',xc(scount,:))
+                                            scount=scount+1;
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    elseif ~strcmpi(get(aa(i),'type'),'uimenu')
+        try
+            set(aa(i),'BackgroundColor',xc(scount,:))
+            scount=scount+1;
+        end
+    end
+end
+
+cd(wd)

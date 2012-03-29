@@ -219,7 +219,8 @@ function cvbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to cvbutt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-prt_ui_reviewCV('UserData',{handles.PRT,handles.indm,handles.indf})
+prt_ui_reviewCV('UserData',{handles.PRT,handles.indm,...
+    handles.indf,handles.prtdir})
 
 % --- Executes on button press in kernbutt.
 function kernbutt_Callback(hObject, eventdata, handles)

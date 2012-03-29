@@ -72,11 +72,6 @@ tmp  = [S0(3)/1280 (S0(4))/800];
 ratio=min(tmp)*[1 1 1 1];
 FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
 x=get(handles.figure1,'Position');
-% set(handles.figure1,'DefaultTextFontSize',FS*12,...
-%     'DefaultUicontrolFontSize',FS*12,...
-%     'DefaultTextFontName',PF,...
-%     'DefaultAxesFontName',PF,...
-%     'DefaultUicontrolFontName',PF)
 set(handles.figure1,'Position',ratio.*x)
 set(handles.figure1,'Resize','on')
 
@@ -143,9 +138,11 @@ for i=1:length(aa)
             set(aa(i),'BackgroundColor',color.fr)
         end
     end
-    xf=get(aa(i),'FontSize');
-    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-        'FontUnits','normalized','Units','normalized')
+    if ~strcmpi(get(aa(i),'type'),'uimenu')
+        xf=get(aa(i),'FontSize');
+        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+            'FontUnits','normalized','Units','normalized')
+    end
 end
 
 
@@ -157,6 +154,7 @@ if ~isfield(handles,'notinit')
     PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
     pathdir = regexprep(PRT,'PRT.mat', '');
     handles.pathdir = pathdir;
+    handles.prtdir=fileparts(PRT);
     load(PRT);
     
     % Save PRT
@@ -657,6 +655,7 @@ if strcmp(PRT.model(model).input.type,'classification')
         % Predictions
         % -----------------------------------------------------------------
         case '1'
+            rotate3d off
             cla(handles.axes5);
             colorbar('peer',handles.axes5,'off')
             % predictions
@@ -733,6 +732,7 @@ if strcmp(PRT.model(model).input.type,'classification')
             % -------------------------------------------------------------
         case '2'
             % ROC curve
+                rotate3d off
                 cla(handles.axes5);
                 [y,idx] = sort(fVals);
                 targpos = targpos(idx);
@@ -757,6 +757,7 @@ if strcmp(PRT.model(model).input.type,'classification')
             % -------------------------------------------------------------
         case '3'
                 cla(handles.axes5);
+                rotate3d off
                 % func_val distributions
                 if fVvals_exist
                     for cl=1:2
@@ -1022,7 +1023,7 @@ if strcmp(PRT.model(mi(m)).input.type,'classification')
     stats.mcacc = mcacc;
     stats.type  = 'class';
 
-    prt_ui_stats(stats);
+    prt_ui_stats(stats,handles.prtdir);
     
 else
     if fold == 1
@@ -1076,3 +1077,128 @@ if isfield(handles, 'wmap'), handles = rmfield(handles, 'wmap'); end
 if isfield(handles, 'aimg'), handles = rmfield(handles,'aimg'); end
 handles.noloadw = 0;
 guidata(hObject, handles);
+
+
+% Save menu
+% -------------------------------------------------------------------------
+function savemenu_Callback(hObject, eventdata, handles)
+% hObject    handle to savemenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+wd=cd;
+cd(handles.prtdir)
+[filename, pathname] = uiputfile( ...
+{'*.png','Portable Network Graphics (*.png)';...
+ '*.jpeg','JPEG figure (*.jpeg)';...
+ '*.tiff','Compressed TIFF figure (*.tiff)';... 
+ '*.fig','Matlab figure (*.fig)';...
+ '*.pdf','Color PDF file (*.pdf)';...
+ '*.epsc',  'Encapsulated PostScript (*.eps)'},...
+ 'Save figure as','.png');
+[a,b,c]=fileparts(filename);
+ext=['-d',c(2:end)];
+
+% Set the color of the different backgrounds and figure parameters to white
+cf=get(handles.figure1,'Color');
+set(handles.figure1,'Color',[1,1,1])
+aa=get(handles.figure1,'children');
+xc=[];
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        try
+            xc=[xc;get(aa(i),'BackgroundColor')];
+            set(aa(i),'BackgroundColor',[1 1 1])
+        end
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                try
+                    xc=[xc;get(bb(j),'BackgroundColor')];
+                    set(bb(j),'BackgroundColor',[1 1 1])
+                end
+                if strcmpi(get(bb(j),'type'),'uipanel')
+                    cc=get(bb(j),'children');
+                    if ~isempty(cc)
+                        for k=1:length(cc)
+                            try
+                                xc=[xc;get(cc(k),'BackgroundColor')];
+                                set(cc(k),'BackgroundColor',[1 1 1])
+                            end
+                            if strcmpi(get(cc(k),'type'),'uipanel')
+                                dd=get(cc(k),'children');
+                                if ~isempty(dd)
+                                    for l=1:length(dd)
+                                        try
+                                            xc=[xc;get(dd(l),'BackgroundColor')];
+                                            set(dd(l),'BackgroundColor',[1 1 1])
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if ~strcmpi(get(aa(i),'type'),'uimenu')
+        try
+            xc=[xc;get(aa(i),'BackgroundColor')];
+            set(aa(i),'BackgroundColor',[1 1 1])
+        end
+    end
+end
+
+print(handles.figure1,ext,[pathname,filesep,b],'-r500')
+
+% Set the color of the different backgrounds and figure parameters to white
+set(handles.figure1,'Color',cf)
+scount=1;
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        try
+            set(aa(i),'BackgroundColor',xc(scount,:))
+            scount=scount+1;
+        end
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                try
+                    set(bb(j),'BackgroundColor',xc(scount,:))
+                    scount=scount+1;
+                end
+                if strcmpi(get(bb(j),'type'),'uipanel')
+                    cc=get(bb(j),'children');
+                    if ~isempty(cc)
+                        for k=1:length(cc)
+                            try
+                                set(cc(k),'BackgroundColor',xc(scount,:))
+                                scount=scount+1;
+                            end
+                            if strcmpi(get(cc(k),'type'),'uipanel')
+                                dd=get(cc(k),'children');
+                                if ~isempty(dd)
+                                    for l=1:length(dd)
+                                        try
+                                            set(dd(l),'BackgroundColor',xc(scount,:))
+                                            scount=scount+1;
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    elseif ~strcmpi(get(aa(i),'type'),'uimenu')
+        try
+            set(aa(i),'BackgroundColor',xc(scount,:))
+            scount=scount+1;
+        end
+    end
+end
+
+cd(wd)
+
+

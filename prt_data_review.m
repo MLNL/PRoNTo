@@ -29,7 +29,7 @@ function varargout = prt_data_review(varargin)
 
 % Edit the above text to modify the response to help prt_data_review
 
-% Last Modified by GUIDE v2.5 08-Nov-2011 10:53:38
+% Last Modified by GUIDE v2.5 28-Mar-2012 13:11:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -107,9 +107,11 @@ for i=1:length(aa)
             set(aa(i),'BackgroundColor',color.fr)
         end
     end
-    xf=get(aa(i),'FontSize');
-    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-        'FontUnits','normalized','Units','normalized')
+    if ~strcmpi(get(aa(i),'type'),'uimenu')
+        xf=get(aa(i),'FontSize');
+        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+            'FontUnits','normalized','Units','normalized')
+    end
 end
 
 
@@ -330,6 +332,13 @@ end
 PRT.group.hrfoverlap=val;
 PRT.group.hrfdelay=del;
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
+disp('PRT.mat updated')
+if isfield(PRT,'fs')
+    beep
+    disp('Feature sets found in the PRT')
+    disp('These do not correspond to the updated onsets')
+    disp('Please, compute them anew')
+end
 handles.PRT=PRT;
 % Update handles structure
 guidata(hObject, handles);
@@ -388,6 +397,13 @@ for i=1:length(PRT.group)
     PRT.group(i).hrfdelay=del;
 end
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
+disp('PRT.mat updated')
+if isfield(PRT,'fs')
+    beep
+    disp('Feature sets found in the PRT')
+    disp('These do not correspond to the updated onsets')
+    disp('Please, compute them anew')
+end
 handles.PRT=PRT;
 % Update handles structure
 guidata(hObject, handles);
@@ -498,7 +514,8 @@ hold on
 errorbar(handles.axes2,y,meantp,stdtp,'.k')
 ylim([0 1.1*scmax])
 xlim([1 xl])
-ylabel('Number of selected scans')
+h=ylabel('Number of selected scans');
+set(h,'Rotation',90)
 set(handles.axes2,'XTickLabel',handles.gname)
 
 set(handles.figure1,'CurrentAxes',handles.axes3)
@@ -508,7 +525,8 @@ hold on
 errorbar(handles.axes3,y,meantpdisc,stdtpdisc,'.k')
 ylim([0 1.1*scmax])
 xlim([1 xl])
-ylabel('Number of discarded scans')
+h=ylabel('Number of discarded scans');
+set(h,'Rotation',90)
 set(handles.axes3,'XTickLabel',handles.gname)
 legend({dat.group(1).subject(1).modality(ind).design.conds(:).cond_name},...
     'Location','NorthEast')
@@ -522,3 +540,72 @@ set(handles.stdaft,'String',num2str(mean(stdaft)));
 
 % Update handles structure
 guidata(hObject, handles);
+
+
+% --------------------------------------------------------------------
+function savemenu_Callback(hObject, eventdata, handles)
+% hObject    handle to savemenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+wd=cd;
+cd(handles.prtdir)
+[filename, pathname] = uiputfile( ...
+{'*.png','Portable Network Graphics (*.png)';...
+ '*.jpeg','JPEG figure (*.jpeg)';...
+ '*.tiff','Compressed TIFF figure (*.tiff)';... 
+ '*.fig','Matlab figure (*.fig)';...
+ '*.pdf','Color PDF file (*.pdf)';...
+ '*.epsc',  'Encapsulated PostScript (*.eps)'},...
+ 'Save figure as','data_and_design.png');
+[a,b,c]=fileparts(filename);
+ext=['-d',c(2:end)];
+
+% Set the color of the different backgrounds and figure parameters to white
+cf=get(handles.figure1,'Color');
+set(handles.figure1,'Color',[1,1,1])
+aa=get(handles.figure1,'children');
+c=zeros(length(aa),3);
+cb=cell(length(aa));
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        bb=get(aa(i),'children');
+        cb{i}=zeros(length(bb),3);
+        if ~isempty(bb)
+            for j=1:length(bb)
+                try
+                    cb{i}(j,:)=get(bb(j),'BackgroundColor');
+                    set(bb(j),'BackgroundColor',[1 1 1]);
+                end
+            end
+        end
+    end
+    if ~strcmpi(get(aa(i),'type'),'uimenu')
+        try
+            c(i,:)=get(aa(i),'BackgroundColor');
+            set(aa(i),'BackgroundColor',[1 1 1]);
+        end
+    end
+end
+
+print(handles.figure1,ext,[pathname,filesep,b],'-r500')
+
+% Set the color of the different backgrounds and figure parameters to white
+set(handles.figure1,'Color',cf)
+aa=get(handles.figure1,'children');
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                set(bb(j),'BackgroundColor',cb{i}(j,:));
+            end
+        end
+    end
+    if ~strcmpi(get(aa(i),'type'),'uimenu')
+        try
+            set(aa(i),'BackgroundColor',c(i,:));
+        end
+    end
+end
+cd(wd)
+
