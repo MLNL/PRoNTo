@@ -324,14 +324,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in savebutton.
-function savebutton_Callback(hObject, eventdata, handles)
-% hObject    handle to savebutton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-beep;
-disp('Save option: NOT SUPPORTED YET!')
 
 % --- Executes on button press in helpbutton.
 function helpbutton_Callback(hObject, eventdata, handles)
@@ -339,7 +331,6 @@ function helpbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-beep;
 disp('Help window for PRoNTo results has been launched.')
 prt_ui_results_help;
 
@@ -655,9 +646,11 @@ if strcmp(PRT.model(model).input.type,'classification')
         % Predictions
         % -----------------------------------------------------------------
         case '1'
-            rotate3d off
             cla(handles.axes5);
+            rotate3d off
             colorbar('peer',handles.axes5,'off')
+            axis xy
+            set(handles.axes5,'Color',[1,1,1])
             % predictions
             if fVvals_exist
                 if fold == 1
@@ -711,19 +704,25 @@ if strcmp(PRT.model(model).input.type,'classification')
                 end
                 ylim(handles.axes5,[0 handles.nfold+1.3]);
                 xlabel(handles.axes5,'function value','FontWeight','bold');
-                ylabel(handles.axes5,'fold','FontWeight','bold');
+                h=ylabel(handles.axes5,'fold','FontWeight','bold');
+                set(h,'Rotation',90)
                 if isyc1 && isyc2
-                    legend([plot1,plot2],classNames);
+                    legend([plot1,plot2],classNames,'Color',[1,1,1]);
                 else
                     if isyc1
-                        legend(plot1,classNames{1});
+                        legend(plot1,classNames{1},'Color',[1,1,1]);
                     else
-                        legend(plot2,classNames{2});
+                        legend(plot2,classNames{2},'Color',[1,1,1]);
                     end
                 end
                 set(handles.axes5,'YTick',foldlabels)
                 hold(handles.axes5,'off');
+                set(handles.axes5,'Color',[1,1,1],'Visible','on')
+                axis normal
+                axis xy
+                title(handles.axes5,'')
             else
+                set(handles.axes5,'Color',[1,1,1])
                 beep
                 disp('No function values to display!')
             end
@@ -746,18 +745,23 @@ if strcmp(PRT.model(model).input.type,'classification')
                 n       = size(tp, 1);
                 A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
                 
+                axis xy
                 plot(handles.axes5,fp,tp,'--ks','LineWidth',1, 'MarkerEdgeColor','k',...
                     'MarkerFaceColor','k',...
                     'MarkerSize',2);
                 title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %3.1f',A));
                 xlabel(handles.axes5,'False positives','FontWeight','bold')
                 ylabel(handles.axes5,'True positives','FontWeight','bold')
+                set(handles.axes5,'Color',[1,1,1])
+                
             
             % Histograms
             % -------------------------------------------------------------
         case '3'
                 cla(handles.axes5);
                 rotate3d off
+                axis xy
+                set(handles.axes5,'Color',[1,1,1])
                 % func_val distributions
                 if fVvals_exist
                     for cl=1:2
