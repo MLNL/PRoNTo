@@ -70,10 +70,15 @@ Cc = diag(stats.con_mat);   % correct predictions for each class
 Zc = sum(stats.con_mat)';   % total predictions for each class
 nz = Zc ~= 0;               % classes with nonzero totals
 
-stats.acc = sum(Cc) ./ sum(Zc);
-stats.c_acc = zeros(k,1);
+Zcr = sum(stats.con_mat,2); % total predictions for each class
+nzr = Zcr ~= 0;
+
+stats.acc       = sum(Cc) ./ sum(Zc);
+stats.c_acc     = zeros(k,1);
 stats.c_acc(nz) = Cc(nz) ./ Zc(nz);
-stats.b_acc = mean(stats.c_acc);
+stats.b_acc     = mean(stats.c_acc);
+stats.c_pv      = zeros(k,1);
+stats.c_pv(nz)  = Cc(nz) ./ Zcr(nzr); 
 
 % confidence interval
 % TODO: check IID assumption here (chunks in run_permutation.m)
