@@ -1016,15 +1016,18 @@ if strcmp(PRT.model(mi(m)).input.type,'classification')
         macc  = PRT.model(mi(m)).output.stats.acc;  % overall acc
         mbacc = PRT.model(mi(m)).output.stats.b_acc;
         mcacc = PRT.model(mi(m)).output.stats.c_acc;
+        mcpv  = PRT.model(mi(m)).output.stats.c_pv;
     else
         macc  = PRT.model(mi(m)).output.fold(fold-1).stats.acc;
         mbacc = PRT.model(mi(m)).output.fold(fold-1).stats.b_acc;
         mcacc = PRT.model(mi(m)).output.fold(fold-1).stats.c_acc;
+        mcpv  = PRT.model(mi(m)).output.fold(fold-1).stats.c_pv;
     end
 
     stats.macc  = macc;
     stats.mbacc = mbacc;
     stats.mcacc = mcacc;
+    stats.mcpv  = mcpv;
     stats.type  = 'class';
 
     prt_ui_stats(stats,handles.prtdir);

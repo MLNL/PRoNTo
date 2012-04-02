@@ -151,8 +151,9 @@ if ~isempty(varargin)
                 set(handles.accuracytext,'String','Accuracy (acc):','Visible','on');
                 set(handles.baccuracytext,'String','Balanced acc:','Visible','on');
                 set(handles.classaccuracytext,'String','Class acc:','Visible','on');
-                set(handles.ppvtext,'String','PPV: not yet available','Visible','on');
-                set(handles.npvtext,'String','NPV: not yet available','Visible','on');
+                set(handles.ppvtext,'String',sprintf('Class pv:     [%3.1f %3.1f] %%',...
+                    stats.mcpv(1)*100,stats.mcpv(2)*100),'Visible','on');
+                set(handles.npvtext,'String','NPV: not yet available','Visible','off');
                 
                 set(handles.acctext,'String',sprintf('%3.1f %%',stats.macc*100),'Visible','on');
                 set(handles.bacctext,'String',sprintf('%3.1f %%',stats.mbacc*100),'Visible','on');
