@@ -101,7 +101,8 @@ for i=1:length(aa)
                                         set(dd(l),'BackgroundColor',color.fr)
                                     end
                                 end
-                                xf=get(dd(l),'FontSize');
+                                set(dd(l),'FontUnits','pixel')
+                                xf=get(dd(l),'FontSize');                                
                                 set(dd(l),'FontSize',ceil(FS*xf),'FontName',PF,...
                                     'FontUnits','normalized','Units','normalized')
                             end
@@ -113,6 +114,7 @@ for i=1:length(aa)
                                 ~isempty(find(strcmpi(get(cc(k),'Style'),'pushbutton')))
                             set(cc(k),'BackgroundColor',color.fr)
                         end
+                        set(cc(k),'FontUnits','pixel')
                         xf=get(cc(k),'FontSize');
                         set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
                             'FontUnits','normalized','Units','normalized')
@@ -125,6 +127,7 @@ for i=1:length(aa)
                         ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
                     set(bb(j),'BackgroundColor',color.fr)
                 end
+                set(bb(j),'FontUnits','pixel')
                 xf=get(bb(j),'FontSize');
                 set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
                     'FontUnits','normalized','Units','normalized')
@@ -139,6 +142,7 @@ for i=1:length(aa)
         end
     end
     if ~strcmpi(get(aa(i),'type'),'uimenu')
+        set(aa(i),'FontUnits','pixel')
         xf=get(aa(i),'FontSize');
         set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
             'FontUnits','normalized','Units','normalized')
