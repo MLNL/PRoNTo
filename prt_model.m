@@ -321,7 +321,8 @@ modalities = {PRT.masks(:).mod_name};
 groups     = {PRT.group(:).gr_name};
 %t_all = zeros(n,1);
 targ_allscans=zeros(n,1);
-
+samp_idx=[];
+targ_g=[];
 for g = 1:length(in.group)
     gr_name = in.group(g).gr_name;
     if any(strcmpi(gr_name,groups))
@@ -330,7 +331,7 @@ for g = 1:length(in.group)
         error('prt_model:groupNotFoundInPRT',...
             ['Group ',gr_name,' not found in PRT.mat']);
     end
-    
+    targets=zeros(length(in.group(g).subj),1);
     % subjects
     for s = 1:length(in.group(g).subj)
         % modalities, currently only one is allowed
@@ -342,11 +343,13 @@ for g = 1:length(in.group)
             error('prt_model:modalityNotFoundInPRT',...
                 ['Modality ',mod_name,' not found in PRT.mat']);
         end
-        samp_idx(s) = in.group(g).subj(s).num;
-        targets(s)  = PRT.group(gid).subject(samp_idx(s)).modality(mid).rt_subj;
+        idx = in.group(g).subj(s).num;
+        targets(s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
+        samp_idx=[samp_idx; find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)];
         
     end
+    targ_g=[targ_g;targets];
 end
-targets=targets';
-targ_allscans(samp_idx)=targets;
+targ_allscans(samp_idx)=targ_g;
+targets=targ_g;
 end
