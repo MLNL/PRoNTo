@@ -58,22 +58,8 @@ function prt_ui_prepare_datamod_OpeningFcn(hObject, eventdata, handles, varargin
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to prt_ui_kernel_modality (see VARARGIN)
-
-% Choose default command line output for prt_ui_kernel_modality
-handles.output = hObject;
-%if window already exists, just put it as the current figure
-Tag='FSmod';
-F = findall(allchild(0),'Flat','Tag',Tag);
-if length(F) > 1
-    % Multiple Graphics windows - close all but most recent
-    close(F(2:end))
-    F = F(1);
-    uistack(F,'top')
-elseif length(F)==1
-    uistack(F,'top')
-else
-    set(handles.figure1,'Tag',Tag)
+% varargin   command line arguments to prt_ui_kernel_modality (see
+% VARARGIN)
     
 set(handles.figure1,'Name','PRoNTo :: Specify modality to include')
 %set size of the window, taking screen resolution and platform into account
@@ -167,7 +153,7 @@ handles.mod.mode='all_scans';
 handles.mod.detrend=0;
 handles.mod.normalise=0;
 handles.mod.mask=[];
-end
+
 % Update handles structure
 guidata(hObject, handles);
 
