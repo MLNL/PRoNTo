@@ -78,7 +78,7 @@ stats.c_acc     = zeros(k,1);
 stats.c_acc(nz) = Cc(nz) ./ Zc(nz);
 stats.b_acc     = mean(stats.c_acc);
 stats.c_pv      = zeros(k,1);
-stats.c_pv(nz)  = Cc(nz) ./ Zcr(nzr); 
+stats.c_pv(nzr)  = Cc(nzr) ./ Zcr(nzr); 
 
 % confidence interval
 % TODO: check IID assumption here (chunks in run_permutation.m)
