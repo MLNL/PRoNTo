@@ -60,77 +60,91 @@ function prt_ui_design_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for prt_ui_design
 handles.output = hObject;
-set(handles.figure1,'Name','PRoNTo :: Data and design')
-%set size of the window, taking screen resolution and platform into account
-S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
-if ispc
-    PF='MS Sans Serif';
+%if window already exists, just put it as the current figure
+Tag='DDwin';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
 else
-    PF= spm_platform('fonts');     %-Font names (for this platform)
-    PF=PF.helvetica;
-end
-tmp  = [S0(3)/1280 (S0(4))/800];
-ratio=min(tmp)*[1 1 1 1];
-FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
-x=get(handles.figure1,'Position');
-set(handles.figure1,'DefaultTextFontSize',FS*12,...
-    'DefaultUicontrolFontSize',FS*12,...
-    'DefaultTextFontName',PF,...
-    'DefaultAxesFontName',PF,...
-    'DefaultUicontrolFontName',PF)
-set(handles.figure1,'Position',ratio.*x)
-set(handles.figure1,'Resize','on')
-
-% Choose the color of the different backgrounds and figure parameters
-color=prt_get_defaults('color');
-set(handles.figure1,'Color',color.bg1)
-handles.color=color;
-aa=get(handles.figure1,'children');
-for i=1:length(aa)
-    if strcmpi(get(aa(i),'type'),'uipanel')
-        set(aa(i),'BackgroundColor',color.bg2)
-        bb=get(aa(i),'children');
-        if ~isempty(bb)
-            for j=1:length(bb)
-                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
-                        'radiobutton','checkbox'}))) 
-                    set(bb(j),'BackgroundColor',color.bg2)
-                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
-                    set(bb(j),'BackgroundColor',color.fr)
+    set(handles.figure1,'Tag',Tag)
+    set(handles.figure1,'Name','PRoNTo :: Data and design')
+    %set size of the window, taking screen resolution and platform into account
+    S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+    if ispc
+        PF='MS Sans Serif';
+    else
+        PF= spm_platform('fonts');     %-Font names (for this platform)
+        PF=PF.helvetica;
+    end
+    tmp  = [S0(3)/1280 (S0(4))/800];
+    ratio=min(tmp)*[1 1 1 1];
+    FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
+    x=get(handles.figure1,'Position');
+    set(handles.figure1,'DefaultTextFontSize',FS*12,...
+        'DefaultUicontrolFontSize',FS*12,...
+        'DefaultTextFontName',PF,...
+        'DefaultAxesFontName',PF,...
+        'DefaultUicontrolFontName',PF)
+    set(handles.figure1,'Position',ratio.*x)
+    set(handles.figure1,'Resize','on')
+    
+    % Choose the color of the different backgrounds and figure parameters
+    color=prt_get_defaults('color');
+    set(handles.figure1,'Color',color.bg1)
+    handles.color=color;
+    aa=get(handles.figure1,'children');
+    for i=1:length(aa)
+        if strcmpi(get(aa(i),'type'),'uipanel')
+            set(aa(i),'BackgroundColor',color.bg2)
+            bb=get(aa(i),'children');
+            if ~isempty(bb)
+                for j=1:length(bb)
+                    if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                            'radiobutton','checkbox'})))
+                        set(bb(j),'BackgroundColor',color.bg2)
+                    elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
+                        set(bb(j),'BackgroundColor',color.fr)
+                    end
+                    set(bb(j),'FontUnits','pixel')
+                    xf=get(bb(j),'FontSize');
+                    set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                        'FontUnits','normalized','Units','normalized')
                 end
-                set(bb(j),'FontUnits','pixel')
-                xf=get(bb(j),'FontSize');
-                set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
-                    'FontUnits','normalized','Units','normalized')
+            end
+        else
+            if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                    'radiobutton','checkbox'})))
+                set(aa(i),'BackgroundColor',color.bg1)
+            elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+                set(aa(i),'BackgroundColor',color.fr)
             end
         end
-    else
-        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
-                'radiobutton','checkbox'})))
-            set(aa(i),'BackgroundColor',color.bg1)
-        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
-            set(aa(i),'BackgroundColor',color.fr)
-        end
+        set(aa(i),'FontUnits','pixel')
+        xf=get(aa(i),'FontSize');
+        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+            'FontUnits','normalized','Units','normalized')
     end
-    set(aa(i),'FontUnits','pixel')
-    xf=get(aa(i),'FontSize');
-    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-        'FontUnits','normalized','Units','normalized')
+    
+    
+    handles.saved=0;
+    set(handles.save_data,'ForegroundColor',handles.color.high)
+    set(handles.save_data,'FontWeight','bold')
+    set(handles.text6,'ForegroundColor',handles.color.high)
+    
+    
+    handles.cgr=1; %current group
+    handles.cs=1;
+    handles.cm=1;
+    handles.cf=1;
+    handles.dat=struct('dir',[],'group',[],'design',[],'masks',[]);
+    handles.modlist={};
 end
 
-
-handles.saved=0;
-set(handles.save_data,'ForegroundColor',handles.color.high)
-set(handles.save_data,'FontWeight','bold')
-set(handles.text6,'ForegroundColor',handles.color.high)
-
-
-handles.cgr=1; %current group
-handles.cs=1;
-handles.cm=1;
-handles.cf=1;
-handles.dat=struct('dir',[],'group',[],'design',[],'masks',[]);
-handles.modlist={};
 
 % Update handles structure
 guidata(hObject, handles);

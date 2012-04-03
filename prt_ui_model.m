@@ -63,6 +63,20 @@ function prt_ui_model_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_ui_kernel_construction
 handles.output = hObject;
 
+%if window already exists, just put it as the current figure
+Tag='modelwin';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    set(handles.figure1,'Tag',Tag)
+    
+    %build figure when it doesn't exist
 set(handles.figure1,'Name','PRoNTo :: Specify model')
 % Choose the color of the different backgrounds and figure parameters
 %set size of the window, taking screen resolution and platform into account
@@ -154,6 +168,7 @@ handles.operations = [];
 handles.namop=list;
 set(handles.uns_list,'Value',1)
 set(handles.sel_list,'Value',1)
+end
 % Update handles structure
 guidata(hObject, handles);
 

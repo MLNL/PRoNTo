@@ -52,6 +52,18 @@ function prt_ui_stats_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_stats (see VARARGIN)
 
+%if window already exists, just put it as the current figure
+Tag='stats';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    set(handles.figure1,'Tag',Tag)
 % set(handles.figure1,'Name','PRoNTo :: Stats table)
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
@@ -233,7 +245,7 @@ end
 rotate3d off
 % Choose default command line output for prt_ui_stats
 handles.output = hObject;
-
+end
 % Update handles structure
 guidata(hObject, handles);
 

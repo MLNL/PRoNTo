@@ -59,7 +59,19 @@ function prt_ui_reviewmodel_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_reviewmodel (see VARARGIN)
-
+%if window already exists, just put it as the current figure
+Tag='modelrev';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    set(handles.figure1,'Tag',Tag)
+    
 set(handles.figure1,'Name','PRoNTo :: Review Model Specification')
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
@@ -150,6 +162,7 @@ in.fs_name=handles.PRT.model(indm).input.fs.fs_name;
 indf=prt_init_fs(handles.PRT,in);
 handles.indm=indm;
 handles.indf=indf;
+end
 % Update handles structure
 guidata(hObject, handles);
 

@@ -63,140 +63,153 @@ function prt_data_modality_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_data_modality
 handles.output = hObject;
 
-set(handles.figure1,'Name','PRoNTo :: Specify modality')
-set(handles.design_menu,...
-        'String',{'Load SPM.mat','Specify design','No design'},...
-        'Value',3);
-    
-%set size of the window, taking screen resolution and platform into account
-S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
-if ispc
-    PF='MS Sans Serif';
+%if window already exists, just put it as the current figure
+Tag='DDmod';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
 else
-    PF= spm_platform('fonts');     %-Font names (for this platform)
-    PF=PF.helvetica;
-end
-tmp  = [S0(3)/1280 (S0(4))/800];
-ratio=min(tmp)*[1 1 1 1];
-FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
-x=get(handles.figure1,'Position');
-set(handles.figure1,'DefaultTextFontSize',FS*8,...
-    'DefaultUicontrolFontSize',FS*8,...
-    'DefaultTextFontName',PF,...
-    'DefaultAxesFontName',PF,...
-    'DefaultUicontrolFontName',PF)
-set(handles.figure1,'Position',ratio.*x)
-set(handles.figure1,'Resize','on') 
+    set(handles.figure1,'Tag',Tag)
 
-% Choose the color of the different backgrounds and figure parameters
-color=prt_get_defaults('color');
-set(handles.figure1,'Color',color.bg1)
-aa=get(handles.figure1,'children');
-for i=1:length(aa)
-    if strcmpi(get(aa(i),'type'),'uipanel')
-        set(aa(i),'BackgroundColor',color.bg2)
-        bb=get(aa(i),'children');
-        if ~isempty(bb)
-            for j=1:length(bb)
-                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
-                        'radiobutton','checkbox'}))) 
-                    set(bb(j),'BackgroundColor',color.bg2)
-                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
-                    set(bb(j),'BackgroundColor',color.fr)
+    set(handles.figure1,'Name','PRoNTo :: Specify modality')
+    set(handles.design_menu,...
+            'String',{'Load SPM.mat','Specify design','No design'},...
+            'Value',3);
+
+    %set size of the window, taking screen resolution and platform into account
+    S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+    if ispc
+        PF='MS Sans Serif';
+    else
+        PF= spm_platform('fonts');     %-Font names (for this platform)
+        PF=PF.helvetica;
+    end
+    tmp  = [S0(3)/1280 (S0(4))/800];
+    ratio=min(tmp)*[1 1 1 1];
+    FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
+    x=get(handles.figure1,'Position');
+    set(handles.figure1,'DefaultTextFontSize',FS*8,...
+        'DefaultUicontrolFontSize',FS*8,...
+        'DefaultTextFontName',PF,...
+        'DefaultAxesFontName',PF,...
+        'DefaultUicontrolFontName',PF)
+    set(handles.figure1,'Position',ratio.*x)
+    set(handles.figure1,'Resize','on') 
+
+    % Choose the color of the different backgrounds and figure parameters
+    color=prt_get_defaults('color');
+    set(handles.figure1,'Color',color.bg1)
+    aa=get(handles.figure1,'children');
+    for i=1:length(aa)
+        if strcmpi(get(aa(i),'type'),'uipanel')
+            set(aa(i),'BackgroundColor',color.bg2)
+            bb=get(aa(i),'children');
+            if ~isempty(bb)
+                for j=1:length(bb)
+                    if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                            'radiobutton','checkbox'}))) 
+                        set(bb(j),'BackgroundColor',color.bg2)
+                    elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
+                        set(bb(j),'BackgroundColor',color.fr)
+                    end
+                    set(bb(j),'FontUnits','pixel')
+                    xf=get(bb(j),'FontSize');
+                    set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                        'FontUnits','normalized','Units','normalized')
                 end
-                set(bb(j),'FontUnits','pixel')
-                xf=get(bb(j),'FontSize');
-                set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
-                    'FontUnits','normalized','Units','normalized')
+            end                    
+        else
+            if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                    'radiobutton','checkbox','listbox'})))
+                set(aa(i),'BackgroundColor',color.bg1)
+            elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+                set(aa(i),'BackgroundColor',color.fr)
             end
-        end                    
-    else
-        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
-                'radiobutton','checkbox','listbox'})))
-            set(aa(i),'BackgroundColor',color.bg1)
-        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
-            set(aa(i),'BackgroundColor',color.fr)
         end
+        set(aa(i),'FontUnits','pixel')
+        xf=get(aa(i),'FontSize');
+        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+            'FontUnits','normalized','Units','normalized')
     end
-    set(aa(i),'FontUnits','pixel')
-    xf=get(aa(i),'FontSize');
-    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-        'FontUnits','normalized','Units','normalized')
-end
 
 
 
 
-handles.mod=[];
-handles.mod.detrend=1;
-handles.mod.design=0;
-handles.mod.scans=[];
-handles.mod.name={};
-handles.mod.covar=[];
-handles.mod.rt_subj=[];
-handles.subj1=0;
+    handles.mod=[];
+    handles.mod.detrend=1;
+    handles.mod.design=0;
+    handles.mod.scans=[];
+    handles.mod.name={};
+    handles.mod.covar=[];
+    handles.mod.rt_subj=[];
+    handles.subj1=0;
 
-if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
-    %Particular options if you select by 'scans'
-    if ~isempty(varargin{2}{2}) && strcmpi(varargin{2}{2}.subj_name,'Scans')
-        set(handles.design_menu,'Enable','off')
-        set(handles.edit_regt,'Enable','on')
-        set(handles.edit_regt,'Visible','on')
-        set(handles.edit_covar,'Enable','on')
-        set(handles.edit_covar,'Visible','on')
-        set(handles.text7,'Visible','on')
-        set(handles.text6,'Visible','on')
-    else
-        set(handles.design_menu,'Enable','on')
-        set(handles.edit_regt,'Enable','off')
-        set(handles.edit_regt,'Visible','off')
-        set(handles.edit_covar,'Enable','off')
-        set(handles.edit_covar,'Visible','off')
-        set(handles.text7,'Visible','off')
-        set(handles.text6,'Visible','off')
-    end
-        
-    if ~isempty(varargin{2}{2}) && isfield(varargin{2}{2},'modality') && ...
-            ~isempty(varargin{2}{2}.modality)
-        handles.subjmod={varargin{2}{2}.modality(:).mod_name};
-        if length(varargin{2})>=3 && ~isempty(varargin{2}{3})
-            nlist=varargin{2}{1};
-            modsel=varargin{2}{2}.modality(varargin{2}{3});
-            valsel=find(strcmpi(modsel.mod_name,nlist));
-            set(handles.modname,'String',nlist);
-            set(handles.modname,'Value',valsel);
-            handles.mod.detrend=modsel.detrend;
-            handles.mod.design=modsel.design;
-            if ~isempty(modsel.design)
-                set(handles.design_menu,'Value',2)
-                handles.desnmenu=2;
+    if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
+        %Particular options if you select by 'scans'
+        if ~isempty(varargin{2}{2}) && strcmpi(varargin{2}{2}.subj_name,'Scans')
+            set(handles.design_menu,'Enable','off')
+            set(handles.edit_regt,'Enable','on')
+            set(handles.edit_regt,'Visible','on')
+            set(handles.edit_covar,'Enable','on')
+            set(handles.edit_covar,'Visible','on')
+            set(handles.text7,'Visible','on')
+            set(handles.text6,'Visible','on')
+        else
+            set(handles.design_menu,'Enable','on')
+            set(handles.edit_regt,'Enable','off')
+            set(handles.edit_regt,'Visible','off')
+            set(handles.edit_covar,'Enable','off')
+            set(handles.edit_covar,'Visible','off')
+            set(handles.text7,'Visible','off')
+            set(handles.text6,'Visible','off')
+        end
+
+        if ~isempty(varargin{2}{2}) && isfield(varargin{2}{2},'modality') && ...
+                ~isempty(varargin{2}{2}.modality)
+            handles.subjmod={varargin{2}{2}.modality(:).mod_name};
+            if length(varargin{2})>=3 && ~isempty(varargin{2}{3})
+                nlist=varargin{2}{1};
+                modsel=varargin{2}{2}.modality(varargin{2}{3});
+                valsel=find(strcmpi(modsel.mod_name,nlist));
+                set(handles.modname,'String',nlist);
+                set(handles.modname,'Value',valsel);
+                handles.mod.detrend=modsel.detrend;
+                handles.mod.design=modsel.design;
+                if ~isempty(modsel.design)
+                    set(handles.design_menu,'Value',2)
+                    handles.desnmenu=2;
+                end
+                handles.mod.scans=modsel.scans;
+                handles.mod.name=modsel.mod_name;
+                handles.mod.covar=modsel.covar;
+                handles.mod.rt_subj=modsel.rt_subj;
+            else
+                nlist=[varargin{2}{1}, {'Enter new'}];
+                set(handles.modname,'String',nlist,'Value',length(nlist));  
             end
-            handles.mod.scans=modsel.scans;
-            handles.mod.name=modsel.mod_name;
-            handles.mod.covar=modsel.covar;
-            handles.mod.rt_subj=modsel.rt_subj;
         else
             nlist=[varargin{2}{1}, {'Enter new'}];
             set(handles.modname,'String',nlist,'Value',length(nlist));  
+            handles.subjmod={};
         end
     else
-        nlist=[varargin{2}{1}, {'Enter new'}];
-        set(handles.modname,'String',nlist,'Value',length(nlist));  
+        nlist={'Enter new'};
         handles.subjmod={};
+        set(handles.modname,'String',nlist,'Value',1);
     end
-else
-    nlist={'Enter new'};
-    handles.subjmod={};
-    set(handles.modname,'String',nlist,'Value',1);
+    if length(varargin{2})>=4 && ~isempty(varargin{2}{4})
+        handles.subj1=varargin{2}{4};
+    end
+    if length(varargin{2})==5 && ~isempty(varargin{2}{5})
+        handles.PRT=varargin{2}{5};
+    end
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 end
-if length(varargin{2})>=4 && ~isempty(varargin{2}{4})
-    handles.subj1=varargin{2}{4};
-end
-if length(varargin{2})==5 && ~isempty(varargin{2}{5})
-    handles.PRT=varargin{2}{5};
-end
-warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-
 % Update handles structure
 guidata(hObject, handles);
 

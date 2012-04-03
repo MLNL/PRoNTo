@@ -63,6 +63,19 @@ function prt_data_conditions_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for prt_data_conditions
 handles.output = hObject;
 
+%if window already exists, just put it as the current figure
+Tag='DDcond';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    set(handles.figure1,'Tag',Tag)
+    %build figure when it doesn't exist yet
 set(handles.figure1,'Name','PRoNTo :: Specify conditions')
 set(handles.condmenu,'String',{'Specify','From .mat file'})
 set(handles.condmenu,'Value',2)
@@ -207,6 +220,7 @@ if ~isempty(varargin) && length(varargin{2})>1
 else
     handles.hrfdel=def.hrfd;
     handles.hrfover=def.hrfw;
+end
 end
 % Update handles structure
 guidata(hObject, handles);

@@ -57,7 +57,18 @@ function prt_ui_results_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_results (see VARARGIN)
 
-
+%if window already exists, just put it as the current figure
+Tag='Results';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    set(handles.figure1,'Tag',Tag)
 set(handles.figure1,'Name','PRoNTo :: Results')
 %set size of the window, taking screen resolution and platform into account
 %--------------------------------------------------------------------------
@@ -224,6 +235,7 @@ if ~isfield(handles,'notinit')
     
     % Clear axes
     cla(handles.axes5);     
+end
 end
 
 % Choose default command line output for prt_ui_results

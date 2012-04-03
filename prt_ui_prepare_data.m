@@ -60,7 +60,19 @@ function prt_ui_prepare_data_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for prt_ui_kernel
 handles.output = hObject;
-
+%if window already exists, just put it as the current figure
+Tag='FSwin';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    set(handles.figure1,'Tag',Tag)
+    
 set(handles.figure1,'Name','PRoNTo :: Prepare feature set')
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
@@ -122,6 +134,7 @@ end
 
 set(handles.sel_mod,'Enable','off')
 handles.kname=[];
+end
 % Update handles structure
 guidata(hObject, handles);
 

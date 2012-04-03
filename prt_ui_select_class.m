@@ -62,7 +62,19 @@ function prt_ui_select_class_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for prt_ui_kernel_construction
 handles.output = hObject;
-
+%if window already exists, just put it as the current figure
+Tag='modelSC';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    set(handles.figure1,'Tag',Tag)
+    
 set(handles.figure1,'Name','PRoNTo :: Specify classes')
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
@@ -252,6 +264,8 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         % Update handles structure
         guidata(hObject, handles);
     end
+end
+guidata(hObject,handles)
 end
 
 

@@ -58,6 +58,19 @@ function prt_text_input_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_text_input (see VARARGIN)
 
+%if window already exists, just put it as the current figure
+Tag='text_input';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    set(handles.figure1,'Tag',Tag)
+    
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
 if ispc
@@ -128,7 +141,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'Title')
         handles.output = get(handles.edit1,'String');
     end
 end
-
+end
 % Update handles structure
 guidata(hObject, handles);
 
