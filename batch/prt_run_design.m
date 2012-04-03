@@ -155,6 +155,8 @@ if isfield(job.group(1).select,'modality')
                 end
             end
         end
+        PRT.group(g).hrfoverlap = job.hrfover;
+        PRT.group(g).hrfdelay = job.hrfdel;
     end
 else
     for g = 1:ngroup,  
@@ -403,6 +405,8 @@ else
                 return
             end
         end
+        PRT.group(g).hrfoverlap = job.hrfover;
+        PRT.group(g).hrfdelay   = job.hrfdel;
     end
 end
 
