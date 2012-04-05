@@ -1,4 +1,4 @@
-function [varargout] = gp(hyp, inf, mean, cov, lik, x, y, xs, ys, xss)
+function [varargout] = prt_gp(hyp, inf, mean, cov, lik, x, y, xs, ys, xss)
 % Gaussian Process inference and prediction. The gp function provides a
 % flexible framework for Bayesian inference and prediction with Gaussian
 % processes for scalar targets, i.e. both regression and binary
@@ -44,7 +44,7 @@ function [varargout] = gp(hyp, inf, mean, cov, lik, x, y, xs, ys, xss)
 % See also covFunctions.m, infMethods.m, likFunctions.m, meanFunctions.m.
 %
 % Copyright (c) by Carl Edward Rasmussen and Hannes Nickisch, 2011-02-18
-% modified by A Marquand
+% modified by A Marquand. This one uses cell mode
 % [afm] if nargin<7 || nargin>9
 if nargin<7 || nargin>10    
   disp('Usage: [nlZ dnlZ          ] = gp(hyp, inf, mean, cov, lik, x, y);')
@@ -105,6 +105,7 @@ catch
   if nargin > 7, error('Inference method failed [%s]', msgstr); else 
     warning('Inference method failed [%s] .. attempting to continue',msgstr)
     dnlZ = struct('cov',0*hyp.cov, 'mean',0*hyp.mean, 'lik',0*hyp.lik);
+    clear(func2str(inf))
     varargout = {NaN, dnlZ}; return                    % continue with a warning
   end
 end
@@ -123,7 +124,8 @@ else
     L = chol(eye(sum(nz))+sW*sW'.*K);
   end
   Ltril = all(all(tril(L,-1)==0));            % is L an upper triangular matrix?
-  ns = size(xs,1);                                       % number of data points
+  % [afm] ns = size(xs,1);                                       % number of data points
+  if iscell(xs), ns = size(feval(cov{:}, hyp.cov, xss, 'diag'),1); else ns = size(xs,1); end % number of data points
   nperbatch = 1000;                       % number of data points per mini batch
   nact = 0;                       % number of already processed test data points
   ymu = zeros(ns,1); ys2 = ymu; fmu = ymu; fs2 = ymu; lp = ymu;   % allocate mem
@@ -133,9 +135,9 @@ else
     %kss = feval(cov{:}, hyp.cov, xs(id,:), 'diag');              % self-variance
     %Ks  = feval(cov{:}, hyp.cov, x(nz,:), xs(id,:));         % cross-covariances
     %ms = feval(mean{:}, hyp.mean, xs(id,:));
-    kss = feval(cov{:}, hyp.cov, xss(id,id), 'diag');              % self-variance
-    Ks  = feval(cov{:}, hyp.cov, x(nz,nz), xs(id,nz));         % cross-covariances
-    ms = feval(mean{:}, hyp.mean, xs(id,id));
+    kss = feval(cov{:}, hyp.cov, xss, 'diag');              % self-variance
+    Ks  = feval(cov{:}, hyp.cov, x, xs);         % cross-covariances
+    ms = feval(mean{:}, hyp.mean, xs);
     
     fmu(id) = ms + Ks'*full(alpha(nz));                       % predictive means
     if Ltril           % L is triangular => use Cholesky parameters (alpha,sW,L)

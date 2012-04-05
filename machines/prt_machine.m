@@ -143,7 +143,8 @@ if SANITYCHECK==true
         %6: Check validity of machines chosen.(e.g. use SVM to do
         %regression is not valid
         if  strcmp(d.pred_type,'regression') 
-            if ~any(strcmp(m.function,{'prt_machine_krr','prt_machine_rvr'}))
+            if ~any(strcmp(m.function,{'prt_machine_krr','prt_machine_rvr',...
+                                       'prt_machine_gpml','prt_machine_gpr'}))
                 error('prt_machine:RgressionMachineSupport',...
                     'Error: Regresion can only chose use KRR or RVR machines');
             end

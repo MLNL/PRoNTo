@@ -32,8 +32,8 @@ function output = prt_machine_gpml(d,args)
 %       -p         - use priors for the hyperparameters. If specified, this
 %                    indicates that a maximum a posteriori (MAP) approach
 %                    will be used to set covariance function
-%                    hyperparameters. The priors are obtained from the
-%                    by calling prt_gp_priors('covFuncName')
+%                    hyperparameters. The priors are obtained by calling
+%                    prt_gp_priors('covFuncName')
 %
 %       N.B.: for the arguments specifying functions, pass in a string, not
 %       a function handle. This script will generate a function handle
@@ -44,7 +44,9 @@ function output = prt_machine_gpml(d,args)
 %      .predictions - predictions of classification or regression [Nte x D]
 %     * Optional fields:
 %      .type     - which type of machine this is (here, 'classifier')
-%      .p        - predictive probabilties
+%      .func_val - predictive probabilties
+%      .mu       - test latent means
+%      .s2       - test latent variances
 %      .loghyper - log hyperparameters
 %      .nlml     - negative log marginal likelihood
 %      .alpha    - GP weighting coefficients
@@ -56,54 +58,55 @@ function output = prt_machine_gpml(d,args)
 % Written by A Marquand
 % $Id$
 
+% configure default parameters for GP optimisation
+meanfunc  = @meanConstcell;
+covfunc   = @covLINkcell; 
+maxeval   = -100;
+if strcmp(d.pred_type,'classification')
+    mode = 'classifier'; % it's good to be consistent!
+    likfunc   = @likErf;
+    inffunc   = @prt_infEP;
+else
+    mode = 'regression';
+    likfunc   = @likGauss;
+    inffunc   = @prt_infExact;
+end
+
+% Error checks
+% -------------------------------------------------------------------------
 SANITYCHECK=true; % can turn off for "speed". Expert only.
 
 if SANITYCHECK==true
     % args should be a string (empty or otherwise)
     if ~ischar(args)
-        error('prt_machine_gpml:libSVMargsNotString',['Error: gpml'...
+        error('prt_machine_gpml:argsNotString',['Error: gpml'...
             ' args should be a string. ' ...
             ' SOLUTION: Please do XXX']);
     end
     
     % check we can reach the binary library
-    if ~exist('gp','file')
+    if ~exist('prt_gp','file')
         error('prt_machine_gpml:libNotFound',['Error:'...
-            ' libSVM svmtrain function could not be found !' ...
+            ' ''prt_gp'' function could not be found !' ...
             ' SOLUTION: Please check your path.']);
     end
-    % check it is indeed a two-class classification problem
+    % check whether it is a two-class classification problem
     uTL=unique(d.tr_targets(:));
-    nC=numel(uTL);
-    %if nC>2
-    %    error('prt_machine_gpml:problemNotBinary',['Error:'...
-    %        ' This machine is only for two-class problems but the' ...
-    %        ' current problem has ' num2str(nC) ' ! ' ...
-    %        'SOLUTION: Please select another machine']);
-    %end
-    % check it is indeed labelled correctly (probably should be done 
-    %if ~all(uTL==[1 2]')
-    %    error('prt_machine_gpml:LabellingIncorect',['Error:'...
-    %        ' This machine needs labels to be in {1,2} ' ...
-    %        ' but they are ' mat2str(uTL) ' ! ' ...
-    %        'SOLUTION: Please relabel your classes by changing the '...
-    %        ' ''tr_targets'' argument to prt_machine_gpml']);
-    %end
-    % are we using a kernel
+    k=numel(uTL); % number of classes
+    if strcmp(mode,'classifier') && k > 2
+        warning('prt_machine_gpml:classificationWithMoreThanTwoClasses',...
+               ['Classification specified with > 2 classes. ',...
+                'Defaulting to multiclass Laplace approximation.']);
+        output = prt_machine_gpclap(d,args);
+        return;
+    end
+    % are we using a kernel ? 
     if ~d.use_kernel
-        error('prt_machine_gpml:LabellingIncorect',['Error:'...
+        error('prt_machine_gpml:useKernelIsFalse',['Error:'...
             ' This machine is currently only implemented for kernel data ' ...
             'SOLUTION: Please set use_kernel to true']);
     end
 end
-
-% configure default parameters for GP optimisation
-meanfunc  = @meanConstcell; %hyp.mean = 0;
-covfunc   = @covLINkcell;   %hyp.cov = 0;
-likfunc   = @likErf;
-inffunc   = @prt_infEP;
-maxeval   = -100;
-mode      = 'classifier';
 
 % parse input arguments
 % -------------------------------------------------------------------------
@@ -171,63 +174,70 @@ end
 % -------------------------------------------------------------------------
 % handle the glm as a special case (for now)
 if strcmpi(func2str(covfunc),'covLINglm') || strcmpi(func2str(covfunc),'covLINglm_2class')
-    %K   = {d.train{:}, d.tr_param};
-    %Ks  = {d.test{:},  d.te_param};
-    %Kss = {d.testcov{:},   d.te_param};
+    % configure covariances
     K   = [d.train(:)'   {d.tr_param}];
     Ks  = [d.test(:)'    {d.te_param}];
     Kss = [d.testcov(:)' {d.te_param}];
     
+    % get default hyperparamter values
     hyp.cov = log(prt_glm_design);
     
     [tmp1 tmp2 tmp3 tr_lbs] = prt_glm_design(hyp.cov, d.tr_param);
-    [tmp1 tmp2 tmp3 te_lbs] = prt_glm_design(hyp.cov, d.te_param);
-    
-    y = -1*(2 * tr_lbs - 3);
-    
-    output.tr_targets = tr_lbs;
-    output.te_targets = te_lbs;
+    [tmp1 tmp2 tmp3 te_lbs] = prt_glm_design(hyp.cov, d.te_param);   
 else
     % configure covariances
     K   = d.train;
     Ks  = d.test;
     Kss = d.testcov;
-    
-    % convert labels to +1/-1
-    y = -1*(2 * d.tr_targets - 3);
+        
+    tr_lbs = d.tr_targets;
+    te_lbs = d.te_targets;
 end
 
+% configure targets
+if strcmp(mode,'classifier')
+    % convert targets to +1/-1
+    y = -1*(2 * tr_lbs - 3);
+else
+    y = tr_lbs;
+end
+    
 % Train and test GP model
 % -------------------------------------------------------------------------
 % train
 if optimise_theta
     if map
-        %[hyp nlmls] = minimize(hyp, @prt_gp_map, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y, priors);
         [hyp,nlmls] = minimize(hyp, @prt_gp_map, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y, priors);
     else
-        [hyp nlmls] = minimize(hyp, @prt_gpc, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y);
+        [hyp nlmls] = minimize(hyp, @prt_gp, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y);
     end
 else
-    nlmls = NaN;
+    nlmls = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc, K, y);
 end
 
 % make predictions
-[tmp1 tmp2 tmp3 tmp4 lp post] = prt_gpc(hyp, inffunc, meanfunc, covfunc, likfunc,K, y, Ks, zeros(size(Ks{1},1),1), Kss);
+[ymu ys2 fmu fs2 lp post] = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc,K, y, Ks, zeros(size(Ks{1},1),1), Kss);
 
 % Outputs
 % -------------------------------------------------------------------------
-p = exp(lp);
-output.predictions = (1-real(p > 0.5)) + 1;
+if strcmp(mode,'classifier')
+    p = exp(lp);
+    output.predictions = (1-real(p > 0.5)) + 1;
+    output.func_val    = p;
+else % regression
+    output.predictions = ymu;
+    output.func_val    = output.predictions;
+end
 output.type        = mode;
-output.func_val    = p;
 output.loghyper    = hyp;
+output.mu          = ymu;
+output.s2          = ys2;
 output.nlml        = min(nlmls);
+output.tr_targets  = tr_lbs;
+output.te_targets  = te_lbs;
 output.alpha       = post.alpha;
 output.sW          = post.sW;
 output.L           = post.L;
 
-% debugging
-%output.predictions
-%output.func_val
 end
 
