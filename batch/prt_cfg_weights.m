@@ -4,7 +4,7 @@ function weights = prt_cfg_weights
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by M.J.Rosa
-% $Id: $
+% $Id$
 
 % ---------------------------------------------------------------------
 % filename Filename(s) of data

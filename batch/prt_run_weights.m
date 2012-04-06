@@ -12,7 +12,7 @@ function out = prt_run_weights(varargin)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by M.J.Rosa
-% $Id: $
+% $Id$
 
 job   = varargin{1};
 

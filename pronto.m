@@ -6,7 +6,7 @@ function pronto
 % Copyright (C) 2012 Machine Learning & Neuroimaging Laboratory
 
 % Written by Christophe Phillips
-% $Id:$
+% $Id$
 
 prt;
 return

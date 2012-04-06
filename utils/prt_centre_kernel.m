@@ -10,7 +10,7 @@ function [C,Cs,Css] = prt_centre_kernel(K, Ks, Kss)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by D. Hardoon, A. Marquand and J. Mourao-Miranda
-% Id:$
+% Id: $
 
 l = size(K,1);
 j = ones(l,1);

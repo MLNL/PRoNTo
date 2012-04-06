@@ -7,7 +7,7 @@ function C = prt_normalise_kernel(K)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A. Marquand
-% Id:$
+% Id: $
 
 d  = diag(K);
 K0 = sqrt(repmat(d,[1,size(K,1)]).* repmat(d',[size(K,1),1]));

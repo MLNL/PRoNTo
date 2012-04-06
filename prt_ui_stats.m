@@ -1,24 +1,30 @@
 function varargout = prt_ui_stats(varargin)
 % PRT_UI_STATS MATLAB code for prt_ui_stats.fig
-%      PRT_UI_STATS, by itself, creates a new PRT_UI_STATS or raises the existing
-%      singleton*.
+% 
+% PRT_UI_STATS, by itself, creates a new PRT_UI_STATS or raises the 
+% existing singleton*.
 %
-%      H = PRT_UI_STATS returns the handle to a new PRT_UI_STATS or the handle to
-%      the existing singleton*.
+% H = PRT_UI_STATS returns the handle to a new PRT_UI_STATS or the handle 
+% to the existing singleton*.
 %
-%      PRT_UI_STATS('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_UI_STATS.M with the given input arguments.
+% PRT_UI_STATS('CALLBACK',hObject,eventData,handles,...) calls the local
+% function named CALLBACK in PRT_UI_STATS.M with the given input arguments.
 %
-%      PRT_UI_STATS('Property','Value',...) creates a new PRT_UI_STATS or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_ui_stats_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_ui_stats_OpeningFcn via varargin.
+% PRT_UI_STATS('Property','Value',...) creates a new PRT_UI_STATS or raises
+% the existing singleton*.  Starting from the left, property value pairs 
+% are applied to the GUI before prt_ui_stats_OpeningFcn gets called.  An
+% unrecognized property name or invalid value makes property application
+% stop.  All inputs are passed to prt_ui_stats_OpeningFcn via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+% instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
+%__________________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
+% Written by M. J. Rosa
+% $Id$
 
 % Edit the above text to modify the response to help prt_ui_stats
 
