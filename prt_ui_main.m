@@ -57,6 +57,18 @@ function prt_ui_main_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_main (see VARARGIN)
+
+Tag='prtmain';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    
 set(handles.figure1,'Name','PRoNTo ::')
 
 %set size of the window, taking screen resolution and platform into account
@@ -116,7 +128,7 @@ for i=1:length(aa)
         'FontUnits','normalized','Units','normalized')
 end
 
-    
+end 
 % cc=get(handles.figure1,'Color');
 % [A] = imread('PRoNTo_logo.png','BackgroundColor',cc);
 % image(A)
