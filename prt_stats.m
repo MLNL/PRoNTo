@@ -57,7 +57,8 @@ end
 
 function stats = compute_stats_classifier(model, t)
 
-k = max(size(t,2),2);       % number of classes
+%k = max(size(t,2),2);       % number of classes
+k = max(unique(t));       % number of classes
 
 stats.con_mat = zeros(k,k);
 for i = 1:length(t)

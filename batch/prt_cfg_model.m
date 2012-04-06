@@ -341,19 +341,59 @@ svm.val     = {svm_args};
 gpc_args         = cfg_entry;
 gpc_args.tag     = 'gpc_args';
 gpc_args.name    = 'Arguments';
-gpc_args.help    = {['Arguments for prt_machine_gpml.']};
+gpc_args.help    = {['Arguments for prt_machine_gpml']};
 gpc_args.strtype = 's';
 gpc_args.val     = {def.model.gpcargs};
 gpc_args.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
-% gpc GPCp
+% gpc GPC
 % ---------------------------------------------------------------------
 gpc         = cfg_branch;
 gpc.tag     = 'gpc';
 gpc.name    = 'Gaussian Process Classification';
 gpc.help    = {'Gaussian Process Classification'};
 gpc.val     = {gpc_args};
+
+% ---------------------------------------------------------------------
+% gpclap_args GPC arguments
+% ---------------------------------------------------------------------
+gpclap_args         = cfg_entry;
+gpclap_args.tag     = 'gpclap_args';
+gpclap_args.name    = 'Arguments';
+gpclap_args.help    = {['Arguments for prt_machine_gpclap']};
+gpclap_args.strtype = 's';
+gpclap_args.val     = {def.model.gpclapargs};
+gpclap_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% gpclap GPC
+% ---------------------------------------------------------------------
+gpclap         = cfg_branch;
+gpclap.tag     = 'gpclap';
+gpclap.name    = 'Multiclass GPC';
+gpclap.help    = {'Multiclass GPC'};
+gpclap.val     = {gpclap_args};
+
+% ---------------------------------------------------------------------
+% gpr_args GPR arguments
+% ---------------------------------------------------------------------
+gpr_args         = cfg_entry;
+gpr_args.tag     = 'gpr_args';
+gpr_args.name    = 'Arguments';
+gpr_args.help    = {['Arguments for prt_machine_gpr']};
+gpr_args.strtype = 's';
+gpr_args.val     = {def.model.gprargs};
+gpr_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% gpr GPR
+% ---------------------------------------------------------------------
+gpr         = cfg_branch;
+gpr.tag     = 'gpr';
+gpr.name    = 'Gaussian Process Regression';
+gpr.help    = {'Gaussian Process Regression'};
+gpr.val     = {gpr_args};
 
 % ---------------------------------------------------------------------
 % krr_args Regression Targets
@@ -424,7 +464,7 @@ rt.val     = {rt_args};
 machine_cl       = cfg_choice;
 machine_cl.tag    = 'machine_cl';
 machine_cl.name   = 'Machine';
-machine_cl.values = {svm,gpc,rt,custom_machine};
+machine_cl.values = {svm,gpc,gpclap,rt,custom_machine};
 machine_cl.val    =  {svm};
 machine_cl.help   = {...
     ['Choose a prediction machine for this model']};
@@ -435,7 +475,7 @@ machine_cl.help   = {...
 machine_rg       = cfg_choice;
 machine_rg.tag    = 'machine_rg';
 machine_rg.name   = 'Machine';
-machine_rg.values = {krr,rvr,custom_machine};
+machine_rg.values = {krr,rvr,gpr,custom_machine};
 machine_rg.val    =  {krr};
 machine_rg.help   = {...
     ['Choose a prediction machine for this model']};

@@ -35,10 +35,10 @@ prt_def.global.install_dir = prt('dir');
 % prt_def.color.fr=[1,0.5,0.7];
 % prt_def.color.high=[0.2,0.2,0.8];
 
-prt_def.color.bg1=[0.83,0.83,0.83];
-prt_def.color.bg2=[0.88,0.88,0.88];
-prt_def.color.fr=[0.92,0.92,0.92];
-prt_def.color.high=[0.8 0 0];
+prt_def.color.bg1  = [0.83,0.83,0.83];
+prt_def.color.bg2  = [0.88,0.88,0.88];
+prt_def.color.fr   = [0.92,0.92,0.92];
+prt_def.color.high = [0.8 0 0];
 
 % Parameters for the data and design
 %-----------------------------------------------
@@ -52,16 +52,18 @@ prt_def.prep.default_mask  = [prt_def.global.install_dir,...
 %------------------------------------------------
 % memory limit for kernel/file arrays construction
 prt_def.fs.mem_limit = 64*1024*1024;  % bytes of memory to use
-prt_def.fs.writeraw = 0;              % flag to write the data detrended (default) or raw (to set to 1).
+prt_def.fs.writeraw  = 0;              % flag to write the data detrended (default) or raw (to set to 1).
 
 % Design specification default
 prt_def.dspec.use3 = [1 2];
 
 % Specify model: Parameters of the different machines
 %--------------------------------------------------
-prt_def.model.svmargs='-s 0 -t 4 -c 1';
-prt_def.model.gpcargs='-l erf -h';
-prt_def.model.krrargs=1;
-prt_def.model.rtargs=601;
+prt_def.model.svmargs    = '-s 0 -t 4 -c 1';
+prt_def.model.gpcargs    = '-l erf -h';
+prt_def.model.gpclapargs = '-h';
+prt_def.model.gprargs    = '-l gauss -h';
+prt_def.model.krrargs    = 1;
+prt_def.model.rtargs     = 601;
 
 return

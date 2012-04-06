@@ -152,6 +152,9 @@ if isfield(job.model_type,'classification')
     elseif isfield(job.model_type.classification.machine_cl,'gpc')
         model.machine.function='prt_machine_gpml';
         model.machine.args=job.model_type.classification.machine_cl.gpc.gpc_args;
+    elseif isfield(job.model_type.classification.machine_cl,'gpclap')
+        model.machine.function='prt_machine_gpclap';
+        model.machine.args=job.model_type.classification.machine_cl.gpclap.gpclap_args;
     elseif isfield(job.model_type.classification.machine_cl,'rt')
         model.machine.function='prt_machine_RT_bin';
         model.machine.args=job.model_type.classification.machine_cl.rt.rt_args;
@@ -180,6 +183,9 @@ elseif isfield(job.model_type,'regression')
     elseif isfield(job.model_type.regression.machine_rg,'rvr')
         model.machine.function='prt_machine_rvr';
         model.machine.args=[];
+    elseif isfield(job.model_type.regression.machine_rg,'gpr')
+        model.machine.function='prt_machine_gpr';
+        model.machine.args=job.model_type.regression.machine_rg.gpr.gpr_args;
     else
         [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
         model.machine.function = nam;
