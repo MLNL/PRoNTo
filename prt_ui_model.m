@@ -151,7 +151,8 @@ set(handles.pop_reg,'Value',1)
 handles.type='classification';
 set(handles.butt_defclass,'ForegroundColor',handles.color.high)
 set(handles.pop_machine,'String',{'Binary support vector machine',...
-    'Gaussian Process Classification','Random Forest'})
+        'Binary Gaussian Process Classification','Random Forest',...
+        'Multiclass GPC'})
 set(handles.pop_machine,'Value',1)
 handles.machine.function='prt_machine_svm_bin';
 handles.machine.args=handles.def.svmargs;
@@ -378,7 +379,8 @@ if val==1 %Classification
     handles.type='classification';
     %set the list of machines
     set(handles.pop_machine,'String',{'Binary support vector machine',...
-        'Gaussian Process Classification','Random Forest'})
+        'Binary Gaussian Process Classification','Random Forest',...
+        'Multiclass GPC'})
     set(handles.pop_machine,'Value',1)
     handles.machine.function='prt_machine_svm_bin';
     handles.machine.args=handles.def.svmargs;
@@ -388,7 +390,7 @@ elseif val==2
     set(handles.butt_defclass,'String','Select subjects/scans')
     %set the list of machines
     set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
-        'Relevance Vector Regression'})
+        'Relevance Vector Regression','Gaussian Process Regression'})
     set(handles.pop_machine,'Value',1)
     handles.machine.function='prt_machine_krr';
     handles.machine.args=handles.def.krrargs;
@@ -457,15 +459,21 @@ end
 if any(strfind(mach{val},'support'))
     handles.machine.function='prt_machine_svm_bin';
     handles.machine.args=handles.def.svmargs;
-elseif any(strfind(mach{val},'Process'))
+elseif any(strfind(mach{val},'Binary Gaussian'))
     handles.machine.function='prt_machine_gpml';
     handles.machine.args=handles.def.gpcargs;
+elseif any(strfind(mach{val},'Multiclass GPC'))
+    handles.machine.function='prt_machine_gpclap';
+    handles.machine.args=handles.def.gpclapargs;
 elseif any(strfind(mach{val},'Ridge'))
     handles.machine.function='prt_machine_krr';
     handles.machine.args=handles.def.krrargs;
 elseif any(strfind(mach{val},'Relevance'))
     handles.machine.function='prt_machine_rvr';
     handles.machine.args=[];
+elseif any(strfind(mach{val},'Process Regression'))
+    handles.machine.function='prt_machine_gpr';
+    handles.machine.args=handles.def.gprargs;
 elseif any(strfind(mach{val},'Random'))
     handles.machine.function='prt_machine_RT_bin';
     handles.machine.args=handles.def.rtargs;    
