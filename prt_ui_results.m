@@ -973,6 +973,7 @@ function permutbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 m    = get(handles.classmenu,'Value');
+mi   = handles.mi;
 reps = str2num(get(handles.repedit,'String'));
 if  ~isempty(reps)
     if length(reps) ==1
@@ -995,6 +996,7 @@ if  ~isempty(reps)
         % Update GUI
         guidata(hObject, handles);
         
+        keyboard
         % Call stats button
         statsbutton_Callback(hObject, eventdata, handles);
     else
