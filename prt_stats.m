@@ -1,4 +1,4 @@
-function stats = prt_stats(model, t,flag)
+function stats = prt_stats(model, tte, ttr)
 % Function to compute predictions machine performance statistcs statistics
 %
 % Inputs:
@@ -6,7 +6,8 @@ function stats = prt_stats(model, t,flag)
 % model.predictions: predictions derived from the predictive model
 % model.type:        what type of prediction machine (e.g. 'classifier','regression')
 %
-% t: true targets
+% tte: true targets (test set)
+% ttr: true targets (training set - needed to get the number of classes)
 % flag:  'fold' for statistics in each fold
 %         'model' for statistics in each model
 % 
@@ -38,11 +39,11 @@ end
 switch model.type
     case 'classifier'
         
-        stats = compute_stats_classifier(model, t);
+        stats = compute_stats_classifier(model, tte, ttr);
         
     case 'regression'
         
-        stats = compute_stats_regression(model, t);
+        stats = compute_stats_regression(model, tte);
         
     otherwise
         error('prt_stats:unknownTypeSpecified',...
@@ -55,14 +56,15 @@ end
 % Private functions
 % -------------------------------------------------------------------------
 
-function stats = compute_stats_classifier(model, t)
+function stats = compute_stats_classifier(model, tte, ttr)
 
-%k = max(size(t,2),2);       % number of classes
-k = max(unique(t));       % number of classes
+%k = max(size(tte,2),2);       % number of classes
+%k = max(unique(tte));         % number of classes
+k = max(unique(ttr));        % number of classes
 
 stats.con_mat = zeros(k,k);
-for i = 1:length(t)
-    true_lb = t(i);
+for i = 1:length(tte)
+    true_lb = tte(i);
     pred_lb = model.predictions(i);
     stats.con_mat(pred_lb,true_lb) = stats.con_mat(pred_lb,true_lb) + 1;
 end
@@ -89,15 +91,15 @@ stats.acc_lb=lb;
 stats.acc_ub=ub;
 end
 
-function stats = compute_stats_regression(model, t)
+function stats = compute_stats_regression(model, tte)
 
-if numel(t)<3
+if numel(tte)<3
     stats.corr=NaN;
 else
-    coef=corrcoef(model.predictions,t);
+    coef=corrcoef(model.predictions,tte);
     stats.corr=coef(1,2);
 end
-stats.mse=mean((model.predictions-t).^2);
+stats.mse=mean((model.predictions-tte).^2);
 end
 
 function [lb,ub] = computeWilsonBinomialCI(k,n)

@@ -118,14 +118,19 @@ for f = 1:n_folds
     end  
     
     % does the model alter the target vector (e.g. change its dimension) ?
-    if isfield(model,'te_targets');
+    if isfield(model,'te_targets')
         true_te_targets = model.te_targets(:);
     else
         true_te_targets = cvdata.te_targets(:);
     end
+    if isfield(model,'tr_targets')
+        tr_targets = model.tr_targets(:);
+    else
+        tr_targets = cvdata.tr_targets(:);
+    end
     
     % compute stats
-    stats = prt_stats(model, true_te_targets);
+    stats = prt_stats(model, true_te_targets, tr_targets);
     
     % update PRT - ensuring column vectors throughout
     %PRT.model(mid).output.fold(f).targets     = cvdata.te_targets(:); 
