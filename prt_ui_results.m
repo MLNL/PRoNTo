@@ -979,7 +979,7 @@ if  ~isempty(reps)
     if length(reps) ==1
         reps = round(reps);
         disp('Performing permutation test.........>>')
-        prt_permutation(handles.PRT, reps, m, handles.pathdir);
+        prt_permutation(handles.PRT, reps, mi(m), handles.pathdir);
         % Load new PRT.mat
         PRTmat = fullfile(handles.pathdir,'PRT.mat');
         load(PRTmat);
