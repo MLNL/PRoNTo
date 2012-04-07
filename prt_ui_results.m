@@ -995,8 +995,7 @@ if  ~isempty(reps)
         
         % Update GUI
         guidata(hObject, handles);
-        
-        keyboard
+       
         % Call stats button
         statsbutton_Callback(hObject, eventdata, handles);
     else
