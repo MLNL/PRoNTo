@@ -46,7 +46,6 @@ end
 % load data files and configure ID matrix
 disp('Loading data files.....>>');
 Phi_all = cell(1,n_Phi);
-%for i = 1:size(PRT.fs,1)
 for i = 1:length(PRT.model(mid).input.fs)
     fid = prt_init_fs(PRT, PRT.model(mid).input.fs(i));
     
@@ -63,12 +62,6 @@ for i = 1:length(PRT.model(mid).input.fs)
         vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);
         eval(['Phi_all{',num2str(i),'}=',vname,'(samp_idx,:);']);
     end
-    % check size of data matrix
-    % [afm]
-    %if size(t,1) ~= size(Phi_all{i},1)
-    %    error('prt_cv_model:fsSizeDoesNotMatchTargets',...
-    %        ['size of Feature set ',num2str(fid),' does not match targets']);
-    %end
 end
 
 % Begin cross-validation loop
@@ -133,7 +126,6 @@ for f = 1:n_folds
     stats = prt_stats(model, true_te_targets, tr_targets);
     
     % update PRT - ensuring column vectors throughout
-    %PRT.model(mid).output.fold(f).targets     = cvdata.te_targets(:); 
     PRT.model(mid).output.fold(f).targets     = true_te_targets; 
     PRT.model(mid).output.fold(f).predictions = model.predictions(:);
     PRT.model(mid).output.fold(f).stats       = stats;
@@ -158,7 +150,7 @@ t             = vertcat(PRT.model(mid).output.fold(:).targets);
 m.type        = PRT.model(mid).output.fold(1).type;
 m.predictions = vertcat(PRT.model(mid).output.fold(:).predictions);
 %m.func_val=[PRT.model(mid).output.fold(:).func_val];
-stats         = prt_stats(m,t(:),'model');
+stats         = prt_stats(m,t(:),t(:));
 
 PRT.model(mid).output.stats=stats;
 

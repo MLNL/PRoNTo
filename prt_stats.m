@@ -58,8 +58,6 @@ end
 
 function stats = compute_stats_classifier(model, tte, ttr)
 
-%k = max(size(tte,2),2);       % number of classes
-%k = max(unique(tte));         % number of classes
 k = max(unique(ttr));        % number of classes
 
 stats.con_mat = zeros(k,k);
@@ -70,18 +68,17 @@ for i = 1:length(tte)
 end
 
 Cc = diag(stats.con_mat);   % correct predictions for each class
-Zc = sum(stats.con_mat)';   % total predictions for each class
-nz = Zc ~= 0;               % classes with nonzero totals
-
-Zcr = sum(stats.con_mat,2); % total predictions for each class
-nzr = Zcr ~= 0;
+Zc = sum(stats.con_mat)';   % total samples for each class (cols)
+nz = Zc ~= 0;               % classes with nonzero totals (cols)
+Zcr = sum(stats.con_mat,2); % total predictions for each class (rows)
+nzr = Zcr ~= 0;             % classes with nonzero totals (rows)
 
 stats.acc       = sum(Cc) ./ sum(Zc);
 stats.c_acc     = zeros(k,1);
 stats.c_acc(nz) = Cc(nz) ./ Zc(nz);
 stats.b_acc     = mean(stats.c_acc);
 stats.c_pv      = zeros(k,1);
-stats.c_pv(nzr)  = Cc(nzr) ./ Zcr(nzr); 
+stats.c_pv(nzr) = Cc(nzr) ./ Zcr(nzr); 
 
 % confidence interval
 % TODO: check IID assumption here (chunks in run_permutation.m)
