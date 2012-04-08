@@ -27,7 +27,7 @@ function varargout = prt_ui_results(varargin)
 
 % Edit the above text to modify the response to help prt_ui_results
 
-% Last Modified by GUIDE v2.5 13-Mar-2012 11:23:35
+% Last Modified by GUIDE v2.5 08-Apr-2012 10:35:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -915,6 +915,14 @@ for f = 1:handles.nfold
     folds{f+1} = num2str(f);
 end
 
+% Set plots menu for first model
+if strcmp(handles.PRT.model(mi(m)).input.type,'classification');
+    plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
+else
+    plots = {'Predictions (scatter)', 'Predictions (bar)'};
+end
+set(handles.plotmenu,'String',plots);
+
 % Set folds and call fold function to change plot/stats
 handles.folds = folds;
 set(handles.foldmenu,'String',handles.folds);
@@ -1062,7 +1070,7 @@ else
     stats.mse  = mse;
     stats.type = 'reg';
     
-    prt_ui_stats(stats);
+    prt_ui_stats(stats,handles.prtdir);
     
 end
     
@@ -1224,5 +1232,3 @@ for i=1:length(aa)
 end
 
 cd(wd)
-
-

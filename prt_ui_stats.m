@@ -148,13 +148,10 @@ for i=1:length(aa)
     end 
 end
 
-
-
 if ~isempty(varargin)
     
     stats = varargin{1};
     
-        
         switch stats.type
             
             
@@ -182,7 +179,7 @@ if ~isempty(varargin)
                 set(handles.cacctext,'String',sprintf('[%3.1f %3.1f] %%',...
                     stats.mcacc(1)*100,stats.mcacc(2)*100),'Visible','on');
                 
-                
+               
                 if isfield(stats,'show_perm')
                     
                     if stats.show_perm
