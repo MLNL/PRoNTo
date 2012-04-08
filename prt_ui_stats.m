@@ -147,6 +147,7 @@ for i=1:length(aa)
             'FontUnits','normalized','Units','normalized')
     end 
 end
+end
 
 if ~isempty(varargin)
     
@@ -248,7 +249,7 @@ end
 rotate3d off
 % Choose default command line output for prt_ui_stats
 handles.output = hObject;
-end
+
 % Update handles structure
 guidata(hObject, handles);
 

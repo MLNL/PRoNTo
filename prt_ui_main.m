@@ -68,7 +68,7 @@ if length(F) > 1
 elseif length(F)==1
     uistack(F,'top')
 else
-    
+    set(handles.figure1,'Tag',Tag)
 set(handles.figure1,'Name','PRoNTo ::')
 
 %set size of the window, taking screen resolution and platform into account
