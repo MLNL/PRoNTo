@@ -169,25 +169,29 @@ if ~isempty(varargin)
                 
                 set(handles.accuracytext,'String','Accuracy (acc):','Visible','on');
                 set(handles.baccuracytext,'String','Balanced acc:','Visible','on');
-                set(handles.classaccuracytext,'String','Class acc:','Visible','on');
-                set(handles.ppvtext,'String',sprintf('Class pv:     [%3.1f %3.1f] %%',...
-                    stats.mcpv(1)*100,stats.mcpv(2)*100),'Visible','on');
+                set(handles.classaccuracytext,'String','Class acc (%):','Visible','on');
+                set(handles.ppvtext,'String','Class pv (%): ','Visible','on');
+                 set(handles.cpvval,'String',sprintf(' %3.1f ',...
+                    stats.mcpv*100),'Visible','on');
                 set(handles.npvtext,'String','NPV: not yet available','Visible','off');
                 
                 set(handles.acctext,'String',sprintf('%3.1f %%',stats.macc*100),'Visible','on');
                 set(handles.bacctext,'String',sprintf('%3.1f %%',stats.mbacc*100),'Visible','on');
                 
-                set(handles.cacctext,'String',sprintf('[%3.1f %3.1f] %%',...
-                    stats.mcacc(1)*100,stats.mcacc(2)*100),'Visible','on');
+                set(handles.cacctext,'String',sprintf(' %3.1f',stats.mcacc*100),'Visible','on');
                 
                
                 if isfield(stats,'show_perm')
                     
                     if stats.show_perm
+                    
+                        beep;
+                        disp('...')
+                        disp('Permutations results:')
+                        disp(sprintf('Balanced accuracy p-value: %3.4f',stats.perm.pvalue_b_acc));
+                        disp(sprintf('Class accuracy p-value:'));
+                        disp(sprintf(' %3.4f',stats.perm.pvalue_c_acc));
                         
-                        set(handles.pbacc,'String',sprintf('p-val: %3.2f',stats.perm.pvalue_b_acc), 'Visible','on');
-                        set(handles.pcacc,'String',sprintf('p-val: %3.2f, %3.2f',stats.perm.pvalue_c_acc(1),...
-                            stats.perm.pvalue_c_acc(2)),'Visible','on');
                     else
                         
                         set(handles.pbacc,'Visible','off');
@@ -225,13 +229,13 @@ if ~isempty(varargin)
                 if isfield(stats,'show_perm')
                     
                     if stats.show_perm
-                        
-                        set(handles.pbacc, 'Visible','off');
-                        set(handles.pcacc,'Visible','off');
-                        
-                        set(handles.pcorr,sprintf('p: %3.2f',stats.perm.pval_corr),'Visible','on');
-                        set(handles.pmse,sprintf('p: %3.2f',stats.perm.pval_mse),'Visible','on');
-                        
+                       
+                        beep;
+                        disp('...')
+                        disp('Permutations results:')
+                        disp(sprintf('Correlation p-value: %3.4f',stats.perm.pval_corr));
+                        disp(sprintf('Mean squared-error p-value: %3.4f',stats.perm.pval_mse));
+
                     else
                         set(handles.pcorr,'Visible','off');
                         set(handles.pmse,'Visible','off');

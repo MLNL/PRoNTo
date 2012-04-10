@@ -224,7 +224,11 @@ if ~isfield(handles,'notinit')
     
     % Set plots menu for first model
     if strcmp(PRT.model(mi(m)).input.type,'classification');
-        plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
+        if length(PRT.model(mi(m)).output.stats.c_acc) <= 2 ;
+            plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
+        else
+            plots = {'Confusion Matrix'};
+        end
     else
         plots = {'Predictions (scatter)', 'Predictions (bar)'};
     end
@@ -603,12 +607,14 @@ function plotmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns plotmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from plotmenu
 
-plotchosen    = num2str(get(handles.plotmenu,'Value'));
+plotm         = get(handles.plotmenu,'Value');
+plotchosen    = num2str(plotm);
 fold          = get(handles.foldmenu,'Value');
 model         = get(handles.classmenu,'Value');
 mi            = handles.mi;
 model         = mi(model);
 PRT           = handles.PRT;
+mclass        = length(handles.PRT.model(model).output.stats.c_acc);
 handles.plot  = 1;
 nms           = 7;
 isyc1         = 0;
@@ -619,11 +625,20 @@ rotate3d off
 
 if strcmp(PRT.model(model).input.type,'classification')
     
-    % All folds
-    % ---------------------------------------------------------------------
-    classNames{1} = handles.PRT.model(model).input.class(1).class_name;
-    classNames{2} = handles.PRT.model(model).input.class(2).class_name;
-    myColours     = {'k','r'};
+    if mclass == 2
+        
+        % All folds
+        % -----------------------------------------------------------------
+        classNames{1} = handles.PRT.model(model).input.class(1).class_name;
+        classNames{2} = handles.PRT.model(model).input.class(2).class_name;
+        myColours     = {'k','r'};
+        
+    else
+     
+        multiplot  = 4;
+        plotchosen = num2str(multiplot(plotm));
+        
+    end
     
     if fold == 1
         fVals   = [];
@@ -917,7 +932,11 @@ end
 
 % Set plots menu for first model
 if strcmp(handles.PRT.model(mi(m)).input.type,'classification');
-    plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
+    if length(handles.PRT.model(mi(m)).output.stats.c_acc) <= 2 ;
+        plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
+    else
+        plots = {'Confusion Matrix'};
+    end
 else
     plots = {'Predictions (scatter)', 'Predictions (bar)'};
 end
