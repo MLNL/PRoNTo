@@ -124,10 +124,11 @@ if isempty(model)
         ' This could be a problem with the supplied function arguments'...
         ' ' args_str '']);
 end
-b     = -model.rho; 
+sgn = -1*(2 * model.Label(1) - 3);
+b     = -model.rho *sgn;
 
 if hasPrecomputedKernel
-    alpha = get_alpha(model,nlbs);
+    alpha = get_alpha(model,nlbs,sgn);
 else
     alpha = model.sv_coef;    % recover alphas directly
     SVs   = model.SVs;          % recover also the SV's themselves
@@ -168,10 +169,12 @@ predictions = sign(func_val);
 
 % Outputs
 %--------------------------------------------------------------------------
-% change predictions from 1/-1 to 1/2
-c1PredIdx               = predictions==1; % locate class 1 preds
-predictions(c1PredIdx)  = model.Label(1);
-predictions(~c1PredIdx) = model.Label(2);
+% change predictions from 1/-1 to 1/2 
+c1PredIdx               = predictions==1; 
+%predictions(c1PredIdx)  = model.Label(1); 
+%predictions(~c1PredIdx) = model.Label(2);
+predictions(c1PredIdx)  = 1; %positive values = 1 
+predictions(~c1PredIdx) = 2; %negative values = 2 
 
 output.predictions = predictions;
 output.func_val    = func_val;
@@ -187,7 +190,7 @@ end
 
 % Get SV coefficients
 %--------------------------------------------------------------------------
-function alpha = get_alpha(model,n)
+function alpha = get_alpha(model,n,sgn)
 % needs a function because examples can be re-ordered by libsvm
 alpha = zeros(n,1);
 
@@ -197,7 +200,7 @@ for i = 1:model.totalSV
 end
 
 % alpha = model.Label(1)*alpha;
-sgn = -1*(2 * model.Label(1) - 3);
+% sgn = -1*(2 * model.Label(1) - 3);
 alpha = sgn*alpha;
 
 end
