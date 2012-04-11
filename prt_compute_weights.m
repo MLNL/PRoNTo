@@ -36,25 +36,16 @@ if model_idx == 0, error('prt_compute_weights:ModelNotFound',...
 % Find machine
 % -------------------------------------------------------------------------
 mfunc       = PRT.model(model_idx).input.machine.function;
+mname       = PRT.model(model_idx).model_name;
 m.args      = [];
 m.function  = 'prt_weights_bin_linkernel';
 
 % unfortunately a bug somewhere causes shifts in weight image if
 % .nii is used...
+img_mach    = ['weights_',mname,'.img'];
+
 switch mfunc
-    case 'prt_machine_svm_bin'
-        img_mach    = 'svm_weights.img';
-    case 'prt_machine_rvr'
-        img_mach    = 'rvr_weights.img';
-    case 'prt_machine_krr'
-        img_mach    = 'krr_weights.img';
-        % weights computation not yet supported for RT
     case 'prt_machine_RT_bin'
-        error('prt_compute_weights:MachineNotSupported',...
-            'Error: weights computation not supported for this machine!');
-    case 'prt_machine_gpml'
-        img_mach    = 'gpml_weights.img';
-    otherwise
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
 end
