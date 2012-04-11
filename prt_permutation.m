@@ -195,7 +195,8 @@ else
         m.predictions=cat(1,model.output.fold(:).predictions);
         m.predictions=m.predictions(:); % make extra sure (this can't really happen)
         t=t(:);
-        perm_stats=prt_stats(m,t,'model');
+        perm_stats=prt_stats(m,t,m.predictions(:));
+        %perm_stats=prt_stats(m,t,'model');
         %permutation.perm_stats(p)=stats;
         %end
         
