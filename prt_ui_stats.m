@@ -191,6 +191,10 @@ if ~isempty(varargin)
                         disp(sprintf('Balanced accuracy p-value: %3.4f',stats.perm.pvalue_b_acc));
                         disp(sprintf('Class accuracy p-value:'));
                         disp(sprintf(' %3.4f',stats.perm.pvalue_c_acc));
+                        set(handles.pcorr, 'Visible','off');
+                        set(handles.pmse,'Visible','off');
+                        set(handles.pbacc,'String',sprintf('p: %3.4f',stats.perm.pvalue_b_acc),'Visible','on');
+%                         set(handles.pcacc,'String',sprintf('p: %3.2f',stats.perm.pvalue_c_acc),'Visible','on');
                         
                     else
                         
@@ -235,6 +239,10 @@ if ~isempty(varargin)
                         disp('Permutations results:')
                         disp(sprintf('Correlation p-value: %3.4f',stats.perm.pval_corr));
                         disp(sprintf('Mean squared-error p-value: %3.4f',stats.perm.pval_mse));
+                        set(handles.pbacc, 'Visible','off');
+                        set(handles.pcacc,'Visible','off');
+                        set(handles.pcorr,'String',sprintf('p: %3.2f',stats.perm.pval_corr),'Visible','on');
+                        set(handles.pmse,'String',sprintf('p: %3.2f',stats.perm.pval_mse),'Visible','on');
 
                     else
                         set(handles.pcorr,'Visible','off');

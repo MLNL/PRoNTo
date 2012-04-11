@@ -680,7 +680,6 @@ if strcmp(PRT.model(model).input.type,'classification')
             cla(handles.axes5);
             rotate3d off
             colorbar('peer',handles.axes5,'off')
-            axis xy
             set(handles.axes5,'Color',[1,1,1])
             % predictions
             if fVvals_exist
@@ -749,8 +748,8 @@ if strcmp(PRT.model(model).input.type,'classification')
                 set(handles.axes5,'YTick',foldlabels)
                 hold(handles.axes5,'off');
                 set(handles.axes5,'Color',[1,1,1],'Visible','on')
-                axis normal
-                axis xy
+%                 axis normal
+%                 axis xy
                 title(handles.axes5,'')
             else
                 set(handles.axes5,'Color',[1,1,1])
@@ -775,8 +774,8 @@ if strcmp(PRT.model(model).input.type,'classification')
                 
                 n       = size(tp, 1);
                 A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
-                
-                axis xy
+%                 
+%                 axis xy
                 plot(handles.axes5,fp,tp,'--ks','LineWidth',1, 'MarkerEdgeColor','k',...
                     'MarkerFaceColor','k',...
                     'MarkerSize',2);
@@ -791,7 +790,7 @@ if strcmp(PRT.model(model).input.type,'classification')
         case '3'
                 cla(handles.axes5);
                 rotate3d off
-                axis xy
+%                 axis xy
                 set(handles.axes5,'Color',[1,1,1])
                 % func_val distributions
                 if fVvals_exist
@@ -1061,6 +1060,12 @@ if strcmp(PRT.model(mi(m)).input.type,'classification')
         mbacc = PRT.model(mi(m)).output.stats.b_acc;
         mcacc = PRT.model(mi(m)).output.stats.c_acc;
         mcpv  = PRT.model(mi(m)).output.stats.c_pv;
+        if isfield(PRT.model(mi(m)).output.stats,'permutation') && ...
+                ~isempty(PRT.model(mi(m)).output.stats.permutation)
+            stats.show_perm=1;
+            stats.perm.pvalue_b_acc=PRT.model(mi(m)).output.stats.permutation.pvalue_b_acc;
+            stats.perm.pvalue_c_acc=PRT.model(mi(m)).output.stats.permutation.pvalue_c_acc;
+        end
     else
         macc  = PRT.model(mi(m)).output.fold(fold-1).stats.acc;
         mbacc = PRT.model(mi(m)).output.fold(fold-1).stats.b_acc;
@@ -1080,6 +1085,12 @@ else
     if fold == 1
         corr  = PRT.model(mi(m)).output.stats.corr;  % overall correlation
         mse   = PRT.model(mi(m)).output.stats.mse;  % overall mse
+        if isfield(PRT.model(mi(m)).output.stats,'permutation') && ...
+                ~isempty(PRT.model(mi(m)).output.stats.permutation)
+            stats.show_perm=1;
+            stats.perm.pval_corr=PRT.model(mi(m)).output.stats.permutation.pval_corr;
+            stats.perm.pval_mse=PRT.model(mi(m)).output.stats.permutation.pval_mse;
+        end
     else
         corr  = PRT.model(mi(m)).output.fold(fold-1).stats.corr;  % overall correlation
         mse   = PRT.model(mi(m)).output.fold(fold-1).stats.mse;  % overall mse
