@@ -614,7 +614,6 @@ model         = get(handles.classmenu,'Value');
 mi            = handles.mi;
 model         = mi(model);
 PRT           = handles.PRT;
-mclass        = length(handles.PRT.model(model).output.stats.c_acc);
 handles.plot  = 1;
 nms           = 7;
 isyc1         = 0;
@@ -624,7 +623,7 @@ c2            = 0;
 rotate3d off
 
 if strcmp(PRT.model(model).input.type,'classification')
-    
+    mclass        = length(handles.PRT.model(model).output.stats.c_acc);
     if mclass == 2
         
         % All folds
