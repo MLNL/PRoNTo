@@ -25,7 +25,7 @@ function [] = prt_permutation(PRT, n_perm, modelid, path)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Mourao-Miranda
-% $ID: $
+% $Id$
 
 prt_dir = [path];
 
