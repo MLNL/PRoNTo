@@ -118,7 +118,7 @@ This function is called by:
 0038 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0039 
 0040 <span class="comment">% Written by A Marquand</span>
-0041 <span class="comment">% $Id: prt_run_model.m 392 2011-11-16 16:02:15Z amarquan $</span>
+0041 <span class="comment">% $Id: prt_run_model.m 501 2012-04-06 14:16:38Z amarquan $</span>
 0042 
 0043 <span class="comment">% Job variable</span>
 0044 <span class="comment">% -------------------------------------------------------------------------</span>
@@ -156,7 +156,7 @@ This function is called by:
 0076 fid=prt_init_fs(PRT,model.fs(1));
 0077 mods={PRT.fs(fid).modality(:).mod_name};
 0078 
-0079 <span class="comment">%get the conditions which are common to all subjects from all groups, only</span>
+0079 <span class="comment">%get the conditions which are common to all subjects from all groups</span>
 0080 nm=length(mods);
 0081 <span class="keyword">for</span> i=1:nm
 0082     flag=1;
@@ -165,7 +165,7 @@ This function is called by:
 0085             m2= strcmpi(PRT.fs(fid).modality(nm).mod_name,mods);
 0086             des=PRT.group(j).subject(k).modality(m2).design;
 0087             <span class="keyword">if</span> isstruct(des) &amp;&amp; flag
-0088                 <span class="keyword">if</span> k==1 &amp;&amp; nm==1
+0088                 <span class="keyword">if</span> k==1 &amp;&amp; j==1
 0089                     lcond={des.conds(:).cond_name};
 0090                 <span class="keyword">else</span>
 0091                     tocmp={des.conds(:).cond_name};
@@ -232,87 +232,95 @@ This function is called by:
 0152     <span class="keyword">elseif</span> isfield(job.model_type.classification.machine_cl,<span class="string">'gpc'</span>)
 0153         model.machine.function=<span class="string">'prt_machine_gpml'</span>;
 0154         model.machine.args=job.model_type.classification.machine_cl.gpc.gpc_args;
-0155     <span class="keyword">elseif</span> isfield(job.model_type.classification.machine_cl,<span class="string">'rt'</span>)
-0156         model.machine.function=<span class="string">'prt_machine_RT_bin'</span>;
-0157         model.machine.args=job.model_type.classification.machine_cl.rt.rt_args;
-0158     <span class="keyword">else</span>
-0159         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
-0160         model.machine.function = nam;
-0161         model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
-0162     <span class="keyword">end</span>
-0163 
-0164 <span class="keyword">elseif</span> isfield(job.model_type,<span class="string">'regression'</span>)
-0165     model.type = <span class="string">'regression'</span>;
-0166     scount = 1;
-0167     <span class="keyword">for</span> g = 1:length(job.model_type.regression.reg_group)
-0168         model.group(g).gr_name = job.model_type.regression.reg_group(g).gr_name;
-0169         sids   =  job.model_type.regression.reg_group(g).subj_nums;
-0170         <span class="keyword">for</span> s = 1:length(sids)
-0171             model.group(g).subj(scount).num = sids(s);
-0172             model.group(g).subj(scount).modality.mod_name =  mods;
-0173             scount=scount+1;
-0174         <span class="keyword">end</span>
-0175     <span class="keyword">end</span>
-0176     
-0177     <span class="keyword">if</span> isfield(job.model_type.regression.machine_rg,<span class="string">'krr'</span>)
-0178         model.machine.function=<span class="string">'prt_machine_krr'</span>;
-0179         model.machine.args=job.model_type.regression.machine_rg.krr.krr_args;
-0180     <span class="keyword">elseif</span> isfield(job.model_type.regression.machine_rg,<span class="string">'rvr'</span>)
-0181         model.machine.function=<span class="string">'prt_machine_rvr'</span>;
-0182         model.machine.args=[];
-0183     <span class="keyword">else</span>
-0184         [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
-0185         model.machine.function = nam;
-0186         model.machine.args = job.model_type.regression.machine_rg.custom_machine.machine_args;
-0187     <span class="keyword">end</span>   
-0188 <span class="keyword">else</span>
-0189     error(<span class="string">'this is not implemented yet'</span>);   
-0190 <span class="keyword">end</span>
-0191 
-0192 <span class="comment">% assemble structure for performing cross-validation</span>
-0193 <span class="keyword">if</span> isfield(job.cv_type,<span class="string">'cv_loso'</span>)
-0194     model.cv.type = <span class="string">'loso'</span>;
-0195 <span class="keyword">elseif</span> isfield(job.cv_type,<span class="string">'cv_losgo'</span>)
-0196     model.cv.type = <span class="string">'losgo'</span>;
-0197 <span class="keyword">elseif</span> isfield(job.cv_type,<span class="string">'cv_lobo'</span>)
-0198     model.cv.type = <span class="string">'lobo'</span>;
-0199 <span class="comment">%     if scount&gt;1</span>
-0200 <span class="comment">%         beep</span>
-0201 <span class="comment">%         disp('Leave One Block Out Cross Validation only allowed for within subject modeling')</span>
-0202 <span class="comment">%         disp('Please correct')</span>
-0203 <span class="comment">%     end</span>
-0204 <span class="keyword">elseif</span> isfield(job.cv_type,<span class="string">'cv_loro'</span>) <span class="comment">%currently implemented for MCKR only</span>
-0205     model.cv.type = <span class="string">'loro'</span>;
-0206 <span class="keyword">else</span>
-0207     model.cv.type     = <span class="string">'custom'</span>;
-0208     model.cv.mat_file = job.cv_type;
-0209 <span class="keyword">end</span>
-0210 
-0211 <span class="comment">% specify operations to apply to the data prior to prediction</span>
-0212 <span class="comment">% if isfield(job.data_ops,'data_ops')</span>
-0213 <span class="comment">%     model.operations = [job.data_ops.sel_ops.data_op{:}];</span>
-0214 <span class="comment">% elseif isfield(job.data_ops,'no_op')</span>
-0215 <span class="comment">%     model.operations = [];</span>
-0216 <span class="comment">% end</span>
-0217 <span class="keyword">if</span> isfield(job.sel_ops.use_other_ops,<span class="string">'data_op'</span>)
-0218     ops = [job.sel_ops.use_other_ops.data_op{:}];
-0219 <span class="keyword">elseif</span> isfield(job.sel_ops.use_other_ops,<span class="string">'no_op'</span>)
-0220     ops = [];
-0221 <span class="keyword">end</span>
-0222 <span class="keyword">if</span> job.sel_ops.data_op_mc == 0
-0223     model.operations = [3 ops];
-0224 <span class="keyword">else</span>
-0225     model.operations = ops;
-0226 <span class="keyword">end</span>
-0227 
-0228 prt_model(PRT,model);
-0229 
-0230 <span class="comment">% Function output</span>
-0231 <span class="comment">% -------------------------------------------------------------------------</span>
-0232 out.files{1} = fname;
-0233 out.names{1} = model.model_name;
-0234 disp(<span class="string">'Model configuration complete.'</span>)
-0235 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0155     <span class="keyword">elseif</span> isfield(job.model_type.classification.machine_cl,<span class="string">'gpclap'</span>)
+0156         model.machine.function=<span class="string">'prt_machine_gpclap'</span>;
+0157         model.machine.args=job.model_type.classification.machine_cl.gpclap.gpclap_args;
+0158     <span class="keyword">elseif</span> isfield(job.model_type.classification.machine_cl,<span class="string">'rt'</span>)
+0159         model.machine.function=<span class="string">'prt_machine_RT_bin'</span>;
+0160         model.machine.args=job.model_type.classification.machine_cl.rt.rt_args;
+0161     <span class="keyword">else</span>
+0162         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
+0163         model.machine.function = nam;
+0164         model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
+0165     <span class="keyword">end</span>
+0166 
+0167 <span class="keyword">elseif</span> isfield(job.model_type,<span class="string">'regression'</span>)
+0168     model.type = <span class="string">'regression'</span>;
+0169     scount = 1;
+0170     <span class="keyword">for</span> g = 1:length(job.model_type.regression.reg_group)
+0171         model.group(g).gr_name = job.model_type.regression.reg_group(g).gr_name;
+0172         sids   =  job.model_type.regression.reg_group(g).subj_nums;
+0173         <span class="keyword">for</span> s = 1:length(sids)
+0174             model.group(g).subj(scount).num = sids(s);
+0175             model.group(g).subj(scount).modality.mod_name =  mods;
+0176             scount=scount+1;
+0177         <span class="keyword">end</span>
+0178     <span class="keyword">end</span>
+0179     
+0180     <span class="keyword">if</span> isfield(job.model_type.regression.machine_rg,<span class="string">'krr'</span>)
+0181         model.machine.function=<span class="string">'prt_machine_krr'</span>;
+0182         model.machine.args=job.model_type.regression.machine_rg.krr.krr_args;
+0183     <span class="keyword">elseif</span> isfield(job.model_type.regression.machine_rg,<span class="string">'rvr'</span>)
+0184         model.machine.function=<span class="string">'prt_machine_rvr'</span>;
+0185         model.machine.args=[];
+0186     <span class="keyword">elseif</span> isfield(job.model_type.regression.machine_rg,<span class="string">'gpr'</span>)
+0187         model.machine.function=<span class="string">'prt_machine_gpr'</span>;
+0188         model.machine.args=job.model_type.regression.machine_rg.gpr.gpr_args;
+0189     <span class="keyword">else</span>
+0190         [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
+0191         model.machine.function = nam;
+0192         model.machine.args = job.model_type.regression.machine_rg.custom_machine.machine_args;
+0193     <span class="keyword">end</span>   
+0194 <span class="keyword">else</span>
+0195     error(<span class="string">'this is not implemented yet'</span>);   
+0196 <span class="keyword">end</span>
+0197 
+0198 <span class="comment">% assemble structure for performing cross-validation</span>
+0199 <span class="keyword">if</span> isfield(job.cv_type,<span class="string">'cv_loso'</span>)
+0200     model.cv.type = <span class="string">'loso'</span>;
+0201 <span class="keyword">elseif</span> isfield(job.cv_type,<span class="string">'cv_losgo'</span>)
+0202     model.cv.type = <span class="string">'losgo'</span>;
+0203 <span class="keyword">elseif</span> isfield(job.cv_type,<span class="string">'cv_lobo'</span>)
+0204     model.cv.type = <span class="string">'lobo'</span>;
+0205 <span class="comment">%     if scount&gt;1</span>
+0206 <span class="comment">%         beep</span>
+0207 <span class="comment">%         disp('Leave One Block Out Cross Validation only allowed for within subject modeling')</span>
+0208 <span class="comment">%         disp('Please correct')</span>
+0209 <span class="comment">%     end</span>
+0210 <span class="keyword">elseif</span> isfield(job.cv_type,<span class="string">'cv_loro'</span>) <span class="comment">%currently implemented for MCKR only</span>
+0211     model.cv.type = <span class="string">'loro'</span>;
+0212 <span class="keyword">else</span>
+0213     model.cv.type     = <span class="string">'custom'</span>;
+0214     model.cv.mat_file = job.cv_type;
+0215 <span class="keyword">end</span>
+0216 
+0217 model.include_allscans = job.include_allscans;
+0218 
+0219 <span class="comment">% specify operations to apply to the data prior to prediction</span>
+0220 <span class="comment">% if isfield(job.data_ops,'data_ops')</span>
+0221 <span class="comment">%     model.operations = [job.data_ops.sel_ops.data_op{:}];</span>
+0222 <span class="comment">% elseif isfield(job.data_ops,'no_op')</span>
+0223 <span class="comment">%     model.operations = [];</span>
+0224 <span class="comment">% end</span>
+0225 <span class="keyword">if</span> isfield(job.sel_ops.use_other_ops,<span class="string">'data_op'</span>)
+0226     ops = [job.sel_ops.use_other_ops.data_op{:}];
+0227 <span class="keyword">elseif</span> isfield(job.sel_ops.use_other_ops,<span class="string">'no_op'</span>)
+0228     ops = [];
+0229 <span class="keyword">end</span>
+0230 <span class="keyword">if</span> job.sel_ops.data_op_mc == 0
+0231     model.operations = [3 ops];
+0232 <span class="keyword">else</span>
+0233     model.operations = ops;
+0234 <span class="keyword">end</span>
+0235 
+0236 prt_model(PRT,model);
+0237 
+0238 <span class="comment">% Function output</span>
+0239 <span class="comment">% -------------------------------------------------------------------------</span>
+0240 out.files{1} = fname;
+0241 out.names{1} = model.model_name;
+0242 disp(<span class="string">'Model configuration complete.'</span>)
+0243 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -55,7 +55,7 @@ __________________________________________________________________________
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-</ul>
+<li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Get/set the defaults values associated with an identifier</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 <li><a href="prt_data_conditions.html" class="code" title="function varargout = prt_data_conditions(varargin)">prt_data_conditions</a>	PRT_DATA_CONDITIONS M-file for prt_data_conditions.fig</li><li><a href="prt_data_modality.html" class="code" title="function varargout = prt_data_modality(varargin)">prt_data_modality</a>	PRT_DATA_MODALITY M-file for prt_data_modality.fig</li><li><a href="prt_ui_design.html" class="code" title="function varargout = prt_ui_design(varargin)">prt_ui_design</a>	PRT_UI_DESIGN M-file for prt_ui_design.fig</li></ul>
@@ -92,7 +92,7 @@ This function is called by:
 0024 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0025 
 0026 <span class="comment">% Written by J.Schrouff</span>
-0027 <span class="comment">% $Id: prt_text_input.m 211 2011-10-26 15:57:27Z schrouff $</span>
+0027 <span class="comment">% $Id: prt_text_input.m 494 2012-04-03 11:14:36Z schrouff $</span>
 0028 
 0029 <span class="comment">% Edit the above text to modify the response to help prt_text_input</span>
 0030 
@@ -126,94 +126,167 @@ This function is called by:
 0058 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
 0059 <span class="comment">% varargin   command line arguments to prt_text_input (see VARARGIN)</span>
 0060 
-0061 <span class="comment">% Choose default command line output for prt_text_input</span>
-0062 handles.output = hObject;
-0063 
-0064 <span class="comment">% Update handles structure</span>
-0065 guidata(hObject, handles);
-0066 
-0067 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'Title'</span>)
-0068     set(gcf,<span class="string">'Name'</span>,varargin{2});
-0069     <span class="keyword">if</span> length(varargin)&gt;3 &amp;&amp; strcmpi(varargin{3},<span class="string">'UserData'</span>)
-0070         set(handles.edit1,<span class="string">'String'</span>,varargin{4})
-0071         handles.output = get(handles.edit1,<span class="string">'String'</span>);
-0072     <span class="keyword">end</span>
-0073 <span class="keyword">end</span>
-0074 
-0075 <span class="comment">% Update handles structure</span>
-0076 guidata(hObject, handles);
-0077 
-0078 <span class="comment">%UIWAIT makes prt_text_input wait for user response (see UIRESUME)</span>
-0079 uiwait(handles.figure1);
-0080 
-0081 
-0082 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0083 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_text_input_OutputFcn(hObject, eventdata, handles) </a>
-0084 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0085 <span class="comment">% hObject    handle to figure</span>
-0086 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0087 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0088 
-0089 <span class="comment">% Get default command line output from handles structure</span>
-0090 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
-0091     varargout{1} = handles.output;
-0092 <span class="keyword">else</span>
-0093     varargout{1}=[];
-0094 <span class="keyword">end</span>
-0095 
-0096 <span class="comment">% The figure can be deleted now</span>
-0097 <span class="keyword">if</span> isfield(handles,<span class="string">'figure1'</span>)
-0098     delete(handles.figure1);
-0099 <span class="keyword">end</span>
-0100 
-0101 
-0102 <a name="_sub3" href="#_subfunctions" class="code">function edit1_Callback(hObject, eventdata, handles)</a>
-0103 <span class="comment">% hObject    handle to edit1 (see GCBO)</span>
-0104 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0105 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0106 
-0107 <span class="comment">% Hints: get(hObject,'String') returns contents of edit1 as text</span>
-0108 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit1 as a double</span>
-0109 handles.output = get(hObject,<span class="string">'String'</span>);
-0110 
-0111 <span class="comment">% Update handles structure</span>
-0112 guidata(hObject, handles);
-0113 
-0114 
-0115 
-0116 
-0117 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0118 <a name="_sub4" href="#_subfunctions" class="code">function edit1_CreateFcn(hObject, eventdata, handles)</a>
-0119 <span class="comment">% hObject    handle to edit1 (see GCBO)</span>
-0120 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0121 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0122 
-0123 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0124 <span class="comment">%       See ISPC and COMPUTER.</span>
-0125 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0126     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0127 <span class="keyword">end</span>
-0128 
+0061 <span class="comment">%if window already exists, just put it as the current figure</span>
+0062 Tag=<span class="string">'text_input'</span>;
+0063 F = findall(allchild(0),<span class="string">'Flat'</span>,<span class="string">'Tag'</span>,Tag);
+0064 <span class="keyword">if</span> length(F) &gt; 1
+0065     <span class="comment">% Multiple Graphics windows - close all but most recent</span>
+0066     close(F(2:end))
+0067     F = F(1);
+0068     uistack(F,<span class="string">'top'</span>)
+0069 <span class="keyword">elseif</span> length(F)==1
+0070     uistack(F,<span class="string">'top'</span>)
+0071 <span class="keyword">else</span>
+0072     set(handles.figure1,<span class="string">'Tag'</span>,Tag)
+0073     
+0074 <span class="comment">%set size of the window, taking screen resolution and platform into account</span>
+0075 S0= spm(<span class="string">'WinSize'</span>,<span class="string">'0'</span>,1);   <span class="comment">%-Screen size (of the current monitor)</span>
+0076 <span class="keyword">if</span> ispc
+0077     PF=<span class="string">'MS Sans Serif'</span>;
+0078 <span class="keyword">else</span>
+0079     PF= spm_platform(<span class="string">'fonts'</span>);     <span class="comment">%-Font names (for this platform)</span>
+0080     PF=PF.helvetica;
+0081 <span class="keyword">end</span>
+0082 tmp  = [S0(3)/1280 (S0(4))/800];
+0083 ratio=min(tmp)*[1 1 1 1];
+0084 FS = 1 + 0.85*(min(ratio)-1);  <span class="comment">%factor to scale the fonts</span>
+0085 x=get(handles.figure1,<span class="string">'Position'</span>);
+0086 set(handles.figure1,<span class="string">'DefaultTextFontSize'</span>,FS*12,<span class="keyword">...</span>
+0087     <span class="string">'DefaultUicontrolFontSize'</span>,FS*12,<span class="keyword">...</span>
+0088     <span class="string">'DefaultTextFontName'</span>,PF,<span class="keyword">...</span>
+0089     <span class="string">'DefaultAxesFontName'</span>,PF,<span class="keyword">...</span>
+0090     <span class="string">'DefaultUicontrolFontName'</span>,PF)
+0091 set(handles.figure1,<span class="string">'Position'</span>,ratio.*x)
+0092 set(handles.figure1,<span class="string">'Resize'</span>,<span class="string">'on'</span>)
+0093 
+0094 <span class="comment">% Choose the color of the different backgrounds and figure parameters</span>
+0095 color=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'color'</span>);
+0096 set(handles.figure1,<span class="string">'Color'</span>,color.bg1)
+0097 aa=get(handles.figure1,<span class="string">'children'</span>);
+0098 <span class="keyword">for</span> i=1:length(aa)
+0099     <span class="keyword">if</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uipanel'</span>)
+0100         set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg2)
+0101         bb=get(aa(i),<span class="string">'children'</span>);
+0102         <span class="keyword">if</span> ~isempty(bb)
+0103             <span class="keyword">for</span> j=1:length(bb)
+0104                 <span class="keyword">if</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0105                         <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>}))) 
+0106                     set(bb(j),<span class="string">'BackgroundColor'</span>,color.bg2)
+0107                 <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>)))
+0108                     set(bb(j),<span class="string">'BackgroundColor'</span>,color.fr)
+0109                 <span class="keyword">end</span>
+0110                 set(bb(j),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0111                 xf=get(bb(j),<span class="string">'FontSize'</span>);
+0112                 set(bb(j),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0113                     <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0114             <span class="keyword">end</span>
+0115         <span class="keyword">end</span>
+0116     <span class="keyword">elseif</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uicontrol'</span>)
+0117         <span class="keyword">if</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0118                 <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>,<span class="string">'listbox'</span>})))
+0119             set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg1)
+0120         <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>)))
+0121             set(aa(i),<span class="string">'BackgroundColor'</span>,color.fr)
+0122         <span class="keyword">end</span>
+0123     <span class="keyword">end</span>
+0124     set(aa(i),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0125     xf=get(aa(i),<span class="string">'FontSize'</span>);
+0126     set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0127         <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0128 <span class="keyword">end</span>
 0129 
-0130 <span class="comment">% --- Executes on button press in okbutton.</span>
-0131 <a name="_sub5" href="#_subfunctions" class="code">function okbutton_Callback(hObject, eventdata, handles)</a>
-0132 <span class="comment">% hObject    handle to okbutton (see GCBO)</span>
-0133 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0134 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0135 
-0136 <span class="comment">% Use UIRESUME instead of delete because the OutputFcn needs</span>
-0137 <span class="comment">% to get the updated handles structure.</span>
-0138 uiresume(handles.figure1);
-0139 
-0140 <span class="comment">% --- Executes on button press in cancelbutton.</span>
-0141 <a name="_sub6" href="#_subfunctions" class="code">function cancelbutton_Callback(hObject, eventdata, handles)</a>
-0142 <span class="comment">% hObject    handle to cancelbutton (see GCBO)</span>
-0143 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0144 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0145 <span class="comment">% Use UIRESUME instead of delete because the OutputFcn needs</span>
-0146 <span class="comment">% to get the updated handles structure.</span>
-0147 handles.output=[];
-0148 uiresume(handles.figure1);</pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0130 
+0131 <span class="comment">% Choose default command line output for prt_text_input</span>
+0132 handles.output = hObject;
+0133 
+0134 <span class="comment">% Update handles structure</span>
+0135 guidata(hObject, handles);
+0136 
+0137 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'Title'</span>)
+0138     set(gcf,<span class="string">'Name'</span>,varargin{2});
+0139     <span class="keyword">if</span> length(varargin)&gt;3 &amp;&amp; strcmpi(varargin{3},<span class="string">'UserData'</span>)
+0140         set(handles.edit1,<span class="string">'String'</span>,varargin{4})
+0141         handles.output = get(handles.edit1,<span class="string">'String'</span>);
+0142     <span class="keyword">end</span>
+0143 <span class="keyword">end</span>
+0144 <span class="keyword">end</span>
+0145 <span class="comment">% Update handles structure</span>
+0146 guidata(hObject, handles);
+0147 
+0148 <span class="comment">%UIWAIT makes prt_text_input wait for user response (see UIRESUME)</span>
+0149 uiwait(handles.figure1);
+0150 
+0151 
+0152 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0153 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_text_input_OutputFcn(hObject, eventdata, handles) </a>
+0154 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0155 <span class="comment">% hObject    handle to figure</span>
+0156 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0157 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0158 
+0159 <span class="comment">% Get default command line output from handles structure</span>
+0160 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
+0161     varargout{1} = handles.output;
+0162 <span class="keyword">else</span>
+0163     varargout{1}=[];
+0164 <span class="keyword">end</span>
+0165 
+0166 <span class="comment">% The figure can be deleted now</span>
+0167 <span class="keyword">if</span> isfield(handles,<span class="string">'figure1'</span>)
+0168     delete(handles.figure1);
+0169 <span class="keyword">end</span>
+0170 
+0171 
+0172 <a name="_sub3" href="#_subfunctions" class="code">function edit1_Callback(hObject, eventdata, handles)</a>
+0173 <span class="comment">% hObject    handle to edit1 (see GCBO)</span>
+0174 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0175 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0176 
+0177 <span class="comment">% Hints: get(hObject,'String') returns contents of edit1 as text</span>
+0178 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit1 as a double</span>
+0179 handles.output = get(hObject,<span class="string">'String'</span>);
+0180 
+0181 <span class="comment">% Update handles structure</span>
+0182 guidata(hObject, handles);
+0183 
+0184 
+0185 
+0186 
+0187 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0188 <a name="_sub4" href="#_subfunctions" class="code">function edit1_CreateFcn(hObject, eventdata, handles)</a>
+0189 <span class="comment">% hObject    handle to edit1 (see GCBO)</span>
+0190 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0191 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0192 
+0193 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0194 <span class="comment">%       See ISPC and COMPUTER.</span>
+0195 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0196     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0197 <span class="keyword">end</span>
+0198 
+0199 
+0200 <span class="comment">% --- Executes on button press in okbutton.</span>
+0201 <a name="_sub5" href="#_subfunctions" class="code">function okbutton_Callback(hObject, eventdata, handles)</a>
+0202 <span class="comment">% hObject    handle to okbutton (see GCBO)</span>
+0203 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0204 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0205 
+0206 <span class="comment">% Use UIRESUME instead of delete because the OutputFcn needs</span>
+0207 <span class="comment">% to get the updated handles structure.</span>
+0208 uiresume(handles.figure1);
+0209 
+0210 <span class="comment">% --- Executes on button press in cancelbutton.</span>
+0211 <a name="_sub6" href="#_subfunctions" class="code">function cancelbutton_Callback(hObject, eventdata, handles)</a>
+0212 <span class="comment">% hObject    handle to cancelbutton (see GCBO)</span>
+0213 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0214 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0215 <span class="comment">% Use UIRESUME instead of delete because the OutputFcn needs</span>
+0216 <span class="comment">% to get the updated handles structure.</span>
+0217 handles.output=[];
+0218 <span class="comment">% Update handles structure</span>
+0219 guidata(hObject, handles);
+0220 
+0221 uiresume(handles.figure1);</pre></div>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -64,7 +64,7 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function alpha = get_alpha(model,n)</a></li></ul>
+<li><a href="#_sub1" class="code">function alpha = get_alpha(model,n,sgn)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function output = prt_machine_svm_bin(d,args)</a>
@@ -94,7 +94,7 @@ This function is called by:
 0025 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0026 
 0027 <span class="comment">% Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi</span>
-0028 <span class="comment">% $Id: prt_machine_svm_bin.m 366 2011-11-12 15:02:00Z cphillip $</span>
+0028 <span class="comment">% $Id: prt_machine_svm_bin.m 516 2012-04-11 14:34:30Z jmourao $</span>
 0029 
 0030 <span class="comment">% FIXME: support for multiple kernels / feature representations</span>
 0031 <span class="comment">% is not yet tested, there might be transposition or dimensionality errors.</span>
@@ -193,81 +193,87 @@ This function is called by:
 0124         <span class="string">' This could be a problem with the supplied function arguments'</span><span class="keyword">...</span>
 0125         <span class="string">' '</span> args_str <span class="string">''</span>]);
 0126 <span class="keyword">end</span>
-0127 b     = -model.rho; 
-0128 
-0129 <span class="keyword">if</span> hasPrecomputedKernel
-0130     alpha = <a href="#_sub1" class="code" title="subfunction alpha = get_alpha(model,n)">get_alpha</a>(model,nlbs);
-0131 <span class="keyword">else</span>
-0132     alpha = model.sv_coef;    <span class="comment">% recover alphas directly</span>
-0133     SVs   = model.SVs;          <span class="comment">% recover also the SV's themselves</span>
-0134 <span class="keyword">end</span>
-0135 
-0136 <span class="comment">% compute prediction directly rather than using svmpredict, which does</span>
-0137 <span class="comment">% not allow empty test labels</span>
-0138 <span class="keyword">if</span> hasPrecomputedKernel
-0139     <span class="keyword">if</span> iscell(d.test)
-0140         func_val = cell2mat(d.test)*alpha+b;
-0141     <span class="keyword">else</span>
-0142         func_val = d.test*alpha+b;
-0143     <span class="keyword">end</span>
-0144 <span class="keyword">else</span>
-0145     <span class="comment">% compute primal weight vector</span>
-0146     w = SVs'*alpha;
-0147     <span class="comment">% compute function</span>
-0148     <span class="keyword">if</span> iscell(d.test)
-0149         func_val = cell2mat(d.test)*w+b;
-0150     <span class="keyword">else</span>
-0151         func_val = d.test*w+b;
-0152     <span class="keyword">end</span>
-0153 <span class="keyword">end</span>
-0154 
-0155 <span class="comment">% compute hard decisions</span>
-0156 predictions = sign(func_val);
-0157 
-0158 <span class="comment">% % REMOVEME compare with libsvm svmpredict results</span>
-0159 <span class="comment">% if hasPrecomputedKernel</span>
-0160 <span class="comment">%     allids_te=(1:size(cell2mat(test),1))';</span>
-0161 <span class="comment">% else</span>
-0162 <span class="comment">%     allids_te=[];</span>
-0163 <span class="comment">% end</span>
-0164 <span class="comment">% [foo_preds, foo_acc, foo_decision] = svmpredict([ones(10,1); ones(10,1)*2],[allids_te cell2mat(test)], model);</span>
-0165 <span class="comment">% [func_val foo_decision]</span>
-0166 
-0167 <span class="comment">% TODO: convert labels to chosen output format</span>
-0168 
-0169 <span class="comment">% Outputs</span>
-0170 <span class="comment">%--------------------------------------------------------------------------</span>
-0171 <span class="comment">% change predictions from 1/-1 to 1/2</span>
-0172 c1PredIdx               = predictions==1; <span class="comment">% locate class 1 preds</span>
-0173 predictions(c1PredIdx)  = model.Label(1);
-0174 predictions(~c1PredIdx) = model.Label(2);
-0175 
-0176 output.predictions = predictions;
-0177 output.func_val    = func_val;
-0178 output.type        = <span class="string">'classifier'</span>;
-0179 output.alpha       = alpha;
-0180 output.b           = b;
-0181 output.totalSV     = model.totalSV;
-0182 <span class="keyword">if</span> exist(<span class="string">'w'</span>,<span class="string">'var'</span>)==1
-0183     output.w = w;
-0184 <span class="keyword">end</span>
-0185 
-0186 <span class="keyword">end</span>
-0187 
-0188 <span class="comment">% Get SV coefficients</span>
-0189 <span class="comment">%--------------------------------------------------------------------------</span>
-0190 <a name="_sub1" href="#_subfunctions" class="code">function alpha = get_alpha(model,n)</a>
-0191 <span class="comment">% needs a function because examples can be re-ordered by libsvm</span>
-0192 alpha = zeros(n,1);
-0193 
-0194 <span class="keyword">for</span> i = 1:model.totalSV
-0195     ind        = model.SVs(i);
-0196     alpha(ind) = model.sv_coef(i);
-0197 <span class="keyword">end</span>
-0198 alpha = model.Label(1)*alpha;
-0199 
+0127 sgn = -1*(2 * model.Label(1) - 3);
+0128 b     = -model.rho *sgn;
+0129 
+0130 <span class="keyword">if</span> hasPrecomputedKernel
+0131     alpha = <a href="#_sub1" class="code" title="subfunction alpha = get_alpha(model,n,sgn)">get_alpha</a>(model,nlbs,sgn);
+0132 <span class="keyword">else</span>
+0133     alpha = model.sv_coef;    <span class="comment">% recover alphas directly</span>
+0134     SVs   = model.SVs;          <span class="comment">% recover also the SV's themselves</span>
+0135 <span class="keyword">end</span>
+0136 
+0137 <span class="comment">% compute prediction directly rather than using svmpredict, which does</span>
+0138 <span class="comment">% not allow empty test labels</span>
+0139 <span class="keyword">if</span> hasPrecomputedKernel
+0140     <span class="keyword">if</span> iscell(d.test)
+0141         func_val = cell2mat(d.test)*alpha+b;
+0142     <span class="keyword">else</span>
+0143         func_val = d.test*alpha+b;
+0144     <span class="keyword">end</span>
+0145 <span class="keyword">else</span>
+0146     <span class="comment">% compute primal weight vector</span>
+0147     w = SVs'*alpha;
+0148     <span class="comment">% compute function</span>
+0149     <span class="keyword">if</span> iscell(d.test)
+0150         func_val = cell2mat(d.test)*w+b;
+0151     <span class="keyword">else</span>
+0152         func_val = d.test*w+b;
+0153     <span class="keyword">end</span>
+0154 <span class="keyword">end</span>
+0155 
+0156 <span class="comment">% compute hard decisions</span>
+0157 predictions = sign(func_val);
+0158 
+0159 <span class="comment">% % REMOVEME compare with libsvm svmpredict results</span>
+0160 <span class="comment">% if hasPrecomputedKernel</span>
+0161 <span class="comment">%     allids_te=(1:size(cell2mat(test),1))';</span>
+0162 <span class="comment">% else</span>
+0163 <span class="comment">%     allids_te=[];</span>
+0164 <span class="comment">% end</span>
+0165 <span class="comment">% [foo_preds, foo_acc, foo_decision] = svmpredict([ones(10,1); ones(10,1)*2],[allids_te cell2mat(test)], model);</span>
+0166 <span class="comment">% [func_val foo_decision]</span>
+0167 
+0168 <span class="comment">% TODO: convert labels to chosen output format</span>
+0169 
+0170 <span class="comment">% Outputs</span>
+0171 <span class="comment">%--------------------------------------------------------------------------</span>
+0172 <span class="comment">% change predictions from 1/-1 to 1/2</span>
+0173 c1PredIdx               = predictions==1; 
+0174 <span class="comment">%predictions(c1PredIdx)  = model.Label(1);</span>
+0175 <span class="comment">%predictions(~c1PredIdx) = model.Label(2);</span>
+0176 predictions(c1PredIdx)  = 1; <span class="comment">%positive values = 1</span>
+0177 predictions(~c1PredIdx) = 2; <span class="comment">%negative values = 2</span>
+0178 
+0179 output.predictions = predictions;
+0180 output.func_val    = func_val;
+0181 output.type        = <span class="string">'classifier'</span>;
+0182 output.alpha       = alpha;
+0183 output.b           = b;
+0184 output.totalSV     = model.totalSV;
+0185 <span class="keyword">if</span> exist(<span class="string">'w'</span>,<span class="string">'var'</span>)==1
+0186     output.w = w;
+0187 <span class="keyword">end</span>
+0188 
+0189 <span class="keyword">end</span>
+0190 
+0191 <span class="comment">% Get SV coefficients</span>
+0192 <span class="comment">%--------------------------------------------------------------------------</span>
+0193 <a name="_sub1" href="#_subfunctions" class="code">function alpha = get_alpha(model,n,sgn)</a>
+0194 <span class="comment">% needs a function because examples can be re-ordered by libsvm</span>
+0195 alpha = zeros(n,1);
+0196 
+0197 <span class="keyword">for</span> i = 1:model.totalSV
+0198     ind        = model.SVs(i);
+0199     alpha(ind) = model.sv_coef(i);
 0200 <span class="keyword">end</span>
-0201</pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0201 
+0202 <span class="comment">% alpha = model.Label(1)*alpha;</span>
+0203 <span class="comment">% sgn = -1*(2 * model.Label(1) - 3);</span>
+0204 alpha = sgn*alpha;
+0205 
+0206 <span class="keyword">end</span>
+0207</pre></div>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

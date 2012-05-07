@@ -97,7 +97,7 @@ This function is called by:
 0028 
 0029 <span class="comment">%--------------------------------------------------------------------------</span>
 0030 <span class="comment">% Written by J.Richiardi</span>
-0031 <span class="comment">% $Id: prt_machine_RT_bin.m 366 2011-11-12 15:02:00Z cphillip $</span>
+0031 <span class="comment">% $Id: prt_machine_RT_bin.m 401 2011-11-23 10:44:20Z jrichiar $</span>
 0032 
 0033 <span class="comment">% FIXME: support for multiple kernels / feature representations</span>
 0034 <span class="comment">% is not yet tested, there might be transposition or dimensionality errors.</span>
@@ -167,7 +167,7 @@ This function is called by:
 0098 tridx=int32(1:numel(d.tr_targets));  <span class="comment">% (WARNING: int32 format is mandatory)</span>
 0099 verbose=1;   <span class="comment">% TODO: make this a machine arg</span>
 0100 
-0101 [output.func_val w trees]=rtenslearn_c(single(d.train{1}),<span class="keyword">...</span>
+0101 [output.func_val output.w trees]=rtenslearn_c(single(d.train{1}),<span class="keyword">...</span>
 0102     single(d.tr_targets),tridx,[],rtParams,single(d.test{1}),verbose);
 0103 
 0104 <span class="comment">% check if training succeeded:</span>
@@ -192,6 +192,6 @@ This function is called by:
 0123 output.type        = <span class="string">'classifier'</span>;
 0124 
 0125 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

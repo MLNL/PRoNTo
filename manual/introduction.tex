@@ -41,11 +41,11 @@ PRoNTo should facilitate the interaction between machine learning and neuroimagi
 
 In order to work properly, PRoNTo requires 2 other softwares:
 \bi
-\item a recent version of \matlab, we used version~XXX(?)\footnote{Any later \matlab~version should work, {\it in theory}.} to develop PRoNTo, and
+\item a recent version of \matlab. We used versions 7.5 (R2007b) to 7.14 (R2012a) to develop PRoNTo, and it will not work with earlier versions\footnote{Any later \matlab~version should work, {\it in theory}.}. 
 \item SPM8\cite{SPM8} installed on your computer\footnote{SPM8 can be dowloaded from the following website: \url{http://www.fil.ion.ucl.ac.uk/spm/software/}. You should install it in a suitable directory, for example {\tt C:\bslash SPM8\bslash }, then make sure that this directory is on the \matlab path. No need to include the subdirectories!}.
 \ei
 
-PRoNTo latest public version can be downloaded, after registration, from the following address: {\url http://www.mlnl.cs.ucl.ac.uk/pronto/prtsoftware.html}.
+PRoNTo latest public version can be downloaded, after registration, from the following address: \url{http://www.mlnl.cs.ucl.ac.uk/pronto/prtsoftware.html}.
 
 \subsection{Installation}
 %--------------------------------------
@@ -59,18 +59,15 @@ After downloading the zipped file containing PRoNTo, the installation proceeds a
 \item	Click on save.
 \end{enumerate}
 
-Some routines, in particular the 'machines', are written in C++ ({\tt .cpp} files) for increased efficiency. We are trying to provide these compiled routines for the usual OS's such as: Windows XP (32 bits), Windows 7 (64 bits), Mac OS 10, Linux (32 and 64 bits). If your OS is not listed or routines do not work properly then you should compile the routines for your specific OS. 
+Some routines, in particular the 'machines', are written in C++ ({\tt .cpp} files) for increased efficiency. We are trying to provide these compiled routines for the usual OS's such as: Windows XP (32 bits), Windows 7 (64 bits), Mac OS 10, Linux (32 and 64 bits). If your OS is not listed or routines do not work properly then you should compile the routines for your specific OS\footnote{you can also contact us and we'll try to come up with a solution for your system.}. 
 
 \subsection{Launching and batching}
 %--------------------------------------
 
-Once installed, there are three ways to call up PRoNTo functionalities: %\hspace{-4pt}
-\bi
-\item to launch the toolbox GUI, just type {\tt prt} or {\tt pronto} at the \matlab prompt and the main GUI figure will pop up, see Fig.~\ref{fig:mainGUI}. From there on simply click on the processing step needed;
-\item most functions of PRoNTo have been integrated into the {\tt matlabbatch} batching system \cite{matlabbatch} (like SPM8), the batching GUI is launched from the main GUI by clicking on the {\tt Batch} button;
-%\footnote{check SPM8's manual for more information about {\tt matlabbatch}.}
-\item most tools can also be called individually by calling them directly from the \matlab prompt, or for scripting in a {\tt .m} file.
-\ei
+Once installed, there are three ways to call up PRoNTo functionalities.
+To launch the toolbox GUI, just type {\tt prt} or {\tt pronto} at the \matlab \ prompt and the main GUI figure will pop up, see Fig.~\ref{fig:mainGUI}. From there on simply click on the processing step needed (see Part \ref{sec:GUI} of this manual). Most functions of PRoNTo have been integrated into the {\tt matlabbatch} batching system \cite{matlabbatch} (like SPM8) and the batching GUI is launched from the main GUI by clicking on the {\tt Batch} button  (see Part \ref{sec:BATCH} of this manual).
+Of course most tools can also be called individually by calling them directly from the \matlab \ prompt, or for scripting in a {\tt .m} file  (see Part \ref{sec:ADVTOP} of this manual).
+
 \begin{figure}[!htbp]
   \begin{center}
       \includegraphics[height=7cm]{images/fig2_main_prt.png}
@@ -100,7 +97,7 @@ The main contributors, in alphabetical order, are:
 %==========================
 \section{Acknoweldgements}
 %==========================
-PRoNTo v1 (2011) is the deliverable of a Pascal Harvest project coordinated by Dr. J. Mourao-Miranda and its development was possible with the financial and logistic support of 
+PRoNTo v1.1 (2012) is the deliverable of a Pascal Harvest project coordinated by Dr. J. Mourao-Miranda and its development was possible with the financial and logistic support of 
 \begin{itemize}
 \item the Department of Computer Science, University College London  (\url{http://www.cs.ucl.ac.uk});
 \item the Wellcome Trust  (\url{http://www.wellcome.ac.uk/});
@@ -109,4 +106,4 @@ PRoNTo v1 (2011) is the deliverable of a Pascal Harvest project coordinated by D
 \item Swiss National Science Foundation (PP00P2-123438) and Center for   Biomedical Imaging (CIBM) of the EPFL and Universities and Hospitals  of Lausanne and Geneva. 
 \end{itemize}
 
-PRoNTo is written for MATLAB X.Y (R20ZZb) and onwards. Some routine may need to be compiled for your specific OS.
+%PRoNTo is written for MATLAB X.Y (R20ZZb) and onwards. Some routine may need to be compiled for your specific OS.

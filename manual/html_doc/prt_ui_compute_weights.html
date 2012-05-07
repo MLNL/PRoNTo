@@ -57,7 +57,7 @@ __________________________________________________________________________
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_compute_weights.html" class="code" title="function prt_compute_weights(PRT,in)">prt_compute_weights</a>	FORMAT prt_compute_weights(PRT,in)</li><li><a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>	Function to load the PRT.mat and check its integrity regarding the</li></ul>
+<li><a href="prt_compute_weights.html" class="code" title="function prt_compute_weights(PRT,in)">prt_compute_weights</a>	FORMAT prt_compute_weights(PRT,in)</li><li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Get/set the defaults values associated with an identifier</li><li><a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>	Function to load the PRT.mat and check its integrity regarding the</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 <li><a href="prt_ui_main.html" class="code" title="function varargout = prt_ui_main(varargin)">prt_ui_main</a>	PRT_UI_MAIN M-file for prt_ui_main.fig</li></ul>
@@ -96,7 +96,7 @@ This function is called by:
 0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0027 
 0028 <span class="comment">% Written by J.Schrouff</span>
-0029 <span class="comment">% $Id: prt_ui_compute_weights.m 370 2011-11-12 15:30:53Z cphillip $</span>
+0029 <span class="comment">% $Id: prt_ui_compute_weights.m 494 2012-04-03 11:14:36Z schrouff $</span>
 0030 
 0031 <span class="comment">% Edit the above text to modify the response to help prt_ui_compute_weights</span>
 0032 
@@ -132,202 +132,279 @@ This function is called by:
 0062 
 0063 <span class="comment">% Choose default command line output for prt_ui_compute_weights</span>
 0064 handles.output = hObject;
-0065 set(handles.figure1,<span class="string">'Name'</span>,<span class="string">'PRoNTo :: Compute weights'</span>)
-0066 set(handles.compbutt,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0067 handles.img_name=[];
-0068 <span class="comment">% Update handles structure</span>
-0069 guidata(hObject, handles);
-0070 
-0071 <span class="comment">% UIWAIT makes prt_ui_compute_weights wait for user response (see UIRESUME)</span>
-0072 <span class="comment">% uiwait(handles.figure1);</span>
-0073 
-0074 
-0075 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0076 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_compute_weights_OutputFcn(hObject, eventdata, handles) </a>
-0077 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0078 <span class="comment">% hObject    handle to figure</span>
-0079 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0080 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0081 
-0082 <span class="comment">% Get default command line output from handles structure</span>
-0083 varargout{1} = handles.output;
-0084 
-0085 
-0086 
-0087 <a name="_sub3" href="#_subfunctions" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a>
-0088 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
-0089 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0090 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0091 
-0092 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_prt as text</span>
-0093 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_prt as a double</span>
-0094 handles.fname=get(handles.edit_prt,<span class="string">'String'</span>);
-0095 handles.prtdir=fileparts(handles.fname);
-0096 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
-0097     clear PRT
-0098 <span class="keyword">end</span>
-0099 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(handles.fname);
-0100 <span class="keyword">if</span> ~isempty(PRT)
-0101     handles.dat=PRT;
-0102 <span class="keyword">else</span>
-0103     beep
-0104     disp(<span class="string">'Could not load file'</span>)
-0105     <span class="keyword">return</span>
-0106 <span class="keyword">end</span>
-0107 <span class="comment">%fill the list of models</span>
-0108 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
-0109     beep
-0110     disp(<span class="string">'No model found in this PRT'</span>)
-0111     disp(<span class="string">'Please specify model first'</span>)
-0112     delete(handles.figure1)
-0113 <span class="keyword">end</span>
-0114 handles.indm=[];
-0115 <span class="keyword">for</span> i=1:length(handles.dat.model)
-0116     <span class="keyword">if</span> ~isempty(handles.dat.model.output)
-0117         handles.indm=[handles.indm,i];
-0118     <span class="keyword">end</span>
-0119 <span class="keyword">end</span>
-0120 <span class="keyword">if</span> isempty(handles.indm)
-0121     beep
-0122     disp(<span class="string">'No model computed in this PRT'</span>)
-0123     disp(<span class="string">'Please specify AND run model before computing weights'</span>)
-0124     <span class="keyword">return</span>
-0125 <span class="keyword">end</span>
-0126 list={handles.dat.model(:).model_name};
-0127 set(handles.pop_models,<span class="string">'String'</span>,list(handles.indm))
-0128 set(handles.pop_models,<span class="string">'Value'</span>,1)
-0129 handles.selmod=handles.indm(1);
-0130 set(handles.compbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0131 <span class="comment">% Update handles structure</span>
-0132 guidata(hObject, handles);
-0133 
+0065 
+0066 <span class="comment">%if window already exists, just put it as the current figure</span>
+0067 Tag=<span class="string">'weights'</span>;
+0068 F = findall(allchild(0),<span class="string">'Flat'</span>,<span class="string">'Tag'</span>,Tag);
+0069 <span class="keyword">if</span> length(F) &gt; 1
+0070     <span class="comment">% Multiple Graphics windows - close all but most recent</span>
+0071     close(F(2:end))
+0072     F = F(1);
+0073     uistack(F,<span class="string">'top'</span>)
+0074 <span class="keyword">elseif</span> length(F)==1
+0075     uistack(F,<span class="string">'top'</span>)
+0076 <span class="keyword">else</span>
+0077     set(handles.figure1,<span class="string">'Tag'</span>,Tag)
+0078     
+0079 set(handles.figure1,<span class="string">'Name'</span>,<span class="string">'PRoNTo :: Compute weights'</span>)
+0080 <span class="comment">%set size of the window, taking screen resolution and platform into account</span>
+0081 S0= spm(<span class="string">'WinSize'</span>,<span class="string">'0'</span>,1);   <span class="comment">%-Screen size (of the current monitor)</span>
+0082 <span class="keyword">if</span> ispc
+0083     PF=<span class="string">'MS Sans Serif'</span>;
+0084 <span class="keyword">else</span>
+0085     PF= spm_platform(<span class="string">'fonts'</span>);     <span class="comment">%-Font names (for this platform)</span>
+0086     PF=PF.helvetica;
+0087 <span class="keyword">end</span>
+0088 tmp  = [S0(3)/1280 (S0(4))/800];
+0089 ratio=min(tmp)*[1 1 1 1];
+0090 FS = 1 + 0.85*(min(ratio)-1);  <span class="comment">%factor to scale the fonts</span>
+0091 x=get(handles.figure1,<span class="string">'Position'</span>);
+0092 set(handles.figure1,<span class="string">'DefaultTextFontSize'</span>,FS*12,<span class="keyword">...</span>
+0093     <span class="string">'DefaultUicontrolFontSize'</span>,FS*12,<span class="keyword">...</span>
+0094     <span class="string">'DefaultTextFontName'</span>,PF,<span class="keyword">...</span>
+0095     <span class="string">'DefaultAxesFontName'</span>,PF,<span class="keyword">...</span>
+0096     <span class="string">'DefaultUicontrolFontName'</span>,PF)
+0097 set(handles.figure1,<span class="string">'Position'</span>,ratio.*x)
+0098 set(handles.figure1,<span class="string">'Resize'</span>,<span class="string">'on'</span>)
+0099 
+0100 color=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'color'</span>);
+0101 set(handles.figure1,<span class="string">'Color'</span>,color.bg1)
+0102 aa=get(handles.figure1,<span class="string">'children'</span>);
+0103 <span class="keyword">for</span> i=1:length(aa)
+0104     <span class="keyword">if</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uipanel'</span>)
+0105         set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg2)
+0106         bb=get(aa(i),<span class="string">'children'</span>);
+0107         <span class="keyword">if</span> ~isempty(bb)
+0108             <span class="keyword">for</span> j=1:length(bb)
+0109                 <span class="keyword">if</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0110                         <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>}))) 
+0111                     set(bb(j),<span class="string">'BackgroundColor'</span>,color.bg2)
+0112                 <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>)))
+0113                     set(bb(j),<span class="string">'BackgroundColor'</span>,color.fr)
+0114                 <span class="keyword">end</span>
+0115                 set(bb(j),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0116                 xf=get(bb(j),<span class="string">'FontSize'</span>);
+0117                 set(bb(j),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0118                     <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0119             <span class="keyword">end</span>
+0120         <span class="keyword">end</span>
+0121     <span class="keyword">elseif</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uicontrol'</span>)
+0122         <span class="keyword">if</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0123                 <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>})))
+0124             set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg1)
+0125         <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>)))
+0126             set(aa(i),<span class="string">'BackgroundColor'</span>,color.fr)
+0127         <span class="keyword">end</span>
+0128     <span class="keyword">end</span>
+0129     set(aa(i),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0130     xf=get(aa(i),<span class="string">'FontSize'</span>);
+0131     set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0132         <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0133 <span class="keyword">end</span>
 0134 
-0135 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0136 <a name="_sub4" href="#_subfunctions" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a>
-0137 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
-0138 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0139 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0140 
-0141 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0142 <span class="comment">%       See ISPC and COMPUTER.</span>
-0143 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0144     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0145 <span class="keyword">end</span>
+0135 
+0136 
+0137 set(handles.compbutt,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0138 handles.img_name=[];
+0139 <span class="keyword">end</span>
+0140 <span class="comment">% Update handles structure</span>
+0141 guidata(hObject, handles);
+0142 
+0143 <span class="comment">% UIWAIT makes prt_ui_compute_weights wait for user response (see UIRESUME)</span>
+0144 <span class="comment">% uiwait(handles.figure1);</span>
+0145 
 0146 
-0147 
-0148 <span class="comment">% --- Executes on button press in br_prt.</span>
-0149 <a name="_sub5" href="#_subfunctions" class="code">function br_prt_Callback(hObject, eventdata, handles)</a>
-0150 <span class="comment">% hObject    handle to br_prt (see GCBO)</span>
+0147 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0148 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_compute_weights_OutputFcn(hObject, eventdata, handles) </a>
+0149 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0150 <span class="comment">% hObject    handle to figure</span>
 0151 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
 0152 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0153 handles.fname=spm_select(1,<span class="string">'.mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
-0154 set(handles.edit_prt,<span class="string">'String'</span>,handles.fname)
-0155 handles.prtdir=fileparts(handles.fname);
-0156 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
-0157     clear PRT
-0158 <span class="keyword">end</span>
-0159 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(handles.fname);
-0160 <span class="keyword">if</span> ~isempty(PRT)
-0161     handles.dat=PRT;
-0162 <span class="keyword">else</span>
-0163     beep
-0164     disp(<span class="string">'Could not load file'</span>)
-0165     <span class="keyword">return</span>
-0166 <span class="keyword">end</span>
-0167 <span class="comment">%fill the list of models</span>
-0168 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
-0169     beep
-0170     disp(<span class="string">'No model found in this PRT'</span>)
-0171     disp(<span class="string">'Please specify model first'</span>)
-0172     delete(handles.figure1)
-0173 <span class="keyword">end</span>
-0174 handles.indm=[];
-0175 <span class="keyword">for</span> i=1:length(handles.dat.model)
-0176     <span class="keyword">if</span> ~isempty(handles.dat.model(i).output)
-0177         handles.indm=[handles.indm,i];
-0178     <span class="keyword">end</span>
-0179 <span class="keyword">end</span>   
-0180 list={handles.dat.model(:).model_name};
-0181 set(handles.pop_models,<span class="string">'String'</span>,list(handles.indm))
-0182 set(handles.pop_models,<span class="string">'Value'</span>,1)
-0183 handles.selmod=handles.indm(1);
-0184 set(handles.compbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0185 <span class="comment">% Update handles structure</span>
-0186 guidata(hObject, handles);
-0187 
-0188 
-0189 <span class="comment">% --- Executes on selection change in pop_models.</span>
-0190 <a name="_sub6" href="#_subfunctions" class="code">function pop_models_Callback(hObject, eventdata, handles)</a>
-0191 <span class="comment">% hObject    handle to pop_models (see GCBO)</span>
-0192 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0193 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0194 
-0195 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_models contents as cell array</span>
-0196 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_models</span>
-0197 val=get(handles.pop_models,<span class="string">'Value'</span>);
-0198 <span class="keyword">if</span> val==0
-0199     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0200     set(handles.pop_models,<span class="string">'Value'</span>,1)
-0201     val=1;
-0202 <span class="keyword">end</span>
-0203 handles.selmod=handles.indm(val);
-0204 <span class="comment">% Update handles structure</span>
-0205 guidata(hObject, handles);
-0206 
-0207 
-0208 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0209 <a name="_sub7" href="#_subfunctions" class="code">function pop_models_CreateFcn(hObject, eventdata, handles)</a>
-0210 <span class="comment">% hObject    handle to pop_models (see GCBO)</span>
-0211 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0212 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0213 
-0214 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0215 <span class="comment">%       See ISPC and COMPUTER.</span>
-0216 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0217     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0218 <span class="keyword">end</span>
-0219 
-0220 <a name="_sub8" href="#_subfunctions" class="code">function edit_imgname_Callback(hObject, eventdata, handles)</a>
-0221 <span class="comment">% hObject    handle to edit_imgname (see GCBO)</span>
-0222 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0223 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0153 
+0154 <span class="comment">% Get default command line output from handles structure</span>
+0155 varargout{1} = handles.output;
+0156 
+0157 
+0158 
+0159 <a name="_sub3" href="#_subfunctions" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a>
+0160 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
+0161 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0162 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0163 
+0164 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_prt as text</span>
+0165 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_prt as a double</span>
+0166 handles.fname=get(handles.edit_prt,<span class="string">'String'</span>);
+0167 handles.prtdir=fileparts(handles.fname);
+0168 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0169     clear PRT
+0170 <span class="keyword">end</span>
+0171 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(handles.fname);
+0172 <span class="keyword">if</span> ~isempty(PRT)
+0173     handles.dat=PRT;
+0174 <span class="keyword">else</span>
+0175     beep
+0176     disp(<span class="string">'Could not load file'</span>)
+0177     <span class="keyword">return</span>
+0178 <span class="keyword">end</span>
+0179 <span class="comment">%fill the list of models</span>
+0180 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
+0181     beep
+0182     disp(<span class="string">'No model found in this PRT'</span>)
+0183     disp(<span class="string">'Please specify model first'</span>)
+0184     delete(handles.figure1)
+0185 <span class="keyword">end</span>
+0186 
+0187 handles.indm=[];
+0188 <span class="keyword">for</span> m = 1:length(handles.dat.model)
+0189     <span class="keyword">if</span> isfield(handles.dat.model(m),<span class="string">'input'</span>) &amp;&amp; ~isempty(handles.dat.model(m).input)
+0190         <span class="keyword">if</span> isfield(handles.dat.model(m),<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.dat.model(m).output)
+0191             handles.indm=[handles.indm,m];
+0192         <span class="keyword">end</span>
+0193     <span class="keyword">end</span>
+0194 <span class="keyword">end</span>
+0195 
+0196 <span class="keyword">if</span> isempty(handles.indm)
+0197     beep
+0198     disp(<span class="string">'No model computed in this PRT'</span>)
+0199     disp(<span class="string">'Please specify AND run model before computing weights'</span>)
+0200     <span class="keyword">return</span>
+0201 <span class="keyword">end</span>
+0202 
+0203 list={handles.dat.model(:).model_name};
+0204 set(handles.pop_models,<span class="string">'String'</span>,list(handles.indm))
+0205 set(handles.pop_models,<span class="string">'Value'</span>,1)
+0206 handles.selmod=handles.indm(1);
+0207 set(handles.compbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0208 <span class="comment">% Update handles structure</span>
+0209 guidata(hObject, handles);
+0210 
+0211 
+0212 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0213 <a name="_sub4" href="#_subfunctions" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a>
+0214 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
+0215 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0216 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0217 
+0218 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0219 <span class="comment">%       See ISPC and COMPUTER.</span>
+0220 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0221     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0222 <span class="keyword">end</span>
+0223 
 0224 
-0225 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_imgname as text</span>
-0226 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_imgname as a double</span>
-0227 handles.img_name=get(handles.edit_imgname,<span class="string">'String'</span>);
-0228 <span class="keyword">if</span> ~prt_checkAlphaNumUnder(handles.img_name)
-0229     beep
-0230     disp(<span class="string">'Name of the image should be in alphanumeric format (no extension)'</span>)
-0231     disp(<span class="string">'Please correct'</span>)
-0232     <span class="keyword">return</span>
-0233 <span class="keyword">end</span>
-0234 <span class="comment">% Update handles structure</span>
-0235 guidata(hObject, handles);
-0236 
-0237 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0238 <a name="_sub9" href="#_subfunctions" class="code">function edit_imgname_CreateFcn(hObject, eventdata, handles)</a>
-0239 <span class="comment">% hObject    handle to edit_imgname (see GCBO)</span>
-0240 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0241 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0242 
-0243 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0244 <span class="comment">%       See ISPC and COMPUTER.</span>
-0245 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0246     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0247 <span class="keyword">end</span>
-0248 
-0249 
-0250 <span class="comment">% --- Executes on button press in compbutt.</span>
-0251 <a name="_sub10" href="#_subfunctions" class="code">function compbutt_Callback(hObject, eventdata, handles)</a>
-0252 <span class="comment">% hObject    handle to compbutt (see GCBO)</span>
-0253 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0254 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0255 list={handles.dat.model(:).model_name};
-0256 in.model_name=list{handles.selmod};
-0257 in.pathdir=handles.prtdir;
-0258 in.img_name=handles.img_name;  <span class="comment">%for the moment, coming soon</span>
-0259 <a href="prt_compute_weights.html" class="code" title="function prt_compute_weights(PRT,in)">prt_compute_weights</a>(handles.dat,in)
-0260 delete(handles.figure1)</pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0225 <span class="comment">% --- Executes on button press in br_prt.</span>
+0226 <a name="_sub5" href="#_subfunctions" class="code">function br_prt_Callback(hObject, eventdata, handles)</a>
+0227 <span class="comment">% hObject    handle to br_prt (see GCBO)</span>
+0228 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0229 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0230 handles.fname=spm_select(1,<span class="string">'.mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
+0231 set(handles.edit_prt,<span class="string">'String'</span>,handles.fname)
+0232 handles.prtdir=fileparts(handles.fname);
+0233 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0234     clear PRT
+0235 <span class="keyword">end</span>
+0236 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(handles.fname);
+0237 <span class="keyword">if</span> ~isempty(PRT)
+0238     handles.dat=PRT;
+0239 <span class="keyword">else</span>
+0240     beep
+0241     disp(<span class="string">'Could not load file'</span>)
+0242     <span class="keyword">return</span>
+0243 <span class="keyword">end</span>
+0244 <span class="comment">%fill the list of models</span>
+0245 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
+0246     beep
+0247     disp(<span class="string">'No model found in this PRT'</span>)
+0248     disp(<span class="string">'Please specify model first'</span>)
+0249     delete(handles.figure1)
+0250 <span class="keyword">end</span>
+0251 handles.indm=[];
+0252 <span class="keyword">for</span> i=1:length(handles.dat.model)
+0253     <span class="keyword">if</span> ~isempty(handles.dat.model(i).output)
+0254         handles.indm=[handles.indm,i];
+0255     <span class="keyword">end</span>
+0256 <span class="keyword">end</span>   
+0257 list={handles.dat.model(:).model_name};
+0258 set(handles.pop_models,<span class="string">'String'</span>,list(handles.indm))
+0259 set(handles.pop_models,<span class="string">'Value'</span>,1)
+0260 handles.selmod=handles.indm(1);
+0261 set(handles.compbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0262 <span class="comment">% Update handles structure</span>
+0263 guidata(hObject, handles);
+0264 
+0265 
+0266 <span class="comment">% --- Executes on selection change in pop_models.</span>
+0267 <a name="_sub6" href="#_subfunctions" class="code">function pop_models_Callback(hObject, eventdata, handles)</a>
+0268 <span class="comment">% hObject    handle to pop_models (see GCBO)</span>
+0269 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0270 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0271 
+0272 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_models contents as cell array</span>
+0273 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_models</span>
+0274 val=get(handles.pop_models,<span class="string">'Value'</span>);
+0275 <span class="keyword">if</span> val==0
+0276     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0277     set(handles.pop_models,<span class="string">'Value'</span>,1)
+0278     val=1;
+0279 <span class="keyword">end</span>
+0280 handles.selmod=handles.indm(val);
+0281 <span class="comment">% Update handles structure</span>
+0282 guidata(hObject, handles);
+0283 
+0284 
+0285 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0286 <a name="_sub7" href="#_subfunctions" class="code">function pop_models_CreateFcn(hObject, eventdata, handles)</a>
+0287 <span class="comment">% hObject    handle to pop_models (see GCBO)</span>
+0288 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0289 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0290 
+0291 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0292 <span class="comment">%       See ISPC and COMPUTER.</span>
+0293 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0294     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0295 <span class="keyword">end</span>
+0296 
+0297 <a name="_sub8" href="#_subfunctions" class="code">function edit_imgname_Callback(hObject, eventdata, handles)</a>
+0298 <span class="comment">% hObject    handle to edit_imgname (see GCBO)</span>
+0299 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0300 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0301 
+0302 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_imgname as text</span>
+0303 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_imgname as a double</span>
+0304 handles.img_name=get(handles.edit_imgname,<span class="string">'String'</span>);
+0305 <span class="keyword">if</span> ~prt_checkAlphaNumUnder(handles.img_name)
+0306     beep
+0307     disp(<span class="string">'Name of the image should be in alphanumeric format (no extension)'</span>)
+0308     disp(<span class="string">'Please correct'</span>)
+0309     <span class="keyword">return</span>
+0310 <span class="keyword">end</span>
+0311 <span class="comment">% Update handles structure</span>
+0312 guidata(hObject, handles);
+0313 
+0314 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0315 <a name="_sub9" href="#_subfunctions" class="code">function edit_imgname_CreateFcn(hObject, eventdata, handles)</a>
+0316 <span class="comment">% hObject    handle to edit_imgname (see GCBO)</span>
+0317 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0318 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0319 
+0320 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0321 <span class="comment">%       See ISPC and COMPUTER.</span>
+0322 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0323     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0324 <span class="keyword">end</span>
+0325 
+0326 
+0327 <span class="comment">% --- Executes on button press in compbutt.</span>
+0328 <a name="_sub10" href="#_subfunctions" class="code">function compbutt_Callback(hObject, eventdata, handles)</a>
+0329 <span class="comment">% hObject    handle to compbutt (see GCBO)</span>
+0330 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0331 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0332 list={handles.dat.model(:).model_name};
+0333 in.model_name=list{handles.selmod};
+0334 in.pathdir=handles.prtdir;
+0335 in.img_name=handles.img_name;  <span class="comment">%for the moment, coming soon</span>
+0336 <a href="prt_compute_weights.html" class="code" title="function prt_compute_weights(PRT,in)">prt_compute_weights</a>(handles.dat,in)
+0337 delete(handles.figure1)</pre></div>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

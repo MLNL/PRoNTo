@@ -6,6 +6,15 @@
 This is the list of PRoNTo functions, including the subdirectories: {\tt machines} and {\tt utils}.
 
 
+\section{pronto.m}
+\begin{alltt}
+
+ Function launching PRoNTo (Pattern Recognition for Neuroimaging Toolbox),
+ see prt.m for more details
+ 
+\end{alltt}
+
+
 \section{prt.m}
 \begin{alltt}
 
@@ -538,8 +547,6 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \section{prt\_normalise\_kernel.m}
 \begin{alltt}
 
- FORMAT K\_normalised = prt\_normalise\_kernel(K)
- 
  This function normalises the kernel matrix such that each entry is 
  divided by the product of the std deviations, i.e.
  K\_new(x,y) = K(x,y) / sqrt(var(x)*var(y)) 
@@ -609,7 +616,8 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  model.predictions: predictions derived from the predictive model
  model.type:        what type of prediction machine (e.g. 'classifier','regression')
  
- t: true targets
+ tte: true targets (test set)
+ ttr: true targets (training set - needed to get the number of classes)
  flag:  'fold' for statistics in each fold
          'model' for statistics in each model
  
@@ -918,6 +926,35 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
+\section{prt\_ui\_results\_help.m}
+\begin{alltt}
+
+ PRT\_UI\_RESULTS\_HELP MATLAB code for prt\_ui\_results\_help.fig
+ 
+ PRT\_UI\_RESULTS\_HELP, by itself, creates a new PRT\_UI\_RESULTS\_HELP or 
+ raises the existing singleton*.
+ 
+ H = PRT\_UI\_RESULTS\_HELP returns the handle to a new PRT\_UI\_RESULTS\_HELP 
+ or the handle to the existing singleton*.
+ 
+ PRT\_UI\_RESULTS\_HELP('CALLBACK',hObject,eventData,handles,...) calls the 
+ local function named CALLBACK in PRT\_UI\_RESULTS\_HELP.M with the given 
+ input arguments.
+ 
+ PRT\_UI\_RESULTS\_HELP('Property','Value',...) creates a new 
+ PRT\_UI\_RESULTS\_HELP or raises the existing singleton*.  Starting from the
+ left, property value pairs are applied to the GUI before 
+ prt\_ui\_results\_help\_OpeningFcn gets called.  An unrecognized property 
+ name or invalid value makes property application stop.  All inputs are 
+ passed to prt\_ui\_results\_help\_OpeningFcn via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+ instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
+\end{alltt}
+
+
 \section{prt\_ui\_reviewCV.m}
 \begin{alltt}
 
@@ -1037,6 +1074,27 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \section{prt\_ui\_stats.m}
 \begin{alltt}
 
+ PRT\_UI\_STATS MATLAB code for prt\_ui\_stats.fig
+ 
+ PRT\_UI\_STATS, by itself, creates a new PRT\_UI\_STATS or raises the 
+ existing singleton*.
+ 
+ H = PRT\_UI\_STATS returns the handle to a new PRT\_UI\_STATS or the handle 
+ to the existing singleton*.
+ 
+ PRT\_UI\_STATS('CALLBACK',hObject,eventData,handles,...) calls the local
+ function named CALLBACK in PRT\_UI\_STATS.M with the given input arguments.
+ 
+ PRT\_UI\_STATS('Property','Value',...) creates a new PRT\_UI\_STATS or raises
+ the existing singleton*.  Starting from the left, property value pairs 
+ are applied to the GUI before prt\_ui\_stats\_OpeningFcn gets called.  An
+ unrecognized property name or invalid value makes property application
+ stop.  All inputs are passed to prt\_ui\_stats\_OpeningFcn via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+ instance to run (singleton)".
+ 
+ See also: GUIDE, GUIDATA, GUIHANDLES
 \end{alltt}
 
 
@@ -1116,6 +1174,55 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \end{alltt}
 
 
+\subsection{machines\textbackslash prt\_machine\_gpclap.m}
+\begin{alltt}
+
+ Run multiclass Gaussian process classification (Laplace approximation)
+ FORMAT output = prt\_machine\_gpclap(d,args)
+ Inputs:
+   d         - structure with data information, with mandatory fields:
+     .train      - training data (cell array of matrices of row vectors,
+                   each [Ntr x D]). each matrix contains one representation
+                   of the data. This is useful for approaches such as
+                   multiple kernel learning.
+     .test       - testing data  (cell array of matrices row vectors, each
+                   [Nte x D])
+     .testcov    - testing covariance (cell array of matrices row vectors,
+                   each [Nte x Nte])
+     .tr\_targets - training labels (for classification) or values (for
+                   regression) (column vector, [Ntr x 1])
+     .use\_kernel - flag, is data in form of kernel matrices (true) or in 
+                   form of features (false)
+    args     - argument string, where
+       -h         - optimise hyperparameters (otherwise don't)
+       -c covfun  - covariance function:
+                       'covLINkcell' - simple dot product
+                       'covLINglm'   - construct a GLM
+    experimental args (use at your own risk):
+       -p         - use priors for the hyperparameters. If specified, this
+                    indicates that a maximum a posteriori (MAP) approach
+                    will be used to set covariance function
+                    hyperparameters. The priors are obtained 
+                    by calling prt\_gp\_priors('covFuncName')
+ 
+       N.B.: for the arguments specifying functions, pass in a string, not
+       a function handle. This script will generate a function handle
+ 
+ Output:
+    output  - output of machine (struct).
+     * Mandatory fields:
+      .predictions - predictions of classification or regression [Nte x D]
+     * Optional fields:
+      .type     - which type of machine this is (here, 'classifier')
+      .func\_val - predictive probabilties
+      .loghyper - log hyperparameters
+      .nlml     - negative log marginal likelihood
+      .mu       - test latent means
+      .s2       - test latent variances
+      .alpha    - GP weighting coefficients
+\end{alltt}
+
+
 \subsection{machines\textbackslash prt\_machine\_gpml.m}
 \begin{alltt}
 
@@ -1152,8 +1259,8 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
        -p         - use priors for the hyperparameters. If specified, this
                     indicates that a maximum a posteriori (MAP) approach
                     will be used to set covariance function
-                    hyperparameters. The priors are obtained from the
-                    by calling prt\_gp\_priors('covFuncName')
+                    hyperparameters. The priors are obtained by calling
+                    prt\_gp\_priors('covFuncName')
  
        N.B.: for the arguments specifying functions, pass in a string, not
        a function handle. This script will generate a function handle
@@ -1164,7 +1271,67 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
       .predictions - predictions of classification or regression [Nte x D]
      * Optional fields:
       .type     - which type of machine this is (here, 'classifier')
-      .p        - predictive probabilties
+      .func\_val - predictive probabilties
+      .mu       - test latent means
+      .s2       - test latent variances
+      .loghyper - log hyperparameters
+      .nlml     - negative log marginal likelihood
+      .alpha    - GP weighting coefficients
+      .sW       - likelihood matrix (see Rasmussen \& Williams, 2006)
+      .L        - Cholesky factor
+\end{alltt}
+
+
+\subsection{machines\textbackslash prt\_machine\_gpr.m}
+\begin{alltt}
+
+ Run Gaussian process regression - meta-wrapper for regression with gpml  FORMAT output = prt\_machine\_gpml(d,args)
+ Inputs:
+   d         - structure with data information, with mandatory fields:
+     .train      - training data (cell array of matrices of row vectors,
+                   each [Ntr x D]). each matrix contains one representation
+                   of the data. This is useful for approaches such as
+                   multiple kernel learning.
+     .test       - testing data  (cell array of matrices row vectors, each
+                   [Nte x D])
+     .testcov    - testing covariance (cell array of matrices row vectors,
+                   each [Nte x Nte])
+     .tr\_targets - training labels (for classification) or values (for
+                   regression) (column vector, [Ntr x 1])
+     .use\_kernel - flag, is data in form of kernel matrices (true) or in 
+                   form of features (false)
+    args     - argument string, where
+       -h         - optimise hyperparameters (otherwise don't)
+       -f iter    - max \# iterations for optimiser (ignored if -h not set)
+       -l likfun  - likelihood function:
+                       'likErf' - erf/probit likelihood (binary only)
+       -c covfun  - covariance function:
+                       'covLINkcell' - simple dot product
+                       'covLINglm'   - construct a GLM
+       -m meanfun - mean function:
+                       'meanConstcell' - suitable for dot product
+                       'meanConstglm'  - suitable for GLM
+       -i inffun  - inference function:
+                       'prt\_infEP' - Expectation Propagation
+    experimental args (use at your own risk):
+       -p         - use priors for the hyperparameters. If specified, this
+                    indicates that a maximum a posteriori (MAP) approach
+                    will be used to set covariance function
+                    hyperparameters. The priors are obtained by calling
+                    prt\_gp\_priors('covFuncName')
+ 
+       N.B.: for the arguments specifying functions, pass in a string, not
+       a function handle. This script will generate a function handle
+ 
+ Output:
+    output  - output of machine (struct).
+     * Mandatory fields:
+      .predictions - predictions of classification or regression [Nte x D]
+     * Optional fields:
+      .type     - which type of machine this is (here, 'classifier')
+      .func\_val - predictive probabilties
+      .mu       - test latent means
+      .s2       - test latent variances
       .loghyper - log hyperparameters
       .nlml     - negative log marginal likelihood
       .alpha    - GP weighting coefficients

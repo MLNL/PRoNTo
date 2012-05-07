@@ -63,7 +63,7 @@ This function is called by:
 0011 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0012 
 0013 <span class="comment">% Written by J. Schrouff</span>
-0014 <span class="comment">% $Id: prt_load.m 370 2011-11-12 15:30:53Z cphillip $</span>
+0014 <span class="comment">% $Id: prt_load.m 480 2012-03-27 16:24:17Z schrouff $</span>
 0015 
 0016 <span class="keyword">try</span>
 0017     load(fname)
@@ -79,7 +79,7 @@ This function is called by:
 0027 
 0028 <span class="comment">%for each feature set, check that the corresponding .dat is present in the</span>
 0029 <span class="comment">%same directory and update the name of the file array if needed</span>
-0030 <span class="keyword">if</span> isfield(PRT,<span class="string">'fas'</span>)
+0030 <span class="keyword">if</span> isfield(PRT,<span class="string">'fas'</span>) &amp;&amp; ~isempty(PRT.fas)
 0031     ind=[];
 0032     <span class="keyword">for</span> i=1:length(PRT.fas)
 0033         <span class="comment">%get the name of the file array</span>
@@ -118,6 +118,6 @@ This function is called by:
 0066                 
 0067                 
 0068</pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

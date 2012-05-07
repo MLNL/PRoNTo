@@ -4,7 +4,7 @@
 <head>
   <title>Description of prt_defaults</title>
   <meta name="keywords" content="prt_defaults">
-  <meta name="description" content="Sets the defaults which are used by PRoNTo, Pattern Recognition in">
+  <meta name="description" content="Sets the defaults which are used by the Pattern Recognition for">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,14 +21,14 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>Sets the defaults which are used by PRoNTo, Pattern Recognition in</strong></div>
+<div class="box"><strong>Sets the defaults which are used by the Pattern Recognition for</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="box"><strong>function prt_defaults </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Sets the defaults which are used by PRoNTo, Pattern Recognition in
- Neuroimaging Toolbox
+<div class="fragment"><pre class="comment"> Sets the defaults which are used by the Pattern Recognition for
+ Neuroimaging Toolbox, aka. PRoNTo.
 
  FORMAT prt_defaults
 _______________________________________________________________________
@@ -49,7 +49,7 @@ _______________________________________________________________________
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-</ul>
+<li><a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>	Pattern Recognition for Neuroimaging Toolbox, PRoNTo.</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 <li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Get/set the defaults values associated with an identifier</li></ul>
@@ -59,8 +59,8 @@ This function is called by:
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function prt_defaults</a>
-0002 <span class="comment">% Sets the defaults which are used by PRoNTo, Pattern Recognition in</span>
-0003 <span class="comment">% Neuroimaging Toolbox</span>
+0002 <span class="comment">% Sets the defaults which are used by the Pattern Recognition for</span>
+0003 <span class="comment">% Neuroimaging Toolbox, aka. PRoNTo.</span>
 0004 <span class="comment">%</span>
 0005 <span class="comment">% FORMAT prt_defaults</span>
 0006 <span class="comment">%_______________________________________________________________________</span>
@@ -78,45 +78,55 @@ This function is called by:
 0018 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0019 
 0020 <span class="comment">% Written by Christophe Phillips</span>
-0021 <span class="comment">% $Id: prt_defaults.m 322 2011-11-08 11:05:34Z schrouff $</span>
+0021 <span class="comment">% $Id: prt_defaults.m 501 2012-04-06 14:16:38Z amarquan $</span>
 0022 
 0023 <span class="comment">%%</span>
 0024 <span class="keyword">global</span> prt_def
 0025 
 0026 <span class="comment">% Global defaults</span>
-0027 prt_loc = which(<span class="string">'prt_batch'</span>);
-0028 prt_def.global.install_dir = fileparts(prt_loc);
-0029 
+0027 <span class="comment">% prt_loc = which('prt_batch');</span>
+0028 <span class="comment">% prt_def.global.install_dir = fileparts(prt_loc);</span>
+0029 prt_def.global.install_dir = <a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>);
 0030 
-0031 <span class="comment">% Parameters for the data and design</span>
+0031 <span class="comment">% Default colors of the different elements</span>
 0032 <span class="comment">%-----------------------------------------------</span>
-0033 prt_def.datad.hrfd = 0; <span class="comment">% HRF delay in seconds</span>
-0034 prt_def.datad.hrfw = 0; <span class="comment">% HRF FWHM, used to compute the overlap between conditions</span>
-0035 
-0036 prt_def.prep.default_mask  = [prt_def.global.install_dir,<span class="string">'/masks/SPM_mask_noeyes.hdr'</span>];<span class="comment">% default mask</span>
+0033 <span class="comment">% prt_def.color.bg1=[0 0.8 1];</span>
+0034 <span class="comment">% prt_def.color.bg2=[0.9,0.6,0.3];</span>
+0035 <span class="comment">% prt_def.color.fr=[1,0.5,0.7];</span>
+0036 <span class="comment">% prt_def.color.high=[0.2,0.2,0.8];</span>
 0037 
-0038 
-0039 <span class="comment">% Preprocessing defaults</span>
-0040 <span class="comment">%------------------------------------------------</span>
-0041 prt_def.prep.use1  = 5;      
-0042 prt_def.prep.use2  = <span class="string">'kk'</span>; <span class="comment">% pre</span>
-0043 
-0044 <span class="comment">% memory limit for kernel/file arrays construction</span>
-0045 prt_def.fs.mem_limit = 64*1024*1024;  <span class="comment">% bytes of memory to use</span>
-0046 prt_def.fs.writeraw = 0;               <span class="comment">% flag to write the data detrended (default) or raw (to set to 1).</span>
+0038 prt_def.color.bg1  = [0.83,0.83,0.83];
+0039 prt_def.color.bg2  = [0.88,0.88,0.88];
+0040 prt_def.color.fr   = [0.92,0.92,0.92];
+0041 prt_def.color.high = [0.8 0 0];
+0042 
+0043 <span class="comment">% Parameters for the data and design</span>
+0044 <span class="comment">%-----------------------------------------------</span>
+0045 prt_def.datad.hrfd = 0; <span class="comment">% HRF delay in seconds</span>
+0046 prt_def.datad.hrfw = 0; <span class="comment">% HRF FWHM, used to compute the overlap between conditions</span>
 0047 
-0048 <span class="comment">% Design specification default</span>
-0049 prt_def.dspec.use3 = [1 2];
+0048 prt_def.prep.default_mask  = [prt_def.global.install_dir,<span class="keyword">...</span>
+0049                             <span class="string">'/masks/SPM_mask_noeyes.hdr'</span>];<span class="comment">% default mask</span>
 0050 
-0051 
-0052 <span class="comment">% Specify model: Parameters of the different machines</span>
-0053 <span class="comment">%--------------------------------------------------</span>
-0054 prt_def.model.svmargs=<span class="string">'-s 0 -t 4 -c 1'</span>;
-0055 prt_def.model.gpcargs=<span class="string">'-l erf -h'</span>;
-0056 prt_def.model.krrargs=1;
-0057 prt_def.model.rtargs=601;
-0058 
-0059 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0051 <span class="comment">% Preprocessing defaults</span>
+0052 <span class="comment">%------------------------------------------------</span>
+0053 <span class="comment">% memory limit for kernel/file arrays construction</span>
+0054 prt_def.fs.mem_limit = 64*1024*1024;  <span class="comment">% bytes of memory to use</span>
+0055 prt_def.fs.writeraw  = 0;              <span class="comment">% flag to write the data detrended (default) or raw (to set to 1).</span>
+0056 
+0057 <span class="comment">% Design specification default</span>
+0058 prt_def.dspec.use3 = [1 2];
+0059 
+0060 <span class="comment">% Specify model: Parameters of the different machines</span>
+0061 <span class="comment">%--------------------------------------------------</span>
+0062 prt_def.model.svmargs    = <span class="string">'-s 0 -t 4 -c 1'</span>;
+0063 prt_def.model.gpcargs    = <span class="string">'-l erf -h'</span>;
+0064 prt_def.model.gpclapargs = <span class="string">'-h'</span>;
+0065 prt_def.model.gprargs    = <span class="string">'-l gauss -h'</span>;
+0066 prt_def.model.krrargs    = 1;
+0067 prt_def.model.rtargs     = 601;
+0068 
+0069 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

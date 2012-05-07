@@ -24,7 +24,7 @@
 <div class="box"><strong>Function to compute predictions machine performance statistcs statistics</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function stats = prt_stats(model, t,flag) </strong></div>
+<div class="box"><strong>function stats = prt_stats(model, tte, ttr) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Function to compute predictions machine performance statistcs statistics
@@ -34,7 +34,8 @@
  model.predictions: predictions derived from the predictive model
  model.type:        what type of prediction machine (e.g. 'classifier','regression')
 
- t: true targets
+ tte: true targets (test set)
+ ttr: true targets (training set - needed to get the number of classes)
  flag:  'fold' for statistics in each fold
          'model' for statistics in each model
  
@@ -65,10 +66,10 @@ This function is called by:
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="#_sub1" class="code">function stats = compute_stats_classifier(model, t)</a></li><li><a href="#_sub2" class="code">function stats = compute_stats_regression(model, t)</a></li><li><a href="#_sub3" class="code">function [lb,ub] = computeWilsonBinomialCI(k,n)</a></li></ul>
+<li><a href="#_sub1" class="code">function stats = compute_stats_classifier(model, tte, ttr)</a></li><li><a href="#_sub2" class="code">function stats = compute_stats_regression(model, tte)</a></li><li><a href="#_sub3" class="code">function [lb,ub] = computeWilsonBinomialCI(k,n)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function stats = prt_stats(model, t,flag)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function stats = prt_stats(model, tte, ttr)</a>
 0002 <span class="comment">% Function to compute predictions machine performance statistcs statistics</span>
 0003 <span class="comment">%</span>
 0004 <span class="comment">% Inputs:</span>
@@ -76,135 +77,133 @@ This function is called by:
 0006 <span class="comment">% model.predictions: predictions derived from the predictive model</span>
 0007 <span class="comment">% model.type:        what type of prediction machine (e.g. 'classifier','regression')</span>
 0008 <span class="comment">%</span>
-0009 <span class="comment">% t: true targets</span>
-0010 <span class="comment">% flag:  'fold' for statistics in each fold</span>
-0011 <span class="comment">%         'model' for statistics in each model</span>
-0012 <span class="comment">%</span>
-0013 <span class="comment">% Outputs:</span>
-0014 <span class="comment">%-------------------</span>
-0015 <span class="comment">% Classification:</span>
-0016 <span class="comment">% stats.con_mat: Confusion matrix (nClasses x nClasses matrix, pred x true)</span>
-0017 <span class="comment">% stats.acc:     Accuracy (scalar)</span>
-0018 <span class="comment">% stats.b_acc:   Balanced accuracy (nClasses x 1 vector)</span>
-0019 <span class="comment">% stats.c_acc:   Accuracy by class (nClasses x 1 vector)</span>
-0020 <span class="comment">% stats.c_pv:    Predictive value for each class (nClasses x 1 vector)</span>
-0021 <span class="comment">%</span>
-0022 <span class="comment">% Regression:</span>
-0023 <span class="comment">% stats.mse:     Mean square error between test and prediction</span>
-0024 <span class="comment">% stats.corr:     Correlation between test and prediction</span>
-0025 <span class="comment">%__________________________________________________________________________</span>
-0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
-0027 
-0028 <span class="comment">% Written by A. Marquand</span>
-0029 <span class="comment">% $Id: prt_stats.m 367 2011-11-12 15:03:24Z cphillip $</span>
-0030 
-0031 <span class="comment">% FIXME: is any code using the 'flags' input argument?</span>
-0032 
-0033 <span class="comment">% Do some checks ...</span>
-0034 <span class="keyword">if</span> size(t,1) ~= size(model.predictions,1)
-0035     error([<span class="string">'prt_stats:machineProvidesWrongNumberOfPredictions'</span>,<span class="keyword">...</span>
-0036         <span class="string">'Number of predictions is not equal to the number of targets'</span>]);
+0009 <span class="comment">% tte: true targets (test set)</span>
+0010 <span class="comment">% ttr: true targets (training set - needed to get the number of classes)</span>
+0011 <span class="comment">% flag:  'fold' for statistics in each fold</span>
+0012 <span class="comment">%         'model' for statistics in each model</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Outputs:</span>
+0015 <span class="comment">%-------------------</span>
+0016 <span class="comment">% Classification:</span>
+0017 <span class="comment">% stats.con_mat: Confusion matrix (nClasses x nClasses matrix, pred x true)</span>
+0018 <span class="comment">% stats.acc:     Accuracy (scalar)</span>
+0019 <span class="comment">% stats.b_acc:   Balanced accuracy (nClasses x 1 vector)</span>
+0020 <span class="comment">% stats.c_acc:   Accuracy by class (nClasses x 1 vector)</span>
+0021 <span class="comment">% stats.c_pv:    Predictive value for each class (nClasses x 1 vector)</span>
+0022 <span class="comment">%</span>
+0023 <span class="comment">% Regression:</span>
+0024 <span class="comment">% stats.mse:     Mean square error between test and prediction</span>
+0025 <span class="comment">% stats.corr:     Correlation between test and prediction</span>
+0026 <span class="comment">%__________________________________________________________________________</span>
+0027 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0028 
+0029 <span class="comment">% Written by A. Marquand</span>
+0030 <span class="comment">% $Id: prt_stats.m 508 2012-04-07 16:16:21Z amarquan $</span>
+0031 
+0032 <span class="comment">% FIXME: is any code using the 'flags' input argument?</span>
+0033 <span class="keyword">if</span> ~isfield(model,<span class="string">'type'</span>)
+0034     warning(<span class="string">'prt_stats:modelDoesNotProvideTypeField'</span>,<span class="keyword">...</span>
+0035         <span class="string">'model.type not specified, defaulting to classifier'</span>);
+0036     model.type = <span class="string">'classifier'</span>;
 0037 <span class="keyword">end</span>
 0038 
-0039 <span class="keyword">if</span> ~isfield(model,<span class="string">'type'</span>)
-0040     warning(<span class="string">'prt_stats:modelDoesNotProvideTypeField'</span>,<span class="keyword">...</span>
-0041         <span class="string">'model.type not specified, defaulting to classifier'</span>);
-0042     model.type = <span class="string">'classifier'</span>;
-0043 <span class="keyword">end</span>
-0044 
-0045 <span class="keyword">switch</span> model.type
-0046     <span class="keyword">case</span> <span class="string">'classifier'</span>
+0039 <span class="keyword">switch</span> model.type
+0040     <span class="keyword">case</span> <span class="string">'classifier'</span>
+0041         
+0042         stats = <a href="#_sub1" class="code" title="subfunction stats = compute_stats_classifier(model, tte, ttr)">compute_stats_classifier</a>(model, tte, ttr);
+0043         
+0044     <span class="keyword">case</span> <span class="string">'regression'</span>
+0045         
+0046         stats = <a href="#_sub2" class="code" title="subfunction stats = compute_stats_regression(model, tte)">compute_stats_regression</a>(model, tte);
 0047         
-0048         stats = <a href="#_sub1" class="code" title="subfunction stats = compute_stats_classifier(model, t)">compute_stats_classifier</a>(model, t);
-0049         
-0050     <span class="keyword">case</span> <span class="string">'regression'</span>
-0051         
-0052         stats = <a href="#_sub2" class="code" title="subfunction stats = compute_stats_regression(model, t)">compute_stats_regression</a>(model, t);
-0053         
-0054     <span class="keyword">otherwise</span>
-0055         error(<span class="string">'prt_stats:unknownTypeSpecified'</span>,<span class="keyword">...</span>
-0056             [<span class="string">'No method exists for processing machine: '</span>,machine.type]);
-0057 <span class="keyword">end</span>
+0048     <span class="keyword">otherwise</span>
+0049         error(<span class="string">'prt_stats:unknownTypeSpecified'</span>,<span class="keyword">...</span>
+0050             [<span class="string">'No method exists for processing machine: '</span>,machine.type]);
+0051 <span class="keyword">end</span>
+0052 
+0053 <span class="keyword">end</span>
+0054 
+0055 <span class="comment">% -------------------------------------------------------------------------</span>
+0056 <span class="comment">% Private functions</span>
+0057 <span class="comment">% -------------------------------------------------------------------------</span>
 0058 
-0059 <span class="keyword">end</span>
+0059 <a name="_sub1" href="#_subfunctions" class="code">function stats = compute_stats_classifier(model, tte, ttr)</a>
 0060 
-0061 <span class="comment">% -------------------------------------------------------------------------</span>
-0062 <span class="comment">% Private functions</span>
-0063 <span class="comment">% -------------------------------------------------------------------------</span>
-0064 
-0065 <a name="_sub1" href="#_subfunctions" class="code">function stats = compute_stats_classifier(model, t)</a>
-0066 
-0067 k = max(size(t,2),2);       <span class="comment">% number of classes</span>
-0068 
-0069 stats.con_mat = zeros(k,k);
-0070 <span class="keyword">for</span> i = 1:length(t)
-0071     true_lb = t(i);
-0072     pred_lb = model.predictions(i);
-0073     stats.con_mat(pred_lb,true_lb) = stats.con_mat(pred_lb,true_lb) + 1;
-0074 <span class="keyword">end</span>
+0061 k = max(unique(ttr));        <span class="comment">% number of classes</span>
+0062 
+0063 stats.con_mat = zeros(k,k);
+0064 <span class="keyword">for</span> i = 1:length(tte)
+0065     true_lb = tte(i);
+0066     pred_lb = model.predictions(i);
+0067     stats.con_mat(pred_lb,true_lb) = stats.con_mat(pred_lb,true_lb) + 1;
+0068 <span class="keyword">end</span>
+0069 
+0070 Cc = diag(stats.con_mat);   <span class="comment">% correct predictions for each class</span>
+0071 Zc = sum(stats.con_mat)';   <span class="comment">% total samples for each class (cols)</span>
+0072 nz = Zc ~= 0;               <span class="comment">% classes with nonzero totals (cols)</span>
+0073 Zcr = sum(stats.con_mat,2); <span class="comment">% total predictions for each class (rows)</span>
+0074 nzr = Zcr ~= 0;             <span class="comment">% classes with nonzero totals (rows)</span>
 0075 
-0076 Cc = diag(stats.con_mat);   <span class="comment">% correct predictions for each class</span>
-0077 Zc = sum(stats.con_mat)';   <span class="comment">% total predictions for each class</span>
-0078 nz = Zc ~= 0;               <span class="comment">% classes with nonzero totals</span>
-0079 
-0080 stats.acc = sum(Cc) ./ sum(Zc);
-0081 stats.c_acc = zeros(k,1);
-0082 stats.c_acc(nz) = Cc(nz) ./ Zc(nz);
-0083 stats.b_acc = mean(stats.c_acc);
-0084 
-0085 <span class="comment">% confidence interval</span>
-0086 <span class="comment">% TODO: check IID assumption here (chunks in run_permutation.m)</span>
-0087 <span class="comment">% before applying tests, and give nans if not applicable...</span>
-0088 [lb,ub] = <a href="#_sub3" class="code" title="subfunction [lb,ub] = computeWilsonBinomialCI(k,n)">computeWilsonBinomialCI</a>(sum(Cc),sum(Zc));
-0089 stats.acc_lb=lb;
-0090 stats.acc_ub=ub;
-0091 <span class="keyword">end</span>
+0076 stats.acc       = sum(Cc) ./ sum(Zc);
+0077 stats.c_acc     = zeros(k,1);
+0078 stats.c_acc(nz) = Cc(nz) ./ Zc(nz);
+0079 stats.b_acc     = mean(stats.c_acc);
+0080 stats.c_pv      = zeros(k,1);
+0081 stats.c_pv(nzr) = Cc(nzr) ./ Zcr(nzr); 
+0082 
+0083 <span class="comment">% confidence interval</span>
+0084 <span class="comment">% TODO: check IID assumption here (chunks in run_permutation.m)</span>
+0085 <span class="comment">% before applying tests, and give nans if not applicable...</span>
+0086 [lb,ub] = <a href="#_sub3" class="code" title="subfunction [lb,ub] = computeWilsonBinomialCI(k,n)">computeWilsonBinomialCI</a>(sum(Cc),sum(Zc));
+0087 stats.acc_lb=lb;
+0088 stats.acc_ub=ub;
+0089 <span class="keyword">end</span>
+0090 
+0091 <a name="_sub2" href="#_subfunctions" class="code">function stats = compute_stats_regression(model, tte)</a>
 0092 
-0093 <a name="_sub2" href="#_subfunctions" class="code">function stats = compute_stats_regression(model, t)</a>
-0094 
-0095 <span class="keyword">if</span> numel(t)&lt;3
-0096     stats.corr=NaN;
-0097 <span class="keyword">else</span>
-0098     coef=corrcoef(model.predictions,t);
-0099     stats.corr=coef(1,2);
+0093 <span class="keyword">if</span> numel(tte)&lt;3
+0094     stats.corr=NaN;
+0095 <span class="keyword">else</span>
+0096     coef=corrcoef(model.predictions,tte);
+0097     stats.corr=coef(1,2);
+0098 <span class="keyword">end</span>
+0099 stats.mse=mean((model.predictions-tte).^2);
 0100 <span class="keyword">end</span>
-0101 stats.mse=mean((model.predictions-t).^2);
-0102 <span class="keyword">end</span>
-0103 
-0104 <a name="_sub3" href="#_subfunctions" class="code">function [lb,ub] = computeWilsonBinomialCI(k,n)</a>
-0105 <span class="comment">% Compute upper and lower 5% confidence interval bounds</span>
-0106 <span class="comment">% for a binomial distribution using Wilson's 'score interval'</span>
-0107 <span class="comment">%</span>
-0108 <span class="comment">% IN</span>
-0109 <span class="comment">%   k: scalar, number of successes</span>
-0110 <span class="comment">%   n: scalar, number of samples</span>
-0111 <span class="comment">%</span>
-0112 <span class="comment">% OUT</span>
-0113 <span class="comment">%   lb: lower bound of confidence interval</span>
-0114 <span class="comment">%   ub: upper bound of confidence interval</span>
-0115 <span class="comment">%</span>
-0116 <span class="comment">% REFERENCES</span>
-0117 <span class="comment">% Brown, Lawrence D., Cai, T. Tony, Dasgupta, Anirban, 1999.</span>
-0118 <span class="comment">%  Interval estimation for a binomial proportion. Stat. Sci. 16, 101?133.</span>
-0119 <span class="comment">% Edwin B. Wilson, Probable Inference, the Law of Succession, and</span>
-0120 <span class="comment">%   Statistical Inference, Journal of the American Statistical Association,</span>
-0121 <span class="comment">%   Vol. 22, No. 158 (Jun., 1927), pp. 209-212</span>
+0101 
+0102 <a name="_sub3" href="#_subfunctions" class="code">function [lb,ub] = computeWilsonBinomialCI(k,n)</a>
+0103 <span class="comment">% Compute upper and lower 5% confidence interval bounds</span>
+0104 <span class="comment">% for a binomial distribution using Wilson's 'score interval'</span>
+0105 <span class="comment">%</span>
+0106 <span class="comment">% IN</span>
+0107 <span class="comment">%   k: scalar, number of successes</span>
+0108 <span class="comment">%   n: scalar, number of samples</span>
+0109 <span class="comment">%</span>
+0110 <span class="comment">% OUT</span>
+0111 <span class="comment">%   lb: lower bound of confidence interval</span>
+0112 <span class="comment">%   ub: upper bound of confidence interval</span>
+0113 <span class="comment">%</span>
+0114 <span class="comment">% REFERENCES</span>
+0115 <span class="comment">% Brown, Lawrence D., Cai, T. Tony, Dasgupta, Anirban, 1999.</span>
+0116 <span class="comment">%  Interval estimation for a binomial proportion. Stat. Sci. 16, 101?133.</span>
+0117 <span class="comment">% Edwin B. Wilson, Probable Inference, the Law of Succession, and</span>
+0118 <span class="comment">%   Statistical Inference, Journal of the American Statistical Association,</span>
+0119 <span class="comment">%   Vol. 22, No. 158 (Jun., 1927), pp. 209-212</span>
+0120 
+0121 alpha=0.05;
 0122 
-0123 alpha=0.05;
-0124 
-0125 l=norminv(1-alpha/2,0,1);
-0126 p=k/n;                    <span class="comment">% sample proportion of success</span>
-0127 q=1-p;
-0128 
-0129 <span class="comment">% compute terms of formula</span>
-0130 firstTerm=(k+(l^2)/2)/(n+l^2);
-0131 secondTerm=((l*sqrt(n))/(n+l^2))*sqrt(p*q+((l^2)/(4*n)));
-0132 
-0133 <span class="comment">% compute upper and lower bounds</span>
-0134 lb=firstTerm-secondTerm;
-0135 ub=firstTerm+secondTerm;
-0136 
-0137 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0123 l=spm_invNcdf(1-alpha/2,0,1); <span class="comment">%</span>
+0124 p=k/n;                    <span class="comment">% sample proportion of success</span>
+0125 q=1-p;
+0126 
+0127 <span class="comment">% compute terms of formula</span>
+0128 firstTerm=(k+(l^2)/2)/(n+l^2);
+0129 secondTerm=((l*sqrt(n))/(n+l^2))*sqrt(p*q+((l^2)/(4*n)));
+0130 
+0131 <span class="comment">% compute upper and lower bounds</span>
+0132 lb=firstTerm-secondTerm;
+0133 ub=firstTerm+secondTerm;
+0134 
+0135 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

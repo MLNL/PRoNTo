@@ -64,7 +64,7 @@ This function is called by:
 0010 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0011 
 0012 <span class="comment">% Written by Christophe Phillips</span>
-0013 <span class="comment">% $Id: prt_struct2latex.m 394 2011-11-17 22:14:43Z cphillip $</span>
+0013 <span class="comment">% $Id: prt_struct2latex.m 395 2011-11-17 22:34:59Z cphillip $</span>
 0014 
 0015 <span class="keyword">if</span> nargin&lt;1,
 0016     f = spm_select(1,<span class="string">'^PRT\.mat'</span>,<span class="string">'Select a PRT.mat file'</span>);
@@ -76,7 +76,7 @@ This function is called by:
 0022 <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
 0023 
 0024 <span class="comment">%% Heading part</span>
-0025 <span class="comment">% fprintf(fp,'%% $Id: prt_struct2latex.m 394 2011-11-17 22:14:43Z cphillip $\n\n');</span>
+0025 <span class="comment">% fprintf(fp,'%% $Id: prt_struct2latex.m 395 2011-11-17 22:34:59Z cphillip $\n\n');</span>
 0026 fprintf(fp,<span class="string">'\\chapter{%s}\n\\label{sec:%s}\n\\minitoc\n\n'</span>,<span class="keyword">...</span>
 0027     <a href="#_sub2" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'PRT structure'</span>),<span class="string">'PRTstruct'</span>);
 0028 fprintf(fp,<span class="string">'This is how the main {\\tt PRT} structure is organised.\n\n'</span>);
@@ -167,6 +167,6 @@ This function is called by:
 0113 <span class="keyword">return</span>;
 0114 
 0115 <span class="comment">%==========================================================================</span></pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

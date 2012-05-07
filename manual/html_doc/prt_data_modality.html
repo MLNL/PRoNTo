@@ -92,7 +92,7 @@ This function is called by:
 0024 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0025 
 0026 <span class="comment">% Written by J.Schrouff</span>
-0027 <span class="comment">% $Id: prt_data_modality.m 342 2011-11-10 10:49:36Z schrouff $</span>
+0027 <span class="comment">% $Id: prt_data_modality.m 494 2012-04-03 11:14:36Z schrouff $</span>
 0028 
 0029 <span class="comment">% Edit the above text to modify the response to help prt_data_modality</span>
 0030 
@@ -131,437 +131,513 @@ This function is called by:
 0063 <span class="comment">% Choose default command line output for prt_data_modality</span>
 0064 handles.output = hObject;
 0065 
-0066 set(handles.figure1,<span class="string">'Name'</span>,<span class="string">'PRoNTo :: Specify modality'</span>)
-0067 set(handles.design_menu,<span class="keyword">...</span>
-0068         <span class="string">'String'</span>,{<span class="string">'Load SPM.mat'</span>,<span class="string">'Specify design'</span>,<span class="string">'No design'</span>},<span class="keyword">...</span>
-0069         <span class="string">'Value'</span>,3);
-0070     
-0071 
-0072 handles.mod=[];
-0073 handles.mod.detrend=1;
-0074 handles.mod.design=0;
-0075 handles.mod.scans=[];
-0076 handles.mod.name={};
-0077 handles.mod.covar=[];
-0078 handles.mod.rt_subj=[];
-0079 handles.subj1=0;
-0080 
-0081 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
-0082     <span class="comment">%Particular options if you select by 'scans'</span>
-0083     <span class="keyword">if</span> ~isempty(varargin{2}{2}) &amp;&amp; strcmpi(varargin{2}{2}.subj_name,<span class="string">'Scans'</span>)
-0084         set(handles.design_menu,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0085         set(handles.edit_regt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0086         set(handles.edit_regt,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
-0087         set(handles.edit_covar,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0088         set(handles.edit_covar,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
-0089         set(handles.text7,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
-0090         set(handles.text6,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
-0091     <span class="keyword">else</span>
-0092         set(handles.design_menu,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0093         set(handles.edit_regt,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0094         set(handles.edit_regt,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0095         set(handles.edit_covar,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0096         set(handles.edit_covar,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0097         set(handles.text7,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0098         set(handles.text6,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
-0099     <span class="keyword">end</span>
-0100         
-0101     <span class="keyword">if</span> ~isempty(varargin{2}{2}) &amp;&amp; isfield(varargin{2}{2},<span class="string">'modality'</span>) &amp;&amp; <span class="keyword">...</span>
-0102             ~isempty(varargin{2}{2}.modality)
-0103         handles.subjmod={varargin{2}{2}.modality(:).mod_name};
-0104         <span class="keyword">if</span> length(varargin{2})&gt;=3 &amp;&amp; ~isempty(varargin{2}{3})
-0105             nlist=varargin{2}{1};
-0106             modsel=varargin{2}{2}.modality(varargin{2}{3});
-0107             valsel=find(strcmpi(modsel.mod_name,nlist));
-0108             set(handles.modname,<span class="string">'String'</span>,nlist);
-0109             set(handles.modname,<span class="string">'Value'</span>,valsel);
-0110             handles.mod.detrend=modsel.detrend;
-0111             handles.mod.design=modsel.design;
-0112             <span class="keyword">if</span> ~isempty(modsel.design)
-0113                 set(handles.design_menu,<span class="string">'Value'</span>,2)
-0114                 handles.desnmenu=2;
-0115             <span class="keyword">end</span>
-0116             handles.mod.scans=modsel.scans;
-0117             handles.mod.name=modsel.mod_name;
-0118             handles.mod.covar=modsel.covar;
-0119             handles.mod.rt_subj=modsel.rt_subj;
-0120         <span class="keyword">else</span>
-0121             nlist=[varargin{2}{1}, {<span class="string">'Enter new'</span>}];
-0122             set(handles.modname,<span class="string">'String'</span>,nlist,<span class="string">'Value'</span>,length(nlist));  
-0123         <span class="keyword">end</span>
-0124     <span class="keyword">else</span>
-0125         nlist=[varargin{2}{1}, {<span class="string">'Enter new'</span>}];
-0126         set(handles.modname,<span class="string">'String'</span>,nlist,<span class="string">'Value'</span>,length(nlist));  
-0127         handles.subjmod={};
-0128     <span class="keyword">end</span>
-0129 <span class="keyword">else</span>
-0130     nlist={<span class="string">'Enter new'</span>};
-0131     handles.subjmod={};
-0132     set(handles.modname,<span class="string">'String'</span>,nlist,<span class="string">'Value'</span>,1);
-0133 <span class="keyword">end</span>
-0134 <span class="keyword">if</span> length(varargin{2})&gt;=4 &amp;&amp; ~isempty(varargin{2}{4})
-0135     handles.subj1=varargin{2}{4};
-0136 <span class="keyword">end</span>
-0137 <span class="keyword">if</span> length(varargin{2})==5 &amp;&amp; ~isempty(varargin{2}{5})
-0138     handles.PRT=varargin{2}{5};
-0139 <span class="keyword">end</span>
-0140 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0066 <span class="comment">%if window already exists, just put it as the current figure</span>
+0067 Tag=<span class="string">'DDmod'</span>;
+0068 F = findall(allchild(0),<span class="string">'Flat'</span>,<span class="string">'Tag'</span>,Tag);
+0069 <span class="keyword">if</span> length(F) &gt; 1
+0070     <span class="comment">% Multiple Graphics windows - close all but most recent</span>
+0071     close(F(2:end))
+0072     F = F(1);
+0073     uistack(F,<span class="string">'top'</span>)
+0074 <span class="keyword">elseif</span> length(F)==1
+0075     uistack(F,<span class="string">'top'</span>)
+0076 <span class="keyword">else</span>
+0077     set(handles.figure1,<span class="string">'Tag'</span>,Tag)
+0078 
+0079     set(handles.figure1,<span class="string">'Name'</span>,<span class="string">'PRoNTo :: Specify modality'</span>)
+0080     set(handles.design_menu,<span class="keyword">...</span>
+0081             <span class="string">'String'</span>,{<span class="string">'Load SPM.mat'</span>,<span class="string">'Specify design'</span>,<span class="string">'No design'</span>},<span class="keyword">...</span>
+0082             <span class="string">'Value'</span>,3);
+0083 
+0084     <span class="comment">%set size of the window, taking screen resolution and platform into account</span>
+0085     S0= spm(<span class="string">'WinSize'</span>,<span class="string">'0'</span>,1);   <span class="comment">%-Screen size (of the current monitor)</span>
+0086     <span class="keyword">if</span> ispc
+0087         PF=<span class="string">'MS Sans Serif'</span>;
+0088     <span class="keyword">else</span>
+0089         PF= spm_platform(<span class="string">'fonts'</span>);     <span class="comment">%-Font names (for this platform)</span>
+0090         PF=PF.helvetica;
+0091     <span class="keyword">end</span>
+0092     tmp  = [S0(3)/1280 (S0(4))/800];
+0093     ratio=min(tmp)*[1 1 1 1];
+0094     FS = 1 + 0.85*(min(ratio)-1);  <span class="comment">%factor to scale the fonts</span>
+0095     x=get(handles.figure1,<span class="string">'Position'</span>);
+0096     set(handles.figure1,<span class="string">'DefaultTextFontSize'</span>,FS*8,<span class="keyword">...</span>
+0097         <span class="string">'DefaultUicontrolFontSize'</span>,FS*8,<span class="keyword">...</span>
+0098         <span class="string">'DefaultTextFontName'</span>,PF,<span class="keyword">...</span>
+0099         <span class="string">'DefaultAxesFontName'</span>,PF,<span class="keyword">...</span>
+0100         <span class="string">'DefaultUicontrolFontName'</span>,PF)
+0101     set(handles.figure1,<span class="string">'Position'</span>,ratio.*x)
+0102     set(handles.figure1,<span class="string">'Resize'</span>,<span class="string">'on'</span>) 
+0103 
+0104     <span class="comment">% Choose the color of the different backgrounds and figure parameters</span>
+0105     color=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'color'</span>);
+0106     set(handles.figure1,<span class="string">'Color'</span>,color.bg1)
+0107     aa=get(handles.figure1,<span class="string">'children'</span>);
+0108     <span class="keyword">for</span> i=1:length(aa)
+0109         <span class="keyword">if</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uipanel'</span>)
+0110             set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg2)
+0111             bb=get(aa(i),<span class="string">'children'</span>);
+0112             <span class="keyword">if</span> ~isempty(bb)
+0113                 <span class="keyword">for</span> j=1:length(bb)
+0114                     <span class="keyword">if</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0115                             <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>}))) 
+0116                         set(bb(j),<span class="string">'BackgroundColor'</span>,color.bg2)
+0117                     <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>))) 
+0118                         set(bb(j),<span class="string">'BackgroundColor'</span>,color.fr)
+0119                     <span class="keyword">end</span>
+0120                     set(bb(j),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0121                     xf=get(bb(j),<span class="string">'FontSize'</span>);
+0122                     set(bb(j),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0123                         <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0124                 <span class="keyword">end</span>
+0125             <span class="keyword">end</span>                    
+0126         <span class="keyword">else</span>
+0127             <span class="keyword">if</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0128                     <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>,<span class="string">'listbox'</span>})))
+0129                 set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg1)
+0130             <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>)))
+0131                 set(aa(i),<span class="string">'BackgroundColor'</span>,color.fr)
+0132             <span class="keyword">end</span>
+0133         <span class="keyword">end</span>
+0134         set(aa(i),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0135         xf=get(aa(i),<span class="string">'FontSize'</span>);
+0136         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0137             <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0138     <span class="keyword">end</span>
+0139 
+0140 
 0141 
-0142 <span class="comment">% Update handles structure</span>
-0143 guidata(hObject, handles);
-0144 
-0145 <span class="comment">% %UIWAIT makes prt_data_modality wait for user response (see UIRESUME)</span>
-0146 uiwait(handles.figure1);
-0147 
-0148 
-0149 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0150 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_data_modality_OutputFcn(hObject, eventdata, handles) </a>
-0151 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0152 <span class="comment">% hObject    handle to figure</span>
-0153 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0154 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0155 
-0156 <span class="comment">% Get default command line output from handles structure</span>
-0157 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
-0158     varargout{1} = handles.output;
-0159 <span class="keyword">else</span>
-0160     varargout{1}=[];
-0161 <span class="keyword">end</span>
-0162 
-0163 <span class="comment">% The figure can be deleted now</span>
-0164 <span class="keyword">if</span> isfield(handles,<span class="string">'figure1'</span>)
-0165     delete(handles.figure1);
-0166 <span class="keyword">end</span>
-0167 
-0168 
-0169 <span class="comment">% --- Executes on selection change in modname.</span>
-0170 <a name="_sub3" href="#_subfunctions" class="code">function modname_Callback(hObject, eventdata, handles)</a>
-0171 <span class="comment">% hObject    handle to modname (see GCBO)</span>
-0172 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0173 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0174 
-0175 <span class="comment">% Hints: contents = get(hObject,'String') returns modname contents as cell array</span>
-0176 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from modname</span>
-0177 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0178 list=get(handles.modname,<span class="string">'String'</span>);
-0179 <span class="comment">%handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)</span>
-0180 <span class="keyword">if</span> length(list)==1
-0181     set(handles.modname,<span class="string">'Value'</span>,1)
-0182 <span class="keyword">end</span>
-0183 
-0184 <span class="keyword">if</span> any(strfind(list{get(handles.modname,<span class="string">'Value'</span>)}, <span class="string">'Enter'</span>))
-0185     modname=<a href="prt_text_input.html" class="code" title="function varargout = prt_text_input(varargin)">prt_text_input</a>(<span class="string">'Title'</span>,<span class="string">'Enter modality name'</span>);
-0186     <span class="keyword">if</span> isnumeric(modname)
-0187         <span class="keyword">return</span>
-0188     <span class="keyword">end</span>
-0189     <span class="keyword">if</span> ~any(strcmpi(list,modname))
-0190         nlist=[list;{modname}];
-0191     <span class="keyword">else</span>
-0192         beep
-0193         disp(<span class="string">'This modality has already been set for the selected subject'</span>)
-0194         set(handles.modname,<span class="string">'String'</span>,list);
-0195         valall=strfind(list,<span class="string">'Enter'</span>);
-0196         <span class="keyword">for</span> i=1:length(valall)
-0197             <span class="keyword">if</span> ~isempty(valall{i})
-0198                 val=i;
-0199                 <span class="keyword">break</span>
-0200             <span class="keyword">end</span>
-0201         <span class="keyword">end</span>
-0202         set(handles.modname,<span class="string">'Value'</span>,val);
-0203         <span class="keyword">return</span>               
-0204     <span class="keyword">end</span>     
-0205     set(handles.modname,<span class="string">'String'</span>,nlist);
-0206     set(handles.modname,<span class="string">'Value'</span>,length(nlist));
-0207 <span class="keyword">else</span>
-0208     modname=list{get(handles.modname,<span class="string">'Value'</span>)};
-0209     <span class="keyword">if</span> ~isempty(handles.subjmod)
-0210         <span class="keyword">if</span> any(strcmpi(handles.subjmod,modname))
-0211             beep
-0212             disp(<span class="string">'This modality has already been set for the selected subject'</span>)
-0213             set(handles.modname,<span class="string">'String'</span>,list);
-0214             valall=strfind(list,<span class="string">'Enter'</span>);
-0215             <span class="keyword">for</span> i=1:length(valall)
-0216                 <span class="keyword">if</span> ~isempty(valall{i})
-0217                     val=i;
-0218                     <span class="keyword">break</span>
-0219                 <span class="keyword">end</span>
-0220             <span class="keyword">end</span>
-0221             set(handles.modname,<span class="string">'Value'</span>,val);
-0222             <span class="keyword">return</span>
-0223         <span class="keyword">end</span>
-0224     <span class="keyword">end</span>         
-0225 <span class="keyword">end</span>
+0142 
+0143     handles.mod=[];
+0144     handles.mod.detrend=1;
+0145     handles.mod.design=0;
+0146     handles.mod.scans=[];
+0147     handles.mod.name={};
+0148     handles.mod.covar=[];
+0149     handles.mod.rt_subj=[];
+0150     handles.subj1=0;
+0151 
+0152     <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
+0153         <span class="comment">%Particular options if you select by 'scans'</span>
+0154         <span class="keyword">if</span> ~isempty(varargin{2}{2}) &amp;&amp; strcmpi(varargin{2}{2}.subj_name,<span class="string">'Scans'</span>)
+0155             set(handles.design_menu,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0156             set(handles.edit_regt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0157             set(handles.edit_regt,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
+0158             set(handles.edit_covar,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0159             set(handles.edit_covar,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
+0160             set(handles.text7,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
+0161             set(handles.text6,<span class="string">'Visible'</span>,<span class="string">'on'</span>)
+0162         <span class="keyword">else</span>
+0163             set(handles.design_menu,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0164             set(handles.edit_regt,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0165             set(handles.edit_regt,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0166             set(handles.edit_covar,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0167             set(handles.edit_covar,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0168             set(handles.text7,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0169             set(handles.text6,<span class="string">'Visible'</span>,<span class="string">'off'</span>)
+0170         <span class="keyword">end</span>
+0171 
+0172         <span class="keyword">if</span> ~isempty(varargin{2}{2}) &amp;&amp; isfield(varargin{2}{2},<span class="string">'modality'</span>) &amp;&amp; <span class="keyword">...</span>
+0173                 ~isempty(varargin{2}{2}.modality)
+0174             handles.subjmod={varargin{2}{2}.modality(:).mod_name};
+0175             <span class="keyword">if</span> length(varargin{2})&gt;=3 &amp;&amp; ~isempty(varargin{2}{3})
+0176                 nlist=varargin{2}{1};
+0177                 modsel=varargin{2}{2}.modality(varargin{2}{3});
+0178                 valsel=find(strcmpi(modsel.mod_name,nlist));
+0179                 set(handles.modname,<span class="string">'String'</span>,nlist);
+0180                 set(handles.modname,<span class="string">'Value'</span>,valsel);
+0181                 handles.mod.detrend=modsel.detrend;
+0182                 handles.mod.design=modsel.design;
+0183                 <span class="keyword">if</span> ~isempty(modsel.design)
+0184                     set(handles.design_menu,<span class="string">'Value'</span>,2)
+0185                     handles.desnmenu=2;
+0186                 <span class="keyword">end</span>
+0187                 handles.mod.scans=modsel.scans;
+0188                 handles.mod.name=modsel.mod_name;
+0189                 handles.mod.covar=modsel.covar;
+0190                 handles.mod.rt_subj=modsel.rt_subj;
+0191             <span class="keyword">else</span>
+0192                 nlist=[varargin{2}{1}, {<span class="string">'Enter new'</span>}];
+0193                 set(handles.modname,<span class="string">'String'</span>,nlist,<span class="string">'Value'</span>,length(nlist));  
+0194             <span class="keyword">end</span>
+0195         <span class="keyword">else</span>
+0196             nlist=[varargin{2}{1}, {<span class="string">'Enter new'</span>}];
+0197             set(handles.modname,<span class="string">'String'</span>,nlist,<span class="string">'Value'</span>,length(nlist));  
+0198             handles.subjmod={};
+0199         <span class="keyword">end</span>
+0200     <span class="keyword">else</span>
+0201         nlist={<span class="string">'Enter new'</span>};
+0202         handles.subjmod={};
+0203         set(handles.modname,<span class="string">'String'</span>,nlist,<span class="string">'Value'</span>,1);
+0204     <span class="keyword">end</span>
+0205     <span class="keyword">if</span> length(varargin{2})&gt;=4 &amp;&amp; ~isempty(varargin{2}{4})
+0206         handles.subj1=varargin{2}{4};
+0207     <span class="keyword">end</span>
+0208     <span class="keyword">if</span> length(varargin{2})==5 &amp;&amp; ~isempty(varargin{2}{5})
+0209         handles.PRT=varargin{2}{5};
+0210     <span class="keyword">end</span>
+0211     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0212 <span class="keyword">end</span>
+0213 <span class="comment">% Update handles structure</span>
+0214 guidata(hObject, handles);
+0215 
+0216 <span class="comment">% %UIWAIT makes prt_data_modality wait for user response (see UIRESUME)</span>
+0217 uiwait(handles.figure1);
+0218 
+0219 
+0220 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0221 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_data_modality_OutputFcn(hObject, eventdata, handles) </a>
+0222 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0223 <span class="comment">% hObject    handle to figure</span>
+0224 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0225 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
 0226 
-0227 <span class="comment">%if a subject was previously entered, then propose to replicate its design</span>
-0228 <span class="comment">%if the modality is the same</span>
-0229 <span class="keyword">if</span> isstruct(handles.subj1)
-0230     <span class="keyword">if</span> any(strcmpi(modname, {handles.subj1(:).mod_name}))
-0231         handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
-0232         list=get(handles.design_menu,<span class="string">'String'</span>);
-0233         list=[list;{<span class="string">'Replicate design of subject 1'</span>}];
-0234         set(handles.design_menu,<span class="string">'String'</span>,list);
-0235     <span class="keyword">end</span>
-0236 <span class="keyword">end</span>
-0237 handles.mod.name=modname;
-0238 <span class="comment">% Update handles structure</span>
-0239 guidata(hObject, handles);
-0240 
-0241 
-0242 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0243 <a name="_sub4" href="#_subfunctions" class="code">function modname_CreateFcn(hObject, eventdata, handles)</a>
-0244 <span class="comment">% hObject    handle to modname (see GCBO)</span>
-0245 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0246 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0247 
-0248 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0249 <span class="comment">%       See ISPC and COMPUTER.</span>
-0250 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0251     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0252 <span class="keyword">end</span>
-0253 
-0254 <span class="comment">% --- Executes on selection change in design_menu.</span>
-0255 <a name="_sub5" href="#_subfunctions" class="code">function design_menu_Callback(hObject, eventdata, handles)</a>
-0256 <span class="comment">% hObject    handle to design_menu (see GCBO)</span>
-0257 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0258 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0259 
-0260 <span class="comment">% Hints: contents = get(hObject,'String') returns design_menu contents as cell array</span>
-0261 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from design_menu</span>
-0262 choice=get(handles.design_menu,<span class="string">'Value'</span>);
-0263 <span class="comment">%Mac and Matlab versions strange things with popup menus</span>
-0264 <span class="keyword">if</span> choice==0
-0265     choice=handles.desnmenu;
-0266     set(handles.design_menu,<span class="string">'Value'</span>)
-0267 <span class="keyword">end</span>
-0268 <span class="keyword">if</span> choice==1
-0269     desn=spm_select(1,<span class="string">'mat'</span>,<span class="string">'Select SPM.mat file'</span>,[],[],<span class="string">'SPM.mat'</span>);
-0270     <span class="keyword">try</span>
-0271         load(desn);
-0272     <span class="keyword">catch</span>
-0273         beep
-0274         disp(<span class="string">'Can not load SPM.mat file'</span>);
-0275         <span class="keyword">return</span>
-0276     <span class="keyword">end</span>
-0277     ncond = length(SPM.Sess(1).U);
-0278     conds=struct();
-0279     <span class="keyword">for</span> c = 1:ncond
-0280         conds(c).cond_name = SPM.Sess(1).U(c).name{1};
-0281         conds(c).onsets    = SPM.Sess(1).U(c).ons;
-0282         conds(c).durations = SPM.Sess(1).U(c).dur;
-0283     <span class="keyword">end</span>    
-0284     <span class="keyword">if</span> strcmpi(SPM.xBF.UNITS,<span class="string">'scans'</span>)
-0285         units=0;
-0286     <span class="keyword">else</span>
-0287         units=1;
-0288     <span class="keyword">end</span>
-0289     def=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'datad'</span>);
-0290     <span class="keyword">if</span> isfield(handles.PRT.group,<span class="string">'hrfoverlap'</span>)
-0291         overl=handles.PRT.group.hrfoverlap;
-0292     <span class="keyword">else</span>
-0293         overl=def.hrfw;
-0294     <span class="keyword">end</span>
-0295     <span class="keyword">if</span> isfield(handles.PRT.group,<span class="string">'hrfdelay'</span>)
-0296         del=handles.PRT.group.hrfdelay;
-0297     <span class="keyword">else</span>
-0298         del=def.hrfd;
-0299     <span class="keyword">end</span>
-0300     desn=<a href="prt_check_design.html" class="code" title="function [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)">prt_check_design</a>(conds,SPM.xX.K.RT,units,overl,del);
-0301     desn.covar = [];
-0302 <span class="keyword">elseif</span> choice==2
-0303     <span class="keyword">if</span> isstruct(handles.mod.design)
-0304         desn=<a href="prt_data_conditions.html" class="code" title="function varargout = prt_data_conditions(varargin)">prt_data_conditions</a>(<span class="string">'UserData'</span>,{handles.mod.design,handles.PRT});
-0305     <span class="keyword">else</span>
-0306         desn=<a href="prt_data_conditions.html" class="code" title="function varargout = prt_data_conditions(varargin)">prt_data_conditions</a>;
-0307     <span class="keyword">end</span>
-0308 <span class="keyword">elseif</span> choice ==3
-0309     desn=[];
-0310 <span class="keyword">elseif</span> choice==4
-0311     desn=handles.subj1(handles.indmods1).design;
+0227 <span class="comment">% Get default command line output from handles structure</span>
+0228 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
+0229     varargout{1} = handles.output;
+0230 <span class="keyword">else</span>
+0231     varargout{1}=[];
+0232 <span class="keyword">end</span>
+0233 
+0234 <span class="comment">% The figure can be deleted now</span>
+0235 <span class="keyword">if</span> isfield(handles,<span class="string">'figure1'</span>)
+0236     delete(handles.figure1);
+0237 <span class="keyword">end</span>
+0238 
+0239 
+0240 <span class="comment">% --- Executes on selection change in modname.</span>
+0241 <a name="_sub3" href="#_subfunctions" class="code">function modname_Callback(hObject, eventdata, handles)</a>
+0242 <span class="comment">% hObject    handle to modname (see GCBO)</span>
+0243 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0244 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0245 
+0246 <span class="comment">% Hints: contents = get(hObject,'String') returns modname contents as cell array</span>
+0247 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from modname</span>
+0248 warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0249 list=get(handles.modname,<span class="string">'String'</span>);
+0250 <span class="comment">%handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)</span>
+0251 <span class="keyword">if</span> length(list)==1
+0252     set(handles.modname,<span class="string">'Value'</span>,1)
+0253 <span class="keyword">end</span>
+0254 
+0255 <span class="keyword">if</span> any(strfind(list{get(handles.modname,<span class="string">'Value'</span>)}, <span class="string">'Enter'</span>))
+0256     modname=<a href="prt_text_input.html" class="code" title="function varargout = prt_text_input(varargin)">prt_text_input</a>(<span class="string">'Title'</span>,<span class="string">'Enter modality name'</span>);
+0257     <span class="keyword">if</span> isnumeric(modname)
+0258         <span class="keyword">return</span>
+0259     <span class="keyword">end</span>
+0260     <span class="keyword">if</span> ~any(strcmpi(list,modname))
+0261         nlist=[list;{modname}];
+0262     <span class="keyword">else</span>
+0263         beep
+0264         disp(<span class="string">'This modality has already been set for the selected subject'</span>)
+0265         set(handles.modname,<span class="string">'String'</span>,list);
+0266         valall=strfind(list,<span class="string">'Enter'</span>);
+0267         <span class="keyword">for</span> i=1:length(valall)
+0268             <span class="keyword">if</span> ~isempty(valall{i})
+0269                 val=i;
+0270                 <span class="keyword">break</span>
+0271             <span class="keyword">end</span>
+0272         <span class="keyword">end</span>
+0273         set(handles.modname,<span class="string">'Value'</span>,val);
+0274         <span class="keyword">return</span>               
+0275     <span class="keyword">end</span>     
+0276     set(handles.modname,<span class="string">'String'</span>,nlist);
+0277     set(handles.modname,<span class="string">'Value'</span>,length(nlist));
+0278 <span class="keyword">else</span>
+0279     modname=list{get(handles.modname,<span class="string">'Value'</span>)};
+0280     <span class="keyword">if</span> ~isempty(handles.subjmod)
+0281         <span class="keyword">if</span> any(strcmpi(handles.subjmod,modname))
+0282             set(handles.modname,<span class="string">'String'</span>,list);
+0283             valall=strfind(list,<span class="string">'Enter'</span>);
+0284             <span class="keyword">if</span> length(valall)==1 &amp;&amp; isempty(valall{1}) <span class="comment">%case of reviewing the modality</span>
+0285                 val=1;
+0286                 set(handles.modname,<span class="string">'Value'</span>,val);
+0287             <span class="keyword">else</span>    <span class="comment">%user tries to give a name he already used</span>
+0288                 beep
+0289                 disp(<span class="string">'This modality has already been set for the selected subject'</span>)            
+0290                 <span class="keyword">for</span> i=1:length(valall)
+0291                     <span class="keyword">if</span> ~isempty(valall{i})
+0292                         val=i;
+0293                         <span class="keyword">break</span>
+0294                     <span class="keyword">end</span>
+0295                 <span class="keyword">end</span>
+0296                 set(handles.modname,<span class="string">'Value'</span>,val);
+0297                 <span class="keyword">return</span>
+0298             <span class="keyword">end</span>
+0299         <span class="keyword">end</span>
+0300     <span class="keyword">end</span>         
+0301 <span class="keyword">end</span>
+0302 
+0303 <span class="comment">%if a subject was previously entered, then propose to replicate its design</span>
+0304 <span class="comment">%if the modality is the same</span>
+0305 <span class="keyword">if</span> isstruct(handles.subj1)
+0306     <span class="keyword">if</span> any(strcmpi(modname, {handles.subj1(:).mod_name}))
+0307         handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
+0308         list=get(handles.design_menu,<span class="string">'String'</span>);
+0309         list=[list;{<span class="string">'Replicate design of subject 1'</span>}];
+0310         set(handles.design_menu,<span class="string">'String'</span>,list);
+0311     <span class="keyword">end</span>
 0312 <span class="keyword">end</span>
-0313 handles.mod.design=desn;
-0314 <span class="keyword">if</span> isfield(desn,<span class="string">'covar'</span>) &amp;&amp; ~isempty(desn.covar)
-0315     set(handles.edit_covar,<span class="string">'String'</span>,<span class="string">'Entered'</span>);
-0316     set(handles.edit_covar,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
-0317 <span class="keyword">end</span>
-0318 <span class="comment">% Update handles structure</span>
-0319 guidata(hObject, handles);
-0320 
-0321 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0322 <a name="_sub6" href="#_subfunctions" class="code">function design_menu_CreateFcn(hObject, eventdata, handles)</a>
-0323 <span class="comment">% hObject    handle to design_menu (see GCBO)</span>
-0324 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0325 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0326 
-0327 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0328 <span class="comment">%       See ISPC and COMPUTER.</span>
-0329 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0330     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0331 <span class="keyword">end</span>
-0332 
-0333 <span class="comment">% --- Executes on button press in getfiles.</span>
-0334 <a name="_sub7" href="#_subfunctions" class="code">function getfiles_Callback(hObject, eventdata, handles)</a>
-0335 <span class="comment">% hObject    handle to getfiles (see GCBO)</span>
-0336 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0337 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0338 <span class="keyword">if</span> ~isempty(handles.mod.scans)
-0339     sel=cellstr(handles.mod.scans);
-0340 <span class="keyword">else</span>
-0341     sel=[];
-0342 <span class="keyword">end</span>
-0343 t=spm_select([1 Inf],<span class="string">'image'</span>,<span class="string">'Select files for the modality'</span>,sel);
-0344 handles.mod.scans=t;
-0345 <span class="comment">% Update handles structure</span>
-0346 guidata(hObject, handles);
-0347 
-0348 
-0349 <a name="_sub8" href="#_subfunctions" class="code">function edit_regt_Callback(hObject, eventdata, handles)</a>
-0350 <span class="comment">% hObject    handle to edit_regt (see GCBO)</span>
-0351 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0352 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0353 
-0354 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_regt as text</span>
-0355 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_regt as a double</span>
-0356 
-0357 <span class="comment">%first option of loading: writing the values</span>
-0358 rt=get(handles.edit_regt,<span class="string">'String'</span>);
-0359 <span class="keyword">if</span> isempty(rt)
-0360     <span class="keyword">return</span>
-0361 <span class="keyword">end</span>
-0362 <span class="keyword">if</span> ~isnan(str2double(rt(1)))
-0363     eval([<span class="string">'rte=['</span>,rt,<span class="string">'];'</span>])
-0364 <span class="keyword">else</span>
-0365     <span class="keyword">try</span>
-0366         load(char(rt));
-0367     <span class="keyword">catch</span>
-0368         beep
-0369         disp(<span class="string">'Could not load file or read the regression targets'</span>)
-0370         disp(<span class="string">'Please enter either a .mat file name or enter the values'</span>)
-0371         <span class="keyword">return</span>
-0372     <span class="keyword">end</span>
-0373     <span class="keyword">if</span> ~exist(<span class="string">'rt_subj'</span>,<span class="string">'var'</span>)
-0374         beep
-0375         sprintf(<span class="string">'Regression targets file must contain ''rt_subj'' variable! '</span>)
-0376         disp(<span class="string">'Please correct!'</span>)
-0377         <span class="keyword">return</span>
-0378     <span class="keyword">else</span>
-0379         rte=rt_subj;
-0380     <span class="keyword">end</span>
-0381 <span class="keyword">end</span>
-0382 handles.mod.rt_subj=rte;
-0383 <span class="comment">% Update handles structure</span>
-0384 guidata(hObject, handles);
-0385 
-0386 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0387 <a name="_sub9" href="#_subfunctions" class="code">function edit_regt_CreateFcn(hObject, eventdata, handles)</a>
-0388 <span class="comment">% hObject    handle to edit_regt (see GCBO)</span>
-0389 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0390 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0391 
-0392 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0393 <span class="comment">%       See ISPC and COMPUTER.</span>
-0394 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0395     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0396 <span class="keyword">end</span>
-0397 
-0398 <a name="_sub10" href="#_subfunctions" class="code">function edit_covar_Callback(hObject, eventdata, handles)</a>
-0399 <span class="comment">% hObject    handle to edit_covar (see GCBO)</span>
+0313 handles.mod.name=modname;
+0314 <span class="comment">% Update handles structure</span>
+0315 guidata(hObject, handles);
+0316 
+0317 
+0318 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0319 <a name="_sub4" href="#_subfunctions" class="code">function modname_CreateFcn(hObject, eventdata, handles)</a>
+0320 <span class="comment">% hObject    handle to modname (see GCBO)</span>
+0321 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0322 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0323 
+0324 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0325 <span class="comment">%       See ISPC and COMPUTER.</span>
+0326 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0327     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0328 <span class="keyword">end</span>
+0329 
+0330 <span class="comment">% --- Executes on selection change in design_menu.</span>
+0331 <a name="_sub5" href="#_subfunctions" class="code">function design_menu_Callback(hObject, eventdata, handles)</a>
+0332 <span class="comment">% hObject    handle to design_menu (see GCBO)</span>
+0333 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0334 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0335 
+0336 <span class="comment">% Hints: contents = get(hObject,'String') returns design_menu contents as cell array</span>
+0337 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from design_menu</span>
+0338 choice=get(handles.design_menu,<span class="string">'Value'</span>);
+0339 <span class="comment">%Mac and Matlab versions strange things with popup menus</span>
+0340 <span class="keyword">if</span> choice==0
+0341     choice=handles.desnmenu;
+0342     set(handles.design_menu,<span class="string">'Value'</span>)
+0343 <span class="keyword">end</span>
+0344 <span class="keyword">if</span> choice==1
+0345     desn=spm_select(1,<span class="string">'mat'</span>,<span class="string">'Select SPM.mat file'</span>,[],[],<span class="string">'SPM.mat'</span>);
+0346     <span class="keyword">try</span>
+0347         load(desn);
+0348     <span class="keyword">catch</span>
+0349         beep
+0350         disp(<span class="string">'Can not load SPM.mat file'</span>);
+0351         <span class="keyword">return</span>
+0352     <span class="keyword">end</span>
+0353     ncond = length(SPM.Sess(1).U);
+0354     conds=struct();
+0355     <span class="keyword">for</span> c = 1:ncond
+0356         conds(c).cond_name = SPM.Sess(1).U(c).name{1};
+0357         conds(c).onsets    = SPM.Sess(1).U(c).ons;
+0358         conds(c).durations = SPM.Sess(1).U(c).dur;
+0359     <span class="keyword">end</span>    
+0360     <span class="keyword">if</span> strcmpi(SPM.xBF.UNITS,<span class="string">'scans'</span>)
+0361         units=0;
+0362     <span class="keyword">else</span>
+0363         units=1;
+0364     <span class="keyword">end</span>
+0365     def=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'datad'</span>);
+0366     <span class="keyword">if</span> isfield(handles.PRT.group,<span class="string">'hrfoverlap'</span>)
+0367         overl=handles.PRT.group.hrfoverlap;
+0368     <span class="keyword">else</span>
+0369         overl=def.hrfw;
+0370     <span class="keyword">end</span>
+0371     <span class="keyword">if</span> isfield(handles.PRT.group,<span class="string">'hrfdelay'</span>)
+0372         del=handles.PRT.group.hrfdelay;
+0373     <span class="keyword">else</span>
+0374         del=def.hrfd;
+0375     <span class="keyword">end</span>
+0376     desn=<a href="prt_check_design.html" class="code" title="function [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)">prt_check_design</a>(conds,SPM.xX.K.RT,units,overl,del);
+0377     desn.covar = [];
+0378 <span class="keyword">elseif</span> choice==2
+0379     <span class="keyword">if</span> isstruct(handles.mod.design)
+0380         desn=<a href="prt_data_conditions.html" class="code" title="function varargout = prt_data_conditions(varargin)">prt_data_conditions</a>(<span class="string">'UserData'</span>,{handles.mod.design,handles.PRT});
+0381     <span class="keyword">else</span>
+0382         desn=<a href="prt_data_conditions.html" class="code" title="function varargout = prt_data_conditions(varargin)">prt_data_conditions</a>;
+0383     <span class="keyword">end</span>
+0384 <span class="keyword">elseif</span> choice ==3
+0385     desn=[];
+0386 <span class="keyword">elseif</span> choice==4
+0387     desn=handles.subj1(handles.indmods1).design;
+0388 <span class="keyword">end</span>
+0389 handles.mod.design=desn;
+0390 <span class="keyword">if</span> isfield(desn,<span class="string">'covar'</span>) &amp;&amp; ~isempty(desn.covar)
+0391     set(handles.edit_covar,<span class="string">'String'</span>,<span class="string">'Entered'</span>);
+0392     set(handles.edit_covar,<span class="string">'Visible'</span>,<span class="string">'on'</span>);
+0393 <span class="keyword">end</span>
+0394 <span class="comment">% Update handles structure</span>
+0395 guidata(hObject, handles);
+0396 
+0397 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0398 <a name="_sub6" href="#_subfunctions" class="code">function design_menu_CreateFcn(hObject, eventdata, handles)</a>
+0399 <span class="comment">% hObject    handle to design_menu (see GCBO)</span>
 0400 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0401 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0401 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
 0402 
-0403 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_covar as text</span>
-0404 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_covar as a double</span>
-0405 <span class="comment">%first option of loading: writing the values</span>
-0406 rt=get(handles.edit_covar,<span class="string">'String'</span>);
-0407 <span class="keyword">if</span> isempty(rt)
-0408     <span class="keyword">return</span>
-0409 <span class="keyword">end</span>
-0410 <span class="keyword">if</span> ~isnan(str2double(rt(1)))
-0411     eval([<span class="string">'rte=['</span>,rt,<span class="string">'];'</span>])
-0412 <span class="keyword">else</span>
-0413    <span class="keyword">try</span>
-0414         load(char(rt));
-0415     <span class="keyword">catch</span>
-0416         beep
-0417         disp(<span class="string">'Could not load file or read the covariate values'</span>)
-0418         disp(<span class="string">'Please enter either a .mat file name or enter the values'</span>)
-0419         <span class="keyword">return</span>
-0420     <span class="keyword">end</span>
-0421     <span class="keyword">if</span> ~exist(<span class="string">'R'</span>,<span class="string">'var'</span>)
-0422         beep
-0423         sprintf(<span class="string">'Covariates file must contain ''R'' variable! '</span>)
-0424         disp(<span class="string">'Please correct!'</span>)
-0425         <span class="keyword">return</span>
-0426     <span class="keyword">else</span>
-0427         rte=R;
-0428     <span class="keyword">end</span>
-0429 <span class="keyword">end</span>
-0430 
-0431 handles.mod.covar=rte;
-0432 <span class="comment">% Update handles structure</span>
-0433 guidata(hObject, handles);
-0434 
-0435 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0436 <a name="_sub11" href="#_subfunctions" class="code">function edit_covar_CreateFcn(hObject, eventdata, handles)</a>
-0437 <span class="comment">% hObject    handle to edit_covar (see GCBO)</span>
-0438 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0439 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0440 
-0441 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0442 <span class="comment">%       See ISPC and COMPUTER.</span>
-0443 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0444     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0445 <span class="keyword">end</span>
-0446 
-0447 
-0448 <span class="comment">% --- Executes on button press in okbutton.</span>
-0449 <a name="_sub12" href="#_subfunctions" class="code">function okbutton_Callback(hObject, eventdata, handles)</a>
-0450 <span class="comment">% hObject    handle to okbutton (see GCBO)</span>
-0451 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0452 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0453 
-0454 <span class="comment">%check that the files were selected</span>
-0455 <span class="keyword">if</span> isempty(handles.mod.scans)
-0456     beep
-0457     disp(<span class="string">'Please, select the files before returning'</span>)
-0458     <span class="keyword">return</span>
-0459 <span class="keyword">end</span>
-0460 
-0461 <span class="comment">%check that the regression targets have the same number of elements as the</span>
-0462 <span class="comment">%number of scans</span>
-0463 <span class="keyword">if</span> ~isempty(handles.mod.rt_subj)
-0464     szrt=length(handles.mod.rt_subj);
-0465     <span class="keyword">if</span>  size(handles.mod.scans,1)~=szrt
-0466         beep
-0467         disp(<span class="string">'Number of regression targets must be the number of files selected! '</span>)
-0468         disp(<span class="string">'Please correct!'</span>)
-0469         <span class="keyword">return</span>
-0470     <span class="keyword">end</span>
-0471 <span class="keyword">end</span>
-0472 <span class="comment">%check that the covariates have the same number of elements as the</span>
-0473 <span class="comment">%number of scans</span>
-0474 <span class="keyword">if</span> ~isempty(handles.mod.covar)
-0475     szrt=size(handles.mod.covar);
-0476     <span class="keyword">if</span>  ~any(size(handles.mod.scans,1)==szrt)
-0477         beep
-0478         disp(<span class="string">'Number of covariates must be the number of files selected! '</span>)
-0479         disp(<span class="string">'Please correct!'</span>)
-0480         <span class="keyword">return</span>
-0481     <span class="keyword">end</span>
-0482 <span class="keyword">end</span>
-0483         
-0484 modprop=handles.mod;
-0485 handles.output=modprop;
-0486 <span class="comment">% Update handles structure</span>
-0487 guidata(hObject, handles);
-0488 uiresume(handles.figure1);
-0489 
-0490 
-0491 <span class="comment">% --- Executes on button press in cancelbutton.</span>
-0492 <a name="_sub13" href="#_subfunctions" class="code">function cancelbutton_Callback(hObject, eventdata, handles)</a>
-0493 <span class="comment">% hObject    handle to cancelbutton (see GCBO)</span>
-0494 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0495 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0496 uiresume(handles.figure1);</pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0403 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0404 <span class="comment">%       See ISPC and COMPUTER.</span>
+0405 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0406     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0407 <span class="keyword">end</span>
+0408 
+0409 <span class="comment">% --- Executes on button press in getfiles.</span>
+0410 <a name="_sub7" href="#_subfunctions" class="code">function getfiles_Callback(hObject, eventdata, handles)</a>
+0411 <span class="comment">% hObject    handle to getfiles (see GCBO)</span>
+0412 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0413 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0414 <span class="keyword">if</span> ~isempty(handles.mod.scans)
+0415     sel=cellstr(handles.mod.scans);
+0416 <span class="keyword">else</span>
+0417     sel=[];
+0418 <span class="keyword">end</span>
+0419 t=spm_select([1 Inf],<span class="string">'image'</span>,<span class="string">'Select files for the modality'</span>,sel);
+0420 handles.mod.scans=t;
+0421 <span class="comment">% Update handles structure</span>
+0422 guidata(hObject, handles);
+0423 
+0424 
+0425 <a name="_sub8" href="#_subfunctions" class="code">function edit_regt_Callback(hObject, eventdata, handles)</a>
+0426 <span class="comment">% hObject    handle to edit_regt (see GCBO)</span>
+0427 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0428 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0429 
+0430 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_regt as text</span>
+0431 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_regt as a double</span>
+0432 
+0433 <span class="comment">%first option of loading: writing the values</span>
+0434 rt=get(handles.edit_regt,<span class="string">'String'</span>);
+0435 <span class="keyword">if</span> isempty(rt)
+0436     <span class="keyword">return</span>
+0437 <span class="keyword">end</span>
+0438 <span class="keyword">if</span> ~isnan(str2double(rt(1)))
+0439     eval([<span class="string">'rte=['</span>,rt,<span class="string">'];'</span>])
+0440 <span class="keyword">else</span>
+0441     <span class="keyword">try</span>
+0442         load(char(rt));
+0443     <span class="keyword">catch</span>
+0444         beep
+0445         disp(<span class="string">'Could not load file or read the regression targets'</span>)
+0446         disp(<span class="string">'Please enter either a .mat file name or enter the values'</span>)
+0447         <span class="keyword">return</span>
+0448     <span class="keyword">end</span>
+0449     <span class="keyword">if</span> ~exist(<span class="string">'rt_subj'</span>,<span class="string">'var'</span>)
+0450         beep
+0451         sprintf(<span class="string">'Regression targets file must contain ''rt_subj'' variable! '</span>)
+0452         disp(<span class="string">'Please correct!'</span>)
+0453         <span class="keyword">return</span>
+0454     <span class="keyword">else</span>
+0455         rte=rt_subj;
+0456     <span class="keyword">end</span>
+0457 <span class="keyword">end</span>
+0458 handles.mod.rt_subj=rte;
+0459 <span class="comment">% Update handles structure</span>
+0460 guidata(hObject, handles);
+0461 
+0462 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0463 <a name="_sub9" href="#_subfunctions" class="code">function edit_regt_CreateFcn(hObject, eventdata, handles)</a>
+0464 <span class="comment">% hObject    handle to edit_regt (see GCBO)</span>
+0465 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0466 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0467 
+0468 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0469 <span class="comment">%       See ISPC and COMPUTER.</span>
+0470 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0471     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0472 <span class="keyword">end</span>
+0473 
+0474 <a name="_sub10" href="#_subfunctions" class="code">function edit_covar_Callback(hObject, eventdata, handles)</a>
+0475 <span class="comment">% hObject    handle to edit_covar (see GCBO)</span>
+0476 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0477 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0478 
+0479 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_covar as text</span>
+0480 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_covar as a double</span>
+0481 <span class="comment">%first option of loading: writing the values</span>
+0482 rt=get(handles.edit_covar,<span class="string">'String'</span>);
+0483 <span class="keyword">if</span> isempty(rt)
+0484     <span class="keyword">return</span>
+0485 <span class="keyword">end</span>
+0486 <span class="keyword">if</span> ~isnan(str2double(rt(1)))
+0487     eval([<span class="string">'rte=['</span>,rt,<span class="string">'];'</span>])
+0488 <span class="keyword">else</span>
+0489    <span class="keyword">try</span>
+0490         load(char(rt));
+0491     <span class="keyword">catch</span>
+0492         beep
+0493         disp(<span class="string">'Could not load file or read the covariate values'</span>)
+0494         disp(<span class="string">'Please enter either a .mat file name or enter the values'</span>)
+0495         <span class="keyword">return</span>
+0496     <span class="keyword">end</span>
+0497     <span class="keyword">if</span> ~exist(<span class="string">'R'</span>,<span class="string">'var'</span>)
+0498         beep
+0499         sprintf(<span class="string">'Covariates file must contain ''R'' variable! '</span>)
+0500         disp(<span class="string">'Please correct!'</span>)
+0501         <span class="keyword">return</span>
+0502     <span class="keyword">else</span>
+0503         rte=R;
+0504     <span class="keyword">end</span>
+0505 <span class="keyword">end</span>
+0506 
+0507 handles.mod.covar=rte;
+0508 <span class="comment">% Update handles structure</span>
+0509 guidata(hObject, handles);
+0510 
+0511 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0512 <a name="_sub11" href="#_subfunctions" class="code">function edit_covar_CreateFcn(hObject, eventdata, handles)</a>
+0513 <span class="comment">% hObject    handle to edit_covar (see GCBO)</span>
+0514 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0515 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0516 
+0517 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0518 <span class="comment">%       See ISPC and COMPUTER.</span>
+0519 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0520     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0521 <span class="keyword">end</span>
+0522 
+0523 
+0524 <span class="comment">% --- Executes on button press in okbutton.</span>
+0525 <a name="_sub12" href="#_subfunctions" class="code">function okbutton_Callback(hObject, eventdata, handles)</a>
+0526 <span class="comment">% hObject    handle to okbutton (see GCBO)</span>
+0527 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0528 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0529 
+0530 <span class="comment">%check that the files were selected</span>
+0531 <span class="keyword">if</span> isempty(handles.mod.scans)
+0532     beep
+0533     disp(<span class="string">'Please, select the files before returning'</span>)
+0534     <span class="keyword">return</span>
+0535 <span class="keyword">end</span>
+0536 
+0537 <span class="comment">%check that the regression targets have the same number of elements as the</span>
+0538 <span class="comment">%number of scans</span>
+0539 <span class="keyword">if</span> ~isempty(handles.mod.rt_subj)
+0540     szrt=length(handles.mod.rt_subj);
+0541     <span class="keyword">if</span>  size(handles.mod.scans,1)~=szrt
+0542         beep
+0543         disp(<span class="string">'Number of regression targets must be the number of files selected! '</span>)
+0544         disp(<span class="string">'Please correct!'</span>)
+0545         <span class="keyword">return</span>
+0546     <span class="keyword">end</span>
+0547 <span class="keyword">end</span>
+0548 <span class="comment">%check that the covariates have the same number of elements as the</span>
+0549 <span class="comment">%number of scans</span>
+0550 <span class="keyword">if</span> ~isempty(handles.mod.covar)
+0551     szrt=size(handles.mod.covar);
+0552     <span class="keyword">if</span>  ~any(size(handles.mod.scans,1)==szrt)
+0553         beep
+0554         disp(<span class="string">'Number of covariates must be the number of files selected! '</span>)
+0555         disp(<span class="string">'Please correct!'</span>)
+0556         <span class="keyword">return</span>
+0557     <span class="keyword">end</span>
+0558 <span class="keyword">end</span>
+0559         
+0560 modprop=handles.mod;
+0561 handles.output=modprop;
+0562 <span class="comment">% Update handles structure</span>
+0563 guidata(hObject, handles);
+0564 uiresume(handles.figure1);
+0565 
+0566 
+0567 <span class="comment">% --- Executes on button press in cancelbutton.</span>
+0568 <a name="_sub13" href="#_subfunctions" class="code">function cancelbutton_Callback(hObject, eventdata, handles)</a>
+0569 <span class="comment">% hObject    handle to cancelbutton (see GCBO)</span>
+0570 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0571 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0572 uiresume(handles.figure1);</pre></div>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

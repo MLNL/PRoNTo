@@ -41,7 +41,7 @@ __________________________________________________________________________
  Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory
 
  Written by M.J.Rosa
- $Id: prt_run_design.m 327 2011-11-08 15:32:21Z mjrosa $</pre></div>
+ $Id: prt_run_design.m 497 2012-04-03 15:19:33Z mjrosa $</pre></div>
 
 <!-- crossreference -->
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -71,7 +71,7 @@ This function is called by:
 0013 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0014 <span class="comment">%</span>
 0015 <span class="comment">% Written by M.J.Rosa</span>
-0016 <span class="comment">% $Id: prt_run_design.m 327 2011-11-08 15:32:21Z mjrosa $</span>
+0016 <span class="comment">% $Id: prt_run_design.m 497 2012-04-03 15:19:33Z mjrosa $</span>
 0017 
 0018 
 0019 <span class="comment">% Job variable</span>
@@ -213,282 +213,286 @@ This function is called by:
 0155                 <span class="keyword">end</span>
 0156             <span class="keyword">end</span>
 0157         <span class="keyword">end</span>
-0158     <span class="keyword">end</span>
-0159 <span class="keyword">else</span>
-0160     <span class="keyword">for</span> g = 1:ngroup,  
-0161         
-0162         nmod_subjs = length(job.group(1).select.subject{1});
-0163         nsubj  = length(job.group(g).select.subject);
-0164         nsubj1 = length(job.group(1).select.subject);
-0165         
-0166         <span class="keyword">if</span> nsubj ~= nsubj1,
-0167             disp(<span class="string">'Warning: unbalanced groups.'</span>)
-0168         <span class="keyword">end</span>
-0169         <span class="keyword">for</span> j = 1:nsubj,
-0170             clear mod_names_subj
-0171             subj_name = sprintf(<span class="string">'S%d'</span>,j);
-0172             nmod = length(job.group(g).select.subject{j});
-0173             <span class="comment">% Check if the number of masks and conditions is the same</span>
-0174             <span class="keyword">if</span> nmod ~= nmod_subjs
-0175                 out.files{1} = [];
-0176                 beep
-0177                 sprintf(<span class="string">'Numbers of modalities in subjects 1 and %d from group %d differ!'</span>,j,g)
-0178                 disp(<span class="string">'Please correct!'</span>)
-0179                 <span class="keyword">return</span>
-0180             <span class="keyword">else</span>
-0181                 <span class="keyword">if</span> nmod ~= nmasks
-0182                     out.files{1} = [];
-0183                     beep
-0184                     sprintf(<span class="string">'Number of modalities in group %d subject %d different from number of masks!'</span>,g,j)
-0185                     disp(<span class="string">'Please correct!'</span>)
-0186                     <span class="keyword">return</span>
-0187                 <span class="keyword">else</span>
-0188                     <span class="keyword">for</span> k = 1:nmod,
-0189                         modnm    = job.group(g).select.subject{j}(k).mod_name;
-0190                         TR       = job.group(g).select.subject{j}(k).TR;
-0191                         mod_names_subj{k} = modnm;
-0192                         <span class="keyword">if</span> isempty(intersect(mod_names_uniq,modnm)),
-0193                             out.files{1} = [];
-0194                             beep
-0195                             sprintf(<span class="string">'Incorrect modality name %s for subject %d group %d! '</span>,modnm,j,g)
-0196                             disp(<span class="string">'Please correct!'</span>)
-0197                             <span class="keyword">return</span>
-0198                         <span class="keyword">end</span>
-0199                         clear design
-0200                         <span class="comment">% Load SPM.mat design</span>
-0201                         <span class="keyword">if</span> isfield(job.group(g).select.subject{j}(k).design,<span class="string">'load_SPM'</span>)
-0202                             <span class="keyword">try</span>
-0203                                 load(job.group(g).select.subject{j}(k).design.load_SPM{1});
-0204                             <span class="keyword">catch</span>
-0205                                 out.files{1} = [];
-0206                                 beep
-0207                                 disp(<span class="string">'Could not load SPM.mat file!'</span>)
-0208                                 <span class="keyword">return</span>
-0209                             <span class="keyword">end</span>
-0210                             <span class="keyword">switch</span> lower(SPM.xBF.UNITS)
-0211                                 <span class="keyword">case</span> <span class="string">'scans'</span>
-0212                                     unit   = 0;
-0213                                 <span class="keyword">case</span> <span class="string">'seconds'</span>
-0214                                     unit   = 1;
-0215                                 <span class="keyword">case</span> <span class="string">'secs'</span>
+0158         PRT.group(g).hrfoverlap = job.hrfover;
+0159         PRT.group(g).hrfdelay = job.hrfdel;
+0160     <span class="keyword">end</span>
+0161 <span class="keyword">else</span>
+0162     <span class="keyword">for</span> g = 1:ngroup,  
+0163         
+0164         nmod_subjs = length(job.group(1).select.subject{1});
+0165         nsubj  = length(job.group(g).select.subject);
+0166         nsubj1 = length(job.group(1).select.subject);
+0167         
+0168         <span class="keyword">if</span> nsubj ~= nsubj1,
+0169             disp(<span class="string">'Warning: unbalanced groups.'</span>)
+0170         <span class="keyword">end</span>
+0171         <span class="keyword">for</span> j = 1:nsubj,
+0172             clear mod_names_subj
+0173             subj_name = sprintf(<span class="string">'S%d'</span>,j);
+0174             nmod = length(job.group(g).select.subject{j});
+0175             <span class="comment">% Check if the number of masks and conditions is the same</span>
+0176             <span class="keyword">if</span> nmod ~= nmod_subjs
+0177                 out.files{1} = [];
+0178                 beep
+0179                 sprintf(<span class="string">'Numbers of modalities in subjects 1 and %d from group %d differ!'</span>,j,g)
+0180                 disp(<span class="string">'Please correct!'</span>)
+0181                 <span class="keyword">return</span>
+0182             <span class="keyword">else</span>
+0183                 <span class="keyword">if</span> nmod ~= nmasks
+0184                     out.files{1} = [];
+0185                     beep
+0186                     sprintf(<span class="string">'Number of modalities in group %d subject %d different from number of masks!'</span>,g,j)
+0187                     disp(<span class="string">'Please correct!'</span>)
+0188                     <span class="keyword">return</span>
+0189                 <span class="keyword">else</span>
+0190                     <span class="keyword">for</span> k = 1:nmod,
+0191                         modnm    = job.group(g).select.subject{j}(k).mod_name;
+0192                         TR       = job.group(g).select.subject{j}(k).TR;
+0193                         mod_names_subj{k} = modnm;
+0194                         <span class="keyword">if</span> isempty(intersect(mod_names_uniq,modnm)),
+0195                             out.files{1} = [];
+0196                             beep
+0197                             sprintf(<span class="string">'Incorrect modality name %s for subject %d group %d! '</span>,modnm,j,g)
+0198                             disp(<span class="string">'Please correct!'</span>)
+0199                             <span class="keyword">return</span>
+0200                         <span class="keyword">end</span>
+0201                         clear design
+0202                         <span class="comment">% Load SPM.mat design</span>
+0203                         <span class="keyword">if</span> isfield(job.group(g).select.subject{j}(k).design,<span class="string">'load_SPM'</span>)
+0204                             <span class="keyword">try</span>
+0205                                 load(job.group(g).select.subject{j}(k).design.load_SPM{1});
+0206                             <span class="keyword">catch</span>
+0207                                 out.files{1} = [];
+0208                                 beep
+0209                                 disp(<span class="string">'Could not load SPM.mat file!'</span>)
+0210                                 <span class="keyword">return</span>
+0211                             <span class="keyword">end</span>
+0212                             <span class="keyword">switch</span> lower(SPM.xBF.UNITS)
+0213                                 <span class="keyword">case</span> <span class="string">'scans'</span>
+0214                                     unit   = 0;
+0215                                 <span class="keyword">case</span> <span class="string">'seconds'</span>
 0216                                     unit   = 1;
-0217                             <span class="keyword">end</span>        
-0218                             nscans  = length(job.group(g).select.subject{j}(k).scans);
-0219                             ncond   = length(SPM.Sess(1).U);
-0220                             <span class="keyword">for</span> c = 1:ncond
-0221                                 conds(c).cond_name = SPM.Sess(1).U(c).name{1};
-0222                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
-0223                                 conds(c).durations = SPM.Sess(1).U(c).dur;
-0224                             <span class="keyword">end</span>                        
-0225                             checked_conds = prt_check_design(conds,TR,unit,job.hrfover,job.hrfdel);
-0226                             design.conds  = checked_conds.conds;
-0227                             design.stats  = checked_conds.stats;
-0228                             design.TR     = TR;
-0229                             design.unit   = unit;
-0230                             maxcond       = max([design.conds(:).scans]);
-0231                             <span class="keyword">if</span> nscans &lt; maxcond
-0232                                 sprintf(<span class="string">'Design of subject %d, group %d, modality %d, exceeds time series!'</span>,j,g,k)
-0233                                 disp(<span class="string">'Corresponding events were discarded'</span>)
-0234                                 <span class="keyword">for</span> l = 1:length(design.conds)
-0235                                     ovser = find(design.conds(l).scans &gt; nscans);
-0236                                     inser = find(design.conds(l).scans &lt;= nscans);
-0237                                     design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
-0238                                     design.conds(l).scans = design.conds(l).scans(inser);
-0239                                     design.conds(l).blocks = design.conds(l).blocks(inser);
-0240                                 <span class="keyword">end</span>
-0241                             <span class="keyword">end</span>
-0242                         <span class="keyword">else</span>
-0243                             <span class="comment">% No design</span>
-0244                             <span class="keyword">if</span> isfield(job.group(g).select.subject{j}(k).design,<span class="string">'no_design'</span>)
-0245                                 design = 0;
-0246                             <span class="keyword">else</span>
-0247                                 nscans = length(job.group(g).select.subject{j}(k).scans);
-0248                                 unit   = job.group(g).select.subject{j}(k).design.new_design.unit;
-0249                                 <span class="comment">% Create new design</span>
-0250                                 <span class="keyword">if</span> ~isempty(job.group(g).select.subject{j}(k).design.new_design.multi_conds{1})
-0251                                     multi_fname = job.group(g).select.subject{j}(k).design.new_design.multi_conds{1};
-0252                                     <span class="comment">% Multiple conditions</span>
-0253                                     <span class="keyword">try</span>
-0254                                         load(multi_fname);
-0255                                     <span class="keyword">catch</span>
-0256                                         beep
-0257                                         sprintf(<span class="string">'Could not load %s file!'</span>,multi_fname)
-0258                                         out.files{1} = [];
-0259                                         <span class="keyword">return</span>
-0260                                     <span class="keyword">end</span>
-0261                                     <span class="keyword">try</span>
-0262                                         multicond.names = names;
-0263                                     <span class="keyword">catch</span>
-0264                                         beep
-0265                                         disp(<span class="string">'No &quot;names&quot; found in the .mat file, please select another file!'</span>)
-0266                                         out.files{1} = [];
-0267                                         <span class="keyword">return</span>
-0268                                     <span class="keyword">end</span>
-0269                                     <span class="keyword">try</span>
-0270                                         multicond.durations = durations;
-0271                                     <span class="keyword">catch</span>
-0272                                         beep
-0273                                         disp(<span class="string">'No &quot;durations&quot; found in the .mat file, please select another file!'</span>)
-0274                                         out.files{1} = [];
-0275                                         <span class="keyword">return</span>
-0276                                     <span class="keyword">end</span>
-0277                                     <span class="keyword">try</span>
-0278                                         multicond.onsets = onsets;
-0279                                     <span class="keyword">catch</span>
-0280                                         beep
-0281                                         disp(<span class="string">'No &quot;onsets&quot; found in the .mat file, please select another file!'</span>)
-0282                                         out.files{1} = [];
-0283                                         <span class="keyword">return</span>
-0284                                     <span class="keyword">end</span>
-0285                                     <span class="keyword">try</span>
-0286                                         multicond.rt_trial = rt_trial;
-0287                                     <span class="keyword">catch</span>
-0288                                         multicond.rt_trial = cell(length(multicond.onsets),1);
-0289                                     <span class="keyword">end</span>
-0290                                     <span class="keyword">for</span> mc = 1:length(multicond.onsets)
-0291                                         conds(mc).cond_name  = multicond.names{mc};
-0292                                         conds(mc).onsets     = multicond.onsets{mc};
-0293                                         conds(mc).durations  = multicond.durations{mc};
-0294                                         conds(mc).rt_trial   = multicond.rt_trial{mc};
-0295                                         <span class="keyword">if</span> isfield(conds(mc),<span class="string">'rt_trial'</span>)
-0296                                             lons = length(conds(mc).onsets);
-0297                                             lreg = length(conds(mc).rt_trial);
-0298                                             <span class="keyword">if</span>  lreg ~= lons
-0299                                                 out.files{1} = [];
-0300                                                 beep
-0301                                                 sprintf(<span class="string">'Number of regression targets must be the number of trials!'</span>)
-0302                                                 disp(<span class="string">'Please correct'</span>)
-0303                                                 <span class="keyword">return</span>
-0304                                             <span class="keyword">end</span>
-0305                                         <span class="keyword">end</span>
-0306                                     <span class="keyword">end</span>
-0307                                     design.conds = conds;
-0308                                 <span class="keyword">else</span>
-0309                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
-0310                                     <span class="keyword">if</span> ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar{1})
-0311                                         <span class="keyword">try</span>
-0312                                             load(char(job.group(g).select.subject{j}(k).design.new_design.covar{1}));
-0313                                             <span class="keyword">if</span> exist(<span class="string">'R'</span>,<span class="string">'var'</span>)
-0314                                                 <span class="keyword">if</span> size(R,1) == nscans
-0315                                                     covar = R;
-0316                                                 <span class="keyword">else</span>
-0317                                                     out.files{1} = [];
-0318                                                     beep
-0319                                                     sprintf(<span class="string">'Number of covariates must be the number of scans! '</span>)
-0320                                                     disp(<span class="string">'Please correct!'</span>)
-0321                                                     <span class="keyword">return</span>
-0322                                                 <span class="keyword">end</span>
-0323                                             <span class="keyword">else</span>
-0324                                                 out.files{1} = [];
-0325                                                 beep
-0326                                                 sprintf(<span class="string">'Covariates file must contain ''R'' variable! '</span>)
-0327                                                 disp(<span class="string">'Please correct!'</span>)
-0328                                                 <span class="keyword">return</span>
-0329                                             <span class="keyword">end</span>
-0330                                         <span class="keyword">catch</span>
-0331                                             beep
-0332                                             sprintf(<span class="string">'Could not load %s file!'</span>,char(job.group(g).select.subject{j}(k).design.new_design.covar{1}))
-0333                                             out.files{1} = [];
-0334                                             <span class="keyword">return</span>
-0335                                         <span class="keyword">end</span>
-0336                                     <span class="keyword">else</span>
-0337                                         covar = [];
-0338                                     <span class="keyword">end</span>
-0339                                 <span class="keyword">end</span>                           
-0340                                 ncond = length(design.conds);
-0341                                 <span class="keyword">for</span> c = 1:ncond
-0342                                     lons = length(design.conds(c).onsets);
-0343                                     ldur = length(design.conds(c).durations);
-0344                                     <span class="keyword">if</span> ldur == 1
-0345                                         design.conds(c).durations = repmat(design.conds(c).durations, 1, lons);
-0346                                         ldur = length(design.conds(c).durations);
-0347                                     <span class="keyword">end</span>
-0348                                     <span class="keyword">if</span> ldur ~= lons
-0349                                         out.files{1} = [];
-0350                                         beep
-0351                                         sprintf(<span class="string">'The onsets and durations of condition %d do not have the same size!'</span>, c)
-0352                                         disp(<span class="string">'Please correct'</span>)
-0353                                         <span class="keyword">return</span>
-0354                                     <span class="keyword">end</span>
-0355                                     <span class="keyword">if</span> isfield(design.conds(c),<span class="string">'rt_trial'</span>) &amp;&amp; ~isempty(design.conds(c).rt_trial)
-0356                                         lreg = length(design.conds(c).rt_trial);
-0357                                         <span class="keyword">if</span> lreg ~= lons
-0358                                             out.files{1} = [];
-0359                                             beep
-0360                                             sprintf(<span class="string">'Number of regression targets must be the number of trials!'</span>)
-0361                                             disp(<span class="string">'Please correct'</span>)
-0362                                             <span class="keyword">return</span>
-0363                                         <span class="keyword">end</span>
-0364                                     <span class="keyword">elseif</span> ~isfield(design.conds(c),<span class="string">'rt_trial'</span>)
-0365                                         design.conds(c).rt_trial=[];
-0366                                     <span class="keyword">end</span>
-0367                                 <span class="keyword">end</span>
-0368                                 checked_conds = prt_check_design(design.conds,TR,unit,job.hrfover,job.hrfdel);
-0369                                 design.conds  = checked_conds.conds;
-0370                                 design.stats  = checked_conds.stats;
-0371                                 design.TR     = checked_conds.TR;
-0372                                 design.unit   = unit;
-0373                                 design.covar  = covar;
-0374                                 maxcond       = max([design.conds(:).scans]);
-0375                                 <span class="keyword">if</span> nscans &lt; maxcond
-0376                                     sprintf(<span class="string">'Design of subject %d, group %d, modality %d, exceeds time series!'</span>,j,g,k)
-0377                                     disp(<span class="string">'Corresponding events were discarded'</span>)                                  
-0378                                     <span class="keyword">for</span> l = 1:length(design.conds)
-0379                                         ovser = find(design.conds(l).scans &gt; nscans);
-0380                                         inser = find(design.conds(l).scans &lt;= nscans);
-0381                                         design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
-0382                                         design.conds(l).scans = design.conds(l).scans(inser);
-0383                                         design.conds(l).blocks = design.conds(l).blocks(inser);   
-0384                                     <span class="keyword">end</span>
-0385                                 <span class="keyword">end</span>
-0386                             <span class="keyword">end</span>
-0387                         <span class="keyword">end</span>
-0388                         <span class="comment">% Create PRT.mat modalities</span>
-0389                         PRT.group(g).gr_name                        = job.group(g).gr_name;
-0390                         PRT.group(g).subject(j).subj_name           = subj_name;
-0391                         PRT.group(g).subject(j).modality(k)         = job.group(g).select.subject{j}(k);
-0392                         PRT.group(g).subject(j).modality(k).TR      = job.group(g).select.subject{j}(k).TR;
-0393                         PRT.group(g).subject(j).modality(k).design  = design;
-0394                         PRT.group(g).subject(j).modality(k).scans   = char(job.group(g).select.subject{j}(k).scans);
-0395                    
-0396                     <span class="keyword">end</span>
-0397                 <span class="keyword">end</span>
-0398             <span class="keyword">end</span>
-0399             <span class="keyword">if</span> nmod ~= length(unique(mod_names_subj));
-0400                 out.files{1} = [];
-0401                 beep;
-0402                 sprintf(<span class="string">'Names of modalities in subject %d group %d repeated! Please correct!'</span>,j,g)
-0403                 <span class="keyword">return</span>
-0404             <span class="keyword">end</span>
-0405         <span class="keyword">end</span>
-0406     <span class="keyword">end</span>
-0407 <span class="keyword">end</span>
-0408 
-0409 <span class="comment">% Save masks at the end</span>
-0410 <span class="comment">% -------------------------------------------------------------------------</span>
-0411 PRT.masks  = masks;
+0217                                 <span class="keyword">case</span> <span class="string">'secs'</span>
+0218                                     unit   = 1;
+0219                             <span class="keyword">end</span>        
+0220                             nscans  = length(job.group(g).select.subject{j}(k).scans);
+0221                             ncond   = length(SPM.Sess(1).U);
+0222                             <span class="keyword">for</span> c = 1:ncond
+0223                                 conds(c).cond_name = SPM.Sess(1).U(c).name{1};
+0224                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
+0225                                 conds(c).durations = SPM.Sess(1).U(c).dur;
+0226                             <span class="keyword">end</span>                        
+0227                             checked_conds = prt_check_design(conds,TR,unit,job.hrfover,job.hrfdel);
+0228                             design.conds  = checked_conds.conds;
+0229                             design.stats  = checked_conds.stats;
+0230                             design.TR     = TR;
+0231                             design.unit   = unit;
+0232                             maxcond       = max([design.conds(:).scans]);
+0233                             <span class="keyword">if</span> nscans &lt; maxcond
+0234                                 sprintf(<span class="string">'Design of subject %d, group %d, modality %d, exceeds time series!'</span>,j,g,k)
+0235                                 disp(<span class="string">'Corresponding events were discarded'</span>)
+0236                                 <span class="keyword">for</span> l = 1:length(design.conds)
+0237                                     ovser = find(design.conds(l).scans &gt; nscans);
+0238                                     inser = find(design.conds(l).scans &lt;= nscans);
+0239                                     design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
+0240                                     design.conds(l).scans = design.conds(l).scans(inser);
+0241                                     design.conds(l).blocks = design.conds(l).blocks(inser);
+0242                                 <span class="keyword">end</span>
+0243                             <span class="keyword">end</span>
+0244                         <span class="keyword">else</span>
+0245                             <span class="comment">% No design</span>
+0246                             <span class="keyword">if</span> isfield(job.group(g).select.subject{j}(k).design,<span class="string">'no_design'</span>)
+0247                                 design = 0;
+0248                             <span class="keyword">else</span>
+0249                                 nscans = length(job.group(g).select.subject{j}(k).scans);
+0250                                 unit   = job.group(g).select.subject{j}(k).design.new_design.unit;
+0251                                 <span class="comment">% Create new design</span>
+0252                                 <span class="keyword">if</span> ~isempty(job.group(g).select.subject{j}(k).design.new_design.multi_conds{1})
+0253                                     multi_fname = job.group(g).select.subject{j}(k).design.new_design.multi_conds{1};
+0254                                     <span class="comment">% Multiple conditions</span>
+0255                                     <span class="keyword">try</span>
+0256                                         load(multi_fname);
+0257                                     <span class="keyword">catch</span>
+0258                                         beep
+0259                                         sprintf(<span class="string">'Could not load %s file!'</span>,multi_fname)
+0260                                         out.files{1} = [];
+0261                                         <span class="keyword">return</span>
+0262                                     <span class="keyword">end</span>
+0263                                     <span class="keyword">try</span>
+0264                                         multicond.names = names;
+0265                                     <span class="keyword">catch</span>
+0266                                         beep
+0267                                         disp(<span class="string">'No &quot;names&quot; found in the .mat file, please select another file!'</span>)
+0268                                         out.files{1} = [];
+0269                                         <span class="keyword">return</span>
+0270                                     <span class="keyword">end</span>
+0271                                     <span class="keyword">try</span>
+0272                                         multicond.durations = durations;
+0273                                     <span class="keyword">catch</span>
+0274                                         beep
+0275                                         disp(<span class="string">'No &quot;durations&quot; found in the .mat file, please select another file!'</span>)
+0276                                         out.files{1} = [];
+0277                                         <span class="keyword">return</span>
+0278                                     <span class="keyword">end</span>
+0279                                     <span class="keyword">try</span>
+0280                                         multicond.onsets = onsets;
+0281                                     <span class="keyword">catch</span>
+0282                                         beep
+0283                                         disp(<span class="string">'No &quot;onsets&quot; found in the .mat file, please select another file!'</span>)
+0284                                         out.files{1} = [];
+0285                                         <span class="keyword">return</span>
+0286                                     <span class="keyword">end</span>
+0287                                     <span class="keyword">try</span>
+0288                                         multicond.rt_trial = rt_trial;
+0289                                     <span class="keyword">catch</span>
+0290                                         multicond.rt_trial = cell(length(multicond.onsets),1);
+0291                                     <span class="keyword">end</span>
+0292                                     <span class="keyword">for</span> mc = 1:length(multicond.onsets)
+0293                                         conds(mc).cond_name  = multicond.names{mc};
+0294                                         conds(mc).onsets     = multicond.onsets{mc};
+0295                                         conds(mc).durations  = multicond.durations{mc};
+0296                                         conds(mc).rt_trial   = multicond.rt_trial{mc};
+0297                                         <span class="keyword">if</span> isfield(conds(mc),<span class="string">'rt_trial'</span>)
+0298                                             lons = length(conds(mc).onsets);
+0299                                             lreg = length(conds(mc).rt_trial);
+0300                                             <span class="keyword">if</span>  lreg ~= lons
+0301                                                 out.files{1} = [];
+0302                                                 beep
+0303                                                 sprintf(<span class="string">'Number of regression targets must be the number of trials!'</span>)
+0304                                                 disp(<span class="string">'Please correct'</span>)
+0305                                                 <span class="keyword">return</span>
+0306                                             <span class="keyword">end</span>
+0307                                         <span class="keyword">end</span>
+0308                                     <span class="keyword">end</span>
+0309                                     design.conds = conds;
+0310                                 <span class="keyword">else</span>
+0311                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
+0312                                     <span class="keyword">if</span> ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar{1})
+0313                                         <span class="keyword">try</span>
+0314                                             load(char(job.group(g).select.subject{j}(k).design.new_design.covar{1}));
+0315                                             <span class="keyword">if</span> exist(<span class="string">'R'</span>,<span class="string">'var'</span>)
+0316                                                 <span class="keyword">if</span> size(R,1) == nscans
+0317                                                     covar = R;
+0318                                                 <span class="keyword">else</span>
+0319                                                     out.files{1} = [];
+0320                                                     beep
+0321                                                     sprintf(<span class="string">'Number of covariates must be the number of scans! '</span>)
+0322                                                     disp(<span class="string">'Please correct!'</span>)
+0323                                                     <span class="keyword">return</span>
+0324                                                 <span class="keyword">end</span>
+0325                                             <span class="keyword">else</span>
+0326                                                 out.files{1} = [];
+0327                                                 beep
+0328                                                 sprintf(<span class="string">'Covariates file must contain ''R'' variable! '</span>)
+0329                                                 disp(<span class="string">'Please correct!'</span>)
+0330                                                 <span class="keyword">return</span>
+0331                                             <span class="keyword">end</span>
+0332                                         <span class="keyword">catch</span>
+0333                                             beep
+0334                                             sprintf(<span class="string">'Could not load %s file!'</span>,char(job.group(g).select.subject{j}(k).design.new_design.covar{1}))
+0335                                             out.files{1} = [];
+0336                                             <span class="keyword">return</span>
+0337                                         <span class="keyword">end</span>
+0338                                     <span class="keyword">else</span>
+0339                                         covar = [];
+0340                                     <span class="keyword">end</span>
+0341                                 <span class="keyword">end</span>                           
+0342                                 ncond = length(design.conds);
+0343                                 <span class="keyword">for</span> c = 1:ncond
+0344                                     lons = length(design.conds(c).onsets);
+0345                                     ldur = length(design.conds(c).durations);
+0346                                     <span class="keyword">if</span> ldur == 1
+0347                                         design.conds(c).durations = repmat(design.conds(c).durations, 1, lons);
+0348                                         ldur = length(design.conds(c).durations);
+0349                                     <span class="keyword">end</span>
+0350                                     <span class="keyword">if</span> ldur ~= lons
+0351                                         out.files{1} = [];
+0352                                         beep
+0353                                         sprintf(<span class="string">'The onsets and durations of condition %d do not have the same size!'</span>, c)
+0354                                         disp(<span class="string">'Please correct'</span>)
+0355                                         <span class="keyword">return</span>
+0356                                     <span class="keyword">end</span>
+0357                                     <span class="keyword">if</span> isfield(design.conds(c),<span class="string">'rt_trial'</span>) &amp;&amp; ~isempty(design.conds(c).rt_trial)
+0358                                         lreg = length(design.conds(c).rt_trial);
+0359                                         <span class="keyword">if</span> lreg ~= lons
+0360                                             out.files{1} = [];
+0361                                             beep
+0362                                             sprintf(<span class="string">'Number of regression targets must be the number of trials!'</span>)
+0363                                             disp(<span class="string">'Please correct'</span>)
+0364                                             <span class="keyword">return</span>
+0365                                         <span class="keyword">end</span>
+0366                                     <span class="keyword">elseif</span> ~isfield(design.conds(c),<span class="string">'rt_trial'</span>)
+0367                                         design.conds(c).rt_trial=[];
+0368                                     <span class="keyword">end</span>
+0369                                 <span class="keyword">end</span>
+0370                                 checked_conds = prt_check_design(design.conds,TR,unit,job.hrfover,job.hrfdel);
+0371                                 design.conds  = checked_conds.conds;
+0372                                 design.stats  = checked_conds.stats;
+0373                                 design.TR     = checked_conds.TR;
+0374                                 design.unit   = unit;
+0375                                 design.covar  = covar;
+0376                                 maxcond       = max([design.conds(:).scans]);
+0377                                 <span class="keyword">if</span> nscans &lt; maxcond
+0378                                     sprintf(<span class="string">'Design of subject %d, group %d, modality %d, exceeds time series!'</span>,j,g,k)
+0379                                     disp(<span class="string">'Corresponding events were discarded'</span>)                                  
+0380                                     <span class="keyword">for</span> l = 1:length(design.conds)
+0381                                         ovser = find(design.conds(l).scans &gt; nscans);
+0382                                         inser = find(design.conds(l).scans &lt;= nscans);
+0383                                         design.conds(l).discardedscans = [design.conds(l).discardedscans, design.conds(l).scans(ovser)];
+0384                                         design.conds(l).scans = design.conds(l).scans(inser);
+0385                                         design.conds(l).blocks = design.conds(l).blocks(inser);   
+0386                                     <span class="keyword">end</span>
+0387                                 <span class="keyword">end</span>
+0388                             <span class="keyword">end</span>
+0389                         <span class="keyword">end</span>
+0390                         <span class="comment">% Create PRT.mat modalities</span>
+0391                         PRT.group(g).gr_name                        = job.group(g).gr_name;
+0392                         PRT.group(g).subject(j).subj_name           = subj_name;
+0393                         PRT.group(g).subject(j).modality(k)         = job.group(g).select.subject{j}(k);
+0394                         PRT.group(g).subject(j).modality(k).TR      = job.group(g).select.subject{j}(k).TR;
+0395                         PRT.group(g).subject(j).modality(k).design  = design;
+0396                         PRT.group(g).subject(j).modality(k).scans   = char(job.group(g).select.subject{j}(k).scans);
+0397                    
+0398                     <span class="keyword">end</span>
+0399                 <span class="keyword">end</span>
+0400             <span class="keyword">end</span>
+0401             <span class="keyword">if</span> nmod ~= length(unique(mod_names_subj));
+0402                 out.files{1} = [];
+0403                 beep;
+0404                 sprintf(<span class="string">'Names of modalities in subject %d group %d repeated! Please correct!'</span>,j,g)
+0405                 <span class="keyword">return</span>
+0406             <span class="keyword">end</span>
+0407         <span class="keyword">end</span>
+0408         PRT.group(g).hrfoverlap = job.hrfover;
+0409         PRT.group(g).hrfdelay   = job.hrfdel;
+0410     <span class="keyword">end</span>
+0411 <span class="keyword">end</span>
 0412 
-0413 <span class="comment">% Save PRT.mat file</span>
+0413 <span class="comment">% Save masks at the end</span>
 0414 <span class="comment">% -------------------------------------------------------------------------</span>
-0415 disp(<span class="string">'Saving PRT.mat.......&gt;&gt;'</span>)
-0416 <span class="keyword">if</span> spm_matlab_version_chk(<span class="string">'7'</span>) &gt;= 0
-0417     save(fname,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
-0418 <span class="keyword">else</span>
-0419     save(fname,<span class="string">'PRT'</span>);
-0420 <span class="keyword">end</span>
-0421 
-0422 <span class="comment">% Review</span>
-0423 <span class="comment">% -------------------------------------------------------------------------</span>
-0424 <span class="keyword">if</span> job.review
-0425     prt_data_review(<span class="string">'UserData'</span>,{PRT,job.dir_name{1}});
-0426 <span class="keyword">end</span>
-0427     
-0428 <span class="comment">% Function output</span>
-0429 <span class="comment">% -------------------------------------------------------------------------</span>
-0430 out.files{1} = fname;
-0431 disp(<span class="string">'Done'</span>)
-0432 
-0433 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0415 PRT.masks  = masks;
+0416 
+0417 <span class="comment">% Save PRT.mat file</span>
+0418 <span class="comment">% -------------------------------------------------------------------------</span>
+0419 disp(<span class="string">'Saving PRT.mat.......&gt;&gt;'</span>)
+0420 <span class="keyword">if</span> spm_matlab_version_chk(<span class="string">'7'</span>) &gt;= 0
+0421     save(fname,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
+0422 <span class="keyword">else</span>
+0423     save(fname,<span class="string">'PRT'</span>);
+0424 <span class="keyword">end</span>
+0425 
+0426 <span class="comment">% Review</span>
+0427 <span class="comment">% -------------------------------------------------------------------------</span>
+0428 <span class="keyword">if</span> job.review
+0429     prt_data_review(<span class="string">'UserData'</span>,{PRT,job.dir_name{1}});
+0430 <span class="keyword">end</span>
+0431     
+0432 <span class="comment">% Function output</span>
+0433 <span class="comment">% -------------------------------------------------------------------------</span>
+0434 out.files{1} = fname;
+0435 disp(<span class="string">'Done'</span>)
+0436 
+0437 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

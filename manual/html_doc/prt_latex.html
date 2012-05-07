@@ -78,7 +78,7 @@ This function is called by:
 0017 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0018 
 0019 <span class="comment">% Written by John Ashburner &amp; Christophe Phillips</span>
-0020 <span class="comment">% $Id: prt_latex.m 394 2011-11-17 22:14:43Z cphillip $</span>
+0020 <span class="comment">% $Id: prt_latex.m 518 2012-04-17 10:01:12Z cphillip $</span>
 0021 
 0022 
 0023 <span class="comment">%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
@@ -199,9 +199,9 @@ This function is called by:
 0138     <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
 0139 <span class="keyword">end</span>
 0140 
-0141 fprintf(fp,<span class="string">'%% $Id: prt_latex.m 394 2011-11-17 22:14:43Z cphillip $ \n\n'</span>);
+0141 fprintf(fp,<span class="string">'%% $Id: prt_latex.m 518 2012-04-17 10:01:12Z cphillip $ \n\n'</span>);
 0142 fprintf(fp, <span class="keyword">...</span>
-0143     <span class="string">'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n'</span>, <span class="keyword">...</span>
+0143     <span class="string">'\\chapter{%s  \\label{Chap:%s}}\n\n\\vskip 1.5cm\n\n'</span>, <span class="keyword">...</span>
 0144     <a href="#_sub5" class="code" title="subfunction str = texify(str0)">texify</a>(c.name),c.tag);
 0145 <a href="#_sub4" class="code" title="subfunction write_help(hlp,fp)">write_help</a>(c,fp);
 0146 
@@ -325,6 +325,6 @@ This function is called by:
 0264 <span class="keyword">for</span> i=1:size(f,1)
 0265     spm_unlink(deblank(f(i,:)));
 0266 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

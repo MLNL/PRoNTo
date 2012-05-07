@@ -33,7 +33,7 @@
        d              - data structure
            .datamat   - data matrix [Nfeatures x Nexamples]
            .coeffs    - coefficients vector [Nexamples x 1]
-       args           - function arguments (can be empty)
+       args           - function arguments (can be left empty)
  Output:
        weights        - vector with weights [Nfeatures x 1]
 __________________________________________________________________________
@@ -59,14 +59,14 @@ This function is called by:
 0005 <span class="comment">%       d              - data structure</span>
 0006 <span class="comment">%           .datamat   - data matrix [Nfeatures x Nexamples]</span>
 0007 <span class="comment">%           .coeffs    - coefficients vector [Nexamples x 1]</span>
-0008 <span class="comment">%       args           - function arguments (can be empty)</span>
+0008 <span class="comment">%       args           - function arguments (can be left empty)</span>
 0009 <span class="comment">% Output:</span>
 0010 <span class="comment">%       weights        - vector with weights [Nfeatures x 1]</span>
 0011 <span class="comment">%__________________________________________________________________________</span>
 0012 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0013 
 0014 <span class="comment">% Written by J.Mourao-Miranda and M.J.Rosa</span>
-0015 <span class="comment">% $Id: prt_weights_svm_bin.m 366 2011-11-12 15:02:00Z cphillip $</span>
+0015 <span class="comment">% $Id: prt_weights_svm_bin.m 425 2012-01-26 13:08:43Z mjrosa $</span>
 0016 
 0017 SANITYCHECK = true; <span class="comment">% turn off for speed</span>
 0018 
@@ -112,6 +112,6 @@ This function is called by:
 0058 
 0059 <span class="comment">% weigths</span>
 0060 weights = img1d;</pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -40,7 +40,7 @@
                   [Nte x D])
     .tr_targets - training labels (for classification) or values (for
                   regression) (column vector, [Ntr x 1])
-    .use_kernel - flag, is data in form of kernel matrices (true) of in 
+    .use_kernel - flag, is data in form of kernel matrices (true) or in 
                   form of features (false)
     Optional fields: the machine is respnsible for dealing with this
                   optional fields (e.g. d.testcov)
@@ -90,7 +90,7 @@ This function is called by:
 0012 <span class="comment">%                  [Nte x D])</span>
 0013 <span class="comment">%    .tr_targets - training labels (for classification) or values (for</span>
 0014 <span class="comment">%                  regression) (column vector, [Ntr x 1])</span>
-0015 <span class="comment">%    .use_kernel - flag, is data in form of kernel matrices (true) of in</span>
+0015 <span class="comment">%    .use_kernel - flag, is data in form of kernel matrices (true) or in</span>
 0016 <span class="comment">%                  form of features (false)</span>
 0017 <span class="comment">%    Optional fields: the machine is respnsible for dealing with this</span>
 0018 <span class="comment">%                  optional fields (e.g. d.testcov)</span>
@@ -112,7 +112,7 @@ This function is called by:
 0034 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0035 
 0036 <span class="comment">% Written by M.J.Rosa and J.Richiardi</span>
-0037 <span class="comment">% $Id: prt_machine.m 380 2011-11-14 21:25:38Z jrichiar $</span>
+0037 <span class="comment">% $Id: prt_machine.m 498 2012-04-05 13:26:23Z amarquan $</span>
 0038 
 0039 <span class="comment">% TODO: make tr_targets a cell array (?)</span>
 0040 <span class="comment">% TODO: fix 80-cols limit in source code</span>
@@ -221,82 +221,82 @@ This function is called by:
 0143         <span class="comment">%6: Check validity of machines chosen.(e.g. use SVM to do</span>
 0144         <span class="comment">%regression is not valid</span>
 0145         <span class="keyword">if</span>  strcmp(d.pred_type,<span class="string">'regression'</span>) 
-0146             <span class="keyword">if</span> ~any(strcmp(m.function,{<span class="string">'prt_machine_krr'</span>,<span class="string">'prt_machine_rvr'</span>}))
-0147                 error(<span class="string">'prt_machine:RgressionMachineSupport'</span>,<span class="keyword">...</span>
-0148                     <span class="string">'Error: Regresion can only chose use KRR or RVR machines'</span>);
-0149             <span class="keyword">end</span>
-0150         <span class="keyword">end</span>
-0151         
-0152         <span class="comment">% 7: Check datasets properties (within cells)</span>
-0153         <span class="keyword">for</span> k = 1:Nk_train,
-0154             <span class="keyword">if</span> ~isempty(d.train{k}) &amp;&amp; ~isempty(d.test{k})
-0155                 <span class="keyword">if</span> (~<a href="#_sub1" class="code" title="subfunction out = prt_ismatrix(A)">prt_ismatrix</a>(d.train{k}) &amp;&amp; ~isvector(d.train{k}) ) || <span class="keyword">...</span>
-0156                         (~<a href="#_sub1" class="code" title="subfunction out = prt_ismatrix(A)">prt_ismatrix</a>(d.test{k}) &amp;&amp; ~isvector(d.test{k}) )
-0157                     error(<span class="string">'prt_machine:TrAndTeNotMatrices'</span>,<span class="keyword">...</span>
-0158                         [<span class="string">'Error: training and testing datasets should '</span> <span class="keyword">...</span>
-0159                         <span class="string">' be either matrices or vectors!'</span>]);
-0160                 <span class="keyword">end</span>
-0161             <span class="keyword">else</span>
-0162                 error(<span class="string">'prt_machine:TrAndTeEmpty'</span>,<span class="keyword">...</span>
-0163                     <span class="string">'Error: training and testing datasest cannot be empty!'</span>);
-0164             <span class="keyword">end</span>
-0165             <span class="comment">% check dimensions</span>
-0166             [Ntrain Dtrain] = size(d.train{k});
-0167             [Ntest, Dtest]  = size(d.test{k});
-0168             <span class="comment">% a: feature space dimension should be equal</span>
-0169             <span class="keyword">if</span> ~(Dtrain==Dtest)
-0170                 error(<span class="string">'prt_machine:DtrNotEqDte'</span>,[<span class="string">'Error: Training and testing '</span><span class="keyword">...</span>
-0171                     <span class="string">'dimensions should match, but Dtrain=%d and Dtest=%d for '</span><span class="keyword">...</span>
-0172                     <span class="string">'dataset %d!'</span>],Dtrain,Dtest,k);
-0173             <span class="keyword">end</span>
-0174             <span class="comment">% b: check we have as many training labels as examples</span>
-0175             <span class="keyword">if</span> ~(Ntrain_lbs==Ntrain)
-0176                 error(<span class="string">'prt_machine:NtrlbsNotEqNtr'</span>,[<span class="string">'Error: Number of training '</span><span class="keyword">...</span>
-0177                     <span class="string">'examples and training labels should match, but Ntrain_lbs=%d '</span><span class="keyword">...</span>
-0178                     <span class="string">'and Ntrain=%d for dataset %d!'</span>],Ntrain_lbs,Ntrain,k);
-0179             <span class="keyword">end</span>
-0180             <span class="comment">% c: if kernel check for kernel properties</span>
-0181             <span class="keyword">if</span> d.use_kernel
-0182                 <span class="keyword">if</span> ~(Ntrain==Dtrain)
-0183                     error(<span class="string">'prt_machine:NtrainNotEqDtrain'</span>,[<span class="string">'Error: Training '</span><span class="keyword">...</span>
-0184                         <span class="string">'dimensions should match, but Ntr=%d and Dtr=%d for '</span><span class="keyword">...</span>
-0185                         <span class="string">'dataset %d!'</span>],Ntrain,Dtrain,k);
-0186                 <span class="keyword">end</span>
-0187                 <span class="keyword">if</span> ~(Dtest==Ntrain)
-0188                     error(<span class="string">'prt_machine:DtestNotEqNtrain'</span>,[<span class="string">'Error: Testing '</span><span class="keyword">...</span>
-0189                         <span class="string">'dimensions should match, but Dte=%d and Ntr=%d for '</span><span class="keyword">...</span>
-0190                         <span class="string">'dataset %d!'</span>],Dtest,Ntrain,k);
-0191                 <span class="keyword">end</span>    
-0192             <span class="keyword">end</span>
-0193         <span class="keyword">end</span>
-0194     <span class="keyword">else</span>
-0195         error(<span class="string">'prt_machine:dataStructEmpty'</span>,<span class="keyword">...</span>
-0196             <span class="string">'Error: data struct cannot be empty!'</span>);
-0197     <span class="keyword">end</span>
-0198 <span class="keyword">end</span> <span class="comment">% SANITYCHECK</span>
-0199 
-0200 <span class="comment">%% Run model</span>
-0201 <span class="comment">%--------------------------------------------------------------------------</span>
-0202 fnch   = str2func(m.function);
-0203 
-0204 <span class="keyword">try</span>
-0205     output = fnch(d,m.args);
-0206 <span class="keyword">catch</span>
-0207     err = lasterror;
-0208     err_ID=lower(err.identifier);
-0209     err_libProblem = strfind(err_ID,<span class="string">'libnotfound'</span>);
-0210     err_argsProblem = strfind(err_ID,<span class="string">'argsproblem'</span>);
-0211     disp(<span class="string">'prt_machine: machine did not run sucessfully.'</span>);
-0212     <span class="keyword">if</span> ~isempty(err_libProblem)
-0213         error(<span class="string">'prt_machine:libNotFound'</span>,[<span class="string">'Error: the library for '</span><span class="keyword">...</span>
-0214             <span class="string">'machine %s could not be found on your path. '</span> <span class="keyword">...</span>
-0215             <span class="string">'SOLUTION: Please XXX'</span>],m.function);
+0146             <span class="keyword">if</span> ~any(strcmp(m.function,{<span class="string">'prt_machine_krr'</span>,<span class="string">'prt_machine_rvr'</span>,<span class="keyword">...</span>
+0147                                        <span class="string">'prt_machine_gpml'</span>,<span class="string">'prt_machine_gpr'</span>}))
+0148                 error(<span class="string">'prt_machine:RgressionMachineSupport'</span>,<span class="keyword">...</span>
+0149                     <span class="string">'Error: Regresion can only chose use KRR or RVR machines'</span>);
+0150             <span class="keyword">end</span>
+0151         <span class="keyword">end</span>
+0152         
+0153         <span class="comment">% 7: Check datasets properties (within cells)</span>
+0154         <span class="keyword">for</span> k = 1:Nk_train,
+0155             <span class="keyword">if</span> ~isempty(d.train{k}) &amp;&amp; ~isempty(d.test{k})
+0156                 <span class="keyword">if</span> (~<a href="#_sub1" class="code" title="subfunction out = prt_ismatrix(A)">prt_ismatrix</a>(d.train{k}) &amp;&amp; ~isvector(d.train{k}) ) || <span class="keyword">...</span>
+0157                         (~<a href="#_sub1" class="code" title="subfunction out = prt_ismatrix(A)">prt_ismatrix</a>(d.test{k}) &amp;&amp; ~isvector(d.test{k}) )
+0158                     error(<span class="string">'prt_machine:TrAndTeNotMatrices'</span>,<span class="keyword">...</span>
+0159                         [<span class="string">'Error: training and testing datasets should '</span> <span class="keyword">...</span>
+0160                         <span class="string">' be either matrices or vectors!'</span>]);
+0161                 <span class="keyword">end</span>
+0162             <span class="keyword">else</span>
+0163                 error(<span class="string">'prt_machine:TrAndTeEmpty'</span>,<span class="keyword">...</span>
+0164                     <span class="string">'Error: training and testing datasest cannot be empty!'</span>);
+0165             <span class="keyword">end</span>
+0166             <span class="comment">% check dimensions</span>
+0167             [Ntrain Dtrain] = size(d.train{k});
+0168             [Ntest, Dtest]  = size(d.test{k});
+0169             <span class="comment">% a: feature space dimension should be equal</span>
+0170             <span class="keyword">if</span> ~(Dtrain==Dtest)
+0171                 error(<span class="string">'prt_machine:DtrNotEqDte'</span>,[<span class="string">'Error: Training and testing '</span><span class="keyword">...</span>
+0172                     <span class="string">'dimensions should match, but Dtrain=%d and Dtest=%d for '</span><span class="keyword">...</span>
+0173                     <span class="string">'dataset %d!'</span>],Dtrain,Dtest,k);
+0174             <span class="keyword">end</span>
+0175             <span class="comment">% b: check we have as many training labels as examples</span>
+0176             <span class="keyword">if</span> ~(Ntrain_lbs==Ntrain)
+0177                 error(<span class="string">'prt_machine:NtrlbsNotEqNtr'</span>,[<span class="string">'Error: Number of training '</span><span class="keyword">...</span>
+0178                     <span class="string">'examples and training labels should match, but Ntrain_lbs=%d '</span><span class="keyword">...</span>
+0179                     <span class="string">'and Ntrain=%d for dataset %d!'</span>],Ntrain_lbs,Ntrain,k);
+0180             <span class="keyword">end</span>
+0181             <span class="comment">% c: if kernel check for kernel properties</span>
+0182             <span class="keyword">if</span> d.use_kernel
+0183                 <span class="keyword">if</span> ~(Ntrain==Dtrain)
+0184                     error(<span class="string">'prt_machine:NtrainNotEqDtrain'</span>,[<span class="string">'Error: Training '</span><span class="keyword">...</span>
+0185                         <span class="string">'dimensions should match, but Ntr=%d and Dtr=%d for '</span><span class="keyword">...</span>
+0186                         <span class="string">'dataset %d!'</span>],Ntrain,Dtrain,k);
+0187                 <span class="keyword">end</span>
+0188                 <span class="keyword">if</span> ~(Dtest==Ntrain)
+0189                     error(<span class="string">'prt_machine:DtestNotEqNtrain'</span>,[<span class="string">'Error: Testing '</span><span class="keyword">...</span>
+0190                         <span class="string">'dimensions should match, but Dte=%d and Ntr=%d for '</span><span class="keyword">...</span>
+0191                         <span class="string">'dataset %d!'</span>],Dtest,Ntrain,k);
+0192                 <span class="keyword">end</span>    
+0193             <span class="keyword">end</span>
+0194         <span class="keyword">end</span>
+0195     <span class="keyword">else</span>
+0196         error(<span class="string">'prt_machine:dataStructEmpty'</span>,<span class="keyword">...</span>
+0197             <span class="string">'Error: data struct cannot be empty!'</span>);
+0198     <span class="keyword">end</span>
+0199 <span class="keyword">end</span> <span class="comment">% SANITYCHECK</span>
+0200 
+0201 <span class="comment">%% Run model</span>
+0202 <span class="comment">%--------------------------------------------------------------------------</span>
+0203 fnch   = str2func(m.function);
+0204 
+0205 <span class="keyword">try</span>
+0206     output = fnch(d,m.args);
+0207 <span class="keyword">catch</span>
+0208     err = lasterror;
+0209     err_ID=lower(err.identifier);
+0210     err_libProblem = strfind(err_ID,<span class="string">'libnotfound'</span>);
+0211     err_argsProblem = strfind(err_ID,<span class="string">'argsproblem'</span>);
+0212     disp(<span class="string">'prt_machine: machine did not run sucessfully.'</span>);
+0213     <span class="keyword">if</span> ~isempty(err_libProblem)
+0214         error(<span class="string">'prt_machine:libNotFound'</span>,[<span class="string">'Error: the library for '</span><span class="keyword">...</span>
+0215             <span class="string">'machine %s could not be found on your path. '</span>],m.function);
 0216     <span class="keyword">elseif</span> ~isempty(err_argsProblem)
 0217         disp([<span class="string">'Error: the arguments supplied '</span><span class="keyword">...</span>
 0218             <span class="string">' are invalid. '</span> <span class="keyword">...</span>
 0219             <span class="string">'SOLUTION: Please follow the advice given by the machine.'</span>]);
 0220         error(<span class="string">'prt_machine:argsProblem'</span>,<span class="keyword">...</span>
-0221             [<span class="string">'** Error running machine %s: %s %s ** '</span>], <span class="keyword">...</span>
+0221             <span class="string">'Error running machine %s: %s %s'</span>, <span class="keyword">...</span>
 0222             m.function,err.identifier,err.message);
 0223     <span class="keyword">else</span>
 0224         <span class="comment">% we don't know what more to do here, pass it up</span>
@@ -304,7 +304,7 @@ This function is called by:
 0226             <span class="string">' correct the problem, or ask the developpers for '</span> <span class="keyword">...</span>
 0227             <span class="string">'assistance by copy-pasting all messages and explaining the'</span><span class="keyword">...</span>
 0228             <span class="string">' exact steps that led to the problem.'</span>]);
-0229         disp([<span class="string">'This kinds of issues are typically caused by Matlab '</span><span class="keyword">...</span>
+0229         disp([<span class="string">'These kinds of issues are typically caused by Matlab '</span><span class="keyword">...</span>
 0230             <span class="string">'path problems.'</span>]);
 0231         <span class="keyword">for</span> en=numel(err.stack):-1:1
 0232             e=err.stack(en);
@@ -312,7 +312,7 @@ This function is called by:
 0234                 en,e.name,e.file,e.line);
 0235         <span class="keyword">end</span>
 0236         error(<span class="string">'prt_machine:otherProblem'</span>,<span class="keyword">...</span>
-0237             [<span class="string">'** Error running machine %s: %s %s ** '</span>], <span class="keyword">...</span>
+0237             <span class="string">'Error running machine %s: %s %s'</span>, <span class="keyword">...</span>
 0238             m.function,err.identifier,err.message);
 0239     <span class="keyword">end</span>
 0240 <span class="keyword">end</span>
@@ -328,26 +328,27 @@ This function is called by:
 0250     <span class="keyword">else</span>
 0251         <span class="comment">% FIXME: multiple kernels / feature representations is unsupported</span>
 0252         <span class="comment">% here</span>
-0253         <span class="keyword">if</span> (size(output.predictions,1)~= Ntest)
-0254             error(<span class="string">'prt_machine:outputNpredictionsNotEqNte'</span>,[<span class="string">'Error: Number '</span><span class="keyword">...</span>
-0255                 <span class="string">'of predictions output and number of test examples should '</span><span class="keyword">...</span>
-0256                 <span class="string">'match, but Npre=%d and Nte=%d !'</span>],<span class="keyword">...</span>
-0257                 size(output.predictions,1),Ntest);
-0258         <span class="keyword">end</span>
-0259     <span class="keyword">end</span>
-0260     
-0261 <span class="keyword">end</span> <span class="comment">% SANITYCHECK on output</span>
-0262 
-0263 <span class="keyword">end</span>
-0264 
-0265 <span class="comment">%% local functions</span>
-0266 <a name="_sub1" href="#_subfunctions" class="code">function out = prt_ismatrix(A)</a>
-0267 <span class="comment">% ismatrix was not a built-in in Matlab 7.1, so do a homebrew</span>
-0268 <span class="comment">% implementation (based on Dan Vimont's Matlab libs at</span>
-0269 <span class="comment">% http://www.aos.wisc.edu/~dvimont/matlab but with short-circuit AND for</span>
-0270 <span class="comment">% &quot;speed&quot;)</span>
-0271 out=(ndims(A)==2) &amp;&amp; (min(size(A)) ~= 1); <span class="comment">% enable stricter check - a struct array should NOT pass.</span>
-0272 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Thu 17-Nov-2011 23:31:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0253         <span class="comment">% [afm] removed to test glm approach</span>
+0254         <span class="comment">%if (size(output.predictions,1)~= Ntest)</span>
+0255         <span class="comment">%    error('prt_machine:outputNpredictionsNotEqNte',['Error: Number '...</span>
+0256         <span class="comment">%        'of predictions output and number of test examples should '...</span>
+0257         <span class="comment">%        'match, but Npre=%d and Nte=%d !'],...</span>
+0258         <span class="comment">%        size(output.predictions,1),Ntest);</span>
+0259         <span class="comment">%end</span>
+0260     <span class="keyword">end</span>
+0261     
+0262 <span class="keyword">end</span> <span class="comment">% SANITYCHECK on output</span>
+0263 
+0264 <span class="keyword">end</span>
+0265 
+0266 <span class="comment">%% local functions</span>
+0267 <a name="_sub1" href="#_subfunctions" class="code">function out = prt_ismatrix(A)</a>
+0268 <span class="comment">% ismatrix was not a built-in in Matlab 7.1, so do a homebrew</span>
+0269 <span class="comment">% implementation (based on Dan Vimont's Matlab libs at</span>
+0270 <span class="comment">% http://www.aos.wisc.edu/~dvimont/matlab but with short-circuit AND for</span>
+0271 <span class="comment">% &quot;speed&quot;)</span>
+0272 out=(ndims(A)==2) &amp;&amp; (min(size(A)) ~= 1); <span class="comment">% enable stricter check - a struct array should NOT pass.</span>
+0273 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
