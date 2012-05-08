@@ -132,8 +132,13 @@ for i=1:length(aa)
     end
     set(aa(i),'FontUnits','pixel')
     xf=get(aa(i),'FontSize');
-    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-        'FontUnits','normalized','Units','normalized')
+    if ispc
+        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+            'FontUnits','normalized','Units','normalized')
+    else
+        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+            Units','normalized')
+    end
 end
 
 
@@ -648,6 +653,11 @@ function buildbutt_Callback(hObject, eventdata, handles)
 
 %fill the input of the 'prt_model' button
 in.fname=get(handles.edit_prt,'String');
+if ~isfield(handles,'model_name')
+    beep
+    disp('Please, provide a model name')
+    return
+end
 in.model_name=handles.model_name;
 in.type=handles.type;
 in.machine=handles.machine;

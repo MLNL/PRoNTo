@@ -126,8 +126,13 @@ else
         end
         set(aa(i),'FontUnits','pixel')
         xf=get(aa(i),'FontSize');
-        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            'FontUnits','normalized','Units','normalized')
+        if ispc
+            set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+                'FontUnits','normalized','Units','normalized')
+        else
+            set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+                Units','normalized')
+        end
     end
     
     

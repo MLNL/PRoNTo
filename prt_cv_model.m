@@ -66,6 +66,7 @@ end
 
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
+
 PRT.model(mid).output.fold = struct();
 for f = 1:n_folds
     disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
@@ -83,8 +84,13 @@ for f = 1:n_folds
         cvdata.testcov    = Phi_tt;
     end
 
-    % configure basic CV parameters
+    % configure basic CV parameters        
     cvdata.tr_targets = t(tr_idx,:);
+    %if KRR, then mean center the targets
+    if ~isempty(strfind(PRT.model(mid).input.machine.function,'krr'))
+        mm=mean(t(tr_idx,:));
+        cvdata.tr_targets = cvdata.tr_targets-mm;
+    end
     cvdata.te_targets = t(te_idx,:);
     cvdata.tr_id      = ID(tr_idx,:);
     cvdata.te_id      = ID(te_idx,:);
@@ -119,7 +125,17 @@ for f = 1:n_folds
     if isfield(model,'tr_targets')
         tr_targets = model.tr_targets(:);
     else
-        tr_targets = cvdata.tr_targets(:);
+        if ~isempty(strfind(PRT.model(mid).input.machine.function,'krr'))
+            tr_targets = cvdata.tr_targets(:)+mm;
+        else
+            tr_targets = cvdata.tr_targets(:);
+        end       
+    end
+    
+    if ~isempty(strfind(PRT.model(mid).input.machine.function,'krr'))
+        %add the mean of the training set to the test outputs of KRR
+        model.predictions=model.predictions+mm;
+        model.func_val=model.func_val+mm;
     end
     
     % compute stats
@@ -144,6 +160,7 @@ for f = 1:n_folds
         end
     end
 end
+
 
 % Model level statistics (across folds)
 t             = vertcat(PRT.model(mid).output.fold(:).targets);
