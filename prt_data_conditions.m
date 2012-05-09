@@ -136,7 +136,7 @@ for i=1:length(aa)
             'FontUnits','normalized','Units','normalized')
     else
         set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            Units','normalized')
+            'Units','normalized')
     end
 end
 
