@@ -48,6 +48,9 @@ switch mfunc
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
+    case 'prt_machine_gpclap'
+        error('prt_compute_weights:MachineNotSupported',...
+            'Error: weights computation not supported yet for this machine!');
 end
 
 % Image name
