@@ -1118,11 +1118,6 @@ set(handles.text6,'ForegroundColor',[0 0 0])
 guidata(hObject, handles);
 
 
-
-    
-
-
-
 % --- Executes on button press in save_data.
 function save_data_Callback(hObject, eventdata, handles)
 % hObject    handle to save_data (see GCBO)
@@ -1131,7 +1126,7 @@ function save_data_Callback(hObject, eventdata, handles)
 
 if handles.load_fsmod
     sure=prt_ui_sure;
-    if ~sure
+    if ~sure || isempty(sure)
         return
     end
 end
