@@ -259,11 +259,12 @@ function edit_kname_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_kname as text
 %        str2double(get(hObject,'String')) returns contents of edit_kname as a double
-handles.kname=get(handles.edit_kname,'String');
+handles.kname=deblank(get(handles.edit_kname,'String'));
 if ~prt_checkAlphaNumUnder(handles.kname)
     beep
     disp('Kernel name should be entered in alphanumeric format only')
     disp('Please correct')
+    set(handles.edit_kname,'ForegroundColor',[1,0,0])
     return
 else
     set(handles.edit_kname,'ForegroundColor',[0 0 0])

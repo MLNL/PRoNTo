@@ -60,9 +60,9 @@ prt_def.dspec.use3 = [1 2];
 % Specify model: Parameters of the different machines
 %--------------------------------------------------
 prt_def.model.svmargs    = '-s 0 -t 4 -c 1';
-prt_def.model.gpcargs    = '-l erf -h';
-prt_def.model.gpclapargs = '-h';
-prt_def.model.gprargs    = '-l gauss -h';
+prt_def.model.gpcargs    = '-l erf -h';%-h 
+prt_def.model.gpclapargs = '-h'; %'-h';
+prt_def.model.gprargs    = '-l gauss -h'; % -h
 prt_def.model.krrargs    = 1;
 prt_def.model.rtargs     = 601;
 

@@ -147,7 +147,7 @@ end
 handles.def=prt_get_defaults('model');
 set(handles.usekern,'Value',1)
 handles.use_kernel=1;
-set(handles.pop_cv,'String',{'Leave One Subject Out','Custom'})
+set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
 handles.cv.type='loso';
 handles.cv.mat_file=[];
@@ -225,7 +225,13 @@ if ~isfield(handles.dat,'fs')
     delete(handles.figure1)
     return
 end
-set(handles.pop_featset,'String',{PRT.fs(:).fs_name})
+list={};
+for i=1:length(PRT.fs)
+    if ~isempty(PRT.fs(i).fs_name)
+        list=[list; {PRT.fs(i).fs_name}];
+    end
+end
+set(handles.pop_featset,'String',list)
 set(handles.pop_featset,'Value',1)
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
@@ -264,7 +270,13 @@ if ~isfield(handles.dat,'fs')
     delete(handles.figure1)
     return
 end
-set(handles.pop_featset,'String',{PRT.fs(:).fs_name})
+list={};
+for i=1:length(PRT.fs)
+    if ~isempty(PRT.fs(i).fs_name)
+        list=[list; {PRT.fs(i).fs_name}];
+    end
+end
+set(handles.pop_featset,'String',list)
 set(handles.pop_featset,'Value',1)
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
@@ -293,12 +305,15 @@ function edit_modelname_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_modelname as text
 %        str2double(get(hObject,'String')) returns contents of edit_modelname as a double
-handles.model_name=get(handles.edit_modelname,'String');
+handles.model_name=deblank(get(handles.edit_modelname,'String'));
 if ~(prt_checkAlphaNumUnder(handles.model_name))
     beep
     disp('Model name should be entered in alphanumeric format only')
     disp('Please correct')
+    set(handles.edit_modelname,'ForegroundColor',[1,0,0])
     return
+else
+    set(handles.edit_modelname,'ForegroundColor',[0,0,0])
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -426,6 +441,18 @@ function butt_defclass_Callback(hObject, eventdata, handles)
 if strcmpi(handles.type,'classification')
     speccl=prt_ui_select_class('UserData',{handles.dat,handles.fs(1).indfs});
     handles.class=speccl.class;
+    ns=zeros(length(speccl.class),1);
+    for ii=1:length(speccl.class)
+        for jj=1:length(speccl.class(ii).group)
+            ns(ii)=ns(ii)+length(speccl.class(ii).group(jj).subj);
+        end
+    end
+    if min(ns)>1
+        list=get(handles.pop_cv,'String');
+        list=[list;{'Leave One Subject Out'}];
+        set(handles.pop_cv,'String',list)
+        set(handles.pop_cv,'Value',1)
+    end
     if (speccl.design)
         list=get(handles.pop_cv,'String');
         list=[list;{'Leave One Block Out'}];
@@ -440,6 +467,12 @@ if strcmpi(handles.type,'classification')
 else
     sel=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
     handles.group=sel;
+    if length(sel.subj)>1
+        list=get(handles.pop_cv,'String');
+        list=[list;{'Leave One Subject Out'}];
+        set(handles.pop_cv,'String',list)
+        set(handles.pop_cv,'Value',1)
+    end
 end
 set(handles.butt_defclass,'ForegroundColor',[0 0 0])
 % Update handles structure
@@ -757,6 +790,10 @@ function specbutt_Callback(hObject, eventdata, handles)
 
 %fill the input of the 'prt_model' button
 in.fname=get(handles.edit_prt,'String');
+if ~isfield(handles,'model_name')
+    beep
+    disp('Please enter a valid model name')
+end
 in.model_name=handles.model_name;
 in.type=handles.type;
 in.machine=handles.machine;

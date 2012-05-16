@@ -148,6 +148,7 @@ else
     handles.cf=1;
     handles.dat=struct('dir',[],'group',[],'design',[],'masks',[]);
     handles.modlist={};
+    handles.load_fsmod=0;
 end
 
 
@@ -1097,9 +1098,12 @@ handles=guidata(hObject);
 if isfield(PRT,'fs')
     beep
     disp('Fields refering to feature sets have been found')
-    disp('These will be removed if modification to the dataset are performed')
+    disp('These will be removed if modifications to the dataset are performed')
     disp('Previously computed models will also be deleted')
-    disp('Be sure to change the directory if you wan to keep trace of previous work')
+    disp('Be sure to change the directory if you want to keep trace of previous work')
+    handles.load_fsmod=1;
+else
+    handles.load_fsmod=0;
 end
 
 handles.dat=PRT;
@@ -1124,6 +1128,13 @@ function save_data_Callback(hObject, eventdata, handles)
 % hObject    handle to save_data (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+if handles.load_fsmod
+    sure=prt_ui_sure;
+    if ~sure
+        return
+    end
+end
 
 %Check that at least one group and one subject were entered
 if ~isfield(handles,'ds') || length(handles.ds) <1 || ...

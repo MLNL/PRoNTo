@@ -353,7 +353,7 @@ end
 PRT.group.hrfoverlap=val;
 PRT.group.hrfdelay=del;
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
-disp('PRT.mat updated')
+disp('Design in PRT.mat updated')
 if isfield(PRT,'fs')
     beep
     disp('Feature sets found in the PRT')
@@ -418,7 +418,7 @@ for i=1:length(PRT.group)
     PRT.group(i).hrfdelay=del;
 end
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
-disp('PRT.mat updated')
+disp('Design in PRT.mat updated')
 if isfield(PRT,'fs')
     beep
     disp('Feature sets found in the PRT')
