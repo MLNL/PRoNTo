@@ -31,20 +31,22 @@ if isfield(PRT,'fas') && ~isempty(PRT.fas)
     ind=[];
     for i=1:length(PRT.fas)
         %get the name of the file array
-        fa_name=PRT.fas(i).dat.fname;
-        [fadir,fan,faext]=fileparts(fa_name);
-        if ~strcmpi(fadir,prtdir) %directories of PRT and feature set are different
-            if ~exist([prtdir,filesep,fan,faext],'file')  %no feature set found
-                beep
-                disp(['No feature set named ',fan,' found in the PRT directory'])
-                disp('Information linked to that feature set is deleted')
-                disp('Computing the weights or using non-kernel methods using that feature set won''t be permitted')
-            else  %file exists but under the new directory
-                PRT.fas(i).dat.fname=[prtdir,filesep,fan,faext];
+        if ~isempty(PRT.fas(i).dat)
+            fa_name=PRT.fas(i).dat.fname;
+            [fadir,fan,faext]=fileparts(fa_name);
+            if ~strcmpi(fadir,prtdir) %directories of PRT and feature set are different
+                if ~exist([prtdir,filesep,fan,faext],'file')  %no feature set found
+                    beep
+                    disp(['No feature set named ',fan,' found in the PRT directory'])
+                    disp('Information linked to that feature set is deleted')
+                    disp('Computing the weights or using non-kernel methods using that feature set won''t be permitted')
+                else  %file exists but under the new directory
+                    PRT.fas(i).dat.fname=[prtdir,filesep,fan,faext];
+                    ind=[ind,i];
+                end
+            else
                 ind=[ind,i];
             end
-        else
-            ind=[ind,i];
         end
     end
     if isempty(ind)
