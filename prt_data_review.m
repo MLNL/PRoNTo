@@ -333,7 +333,7 @@ for i=1:length(PRT.group)
         m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
         dess=PRT.group(i).subject(j).modality(m).design;
         desn=prt_check_design(dess.conds,dess.TR,dess.unit,val,del);
-        desn.covar=dess.covar;
+%         desn.covar=dess.covar;
         maxcond=max([desn.conds(:).scans]);
         lfiles=size(PRT.group(i).subject(j).modality(m).scans,1);
         if lfiles<maxcond
@@ -398,7 +398,7 @@ for i=1:length(PRT.group)
         m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
         dess=PRT.group(i).subject(j).modality(m).design;
         desn=prt_check_design(dess.conds,dess.TR,dess.unit,val,del);
-        desn.covar=dess.covar;
+%         desn.covar=dess.covar;
         maxcond=max([desn.conds(:).scans]);
         lfiles=size(PRT.group(i).subject(j).modality(m).scans,1);
         if lfiles<maxcond
