@@ -148,7 +148,7 @@ detrend        = cfg_choice;
 detrend.tag    = 'detrend';
 detrend.name   = 'Detrend';
 detrend.values = {no_dt, linear_dt, dct_dt};
-detrend.val    = {linear_dt};
+detrend.val    = {no_dt};
 detrend.help   = {...
 ['Type of temporal detrending to apply']};
 

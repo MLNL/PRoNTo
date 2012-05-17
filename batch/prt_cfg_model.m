@@ -638,7 +638,7 @@ data_op.labels  = {
     'Done'
     'Sample averaging (within block)'
     'Sample averaging (within subject/condition)'
-    'Mean centre features (over subjects)'
+    'Mean centre features using training data'
     'Divide data vectors by their norm'
     'Perform a GLM (fMRI only)'
 }';
