@@ -25,7 +25,15 @@ called \textit{information mapping}, and it is of particular import to be critic
 the discriminative weight of a machine is concentrated in the eyes, for example, it is important
 to correct the analysis mask that was used to exclude them. The question to ask is
 ``which voxels drive the modelling, and do they make sense with respect to the experimental
-paradigm and neurophysiology'' ?
+paradigm and neurophysiology'' ? In the case of linear kernels, the classifier/regression weight
+vector is a linear combination or weighted average of the training examples, and can be plotted
+as an image representing a weight map. The \textit{weight map} is therefore a spatial representation
+of the decision function, i.e. every voxel contributes with a certain weight to the decision function. 
+Pattern recognition models (classifiers or regression functions) are multivariate, i.e. they
+take into account correlations in the data. Since the discrimination or prediction is
+based on the whole brain pattern, rather than on individual regions or voxels, all voxels
+contribute to the classification or regression and no conclusions should be drawn about a particular
+subset of voxels in isolation.
 
 Finally, examining model output and parameters is helpful in diagnosing the potentially
 bad performance of a particular mode - for example, if the machine cannot perform above
@@ -80,7 +88,8 @@ particular fold or all folds at once, and which plot to produce. The {\tt stats}
 the user to generate a variety of statistics on the test, including accuracy statistics for classifiers,
 and p-values on these parameters via permutation testing.
 \item[Weight map]: if a weight map has been computed (see Chapter~\ref{chap:ComputeWeights}) and
-loaded, this displays three projections of the map and allows to navigate it.
+loaded, this displays three projections of the map and allows to navigate it. If \textrm{Fold: All folds / Average}
+is selected, then this displays an average weight map across folds rather than the weight map of a single fold.
 \item[Anatomical img]: if an anatomical image has been loaded, this will display three projections,
 and the cross-hair will be synchronised with the weight map.
 \end{description}
