@@ -61,7 +61,7 @@ function output = prt_machine_gpml(d,args)
 % configure default parameters for GP optimisation
 meanfunc  = @meanConstcell;
 covfunc   = @covLINkcell; 
-maxeval   = -100;
+maxeval   = -20;
 if strcmp(d.pred_type,'classification')
     mode = 'classifier'; % it's good to be consistent!
     likfunc   = @likErf;

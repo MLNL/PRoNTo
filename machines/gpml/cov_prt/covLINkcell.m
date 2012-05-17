@@ -3,14 +3,13 @@ function K = covLINkcell(hyp, A, B, i)
 % Linear covariance function with a single hyperparameter. The covariance
 % function is parameterized as:
 %
-% k(x,z) = x'*z;
+% k(x,z) = (x'*z)/t2;
 %
-% where the P matrix is t2 times the unit matrix. The second term plays the
-% role of the bias. The hyperparameter is:
+% The hyperparameter controls the scaling of the latent function:
 %
 % hyp = [ log(sqrt(t2)) ]
 %__________________________________________________________________________
-% This script is nased on a script derived from the GPML toolbox, which is
+% This script is based on a script derived from the GPML toolbox, which is
 % Copyright (C) Carl Rasmussen and Hannes Nickisch, 2011.
 
 % Written by A Marquand 
@@ -37,10 +36,10 @@ else
 end
 
 if nargin<4 % return covariances
-  K = it2*(1+K);
+  K = it2*K;
 else % return derivatives
   if i==1
-    K = -2*it2*(1+K);
+    K = -2*it2*K;
   else
     error('Unknown hyperparameter')
   end

@@ -1,26 +1,29 @@
-function K = covLINkernel(hyp, A, B, i)
+function K = covLINkcellb(hyp, A, B, i)
 
 % Linear covariance function with a single hyperparameter. The covariance
 % function is parameterized as:
 %
 % k(x,z) = (x'*z + 1)/t2;
 %
-% where the P matrix is t2 times the unit matrix. The second term plays the
-% role of the bias. The hyperparameter is:
+% The second term plays the role of the bias. The hyperparameter controls
+% the scaling of the latent function and the bias:
 %
 % hyp = [ log(sqrt(t2)) ]
 %__________________________________________________________________________
-% This script is nased on a script derived from the GPML toolbox, which is
+% This script is based on a script derived from the GPML toolbox, which is
 % Copyright (C) Carl Rasmussen and Hannes Nickisch, 2011.
 
 % Written by A Marquand 
-% $Id$
+% $Id: covLINkernel.m 176 2011-10-20 08:44:21Z amarquan $
 
 if nargin<2, K = '1'; return; end             % report number of parameters
 if nargin<3, B = []; end                              % make sure, B exists
 xeqz = numel(B)==0; dg = strcmp(B,'diag') && numel(B)>0;   % determine mode
 
 it2 = exp(-2*hyp);                                             % t2 inverse
+
+if iscell(A), A = A{:}; end
+if iscell(B), B = B{:}; end
 
 % configure raw kernel from input arguments
 if dg % kss
