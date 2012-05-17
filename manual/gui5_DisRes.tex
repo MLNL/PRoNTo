@@ -114,7 +114,8 @@ to understand which block / subject / condition might have a test distribution o
 departs from the training set.
 
 On the plot, each class is represented by a different marker, and indicated in the legend.
-Figure~\ref{fig_prt_ui_results_plots_pred} shows an example predictions plot.
+Figure~\ref{fig_prt_ui_results_plots_pred} shows an example predictions plot. Here fold 1
+is particularly well-behaved.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -128,7 +129,8 @@ Figure~\ref{fig_prt_ui_results_plots_pred} shows an example predictions plot.
 
 In two-class classification, there is always a trade-off between class 1
 and class 2 errors. Indeed, a classifier predicting class 1 regardless of input
-would have excellent accuracy on class 1, but bad accuracy on class2. The 
+would have excellent accuracy on class 1, but bad accuracy on class2. This is also
+known as the sensitivity / specificity trade-off. The 
 ROC curve is a graphical depiction of this trade-off, showing how one error rate
 varies as a function of the other. An ideal classifier would have an ROC passing
 through the top-left corner. The area under curve (AUC) is a summary measure of 
@@ -152,7 +154,11 @@ Figure~\ref{fig_prt_ui_results_plots_ROC} shows an example of such a plot.
 The histogram plot is a smoothed density version of the predictions
 plot, showing how function values are distributed. A good classifier
 would have minute overlap between the densities. The error rate of the
-classifier is proportional to the area of the overlap.
+classifier is proportional to the area of the overlap. The ROC curve can 
+be thought of as the result of sweeping a decision threshold over the range
+of functional values, and recording the joint sensitivity/specificity values
+for each decision threshold setting. A typical linear SVM would have a decision
+threshold at 0.
 
 Figure~\ref{fig_prt_ui_results_plots_hist} shows an example of such a plot.
 
@@ -170,15 +176,15 @@ Figure~\ref{fig_prt_ui_results_plots_hist} shows an example of such a plot.
 \label{s:DisRes_stats}
 
 One of the main questions to ask of a model is how precise its predictions are.
-In regression, goodness-of-fit is often assesed. In classification, a common practice
+In regression, goodness-of-fit is often assesed via mean squared error. In classification, a common practice
 is to compute prediction accuracy, both for each class and for all test data. Once an accuracy
 value has been obtained, it is also possible to obtain a p-value for the accuracy, reflecting
 how certain we are that the result is not due to chance.
 
 \subsection{Confusion matrix plot}
 
-The confusion matrix shows counts of predicted class labels (in rows) versus true class labels
-(in columns). An ideal confusion matrix is diagonal: all predicted class labels correspond to the truth.
+The confusion matrix shows counts of predicted class labels $\hat{\omega}_n = f(\mathbf{x}_n)$ (in rows) versus true class labels
+$\omega_n$ (in columns). An ideal confusion matrix is diagonal: all predicted class labels correspond to the truth.
 Off-diagonal elements represent errors. It is important to check that none of the classes is
 ``sacrificed'' to gain accuracy in other classes - in other words, if all classes are equally
 important to classify, no class should have more off-diagonal than on-diagonal entries. Many
@@ -199,11 +205,43 @@ Figure~\ref{fig_prt_ui_results_plots_hist} shows an example of a confusion matri
 \subsection{The statistics table}
 
 The statistics table (see Figure~\ref{fig_prt_ui_results_statsTable} for an example in a classification
-setting) gives a summary of the model's performance. Accuracy is the number of correctly classified
-test samples divided by the number of test samples. Balanced accuracy takes the number of samples
-in each class into account, and gives equal weight to the accuracies of each class. This is the measure
-of choice when classes are imbalanced (one class has much more data than others). The table also
-gives class-specific accuracies, useful to check whether the model favours some classes over others.
+setting) gives a summary of the model's performance. The accuracy $p$ is the total number of correctly classified
+test samples divided by the total number of test samples $N$, irrespective of class. The accuracy is exactly equivalent to 
+
+\begin{equation}
+\label{eq:acc_as_01loss}
+p = 1- \frac{1}{N} \sum_n l_{01}(\omega_n,f(\mathbf{x}_n)),
+\end{equation}
+
+where $l_{01}(\omega_n,f(\mathbf{x}_n))$ is a 0-1 loss function that 
+counts each classification error as costing 1 and each classification success as costing 0:
+
+\begin{equation}
+l_{01}(\omega_n,f(\mathbf{x}_n)) = \left\{
+\begin{array}{ll}
+0 & \omega_n = f(\mathbf{x}_n)\\
+1 & \omega_n \neq f(\mathbf{x}_n)
+\end{array} \right.
+\end{equation}
+
+
+Balanced accuracy takes the number of samples in each class into account, and gives equal weight
+to the accuracies obtained on test samples of each class. In other words, the class-specific accuracy is computed by restricting 
+the sum of equation \ref{eq:acc_as_01loss} to be taken over $C$ disjoint subsets of the whole testing data,
+where each subset contains only test samples from one class. This produces a set of class-specific
+accuracies $\{p_1, \ldots, p_C\}$, from which the balanced accuracy can be computed as 
+
+\begin{equation}
+p^{bal}=\frac{1}{C} \sum p_c .
+\end{equation}
+
+Balanced accuracy is the measure of choice when there is class imbalance (one
+class, called the \textit{majority class}, has much more data than others).
+
+The table also gives the class accuracies $\{p_1, \ldots, p_C\}$, useful
+to check whether the model favours some classes over others. If class 1 represents control subjects, 
+and class 2 represents patients, then class 1 accuracy is equivalent to specificity, and class 2 accuracy is 
+equivalent to sensitivity.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -215,8 +253,10 @@ gives class-specific accuracies, useful to check whether the model favours some 
 
 \subsection{Permutation testing}
 
-Because the IID assumption is often not met in neuroimaging problems (due to e.g. within-run correlations),
-classical estimates of confidence intervals (such as the binomial confidence interval) may not always
+Much of statistical theory and machine learning theory rests on the assumption that the data is
+IID (independently and identically distributed). However, in functional neuroimaging this assumption
+is often not met, due to e.g. within-run correlations and haemodynamic effects. Therefore, classical estimates of
+confidence intervals (such as the binomial confidence interval) may not always
 be appropriate. Permutation testing is a non-parametric procedure that allows to obtain meaningful 
 confidence intervals and p-values in this case. Because it requires retraining the model a number of times, 
 which can be costly in computation time, this is not done by default. After filling in the {\tt repetitions}
@@ -229,7 +269,7 @@ is proportional to $1/R$ (e.g. 20 repetitions gives you increments of 0.05). %At
 
 \section{Visualising a weight map}
 
-By clicking on the {\tt ...} button next to the {\tt Load weight map} field, 
+By clicking on the $[${\tt ...}$]$ button next to the {\tt Load weight map} field, 
 a dialogue opens that allows you to select the weight map {\tt .img} file that 
 was computed previously (see Chapter~\ref{chap:ComputeWeights} for the procedure).
 Similarly, a co-registered anatomical image can be loaded in the {\tt Anatomical img}
