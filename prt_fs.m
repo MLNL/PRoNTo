@@ -225,7 +225,7 @@ for m = 1:n_mods
     end
     
     %get header of the first scan of that modality
-    if isfield(PRT,'fas') && ~isempty(PRT.fas(mid).dat)
+    if isfield(PRT,'fas') && mid<=length(PRT.fas) && ~isempty(PRT.fas(mid).dat)
         N=PRT.fas(mid).hdr;
     else
         N=spm_vol(PRT.group(1).subject(1).modality(mid).scans(1,:));
