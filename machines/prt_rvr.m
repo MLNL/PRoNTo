@@ -1,7 +1,7 @@
-function [varargout]=prt_rvr(varargin)
+function [varargout] = prt_rvr(varargin)
 % Optimisation for Relevance Vector Regression
 %
-% [w,alpha,beta,ll]=spm_rvr(Phi,t)
+% [w,alpha,beta,ll] = prt_rvr(Phi,t)
 % Phi   - MxM matrix derived from kernel function of vector pairs
 % t     - the values to be matched
 % w     - weights

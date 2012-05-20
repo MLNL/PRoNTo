@@ -107,8 +107,8 @@ else
         PRT.fs(fid).modality(m).param_dt = in.mod(mids(m)).param_dt;
         PRT.fs(fid).modality(m).mode     = in.mod(mids(m)).mode;
         %get indexes from mask specified in the data and design step
-        vm=spm_vol(mask{m});
-        vm=spm_read_vols(vm);
+        vm = spm_vol(mask{m});
+        vm = spm_read_vols(vm);
         PRT.fs(fid).modality(m).feat_idx_img = find(vm>0);
         if isempty(find(vm>0))
             error('prt_prepare_data:NoVoxelinMask',...
@@ -124,8 +124,8 @@ else
         end
         %get subindexes from mask specified in the data prepare step
         if ~isempty(precmask{m})
-            vm=spm_vol(precmask{m});
-            vm=spm_read_vols(vm);
+            vm = spm_vol(precmask{m});
+            vm = spm_read_vols(vm);
             if isempty(find(vm>0))
                 error('prt_prepare_data:NoVoxelinMask',...
                     ['2nd level mask of modality ',num2str(m),' does not contain any voxel >0'])

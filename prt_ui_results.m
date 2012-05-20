@@ -1,22 +1,23 @@
 function varargout = prt_ui_results(varargin)
 % PRT_UI_RESULTS MATLAB code for prt_ui_results.fig
-%      PRT_UI_RESULTS, by itself, creates a new PRT_UI_RESULTS or raises the existing
-%      singleton*.
+% 
+% PRT_UI_RESULTS, by itself, creates a new PRT_UI_RESULTS or raises the 
+% existing singleton*.
 %
-%      H = PRT_UI_RESULTS returns the handle to a new PRT_UI_RESULTS or the handle to
-%      the existing singleton*.
+% H = PRT_UI_RESULTS returns the handle to a new PRT_UI_RESULTS or the 
+% handle to the existing singleton*.
 %
-%      PRT_UI_RESULTS('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_UI_RESULTS.M with the given input arguments.
+% PRT_UI_RESULTS('CALLBACK',hObject,eventData,handles,...) calls the local
+% function named CALLBACK in PRT_UI_RESULTS.M with the given input arguments.
 %
-%      PRT_UI_RESULTS('Property','Value',...) creates a new PRT_UI_RESULTS or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_ui_results_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_ui_results_OpeningFcn via varargin.
+% PRT_UI_RESULTS('Property','Value',...) creates a new PRT_UI_RESULTS or 
+% raises the existing singleton*.  Starting from the left, property value 
+% pairs are applied to the GUI before prt_ui_results_OpeningFcn gets called.
+% An unrecognized property name or invalid value makes property application
+% stop.  All inputs are passed to prt_ui_results_OpeningFcn via varargin.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+% instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 %__________________________________________________________________________

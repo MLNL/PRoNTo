@@ -82,10 +82,10 @@ set(handles.condmenu,'Value',2)
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
 if ispc
-    PF='MS Sans Serif';
+    PF ='MS Sans Serif';
 else
-    PF= spm_platform('fonts');     %-Font names (for this platform)
-    PF=PF.helvetica;
+    PF = spm_platform('fonts');     %-Font names (for this platform)
+    PF = PF.helvetica;
 end
 tmp  = [S0(3)/1280 (S0(4))/800];
 ratio=min(tmp)*[1 1 1 1];
@@ -278,7 +278,7 @@ if choice==1
     set(handles.condtable,'visible','on');
     set(handles.condtable,'Data',dat);
 else
-    des=spm_select(1,'.mat','Select multiple conditions file');
+    des = spm_select(1,'.mat','Select multiple conditions file');
     try
         load(des);
     catch

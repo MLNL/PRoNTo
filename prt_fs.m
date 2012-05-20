@@ -1,4 +1,4 @@
-function [outfile]=prt_fs(PRT,in)
+function [outfile] = prt_fs(PRT,in)
 % Function to build file arrays containing the (linearly detrended) data
 % and compute a linear (dot product) kernel from them
 %
