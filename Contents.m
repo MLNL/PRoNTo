@@ -1,15 +1,15 @@
 %
 %
 % Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
-% Verion 1.0 (PRoNTo) 30-November-2011
+% Verion 1.1 (PRoNTo) 14-May-2012
 %__________________________________________________________________________
 %     ____  ____        _   ________     
 %    / __ \/ __ \____  / | / /_  __/_         ___ ___ 
-%   / /_/ / /_/ / __ \/  |/ / / / __ \   _  _<  // _ \
-%  / ____/ _, _/ /_/ / /|  / / / /_/ /  | |/ / // // /
-% /_/   /_/ |_|\____/_/ |_/ /_/\____/   |___/_(_)___/ 
+%   / /_/ / /_/ / __ \/  |/ / / / __ \   _  _<  /<  /
+%  / ____/ _, _/ /_/ / /|  / / / /_/ /  | |/ / / / /
+% /_/   /_/ |_|\____/_/ |_/ /_/\____/   |___/_(_)_/ 
 %
-%                         PRoNTO v1.0 - http://www.mlnl.cs.ucl.ac.uk/pronto
+%                         PRoNTO v1.1 - http://www.mlnl.cs.ucl.ac.uk/pronto
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
@@ -17,7 +17,7 @@
 %
 %__________________________________________________________________________
 %
-% PRoNTo v1.0 (2011) is the deliverable of a Pascal Harvest project 
+% PRoNTo v1.1 (2012) is the deliverable of a Pascal Harvest project 
 % coordinated by Dr. Mourao-Miranda.
 % PRoNTo is  developed by the Machine Learning & Neuroimaging Laboratory,
 % Computer Science department, University College London, UK.
@@ -42,7 +42,8 @@
 %   Biomedical Imaging (CIBM) of the EPFL and Universities and Hospitals
 %   of Lausanne and Geneva. 
 %
-% PRoNTo is written for MATLAB X.Y (R20ZZb) and onwards.
+% PRoNTo is designed to work from MATLAB versions 7.5 (R2007b) to 
+% 7.14 (R2012a), and will not work with earlier versions.
 % Some routine may need to be compiled for your specific OS.
 %
 %__________________________________________________________________________

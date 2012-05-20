@@ -96,7 +96,7 @@ This function is called by:
 0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0027 
 0028 <span class="comment">% Written by J. Schrouff</span>
-0029 <span class="comment">% $Id: prt_ui_reviewCV.m 494 2012-04-03 11:14:36Z schrouff $</span>
+0029 <span class="comment">% $Id: prt_ui_reviewCV.m 523 2012-05-09 11:43:36Z jrichiar $</span>
 0030 
 0031 <span class="comment">% Edit the above text to modify the response to help prt_ui_reviewCV</span>
 0032 
@@ -198,182 +198,187 @@ This function is called by:
 0128     <span class="keyword">if</span> ~strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uimenu'</span>)
 0129         set(aa(i),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
 0130         xf=get(aa(i),<span class="string">'FontSize'</span>);
-0131         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
-0132             <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
-0133     <span class="keyword">end</span>
-0134 <span class="keyword">end</span>
-0135 
-0136 
-0137 <span class="keyword">if</span> ~isempty(varargin{1}) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
-0138     handles.PRT=varargin{2}{1};
-0139     handles.indm=varargin{2}{2};
-0140     handles.indf=varargin{2}{3};
-0141     handles.prtdir=varargin{2}{4};
-0142 <span class="keyword">else</span>
-0143     beep
-0144     disp(<span class="string">'The PRT, index of the model and index of feature set should be entered'</span>)
-0145     <span class="keyword">return</span>
-0146 <span class="keyword">end</span>
-0147 <span class="keyword">end</span>
-0148 <span class="comment">% Update handles structure</span>
-0149 guidata(hObject, handles);
-0150 <a href="#_sub3" class="code" title="subfunction disp_cv(hObject,handles,indm,indf)">disp_cv</a>(hObject,handles,handles.indm,handles.indf);
-0151 
-0152 
-0153 
-0154 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0155 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_reviewCV_OutputFcn(hObject, eventdata, handles) </a>
-0156 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0157 <span class="comment">% hObject    handle to figure</span>
-0158 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0159 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0160 
-0161 <span class="comment">% Get default command line output from handles structure</span>
-0162 varargout{1} = handles.output;
-0163 
-0164 
-0165 <span class="comment">%--------------------------------------------------------------------------</span>
-0166 <span class="comment">%-------------------------  Subfunctions ----------------------------------</span>
-0167 <span class="comment">%--------------------------------------------------------------------------</span>
+0131         <span class="keyword">if</span> ispc
+0132             set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0133                 <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0134         <span class="keyword">else</span>
+0135             set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0136                 <span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0137         <span class="keyword">end</span>
+0138     <span class="keyword">end</span>
+0139 <span class="keyword">end</span>
+0140 
+0141 
+0142 <span class="keyword">if</span> ~isempty(varargin{1}) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
+0143     handles.PRT=varargin{2}{1};
+0144     handles.indm=varargin{2}{2};
+0145     handles.indf=varargin{2}{3};
+0146     handles.prtdir=varargin{2}{4};
+0147 <span class="keyword">else</span>
+0148     beep
+0149     disp(<span class="string">'The PRT, index of the model and index of feature set should be entered'</span>)
+0150     <span class="keyword">return</span>
+0151 <span class="keyword">end</span>
+0152 <span class="keyword">end</span>
+0153 <span class="comment">% Update handles structure</span>
+0154 guidata(hObject, handles);
+0155 <a href="#_sub3" class="code" title="subfunction disp_cv(hObject,handles,indm,indf)">disp_cv</a>(hObject,handles,handles.indm,handles.indf);
+0156 
+0157 
+0158 
+0159 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0160 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_reviewCV_OutputFcn(hObject, eventdata, handles) </a>
+0161 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0162 <span class="comment">% hObject    handle to figure</span>
+0163 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0164 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0165 
+0166 <span class="comment">% Get default command line output from handles structure</span>
+0167 varargout{1} = handles.output;
 0168 
-0169 <a name="_sub3" href="#_subfunctions" class="code">function disp_cv(hObject,handles,indm,indf)</a>
-0170 
-0171 cla(handles.axes1)
-0172 cla(handles.axes2)
-0173 cla(handles.axes3)
-0174 
-0175 <span class="comment">%Plot the id_mat in the left part of the window</span>
-0176 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes1)
-0177 dat=handles.PRT.fs(indf).id_mat(:,1:6);
-0178 <span class="keyword">for</span> i=1:6
-0179     dat(:,i)=dat(:,i)./max(dat(:,i));
-0180 <span class="keyword">end</span>
-0181 imagesc(dat);
-0182 set(gca,<span class="string">'XTick'</span>,1:6)
-0183 set(gca,<span class="string">'XTickLabel'</span>,{<span class="string">'Group'</span>,<span class="string">'Subject'</span>,<span class="string">'Modality'</span>,<span class="string">'Condition'</span>,<span class="string">'Block'</span>,<span class="string">'Scans'</span>},<span class="keyword">...</span>
-0184     <span class="string">'FontWeight'</span>,<span class="string">'demi'</span>,<span class="string">'FontSize'</span>,9);
-0185 set(gca,<span class="string">'YTickLabel'</span>,{})
-0186 colorbar(<span class="string">'Location'</span>,<span class="string">'WestOutside'</span>)
-0187 set(get(gca,<span class="string">'Title'</span>),<span class="string">'String'</span>,<span class="string">'Feature set'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
-0188 
-0189 <span class="comment">%Plot the CV matrix in the right part of the window</span>
-0190 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
-0191 CV_mat_full=zeros(size(handles.PRT.fs(indf).id_mat,1),<span class="keyword">...</span>
-0192     size(handles.PRT.model(indm).input.cv_mat,2));
-0193 xticksl=cell(1,size(handles.PRT.model(indm).input.cv_mat,2));
-0194 <span class="keyword">for</span> i=1:size(handles.PRT.model(indm).input.cv_mat,2)
-0195     CV_mat_full(handles.PRT.model(indm).input.samp_idx,i)=handles.PRT.model(indm).input.cv_mat(:,i);
-0196     xticksl{i}=num2str(i);
-0197 <span class="keyword">end</span>
-0198 <span class="comment">%inverting unused and test for colour purposes</span>
-0199 <span class="keyword">if</span> max(range(CV_mat_full))&gt;1
-0200     indun=find(CV_mat_full==0);
-0201     indt=find(CV_mat_full==2);
-0202     CV_mat_full(indun)=2;
-0203     CV_mat_full(indt)=0;
-0204 <span class="keyword">else</span>
-0205     indtr=find(CV_mat_full==1);
+0169 
+0170 <span class="comment">%--------------------------------------------------------------------------</span>
+0171 <span class="comment">%-------------------------  Subfunctions ----------------------------------</span>
+0172 <span class="comment">%--------------------------------------------------------------------------</span>
+0173 
+0174 <a name="_sub3" href="#_subfunctions" class="code">function disp_cv(hObject,handles,indm,indf)</a>
+0175 
+0176 cla(handles.axes1)
+0177 cla(handles.axes2)
+0178 cla(handles.axes3)
+0179 
+0180 <span class="comment">%Plot the id_mat in the left part of the window</span>
+0181 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes1)
+0182 dat=handles.PRT.fs(indf).id_mat(:,1:6);
+0183 <span class="keyword">for</span> i=1:6
+0184     dat(:,i)=dat(:,i)./max(dat(:,i));
+0185 <span class="keyword">end</span>
+0186 imagesc(dat);
+0187 set(gca,<span class="string">'XTick'</span>,1:6)
+0188 set(gca,<span class="string">'XTickLabel'</span>,{<span class="string">'Group'</span>,<span class="string">'Subject'</span>,<span class="string">'Modality'</span>,<span class="string">'Condition'</span>,<span class="string">'Block'</span>,<span class="string">'Scans'</span>},<span class="keyword">...</span>
+0189     <span class="string">'FontWeight'</span>,<span class="string">'demi'</span>,<span class="string">'FontSize'</span>,9);
+0190 set(gca,<span class="string">'YTickLabel'</span>,{})
+0191 colorbar(<span class="string">'Location'</span>,<span class="string">'WestOutside'</span>)
+0192 set(get(gca,<span class="string">'Title'</span>),<span class="string">'String'</span>,<span class="string">'Feature set'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0193 
+0194 <span class="comment">%Plot the CV matrix in the right part of the window</span>
+0195 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes2)
+0196 CV_mat_full=zeros(size(handles.PRT.fs(indf).id_mat,1),<span class="keyword">...</span>
+0197     size(handles.PRT.model(indm).input.cv_mat,2));
+0198 xticksl=cell(1,size(handles.PRT.model(indm).input.cv_mat,2));
+0199 <span class="keyword">for</span> i=1:size(handles.PRT.model(indm).input.cv_mat,2)
+0200     CV_mat_full(handles.PRT.model(indm).input.samp_idx,i)=handles.PRT.model(indm).input.cv_mat(:,i);
+0201     xticksl{i}=num2str(i);
+0202 <span class="keyword">end</span>
+0203 <span class="comment">%inverting unused and test for colour purposes</span>
+0204 <span class="keyword">if</span> max(range(CV_mat_full))&gt;1
+0205     indun=find(CV_mat_full==0);
 0206     indt=find(CV_mat_full==2);
-0207     CV_mat_full(indtr)=2;
-0208     CV_mat_full(indt)=1;
-0209 <span class="keyword">end</span>
-0210 
-0211 set(gca,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
-0212 xlabel(<span class="string">'CV Folds'</span>,<span class="string">'fontweight'</span>,<span class="string">'demi'</span>)
-0213 imagesc(CV_mat_full);
-0214 set(gca,<span class="string">'XTick'</span>,1:i)
-0215 set(gca,<span class="string">'YTickLabel'</span>,{})
-0216 set(gca,<span class="string">'XTickLabel'</span>,xticksl,<span class="string">'FontWeight'</span>,<span class="string">'demi'</span>,<span class="string">'FontSize'</span>,9)
-0217 colormap(gray)
-0218 set(get(gca,<span class="string">'Title'</span>),<span class="string">'String'</span>,<span class="string">'Cross-Validation'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
-0219 
-0220 <span class="comment">%Plot the 'legend' corresponding to the CV matrix in the right bottom part</span>
-0221 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes3)
-0222 <span class="keyword">if</span> max(range(CV_mat_full))&gt;1
-0223     leg=[0; 1; 2];
-0224     imagesc(leg);
-0225     set(gca,<span class="string">'YTick'</span>,[1,2,3])
-0226     set(gca,<span class="string">'YTickLabel'</span>,{<span class="string">'Test'</span>,<span class="string">'Train'</span>,<span class="string">'Unused'</span>});
-0227 <span class="keyword">else</span>
-0228     leg=[1; 2];
+0207     CV_mat_full(indun)=2;
+0208     CV_mat_full(indt)=0;
+0209 <span class="keyword">else</span>
+0210     indtr=find(CV_mat_full==1);
+0211     indt=find(CV_mat_full==2);
+0212     CV_mat_full(indtr)=2;
+0213     CV_mat_full(indt)=1;
+0214 <span class="keyword">end</span>
+0215 
+0216 set(gca,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0217 xlabel(<span class="string">'CV Folds'</span>,<span class="string">'fontweight'</span>,<span class="string">'demi'</span>)
+0218 imagesc(CV_mat_full);
+0219 set(gca,<span class="string">'XTick'</span>,1:i)
+0220 set(gca,<span class="string">'YTickLabel'</span>,{})
+0221 set(gca,<span class="string">'XTickLabel'</span>,xticksl,<span class="string">'FontWeight'</span>,<span class="string">'demi'</span>,<span class="string">'FontSize'</span>,9)
+0222 colormap(gray)
+0223 set(get(gca,<span class="string">'Title'</span>),<span class="string">'String'</span>,<span class="string">'Cross-Validation'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0224 
+0225 <span class="comment">%Plot the 'legend' corresponding to the CV matrix in the right bottom part</span>
+0226 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes3)
+0227 <span class="keyword">if</span> max(range(CV_mat_full))&gt;1
+0228     leg=[0; 1; 2];
 0229     imagesc(leg);
-0230     set(gca,<span class="string">'YTick'</span>,[1,2])
-0231     set(gca,<span class="string">'YTickLabel'</span>,{<span class="string">'Test'</span>,<span class="string">'Train'</span>});
-0232 <span class="keyword">end</span>
-0233 set(gca,<span class="string">'YAxisLocation'</span>,<span class="string">'right'</span>)
-0234 set(gca,<span class="string">'XTickLabel'</span>,{})
-0235 
-0236 <span class="comment">% Update handles structure</span>
-0237 guidata(hObject, handles);
-0238 
-0239 
-0240 <span class="comment">% --------------------------------------------------------------------</span>
-0241 <a name="_sub4" href="#_subfunctions" class="code">function savemenu_Callback(hObject, eventdata, handles)</a>
-0242 <span class="comment">% hObject    handle to savemenu (see GCBO)</span>
-0243 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0244 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0245 wd=cd;
-0246 cd(handles.prtdir)
-0247 modname=handles.PRT.model(handles.indm).model_name;
-0248 [filename, pathname] = uiputfile( <span class="keyword">...</span>
-0249 {<span class="string">'*.png'</span>,<span class="string">'Portable Network Graphics (*.png)'</span>;<span class="keyword">...</span>
-0250  <span class="string">'*.jpeg'</span>,<span class="string">'JPEG figure (*.jpeg)'</span>;<span class="keyword">...</span>
-0251  <span class="string">'*.tiff'</span>,<span class="string">'Compressed TIFF figure (*.tiff)'</span>;<span class="keyword">...</span><span class="comment"> </span>
-0252  <span class="string">'*.fig'</span>,<span class="string">'Matlab figure (*.fig)'</span>;<span class="keyword">...</span>
-0253  <span class="string">'*.pdf'</span>,<span class="string">'Color PDF file (*.pdf)'</span>;<span class="keyword">...</span>
-0254  <span class="string">'*.epsc'</span>,  <span class="string">'Encapsulated PostScript (*.eps)'</span>},<span class="keyword">...</span>
-0255  <span class="string">'Save figure as'</span>,[<span class="string">'Cross_Validation_'</span>,modname,<span class="string">'.png'</span>]);
-0256 [a,b,c]=fileparts(filename);
-0257 ext=[<span class="string">'-d'</span>,c(2:end)];
-0258 
-0259 <span class="comment">% Set the color of the different backgrounds and figure parameters to white</span>
-0260 cf=get(handles.figure1,<span class="string">'Color'</span>);
-0261 set(handles.figure1,<span class="string">'Color'</span>,[1,1,1])
-0262 aa=get(handles.figure1,<span class="string">'children'</span>);
-0263 c=zeros(length(aa),3);
-0264 cb=cell(length(aa));
-0265 <span class="keyword">for</span> i=1:length(aa)
-0266     <span class="keyword">if</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uipanel'</span>)
-0267         bb=get(aa(i),<span class="string">'children'</span>);
-0268         cb{i}=zeros(length(bb),3);
-0269         <span class="keyword">if</span> ~isempty(bb)
-0270             <span class="keyword">for</span> j=1:length(bb)
-0271                 <span class="keyword">try</span>
-0272                     cb{i}(j,:)=get(bb(j),<span class="string">'BackgroundColor'</span>);
-0273                     set(bb(j),<span class="string">'BackgroundColor'</span>,[1 1 1]);
-0274                 <span class="keyword">end</span>
-0275             <span class="keyword">end</span>
-0276         <span class="keyword">end</span>
-0277     <span class="keyword">end</span>
-0278     <span class="keyword">if</span> ~strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uimenu'</span>)
-0279         <span class="keyword">try</span>
-0280             c(i,:)=get(aa(i),<span class="string">'BackgroundColor'</span>);
-0281             set(aa(i),<span class="string">'BackgroundColor'</span>,[1 1 1]);
-0282         <span class="keyword">end</span>
-0283     <span class="keyword">end</span>
-0284 <span class="keyword">end</span>
-0285 
-0286 print(handles.figure1,ext,[pathname,filesep,b],<span class="string">'-r500'</span>)
-0287 
-0288 <span class="comment">% Set the color of the different backgrounds and figure parameters to white</span>
-0289 set(handles.figure1,<span class="string">'Color'</span>,cf)
-0290 aa=get(handles.figure1,<span class="string">'children'</span>);
-0291 <span class="keyword">for</span> i=1:length(aa)
-0292     <span class="keyword">if</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uipanel'</span>)
-0293         bb=get(aa(i),<span class="string">'children'</span>);
-0294         <span class="keyword">if</span> ~isempty(bb)
-0295             <span class="keyword">for</span> j=1:length(bb)
-0296                 set(bb(j),<span class="string">'BackgroundColor'</span>,cb{i}(j,:));
-0297             <span class="keyword">end</span>
-0298         <span class="keyword">end</span>
-0299     <span class="keyword">end</span>
-0300     <span class="keyword">if</span> ~strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uimenu'</span>)
-0301         <span class="keyword">try</span>
-0302             set(aa(i),<span class="string">'BackgroundColor'</span>,c(i,:));
+0230     set(gca,<span class="string">'YTick'</span>,[1,2,3])
+0231     set(gca,<span class="string">'YTickLabel'</span>,{<span class="string">'Test'</span>,<span class="string">'Train'</span>,<span class="string">'Unused'</span>});
+0232 <span class="keyword">else</span>
+0233     leg=[1; 2];
+0234     imagesc(leg);
+0235     set(gca,<span class="string">'YTick'</span>,[1,2])
+0236     set(gca,<span class="string">'YTickLabel'</span>,{<span class="string">'Test'</span>,<span class="string">'Train'</span>});
+0237 <span class="keyword">end</span>
+0238 set(gca,<span class="string">'YAxisLocation'</span>,<span class="string">'right'</span>)
+0239 set(gca,<span class="string">'XTickLabel'</span>,{})
+0240 
+0241 <span class="comment">% Update handles structure</span>
+0242 guidata(hObject, handles);
+0243 
+0244 
+0245 <span class="comment">% --------------------------------------------------------------------</span>
+0246 <a name="_sub4" href="#_subfunctions" class="code">function savemenu_Callback(hObject, eventdata, handles)</a>
+0247 <span class="comment">% hObject    handle to savemenu (see GCBO)</span>
+0248 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0249 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0250 wd=cd;
+0251 cd(handles.prtdir)
+0252 modname=handles.PRT.model(handles.indm).model_name;
+0253 [filename, pathname] = uiputfile( <span class="keyword">...</span>
+0254 {<span class="string">'*.png'</span>,<span class="string">'Portable Network Graphics (*.png)'</span>;<span class="keyword">...</span>
+0255  <span class="string">'*.jpeg'</span>,<span class="string">'JPEG figure (*.jpeg)'</span>;<span class="keyword">...</span>
+0256  <span class="string">'*.tiff'</span>,<span class="string">'Compressed TIFF figure (*.tiff)'</span>;<span class="keyword">...</span><span class="comment"> </span>
+0257  <span class="string">'*.fig'</span>,<span class="string">'Matlab figure (*.fig)'</span>;<span class="keyword">...</span>
+0258  <span class="string">'*.pdf'</span>,<span class="string">'Color PDF file (*.pdf)'</span>;<span class="keyword">...</span>
+0259  <span class="string">'*.epsc'</span>,  <span class="string">'Encapsulated PostScript (*.eps)'</span>},<span class="keyword">...</span>
+0260  <span class="string">'Save figure as'</span>,[<span class="string">'Cross_Validation_'</span>,modname,<span class="string">'.png'</span>]);
+0261 [a,b,c]=fileparts(filename);
+0262 ext=[<span class="string">'-d'</span>,c(2:end)];
+0263 
+0264 <span class="comment">% Set the color of the different backgrounds and figure parameters to white</span>
+0265 cf=get(handles.figure1,<span class="string">'Color'</span>);
+0266 set(handles.figure1,<span class="string">'Color'</span>,[1,1,1])
+0267 aa=get(handles.figure1,<span class="string">'children'</span>);
+0268 c=zeros(length(aa),3);
+0269 cb=cell(length(aa));
+0270 <span class="keyword">for</span> i=1:length(aa)
+0271     <span class="keyword">if</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uipanel'</span>)
+0272         bb=get(aa(i),<span class="string">'children'</span>);
+0273         cb{i}=zeros(length(bb),3);
+0274         <span class="keyword">if</span> ~isempty(bb)
+0275             <span class="keyword">for</span> j=1:length(bb)
+0276                 <span class="keyword">try</span>
+0277                     cb{i}(j,:)=get(bb(j),<span class="string">'BackgroundColor'</span>);
+0278                     set(bb(j),<span class="string">'BackgroundColor'</span>,[1 1 1]);
+0279                 <span class="keyword">end</span>
+0280             <span class="keyword">end</span>
+0281         <span class="keyword">end</span>
+0282     <span class="keyword">end</span>
+0283     <span class="keyword">if</span> ~strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uimenu'</span>)
+0284         <span class="keyword">try</span>
+0285             c(i,:)=get(aa(i),<span class="string">'BackgroundColor'</span>);
+0286             set(aa(i),<span class="string">'BackgroundColor'</span>,[1 1 1]);
+0287         <span class="keyword">end</span>
+0288     <span class="keyword">end</span>
+0289 <span class="keyword">end</span>
+0290 
+0291 print(handles.figure1,ext,[pathname,filesep,b],<span class="string">'-r500'</span>)
+0292 
+0293 <span class="comment">% Set the color of the different backgrounds and figure parameters to white</span>
+0294 set(handles.figure1,<span class="string">'Color'</span>,cf)
+0295 aa=get(handles.figure1,<span class="string">'children'</span>);
+0296 <span class="keyword">for</span> i=1:length(aa)
+0297     <span class="keyword">if</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uipanel'</span>)
+0298         bb=get(aa(i),<span class="string">'children'</span>);
+0299         <span class="keyword">if</span> ~isempty(bb)
+0300             <span class="keyword">for</span> j=1:length(bb)
+0301                 set(bb(j),<span class="string">'BackgroundColor'</span>,cb{i}(j,:));
+0302             <span class="keyword">end</span>
 0303         <span class="keyword">end</span>
 0304     <span class="keyword">end</span>
-0305 <span class="keyword">end</span>
-0306 cd(wd)</pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0305     <span class="keyword">if</span> ~strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uimenu'</span>)
+0306         <span class="keyword">try</span>
+0307             set(aa(i),<span class="string">'BackgroundColor'</span>,c(i,:));
+0308         <span class="keyword">end</span>
+0309     <span class="keyword">end</span>
+0310 <span class="keyword">end</span>
+0311 cd(wd)</pre></div>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

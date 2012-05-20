@@ -21,7 +21,7 @@ end
 switch lower(Action)
     %==================================================================
     case 'startup'                                    % Startup the toolbox
-        %==================================================================
+    %==================================================================
         
         % check installation of toolbox and that of SPM8
         ok = check_installation;
@@ -53,7 +53,6 @@ switch lower(Action)
         if ~exist('prt_checkAlphaNumUnder','file')
             addpath(fullfile(prt('Dir'),'utils'));
         end
-        
         
         % in particular SPM's directories: matlabbatch
         if ~exist('cfg_util','file')

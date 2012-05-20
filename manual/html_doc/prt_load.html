@@ -63,7 +63,7 @@ This function is called by:
 0011 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0012 
 0013 <span class="comment">% Written by J. Schrouff</span>
-0014 <span class="comment">% $Id: prt_load.m 480 2012-03-27 16:24:17Z schrouff $</span>
+0014 <span class="comment">% $Id: prt_load.m 529 2012-05-17 08:09:25Z schrouff $</span>
 0015 
 0016 <span class="keyword">try</span>
 0017     load(fname)
@@ -83,41 +83,43 @@ This function is called by:
 0031     ind=[];
 0032     <span class="keyword">for</span> i=1:length(PRT.fas)
 0033         <span class="comment">%get the name of the file array</span>
-0034         fa_name=PRT.fas(i).dat.fname;
-0035         [fadir,fan,faext]=fileparts(fa_name);
-0036         <span class="keyword">if</span> ~strcmpi(fadir,prtdir) <span class="comment">%directories of PRT and feature set are different</span>
-0037             <span class="keyword">if</span> ~exist([prtdir,filesep,fan,faext],<span class="string">'file'</span>)  <span class="comment">%no feature set found</span>
-0038                 beep
-0039                 disp([<span class="string">'No feature set named '</span>,fan,<span class="string">' found in the PRT directory'</span>])
-0040                 disp(<span class="string">'Information linked to that feature set is deleted'</span>)
-0041                 disp(<span class="string">'Computing the weights or using non-kernel methods using that feature set won''t be permitted'</span>)
-0042             <span class="keyword">else</span>  <span class="comment">%file exists but under the new directory</span>
-0043                 PRT.fas(i).dat.fname=[prtdir,filesep,fan,faext];
-0044                 ind=[ind,i];
-0045             <span class="keyword">end</span>
-0046         <span class="keyword">else</span>
-0047             ind=[ind,i];
-0048         <span class="keyword">end</span>
-0049     <span class="keyword">end</span>
-0050     <span class="keyword">if</span> isempty(ind)
-0051         PRT=rmfield(PRT,<span class="string">'fas'</span>);
-0052         PRT=rmfield(PRT,<span class="string">'fs'</span>);
-0053     <span class="keyword">elseif</span> length(ind)~=i
-0054         <span class="comment">%When a model comports the modality of the deleted fas, get rid of</span>
-0055         <span class="comment">%the corresponding fs and model</span>
-0056         PRT.fas=PRT.fas(ind);
-0057     <span class="keyword">end</span>
-0058 <span class="keyword">end</span>
-0059 
-0060 save([prtdir,filesep,<span class="string">'PRT.mat'</span>],<span class="string">'PRT'</span>)
+0034         <span class="keyword">if</span> ~isempty(PRT.fas(i).dat)
+0035             fa_name=PRT.fas(i).dat.fname;
+0036             [fadir,fan,faext]=fileparts(fa_name);
+0037             <span class="keyword">if</span> ~strcmpi(fadir,prtdir) <span class="comment">%directories of PRT and feature set are different</span>
+0038                 <span class="keyword">if</span> ~exist([prtdir,filesep,fan,faext],<span class="string">'file'</span>)  <span class="comment">%no feature set found</span>
+0039                     beep
+0040                     disp([<span class="string">'No feature set named '</span>,fan,<span class="string">' found in the PRT directory'</span>])
+0041                     disp(<span class="string">'Information linked to that feature set is deleted'</span>)
+0042                     disp(<span class="string">'Computing the weights or using non-kernel methods using that feature set won''t be permitted'</span>)
+0043                 <span class="keyword">else</span>  <span class="comment">%file exists but under the new directory</span>
+0044                     PRT.fas(i).dat.fname=[prtdir,filesep,fan,faext];
+0045                     ind=[ind,i];
+0046                 <span class="keyword">end</span>
+0047             <span class="keyword">else</span>
+0048                 ind=[ind,i];
+0049             <span class="keyword">end</span>
+0050         <span class="keyword">end</span>
+0051     <span class="keyword">end</span>
+0052     <span class="keyword">if</span> isempty(ind)
+0053         PRT=rmfield(PRT,<span class="string">'fas'</span>);
+0054         PRT=rmfield(PRT,<span class="string">'fs'</span>);
+0055     <span class="keyword">elseif</span> length(ind)~=i
+0056         <span class="comment">%When a model comports the modality of the deleted fas, get rid of</span>
+0057         <span class="comment">%the corresponding fs and model</span>
+0058         PRT.fas=PRT.fas(ind);
+0059     <span class="keyword">end</span>
+0060 <span class="keyword">end</span>
 0061 
-0062 
-0063             
-0064                 
-0065                 
+0062 save([prtdir,filesep,<span class="string">'PRT.mat'</span>],<span class="string">'PRT'</span>)
+0063 
+0064 
+0065             
 0066                 
 0067                 
-0068</pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0068                 
+0069                 
+0070</pre></div>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

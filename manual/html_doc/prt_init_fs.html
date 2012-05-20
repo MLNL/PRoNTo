@@ -87,7 +87,7 @@ This function calls:
 </ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_fs.html" class="code" title="function [outfile]=prt_fs(PRT,in)">prt_fs</a>	Function to build file arrays containing the (linearly detrended) data</li><li><a href="prt_model.html" class="code" title="function PRT = prt_model(PRT,in)">prt_model</a>	Function to configure and build the PRT.model data structure</li><li><a href="prt_ui_reviewmodel.html" class="code" title="function varargout = prt_ui_reviewmodel(varargin)">prt_ui_reviewmodel</a>	PRT_UI_REVIEWMODEL M-file for prt_ui_reviewmodel.fig</li></ul>
+<li><a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_fs.html" class="code" title="function [outfile] = prt_fs(PRT,in)">prt_fs</a>	Function to build file arrays containing the (linearly detrended) data</li><li><a href="prt_model.html" class="code" title="function PRT = prt_model(PRT,in)">prt_model</a>	Function to configure and build the PRT.model data structure</li><li><a href="prt_ui_reviewmodel.html" class="code" title="function varargout = prt_ui_reviewmodel(varargin)">prt_ui_reviewmodel</a>	PRT_UI_REVIEWMODEL M-file for prt_ui_reviewmodel.fig</li></ul>
 <!-- crossreference -->
 
 
@@ -148,7 +148,7 @@ This function is called by:
 0053 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0054 
 0055 <span class="comment">% Written by A Marquand</span>
-0056 <span class="comment">% $Id: prt_init_fs.m 468 2012-03-25 22:02:06Z schrouff $</span>
+0056 <span class="comment">% $Id: prt_init_fs.m 542 2012-05-20 10:48:51Z cphillip $</span>
 0057 
 0058 <span class="comment">% find index for the new feature set</span>
 0059 fs_exists = false;
@@ -202,8 +202,8 @@ This function is called by:
 0107         PRT.fs(fid).modality(m).param_dt = in.mod(mids(m)).param_dt;
 0108         PRT.fs(fid).modality(m).mode     = in.mod(mids(m)).mode;
 0109         <span class="comment">%get indexes from mask specified in the data and design step</span>
-0110         vm=spm_vol(mask{m});
-0111         vm=spm_read_vols(vm);
+0110         vm = spm_vol(mask{m});
+0111         vm = spm_read_vols(vm);
 0112         PRT.fs(fid).modality(m).feat_idx_img = find(vm&gt;0);
 0113         <span class="keyword">if</span> isempty(find(vm&gt;0))
 0114             error(<span class="string">'prt_prepare_data:NoVoxelinMask'</span>,<span class="keyword">...</span>
@@ -219,8 +219,8 @@ This function is called by:
 0124         <span class="keyword">end</span>
 0125         <span class="comment">%get subindexes from mask specified in the data prepare step</span>
 0126         <span class="keyword">if</span> ~isempty(precmask{m})
-0127             vm=spm_vol(precmask{m});
-0128             vm=spm_read_vols(vm);
+0127             vm = spm_vol(precmask{m});
+0128             vm = spm_read_vols(vm);
 0129             <span class="keyword">if</span> isempty(find(vm&gt;0))
 0130                 error(<span class="string">'prt_prepare_data:NoVoxelinMask'</span>,<span class="keyword">...</span>
 0131                     [<span class="string">'2nd level mask of modality '</span>,num2str(m),<span class="string">' does not contain any voxel &gt;0'</span>])
@@ -349,75 +349,76 @@ This function is called by:
 0254     prt_dir=fileparts(in.fname);
 0255     <span class="keyword">for</span> i=1:n_mods
 0256         <span class="comment">% check whether we need to recreate the file array</span>
-0257         <span class="keyword">if</span> isempty(PRT.fas(mids(i)).dat) || exist(PRT.fas(mids(i)).dat.fname)==0 ||<span class="keyword">...</span>
-0258                 PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  || <span class="keyword">...</span>
-0259                 (isempty(PRT.fas(mids(i)).param_dt) &amp;&amp; ~isempty(in.mod(mids(i)).param_dt)) || <span class="keyword">...</span>
-0260                 (~isempty(PRT.fas(mids(i)).param_dt) &amp;&amp; isempty(in.mod(mids(i)).param_dt)) || <span class="keyword">...</span>
-0261                 ((~isempty(PRT.fas(mids(i)).param_dt) &amp;&amp; ~isempty(in.mod(mids(i)).param_dt)) &amp;&amp; <span class="keyword">...</span>
-0262                 PRT.fas(mids(i)).param_dt~=in.mod(mids(i)).param_dt)
-0263             
-0264             <span class="keyword">if</span> isempty(PRT.fas(mids(i)).dat)
-0265                 disp([<span class="string">'File array does not exist for modality '''</span>,<span class="keyword">...</span>
-0266                     char(in.mod(mids(i)).mod_name),<span class="string">'''. Creating...'</span>])
-0267             <span class="keyword">elseif</span> PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend <span class="keyword">...</span>
-0268                     &amp;&amp; any(strcmpi(fieldnames(PRT.fas(mids(i)).dat),<span class="string">'fname'</span>)) <span class="keyword">...</span>
-0269                     &amp;&amp; exist(PRT.fas(mids(i)).dat.fname,<span class="string">'file'</span>)
-0270                 
-0271                 warning(<span class="string">'prt_init_fs:overwriteFileArray'</span>,<span class="keyword">...</span>
-0272                     [<span class="string">'File array already exists for modality '''</span>,<span class="keyword">...</span>
-0273                     char(in.mod(mids(i)).mod_name),<span class="string">''', but parameters '</span>,<span class="keyword">...</span>
-0274                     <span class="string">'have changed. Re-creating ...'</span>]);
-0275                 
-0276                 delete(PRT.fas(mids(i)).dat.fname);
-0277             <span class="keyword">end</span>
-0278             
-0279             tocomp(mids(i))=1;
-0280             <span class="comment">%PRT.fas(mids(i)).mod_name = in.mod(mids(i)).mod_name;</span>
-0281             PRT.fas(mids(i)).detrend = in.mod(mids(i)).detrend;
-0282             PRT.fas(mids(i)).param_dt = in.mod(mids(i)).param_dt;
-0283             PRT.fas(mids(i)).hdr = headers{i};
-0284             PRT.fas(mids(i)).idfeat_img = PRT.fs(fid).modality(i).feat_idx_img;                <span class="comment">% index of voxels in the full image (nifti)</span>
-0285             datname=[prt_dir,filesep,<span class="string">'Feature_set_'</span>,char(in.mod(mids(i)).mod_name),<span class="string">'.dat'</span>];
-0286             PRT.fas(mids(i)).dat = file_array(<span class="keyword">...</span>
-0287                 datname, <span class="keyword">...</span><span class="comment">                 % fname     - filename</span>
-0288                 [szm(i),n_vox],<span class="keyword">...</span><span class="comment">           % dim       - dimensions (default = [0 0] )</span>
-0289                 spm_type(<span class="string">'float64'</span>), <span class="keyword">...</span><span class="comment">  % dtype     - datatype   (default = 'float')</span>
-0290                 0, <span class="keyword">...</span><span class="comment">                       % offset    - offset into file (default = 0)</span>
-0291                 1);                          <span class="comment">% scl_slope - scalefactor (default = 1)</span>
-0292         <span class="keyword">else</span>
-0293             disp([<span class="string">'Using existing file array for modality '''</span>, <span class="keyword">...</span>
-0294                 char(in.mod(mids(i)).mod_name),<span class="string">'''.'</span>])
-0295         <span class="keyword">end</span>
-0296         
-0297         <span class="comment">% check that the input .mat for the scaling have the right size</span>
-0298         <span class="keyword">if</span> in.mod(mids(i)).normalise==2
-0299             <span class="keyword">try</span>
-0300                 load(in.mod(mids(i)).matnorm);
-0301             <span class="keyword">catch</span>
-0302                 error(<span class="string">'prt_prepare_data:ScalingMatUnloadable'</span>,<span class="keyword">...</span>
-0303                     <span class="string">'Could not load the .mat file containing the scaling'</span>)
-0304             <span class="keyword">end</span>
-0305             <span class="keyword">try</span>
-0306                 szin=length(scaling);
-0307             <span class="keyword">catch</span>
-0308                 error(<span class="string">'prt_prepare_data:ScalingNotinFile'</span>,<span class="keyword">...</span>
-0309                     <span class="string">'This file does not contain the &quot;scaling&quot; field required'</span>)
-0310             <span class="keyword">end</span>
-0311             <span class="keyword">if</span> szin~=szm(i)
-0312                 error(<span class="string">'prt_prepare_data:Scalingdimensionwrong'</span>,<span class="keyword">...</span>
-0313                     <span class="string">'The dimension of the .mat file does not correspond to the number of scans in that modality'</span>)
-0314             <span class="keyword">end</span>
-0315             PRT.fs(fid).modality(i).normalise.type=2;
-0316             PRT.fs(fid).modality(i).normalise.scaling=reshape(scaling,1,szm(i));
-0317         <span class="keyword">elseif</span> in.mod(mids(i)).normalise==1
-0318             PRT.fs(fid).modality(i).normalise.type=1;
-0319         <span class="keyword">else</span>
-0320             PRT.fs(fid).modality(i).normalise.type=0;
-0321         <span class="keyword">end</span>
-0322     <span class="keyword">end</span>
-0323     
-0324     PRT.fs(fid).modality=rmfield(PRT.fs(fid).modality,<span class="string">'feat_idx_img'</span>);
-0325 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0257         <span class="keyword">if</span> mids(i)&gt;length(PRT.fas) ||<span class="keyword">...</span>
+0258                 isempty(PRT.fas(mids(i)).dat) || exist(PRT.fas(mids(i)).dat.fname)==0 ||<span class="keyword">...</span>
+0259                 PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend  || <span class="keyword">...</span>
+0260                 (isempty(PRT.fas(mids(i)).param_dt) &amp;&amp; ~isempty(in.mod(mids(i)).param_dt)) || <span class="keyword">...</span>
+0261                 (~isempty(PRT.fas(mids(i)).param_dt) &amp;&amp; isempty(in.mod(mids(i)).param_dt)) || <span class="keyword">...</span>
+0262                 ((~isempty(PRT.fas(mids(i)).param_dt) &amp;&amp; ~isempty(in.mod(mids(i)).param_dt)) &amp;&amp; <span class="keyword">...</span>
+0263                 PRT.fas(mids(i)).param_dt~=in.mod(mids(i)).param_dt)
+0264             
+0265             <span class="keyword">if</span> mids(i)&gt;length(PRT.fas) || isempty(PRT.fas(mids(i)).dat)
+0266                 disp([<span class="string">'File array does not exist for modality '''</span>,<span class="keyword">...</span>
+0267                     char(in.mod(mids(i)).mod_name),<span class="string">'''. Creating...'</span>])
+0268             <span class="keyword">elseif</span> PRT.fas(mids(i)).detrend ~= in.mod(mids(i)).detrend <span class="keyword">...</span>
+0269                     &amp;&amp; any(strcmpi(fieldnames(PRT.fas(mids(i)).dat),<span class="string">'fname'</span>)) <span class="keyword">...</span>
+0270                     &amp;&amp; exist(PRT.fas(mids(i)).dat.fname,<span class="string">'file'</span>)
+0271                 
+0272                 warning(<span class="string">'prt_init_fs:overwriteFileArray'</span>,<span class="keyword">...</span>
+0273                     [<span class="string">'File array already exists for modality '''</span>,<span class="keyword">...</span>
+0274                     char(in.mod(mids(i)).mod_name),<span class="string">''', but parameters '</span>,<span class="keyword">...</span>
+0275                     <span class="string">'have changed. Re-creating ...'</span>]);
+0276                 
+0277                 delete(PRT.fas(mids(i)).dat.fname);
+0278             <span class="keyword">end</span>
+0279             
+0280             tocomp(mids(i))=1;
+0281             <span class="comment">%PRT.fas(mids(i)).mod_name = in.mod(mids(i)).mod_name;</span>
+0282             PRT.fas(mids(i)).detrend = in.mod(mids(i)).detrend;
+0283             PRT.fas(mids(i)).param_dt = in.mod(mids(i)).param_dt;
+0284             PRT.fas(mids(i)).hdr = headers{i};
+0285             PRT.fas(mids(i)).idfeat_img = PRT.fs(fid).modality(i).feat_idx_img;                <span class="comment">% index of voxels in the full image (nifti)</span>
+0286             datname=[prt_dir,filesep,<span class="string">'Feature_set_'</span>,char(in.mod(mids(i)).mod_name),<span class="string">'.dat'</span>];
+0287             PRT.fas(mids(i)).dat = file_array(<span class="keyword">...</span>
+0288                 datname, <span class="keyword">...</span><span class="comment">                 % fname     - filename</span>
+0289                 [szm(i),n_vox],<span class="keyword">...</span><span class="comment">           % dim       - dimensions (default = [0 0] )</span>
+0290                 spm_type(<span class="string">'float64'</span>), <span class="keyword">...</span><span class="comment">  % dtype     - datatype   (default = 'float')</span>
+0291                 0, <span class="keyword">...</span><span class="comment">                       % offset    - offset into file (default = 0)</span>
+0292                 1);                          <span class="comment">% scl_slope - scalefactor (default = 1)</span>
+0293         <span class="keyword">else</span>
+0294             disp([<span class="string">'Using existing file array for modality '''</span>, <span class="keyword">...</span>
+0295                 char(in.mod(mids(i)).mod_name),<span class="string">'''.'</span>])
+0296         <span class="keyword">end</span>
+0297         
+0298         <span class="comment">% check that the input .mat for the scaling have the right size</span>
+0299         <span class="keyword">if</span> in.mod(mids(i)).normalise==2
+0300             <span class="keyword">try</span>
+0301                 load(in.mod(mids(i)).matnorm);
+0302             <span class="keyword">catch</span>
+0303                 error(<span class="string">'prt_prepare_data:ScalingMatUnloadable'</span>,<span class="keyword">...</span>
+0304                     <span class="string">'Could not load the .mat file containing the scaling'</span>)
+0305             <span class="keyword">end</span>
+0306             <span class="keyword">try</span>
+0307                 szin=length(scaling);
+0308             <span class="keyword">catch</span>
+0309                 error(<span class="string">'prt_prepare_data:ScalingNotinFile'</span>,<span class="keyword">...</span>
+0310                     <span class="string">'This file does not contain the &quot;scaling&quot; field required'</span>)
+0311             <span class="keyword">end</span>
+0312             <span class="keyword">if</span> szin~=szm(i)
+0313                 error(<span class="string">'prt_prepare_data:Scalingdimensionwrong'</span>,<span class="keyword">...</span>
+0314                     <span class="string">'The dimension of the .mat file does not correspond to the number of scans in that modality'</span>)
+0315             <span class="keyword">end</span>
+0316             PRT.fs(fid).modality(i).normalise.type=2;
+0317             PRT.fs(fid).modality(i).normalise.scaling=reshape(scaling,1,szm(i));
+0318         <span class="keyword">elseif</span> in.mod(mids(i)).normalise==1
+0319             PRT.fs(fid).modality(i).normalise.type=1;
+0320         <span class="keyword">else</span>
+0321             PRT.fs(fid).modality(i).normalise.type=0;
+0322         <span class="keyword">end</span>
+0323     <span class="keyword">end</span>
+0324     
+0325     PRT.fs(fid).modality=rmfield(PRT.fs(fid).modality,<span class="string">'feat_idx_img'</span>);
+0326 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

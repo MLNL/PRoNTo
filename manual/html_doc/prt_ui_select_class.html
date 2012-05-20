@@ -96,7 +96,7 @@ This function is called by:
 0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0027 
 0028 <span class="comment">% Written by J. Schrouff</span>
-0029 <span class="comment">% $Id: prt_ui_select_class.m 496 2012-04-03 12:50:05Z schrouff $</span>
+0029 <span class="comment">% $Id: prt_ui_select_class.m 523 2012-05-09 11:43:36Z jrichiar $</span>
 0030 
 0031 <span class="comment">% Edit the above text to modify the response to help prt_ui_select_class</span>
 0032 
@@ -182,744 +182,749 @@ This function is called by:
 0112     <span class="keyword">end</span>
 0113     set(aa(i),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
 0114     xf=get(aa(i),<span class="string">'FontSize'</span>);
-0115     set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
-0116         <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
-0117 <span class="keyword">end</span>
-0118 
-0119 <span class="comment">%set the different fields to disabled (will be enabled when choosing the</span>
-0120 <span class="comment">%number of classes)</span>
-0121 set(handles.group_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0122 set(handles.uns_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0123 set(handles.sel_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0124 set(handles.uns_cond_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0125 set(handles.sel_cond_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0126 set(handles.sel_all,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0127 set(handles.sel_cond_all,<span class="string">'Enable'</span>,<span class="string">'off'</span>);
-0128 
-0129 <span class="comment">%get information from the PRT.mat</span>
-0130 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
-0131     handles.dat=varargin{2}{1};
-0132     <span class="comment">%get names of groups</span>
-0133     list={handles.dat.group(:).gr_name};
-0134     ng=length(list);
-0135     set(handles.group_list,<span class="string">'String'</span>,list)
-0136     
-0137     
-0138     <span class="comment">%get the conditions which are common to all groups and subjects for the</span>
-0139     <span class="comment">%different modalities comprised in the selected feature set</span>
-0140     indfs=varargin{2}{2};
-0141     handles.indfs=indfs;
-0142     nm=length(handles.dat.fs(indfs).modality);
-0143     modnam={handles.dat.masks(:).mod_name};
-0144     handles.condm=cell(1,3);
-0145     handles.flagcond=1;
-0146     <span class="comment">%for each modality, get the conditions which are common to all subjects</span>
-0147     <span class="keyword">for</span> i=1:nm
-0148         handles.condm{1,1}=get(handles.group_list,<span class="string">'String'</span>);
-0149         handles.condm{1,3}=cell(length(get(handles.group_list,<span class="string">'String'</span>)),1);
-0150         flag=1;
-0151         <span class="keyword">for</span> j=1:ng
-0152             handles.condm{1,3}{j}={handles.dat.group(j).subject(:).subj_name};
-0153             <span class="keyword">for</span> k=1:length(handles.dat.group(j).subject)
-0154                 m2= strcmpi(handles.dat.fs(indfs).modality(nm).mod_name,modnam);
-0155                 des=handles.dat.group(j).subject(k).modality(m2).design;
-0156                 <span class="keyword">if</span> isstruct(des) &amp;&amp; flag
-0157                     <span class="keyword">if</span> k==1 &amp;&amp; j == 1 <span class="comment">% [afm] &amp;&amp; nm==1</span>
-0158                         lcond={des.conds(:).cond_name};
-0159                     <span class="keyword">else</span>
-0160                         tocmp={des.conds(:).cond_name};
-0161                         lcond=intersect(lcond,tocmp);
-0162                     <span class="keyword">end</span>
-0163                 <span class="keyword">else</span>
-0164                     flag=0;
-0165                     lcond={};
-0166                 <span class="keyword">end</span>
-0167             <span class="keyword">end</span>
-0168         <span class="keyword">end</span>
-0169     <span class="keyword">end</span>
-0170     handles.condm{1,2}=lcond;
-0171     <span class="keyword">if</span> isempty(handles.condm{1,2})
-0172         disp(<span class="string">'No conditions were common to all subjects, all groups, all modalities within the feature set'</span>)
-0173         disp(<span class="string">'Classifying subjects only'</span>)
-0174         handles.flagcond=0;
-0175     <span class="keyword">end</span>
-0176     <span class="keyword">if</span> length(varargin{2})==2
-0177         handles.flagrev=0;
-0178         set(handles.group_list,<span class="string">'Value'</span>,1)
-0179         list={handles.dat.group(1).subject(:).subj_name};
-0180         set(handles.uns_list,<span class="string">'String'</span>,list);
-0181         set(handles.sel_list,<span class="string">'String'</span>,{});
-0182         <span class="comment">% Update handles structure</span>
-0183         guidata(hObject, handles);
-0184         <span class="comment">% UIWAIT makes prt_ui_select_class wait for user response (see UIRESUME)</span>
-0185         uiwait(handles.figure1);
-0186     <span class="keyword">else</span>
-0187         <span class="comment">%review the model</span>
-0188         handles.flagrev=1;
-0189         indm=varargin{2}{3};
-0190         mod=handles.dat.model(indm).input;
-0191         <span class="comment">%classification case</span>
-0192         nc=length(mod.class);
-0193         set(handles.num_class,<span class="string">'String'</span>,num2str(nc))
-0194         set(handles.num_class,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0195         set(handles.edit2,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0196         handles.clas=cell(nc,4);
-0197         <span class="comment">%set the names of the classes in the pop_class</span>
-0198         cl={};
-0199         <span class="keyword">for</span> i=1:nc
-0200             cl=[cl,{[<span class="string">'Class '</span>,num2str(i)]}];
-0201         <span class="keyword">end</span>
-0202         set(handles.pop_class,<span class="string">'String'</span>,cl);
-0203         set(handles.pop_class,<span class="string">'Value'</span>,1);
+0115     <span class="keyword">if</span> ispc
+0116         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0117             <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0118     <span class="keyword">else</span>
+0119         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0120             <span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0121     <span class="keyword">end</span>
+0122 <span class="keyword">end</span>
+0123 
+0124 <span class="comment">%set the different fields to disabled (will be enabled when choosing the</span>
+0125 <span class="comment">%number of classes)</span>
+0126 set(handles.group_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0127 set(handles.uns_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0128 set(handles.sel_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0129 set(handles.uns_cond_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0130 set(handles.sel_cond_list,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0131 set(handles.sel_all,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0132 set(handles.sel_cond_all,<span class="string">'Enable'</span>,<span class="string">'off'</span>);
+0133 
+0134 <span class="comment">%get information from the PRT.mat</span>
+0135 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
+0136     handles.dat=varargin{2}{1};
+0137     <span class="comment">%get names of groups</span>
+0138     list={handles.dat.group(:).gr_name};
+0139     ng=length(list);
+0140     set(handles.group_list,<span class="string">'String'</span>,list)
+0141     
+0142     
+0143     <span class="comment">%get the conditions which are common to all groups and subjects for the</span>
+0144     <span class="comment">%different modalities comprised in the selected feature set</span>
+0145     indfs=varargin{2}{2};
+0146     handles.indfs=indfs;
+0147     nm=length(handles.dat.fs(indfs).modality);
+0148     modnam={handles.dat.masks(:).mod_name};
+0149     handles.condm=cell(1,3);
+0150     handles.flagcond=1;
+0151     <span class="comment">%for each modality, get the conditions which are common to all subjects</span>
+0152     <span class="keyword">for</span> i=1:nm
+0153         handles.condm{1,1}=get(handles.group_list,<span class="string">'String'</span>);
+0154         handles.condm{1,3}=cell(length(get(handles.group_list,<span class="string">'String'</span>)),1);
+0155         flag=1;
+0156         <span class="keyword">for</span> j=1:ng
+0157             handles.condm{1,3}{j}={handles.dat.group(j).subject(:).subj_name};
+0158             <span class="keyword">for</span> k=1:length(handles.dat.group(j).subject)
+0159                 m2= strcmpi(handles.dat.fs(indfs).modality(nm).mod_name,modnam);
+0160                 des=handles.dat.group(j).subject(k).modality(m2).design;
+0161                 <span class="keyword">if</span> isstruct(des) &amp;&amp; flag
+0162                     <span class="keyword">if</span> k==1 &amp;&amp; j == 1 <span class="comment">% [afm] &amp;&amp; nm==1</span>
+0163                         lcond={des.conds(:).cond_name};
+0164                     <span class="keyword">else</span>
+0165                         tocmp={des.conds(:).cond_name};
+0166                         lcond=intersect(lcond,tocmp);
+0167                     <span class="keyword">end</span>
+0168                 <span class="keyword">else</span>
+0169                     flag=0;
+0170                     lcond={};
+0171                 <span class="keyword">end</span>
+0172             <span class="keyword">end</span>
+0173         <span class="keyword">end</span>
+0174     <span class="keyword">end</span>
+0175     handles.condm{1,2}=lcond;
+0176     <span class="keyword">if</span> isempty(handles.condm{1,2})
+0177         disp(<span class="string">'No conditions were common to all subjects, all groups, all modalities within the feature set'</span>)
+0178         disp(<span class="string">'Classifying subjects only'</span>)
+0179         handles.flagcond=0;
+0180     <span class="keyword">end</span>
+0181     <span class="keyword">if</span> length(varargin{2})==2
+0182         handles.flagrev=0;
+0183         set(handles.group_list,<span class="string">'Value'</span>,1)
+0184         list={handles.dat.group(1).subject(:).subj_name};
+0185         set(handles.uns_list,<span class="string">'String'</span>,list);
+0186         set(handles.sel_list,<span class="string">'String'</span>,{});
+0187         <span class="comment">% Update handles structure</span>
+0188         guidata(hObject, handles);
+0189         <span class="comment">% UIWAIT makes prt_ui_select_class wait for user response (see UIRESUME)</span>
+0190         uiwait(handles.figure1);
+0191     <span class="keyword">else</span>
+0192         <span class="comment">%review the model</span>
+0193         handles.flagrev=1;
+0194         indm=varargin{2}{3};
+0195         mod=handles.dat.model(indm).input;
+0196         <span class="comment">%classification case</span>
+0197         nc=length(mod.class);
+0198         set(handles.num_class,<span class="string">'String'</span>,num2str(nc))
+0199         set(handles.num_class,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0200         set(handles.edit2,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0201         handles.clas=cell(nc,4);
+0202         <span class="comment">%set the names of the classes in the pop_class</span>
+0203         cl={};
 0204         <span class="keyword">for</span> i=1:nc
-0205             handles.class(i).class_name=mod.class(i).class_name;
-0206             handles.clas{i,1}=1:length(handles.condm{1,1});
-0207             handles.clas{i,2}=cell(length(handles.condm{1,1}),2);
-0208             list=get(handles.group_list,<span class="string">'String'</span>);
-0209             <span class="keyword">for</span> j=1:length(list)
-0210                 indg=find(strcmpi(list{j},{mod.class(i).group(:).gr_name}));
-0211                 <span class="keyword">if</span>~isempty(indg)
-0212                     sel=[mod.class(i).group(indg).subj(:).num];
-0213                     all=1:length(handles.condm{1,3}{j});
-0214                     handles.clas{i,2}{j,1}=setdiff(all,sel);
-0215                     handles.clas{i,2}{j,2}=sel;
-0216                 <span class="keyword">else</span>
-0217                     handles.clas{i,2}{j,1}=1:length(handles.condm{1,3}{j});
-0218                     handles.clas{i,2}{j,2}=0;
-0219                 <span class="keyword">end</span>
-0220                 <span class="keyword">if</span> isempty(handles.clas{i,2}{j,1})
-0221                     handles.clas{i,2}{j,1}=0;
-0222                 <span class="keyword">end</span>
-0223                 <span class="keyword">if</span> isempty(handles.clas{i,2}{j,2})
-0224                     handles.clas{i,2}{j,2}=0;
-0225                 <span class="keyword">end</span>
-0226             <span class="keyword">end</span>
-0227             <span class="keyword">if</span> handles.flagcond
-0228                 listc=handles.condm{1,2};
-0229                 selc=[];
-0230                 <span class="keyword">for</span> icc=1:length(listc)
-0231                     indcc=strcmpi(listc{icc},{mod.class(i).group(1).subj(1).modality(1).conds(:).cond_name});
-0232                     <span class="keyword">if</span> any(indcc)
-0233                         selc=[selc,icc];
-0234                     <span class="keyword">end</span>
-0235                 <span class="keyword">end</span>
-0236                 allc=1:length(handles.condm{1,2});
-0237                 handles.clas{i,3}=setdiff(allc,selc);
-0238                 handles.clas{i,4}=selc;
-0239                 <span class="keyword">if</span> isempty(handles.clas{i,3})
-0240                     handles.clas{i,3}=0;
-0241                 <span class="keyword">end</span>
-0242                 <span class="keyword">if</span> isempty(handles.clas{i,4})
-0243                     handles.clas{i,3}=0;
-0244                 <span class="keyword">end</span>
-0245             <span class="keyword">end</span>
-0246             handles.class(i).class_name=mod.class(i).class_name;            
-0247         <span class="keyword">end</span>
-0248         set(handles.group_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
-0249         <span class="comment">% Update handles structure</span>
-0250         guidata(hObject, handles);
-0251     <span class="keyword">end</span>
-0252 <span class="keyword">end</span>
-0253 
-0254 
-0255 
-0256 
-0257 
+0205             cl=[cl,{[<span class="string">'Class '</span>,num2str(i)]}];
+0206         <span class="keyword">end</span>
+0207         set(handles.pop_class,<span class="string">'String'</span>,cl);
+0208         set(handles.pop_class,<span class="string">'Value'</span>,1);
+0209         <span class="keyword">for</span> i=1:nc
+0210             handles.class(i).class_name=mod.class(i).class_name;
+0211             handles.clas{i,1}=1:length(handles.condm{1,1});
+0212             handles.clas{i,2}=cell(length(handles.condm{1,1}),2);
+0213             list=get(handles.group_list,<span class="string">'String'</span>);
+0214             <span class="keyword">for</span> j=1:length(list)
+0215                 indg=find(strcmpi(list{j},{mod.class(i).group(:).gr_name}));
+0216                 <span class="keyword">if</span>~isempty(indg)
+0217                     sel=[mod.class(i).group(indg).subj(:).num];
+0218                     all=1:length(handles.condm{1,3}{j});
+0219                     handles.clas{i,2}{j,1}=setdiff(all,sel);
+0220                     handles.clas{i,2}{j,2}=sel;
+0221                 <span class="keyword">else</span>
+0222                     handles.clas{i,2}{j,1}=1:length(handles.condm{1,3}{j});
+0223                     handles.clas{i,2}{j,2}=0;
+0224                 <span class="keyword">end</span>
+0225                 <span class="keyword">if</span> isempty(handles.clas{i,2}{j,1})
+0226                     handles.clas{i,2}{j,1}=0;
+0227                 <span class="keyword">end</span>
+0228                 <span class="keyword">if</span> isempty(handles.clas{i,2}{j,2})
+0229                     handles.clas{i,2}{j,2}=0;
+0230                 <span class="keyword">end</span>
+0231             <span class="keyword">end</span>
+0232             <span class="keyword">if</span> handles.flagcond
+0233                 listc=handles.condm{1,2};
+0234                 selc=[];
+0235                 <span class="keyword">for</span> icc=1:length(listc)
+0236                     indcc=strcmpi(listc{icc},{mod.class(i).group(1).subj(1).modality(1).conds(:).cond_name});
+0237                     <span class="keyword">if</span> any(indcc)
+0238                         selc=[selc,icc];
+0239                     <span class="keyword">end</span>
+0240                 <span class="keyword">end</span>
+0241                 allc=1:length(handles.condm{1,2});
+0242                 handles.clas{i,3}=setdiff(allc,selc);
+0243                 handles.clas{i,4}=selc;
+0244                 <span class="keyword">if</span> isempty(handles.clas{i,3})
+0245                     handles.clas{i,3}=0;
+0246                 <span class="keyword">end</span>
+0247                 <span class="keyword">if</span> isempty(handles.clas{i,4})
+0248                     handles.clas{i,3}=0;
+0249                 <span class="keyword">end</span>
+0250             <span class="keyword">end</span>
+0251             handles.class(i).class_name=mod.class(i).class_name;            
+0252         <span class="keyword">end</span>
+0253         set(handles.group_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0254         <span class="comment">% Update handles structure</span>
+0255         guidata(hObject, handles);
+0256     <span class="keyword">end</span>
+0257 <span class="keyword">end</span>
 0258 
-0259 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0260 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_select_class_OutputFcn(hObject, eventdata, handles) </a>
-0261 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0262 <span class="comment">% hObject    handle to figure</span>
-0263 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0264 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0265 
-0266 <span class="comment">% Get default command line output from handles structure</span>
-0267 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
-0268     varargout{1} = handles.output;
-0269 <span class="keyword">else</span>
-0270     varargout{1}=[];
-0271 <span class="keyword">end</span>
-0272 
-0273 <span class="comment">%This figure can be deleted now</span>
-0274 <span class="keyword">if</span> isfield(handles,<span class="string">'figure1'</span>) &amp;&amp; ~handles.flagrev
-0275     delete(handles.figure1)
+0259 
+0260 
+0261 
+0262 
+0263 
+0264 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0265 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_select_class_OutputFcn(hObject, eventdata, handles) </a>
+0266 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0267 <span class="comment">% hObject    handle to figure</span>
+0268 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0269 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0270 
+0271 <span class="comment">% Get default command line output from handles structure</span>
+0272 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
+0273     varargout{1} = handles.output;
+0274 <span class="keyword">else</span>
+0275     varargout{1}=[];
 0276 <span class="keyword">end</span>
 0277 
-0278 
-0279 
-0280 <a name="_sub3" href="#_subfunctions" class="code">function num_class_Callback(hObject, eventdata, handles)</a>
-0281 <span class="comment">% hObject    handle to num_class (see GCBO)</span>
-0282 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0283 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0278 <span class="comment">%This figure can be deleted now</span>
+0279 <span class="keyword">if</span> isfield(handles,<span class="string">'figure1'</span>) &amp;&amp; ~handles.flagrev
+0280     delete(handles.figure1)
+0281 <span class="keyword">end</span>
+0282 
+0283 
 0284 
-0285 <span class="comment">% Hints: get(hObject,'String') returns contents of num_class as text</span>
-0286 <span class="comment">%        str2double(get(hObject,'String')) returns contents of num_class as a double</span>
-0287 ncl=str2double(get(handles.num_class,<span class="string">'String'</span>));
-0288 <span class="keyword">if</span> isnan(ncl)
-0289     <span class="keyword">return</span>
-0290 <span class="keyword">end</span>
-0291 <span class="comment">%set the names of the classes in the pop_class</span>
-0292 cl={};
-0293 <span class="keyword">for</span> i=1:ncl
-0294     cl=[cl,{[<span class="string">'Class '</span>,num2str(i)]}];
+0285 <a name="_sub3" href="#_subfunctions" class="code">function num_class_Callback(hObject, eventdata, handles)</a>
+0286 <span class="comment">% hObject    handle to num_class (see GCBO)</span>
+0287 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0288 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0289 
+0290 <span class="comment">% Hints: get(hObject,'String') returns contents of num_class as text</span>
+0291 <span class="comment">%        str2double(get(hObject,'String')) returns contents of num_class as a double</span>
+0292 ncl=str2double(get(handles.num_class,<span class="string">'String'</span>));
+0293 <span class="keyword">if</span> isnan(ncl)
+0294     <span class="keyword">return</span>
 0295 <span class="keyword">end</span>
-0296 set(handles.pop_class,<span class="string">'String'</span>,cl);
-0297 set(handles.pop_class,<span class="string">'Value'</span>,1);
-0298 <span class="comment">%For each class, build a cell containing the indexes of</span>
-0299 <span class="comment">%the selected groups and conditions</span>
-0300 handles.clas=cell(ncl,4);
-0301 <span class="keyword">for</span> i=1:ncl
-0302     handles.clas{i,1}=1:length(handles.condm{1,1});
-0303     handles.clas{i,2}=cell(length(handles.condm{1,1}),2);
-0304     <span class="keyword">for</span> j=1:length(get(handles.group_list,<span class="string">'String'</span>))
-0305         handles.clas{i,2}{j,1}=1:length(handles.condm{1,3}{j});
-0306         handles.clas{i,2}{j,2}=0;
-0307     <span class="keyword">end</span>
-0308     <span class="keyword">if</span> handles.flagcond
-0309         handles.clas{i,3}=1:length(handles.condm{1,2});
-0310         handles.clas{i,4}=0;
-0311     <span class="keyword">end</span>
-0312     handles.class(i).class_name=cl{i};
-0313 <span class="keyword">end</span>
-0314 set(handles.edit2,<span class="string">'String'</span>,handles.class(1).class_name)
-0315 <span class="comment">% Update handles structure</span>
-0316 guidata(hObject, handles);
-0317 
-0318 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0319 <a name="_sub4" href="#_subfunctions" class="code">function num_class_CreateFcn(hObject, eventdata, handles)</a>
-0320 <span class="comment">% hObject    handle to num_class (see GCBO)</span>
-0321 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0322 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0323 
-0324 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0325 <span class="comment">%       See ISPC and COMPUTER.</span>
-0326 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0327     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0328 <span class="keyword">end</span>
-0329 
-0330 
-0331 <span class="comment">%change the name of the classes</span>
-0332 <a name="_sub5" href="#_subfunctions" class="code">function edit2_Callback(hObject, eventdata, handles)</a>
-0333 <span class="comment">% hObject    handle to edit2 (see GCBO)</span>
-0334 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0335 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0336 
-0337 <span class="comment">% Hints: get(hObject,'String') returns contents of edit2 as text</span>
-0338 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit2 as a double</span>
-0339 indc=get(handles.pop_class,<span class="string">'Value'</span>);
-0340 handles.class(indc).class_name=get(handles.edit2,<span class="string">'String'</span>);
-0341 <span class="comment">% Update handles structure</span>
-0342 guidata(hObject, handles);
-0343 
-0344 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0345 <a name="_sub6" href="#_subfunctions" class="code">function edit2_CreateFcn(hObject, eventdata, handles)</a>
-0346 <span class="comment">% hObject    handle to edit2 (see GCBO)</span>
-0347 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0348 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0349 
-0350 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0351 <span class="comment">%       See ISPC and COMPUTER.</span>
-0352 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0353     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0354 <span class="keyword">end</span>
-0355 
-0356 <span class="comment">% --- Executes on selection change in pop_class.</span>
-0357 <a name="_sub7" href="#_subfunctions" class="code">function pop_class_Callback(hObject, eventdata, handles)</a>
-0358 <span class="comment">% hObject    handle to pop_class (see GCBO)</span>
-0359 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0360 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0361 
-0362 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_class contents as cell array</span>
-0363 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_class</span>
-0364 vc=get(handles.pop_class,<span class="string">'Value'</span>);
-0365 <span class="keyword">if</span> vc==0
-0366     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0367     set(handles.pop_class,<span class="string">'Value'</span>,1)
-0368     vc=1;
-0369 <span class="keyword">end</span>
-0370 cg=get(handles.group_list,<span class="string">'Value'</span>);
-0371 list=handles.condm{1,3}{cg};
-0372 clist=handles.condm{1,2};
-0373 set(handles.edit2,<span class="string">'String'</span>,handles.class(vc).class_name)
-0374 <span class="comment">%set subjects lists</span>
-0375 <span class="keyword">if</span> handles.clas{vc,2}{cg,1}~=0
-0376     set(handles.uns_list,<span class="string">'Value'</span>,1);
-0377     set(handles.uns_list,<span class="string">'String'</span>,list(handles.clas{vc,2}{cg,1}));
-0378 <span class="keyword">else</span>
-0379     set(handles.uns_list,<span class="string">'Value'</span>,0);
-0380     set(handles.uns_list,<span class="string">'String'</span>,{});
-0381 <span class="keyword">end</span>
-0382 <span class="keyword">if</span> handles.clas{vc,2}{cg,2}~=0
-0383     set(handles.sel_list,<span class="string">'Value'</span>,1);
-0384     set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{vc,2}{cg,2}));
-0385 <span class="keyword">else</span>
-0386     set(handles.sel_list,<span class="string">'Value'</span>,0);
-0387     set(handles.sel_list,<span class="string">'String'</span>,{});
-0388 <span class="keyword">end</span>
-0389 <span class="comment">%set conditions lists</span>
-0390 <span class="keyword">if</span> handles.flagcond
-0391     <span class="keyword">if</span> handles.clas{vc,3}~=0
-0392         set(handles.uns_cond_list,<span class="string">'Value'</span>,1);
-0393         set(handles.uns_cond_list,<span class="string">'String'</span>,clist(handles.clas{vc,3}));
-0394     <span class="keyword">else</span>
-0395         set(handles.uns_cond_list,<span class="string">'Value'</span>,0);
-0396         set(handles.uns_cond_list,<span class="string">'String'</span>,{});
-0397     <span class="keyword">end</span>
-0398     <span class="keyword">if</span> handles.clas{vc,4}~=0
-0399         set(handles.sel_cond_list,<span class="string">'Value'</span>,1);
-0400         set(handles.sel_cond_list,<span class="string">'String'</span>,clist(handles.clas{vc,4}));
-0401     <span class="keyword">else</span>
-0402         set(handles.sel_cond_list,<span class="string">'Value'</span>,0);
-0403         set(handles.sel_cond_list,<span class="string">'String'</span>,{});
-0404     <span class="keyword">end</span>
-0405     <span class="keyword">if</span> ~handles.flagrev
-0406         set(handles.uns_cond_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
-0407         set(handles.sel_cond_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
-0408         set(handles.sel_cond_all,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0296 <span class="comment">%set the names of the classes in the pop_class</span>
+0297 cl={};
+0298 <span class="keyword">for</span> i=1:ncl
+0299     cl=[cl,{[<span class="string">'Class '</span>,num2str(i)]}];
+0300 <span class="keyword">end</span>
+0301 set(handles.pop_class,<span class="string">'String'</span>,cl);
+0302 set(handles.pop_class,<span class="string">'Value'</span>,1);
+0303 <span class="comment">%For each class, build a cell containing the indexes of</span>
+0304 <span class="comment">%the selected groups and conditions</span>
+0305 handles.clas=cell(ncl,4);
+0306 <span class="keyword">for</span> i=1:ncl
+0307     handles.clas{i,1}=1:length(handles.condm{1,1});
+0308     handles.clas{i,2}=cell(length(handles.condm{1,1}),2);
+0309     <span class="keyword">for</span> j=1:length(get(handles.group_list,<span class="string">'String'</span>))
+0310         handles.clas{i,2}{j,1}=1:length(handles.condm{1,3}{j});
+0311         handles.clas{i,2}{j,2}=0;
+0312     <span class="keyword">end</span>
+0313     <span class="keyword">if</span> handles.flagcond
+0314         handles.clas{i,3}=1:length(handles.condm{1,2});
+0315         handles.clas{i,4}=0;
+0316     <span class="keyword">end</span>
+0317     handles.class(i).class_name=cl{i};
+0318 <span class="keyword">end</span>
+0319 set(handles.edit2,<span class="string">'String'</span>,handles.class(1).class_name)
+0320 <span class="comment">% Update handles structure</span>
+0321 guidata(hObject, handles);
+0322 
+0323 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0324 <a name="_sub4" href="#_subfunctions" class="code">function num_class_CreateFcn(hObject, eventdata, handles)</a>
+0325 <span class="comment">% hObject    handle to num_class (see GCBO)</span>
+0326 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0327 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0328 
+0329 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0330 <span class="comment">%       See ISPC and COMPUTER.</span>
+0331 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0332     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0333 <span class="keyword">end</span>
+0334 
+0335 
+0336 <span class="comment">%change the name of the classes</span>
+0337 <a name="_sub5" href="#_subfunctions" class="code">function edit2_Callback(hObject, eventdata, handles)</a>
+0338 <span class="comment">% hObject    handle to edit2 (see GCBO)</span>
+0339 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0340 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0341 
+0342 <span class="comment">% Hints: get(hObject,'String') returns contents of edit2 as text</span>
+0343 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit2 as a double</span>
+0344 indc=get(handles.pop_class,<span class="string">'Value'</span>);
+0345 handles.class(indc).class_name=get(handles.edit2,<span class="string">'String'</span>);
+0346 <span class="comment">% Update handles structure</span>
+0347 guidata(hObject, handles);
+0348 
+0349 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0350 <a name="_sub6" href="#_subfunctions" class="code">function edit2_CreateFcn(hObject, eventdata, handles)</a>
+0351 <span class="comment">% hObject    handle to edit2 (see GCBO)</span>
+0352 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0353 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0354 
+0355 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0356 <span class="comment">%       See ISPC and COMPUTER.</span>
+0357 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0358     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0359 <span class="keyword">end</span>
+0360 
+0361 <span class="comment">% --- Executes on selection change in pop_class.</span>
+0362 <a name="_sub7" href="#_subfunctions" class="code">function pop_class_Callback(hObject, eventdata, handles)</a>
+0363 <span class="comment">% hObject    handle to pop_class (see GCBO)</span>
+0364 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0365 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0366 
+0367 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_class contents as cell array</span>
+0368 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_class</span>
+0369 vc=get(handles.pop_class,<span class="string">'Value'</span>);
+0370 <span class="keyword">if</span> vc==0
+0371     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0372     set(handles.pop_class,<span class="string">'Value'</span>,1)
+0373     vc=1;
+0374 <span class="keyword">end</span>
+0375 cg=get(handles.group_list,<span class="string">'Value'</span>);
+0376 list=handles.condm{1,3}{cg};
+0377 clist=handles.condm{1,2};
+0378 set(handles.edit2,<span class="string">'String'</span>,handles.class(vc).class_name)
+0379 <span class="comment">%set subjects lists</span>
+0380 <span class="keyword">if</span> handles.clas{vc,2}{cg,1}~=0
+0381     set(handles.uns_list,<span class="string">'Value'</span>,1);
+0382     set(handles.uns_list,<span class="string">'String'</span>,list(handles.clas{vc,2}{cg,1}));
+0383 <span class="keyword">else</span>
+0384     set(handles.uns_list,<span class="string">'Value'</span>,0);
+0385     set(handles.uns_list,<span class="string">'String'</span>,{});
+0386 <span class="keyword">end</span>
+0387 <span class="keyword">if</span> handles.clas{vc,2}{cg,2}~=0
+0388     set(handles.sel_list,<span class="string">'Value'</span>,1);
+0389     set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{vc,2}{cg,2}));
+0390 <span class="keyword">else</span>
+0391     set(handles.sel_list,<span class="string">'Value'</span>,0);
+0392     set(handles.sel_list,<span class="string">'String'</span>,{});
+0393 <span class="keyword">end</span>
+0394 <span class="comment">%set conditions lists</span>
+0395 <span class="keyword">if</span> handles.flagcond
+0396     <span class="keyword">if</span> handles.clas{vc,3}~=0
+0397         set(handles.uns_cond_list,<span class="string">'Value'</span>,1);
+0398         set(handles.uns_cond_list,<span class="string">'String'</span>,clist(handles.clas{vc,3}));
+0399     <span class="keyword">else</span>
+0400         set(handles.uns_cond_list,<span class="string">'Value'</span>,0);
+0401         set(handles.uns_cond_list,<span class="string">'String'</span>,{});
+0402     <span class="keyword">end</span>
+0403     <span class="keyword">if</span> handles.clas{vc,4}~=0
+0404         set(handles.sel_cond_list,<span class="string">'Value'</span>,1);
+0405         set(handles.sel_cond_list,<span class="string">'String'</span>,clist(handles.clas{vc,4}));
+0406     <span class="keyword">else</span>
+0407         set(handles.sel_cond_list,<span class="string">'Value'</span>,0);
+0408         set(handles.sel_cond_list,<span class="string">'String'</span>,{});
 0409     <span class="keyword">end</span>
-0410 <span class="keyword">end</span>
-0411 <span class="keyword">if</span> ~handles.flagrev
-0412     set(handles.uns_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
-0413     set(handles.sel_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
-0414     set(handles.sel_all,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0410     <span class="keyword">if</span> ~handles.flagrev
+0411         set(handles.uns_cond_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0412         set(handles.sel_cond_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0413         set(handles.sel_cond_all,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0414     <span class="keyword">end</span>
 0415 <span class="keyword">end</span>
-0416 set(handles.group_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
-0417 <span class="comment">% Update handles structure</span>
-0418 guidata(hObject, handles);
-0419 
-0420 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0421 <a name="_sub8" href="#_subfunctions" class="code">function pop_class_CreateFcn(hObject, eventdata, handles)</a>
-0422 <span class="comment">% hObject    handle to pop_class (see GCBO)</span>
-0423 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0424 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0425 
-0426 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
-0427 <span class="comment">%       See ISPC and COMPUTER.</span>
-0428 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0429     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0430 <span class="keyword">end</span>
-0431 
-0432 <span class="comment">% --- Executes on selection change in group_list.</span>
-0433 <a name="_sub9" href="#_subfunctions" class="code">function group_list_Callback(hObject, eventdata, handles)</a>
-0434 <span class="comment">% hObject    handle to group_list (see GCBO)</span>
-0435 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0436 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0437 
-0438 <span class="comment">% Hints: contents = get(hObject,'String') returns group_list contents as cell array</span>
-0439 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from group_list</span>
-0440 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0441 <span class="keyword">if</span> cl==0
-0442     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0443     set(handles.pop_classes,<span class="string">'Value'</span>,1)
-0444 <span class="keyword">end</span>
+0416 <span class="keyword">if</span> ~handles.flagrev
+0417     set(handles.uns_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0418     set(handles.sel_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0419     set(handles.sel_all,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0420 <span class="keyword">end</span>
+0421 set(handles.group_list,<span class="string">'Enable'</span>,<span class="string">'on'</span>);
+0422 <span class="comment">% Update handles structure</span>
+0423 guidata(hObject, handles);
+0424 
+0425 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0426 <a name="_sub8" href="#_subfunctions" class="code">function pop_class_CreateFcn(hObject, eventdata, handles)</a>
+0427 <span class="comment">% hObject    handle to pop_class (see GCBO)</span>
+0428 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0429 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0430 
+0431 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0432 <span class="comment">%       See ISPC and COMPUTER.</span>
+0433 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0434     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0435 <span class="keyword">end</span>
+0436 
+0437 <span class="comment">% --- Executes on selection change in group_list.</span>
+0438 <a name="_sub9" href="#_subfunctions" class="code">function group_list_Callback(hObject, eventdata, handles)</a>
+0439 <span class="comment">% hObject    handle to group_list (see GCBO)</span>
+0440 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0441 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0442 
+0443 <span class="comment">% Hints: contents = get(hObject,'String') returns group_list contents as cell array</span>
+0444 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from group_list</span>
 0445 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0446 cg=get(handles.group_list,<span class="string">'Value'</span>);
-0447 list=handles.condm{1,3}{cg};
-0448 <span class="comment">%set subjects lists</span>
-0449 <span class="keyword">if</span> handles.clas{cl,2}{cg,1}~=0
-0450     set(handles.uns_list,<span class="string">'Value'</span>,1);
-0451     set(handles.uns_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,1}));
-0452 <span class="keyword">else</span>
-0453     set(handles.uns_list,<span class="string">'Value'</span>,0);
-0454     set(handles.uns_list,<span class="string">'String'</span>,{});
-0455 <span class="keyword">end</span>
-0456 <span class="keyword">if</span> handles.clas{cl,2}{cg,2}~=0
-0457     set(handles.sel_list,<span class="string">'Value'</span>,1);
-0458     set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,2}));
-0459 <span class="keyword">else</span>
-0460     set(handles.sel_list,<span class="string">'Value'</span>,0);
-0461     set(handles.sel_list,<span class="string">'String'</span>,{});
-0462 <span class="keyword">end</span>
-0463 <span class="comment">% Update handles structure</span>
-0464 guidata(hObject, handles);
-0465 
-0466 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0467 <a name="_sub10" href="#_subfunctions" class="code">function group_list_CreateFcn(hObject, eventdata, handles)</a>
-0468 <span class="comment">% hObject    handle to group_list (see GCBO)</span>
-0469 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0470 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0471 
-0472 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
-0473 <span class="comment">%       See ISPC and COMPUTER.</span>
-0474 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0475     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0476 <span class="keyword">end</span>
-0477 
-0478 <span class="comment">% --- Executes on selection change in uns_list.</span>
-0479 <a name="_sub11" href="#_subfunctions" class="code">function uns_list_Callback(hObject, eventdata, handles)</a>
-0480 <span class="comment">% hObject    handle to uns_list (see GCBO)</span>
-0481 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0482 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0483 
-0484 <span class="comment">% Hints: contents = get(hObject,'String') returns uns_list contents as cell array</span>
-0485 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from uns_list</span>
-0486 val=get(handles.uns_list,<span class="string">'Value'</span>);
-0487 induns=1:length(get(handles.uns_list,<span class="string">'String'</span>));
-0488 indok=setdiff(induns,val);
-0489 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0490 <span class="keyword">if</span> cl==0
-0491     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0492     set(handles.pop_classes,<span class="string">'Value'</span>,1)
-0493 <span class="keyword">end</span>
+0446 <span class="keyword">if</span> cl==0
+0447     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0448     set(handles.pop_classes,<span class="string">'Value'</span>,1)
+0449 <span class="keyword">end</span>
+0450 cl=get(handles.pop_class,<span class="string">'Value'</span>);
+0451 cg=get(handles.group_list,<span class="string">'Value'</span>);
+0452 list=handles.condm{1,3}{cg};
+0453 <span class="comment">%set subjects lists</span>
+0454 <span class="keyword">if</span> handles.clas{cl,2}{cg,1}~=0
+0455     set(handles.uns_list,<span class="string">'Value'</span>,1);
+0456     set(handles.uns_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,1}));
+0457 <span class="keyword">else</span>
+0458     set(handles.uns_list,<span class="string">'Value'</span>,0);
+0459     set(handles.uns_list,<span class="string">'String'</span>,{});
+0460 <span class="keyword">end</span>
+0461 <span class="keyword">if</span> handles.clas{cl,2}{cg,2}~=0
+0462     set(handles.sel_list,<span class="string">'Value'</span>,1);
+0463     set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,2}));
+0464 <span class="keyword">else</span>
+0465     set(handles.sel_list,<span class="string">'Value'</span>,0);
+0466     set(handles.sel_list,<span class="string">'String'</span>,{});
+0467 <span class="keyword">end</span>
+0468 <span class="comment">% Update handles structure</span>
+0469 guidata(hObject, handles);
+0470 
+0471 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0472 <a name="_sub10" href="#_subfunctions" class="code">function group_list_CreateFcn(hObject, eventdata, handles)</a>
+0473 <span class="comment">% hObject    handle to group_list (see GCBO)</span>
+0474 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0475 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0476 
+0477 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0478 <span class="comment">%       See ISPC and COMPUTER.</span>
+0479 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0480     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0481 <span class="keyword">end</span>
+0482 
+0483 <span class="comment">% --- Executes on selection change in uns_list.</span>
+0484 <a name="_sub11" href="#_subfunctions" class="code">function uns_list_Callback(hObject, eventdata, handles)</a>
+0485 <span class="comment">% hObject    handle to uns_list (see GCBO)</span>
+0486 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0487 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0488 
+0489 <span class="comment">% Hints: contents = get(hObject,'String') returns uns_list contents as cell array</span>
+0490 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from uns_list</span>
+0491 val=get(handles.uns_list,<span class="string">'Value'</span>);
+0492 induns=1:length(get(handles.uns_list,<span class="string">'String'</span>));
+0493 indok=setdiff(induns,val);
 0494 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0495 cg=get(handles.group_list,<span class="string">'Value'</span>);
-0496 <span class="keyword">if</span> handles.clas{cl,2}{cg,2}==0
-0497     handles.clas{cl,2}{cg,2}=handles.clas{cl,2}{cg,1}(val);
-0498 <span class="keyword">else</span>
-0499     handles.clas{cl,2}{cg,2}=[handles.clas{cl,2}{cg,2}, handles.clas{cl,2}{cg,1}(val)];
-0500 <span class="keyword">end</span>
-0501 <span class="keyword">if</span> isempty(indok)
-0502     handles.clas{cl,2}{cg,1}=0;
+0495 <span class="keyword">if</span> cl==0
+0496     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0497     set(handles.pop_classes,<span class="string">'Value'</span>,1)
+0498 <span class="keyword">end</span>
+0499 cl=get(handles.pop_class,<span class="string">'Value'</span>);
+0500 cg=get(handles.group_list,<span class="string">'Value'</span>);
+0501 <span class="keyword">if</span> handles.clas{cl,2}{cg,2}==0
+0502     handles.clas{cl,2}{cg,2}=handles.clas{cl,2}{cg,1}(val);
 0503 <span class="keyword">else</span>
-0504     handles.clas{cl,2}{cg,1}=handles.clas{cl,2}{cg,1}(indok);
+0504     handles.clas{cl,2}{cg,2}=[handles.clas{cl,2}{cg,2}, handles.clas{cl,2}{cg,1}(val)];
 0505 <span class="keyword">end</span>
-0506 list=handles.condm{1,3}{cg};
-0507 <span class="comment">%set subjects lists</span>
-0508 <span class="keyword">if</span> handles.clas{cl,2}{cg,1}~=0
-0509     set(handles.uns_list,<span class="string">'Value'</span>,1);
-0510     set(handles.uns_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,1}));
-0511 <span class="keyword">else</span>
-0512     set(handles.uns_list,<span class="string">'Value'</span>,0);
-0513     set(handles.uns_list,<span class="string">'String'</span>,{});
-0514 <span class="keyword">end</span>
-0515 <span class="keyword">if</span> handles.clas{cl,2}{cg,2}~=0
-0516     set(handles.sel_list,<span class="string">'Value'</span>,1);
-0517     set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,2}));
-0518 <span class="keyword">else</span>
-0519     set(handles.sel_list,<span class="string">'Value'</span>,0);
-0520     set(handles.sel_list,<span class="string">'String'</span>,{});
-0521 <span class="keyword">end</span>
-0522 
-0523 <span class="comment">% Update handles structure</span>
-0524 guidata(hObject, handles);
-0525 
-0526 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0527 <a name="_sub12" href="#_subfunctions" class="code">function uns_list_CreateFcn(hObject, eventdata, handles)</a>
-0528 <span class="comment">% hObject    handle to uns_list (see GCBO)</span>
-0529 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0530 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0531 
-0532 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
-0533 <span class="comment">%       See ISPC and COMPUTER.</span>
-0534 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0535     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0536 <span class="keyword">end</span>
-0537 
-0538 <span class="comment">% --- Executes on selection change in sel_list.</span>
-0539 <a name="_sub13" href="#_subfunctions" class="code">function sel_list_Callback(hObject, eventdata, handles)</a>
-0540 <span class="comment">% hObject    handle to sel_list (see GCBO)</span>
-0541 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0542 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0543 
-0544 <span class="comment">% Hints: contents = get(hObject,'String') returns sel_list contents as cell array</span>
-0545 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from sel_list</span>
-0546 val=get(handles.sel_list,<span class="string">'Value'</span>);
-0547 indsel=1:length(get(handles.sel_list,<span class="string">'String'</span>));
-0548 indok=setdiff(indsel,val);
-0549 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0550 <span class="keyword">if</span> cl==0
-0551     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0552     set(handles.pop_classes,<span class="string">'Value'</span>,1)
-0553 <span class="keyword">end</span>
+0506 <span class="keyword">if</span> isempty(indok)
+0507     handles.clas{cl,2}{cg,1}=0;
+0508 <span class="keyword">else</span>
+0509     handles.clas{cl,2}{cg,1}=handles.clas{cl,2}{cg,1}(indok);
+0510 <span class="keyword">end</span>
+0511 list=handles.condm{1,3}{cg};
+0512 <span class="comment">%set subjects lists</span>
+0513 <span class="keyword">if</span> handles.clas{cl,2}{cg,1}~=0
+0514     set(handles.uns_list,<span class="string">'Value'</span>,1);
+0515     set(handles.uns_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,1}));
+0516 <span class="keyword">else</span>
+0517     set(handles.uns_list,<span class="string">'Value'</span>,0);
+0518     set(handles.uns_list,<span class="string">'String'</span>,{});
+0519 <span class="keyword">end</span>
+0520 <span class="keyword">if</span> handles.clas{cl,2}{cg,2}~=0
+0521     set(handles.sel_list,<span class="string">'Value'</span>,1);
+0522     set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,2}));
+0523 <span class="keyword">else</span>
+0524     set(handles.sel_list,<span class="string">'Value'</span>,0);
+0525     set(handles.sel_list,<span class="string">'String'</span>,{});
+0526 <span class="keyword">end</span>
+0527 
+0528 <span class="comment">% Update handles structure</span>
+0529 guidata(hObject, handles);
+0530 
+0531 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0532 <a name="_sub12" href="#_subfunctions" class="code">function uns_list_CreateFcn(hObject, eventdata, handles)</a>
+0533 <span class="comment">% hObject    handle to uns_list (see GCBO)</span>
+0534 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0535 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0536 
+0537 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0538 <span class="comment">%       See ISPC and COMPUTER.</span>
+0539 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0540     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0541 <span class="keyword">end</span>
+0542 
+0543 <span class="comment">% --- Executes on selection change in sel_list.</span>
+0544 <a name="_sub13" href="#_subfunctions" class="code">function sel_list_Callback(hObject, eventdata, handles)</a>
+0545 <span class="comment">% hObject    handle to sel_list (see GCBO)</span>
+0546 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0547 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0548 
+0549 <span class="comment">% Hints: contents = get(hObject,'String') returns sel_list contents as cell array</span>
+0550 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from sel_list</span>
+0551 val=get(handles.sel_list,<span class="string">'Value'</span>);
+0552 indsel=1:length(get(handles.sel_list,<span class="string">'String'</span>));
+0553 indok=setdiff(indsel,val);
 0554 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0555 cg=get(handles.group_list,<span class="string">'Value'</span>);
-0556 <span class="keyword">if</span> handles.clas{cl,2}{cg,1}==0
-0557     handles.clas{cl,2}{cg,1}=handles.clas{cl,2}{cg,2}(val);
-0558 <span class="keyword">else</span>
-0559     handles.clas{cl,2}{cg,1}=[handles.clas{cl,2}{cg,1}, handles.clas{cl,2}{cg,2}(val)];
-0560 <span class="keyword">end</span>
-0561 <span class="keyword">if</span> isempty(indok)
-0562     handles.clas{cl,2}{cg,2}=0;
+0555 <span class="keyword">if</span> cl==0
+0556     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0557     set(handles.pop_classes,<span class="string">'Value'</span>,1)
+0558 <span class="keyword">end</span>
+0559 cl=get(handles.pop_class,<span class="string">'Value'</span>);
+0560 cg=get(handles.group_list,<span class="string">'Value'</span>);
+0561 <span class="keyword">if</span> handles.clas{cl,2}{cg,1}==0
+0562     handles.clas{cl,2}{cg,1}=handles.clas{cl,2}{cg,2}(val);
 0563 <span class="keyword">else</span>
-0564     handles.clas{cl,2}{cg,2}=handles.clas{cl,2}{cg,2}(indok);
+0564     handles.clas{cl,2}{cg,1}=[handles.clas{cl,2}{cg,1}, handles.clas{cl,2}{cg,2}(val)];
 0565 <span class="keyword">end</span>
-0566 list=handles.condm{1,3}{cg};
-0567 <span class="comment">%set subjects lists</span>
-0568 <span class="keyword">if</span> handles.clas{cl,2}{cg,1}~=0
-0569     set(handles.uns_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,1}));
-0570     set(handles.uns_list,<span class="string">'Value'</span>,length(get(handles.uns_list,<span class="string">'String'</span>)));
-0571 <span class="keyword">else</span>
-0572     set(handles.uns_list,<span class="string">'Value'</span>,0);
-0573     set(handles.uns_list,<span class="string">'String'</span>,{});
-0574 <span class="keyword">end</span>
-0575 <span class="keyword">if</span> handles.clas{cl,2}{cg,2}~=0
-0576     set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,2}));
-0577     set(handles.sel_list,<span class="string">'Value'</span>,length(get(handles.sel_list,<span class="string">'String'</span>)));
-0578 <span class="keyword">else</span>
-0579     set(handles.sel_list,<span class="string">'Value'</span>,0);
-0580     set(handles.sel_list,<span class="string">'String'</span>,{});
-0581 <span class="keyword">end</span>
-0582 <span class="comment">% Update handles structure</span>
-0583 guidata(hObject, handles);
-0584 
-0585 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0586 <a name="_sub14" href="#_subfunctions" class="code">function sel_list_CreateFcn(hObject, eventdata, handles)</a>
-0587 <span class="comment">% hObject    handle to sel_list (see GCBO)</span>
-0588 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0589 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0590 
-0591 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
-0592 <span class="comment">%       See ISPC and COMPUTER.</span>
-0593 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0594     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0595 <span class="keyword">end</span>
-0596 
-0597 
-0598 <span class="comment">% --- Executes on button press in sel_all.</span>
-0599 <a name="_sub15" href="#_subfunctions" class="code">function sel_all_Callback(hObject, eventdata, handles)</a>
-0600 <span class="comment">% hObject    handle to sel_all (see GCBO)</span>
-0601 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0602 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0603 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0604 <span class="keyword">if</span> cl==0
-0605     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0606     set(handles.pop_classes,<span class="string">'Value'</span>,1)
-0607 <span class="keyword">end</span>
+0566 <span class="keyword">if</span> isempty(indok)
+0567     handles.clas{cl,2}{cg,2}=0;
+0568 <span class="keyword">else</span>
+0569     handles.clas{cl,2}{cg,2}=handles.clas{cl,2}{cg,2}(indok);
+0570 <span class="keyword">end</span>
+0571 list=handles.condm{1,3}{cg};
+0572 <span class="comment">%set subjects lists</span>
+0573 <span class="keyword">if</span> handles.clas{cl,2}{cg,1}~=0
+0574     set(handles.uns_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,1}));
+0575     set(handles.uns_list,<span class="string">'Value'</span>,length(get(handles.uns_list,<span class="string">'String'</span>)));
+0576 <span class="keyword">else</span>
+0577     set(handles.uns_list,<span class="string">'Value'</span>,0);
+0578     set(handles.uns_list,<span class="string">'String'</span>,{});
+0579 <span class="keyword">end</span>
+0580 <span class="keyword">if</span> handles.clas{cl,2}{cg,2}~=0
+0581     set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,2}));
+0582     set(handles.sel_list,<span class="string">'Value'</span>,length(get(handles.sel_list,<span class="string">'String'</span>)));
+0583 <span class="keyword">else</span>
+0584     set(handles.sel_list,<span class="string">'Value'</span>,0);
+0585     set(handles.sel_list,<span class="string">'String'</span>,{});
+0586 <span class="keyword">end</span>
+0587 <span class="comment">% Update handles structure</span>
+0588 guidata(hObject, handles);
+0589 
+0590 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0591 <a name="_sub14" href="#_subfunctions" class="code">function sel_list_CreateFcn(hObject, eventdata, handles)</a>
+0592 <span class="comment">% hObject    handle to sel_list (see GCBO)</span>
+0593 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0594 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0595 
+0596 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0597 <span class="comment">%       See ISPC and COMPUTER.</span>
+0598 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0599     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0600 <span class="keyword">end</span>
+0601 
+0602 
+0603 <span class="comment">% --- Executes on button press in sel_all.</span>
+0604 <a name="_sub15" href="#_subfunctions" class="code">function sel_all_Callback(hObject, eventdata, handles)</a>
+0605 <span class="comment">% hObject    handle to sel_all (see GCBO)</span>
+0606 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0607 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
 0608 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0609 cg=get(handles.group_list,<span class="string">'Value'</span>);
-0610 list=handles.condm{1,3}{cg,1};
-0611 indsel=1:length(list);
-0612 handles.clas{cl,2}{cg,2}=indsel;
-0613 handles.clas{cl,2}{cg,1}=0;
-0614 set(handles.uns_list,<span class="string">'String'</span>,{});
-0615 set(handles.uns_list,<span class="string">'Value'</span>,0);
-0616 set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,2}));
-0617 set(handles.sel_list,<span class="string">'Value'</span>,length(get(handles.sel_list,<span class="string">'String'</span>)));
-0618 <span class="comment">% Update handles structure</span>
-0619 guidata(hObject, handles);
-0620 
-0621 
-0622 <span class="comment">% --- Executes on selection change in uns_cond_list.</span>
-0623 <a name="_sub16" href="#_subfunctions" class="code">function uns_cond_list_Callback(hObject, eventdata, handles)</a>
-0624 <span class="comment">% hObject    handle to uns_cond_list (see GCBO)</span>
-0625 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0626 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0627 
-0628 <span class="comment">% Hints: contents = get(hObject,'String') returns uns_cond_list contents as cell array</span>
-0629 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from uns_cond_list</span>
-0630 val=get(handles.uns_cond_list,<span class="string">'Value'</span>);
-0631 induns=1:length(get(handles.uns_cond_list,<span class="string">'String'</span>));
-0632 indok=setdiff(induns,val);
-0633 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0634 <span class="keyword">if</span> cl==0
-0635     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0636     set(handles.pop_classes,<span class="string">'Value'</span>,1)
-0637 <span class="keyword">end</span>
+0609 <span class="keyword">if</span> cl==0
+0610     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0611     set(handles.pop_classes,<span class="string">'Value'</span>,1)
+0612 <span class="keyword">end</span>
+0613 cl=get(handles.pop_class,<span class="string">'Value'</span>);
+0614 cg=get(handles.group_list,<span class="string">'Value'</span>);
+0615 list=handles.condm{1,3}{cg,1};
+0616 indsel=1:length(list);
+0617 handles.clas{cl,2}{cg,2}=indsel;
+0618 handles.clas{cl,2}{cg,1}=0;
+0619 set(handles.uns_list,<span class="string">'String'</span>,{});
+0620 set(handles.uns_list,<span class="string">'Value'</span>,0);
+0621 set(handles.sel_list,<span class="string">'String'</span>,list(handles.clas{cl,2}{cg,2}));
+0622 set(handles.sel_list,<span class="string">'Value'</span>,length(get(handles.sel_list,<span class="string">'String'</span>)));
+0623 <span class="comment">% Update handles structure</span>
+0624 guidata(hObject, handles);
+0625 
+0626 
+0627 <span class="comment">% --- Executes on selection change in uns_cond_list.</span>
+0628 <a name="_sub16" href="#_subfunctions" class="code">function uns_cond_list_Callback(hObject, eventdata, handles)</a>
+0629 <span class="comment">% hObject    handle to uns_cond_list (see GCBO)</span>
+0630 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0631 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0632 
+0633 <span class="comment">% Hints: contents = get(hObject,'String') returns uns_cond_list contents as cell array</span>
+0634 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from uns_cond_list</span>
+0635 val=get(handles.uns_cond_list,<span class="string">'Value'</span>);
+0636 induns=1:length(get(handles.uns_cond_list,<span class="string">'String'</span>));
+0637 indok=setdiff(induns,val);
 0638 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0639 <span class="keyword">if</span> handles.clas{cl,4}==0
-0640     handles.clas{cl,4}=handles.clas{cl,3}(val);
-0641 <span class="keyword">else</span>
-0642     handles.clas{cl,4}=[handles.clas{cl,4}, handles.clas{cl,3}(val)];
-0643 <span class="keyword">end</span>
-0644 <span class="keyword">if</span> isempty(indok)
-0645     handles.clas{cl,3}=0;
+0639 <span class="keyword">if</span> cl==0
+0640     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0641     set(handles.pop_classes,<span class="string">'Value'</span>,1)
+0642 <span class="keyword">end</span>
+0643 cl=get(handles.pop_class,<span class="string">'Value'</span>);
+0644 <span class="keyword">if</span> handles.clas{cl,4}==0
+0645     handles.clas{cl,4}=handles.clas{cl,3}(val);
 0646 <span class="keyword">else</span>
-0647     handles.clas{cl,3}=handles.clas{cl,3}(indok);
+0647     handles.clas{cl,4}=[handles.clas{cl,4}, handles.clas{cl,3}(val)];
 0648 <span class="keyword">end</span>
-0649 <span class="comment">%set conditions lists</span>
-0650 clist=handles.condm{1,2};
-0651 <span class="keyword">if</span> handles.clas{cl,3}~=0
-0652     set(handles.uns_cond_list,<span class="string">'Value'</span>,1);
-0653     set(handles.uns_cond_list,<span class="string">'String'</span>,clist(handles.clas{cl,3}));
-0654 <span class="keyword">else</span>
-0655     set(handles.uns_cond_list,<span class="string">'Value'</span>,0);
-0656     set(handles.uns_cond_list,<span class="string">'String'</span>,{});
-0657 <span class="keyword">end</span>
-0658 <span class="keyword">if</span> handles.clas{cl,4}~=0
-0659     set(handles.sel_cond_list,<span class="string">'Value'</span>,1);
-0660     set(handles.sel_cond_list,<span class="string">'String'</span>,clist(handles.clas{cl,4}));
-0661 <span class="keyword">else</span>
-0662     set(handles.sel_cond_list,<span class="string">'Value'</span>,0);
-0663     set(handles.sel_cond_list,<span class="string">'String'</span>,{});
-0664 <span class="keyword">end</span>
-0665 <span class="comment">% Update handles structure</span>
-0666 guidata(hObject, handles);
-0667 
-0668 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0669 <a name="_sub17" href="#_subfunctions" class="code">function uns_cond_list_CreateFcn(hObject, eventdata, handles)</a>
-0670 <span class="comment">% hObject    handle to uns_cond_list (see GCBO)</span>
-0671 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0672 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0673 
-0674 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
-0675 <span class="comment">%       See ISPC and COMPUTER.</span>
-0676 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0677     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0678 <span class="keyword">end</span>
-0679 
-0680 <span class="comment">% --- Executes on selection change in sel_cond_list.</span>
-0681 <a name="_sub18" href="#_subfunctions" class="code">function sel_cond_list_Callback(hObject, eventdata, handles)</a>
-0682 <span class="comment">% hObject    handle to sel_cond_list (see GCBO)</span>
-0683 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0684 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0685 
-0686 <span class="comment">% Hints: contents = get(hObject,'String') returns sel_cond_list contents as cell array</span>
-0687 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from sel_cond_list</span>
-0688 val=get(handles.sel_cond_list,<span class="string">'Value'</span>);
-0689 induns=1:length(get(handles.sel_cond_list,<span class="string">'String'</span>));
-0690 indok=setdiff(induns,val);
-0691 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0692 <span class="keyword">if</span> cl==0
-0693     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0694     set(handles.pop_classes,<span class="string">'Value'</span>,1)
-0695 <span class="keyword">end</span>
+0649 <span class="keyword">if</span> isempty(indok)
+0650     handles.clas{cl,3}=0;
+0651 <span class="keyword">else</span>
+0652     handles.clas{cl,3}=handles.clas{cl,3}(indok);
+0653 <span class="keyword">end</span>
+0654 <span class="comment">%set conditions lists</span>
+0655 clist=handles.condm{1,2};
+0656 <span class="keyword">if</span> handles.clas{cl,3}~=0
+0657     set(handles.uns_cond_list,<span class="string">'Value'</span>,1);
+0658     set(handles.uns_cond_list,<span class="string">'String'</span>,clist(handles.clas{cl,3}));
+0659 <span class="keyword">else</span>
+0660     set(handles.uns_cond_list,<span class="string">'Value'</span>,0);
+0661     set(handles.uns_cond_list,<span class="string">'String'</span>,{});
+0662 <span class="keyword">end</span>
+0663 <span class="keyword">if</span> handles.clas{cl,4}~=0
+0664     set(handles.sel_cond_list,<span class="string">'Value'</span>,1);
+0665     set(handles.sel_cond_list,<span class="string">'String'</span>,clist(handles.clas{cl,4}));
+0666 <span class="keyword">else</span>
+0667     set(handles.sel_cond_list,<span class="string">'Value'</span>,0);
+0668     set(handles.sel_cond_list,<span class="string">'String'</span>,{});
+0669 <span class="keyword">end</span>
+0670 <span class="comment">% Update handles structure</span>
+0671 guidata(hObject, handles);
+0672 
+0673 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0674 <a name="_sub17" href="#_subfunctions" class="code">function uns_cond_list_CreateFcn(hObject, eventdata, handles)</a>
+0675 <span class="comment">% hObject    handle to uns_cond_list (see GCBO)</span>
+0676 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0677 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0678 
+0679 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0680 <span class="comment">%       See ISPC and COMPUTER.</span>
+0681 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0682     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0683 <span class="keyword">end</span>
+0684 
+0685 <span class="comment">% --- Executes on selection change in sel_cond_list.</span>
+0686 <a name="_sub18" href="#_subfunctions" class="code">function sel_cond_list_Callback(hObject, eventdata, handles)</a>
+0687 <span class="comment">% hObject    handle to sel_cond_list (see GCBO)</span>
+0688 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0689 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0690 
+0691 <span class="comment">% Hints: contents = get(hObject,'String') returns sel_cond_list contents as cell array</span>
+0692 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from sel_cond_list</span>
+0693 val=get(handles.sel_cond_list,<span class="string">'Value'</span>);
+0694 induns=1:length(get(handles.sel_cond_list,<span class="string">'String'</span>));
+0695 indok=setdiff(induns,val);
 0696 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0697 <span class="keyword">if</span> handles.clas{cl,3}==0
-0698     handles.clas{cl,3}=handles.clas{cl,4}(val);
-0699 <span class="keyword">else</span>
-0700     handles.clas{cl,3}=[handles.clas{cl,3}, handles.clas{cl,4}(val)];
-0701 <span class="keyword">end</span>
-0702 <span class="keyword">if</span> isempty(indok)
-0703     handles.clas{cl,4}=0;
+0697 <span class="keyword">if</span> cl==0
+0698     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0699     set(handles.pop_classes,<span class="string">'Value'</span>,1)
+0700 <span class="keyword">end</span>
+0701 cl=get(handles.pop_class,<span class="string">'Value'</span>);
+0702 <span class="keyword">if</span> handles.clas{cl,3}==0
+0703     handles.clas{cl,3}=handles.clas{cl,4}(val);
 0704 <span class="keyword">else</span>
-0705     handles.clas{cl,4}=handles.clas{cl,4}(indok);
+0705     handles.clas{cl,3}=[handles.clas{cl,3}, handles.clas{cl,4}(val)];
 0706 <span class="keyword">end</span>
-0707 <span class="comment">%set conditions lists</span>
-0708 clist=handles.condm{1,2};
-0709 <span class="keyword">if</span> handles.clas{cl,3}~=0
-0710     set(handles.uns_cond_list,<span class="string">'String'</span>,clist(handles.clas{cl,3}));
-0711     set(handles.uns_cond_list,<span class="string">'Value'</span>,length(get(handles.uns_cond_list,<span class="string">'String'</span>)));
-0712 <span class="keyword">else</span>
-0713     set(handles.uns_cond_list,<span class="string">'Value'</span>,0);
-0714     set(handles.uns_cond_list,<span class="string">'String'</span>,{});
-0715 <span class="keyword">end</span>
-0716 <span class="keyword">if</span> handles.clas{cl,4}~=0
-0717     set(handles.sel_cond_list,<span class="string">'String'</span>,clist(handles.clas{cl,4}));
-0718     set(handles.sel_cond_list,<span class="string">'Value'</span>,length(get(handles.sel_cond_list,<span class="string">'String'</span>)));
-0719 <span class="keyword">else</span>
-0720     set(handles.sel_cond_list,<span class="string">'Value'</span>,0);
-0721     set(handles.sel_cond_list,<span class="string">'String'</span>,{});
-0722 <span class="keyword">end</span>
-0723 <span class="comment">% Update handles structure</span>
-0724 guidata(hObject, handles);
-0725 
-0726 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0727 <a name="_sub19" href="#_subfunctions" class="code">function sel_cond_list_CreateFcn(hObject, eventdata, handles)</a>
-0728 <span class="comment">% hObject    handle to sel_cond_list (see GCBO)</span>
-0729 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0730 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0731 
-0732 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
-0733 <span class="comment">%       See ISPC and COMPUTER.</span>
-0734 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0735     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0736 <span class="keyword">end</span>
-0737 
-0738 
-0739 <span class="comment">% --- Executes on button press in sel_cond_all.</span>
-0740 <a name="_sub20" href="#_subfunctions" class="code">function sel_cond_all_Callback(hObject, eventdata, handles)</a>
-0741 <span class="comment">% hObject    handle to sel_cond_all (see GCBO)</span>
-0742 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0743 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0744 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0745 <span class="keyword">if</span> cl==0
-0746     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
-0747     set(handles.pop_classes,<span class="string">'Value'</span>,1)
-0748 <span class="keyword">end</span>
+0707 <span class="keyword">if</span> isempty(indok)
+0708     handles.clas{cl,4}=0;
+0709 <span class="keyword">else</span>
+0710     handles.clas{cl,4}=handles.clas{cl,4}(indok);
+0711 <span class="keyword">end</span>
+0712 <span class="comment">%set conditions lists</span>
+0713 clist=handles.condm{1,2};
+0714 <span class="keyword">if</span> handles.clas{cl,3}~=0
+0715     set(handles.uns_cond_list,<span class="string">'String'</span>,clist(handles.clas{cl,3}));
+0716     set(handles.uns_cond_list,<span class="string">'Value'</span>,length(get(handles.uns_cond_list,<span class="string">'String'</span>)));
+0717 <span class="keyword">else</span>
+0718     set(handles.uns_cond_list,<span class="string">'Value'</span>,0);
+0719     set(handles.uns_cond_list,<span class="string">'String'</span>,{});
+0720 <span class="keyword">end</span>
+0721 <span class="keyword">if</span> handles.clas{cl,4}~=0
+0722     set(handles.sel_cond_list,<span class="string">'String'</span>,clist(handles.clas{cl,4}));
+0723     set(handles.sel_cond_list,<span class="string">'Value'</span>,length(get(handles.sel_cond_list,<span class="string">'String'</span>)));
+0724 <span class="keyword">else</span>
+0725     set(handles.sel_cond_list,<span class="string">'Value'</span>,0);
+0726     set(handles.sel_cond_list,<span class="string">'String'</span>,{});
+0727 <span class="keyword">end</span>
+0728 <span class="comment">% Update handles structure</span>
+0729 guidata(hObject, handles);
+0730 
+0731 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0732 <a name="_sub19" href="#_subfunctions" class="code">function sel_cond_list_CreateFcn(hObject, eventdata, handles)</a>
+0733 <span class="comment">% hObject    handle to sel_cond_list (see GCBO)</span>
+0734 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0735 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0736 
+0737 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0738 <span class="comment">%       See ISPC and COMPUTER.</span>
+0739 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0740     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0741 <span class="keyword">end</span>
+0742 
+0743 
+0744 <span class="comment">% --- Executes on button press in sel_cond_all.</span>
+0745 <a name="_sub20" href="#_subfunctions" class="code">function sel_cond_all_Callback(hObject, eventdata, handles)</a>
+0746 <span class="comment">% hObject    handle to sel_cond_all (see GCBO)</span>
+0747 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0748 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
 0749 cl=get(handles.pop_class,<span class="string">'Value'</span>);
-0750 list=handles.condm{1,2};
-0751 indsel=1:length(list);
-0752 handles.clas{cl,4}=indsel;
-0753 handles.clas{cl,3}=0;
-0754 set(handles.uns_cond_list,<span class="string">'String'</span>,{});
-0755 set(handles.uns_cond_list,<span class="string">'Value'</span>,0);
-0756 set(handles.sel_cond_list,<span class="string">'String'</span>,list(handles.clas{cl,4}));
-0757 set(handles.sel_cond_list,<span class="string">'Value'</span>,length(get(handles.sel_cond_list,<span class="string">'String'</span>)));
-0758 <span class="comment">% Update handles structure</span>
-0759 guidata(hObject, handles);
-0760 
-0761 
-0762 
-0763 <span class="comment">% --- Executes on button press in done_button.</span>
-0764 <a name="_sub21" href="#_subfunctions" class="code">function done_button_Callback(hObject, eventdata, handles)</a>
-0765 <span class="comment">% hObject    handle to done_button (see GCBO)</span>
-0766 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0767 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0768 <span class="keyword">if</span> handles.flagrev
-0769     delete(handles.figure1)
-0770     <span class="keyword">return</span>
-0771 <span class="keyword">end</span>
-0772 ncc=[];
-0773 scc=zeros(size(handles.clas,1),1);
-0774 <span class="keyword">for</span> i=1:size(handles.clas,1)
-0775     list=get(handles.group_list,<span class="string">'String'</span>);
-0776     flag=0;
-0777     ncs=[];
-0778     <span class="keyword">for</span> g=1:length(list)
-0779         scount=1;
-0780         g2=find(strcmpi(list{g},{handles.dat.group(:).gr_name}));
-0781         sids=handles.clas{i,2}{g,2};
-0782         <span class="keyword">if</span> ~isempty(sids) &amp;&amp; any(sids)
-0783             handles.class(i).group(g2).gr_name=list{g};
-0784             flag=1;
-0785             <span class="keyword">for</span> s=1:length(sids)
-0786                 handles.class(i).group(g2).subj(scount).num=sids(s);
-0787                 listm={handles.dat.fs(handles.indfs).modality(:).mod_name};
-0788                 <span class="keyword">for</span> m=1:length(listm)
-0789                     handles.class(i).group(g2).subj(scount).modality(m).mod_name=listm{m};
-0790                     <span class="keyword">if</span> isempty(handles.condm{1,2})
-0791                         handles.class(i).group(g2).subj(scount).modality(m).all_scans=true;
-0792                         ncs=[ncs;0];
-0793                     <span class="keyword">else</span> <span class="comment">%design and conditions selected</span>
-0794                         <span class="keyword">if</span> isempty(handles.clas{i,3}) || any(handles.clas{i,3}==0) <span class="comment">%all conditions were selected</span>
-0795                             handles.class(i).group(g2).subj(scount).modality(m).all_cond=true;
-0796                         <span class="keyword">else</span>
-0797                             <span class="keyword">for</span> ic=1:length(handles.clas{i,4})
-0798                                 handles.class(i).group(g2).subj(scount).modality(m).conds(ic).cond_name= <span class="keyword">...</span>
-0799                                     handles.condm{1,2}{handles.clas{i,4}(ic)};
-0800                             <span class="keyword">end</span>
-0801                         <span class="keyword">end</span>
-0802                         ncs=[ncs;length(handles.clas{i,4})];
-0803                     <span class="keyword">end</span>
-0804                 <span class="keyword">end</span>
-0805                 scount=scount+1;
-0806             <span class="keyword">end</span>
-0807             scc(i)=scc(i)+scount;
-0808         <span class="keyword">end</span>
-0809     <span class="keyword">end</span>
-0810     <span class="keyword">if</span> ~flag
-0811         beep
-0812         sprintf(<span class="string">'No subjects found in the definition of class %d'</span>,i)
-0813         disp(<span class="string">'Please select subjects (and conditions) for that class'</span>)
-0814         <span class="keyword">return</span>
-0815     <span class="keyword">end</span>
-0816     <span class="keyword">if</span> length(unique(ncs))~=1
-0817         beep
-0818         sprintf(<span class="string">'Different numbers of conditions found in the definition of class %d'</span>,i)
-0819         disp(<span class="string">'Please select the same conditions for each subject/group of that class'</span>)
-0820         <span class="keyword">return</span>
-0821     <span class="keyword">else</span>
-0822         ncc=[ncc;unique(ncs)];
-0823     <span class="keyword">end</span>
-0824     <span class="keyword">if</span> ~isempty(find(ncc==0)) &amp;&amp; length(find(ncc==0))~=length(ncc)
-0825         beep
-0826         sprintf(<span class="string">'Class %d does not have the same number of conditions as class 1'</span>,i)
-0827         disp(<span class="string">'Please select either at least one condition for each class or none'</span>)
-0828         <span class="keyword">return</span>
-0829     <span class="keyword">end</span>
-0830 <span class="keyword">end</span>
-0831 
-0832 <span class="keyword">if</span> ~any(ncc) <span class="comment">%no conditions specified</span>
-0833     handles.design=0;
-0834 <span class="keyword">else</span>
-0835     handles.design=1;
-0836 <span class="keyword">end</span>
-0837 <span class="keyword">if</span> length(unique(scc))~=1  <span class="comment">%different numbers of subject per class</span>
-0838     handles.loospg=0;  <span class="comment">%no leave-one-subject per group-out CV</span>
+0750 <span class="keyword">if</span> cl==0
+0751     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0752     set(handles.pop_classes,<span class="string">'Value'</span>,1)
+0753 <span class="keyword">end</span>
+0754 cl=get(handles.pop_class,<span class="string">'Value'</span>);
+0755 list=handles.condm{1,2};
+0756 indsel=1:length(list);
+0757 handles.clas{cl,4}=indsel;
+0758 handles.clas{cl,3}=0;
+0759 set(handles.uns_cond_list,<span class="string">'String'</span>,{});
+0760 set(handles.uns_cond_list,<span class="string">'Value'</span>,0);
+0761 set(handles.sel_cond_list,<span class="string">'String'</span>,list(handles.clas{cl,4}));
+0762 set(handles.sel_cond_list,<span class="string">'Value'</span>,length(get(handles.sel_cond_list,<span class="string">'String'</span>)));
+0763 <span class="comment">% Update handles structure</span>
+0764 guidata(hObject, handles);
+0765 
+0766 
+0767 
+0768 <span class="comment">% --- Executes on button press in done_button.</span>
+0769 <a name="_sub21" href="#_subfunctions" class="code">function done_button_Callback(hObject, eventdata, handles)</a>
+0770 <span class="comment">% hObject    handle to done_button (see GCBO)</span>
+0771 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0772 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0773 <span class="keyword">if</span> handles.flagrev
+0774     delete(handles.figure1)
+0775     <span class="keyword">return</span>
+0776 <span class="keyword">end</span>
+0777 ncc=[];
+0778 scc=zeros(size(handles.clas,1),1);
+0779 <span class="keyword">for</span> i=1:size(handles.clas,1)
+0780     list=get(handles.group_list,<span class="string">'String'</span>);
+0781     flag=0;
+0782     ncs=[];
+0783     <span class="keyword">for</span> g=1:length(list)
+0784         scount=1;
+0785         g2=find(strcmpi(list{g},{handles.dat.group(:).gr_name}));
+0786         sids=handles.clas{i,2}{g,2};
+0787         <span class="keyword">if</span> ~isempty(sids) &amp;&amp; any(sids)
+0788             handles.class(i).group(g2).gr_name=list{g};
+0789             flag=1;
+0790             <span class="keyword">for</span> s=1:length(sids)
+0791                 handles.class(i).group(g2).subj(scount).num=sids(s);
+0792                 listm={handles.dat.fs(handles.indfs).modality(:).mod_name};
+0793                 <span class="keyword">for</span> m=1:length(listm)
+0794                     handles.class(i).group(g2).subj(scount).modality(m).mod_name=listm{m};
+0795                     <span class="keyword">if</span> isempty(handles.condm{1,2})
+0796                         handles.class(i).group(g2).subj(scount).modality(m).all_scans=true;
+0797                         ncs=[ncs;0];
+0798                     <span class="keyword">else</span> <span class="comment">%design and conditions selected</span>
+0799                         <span class="keyword">if</span> isempty(handles.clas{i,3}) || any(handles.clas{i,3}==0) <span class="comment">%all conditions were selected</span>
+0800                             handles.class(i).group(g2).subj(scount).modality(m).all_cond=true;
+0801                         <span class="keyword">else</span>
+0802                             <span class="keyword">for</span> ic=1:length(handles.clas{i,4})
+0803                                 handles.class(i).group(g2).subj(scount).modality(m).conds(ic).cond_name= <span class="keyword">...</span>
+0804                                     handles.condm{1,2}{handles.clas{i,4}(ic)};
+0805                             <span class="keyword">end</span>
+0806                         <span class="keyword">end</span>
+0807                         ncs=[ncs;length(handles.clas{i,4})];
+0808                     <span class="keyword">end</span>
+0809                 <span class="keyword">end</span>
+0810                 scount=scount+1;
+0811             <span class="keyword">end</span>
+0812             scc(i)=scc(i)+scount;
+0813         <span class="keyword">end</span>
+0814     <span class="keyword">end</span>
+0815     <span class="keyword">if</span> ~flag
+0816         beep
+0817         sprintf(<span class="string">'No subjects found in the definition of class %d'</span>,i)
+0818         disp(<span class="string">'Please select subjects (and conditions) for that class'</span>)
+0819         <span class="keyword">return</span>
+0820     <span class="keyword">end</span>
+0821     <span class="keyword">if</span> length(unique(ncs))~=1
+0822         beep
+0823         sprintf(<span class="string">'Different numbers of conditions found in the definition of class %d'</span>,i)
+0824         disp(<span class="string">'Please select the same conditions for each subject/group of that class'</span>)
+0825         <span class="keyword">return</span>
+0826     <span class="keyword">else</span>
+0827         ncc=[ncc;unique(ncs)];
+0828     <span class="keyword">end</span>
+0829     <span class="keyword">if</span> ~isempty(find(ncc==0)) &amp;&amp; length(find(ncc==0))~=length(ncc)
+0830         beep
+0831         sprintf(<span class="string">'Class %d does not have the same number of conditions as class 1'</span>,i)
+0832         disp(<span class="string">'Please select either at least one condition for each class or none'</span>)
+0833         <span class="keyword">return</span>
+0834     <span class="keyword">end</span>
+0835 <span class="keyword">end</span>
+0836 
+0837 <span class="keyword">if</span> ~any(ncc) <span class="comment">%no conditions specified</span>
+0838     handles.design=0;
 0839 <span class="keyword">else</span>
-0840     handles.loospg=1;
+0840     handles.design=1;
 0841 <span class="keyword">end</span>
-0842 
-0843 aa=struct();
-0844 aa.class=handles.class;
-0845 aa.design=handles.design;
-0846 aa.loospg=handles.loospg;
-0847 handles.output=aa;
-0848 <span class="comment">% Update handles structure</span>
-0849 guidata(hObject, handles);
-0850 <span class="keyword">if</span> ~handles.flagrev
-0851     uiresume(handles.figure1)
-0852 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0842 <span class="keyword">if</span> length(unique(scc))~=1  <span class="comment">%different numbers of subject per class</span>
+0843     handles.loospg=0;  <span class="comment">%no leave-one-subject per group-out CV</span>
+0844 <span class="keyword">else</span>
+0845     handles.loospg=1;
+0846 <span class="keyword">end</span>
+0847 
+0848 aa=struct();
+0849 aa.class=handles.class;
+0850 aa.design=handles.design;
+0851 aa.loospg=handles.loospg;
+0852 handles.output=aa;
+0853 <span class="comment">% Update handles structure</span>
+0854 guidata(hObject, handles);
+0855 <span class="keyword">if</span> ~handles.flagrev
+0856     uiresume(handles.figure1)
+0857 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

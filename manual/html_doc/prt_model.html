@@ -120,7 +120,7 @@ This function is called by:
 0038 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0039 
 0040 <span class="comment">% Written by A Marquand</span>
-0041 <span class="comment">% $Id: prt_model.m 493 2012-04-03 07:32:39Z schrouff $</span>
+0041 <span class="comment">% $Id: prt_model.m 524 2012-05-10 16:06:12Z schrouff $</span>
 0042 
 0043 <span class="comment">% Populate basic fields in PRT.mat</span>
 0044 <span class="comment">% -------------------------------------------------------------------------</span>
@@ -240,7 +240,7 @@ This function is called by:
 0158                 <span class="keyword">if</span> isfield(in.class(c).group(g).subj(s).modality(m), <span class="string">'all_scans'</span>)
 0159                     <span class="comment">% check whether this was included in the feature set</span>
 0160                     <span class="comment">% using 'all conditions' (which is invalid)</span>
-0161                     <span class="keyword">if</span> strcmpi(PRT.fs(fid).modality.mode,<span class="string">'all_cond'</span>)
+0161                     <span class="keyword">if</span> strcmpi(PRT.fs(fid).modality(m).mode,<span class="string">'all_cond'</span>)
 0162                         error(<span class="string">'prt_model:fsIsAllCondModelisAllScans'</span>,<span class="keyword">...</span>
 0163                             [<span class="string">'''All scans'' selected for subject '</span>,num2str(s),<span class="keyword">...</span>
 0164                             <span class="string">', group '</span>,num2str(g), <span class="string">', modality '</span>, num2str(m),<span class="keyword">...</span>
@@ -435,6 +435,6 @@ This function is called by:
 0353 targ_allscans(samp_idx)=targ_g;
 0354 targets=targ_g;
 0355 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

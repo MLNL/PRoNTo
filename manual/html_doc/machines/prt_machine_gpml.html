@@ -154,12 +154,12 @@ This function is called by:
 0056 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0057 
 0058 <span class="comment">% Written by A Marquand</span>
-0059 <span class="comment">% $Id: prt_machine_gpml.m 498 2012-04-05 13:26:23Z amarquan $</span>
+0059 <span class="comment">% $Id: prt_machine_gpml.m 530 2012-05-17 13:50:42Z amarquan $</span>
 0060 
 0061 <span class="comment">% configure default parameters for GP optimisation</span>
 0062 meanfunc  = @meanConstcell;
 0063 covfunc   = @covLINkcell; 
-0064 maxeval   = -100;
+0064 maxeval   = -20;
 0065 <span class="keyword">if</span> strcmp(d.pred_type,<span class="string">'classification'</span>)
 0066     mode = <span class="string">'classifier'</span>; <span class="comment">% it's good to be consistent!</span>
 0067     likfunc   = @likErf;
@@ -339,6 +339,6 @@ This function is called by:
 0241 
 0242 <span class="keyword">end</span>
 0243</pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -904,23 +904,24 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 \begin{alltt}
 
  PRT\_UI\_RESULTS MATLAB code for prt\_ui\_results.fig
-      PRT\_UI\_RESULTS, by itself, creates a new PRT\_UI\_RESULTS or raises the existing
-      singleton*.
  
-      H = PRT\_UI\_RESULTS returns the handle to a new PRT\_UI\_RESULTS or the handle to
-      the existing singleton*.
+ PRT\_UI\_RESULTS, by itself, creates a new PRT\_UI\_RESULTS or raises the 
+ existing singleton*.
  
-      PRT\_UI\_RESULTS('CALLBACK',hObject,eventData,handles,...) calls the local
-      function named CALLBACK in PRT\_UI\_RESULTS.M with the given input arguments.
+ H = PRT\_UI\_RESULTS returns the handle to a new PRT\_UI\_RESULTS or the 
+ handle to the existing singleton*.
  
-      PRT\_UI\_RESULTS('Property','Value',...) creates a new PRT\_UI\_RESULTS or raises the
-      existing singleton*.  Starting from the left, property value pairs are
-      applied to the GUI before prt\_ui\_results\_OpeningFcn gets called.  An
-      unrecognized property name or invalid value makes property application
-      stop.  All inputs are passed to prt\_ui\_results\_OpeningFcn via varargin.
+ PRT\_UI\_RESULTS('CALLBACK',hObject,eventData,handles,...) calls the local
+ function named CALLBACK in PRT\_UI\_RESULTS.M with the given input arguments.
  
-      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-      instance to run (singleton)".
+ PRT\_UI\_RESULTS('Property','Value',...) creates a new PRT\_UI\_RESULTS or 
+ raises the existing singleton*.  Starting from the left, property value 
+ pairs are applied to the GUI before prt\_ui\_results\_OpeningFcn gets called.
+ An unrecognized property name or invalid value makes property application
+ stop.  All inputs are passed to prt\_ui\_results\_OpeningFcn via varargin.
+ 
+ *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+ instance to run (singleton)".
  
  See also: GUIDE, GUIDATA, GUIHANDLES
 \end{alltt}
@@ -1095,6 +1096,12 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
  instance to run (singleton)".
  
  See also: GUIDE, GUIDATA, GUIHANDLES
+\end{alltt}
+
+
+\section{prt\_ui\_sure.m}
+\begin{alltt}
+
 \end{alltt}
 
 
@@ -1429,7 +1436,7 @@ This is the list of PRoNTo functions, including the subdirectories: {\tt machine
 
  Optimisation for Relevance Vector Regression
  
- [w,alpha,beta,ll]=spm\_rvr(Phi,t)
+ [w,alpha,beta,ll] = prt\_rvr(Phi,t)
  Phi   - MxM matrix derived from kernel function of vector pairs
  t     - the values to be matched
  w     - weights

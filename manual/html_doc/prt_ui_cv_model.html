@@ -96,7 +96,7 @@ This function is called by:
 0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0027 
 0028 <span class="comment">% Written by J.Schrouff</span>
-0029 <span class="comment">% $Id: prt_ui_cv_model.m 494 2012-04-03 11:14:36Z schrouff $</span>
+0029 <span class="comment">% $Id: prt_ui_cv_model.m 523 2012-05-09 11:43:36Z jrichiar $</span>
 0030 
 0031 <span class="comment">% Edit the above text to modify the response to help prt_ui_cv_model</span>
 0032 
@@ -197,271 +197,276 @@ This function is called by:
 0127     <span class="keyword">end</span>
 0128     set(aa(i),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
 0129     xf=get(aa(i),<span class="string">'FontSize'</span>);
-0130     set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
-0131         <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
-0132 <span class="keyword">end</span>
-0133 
-0134 
-0135 set(handles.unslist,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0136 set(handles.sellist,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0137 set(handles.selallbutt,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0138 set(handles.runbutt,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
-0139 <span class="keyword">end</span>
-0140 <span class="comment">% Update handles structure</span>
-0141 guidata(hObject, handles);
-0142 
-0143 <span class="comment">% UIWAIT makes prt_ui_cv_model wait for user response (see UIRESUME)</span>
-0144 <span class="comment">% uiwait(handles.figure1);</span>
-0145 
-0146 
-0147 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0148 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_cv_model_OutputFcn(hObject, eventdata, handles) </a>
-0149 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0150 <span class="comment">% hObject    handle to figure</span>
-0151 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0152 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0153 
-0154 <span class="comment">% Get default command line output from handles structure</span>
-0155 varargout{1} = handles.output;
-0156 
-0157 
+0130     <span class="keyword">if</span> ispc
+0131         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0132             <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0133     <span class="keyword">else</span>
+0134         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0135             <span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0136     <span class="keyword">end</span>
+0137 <span class="keyword">end</span>
+0138 
+0139 
+0140 set(handles.unslist,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0141 set(handles.sellist,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0142 set(handles.selallbutt,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0143 set(handles.runbutt,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0144 <span class="keyword">end</span>
+0145 <span class="comment">% Update handles structure</span>
+0146 guidata(hObject, handles);
+0147 
+0148 <span class="comment">% UIWAIT makes prt_ui_cv_model wait for user response (see UIRESUME)</span>
+0149 <span class="comment">% uiwait(handles.figure1);</span>
+0150 
+0151 
+0152 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0153 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_cv_model_OutputFcn(hObject, eventdata, handles) </a>
+0154 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0155 <span class="comment">% hObject    handle to figure</span>
+0156 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0157 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
 0158 
-0159 <a name="_sub3" href="#_subfunctions" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a>
-0160 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
-0161 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0162 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0159 <span class="comment">% Get default command line output from handles structure</span>
+0160 varargout{1} = handles.output;
+0161 
+0162 
 0163 
-0164 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_prt as text</span>
-0165 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_prt as a double</span>
-0166 handles.fname=get(handles.edit_prt,<span class="string">'String'</span>);
-0167 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
-0168     clear PRT
-0169 <span class="keyword">end</span>
-0170 <span class="keyword">try</span>
-0171     load(handles.fname)
-0172     handles.dat=PRT;
-0173 <span class="keyword">catch</span>
-0174     beep
-0175     disp(<span class="string">'Could not load file'</span>)
-0176     <span class="keyword">return</span>
-0177 <span class="keyword">end</span>
-0178 <span class="comment">%fill the list of models</span>
-0179 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
-0180     beep
-0181     disp(<span class="string">'No model found in this PRT'</span>)
-0182     disp(<span class="string">'Please specify model first'</span>)
-0183     delete(handles.figure1)
-0184 <span class="keyword">end</span>
-0185 list={handles.dat.model(:).model_name};
-0186 set(handles.unslist,<span class="string">'String'</span>,list)
-0187 set(handles.sellist,<span class="string">'String'</span>,{<span class="string">''</span>})
-0188 handles.models=cell(1,2);
-0189 handles.models{1}=1:length(list);
-0190 handles.models{2}=[];
-0191 set(handles.unslist,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0192 set(handles.sellist,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0193 set(handles.selallbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0194 
-0195 <span class="comment">% Update handles structure</span>
-0196 guidata(hObject, handles);
-0197 
-0198 
-0199 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0200 <a name="_sub4" href="#_subfunctions" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a>
-0201 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
-0202 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0203 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0204 
-0205 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
-0206 <span class="comment">%       See ISPC and COMPUTER.</span>
-0207 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0208     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0209 <span class="keyword">end</span>
-0210 
-0211 
-0212 <span class="comment">% --- Executes on button press in br_prt.</span>
-0213 <a name="_sub5" href="#_subfunctions" class="code">function br_prt_Callback(hObject, eventdata, handles)</a>
-0214 <span class="comment">% hObject    handle to br_prt (see GCBO)</span>
-0215 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0216 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0217 handles.fname=spm_select(1,<span class="string">'.mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
-0218 set(handles.edit_prt,<span class="string">'String'</span>,handles.fname)
-0219 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
-0220     clear PRT
-0221 <span class="keyword">end</span>
-0222 <span class="keyword">try</span>
-0223     load(handles.fname)
-0224     handles.dat=PRT;
-0225 <span class="keyword">catch</span>
-0226     beep
-0227     disp(<span class="string">'Could not load file'</span>)
-0228     <span class="keyword">return</span>
-0229 <span class="keyword">end</span>
-0230 <span class="comment">%fill the list of models</span>
-0231 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
-0232     beep
-0233     disp(<span class="string">'No model found in this PRT'</span>)
-0234     disp(<span class="string">'Please specify model first'</span>)
-0235     <span class="keyword">return</span>
-0236 <span class="keyword">end</span>
-0237 list={handles.dat.model(:).model_name};
-0238 set(handles.unslist,<span class="string">'String'</span>,list)
-0239 set(handles.sellist,<span class="string">'String'</span>,{<span class="string">''</span>})
-0240 handles.models=cell(1,2);
-0241 handles.models{1}=1:length(list);
-0242 handles.models{2}=0;
-0243 set(handles.unslist,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0244 set(handles.sellist,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0245 set(handles.selallbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0246 
-0247 <span class="comment">% Update handles structure</span>
-0248 guidata(hObject, handles);
-0249 
-0250 
-0251 <span class="comment">% --- Executes on selection change in unslist.</span>
-0252 <a name="_sub6" href="#_subfunctions" class="code">function unslist_Callback(hObject, eventdata, handles)</a>
-0253 <span class="comment">% hObject    handle to unslist (see GCBO)</span>
-0254 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0255 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0256 
-0257 <span class="comment">% Hints: contents = get(hObject,'String') returns unslist contents as cell array</span>
-0258 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from unslist</span>
-0259 val=get(handles.unslist,<span class="string">'Value'</span>);
-0260 <span class="keyword">if</span> ~any(handles.models{2})
-0261     handles.models{2}=handles.models{1}(val);
-0262 <span class="keyword">else</span>
-0263     handles.models{2}=[handles.models{2},handles.models{1}(val)];
-0264 <span class="keyword">end</span>
-0265 indm=handles.models{1}(val);
-0266 handles.models{1}=setxor(handles.models{1},indm);
-0267 list={handles.dat.model(:).model_name};
-0268 <span class="keyword">if</span> isempty(handles.models{1})
-0269     handles.models{1}=0;
-0270     listu={<span class="string">''</span>};
-0271 <span class="keyword">else</span>
-0272     listu=list(handles.models{1});
-0273 <span class="keyword">end</span>
-0274 <span class="keyword">if</span> any(handles.models{2}==0)
-0275     <span class="keyword">return</span>
-0276 <span class="keyword">end</span>
-0277 lists=list(handles.models{2});
-0278 set(handles.unslist,<span class="string">'String'</span>,listu)
-0279 set(handles.unslist,<span class="string">'Value'</span>,1)
-0280 set(handles.sellist,<span class="string">'String'</span>,lists)
-0281 set(handles.sellist,<span class="string">'Value'</span>,length(lists))
-0282 set(handles.runbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0283 <span class="comment">% Update handles structure</span>
-0284 guidata(hObject, handles);
-0285 
-0286 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0287 <a name="_sub7" href="#_subfunctions" class="code">function unslist_CreateFcn(hObject, eventdata, handles)</a>
-0288 <span class="comment">% hObject    handle to unslist (see GCBO)</span>
-0289 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0290 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0291 
-0292 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
-0293 <span class="comment">%       See ISPC and COMPUTER.</span>
-0294 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0295     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0296 <span class="keyword">end</span>
-0297 
-0298 
-0299 <span class="comment">% --- Executes on selection change in sellist.</span>
-0300 <a name="_sub8" href="#_subfunctions" class="code">function sellist_Callback(hObject, eventdata, handles)</a>
-0301 <span class="comment">% hObject    handle to sellist (see GCBO)</span>
-0302 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0303 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0304 
-0305 <span class="comment">% Hints: contents = get(hObject,'String') returns sellist contents as cell array</span>
-0306 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from sellist</span>
-0307 val=get(handles.sellist,<span class="string">'Value'</span>);
-0308 <span class="keyword">if</span> ~any(handles.models{1})
-0309     handles.models{1}=handles.models{2}(val);
-0310 <span class="keyword">else</span>
-0311     handles.models{1}=[handles.models{1},handles.models{2}(val)];
-0312 <span class="keyword">end</span>
-0313 indm=handles.models{2}(val);
-0314 handles.models{2}=setxor(handles.models{2},indm);
-0315 list={handles.dat.model(:).model_name};
-0316 <span class="keyword">if</span> isempty(handles.models{2})
-0317     handles.models{2}=0;
-0318     lists={<span class="string">''</span>};
-0319 <span class="keyword">else</span>
-0320     lists=list(handles.models{2});
-0321 <span class="keyword">end</span>
-0322 <span class="keyword">if</span> any(handles.models{1}==0)
-0323     <span class="keyword">return</span>
-0324 <span class="keyword">end</span>
-0325 listu=list(handles.models{1});
-0326 set(handles.unslist,<span class="string">'String'</span>,listu)
-0327 set(handles.unslist,<span class="string">'Value'</span>,length(listu))
-0328 set(handles.sellist,<span class="string">'String'</span>,lists)
-0329 set(handles.sellist,<span class="string">'Value'</span>,1)
-0330 <span class="comment">% Update handles structure</span>
-0331 guidata(hObject, handles);
-0332 
-0333 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
-0334 <a name="_sub9" href="#_subfunctions" class="code">function sellist_CreateFcn(hObject, eventdata, handles)</a>
-0335 <span class="comment">% hObject    handle to sellist (see GCBO)</span>
-0336 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0337 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
-0338 
-0339 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
-0340 <span class="comment">%       See ISPC and COMPUTER.</span>
-0341 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
-0342     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
-0343 <span class="keyword">end</span>
-0344 
-0345 
-0346 <span class="comment">% --- Executes on button press in selallbutt.</span>
-0347 <a name="_sub10" href="#_subfunctions" class="code">function selallbutt_Callback(hObject, eventdata, handles)</a>
-0348 <span class="comment">% hObject    handle to selallbutt (see GCBO)</span>
-0349 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0350 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0351 list={handles.dat.model(:).model_name};
-0352 handles.models{1}=0;
-0353 handles.models{2}=1:length(list);
-0354 listu={<span class="string">''</span>};
-0355 lists=list(handles.models{2});
-0356 set(handles.unslist,<span class="string">'String'</span>,listu)
-0357 set(handles.unslist,<span class="string">'Value'</span>,1)
-0358 set(handles.sellist,<span class="string">'String'</span>,lists)
-0359 set(handles.sellist,<span class="string">'Value'</span>,1)
-0360 set(handles.runbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
-0361 <span class="comment">% Update handles structure</span>
-0362 guidata(hObject, handles);
-0363 
-0364 
-0365 <span class="comment">% --- Executes on button press in runbutt.</span>
-0366 <a name="_sub11" href="#_subfunctions" class="code">function runbutt_Callback(hObject, eventdata, handles)</a>
-0367 <span class="comment">% hObject    handle to runbutt (see GCBO)</span>
-0368 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0369 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0370 <span class="keyword">if</span> ~any(handles.models{2})
-0371     beep
-0372     disp(<span class="string">'Select a model to run'</span>)
-0373     <span class="keyword">return</span>
-0374 <span class="keyword">end</span>
-0375 PRT=handles.dat;
-0376 list={PRT.model(:).model_name};
-0377 <span class="keyword">for</span> i=1:length(handles.models{2})
-0378     in.fname      = handles.fname;
-0379     in.model_name = list{handles.models{2}(i)};
-0380     disp(<span class="string">'--------------------------------------------------------'</span>)
-0381     disp([<span class="string">'Running model '</span>,char(in.model_name)])
-0382     disp(<span class="string">'--------------------------------------------------------'</span>)
-0383     mid = <a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>(PRT, in);
-0384     <span class="comment">% Special cross-validation for MCKR</span>
-0385     <span class="keyword">if</span> strcmp(PRT.model(mid).input.machine.function,<span class="string">'prt_machine_mckr'</span>)
-0386         prt_cv_mckr(PRT,in);
-0387     <span class="keyword">else</span>
-0388         <a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>(PRT, in);
-0389     <span class="keyword">end</span>
-0390     disp(<span class="string">'--------------------------------------------------------'</span>)
-0391     disp([<span class="string">'Model '</span>,char(in.model_name),<span class="string">' run completed'</span>])
-0392     disp(<span class="string">'--------------------------------------------------------'</span>)
-0393 <span class="keyword">end</span>
-0394 delete(handles.figure1)</pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0164 <a name="_sub3" href="#_subfunctions" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a>
+0165 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
+0166 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0167 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0168 
+0169 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_prt as text</span>
+0170 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_prt as a double</span>
+0171 handles.fname=get(handles.edit_prt,<span class="string">'String'</span>);
+0172 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0173     clear PRT
+0174 <span class="keyword">end</span>
+0175 <span class="keyword">try</span>
+0176     load(handles.fname)
+0177     handles.dat=PRT;
+0178 <span class="keyword">catch</span>
+0179     beep
+0180     disp(<span class="string">'Could not load file'</span>)
+0181     <span class="keyword">return</span>
+0182 <span class="keyword">end</span>
+0183 <span class="comment">%fill the list of models</span>
+0184 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
+0185     beep
+0186     disp(<span class="string">'No model found in this PRT'</span>)
+0187     disp(<span class="string">'Please specify model first'</span>)
+0188     delete(handles.figure1)
+0189 <span class="keyword">end</span>
+0190 list={handles.dat.model(:).model_name};
+0191 set(handles.unslist,<span class="string">'String'</span>,list)
+0192 set(handles.sellist,<span class="string">'String'</span>,{<span class="string">''</span>})
+0193 handles.models=cell(1,2);
+0194 handles.models{1}=1:length(list);
+0195 handles.models{2}=[];
+0196 set(handles.unslist,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0197 set(handles.sellist,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0198 set(handles.selallbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0199 
+0200 <span class="comment">% Update handles structure</span>
+0201 guidata(hObject, handles);
+0202 
+0203 
+0204 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0205 <a name="_sub4" href="#_subfunctions" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a>
+0206 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
+0207 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0208 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0209 
+0210 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0211 <span class="comment">%       See ISPC and COMPUTER.</span>
+0212 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0213     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0214 <span class="keyword">end</span>
+0215 
+0216 
+0217 <span class="comment">% --- Executes on button press in br_prt.</span>
+0218 <a name="_sub5" href="#_subfunctions" class="code">function br_prt_Callback(hObject, eventdata, handles)</a>
+0219 <span class="comment">% hObject    handle to br_prt (see GCBO)</span>
+0220 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0221 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0222 handles.fname=spm_select(1,<span class="string">'.mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
+0223 set(handles.edit_prt,<span class="string">'String'</span>,handles.fname)
+0224 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0225     clear PRT
+0226 <span class="keyword">end</span>
+0227 <span class="keyword">try</span>
+0228     load(handles.fname)
+0229     handles.dat=PRT;
+0230 <span class="keyword">catch</span>
+0231     beep
+0232     disp(<span class="string">'Could not load file'</span>)
+0233     <span class="keyword">return</span>
+0234 <span class="keyword">end</span>
+0235 <span class="comment">%fill the list of models</span>
+0236 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
+0237     beep
+0238     disp(<span class="string">'No model found in this PRT'</span>)
+0239     disp(<span class="string">'Please specify model first'</span>)
+0240     <span class="keyword">return</span>
+0241 <span class="keyword">end</span>
+0242 list={handles.dat.model(:).model_name};
+0243 set(handles.unslist,<span class="string">'String'</span>,list)
+0244 set(handles.sellist,<span class="string">'String'</span>,{<span class="string">''</span>})
+0245 handles.models=cell(1,2);
+0246 handles.models{1}=1:length(list);
+0247 handles.models{2}=0;
+0248 set(handles.unslist,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0249 set(handles.sellist,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0250 set(handles.selallbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0251 
+0252 <span class="comment">% Update handles structure</span>
+0253 guidata(hObject, handles);
+0254 
+0255 
+0256 <span class="comment">% --- Executes on selection change in unslist.</span>
+0257 <a name="_sub6" href="#_subfunctions" class="code">function unslist_Callback(hObject, eventdata, handles)</a>
+0258 <span class="comment">% hObject    handle to unslist (see GCBO)</span>
+0259 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0260 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0261 
+0262 <span class="comment">% Hints: contents = get(hObject,'String') returns unslist contents as cell array</span>
+0263 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from unslist</span>
+0264 val=get(handles.unslist,<span class="string">'Value'</span>);
+0265 <span class="keyword">if</span> ~any(handles.models{2})
+0266     handles.models{2}=handles.models{1}(val);
+0267 <span class="keyword">else</span>
+0268     handles.models{2}=[handles.models{2},handles.models{1}(val)];
+0269 <span class="keyword">end</span>
+0270 indm=handles.models{1}(val);
+0271 handles.models{1}=setxor(handles.models{1},indm);
+0272 list={handles.dat.model(:).model_name};
+0273 <span class="keyword">if</span> isempty(handles.models{1})
+0274     handles.models{1}=0;
+0275     listu={<span class="string">''</span>};
+0276 <span class="keyword">else</span>
+0277     listu=list(handles.models{1});
+0278 <span class="keyword">end</span>
+0279 <span class="keyword">if</span> any(handles.models{2}==0)
+0280     <span class="keyword">return</span>
+0281 <span class="keyword">end</span>
+0282 lists=list(handles.models{2});
+0283 set(handles.unslist,<span class="string">'String'</span>,listu)
+0284 set(handles.unslist,<span class="string">'Value'</span>,1)
+0285 set(handles.sellist,<span class="string">'String'</span>,lists)
+0286 set(handles.sellist,<span class="string">'Value'</span>,length(lists))
+0287 set(handles.runbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0288 <span class="comment">% Update handles structure</span>
+0289 guidata(hObject, handles);
+0290 
+0291 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0292 <a name="_sub7" href="#_subfunctions" class="code">function unslist_CreateFcn(hObject, eventdata, handles)</a>
+0293 <span class="comment">% hObject    handle to unslist (see GCBO)</span>
+0294 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0295 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0296 
+0297 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0298 <span class="comment">%       See ISPC and COMPUTER.</span>
+0299 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0300     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0301 <span class="keyword">end</span>
+0302 
+0303 
+0304 <span class="comment">% --- Executes on selection change in sellist.</span>
+0305 <a name="_sub8" href="#_subfunctions" class="code">function sellist_Callback(hObject, eventdata, handles)</a>
+0306 <span class="comment">% hObject    handle to sellist (see GCBO)</span>
+0307 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0308 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0309 
+0310 <span class="comment">% Hints: contents = get(hObject,'String') returns sellist contents as cell array</span>
+0311 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from sellist</span>
+0312 val=get(handles.sellist,<span class="string">'Value'</span>);
+0313 <span class="keyword">if</span> ~any(handles.models{1})
+0314     handles.models{1}=handles.models{2}(val);
+0315 <span class="keyword">else</span>
+0316     handles.models{1}=[handles.models{1},handles.models{2}(val)];
+0317 <span class="keyword">end</span>
+0318 indm=handles.models{2}(val);
+0319 handles.models{2}=setxor(handles.models{2},indm);
+0320 list={handles.dat.model(:).model_name};
+0321 <span class="keyword">if</span> isempty(handles.models{2})
+0322     handles.models{2}=0;
+0323     lists={<span class="string">''</span>};
+0324 <span class="keyword">else</span>
+0325     lists=list(handles.models{2});
+0326 <span class="keyword">end</span>
+0327 <span class="keyword">if</span> any(handles.models{1}==0)
+0328     <span class="keyword">return</span>
+0329 <span class="keyword">end</span>
+0330 listu=list(handles.models{1});
+0331 set(handles.unslist,<span class="string">'String'</span>,listu)
+0332 set(handles.unslist,<span class="string">'Value'</span>,length(listu))
+0333 set(handles.sellist,<span class="string">'String'</span>,lists)
+0334 set(handles.sellist,<span class="string">'Value'</span>,1)
+0335 <span class="comment">% Update handles structure</span>
+0336 guidata(hObject, handles);
+0337 
+0338 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0339 <a name="_sub9" href="#_subfunctions" class="code">function sellist_CreateFcn(hObject, eventdata, handles)</a>
+0340 <span class="comment">% hObject    handle to sellist (see GCBO)</span>
+0341 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0342 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0343 
+0344 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0345 <span class="comment">%       See ISPC and COMPUTER.</span>
+0346 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0347     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0348 <span class="keyword">end</span>
+0349 
+0350 
+0351 <span class="comment">% --- Executes on button press in selallbutt.</span>
+0352 <a name="_sub10" href="#_subfunctions" class="code">function selallbutt_Callback(hObject, eventdata, handles)</a>
+0353 <span class="comment">% hObject    handle to selallbutt (see GCBO)</span>
+0354 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0355 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0356 list={handles.dat.model(:).model_name};
+0357 handles.models{1}=0;
+0358 handles.models{2}=1:length(list);
+0359 listu={<span class="string">''</span>};
+0360 lists=list(handles.models{2});
+0361 set(handles.unslist,<span class="string">'String'</span>,listu)
+0362 set(handles.unslist,<span class="string">'Value'</span>,1)
+0363 set(handles.sellist,<span class="string">'String'</span>,lists)
+0364 set(handles.sellist,<span class="string">'Value'</span>,1)
+0365 set(handles.runbutt,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0366 <span class="comment">% Update handles structure</span>
+0367 guidata(hObject, handles);
+0368 
+0369 
+0370 <span class="comment">% --- Executes on button press in runbutt.</span>
+0371 <a name="_sub11" href="#_subfunctions" class="code">function runbutt_Callback(hObject, eventdata, handles)</a>
+0372 <span class="comment">% hObject    handle to runbutt (see GCBO)</span>
+0373 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0374 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0375 <span class="keyword">if</span> ~any(handles.models{2})
+0376     beep
+0377     disp(<span class="string">'Select a model to run'</span>)
+0378     <span class="keyword">return</span>
+0379 <span class="keyword">end</span>
+0380 PRT=handles.dat;
+0381 list={PRT.model(:).model_name};
+0382 <span class="keyword">for</span> i=1:length(handles.models{2})
+0383     in.fname      = handles.fname;
+0384     in.model_name = list{handles.models{2}(i)};
+0385     disp(<span class="string">'--------------------------------------------------------'</span>)
+0386     disp([<span class="string">'Running model '</span>,char(in.model_name)])
+0387     disp(<span class="string">'--------------------------------------------------------'</span>)
+0388     mid = <a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>(PRT, in);
+0389     <span class="comment">% Special cross-validation for MCKR</span>
+0390     <span class="keyword">if</span> strcmp(PRT.model(mid).input.machine.function,<span class="string">'prt_machine_mckr'</span>)
+0391         prt_cv_mckr(PRT,in);
+0392     <span class="keyword">else</span>
+0393         <a href="prt_cv_model.html" class="code" title="function [outfile]=prt_cv_model(PRT,in)">prt_cv_model</a>(PRT, in);
+0394     <span class="keyword">end</span>
+0395     disp(<span class="string">'--------------------------------------------------------'</span>)
+0396     disp([<span class="string">'Model '</span>,char(in.model_name),<span class="string">' run completed'</span>])
+0397     disp(<span class="string">'--------------------------------------------------------'</span>)
+0398 <span class="keyword">end</span>
+0399 delete(handles.figure1)</pre></div>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

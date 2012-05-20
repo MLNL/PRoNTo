@@ -78,7 +78,7 @@ This function is called by:
 0018 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0019 
 0020 <span class="comment">% Written by M.J.Rosa</span>
-0021 <span class="comment">% $Id: prt_compute_weights.m 513 2012-04-11 13:52:24Z mjrosa $</span>
+0021 <span class="comment">% $Id: prt_compute_weights.m 526 2012-05-16 10:40:55Z amarquan $</span>
 0022 
 0023 <span class="comment">% Find model</span>
 0024 <span class="comment">% -------------------------------------------------------------------------</span>
@@ -108,160 +108,163 @@ This function is called by:
 0048     <span class="keyword">case</span> <span class="string">'prt_machine_RT_bin'</span>
 0049         error(<span class="string">'prt_compute_weights:MachineNotSupported'</span>,<span class="keyword">...</span>
 0050             <span class="string">'Error: weights computation not supported for this machine!'</span>);
-0051 <span class="keyword">end</span>
-0052 
-0053 <span class="comment">% Image name</span>
-0054 <span class="comment">% -------------------------------------------------------------------------</span>
+0051     <span class="keyword">case</span> <span class="string">'prt_machine_gpclap'</span>
+0052         error(<span class="string">'prt_compute_weights:MachineNotSupported'</span>,<span class="keyword">...</span>
+0053             <span class="string">'Error: weights computation not supported yet for this machine!'</span>);
+0054 <span class="keyword">end</span>
 0055 
-0056 <span class="keyword">if</span> ~isempty(in.img_name)
-0057     <span class="keyword">if</span> ~(prt_checkAlphaNumUnder(in.img_name))
-0058         error(<span class="string">'prt_compute_weights:NameNotAlphaNumeric'</span>,<span class="keyword">...</span>
-0059             <span class="string">'Error: image name should contain only alpha-numeric elements!'</span>);
-0060     <span class="keyword">end</span>
-0061     in.img_name = [in.img_name,<span class="string">'.img'</span>];
-0062     img_name    = fullfile(in.pathdir,in.img_name);
-0063 <span class="keyword">else</span>
-0064     img_name    = fullfile(in.pathdir,img_mach);
-0065 <span class="keyword">end</span>
-0066 
-0067 <span class="comment">% Other info</span>
-0068 <span class="comment">% -------------------------------------------------------------------------</span>
-0069 fs_name  = PRT.model(model_idx).input.fs(1).fs_name;
-0070 samp_idx = PRT.model(model_idx).input.samp_idx;
-0071 nfold    = length(PRT.model(model_idx).output.fold);
-0072 
-0073 <span class="comment">% Find feature set</span>
-0074 <span class="comment">% -------------------------------------------------------------------------</span>
-0075 nfs = length(PRT.fs);
-0076 <span class="keyword">for</span> f = 1:nfs
-0077     <span class="keyword">if</span> strcmp(PRT.fs(f).fs_name,fs_name)
-0078         fs_idx = f;
-0079     <span class="keyword">end</span>
-0080 <span class="keyword">end</span>
-0081 ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
-0082 ID_all = PRT.fs(fs_idx).id_mat;
-0083 
-0084 <span class="comment">% Find modality</span>
-0085 <span class="comment">% -------------------------------------------------------------------------</span>
-0086 nfas = length(PRT.fas);
-0087 mods = {PRT.fs(fs_idx).modality.mod_name};
-0088 fas  = zeros(1,nfas);
-0089 <span class="keyword">for</span> i = 1:nfas
-0090     <span class="keyword">for</span> j = 1:length(mods)
-0091         <span class="keyword">if</span> strcmpi(PRT.fas(i).mod_name,mods{j})
-0092             fas(i) = 1;
-0093             mm=j;
-0094         <span class="keyword">end</span>
-0095     <span class="keyword">end</span>
-0096 <span class="keyword">end</span>
-0097 fas_idx = find(fas);
-0098 
-0099 <span class="comment">% Get the indexes of the voxels which are in the second level mask</span>
-0100 <span class="comment">% -------------------------------------------------------------------------</span>
-0101 idfeat=PRT.fas(fas_idx(1)).idfeat_img;
-0102 <span class="keyword">if</span> ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas)
-0103     mask_train=idfeat(PRT.fs(fs_idx).modality(mm).idfeat_fas);
-0104     voxtr=find(ismember(idfeat,mask_train));
-0105 <span class="keyword">else</span>
-0106     mask_train=idfeat;
-0107     voxtr=1:length(idfeat);
-0108 <span class="keyword">end</span>
-0109 
-0110 <span class="comment">% Create image</span>
-0111 <span class="comment">% -------------------------------------------------------------------------</span>
-0112 hdr        = PRT.fas(fas_idx(1)).hdr.private;
-0113 img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
-0114     hdr.dat.dim(3),nfold+1],<span class="string">'float64-le'</span>,0,1,0);
-0115 
-0116 zdim    = hdr.dat.dim(3);
-0117 xydim   = hdr.dat.dim(1)*hdr.dat.dim(2);
-0118 norm3d  = 0;
-0119 
-0120 disp(<span class="string">'Computing weights.......&gt;&gt;'</span>)
-0121 
-0122 <span class="keyword">for</span> z = 1:zdim
-0123     
-0124     disp(sprintf(<span class="string">'Slice: %d of %d'</span>,z,zdim))
-0125     
-0126     img3dav  = zeros(1,xydim); <span class="comment">% average weight map</span>
-0127     
-0128     feat_slc = find(mask_train&gt;=(xydim*(z-1)+1) &amp; <span class="keyword">...</span>
-0129         mask_train&lt;=(xydim*z));
+0056 <span class="comment">% Image name</span>
+0057 <span class="comment">% -------------------------------------------------------------------------</span>
+0058 
+0059 <span class="keyword">if</span> ~isempty(in.img_name)
+0060     <span class="keyword">if</span> ~(prt_checkAlphaNumUnder(in.img_name))
+0061         error(<span class="string">'prt_compute_weights:NameNotAlphaNumeric'</span>,<span class="keyword">...</span>
+0062             <span class="string">'Error: image name should contain only alpha-numeric elements!'</span>);
+0063     <span class="keyword">end</span>
+0064     in.img_name = [in.img_name,<span class="string">'.img'</span>];
+0065     img_name    = fullfile(in.pathdir,in.img_name);
+0066 <span class="keyword">else</span>
+0067     img_name    = fullfile(in.pathdir,img_mach);
+0068 <span class="keyword">end</span>
+0069 
+0070 <span class="comment">% Other info</span>
+0071 <span class="comment">% -------------------------------------------------------------------------</span>
+0072 fs_name  = PRT.model(model_idx).input.fs(1).fs_name;
+0073 samp_idx = PRT.model(model_idx).input.samp_idx;
+0074 nfold    = length(PRT.model(model_idx).output.fold);
+0075 
+0076 <span class="comment">% Find feature set</span>
+0077 <span class="comment">% -------------------------------------------------------------------------</span>
+0078 nfs = length(PRT.fs);
+0079 <span class="keyword">for</span> f = 1:nfs
+0080     <span class="keyword">if</span> strcmp(PRT.fs(f).fs_name,fs_name)
+0081         fs_idx = f;
+0082     <span class="keyword">end</span>
+0083 <span class="keyword">end</span>
+0084 ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
+0085 ID_all = PRT.fs(fs_idx).id_mat;
+0086 
+0087 <span class="comment">% Find modality</span>
+0088 <span class="comment">% -------------------------------------------------------------------------</span>
+0089 nfas = length(PRT.fas);
+0090 mods = {PRT.fs(fs_idx).modality.mod_name};
+0091 fas  = zeros(1,nfas);
+0092 <span class="keyword">for</span> i = 1:nfas
+0093     <span class="keyword">for</span> j = 1:length(mods)
+0094         <span class="keyword">if</span> strcmpi(PRT.fas(i).mod_name,mods{j})
+0095             fas(i) = 1;
+0096             mm=j;
+0097         <span class="keyword">end</span>
+0098     <span class="keyword">end</span>
+0099 <span class="keyword">end</span>
+0100 fas_idx = find(fas);
+0101 
+0102 <span class="comment">% Get the indexes of the voxels which are in the second level mask</span>
+0103 <span class="comment">% -------------------------------------------------------------------------</span>
+0104 idfeat=PRT.fas(fas_idx(1)).idfeat_img;
+0105 <span class="keyword">if</span> ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas)
+0106     mask_train=idfeat(PRT.fs(fs_idx).modality(mm).idfeat_fas);
+0107     voxtr=find(ismember(idfeat,mask_train));
+0108 <span class="keyword">else</span>
+0109     mask_train=idfeat;
+0110     voxtr=1:length(idfeat);
+0111 <span class="keyword">end</span>
+0112 
+0113 <span class="comment">% Create image</span>
+0114 <span class="comment">% -------------------------------------------------------------------------</span>
+0115 hdr        = PRT.fas(fas_idx(1)).hdr.private;
+0116 img4d      = file_array(img_name,[hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
+0117     hdr.dat.dim(3),nfold+1],<span class="string">'float64-le'</span>,0,1,0);
+0118 
+0119 zdim    = hdr.dat.dim(3);
+0120 xydim   = hdr.dat.dim(1)*hdr.dat.dim(2);
+0121 norm3d  = 0;
+0122 
+0123 disp(<span class="string">'Computing weights.......&gt;&gt;'</span>)
+0124 
+0125 <span class="keyword">for</span> z = 1:zdim
+0126     
+0127     disp(sprintf(<span class="string">'Slice: %d of %d'</span>,z,zdim))
+0128     
+0129     img3dav  = zeros(1,xydim); <span class="comment">% average weight map</span>
 0130     
-0131     <span class="keyword">if</span> isempty(feat_slc)
-0132         
-0133         img4d(:,:,z,:) = zeros(hdr.dat.dim(1),hdr.dat.dim(2),1,nfold+1);
-0134         
-0135     <span class="keyword">else</span>
-0136         
-0137         <span class="keyword">for</span> f = 1:nfold
-0138             
-0139             train_idx      = PRT.model(model_idx).input.cv_mat(:,f)==1;
-0140             train          = samp_idx(train_idx);
-0141             train_all      = zeros(size(ID_all,1),1); train_all(train) = 1;
-0142             
-0143             d.coeffs       = PRT.model(model_idx).output.fold(f).alpha;
-0144             
-0145             d.datamat = zeros(length(train), length(feat_slc));
-0146             <span class="keyword">for</span> i = 1:length(fas_idx)
-0147                 <span class="comment">% indexes to access the file array</span>
-0148                 indm = PRT.fs(fs_idx).fas.im == fas_idx(i) &amp; train_all; 
-0149                 ifa  = PRT.fs(fs_idx).fas.ifa(indm);
-0150                 
-0151                 <span class="comment">% index for the target data matrix</span>
-0152                 indtr = ID(train_idx,3) == fas_idx(i);
-0153                 d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,voxtr(feat_slc));
-0154             <span class="keyword">end</span>
-0155             
-0156             <span class="comment">% Apply any operations specified during training</span>
-0157             ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
-0158             cvdata.train      = {d.datamat};
-0159             cvdata.tr_id      = ID(train_idx,:);
-0160             cvdata.use_kernel = false; <span class="comment">% need to apply the operation to the data</span>
-0161             <span class="keyword">for</span> o = 1:length(ops)
-0162                 cvdata = <a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>(PRT, cvdata, ops(o));
-0163             <span class="keyword">end</span>
-0164             d.datamat = cvdata.train{:};
-0165             
-0166             wimg           = prt_weights(d,m);
-0167             
-0168             img3d          = zeros(1,xydim);
-0169             
-0170             img3d(mask_train(feat_slc)-xydim*(z-1)) = wimg;
-0171             
-0172             norm3d(f)      = sum(img3d.^2);
-0173             
-0174             img3dav        = img3dav + img3d;
-0175             
-0176             img4d(:,:,z,f) = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),1,1);
-0177             
-0178         <span class="keyword">end</span>
-0179         
-0180         norm4d(z,:) = norm3d;
-0181         
-0182         <span class="comment">% Create average fold</span>
-0183         <span class="comment">%--------------------------------------------------------------------------</span>
-0184         img4d(:,:,z,nfold+1) = reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
-0185             1,1)/nfold;        
-0186     <span class="keyword">end</span>
-0187     
-0188 <span class="keyword">end</span>
-0189 
-0190 norm4d = sqrt(sum(norm4d,1));
-0191 
-0192 disp(<span class="string">'Normalising weights---------&gt;&gt;'</span>)
-0193 <span class="keyword">for</span> f = 1:nfold,
-0194     img4d(:,:,:,f) = img4d(:,:,:,f)./norm4d(1,f);
-0195 <span class="keyword">end</span>
-0196 
-0197 <span class="comment">% Create weigths file</span>
-0198 <span class="comment">%--------------------------------------------------------------------------</span>
-0199 disp(<span class="string">'Creating image---------&gt;&gt;'</span>)
-0200 No         = hdr;              <span class="comment">% copy header</span>
-0201 No.dat     = img4d;            <span class="comment">% change file_array</span>
-0202 No.descrip = <span class="string">'Pronto weigths'</span>; <span class="comment">% description</span>
-0203 create(No);                    <span class="comment">% write header</span>
-0204 disp(<span class="string">'Done.'</span>)</pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0131     feat_slc = find(mask_train&gt;=(xydim*(z-1)+1) &amp; <span class="keyword">...</span>
+0132         mask_train&lt;=(xydim*z));
+0133     
+0134     <span class="keyword">if</span> isempty(feat_slc)
+0135         
+0136         img4d(:,:,z,:) = zeros(hdr.dat.dim(1),hdr.dat.dim(2),1,nfold+1);
+0137         
+0138     <span class="keyword">else</span>
+0139         
+0140         <span class="keyword">for</span> f = 1:nfold
+0141             
+0142             train_idx      = PRT.model(model_idx).input.cv_mat(:,f)==1;
+0143             train          = samp_idx(train_idx);
+0144             train_all      = zeros(size(ID_all,1),1); train_all(train) = 1;
+0145             
+0146             d.coeffs       = PRT.model(model_idx).output.fold(f).alpha;
+0147             
+0148             d.datamat = zeros(length(train), length(feat_slc));
+0149             <span class="keyword">for</span> i = 1:length(fas_idx)
+0150                 <span class="comment">% indexes to access the file array</span>
+0151                 indm = PRT.fs(fs_idx).fas.im == fas_idx(i) &amp; train_all; 
+0152                 ifa  = PRT.fs(fs_idx).fas.ifa(indm);
+0153                 
+0154                 <span class="comment">% index for the target data matrix</span>
+0155                 indtr = ID(train_idx,3) == fas_idx(i);
+0156                 d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,voxtr(feat_slc));
+0157             <span class="keyword">end</span>
+0158             
+0159             <span class="comment">% Apply any operations specified during training</span>
+0160             ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
+0161             cvdata.train      = {d.datamat};
+0162             cvdata.tr_id      = ID(train_idx,:);
+0163             cvdata.use_kernel = false; <span class="comment">% need to apply the operation to the data</span>
+0164             <span class="keyword">for</span> o = 1:length(ops)
+0165                 cvdata = <a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>(PRT, cvdata, ops(o));
+0166             <span class="keyword">end</span>
+0167             d.datamat = cvdata.train{:};
+0168             
+0169             wimg           = prt_weights(d,m);
+0170             
+0171             img3d          = zeros(1,xydim);
+0172             
+0173             img3d(mask_train(feat_slc)-xydim*(z-1)) = wimg;
+0174             
+0175             norm3d(f)      = sum(img3d.^2);
+0176             
+0177             img3dav        = img3dav + img3d;
+0178             
+0179             img4d(:,:,z,f) = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),1,1);
+0180             
+0181         <span class="keyword">end</span>
+0182         
+0183         norm4d(z,:) = norm3d;
+0184         
+0185         <span class="comment">% Create average fold</span>
+0186         <span class="comment">%--------------------------------------------------------------------------</span>
+0187         img4d(:,:,z,nfold+1) = reshape(img3dav,hdr.dat.dim(1),hdr.dat.dim(2),<span class="keyword">...</span>
+0188             1,1)/nfold;        
+0189     <span class="keyword">end</span>
+0190     
+0191 <span class="keyword">end</span>
+0192 
+0193 norm4d = sqrt(sum(norm4d,1));
+0194 
+0195 disp(<span class="string">'Normalising weights---------&gt;&gt;'</span>)
+0196 <span class="keyword">for</span> f = 1:nfold,
+0197     img4d(:,:,:,f) = img4d(:,:,:,f)./norm4d(1,f);
+0198 <span class="keyword">end</span>
+0199 
+0200 <span class="comment">% Create weigths file</span>
+0201 <span class="comment">%--------------------------------------------------------------------------</span>
+0202 disp(<span class="string">'Creating image---------&gt;&gt;'</span>)
+0203 No         = hdr;              <span class="comment">% copy header</span>
+0204 No.dat     = img4d;            <span class="comment">% change file_array</span>
+0205 No.descrip = <span class="string">'Pronto weigths'</span>; <span class="comment">% description</span>
+0206 create(No);                    <span class="comment">% write header</span>
+0207 disp(<span class="string">'Done.'</span>)</pre></div>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

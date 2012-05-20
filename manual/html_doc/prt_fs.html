@@ -24,7 +24,7 @@
 <div class="box"><strong>Function to build file arrays containing the (linearly detrended) data</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function [outfile]=prt_fs(PRT,in) </strong></div>
+<div class="box"><strong>function [outfile] = prt_fs(PRT,in) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 <div class="fragment"><pre class="comment"> Function to build file arrays containing the (linearly detrended) data
@@ -66,7 +66,7 @@ This function is called by:
 <li><a href="#_sub1" class="code">function [mask, precmask, headers,PRT] = load_masks(PRT, prt_dir, in, mids)</a></li><li><a href="#_sub2" class="code">function c=poly_regressor(n,order)</a></li><li><a href="#_sub3" class="code">function c=dct_regressor(n,cut_off,TR)</a></li></ul>
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [outfile]=prt_fs(PRT,in)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [outfile] = prt_fs(PRT,in)</a>
 0002 <span class="comment">% Function to build file arrays containing the (linearly detrended) data</span>
 0003 <span class="comment">% and compute a linear (dot product) kernel from them</span>
 0004 <span class="comment">%</span>
@@ -92,7 +92,7 @@ This function is called by:
 0024 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0025 
 0026 <span class="comment">% Written by A. Marquand and J. Schrouff</span>
-0027 <span class="comment">% $Id: prt_fs.m 462 2012-03-21 12:27:09Z mjrosa $</span>
+0027 <span class="comment">% $Id: prt_fs.m 542 2012-05-20 10:48:51Z cphillip $</span>
 0028 
 0029 <span class="comment">% Configure some variables and get defaults</span>
 0030 <span class="comment">% -------------------------------------------------------------------------</span>
@@ -293,7 +293,7 @@ This function is called by:
 0225     <span class="keyword">end</span>
 0226     
 0227     <span class="comment">%get header of the first scan of that modality</span>
-0228     <span class="keyword">if</span> isfield(PRT,<span class="string">'fas'</span>) &amp;&amp; ~isempty(PRT.fas(mid).dat)
+0228     <span class="keyword">if</span> isfield(PRT,<span class="string">'fas'</span>) &amp;&amp; mid&lt;=length(PRT.fas) &amp;&amp; ~isempty(PRT.fas(mid).dat)
 0229         N=PRT.fas(mid).hdr;
 0230     <span class="keyword">else</span>
 0231         N=spm_vol(PRT.group(1).subject(1).modality(mid).scans(1,:));
@@ -362,6 +362,6 @@ This function is called by:
 0294 order=floor((T/cut_off)*2)+1;
 0295 c=spm_dctmtx(n,order);
 0296 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

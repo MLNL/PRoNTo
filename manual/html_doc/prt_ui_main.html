@@ -92,7 +92,7 @@ This function is called by:
 0024 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0025 
 0026 <span class="comment">% Written by J. Schrouff</span>
-0027 <span class="comment">% $Id: prt_ui_main.m 510 2012-04-08 19:16:35Z schrouff $</span>
+0027 <span class="comment">% $Id: prt_ui_main.m 523 2012-05-09 11:43:36Z jrichiar $</span>
 0028 
 0029 <span class="comment">% Edit the above text to modify the response to help prt_ui_main</span>
 0030 
@@ -192,141 +192,146 @@ This function is called by:
 0124     <span class="keyword">end</span>
 0125     set(aa(i),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
 0126     xf=get(aa(i),<span class="string">'FontSize'</span>);
-0127     set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
-0128         <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
-0129 <span class="keyword">end</span>
-0130 
-0131 <span class="keyword">end</span> 
-0132 <span class="comment">% cc=get(handles.figure1,'Color');</span>
-0133 <span class="comment">% [A] = imread('PRoNTo_logo.png','BackgroundColor',cc);</span>
-0134 <span class="comment">% image(A)</span>
-0135 <span class="comment">% axis off</span>
-0136 <span class="comment">% Choose default command line output for prt_ui_main</span>
-0137 handles.output = hObject;
-0138 
-0139 <span class="comment">% Update handles structure</span>
-0140 guidata(hObject, handles);
-0141 
-0142 <span class="comment">% UIWAIT makes prt_ui_main wait for user response (see UIRESUME)</span>
-0143 <span class="comment">% uiwait(handles.figure1)</span>
-0144 
-0145 
-0146 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
-0147 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_main_OutputFcn(hObject, eventdata, handles) </a>
-0148 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
-0149 <span class="comment">% hObject    handle to figure</span>
-0150 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0151 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0152 
-0153 <span class="comment">% Get default command line output from handles structure</span>
-0154 varargout{1} = handles.output;
-0155 
-0156 <span class="comment">% --- Closing the figure</span>
-0157 <a name="_sub3" href="#_subfunctions" class="code">function figure1_DeleteFcn(hObject,eventdata,handles)</a>
-0158 <span class="comment">% hObject    handle to datastruct (see GCBO)</span>
-0159 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0160 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0161 delete(handles.figure1);
-0162 
-0163 <span class="comment">% --- Executes on button press in datastruct.</span>
-0164 <a name="_sub4" href="#_subfunctions" class="code">function datastruct_Callback(hObject, eventdata, handles)</a>
-0165 <span class="comment">% hObject    handle to datastruct (see GCBO)</span>
-0166 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0167 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0168 <a href="prt_ui_design.html" class="code" title="function varargout = prt_ui_design(varargin)">prt_ui_design</a>;
-0169 
-0170 <span class="comment">% --- Executes on button press in fs.</span>
-0171 <a name="_sub5" href="#_subfunctions" class="code">function fs_Callback(hObject, eventdata, handles)</a>
-0172 <span class="comment">% hObject    handle to fs (see GCBO)</span>
-0173 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0174 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0175 <a href="prt_ui_prepare_data.html" class="code" title="function varargout = prt_ui_prepare_data(varargin)">prt_ui_prepare_data</a>
-0176 
-0177 
-0178 <span class="comment">% --- Executes on button press in crval.</span>
-0179 <a name="_sub6" href="#_subfunctions" class="code">function crval_Callback(hObject, eventdata, handles)</a>
-0180 <span class="comment">% hObject    handle to crval (see GCBO)</span>
-0181 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0182 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0183 <a href="prt_ui_model.html" class="code" title="function varargout = prt_ui_model(varargin)">prt_ui_model</a>
-0184 
-0185 <span class="comment">% --- Executes on button press in model.</span>
-0186 <a name="_sub7" href="#_subfunctions" class="code">function model_Callback(hObject, eventdata, handles)</a>
-0187 <span class="comment">% hObject    handle to model (see GCBO)</span>
-0188 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0189 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0190 <a href="prt_ui_cv_model.html" class="code" title="function varargout = prt_ui_cv_model(varargin)">prt_ui_cv_model</a>
-0191 
-0192 <span class="comment">% --- Executes on button press in compweights.</span>
-0193 <a name="_sub8" href="#_subfunctions" class="code">function compweights_Callback(hObject, eventdata, handles)</a>
-0194 <span class="comment">% hObject    handle to compweights (see GCBO)</span>
-0195 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0196 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0197 <a href="prt_ui_compute_weights.html" class="code" title="function varargout = prt_ui_compute_weights(varargin)">prt_ui_compute_weights</a>
-0198 
-0199 <span class="comment">% --- Executes on button press in datarev.</span>
-0200 <a name="_sub9" href="#_subfunctions" class="code">function datarev_Callback(hObject, eventdata, handles)</a>
-0201 <span class="comment">% hObject    handle to datarev (see GCBO)</span>
-0202 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0203 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0204 fname=spm_select(1,<span class="string">'mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
-0205 prtdir=fileparts(fname);
-0206 <span class="keyword">try</span>
-0207     load(fname)
-0208     <a href="prt_data_review.html" class="code" title="function varargout = prt_data_review(varargin)">prt_data_review</a>(<span class="string">'UserData'</span>,{PRT,prtdir});
-0209 <span class="keyword">catch</span>
-0210     beep
-0211     disp(<span class="string">'Could not load file'</span>)
-0212     <span class="keyword">return</span>
-0213 <span class="keyword">end</span>
-0214 
-0215 <span class="comment">% --- Executes on button press in kerncvrev.</span>
-0216 <a name="_sub10" href="#_subfunctions" class="code">function kerncvrev_Callback(hObject, eventdata, handles)</a>
-0217 <span class="comment">% hObject    handle to kerncvrev (see GCBO)</span>
-0218 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0219 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0220 fname=spm_select(1,<span class="string">'mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
-0221 prtdir=fileparts(fname);
-0222 <span class="keyword">try</span>
-0223     load(fname)
-0224     <a href="prt_ui_reviewmodel.html" class="code" title="function varargout = prt_ui_reviewmodel(varargin)">prt_ui_reviewmodel</a>(<span class="string">'UserData'</span>,{PRT,prtdir});
-0225 <span class="keyword">catch</span>
-0226     beep
-0227     disp(<span class="string">'Could not load file'</span>)
-0228     <span class="keyword">return</span>
-0229 <span class="keyword">end</span>
-0230 
-0231 <span class="comment">% --- Executes on button press in resrev.</span>
-0232 <a name="_sub11" href="#_subfunctions" class="code">function resrev_Callback(hObject, eventdata, handles)</a>
-0233 <span class="comment">% hObject    handle to resrev (see GCBO)</span>
-0234 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0235 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0236 <a href="prt_ui_results.html" class="code" title="function varargout = prt_ui_results(varargin)">prt_ui_results</a>
-0237 
-0238 <span class="comment">% --- Executes on button press in batchbutt.</span>
-0239 <a name="_sub12" href="#_subfunctions" class="code">function batchbutt_Callback(hObject, eventdata, handles)</a>
-0240 <span class="comment">% hObject    handle to batchbutt (see GCBO)</span>
-0241 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0242 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0243 prt_batch
-0244 <span class="comment">% [afm] stopped this from closing the main window</span>
-0245 <span class="comment">%delete(handles.figure1)</span>
-0246 
-0247 <span class="comment">% --- Executes on button press in credits.</span>
-0248 <a name="_sub13" href="#_subfunctions" class="code">function credits_Callback(hObject, eventdata, handles)</a>
-0249 <span class="comment">% hObject    handle to credits (see GCBO)</span>
-0250 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-0251 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-0252 
-0253 help(<span class="string">'Contents.m'</span>);
-0254 <span class="comment">% str = help('Contents.m'));</span>
-0255 <span class="comment">% fig = figure;</span>
-0256 <span class="comment">% set(fig,'Position',[73   145   498   1003])</span>
-0257 <span class="comment">% set(fig,'NumberTitle','off')</span>
-0258 <span class="comment">% set(fig,'Name','License &amp; Copyright')</span>
-0259 <span class="comment">% h = axes('Position',[0 0 1 1],'Visible','off');</span>
-0260 <span class="comment">%</span>
-0261 <span class="comment">% text(.025,.5,str,'FontSize',8,'FontName','Courier')</span></pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0127     <span class="keyword">if</span> ispc
+0128         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0129             <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0130     <span class="keyword">else</span>
+0131         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0132             <span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0133     <span class="keyword">end</span>
+0134 <span class="keyword">end</span>
+0135 
+0136 <span class="keyword">end</span> 
+0137 <span class="comment">% cc=get(handles.figure1,'Color');</span>
+0138 <span class="comment">% [A] = imread('PRoNTo_logo.png','BackgroundColor',cc);</span>
+0139 <span class="comment">% image(A)</span>
+0140 <span class="comment">% axis off</span>
+0141 <span class="comment">% Choose default command line output for prt_ui_main</span>
+0142 handles.output = hObject;
+0143 
+0144 <span class="comment">% Update handles structure</span>
+0145 guidata(hObject, handles);
+0146 
+0147 <span class="comment">% UIWAIT makes prt_ui_main wait for user response (see UIRESUME)</span>
+0148 <span class="comment">% uiwait(handles.figure1)</span>
+0149 
+0150 
+0151 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0152 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_main_OutputFcn(hObject, eventdata, handles) </a>
+0153 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0154 <span class="comment">% hObject    handle to figure</span>
+0155 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0156 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0157 
+0158 <span class="comment">% Get default command line output from handles structure</span>
+0159 varargout{1} = handles.output;
+0160 
+0161 <span class="comment">% --- Closing the figure</span>
+0162 <a name="_sub3" href="#_subfunctions" class="code">function figure1_DeleteFcn(hObject,eventdata,handles)</a>
+0163 <span class="comment">% hObject    handle to datastruct (see GCBO)</span>
+0164 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0165 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0166 delete(handles.figure1);
+0167 
+0168 <span class="comment">% --- Executes on button press in datastruct.</span>
+0169 <a name="_sub4" href="#_subfunctions" class="code">function datastruct_Callback(hObject, eventdata, handles)</a>
+0170 <span class="comment">% hObject    handle to datastruct (see GCBO)</span>
+0171 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0172 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0173 <a href="prt_ui_design.html" class="code" title="function varargout = prt_ui_design(varargin)">prt_ui_design</a>;
+0174 
+0175 <span class="comment">% --- Executes on button press in fs.</span>
+0176 <a name="_sub5" href="#_subfunctions" class="code">function fs_Callback(hObject, eventdata, handles)</a>
+0177 <span class="comment">% hObject    handle to fs (see GCBO)</span>
+0178 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0179 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0180 <a href="prt_ui_prepare_data.html" class="code" title="function varargout = prt_ui_prepare_data(varargin)">prt_ui_prepare_data</a>
+0181 
+0182 
+0183 <span class="comment">% --- Executes on button press in crval.</span>
+0184 <a name="_sub6" href="#_subfunctions" class="code">function crval_Callback(hObject, eventdata, handles)</a>
+0185 <span class="comment">% hObject    handle to crval (see GCBO)</span>
+0186 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0187 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0188 <a href="prt_ui_model.html" class="code" title="function varargout = prt_ui_model(varargin)">prt_ui_model</a>
+0189 
+0190 <span class="comment">% --- Executes on button press in model.</span>
+0191 <a name="_sub7" href="#_subfunctions" class="code">function model_Callback(hObject, eventdata, handles)</a>
+0192 <span class="comment">% hObject    handle to model (see GCBO)</span>
+0193 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0194 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0195 <a href="prt_ui_cv_model.html" class="code" title="function varargout = prt_ui_cv_model(varargin)">prt_ui_cv_model</a>
+0196 
+0197 <span class="comment">% --- Executes on button press in compweights.</span>
+0198 <a name="_sub8" href="#_subfunctions" class="code">function compweights_Callback(hObject, eventdata, handles)</a>
+0199 <span class="comment">% hObject    handle to compweights (see GCBO)</span>
+0200 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0201 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0202 <a href="prt_ui_compute_weights.html" class="code" title="function varargout = prt_ui_compute_weights(varargin)">prt_ui_compute_weights</a>
+0203 
+0204 <span class="comment">% --- Executes on button press in datarev.</span>
+0205 <a name="_sub9" href="#_subfunctions" class="code">function datarev_Callback(hObject, eventdata, handles)</a>
+0206 <span class="comment">% hObject    handle to datarev (see GCBO)</span>
+0207 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0208 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0209 fname=spm_select(1,<span class="string">'mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
+0210 prtdir=fileparts(fname);
+0211 <span class="keyword">try</span>
+0212     load(fname)
+0213     <a href="prt_data_review.html" class="code" title="function varargout = prt_data_review(varargin)">prt_data_review</a>(<span class="string">'UserData'</span>,{PRT,prtdir});
+0214 <span class="keyword">catch</span>
+0215     beep
+0216     disp(<span class="string">'Could not load file'</span>)
+0217     <span class="keyword">return</span>
+0218 <span class="keyword">end</span>
+0219 
+0220 <span class="comment">% --- Executes on button press in kerncvrev.</span>
+0221 <a name="_sub10" href="#_subfunctions" class="code">function kerncvrev_Callback(hObject, eventdata, handles)</a>
+0222 <span class="comment">% hObject    handle to kerncvrev (see GCBO)</span>
+0223 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0224 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0225 fname=spm_select(1,<span class="string">'mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
+0226 prtdir=fileparts(fname);
+0227 <span class="keyword">try</span>
+0228     load(fname)
+0229     <a href="prt_ui_reviewmodel.html" class="code" title="function varargout = prt_ui_reviewmodel(varargin)">prt_ui_reviewmodel</a>(<span class="string">'UserData'</span>,{PRT,prtdir});
+0230 <span class="keyword">catch</span>
+0231     beep
+0232     disp(<span class="string">'Could not load file'</span>)
+0233     <span class="keyword">return</span>
+0234 <span class="keyword">end</span>
+0235 
+0236 <span class="comment">% --- Executes on button press in resrev.</span>
+0237 <a name="_sub11" href="#_subfunctions" class="code">function resrev_Callback(hObject, eventdata, handles)</a>
+0238 <span class="comment">% hObject    handle to resrev (see GCBO)</span>
+0239 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0240 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0241 <a href="prt_ui_results.html" class="code" title="function varargout = prt_ui_results(varargin)">prt_ui_results</a>
+0242 
+0243 <span class="comment">% --- Executes on button press in batchbutt.</span>
+0244 <a name="_sub12" href="#_subfunctions" class="code">function batchbutt_Callback(hObject, eventdata, handles)</a>
+0245 <span class="comment">% hObject    handle to batchbutt (see GCBO)</span>
+0246 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0247 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0248 prt_batch
+0249 <span class="comment">% [afm] stopped this from closing the main window</span>
+0250 <span class="comment">%delete(handles.figure1)</span>
+0251 
+0252 <span class="comment">% --- Executes on button press in credits.</span>
+0253 <a name="_sub13" href="#_subfunctions" class="code">function credits_Callback(hObject, eventdata, handles)</a>
+0254 <span class="comment">% hObject    handle to credits (see GCBO)</span>
+0255 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0256 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0257 
+0258 help(<span class="string">'Contents.m'</span>);
+0259 <span class="comment">% str = help('Contents.m'));</span>
+0260 <span class="comment">% fig = figure;</span>
+0261 <span class="comment">% set(fig,'Position',[73   145   498   1003])</span>
+0262 <span class="comment">% set(fig,'NumberTitle','off')</span>
+0263 <span class="comment">% set(fig,'Name','License &amp; Copyright')</span>
+0264 <span class="comment">% h = axes('Position',[0 0 1 1],'Visible','off');</span>
+0265 <span class="comment">%</span>
+0266 <span class="comment">% text(.025,.5,str,'FontSize',8,'FontName','Courier')</span></pre></div>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

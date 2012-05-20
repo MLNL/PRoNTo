@@ -78,7 +78,7 @@ This function is called by:
 0018 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0019 
 0020 <span class="comment">% Written by Christophe Phillips</span>
-0021 <span class="comment">% $Id: prt_defaults.m 501 2012-04-06 14:16:38Z amarquan $</span>
+0021 <span class="comment">% $Id: prt_defaults.m 527 2012-05-16 12:59:08Z schrouff $</span>
 0022 
 0023 <span class="comment">%%</span>
 0024 <span class="keyword">global</span> prt_def
@@ -120,13 +120,13 @@ This function is called by:
 0060 <span class="comment">% Specify model: Parameters of the different machines</span>
 0061 <span class="comment">%--------------------------------------------------</span>
 0062 prt_def.model.svmargs    = <span class="string">'-s 0 -t 4 -c 1'</span>;
-0063 prt_def.model.gpcargs    = <span class="string">'-l erf -h'</span>;
-0064 prt_def.model.gpclapargs = <span class="string">'-h'</span>;
-0065 prt_def.model.gprargs    = <span class="string">'-l gauss -h'</span>;
+0063 prt_def.model.gpcargs    = <span class="string">'-l erf -h'</span>;<span class="comment">%-h</span>
+0064 prt_def.model.gpclapargs = <span class="string">'-h'</span>; <span class="comment">%'-h';</span>
+0065 prt_def.model.gprargs    = <span class="string">'-l gauss -h'</span>; <span class="comment">% -h</span>
 0066 prt_def.model.krrargs    = 1;
 0067 prt_def.model.rtargs     = 601;
 0068 
 0069 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Mon 07-May-2012 22:53:17 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
