@@ -395,5 +395,7 @@ for i=1:length(handles.models{2})
     disp('--------------------------------------------------------')
     disp(['Model ',char(in.model_name),' run completed'])
     disp('--------------------------------------------------------')
+    clear PRT
+    load(handles.fname);
 end
 delete(handles.figure1)
