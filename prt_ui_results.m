@@ -473,7 +473,7 @@ st.callback = 'prt_ui_results(''showpos'')';
 
 % Display maps
 % -------------------------------------------------------------------------
-h  = spm_orthviews('Image', handles.wmap,[0.0619 0.0859 0.4196 0.4196]);
+h  = spm_orthviews('Image', handles.wmap,[0.0619 0.0859 0.40 0.4196]);
 handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
