@@ -149,7 +149,7 @@ set(handles.usekern,'Value',1)
 handles.use_kernel=1;
 set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
-handles.cv.type='loso';
+handles.cv.type='custom';
 handles.cv.mat_file=[];
 set(handles.pop_reg,'String',{'Classification','Regression'})
 set(handles.pop_reg,'Value',1)
@@ -467,7 +467,11 @@ if strcmpi(handles.type,'classification')
 else
     sel=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
     handles.group=sel;
-    if length(sel.subj)>1
+    n=0;
+    for i=1:length(sel)
+        n=n+length(sel(i).subj);
+    end
+    if n>1
         list=get(handles.pop_cv,'String');
         list=[list;{'Leave One Subject Out'}];
         set(handles.pop_cv,'String',list)
@@ -689,6 +693,11 @@ in.fname=get(handles.edit_prt,'String');
 if ~isfield(handles,'model_name')
     beep
     disp('Please, provide a model name')
+    return
+end
+if strcmpi(handles.cv.type,'custom') && isempty(handles.cv.mat_file)
+    beep
+    disp('Please, select a cross-validation or provide a custom matrix')
     return
 end
 in.model_name=handles.model_name;

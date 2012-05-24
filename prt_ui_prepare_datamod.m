@@ -282,7 +282,7 @@ elseif val==1 % Polynomial detrend
 elseif val==2 % Discrete Cosine Transform
     set(handles.par_name,'Visible','on')
     set(handles.par_value,'Visible','on')
-    set(handles.par_name,'String','Cutoff of highpass filter (s)')
+    set(handles.par_name,'String','Highpass filter cutoff (Hz)         1/')
     set(handles.par_value,'String','128')
     handles.mod.param_dt=1/128;    
 end
@@ -359,7 +359,12 @@ function par_value_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of par_value as text
 %        str2double(get(hObject,'String')) returns contents of par_value as
 %        a double
-handles.mod.param_dt=get(handles.paramd,'Value');
+temp=get(handles.paramd,'Value');
+if handles.pop_det>1
+    handles.mod.param_dt=1/temp;
+else
+    handles.mod.param_dt=temp;
+end
 % Update handles structure
 guidata(hObject, handles);
 
