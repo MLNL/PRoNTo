@@ -3,7 +3,7 @@ function [outfile]=prt_cv_model(PRT,in)
 %
 % Inputs:
 % -------
-% PRT containing the specified model plus the following arguments:
+% PRT:           data structure
 % in.fname:      filename for PRT.mat (string)
 % in.model_name: name for this model (string)
 %
@@ -16,8 +16,11 @@ function [outfile]=prt_cv_model(PRT,in)
 % PRT.model(m).output.fold(i).stats:       statistics for fold(i)
 % PRT.model(m).output.fold(i).{custom}:    optional fields
 %
-% Notes: - The PRT.model(m).input fields are set by prt_init_model, not by
-%          this function
+% Notes: 
+% ------
+% The PRT.model(m).input fields are set by prt_init_model, not by
+% this function
+%
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -58,104 +61,38 @@ for i = 1:length(PRT.model(mid).input.fs)
         Phi_all{i} = Phi(samp_idx,samp_idx);
     else
         error('training with features not implemented yet');
-        % this should be improved (e.g. need to load feat_idx)
-        vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);
-        eval(['Phi_all{',num2str(i),'}=',vname,'(samp_idx,:);']);
+        %vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);
+        %eval(['Phi_all{',num2str(i),'}=',vname,'(samp_idx,:);']);
     end
 end
 
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
-
 PRT.model(mid).output.fold = struct();
 for f = 1:n_folds
     disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
-    % configure training and test indices (validation is done later)
-    tr_idx = CV(:,f) == 1;
-    te_idx = CV(:,f) == 2;   
+    % configure data structure for prt_cv_fold
+    fdata.ID      = ID;
+    fdata.mid     = mid;
+    fdata.CV      = CV(:,f);
+    fdata.Phi_all = Phi_all;
+    fdata.t       = t;
     
-    [Phi_tr, Phi_te, Phi_tt] = ...
-        split_data(Phi_all, tr_idx, te_idx, PRT.model(mid).input.use_kernel);
- 
-    % Assemble data structure to supply to machine
-    cvdata.train      = Phi_tr;
-    cvdata.test       = Phi_te;
-    if PRT.model(mid).input.use_kernel
-        cvdata.testcov    = Phi_tt;
-    end
-
-    % configure basic CV parameters        
-    cvdata.tr_targets = t(tr_idx,:);
-    %if KRR, then mean center the targets
-    if ~isempty(strfind(PRT.model(mid).input.machine.function,'krr'))
-        mm=mean(t(tr_idx,:));
-        cvdata.tr_targets = cvdata.tr_targets-mm;
-    end
-    cvdata.te_targets = t(te_idx,:);
-    cvdata.tr_id      = ID(tr_idx,:);
-    cvdata.te_id      = ID(te_idx,:);
-    cvdata.use_kernel = PRT.model(mid).input.use_kernel;
-    cvdata.pred_type  = PRT.model(mid).input.type;
-    
-    % configure additional CV parameters (e.g. needed to compute a GLM)
-    cvdata.tr_param = prt_cv_opt_param(PRT, ID(tr_idx,:), mid);
-    cvdata.te_param = prt_cv_opt_param(PRT, ID(te_idx,:), mid);
-
-    % Apply any operations specified
-    ops = PRT.model(mid).input.operations(PRT.model(mid).input.operations ~=0 );
-    for o = 1:length(ops)
-        cvdata = prt_apply_operation(PRT, cvdata, ops(o));
-    end
-    
-    % train the prediction model
-    model = prt_machine(cvdata, PRT.model(mid).input.machine);
-    
-    % check that it produced a predictions field
-    if ~any(strcmpi(fieldnames(model),'predictions'))
-        error(['prt_cv_model:machineDoesNotGivePredictions',...
-            'Machine did not produce a predictions field']);
-    end  
-    
-    % does the model alter the target vector (e.g. change its dimension) ?
-    if isfield(model,'te_targets')
-        true_te_targets = model.te_targets(:);
-    else
-        true_te_targets = cvdata.te_targets(:);
-    end
-    if isfield(model,'tr_targets')
-        tr_targets = model.tr_targets(:);
-    else
-        if ~isempty(strfind(PRT.model(mid).input.machine.function,'krr'))
-            tr_targets = cvdata.tr_targets(:)+mm;
-        else
-            tr_targets = cvdata.tr_targets(:);
-        end       
-    end
-    
-    if ~isempty(strfind(PRT.model(mid).input.machine.function,'krr'))
-        %add the mean of the training set to the test outputs of KRR
-        model.predictions=model.predictions+mm;
-        model.func_val=model.func_val+mm;
-    end
+    % compute the model for this CV fold
+    [model, targets] = prt_cv_fold(PRT,fdata);
     
     % compute stats
-    stats = prt_stats(model, true_te_targets, tr_targets);
+    stats = prt_stats(model, targets.test, targets.train);
     
-    % update PRT - ensuring column vectors throughout
-    PRT.model(mid).output.fold(f).targets     = true_te_targets; 
+    % update PRT
+    PRT.model(mid).output.fold(f).targets     = targets.test; 
     PRT.model(mid).output.fold(f).predictions = model.predictions(:);
     PRT.model(mid).output.fold(f).stats       = stats;
-    % save func_val for later analysis if available
-    if isfield(model,'func_val')
-        PRT.model(mid).output.fold(f).func_val    = model.func_val; 
-    end
-    
     % copy other fields from the model
     flds = fieldnames(model);
     for fld = 1:length(flds)
         fldnm = char(flds(fld));
         if ~strcmpi(fldnm,'predictions')
-            %eval(['PRT.model(mid).output.fold(f).',fldnm,'=model.',fldnm,';']);
             PRT.model(mid).output.fold(f).(fldnm)=model.(fldnm);
         end
     end
@@ -166,7 +103,7 @@ end
 t             = vertcat(PRT.model(mid).output.fold(:).targets);
 m.type        = PRT.model(mid).output.fold(1).type;
 m.predictions = vertcat(PRT.model(mid).output.fold(:).predictions);
-%m.func_val=[PRT.model(mid).output.fold(:).func_val];
+%m.func_val    = [PRT.model(mid).output.fold(:).func_val];
 stats         = prt_stats(m,t(:),t(:));
 
 PRT.model(mid).output.stats=stats;
@@ -179,48 +116,6 @@ if spm_matlab_version_chk('7') >= 0
     save(outfile,'-V6','PRT');
 else
     save(outfile,'PRT');
-end
-end
-
-% -------------------------------------------------------------------------
-% Private functions
-% -------------------------------------------------------------------------
-        
-function [Phi_tr Phi_te Phi_tt] = split_data(Phi_all, tr_idx, te_idx, usebf)
-% function to split the data matrix into training and test
-
-n_mat = length(Phi_all);
-
-% training
-Phi_tr = cell(1,n_mat);
-for i = 1:n_mat;
-    if usebf
-        cols_tr = tr_idx;
-    else
-        cols_tr = size(Phi_all{i},2);
-    end
-    
-    Phi_tr{i} = Phi_all{i}(tr_idx,cols_tr);
-end
-
-% test
-Phi_te  = cell(1,n_mat);
-Phi_tt = cell(1,n_mat);
-if usebf
-    cols_tr = tr_idx;
-    cols_te = te_idx;
-else
-    cols_tr = size(Phi_all{i},2);
-    %cols_te = size(Phi_all{i},2);
-end
-
-for i = 1:length(Phi_all)
-    Phi_te{i} = Phi_all{i}(te_idx, cols_tr);
-    if usebf
-        Phi_tt{i} = Phi_all{i}(te_idx, cols_te);
-    else
-        Phi_tt{i} = [];
-    end
 end
 end
 

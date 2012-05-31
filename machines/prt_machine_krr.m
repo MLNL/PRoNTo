@@ -48,11 +48,12 @@ if SANITYCHECK==true
     end
     
     % Run KRR
-    %--------------------------------------------------------------------------
-    t=d.tr_targets;
-    w=prt_KRR(K,t,args);
-    
-    output.predictions=d.test{1}*w;
+    %----------------------------------------------------------------------
+    m = mean(d.tr_targets);                     % mean of the training data
+    t = d.tr_targets - m;                             % mean centre targets
+    w = prt_KRR(K,t,args);
+       
+    output.predictions=d.test{1}*w + m;    % add mean from the training set 
     output.func_val=output.predictions;
     output.alpha=w;
   

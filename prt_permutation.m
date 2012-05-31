@@ -142,50 +142,17 @@ else
         
         
         for f = 1:n_folds
-            % configure training and test indices
-            tr_idx = CV(:,f) == 1;
-            te_idx = CV(:,f) == 2;
+            % configure data structure for prt_cv_fold
+            fdata.ID      = ID;
+            fdata.mid     = modelid;
+            fdata.CV      = CV(:,f);
+            fdata.Phi_all = Phi_all;
+            fdata.t       = t;
             
-            [Phi_tr, Phi_te, Phi_tt] = ...
-                split_data(Phi_all, tr_idx, te_idx, PRT.model(modelid).input.use_kernel);
+            [temp_model, targets] = prt_cv_fold(PRT,fdata);
             
-            %Centre kernel
-            %[Phi_tr, Phi_te, Phi_tt] = prt_centre_kernel(Phi_tr, Phi_te, Phi_tt);
-            
-            % Assemble data structure to supply to machine
-            cvdata.train      = Phi_tr;
-            cvdata.test       = Phi_te;
-            if PRT.model(modelid).input.use_kernel
-                cvdata.testcov    = Phi_tt;
-            end
-            cvdata.tr_targets = t(tr_idx,:);
-            cvdata.te_targets = t(te_idx,:);
-            cvdata.tr_id      = ID(tr_idx,:);
-            cvdata.te_id      = ID(te_idx,:);
-            cvdata.use_kernel = PRT.model(modelid).input.use_kernel;
-            cvdata.pred_type  = PRT.model(modelid).input.type;
-            % additional parameters (e.g. for MCKR)
-            cvdata.tr_param  = prt_cv_opt_param(PRT, ID(tr_idx,:), CV(tr_idx,f));
-            cvdata.te_param  = prt_cv_opt_param(PRT, ID(te_idx,:), CV(te_idx,f));
-            
-            % Apply any operations specified
-            ops = PRT.model(modelid).input.operations(PRT.model(modelid).input.operations ~=0 );
-            for o = 1:length(ops)
-                cvdata = prt_apply_operation(PRT, cvdata, ops(o));
-            end
-            
-            % train the prediction model
-            try 
-                temp_model = prt_machine(cvdata, PRT.model(modelid).input.machine);
-                model.output.fold(f).predictions = temp_model.predictions;
-            catch err
-                warning('prt_permutation:modelDidNotReturn',...
-                        'Prediction method did not return [%s]',err.message);
-                temp_model.predictions = zeros(size(cvdata.te_targets));
-            end
-            model.output.fold(f).targets = cvdata.te_targets;
-            
-            
+            model.output.fold(f).predictions = temp_model.predictions;
+            model.output.fold(f).targets     = targets.test;
             
         end
         
@@ -292,45 +259,4 @@ else
     disp('Permutation test done.')
 end
 
-end
-% -------------------------------------------------------------------------
-% Private functions
-% -------------------------------------------------------------------------
-
-function [Phi_tr Phi_te Phi_tt] = split_data(Phi_all, tr_idx, te_idx, usebf)
-% function to split the data matrix into training and test
-
-n_mat = length(Phi_all);
-
-% training
-Phi_tr = cell(1,n_mat);
-for i = 1:n_mat;
-    if usebf
-        cols_tr = tr_idx;
-    else
-        cols_tr = size(Phi_all{i},2);
-    end
-    
-    Phi_tr{i} = Phi_all{i}(tr_idx,cols_tr);
-end
-
-% test
-Phi_te  = cell(1,n_mat);
-Phi_tt = cell(1,n_mat);
-if usebf
-    cols_tr = tr_idx;
-    cols_te = te_idx;
-else
-    cols_tr = size(Phi_all{i},2);
-    %cols_te = size(Phi_all{i},2);
-end
-
-for i = 1:length(Phi_all)
-    Phi_te{i} = Phi_all{i}(te_idx, cols_tr);
-    if usebf
-        Phi_tt{i} = Phi_all{i}(te_idx, cols_te);
-    else
-        Phi_tt{i} = [];
-    end
-end
 end

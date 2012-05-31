@@ -222,10 +222,10 @@ if ~isempty(varargin)
                 set(handles.npvtext,'Visible','off');
                 
                 set(handles.corrtext,'String','Correlation:','Visible','on');
-                set(handles.corrvaltext,'String',sprintf('%3.1f',stats.corr),'Visible','on');
+                set(handles.corrvaltext,'String',sprintf('%3.2f',stats.corr),'Visible','on');
                 
                 set(handles.msetext,'String','MSE:','Visible','on');
-                set(handles.msevaltext,'String',sprintf('%3.1f',stats.mse),'Visible','on');
+                set(handles.msevaltext,'String',sprintf('%3.2f',stats.mse),'Visible','on');
                 
                 set(handles.pbacc, 'Visible','off');
                 set(handles.pcacc,'Visible','off');

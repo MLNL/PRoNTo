@@ -784,7 +784,7 @@ if strcmp(PRT.model(model).input.type,'classification')
                 plot(handles.axes5,fp,tp,'--ks','LineWidth',1, 'MarkerEdgeColor','k',...
                     'MarkerFaceColor','k',...
                     'MarkerSize',2);
-                title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %3.1f',A));
+                title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %3.2f',A));
                 xlabel(handles.axes5,'False positives','FontWeight','bold')
                 ylabel(handles.axes5,'True positives','FontWeight','bold')
                 set(handles.axes5,'Color',[1,1,1])
