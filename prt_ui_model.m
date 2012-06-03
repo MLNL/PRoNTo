@@ -161,9 +161,9 @@ set(handles.pop_machine,'String',{'Binary support vector machine',...
 set(handles.pop_machine,'Value',1)
 handles.machine.function='prt_machine_svm_bin';
 handles.machine.args=handles.def.svmargs;
-list={'Temporal Compression', ...
-    'Sample averaging',... %(average samples for each subject/condition)
-    'Mean centre features over subjects',...
+list={'Sample averaging (within block)',...
+    'Sample averaging (within subject/condition)',...
+    'Mean centre features using training data',...
     'Divide data vectors by their norm',...
     'Perform a GLM (fMRI only)'};
 handles.indop{1}=1:length(list);
@@ -351,7 +351,8 @@ if length(handles.dat.fs(val).modality)>1
     list=get(handles.pop_cv,'String');
     list=[list;{'Leave One Run/Session Out'}];
     set(handles.pop_cv,'String',list)
-    set(handles.pop_cv,'Value',1)
+    set(handles.pop_cv,'Value',length(list))
+    handles.cv.type = 'loro';
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -447,23 +448,26 @@ if strcmpi(handles.type,'classification')
             ns(ii)=ns(ii)+length(speccl.class(ii).group(jj).subj);
         end
     end
-    if min(ns)>1
-        list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Subject Out'}];
-        set(handles.pop_cv,'String',list)
-        set(handles.pop_cv,'Value',1)
-    end
     if (speccl.design)
         list=get(handles.pop_cv,'String');
         list=[list;{'Leave One Block Out'}];
         set(handles.pop_cv,'String',list)
-        set(handles.pop_cv,'Value',1)
+        set(handles.pop_cv,'Value',length(list))
+        handles.cv.type     = 'lobo';
     end
     handles.loospg=speccl.loospg;
     list=get(handles.pop_cv,'String');
-    list=[list;{'Leave One One Subject per Group Out'}];
+    list=[list;{'Leave One Subject per Group Out'}];
     set(handles.pop_cv,'String',list)
-    set(handles.pop_cv,'Value',1)
+    set(handles.pop_cv,'Value',length(list))
+    handles.cv.type = 'losgo';
+    if min(ns)>1
+        list=get(handles.pop_cv,'String');
+        list=[list;{'Leave One Subject Out'}];
+        set(handles.pop_cv,'String',list)
+        set(handles.pop_cv,'Value',length(list))
+        handles.cv.type     = 'loso';
+    end
 else
     sel=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
     handles.group=sel;
@@ -476,6 +480,7 @@ else
         list=[list;{'Leave One Subject Out'}];
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',1)
+        handles.cv.type     = 'loso';
     end
 end
 set(handles.butt_defclass,'ForegroundColor',[0 0 0])
