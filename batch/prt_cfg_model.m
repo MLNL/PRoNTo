@@ -263,16 +263,16 @@ reg_targets.help    = {['Specify continuous valued target variables']};
 reg_targets.strtype = 'e';
 reg_targets.num     = [Inf 1];
 
-% ---------------------------------------------------------------------
-% mod_name Modality name
-% ---------------------------------------------------------------------
-mod_name2         = cfg_entry;
-mod_name2.tag     = 'mod_name2';
-mod_name2.name    = 'Modality name';
-mod_name2.help    = {'Name of modality. We only allow one modality for regression model per group at this moment' ...
-    'Example: ''BOLD''. Must match design specification'};
-mod_name2.strtype = 's';
-mod_name2.num     = [1 Inf];
+% % ---------------------------------------------------------------------
+% % mod_name Modality name
+% % ---------------------------------------------------------------------
+% mod_name2         = cfg_entry;
+% mod_name2.tag     = 'mod_name2';
+% mod_name2.name    = 'Modality name';
+% mod_name2.help    = {'Name of modality. We only allow one modality for regression model per group at this moment' ...
+%     'Example: ''BOLD''. Must match design specification'};
+% mod_name2.strtype = 's';
+% mod_name2.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
 % reg_group Regression group
@@ -282,7 +282,8 @@ reg_group.tag     = 'reg_group';
 reg_group.name    = 'Group';
 reg_group.help    = {'Specify data and design for the group.'};
 %reg_group.val     = {gr_name, subj_nums, conditions, reg_targets};
-reg_group.val     = {gr_name, subj_nums,mod_name2 };
+%reg_group.val     = {gr_name, subj_nums,mod_name2 };
+reg_group.val     = {gr_name, subj_nums};
 
 % ---------------------------------------------------------------------
 % machine_func Filename(s) of data
