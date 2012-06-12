@@ -138,9 +138,6 @@ else
             t(chunks{i},1)= unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)}));
         end
         
-        %t=PRT.model(modelid).input.targets(randperm(length(PRT.model(modelid).input.targets))); %this should take into account the correlation structure
-        
-        
         for f = 1:n_folds
             % configure data structure for prt_cv_fold
             fdata.ID      = ID;
@@ -156,16 +153,12 @@ else
             
         end
         
-        %Model level statistics
-        t=cat(1,model.output.fold(:).targets); % account for unequal fold sizes
-        m.type=PRT.model(modelid).output.fold(1).type;
-        m.predictions=cat(1,model.output.fold(:).predictions);
-        m.predictions=m.predictions(:); % make extra sure (this can't really happen)
-        t=t(:);
-        perm_stats=prt_stats(m,t,m.predictions(:));
-        %perm_stats=prt_stats(m,t,'model');
-        %permutation.perm_stats(p)=stats;
-        %end
+        % Model level statistics (across folds)
+        t             = vertcat(model.output.fold(:).targets);
+        m.type        = PRT.model(modelid).output.fold(1).type;
+        m.predictions = vertcat(model.output.fold(:).predictions);
+        perm_stats         = prt_stats(m,t,t);
+        
         
         switch PRT.model(modelid).output.fold(1).type
             
