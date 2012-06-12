@@ -161,11 +161,17 @@ set(handles.pop_machine,'String',{'Binary support vector machine',...
 set(handles.pop_machine,'Value',1)
 handles.machine.function='prt_machine_svm_bin';
 handles.machine.args=handles.def.svmargs;
+% list={'Sample averaging (within block)',...
+%     'Sample averaging (within subject/condition)',...
+%     'Mean centre features using training data',...
+%     'Divide data vectors by their norm',...
+%     'Perform a GLM (fMRI only)'};  %GLM not shown since not implemented
+%     yet
 list={'Sample averaging (within block)',...
     'Sample averaging (within subject/condition)',...
     'Mean centre features using training data',...
-    'Divide data vectors by their norm',...
-    'Perform a GLM (fMRI only)'};
+    'Divide data vectors by their norm'};
+
 handles.indop{1}=1:length(list);
 handles.indop{2}=0;
 set(handles.uns_list,'String',list)
@@ -456,17 +462,17 @@ if strcmpi(handles.type,'classification')
         handles.cv.type     = 'lobo';
     end
     handles.loospg=speccl.loospg;
-    list=get(handles.pop_cv,'String');
-    list=[list;{'Leave One Subject per Group Out'}];
-    set(handles.pop_cv,'String',list)
-    set(handles.pop_cv,'Value',length(list))
-    handles.cv.type = 'losgo';
     if min(ns)>1
         list=get(handles.pop_cv,'String');
         list=[list;{'Leave One Subject Out'}];
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list))
         handles.cv.type     = 'loso';
+        list=get(handles.pop_cv,'String');
+        list=[list;{'Leave One Subject per Group Out'}];
+        set(handles.pop_cv,'String',list)
+        set(handles.pop_cv,'Value',length(list))
+        handles.cv.type = 'losgo';
     end
 else
     sel=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});

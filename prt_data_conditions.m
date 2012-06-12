@@ -155,21 +155,33 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         end
         handles.cond(i).cond_name=dat{i,1};
         try
-            dat{i,3}=num2str(des.conds(i).durations,3);
+            temp=[];
+            for j=1:length(des.conds(i).durations)
+                temp=[temp, ' ',num2str(des.conds(i).durations(j),3)];
+            end
+            dat{i,3}=temp;
             handles.cond(i).durations=des.conds(i).durations;
         catch
             dat{i,3}='NaN';
             handles.cond(i).durations=[];
         end
         try
-            dat{i,2}=num2str(des.conds(i).onsets,3);
+            temp=[];
+            for j=1:length(des.conds(i).onsets)
+                temp=[temp, ' ',num2str(des.conds(i).onsets(j),3)];
+            end
+            dat{i,2}=temp;
             handles.cond(i).onsets=des.conds(i).onsets;
         catch
             dat{i,2}='NaN';
             handles.cond(i).onsets=[];
         end
         try
-            dat{i,4}=num2str(des.conds(i).rt_trial,3);
+            temp=[];
+            for j=1:length(des.conds(i).rt_trial)
+                temp=[temp, ' ',num2str(des.conds(i).rt_trial(j),3)];
+            end
+            dat{i,4}=temp;
             handles.cond(i).rt_trial=des.conds(i).rt_trial;
         catch
             dat{i,4}='NaN';
@@ -181,7 +193,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     handles.trval=des.TR;
     set(handles.tredit,'String',num2str(des.TR));
     handles.unit=des.unit;
-    if ~isempty(des.covar)
+    if isfield(des,'covar') && ~isempty(des.covar)
         set(handles.covedit,'String',num2str((des.covar(:))',3));
         handles.covar=des.covar;
     else

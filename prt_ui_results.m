@@ -69,7 +69,7 @@ if length(F) > 1
 elseif length(F)==1
     uistack(F,'top')
 else
-    set(handles.figure1,'Tag',Tag)
+set(handles.figure1,'Tag',Tag)
 set(handles.figure1,'Name','PRoNTo :: Results')
 %set size of the window, taking screen resolution and platform into account
 %--------------------------------------------------------------------------
@@ -114,9 +114,14 @@ for i=1:length(aa)
                                     end
                                 end
                                 set(dd(l),'FontUnits','pixel')
-                                xf=get(dd(l),'FontSize');                                
-                                set(dd(l),'FontSize',ceil(FS*xf),'FontName',PF,...
-                                    'FontUnits','normalized','Units','normalized')
+                                xf=get(dd(l),'FontSize');
+                                if ispc
+                                    set(dd(l),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                        'FontUnits','normalized','Units','normalized')
+                                else
+                                    set(dd(l),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                        'Units','normalized')
+                                end
                             end
                         elseif strcmpi(get(cc(k),'type'),'uicontrol') && ...
                                 ~isempty(find(strcmpi(get(cc(k),'Style'),{'text',...
@@ -128,8 +133,13 @@ for i=1:length(aa)
                         end
                         set(cc(k),'FontUnits','pixel')
                         xf=get(cc(k),'FontSize');
-                        set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
-                            'FontUnits','normalized','Units','normalized')
+                        if ispc
+                            set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                'FontUnits','normalized','Units','normalized')
+                        else
+                            set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                'Units','normalized')
+                        end
                     end
                 elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
                         ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
@@ -141,8 +151,13 @@ for i=1:length(aa)
                 end
                 set(bb(j),'FontUnits','pixel')
                 xf=get(bb(j),'FontSize');
-                set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
-                    'FontUnits','normalized','Units','normalized')
+                if ispc
+                    set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                        'FontUnits','normalized','Units','normalized')
+                else
+                    set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                        'Units','normalized')
+                end
             end
         end
     elseif strcmpi(get(aa(i),'type'),'uicontrol')
