@@ -27,11 +27,6 @@ function output = prt_machine_svm_bin(d,args)
 % Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
 % $Id$
 
-% FIXME: support for multiple kernels / feature representations
-% is not yet tested, there might be transposition or dimensionality errors.
-
-% TODO: maybe also check the prt_machine .usebf argument for compatibility
-% with libSVM syntax ?
 
 % TODO: make sure the svmtrain we reach is the libsvm one, not the one
 % with the same name from the bioinformatics toolbox!
@@ -96,20 +91,12 @@ if SANITYCHECK==true
     
 end
 
-if ~isempty(regexp(args,'-t\s+4','once'))
-    hasPrecomputedKernel = true;
-else
-    hasPrecomputedKernel = false;
-end
 
 % Run SVM
 %--------------------------------------------------------------------------
 nlbs  = length(d.tr_targets);
-if hasPrecomputedKernel
-    allids_tr = (1:nlbs)';
-else
-    allids_tr = [];
-end
+allids_tr = (1:nlbs)';
+
 model = svmtrain(d.tr_targets,[allids_tr d.train{:}],args);
 
 % check if training succeeded:
@@ -124,55 +111,29 @@ if isempty(model)
         ' This could be a problem with the supplied function arguments'...
         ' ' args_str '']);
 end
-sgn = -1*(2 * model.Label(1) - 3);
-b     = -model.rho *sgn;
 
-if hasPrecomputedKernel
-    alpha = get_alpha(model,nlbs,sgn);
-else
-    alpha = model.sv_coef;    % recover alphas directly
-    SVs   = model.SVs;          % recover also the SV's themselves
-end
+
+% Get SV coefficients (alpha) in the original order and the bias term (b) 
+sgn   = -1*(2 * model.Label(1) - 3); %variable to account for label convention in PRoNTo
+alpha = get_alpha(model,nlbs,sgn);
+b     = -model.rho *sgn;
 
 % compute prediction directly rather than using svmpredict, which does
 % not allow empty test labels
-if hasPrecomputedKernel
-    if iscell(d.test)
-        func_val = cell2mat(d.test)*alpha+b;
-    else
-        func_val = d.test*alpha+b;
-    end
+if iscell(d.test)
+    func_val = cell2mat(d.test)*alpha+b;
 else
-    % compute primal weight vector
-    w = SVs'*alpha;
-    % compute function
-    if iscell(d.test)
-        func_val = cell2mat(d.test)*w+b;
-    else
-        func_val = d.test*w+b;
-    end
+    func_val = d.test*alpha+b;
 end
 
 % compute hard decisions
 predictions = sign(func_val);
 
-% % REMOVEME compare with libsvm svmpredict results
-% if hasPrecomputedKernel
-%     allids_te=(1:size(cell2mat(test),1))';
-% else
-%     allids_te=[];
-% end
-% [foo_preds, foo_acc, foo_decision] = svmpredict([ones(10,1); ones(10,1)*2],[allids_te cell2mat(test)], model);
-% [func_val foo_decision]
-
-% TODO: convert labels to chosen output format
 
 % Outputs
 %--------------------------------------------------------------------------
 % change predictions from 1/-1 to 1/2 
 c1PredIdx               = predictions==1; 
-%predictions(c1PredIdx)  = model.Label(1); 
-%predictions(~c1PredIdx) = model.Label(2);
 predictions(c1PredIdx)  = 1; %positive values = 1 
 predictions(~c1PredIdx) = 2; %negative values = 2 
 
@@ -182,9 +143,6 @@ output.type        = 'classifier';
 output.alpha       = alpha;
 output.b           = b;
 output.totalSV     = model.totalSV;
-if exist('w','var')==1
-    output.w = w;
-end
 
 end
 
@@ -199,8 +157,6 @@ for i = 1:model.totalSV
     alpha(ind) = model.sv_coef(i);
 end
 
-% alpha = model.Label(1)*alpha;
-% sgn = -1*(2 * model.Label(1) - 3);
 alpha = sgn*alpha;
 
 end
