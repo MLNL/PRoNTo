@@ -73,7 +73,7 @@ while (abs(nlZ-nlZ_old) > tol && sweep < max_sweep) || sweep<min_sweep
 end
 
 if sweep == max_sweep
-  error('maximum number of sweeps reached in function infEP')
+  warning('maximum number of sweeps reached in function infEP')
 end
 
 last_ttau = ttau; last_tnu = tnu;                       % remember for next call

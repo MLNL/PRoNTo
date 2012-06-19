@@ -32,7 +32,7 @@ modchos={job.modality(:).mod_name};
 maskchos={job.modality(:).mod_name};
 
 if ~isempty(setdiff(modchos,allmod))
-    error(['Couldn''t find modality "',target,'" in PRT.mat']);
+    error(['Couldn''t find modality "',cell2mat(modchos),'" in PRT.mat']);
 end
 
 for i=1:length(PRT.masks)
