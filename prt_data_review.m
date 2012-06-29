@@ -350,8 +350,10 @@ for i=1:length(PRT.group)
         PRT.group(i).subject(j).modality(m).design=desn;
     end
 end
-PRT.group.hrfoverlap=val;
-PRT.group.hrfdelay=del;
+for g = 1:length(PRT.group)
+    PRT.group(g).hrfoverlap=val;
+    PRT.group(g).hrfdelay=del;
+end
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
 disp('Design in PRT.mat updated')
 if isfield(PRT,'fs')
