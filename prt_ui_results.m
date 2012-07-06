@@ -71,6 +71,8 @@ elseif length(F)==1
 else
 set(handles.figure1,'Tag',Tag)
 set(handles.figure1,'Name','PRoNTo :: Results')
+set(handles.figure1,'MenuBar','figure','WindowStyle','normal');
+
 %set size of the window, taking screen resolution and platform into account
 %--------------------------------------------------------------------------
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
