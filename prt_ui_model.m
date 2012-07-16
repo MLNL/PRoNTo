@@ -568,8 +568,7 @@ if any(strfind(mach{val},'Subject Out'))
 elseif any(strfind(mach{val},'Subject per Group'))
     if ~handles.loospg
         beep
-        disp('Subjects are not balanced across classes')
-        disp('All will not be used for training/testing')
+        disp('Warning: Subjects are not balanced across classes!')
     end
     handles.cv.type = 'losgo';
 elseif any(strfind(mach{val},'Block'))
