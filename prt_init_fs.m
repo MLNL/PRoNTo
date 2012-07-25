@@ -212,25 +212,35 @@ else
                     n_vols_s  = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
                     
                     % now loop over conditions
-                    for cid = 1:length(conds)    % condition
+                    for cid = 2:4%1:length(conds)    % condition
                         scans     = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
                         blocks    = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
                         n_vol_s_c = length(scans);
+                        if n_vol_s_c==0
+                            sample_range = 1+max(sample_range);
+                            PRT.fs(fid).id_mat(sample_range,5) = 0;
+                            PRT.fs(fid).id_mat(sample_range,6) = 0;
+                        else
+                            sample_range = (1:n_vol_s_c)+max(sample_range);
+                            PRT.fs(fid).id_mat(sample_range,5) = blocks;
+                            PRT.fs(fid).id_mat(sample_range,6) = scans;
+                            %configure indices for the file array
+                            sctoadd=scans+indm(m);
+                            PRT.fs(fid).fas.ifa(sample_range)=sctoadd';
+                            PRT.fs(fid).fas.im(sample_range)=mid*ones(n_vol_s_c,1);
+                        end
                         
                         % configure indices
-                        sample_range = (1:n_vol_s_c)+max(sample_range);
+%                         sample_range = (1:n_vol_s_c)+max(sample_range);
                         PRT.fs(fid).id_mat(sample_range,1) = gid;
                         PRT.fs(fid).id_mat(sample_range,2) = sid;
                         PRT.fs(fid).id_mat(sample_range,3) = mid;
                         PRT.fs(fid).id_mat(sample_range,4) = cid;
-                        PRT.fs(fid).id_mat(sample_range,5) = blocks;
+%                         PRT.fs(fid).id_mat(sample_range,5) = blocks;
                         %PRT.fs(fid).id_mat(sample_range,6) = 1:length(sample_range);
-                        PRT.fs(fid).id_mat(sample_range,6) = scans;
+%                         PRT.fs(fid).id_mat(sample_range,6) = scans;
                         
-                        %configure indices for the file array
-                        sctoadd=scans+indm(m);
-                        PRT.fs(fid).fas.ifa(sample_range)=sctoadd';
-                        PRT.fs(fid).fas.im(sample_range)=mid*ones(n_vol_s_c,1);
+                        
                     end
                     %configure indices for the file array
                     indm(m)=n_vols_s+max(indm(m));
