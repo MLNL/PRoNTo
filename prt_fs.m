@@ -170,8 +170,17 @@ for b = 1:n_block
         waitbar(step/ (n_block*n_mods),h);
         step=step+1;
     end
-    Phi = Phi + (kern_vols' * kern_vols);
-    bstart=bend+1; bend=min(bstart+block_size-1,n_vox);
+    if size(kern_vols,2)>6e3
+        % Slower way of estimating kernel but using less memory.
+        % size limit setup such that no more than ~1Gb of mem is required:
+        % 1Gb/3(nr of matrices)/8(double)= ~40e6 -> sqrt -> 6e3 element
+        for ic=1:size(kern_vols,2)
+            Phi(:,ic) = Phi(:,ic) + kern_vols' * kern_vols(:,ic);
+        end
+    else
+        Phi = Phi + (kern_vols' * kern_vols);
+    end
+    bstart = bend+1; bend = min(bstart+block_size-1,n_vox);
     clear block_mask kern_vols
 end
 close(h)
