@@ -46,12 +46,11 @@ end
 block=zeros(length(data_range),length(N));
 if n_vol==1
     for i=1:length(N)
-        dat_r = reshape(N(i).dat(:,:,:),prod(dm(1:3)),1);
-        block(:,i) = dat_r(data_range);
+        block(:,i) = N(i).dat(data_range);
     end
 else
     for i=1:n_vol
-        dat_r=reshape(N(1).dat(:,:,:,i),prod(dm(1:3)),1);
+        dat_r = N(1).dat(:,:,:,i);
         block(:,i) = dat_r(data_range);
     end
 end

@@ -69,12 +69,11 @@ h = waitbar(0,'Please wait while preparing feature set');
 step=1;
 for b = 1:n_block
     disp ([' > preparing block: ', num2str(b),' of ',num2str(n_block),' ...'])
-    vox_range = bstart:bend;
-    block_size=length(vox_range);
-    kern_vols=zeros(block_size,n);
+    vox_range  = bstart:bend;
+    block_size = length(vox_range);
+    kern_vols  = zeros(block_size,n);
     for m=1:n_mods
         mid=mids(m);
-        
         %Parameters for the masks and indexes of the voxels
         %-------------------------------------------------------------------
         % get the indices of the voxels within the file array mask (data &
@@ -88,68 +87,64 @@ for b = 1:n_block
             prec_mask = ones(block_size,1);
         end
         %indexes to access the file array
-        indm=find(PRT.fs(fid).fas.im==mid);
-        ifa=PRT.fs(fid).fas.ifa(indm);
-        
+        indm = find(PRT.fs(fid).fas.im==mid);
+        ifa  = PRT.fs(fid).fas.ifa(indm);
         %get the data from each subject of each group and save its linear
         %detrended version in a file array
         %-------------------------------------------------------------------
         if tocomp(mid)  %need to build the file array corresponding to that modality
             sample_range=0;
             nfa=PRT.fas(mid).dat.dim(1);
-            datapr=zeros(nfa,block_size);
+            datapr=zeros(block_size,nfa);
             
             %get the data for each subject of each group
             for gid = 1:n_groups
                 for sid = 1:length(PRT.group(gid).subject)
                     n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
-                    sample_range=(1:n_vols_s)+max(sample_range);
+                    sample_range = (1:n_vols_s)+max(sample_range);
                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
-                    datapr(sample_range,:) = (prt_load_blocks(fname,ind_ddmask))';
-                    %check for NaNs, in case of beta maps
-                    [inan,jnan]=find(isnan(datapr(sample_range,:)));
+                    datapr(:,sample_range) = prt_load_blocks(fname,ind_ddmask);
+                    %check for NaNs, in case of beta maps                  
+                    [inan,jnan] = find(isnan(datapr(:,sample_range)));
                     if ~isempty(inan)
                         for inn=1:length(inan)
-                            datapr(sample_range(inan(inn)),jnan(inn))=0;
+                            datapr(sample_range(inan(inn)),jnan(inn)) = 0;
                         end
                     end
                     
                     %detrend if necessary
                     if in.mod(mid).detrend ~= 0
                         if  isfield(PRT.group(gid).subject(sid).modality(mid).design,'TR')
-                            TR=PRT.group(gid).subject(sid).modality(mid).design.TR;
+                            TR = PRT.group(gid).subject(sid).modality(mid).design.TR;
                         else
-                            TR=PRT.group(gid).subject(sid).modality(mid).TR;
+                            TR = PRT.group(gid).subject(sid).modality(mid).TR;
                         end
                         switch in.mod(mid).detrend
                             case 1
-                                c= poly_regressor(length(sample_range),in.mod(mid).param_dt);
+                                C = poly_regressor(length(sample_range), ...
+                                        in.mod(mid).param_dt);
                             case 2
-                                c=dct_regressor(length(sample_range),in.mod(mid).param_dt,TR);
+                                C = dct_regressor(length(sample_range), ...
+                                        in.mod(mid).param_dt,TR);
                         end
-                        C = [c];
                         R = eye(length(sample_range)) - C*pinv(C);
-                        datapr(sample_range,:) = R*datapr(sample_range,:);
+                        datapr(:,sample_range) = datapr(:,sample_range)*R';
                     end
                 end
             end
             
-            % Write the detrended data into the file array
-            namedat=['Feature_set_',char(in.mod(mid).mod_name),'.dat'];
-            fpd_clean = fopen(fullfile(prt_dir,namedat), 'a','ieee-le.l64'); % 'a' append
             if b==1
-                % write the data in file .dat
-                fwrite(fpd_clean, datapr, 'float64',0,'ieee-le.l64');
-                fclose(fpd_clean);
+                % Write the detrended data into the file array .dat
+                namedat=['Feature_set_',char(in.mod(mid).mod_name),'.dat'];
+                fpd_clean(m) = fopen(fullfile(prt_dir,namedat), 'a','ieee-le.l64'); %#ok<AGROW> % 'a' append
+                fwrite(fpd_clean(m), datapr', 'float64',0,'ieee-le.l64');
             else
                 % Append the data in file .dat
-                fseek(fpd_clean,0,'eof');
-                fwrite(fpd_clean, datapr, 'float64',0,'ieee-le.l64');
-                fclose(fpd_clean);
+                fwrite(fpd_clean(m), datapr', 'float64',0,'ieee-le.l64');
             end
             
             % get the data to build the kernel
-            kern_vols(:,indm) = datapr(ifa,:)'.* ...
+            kern_vols(:,indm) = datapr(:,ifa).* ...
                 repmat(prec_mask,1,length(ifa));
             % if a scaling was entered, apply it now
             if ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
@@ -184,6 +179,13 @@ for b = 1:n_block
     clear block_mask kern_vols
 end
 close(h)
+
+% closing feature file(s)
+if exist('fpd_clean','var')
+    for ii=1:numel(fpd_clean)
+        fclose(fpd_clean(ii));
+    end
+end
 
 % Save kernel and function output
 % -------------------------------------------------------------------------
