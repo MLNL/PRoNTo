@@ -49,6 +49,36 @@ switch lower(Action)
                 addpath(fullfile(pth_machines,ls_machinedir{ii}))
             end
         end
+        %check for compiled routines
+        %svm
+        dumb=which('svmtrain');
+        if findstr('libsvm',dumb)
+            disp('SVM path OK')
+        else
+            warning(['SVM path not recognized. Please check that: \n', ...
+                '-PRoNTo was added with all subfolders \n',...
+                '-PRoNTo is above the biostats Matlab toolbox \n',...
+                'Otherwise, the routines surely need to be re-compiled for your OS \n',...
+                'Please look on the web or ask on the mailing list for assistance'])
+        end
+        %GP
+        dumb=which('solve_chol');
+        if ~isempty(dumb) && ~isempty(findstr('.mex',dumb))
+            disp('GP path: OK')
+        else
+            disp('GP not compiled: routines will work but be slower')
+        end
+        %RF
+        dumb=which('rtenslearn_c');
+        if ~isempty(dumb) || ~isempty(findstr('.mex',dumb))
+            disp('RF path OK')
+        else
+            warning(['RF path not recognized. Please check that \n', ...
+                'PRoNTo was added with all subfolders \n',...
+                'Otherwise, the routines surely need to be re-compiled for your OS \n',...
+                'Please look on the web or ask on the mailing list for assistance'])
+        end
+
         % utils - dirty check for the moment
         if ~exist('prt_checkAlphaNumUnder','file')
             addpath(fullfile(prt('Dir'),'utils'));

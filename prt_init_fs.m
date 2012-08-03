@@ -314,7 +314,7 @@ else
                     'Could not load the .mat file containing the scaling')
             end
             try
-                szin=length(scaling);
+                szin=max(size(scaling));
             catch
                 error('prt_prepare_data:ScalingNotinFile',...
                     'This file does not contain the "scaling" field required')

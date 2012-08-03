@@ -1282,6 +1282,7 @@ save(resn,'PRT')
 handles.saved=1;
 disp('Save Done')
 set(handles.save_data,'ForegroundColor',[0 0 0])
+cd(handles.dat.dir)
 
 % Update handles structure
 guidata(hObject, handles);

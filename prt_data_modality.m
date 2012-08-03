@@ -355,12 +355,32 @@ if choice==1
         disp('Can not load SPM.mat file');
         return
     end
-    ncond = length(SPM.Sess(1).U);
     conds=struct();
-    for c = 1:ncond
-        conds(c).cond_name = SPM.Sess(1).U(c).name{1};
-        conds(c).onsets    = SPM.Sess(1).U(c).ons;
-        conds(c).durations = SPM.Sess(1).U(c).dur;
+    list={};
+    for sspm=1:length(SPM.Sess)
+        ncond = length(SPM.Sess(sspm).U);
+        for c = 1:ncond
+            if sspm==1  %set the conditions
+                conds(c).cond_name = SPM.Sess(sspm).U(c).name{1};
+                list=[list, {conds(c).cond_name}];
+                conds(c).onsets = SPM.Sess(sspm).U(c).ons;
+                conds(c).durations = SPM.Sess(sspm).U(c).dur;
+                indcond=ncond;
+            else  %for other sessions, look if the conditions are the same
+                name_cond=SPM.Sess(sspm).U(c).name{1};
+                itoadd=find(strcmpi(name_cond,list));
+                if isempty(itoadd)  % if not, then add condition
+                    indcond=indcond+1;
+                    conds(indcond).cond_name = SPM.Sess(sspm).U(c).name{1};
+                    conds(indcond).onsets = SPM.Sess(sspm).U(c).ons;
+                    conds(indcond).durations = SPM.Sess(sspm).U(c).dur;
+                    list=[list, {name_cond}];
+                else               %if yes, then add the onsets
+                    conds(itoadd).onsets    = [conds(itoadd).onsets;SPM.Sess(sspm).U(c).ons];
+                    conds(itoadd).durations = [conds(itoadd).durations;SPM.Sess(sspm).U(c).dur];
+                end
+            end
+        end
     end    
     if strcmpi(SPM.xBF.UNITS,'scans')
         units=0;
