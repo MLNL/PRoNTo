@@ -398,7 +398,13 @@ if choice==1
     else
         del=def.hrfd;
     end
-    desn=prt_check_design(conds,SPM.xX.K.RT,units,overl,del);
+    %check that TR is the same for all sessions
+    if length(unique([SPM.xX.K(:).RT])) ~=1
+        beep
+        disp('Differents TR found in SPM.mat, please separate sessions')
+        return
+    end
+    desn=prt_check_design(conds,SPM.xX.K(1).RT,units,overl,del);
     desn.covar = [];
 elseif choice==2
     if isstruct(handles.mod.design)
