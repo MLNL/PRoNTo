@@ -1,8 +1,387 @@
 % $Id$
 
-\chapter{Data set 1}
+\chapter{Block design fMRI dataset}
 \minitoc
 
+This fMRI dataset originates from a study on face and object representation in human ventral temporal cortex \cite{Haxby2001}. The pre-processed (realigned and normalised) data from participant 1 can be downloaded from PRoNTo's website: http://www.mlnl.cs.ucl.ac.uk/pronto/ (in Data sets). The whole (not pre-processed) dataset is available from http://data.pymvpa.org/datasets/haxby2001/. The subject was shown a set of greyscale images of 8 categories (faces, houses, cats, chairs, bottles, scissors, shoes and scrambled pictures), with 12 runs/blocks. Each image was displayed for 500 ms and was followed by a 1500 ms rest interval. This experiment consisted on a block-design of 9 scans of task followed by 6 scans of inter-stimulus interval.
+Images were acquired with a TR of 2.5 s. The full-brain fMRI data was made up by 1452 volumes with 40 x 64 x 64 voxels, each of which with dimensions of 3.5 x 3.75 x 3.75 mm.
 
-This is where we explain how how to process data set 1. \\
-This will arrive soon...
+For simplicity, in this tutorial we will use PRoNTo to predict if the subject is viewing an image of a Face or a House based on the fMRI scans. We will classify the whole brain (and fusiform gyrus) images using Support Vector Machines, and a leave one block out cross-validation scheme (with and without temporal compression).
+
+\section{GUI analysis}
+
+We will first analyse the data using PRoNTo's GUI. We will then repeat the analysis using the {\tt matlabbatch} system (see below).
+
+To start, create a new directory in which to save the results of the analysis, then start up MATLAB and type `prt' or `pronto' in the MATLAB prompt. This will open the main interface of PRoNTo (Figure \ref{fig:1}).
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial1.png}
+	\caption{Main interface of PRoNTo.}
+	\label{fig:1}
+\end{figure}
+
+%_____________________________________________________
+
+\subsection{Data \& Design}
+
+\begin{itemize}
+	\item Click on the first button on the left, in the Main steps panel;
+	\item	On the top of the Data and design window (see Figure \ref{fig:2}), browse the directory in which to save the PRT structure (saved as `PRT.mat');
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial2.png}
+	\caption{Data and design graphical user interface.}
+	\label{fig:2}
+\end{figure}
+	
+	\item	On the column `Groups', click on `Add' and provide a name to the group (we only have one group/subject), with no spaces, (e.g. `G1');
+	\item Add a subject in the `Subject/Scans' option and leave the `Scans' tick box below the panel unchecked (see Chapter 2 of the manual for more information on this option);
+	\item In the `Modalities' panel, click on `Add' and provide a name to the modality (e.g. `fMRI'). In the `Design' field, choose the option `Load SPM.mat'. This file is available with the Haxby dataset on PRoNTo's website (inside the folder Haxby\_dataset/Design/) (Figure \ref{fig:3});
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial3.png}
+	\caption{Data and design graphical user interface. The design menu in the modality window allows one to load a specified design from an `SPM.mat' file.}
+	\label{fig:3}
+\end{figure}
+	
+	\item In case there is no `SPM.mat' file available to use, create a new design by selecting the option `Specify design'. Choose how many conditions you have, which in this case are 8 conditions (corresponding to the 8 categories of images). This will open another window that allows the user to write the names, onsets and durations (if the duration is the same for all events only one value is required) of each condition (Figure \ref{fig:4}). The unit in which the onsets/durations are read in this case is `scans' and the interscan interval (TR) is 2.5 seconds; The design information (names, onsets and durations) can be found inside the `Haxby\_design.pdf' file in the Haxby dataset folder. 
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial4.png}
+	\caption{Data and design graphical user interface. The `Specify conditions' window is available when the `specify design' option is selected in the modality window. This window is used to enter the conditions (names, onsets and durations), the units of design, TR and covariates.}
+	\label{fig:4}
+\end{figure}
+	
+	\item Finally, load all the image files available in the fMRI directory (Haxby\_dataset/fMRI/) (Figure \ref{fig:5});
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial5.png}
+	\caption{This window is called when one clicks `Files' (in the modality window) and is used to select the scans/images for the selected subject.}
+	\label{fig:5}
+\end{figure}
+	
+	\item On the bottom of the `Data and design' window (on the left), select the `whole\_brain' mask for the modality specified. The mask is available in the masks folder of the Haxby dataset (Figure \ref{fig:6});
+	\item Press the `Review' button to check the data and the design inserted in this modality (see Figure \ref{fig:7}) (for more information on what one can do with the Review option please see Chapter 2);
+	\item Click on the `Save' button to create the PRT.mat file with the structure containing the information that has been previously specified. Leave the Data and design interface by clicking `Quit'.
+\end{itemize}
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial6.png}
+	\caption{This window is called when one clicks `Masks' on the bottom of the main data and design window. Select the `whole$\_$brain' mask available in the masks folder for the Haxby dataset.}
+	\label{fig:6}
+\end{figure}
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial7.png}
+	\caption{Data and design graphical user interface: `Review' window. This window allows the user to check the data and design.}
+	\label{fig:7}
+\end{figure}
+
+\subsection{Prepare feature set}
+
+\begin{itemize}
+\item Click `Prepare feature set' on the main GUI;
+	\item Select the `PRT.mat' file previously created in the Data and design step. A new window will appear (`Specify modality to include'), allowing the specification of different options and parameters for each modality (Figure \ref{fig:8}). In the modality field, select the modality previously specified in step 1; on the Conditions select `All scans' (for more information please consult the corresponding chapter of this manual); leave the Additional mask field as it is for now; select the polynomial detrend with order 1 and the 'No scaling' option;
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial8.png}
+	\caption{Interface of the `Prepare feature set' step. The `Specify modality to include' window, which is called when the PRT.mat file is selected, allows the specification of the modality, conditions, second-level mask selection and detrend and scaling parameters.}
+	\label{fig:8}
+\end{figure}
+	
+	\item This is an optional step: in the `Additional mask for selected modality' field, the user can specify a `second-level' mask, which can be used to select regions of interest (ROIs) on which the classification can be performed. For instance, we can enter the `fusiform\_gyrus' mask available with this dataset (results obtained with this mask are shown at the end of this tutorial);
+	\item Provide a name to the feature set (e.g. `HaxbyFeatures');
+	\item Click on `Build kernel/data matrix' to build the feature set and kernel (Figure \ref{fig:9}).
+\end{itemize}
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=6cm]{images/Tutorial/Tutorial9.png}
+	\caption{Interface of the `Prepare feature set' step after clicking on `Build kernel / Data matrix' button.}
+	\label{fig:9}
+\end{figure}
+
+%_____________________________________________________
+
+\subsection{Specify model}
+
+\begin{itemize}
+\item Click `Specify model' on the main PRoNTo window.
+	\item Select the `PRT.mat' file and provide a name to the model (e.g. `svmFacesHouses');
+	\item Select one of the Feature Sets previously defined (in this case there is only one: `HaxbyFeatures');
+	\item	Leave the option `Use kernels' as it is (i.e. `Yes');
+	\item	Select the `Classification' model type. Define the number of classes (in this case it is 2) and enter a name for each class. For `Class 1' select subject `S1' and the condition `Faces' and, similarly, for `Class 2' select subject `S1' and the condition `Houses' (see Figure \ref{fig:10});
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=9cm]{images/Tutorial/Tutorial10.png}
+	\caption{`Model specification' and `Specify classes' graphical user interface.}
+	\label{fig:10}
+\end{figure}
+	
+	\item	Select the pattern recognition algorithm (i.e. Machine): `Binary support vector machine';
+	\item In the final part of the specify model input form, select the `Leave One Block Out' cross-validation scheme and select the `Sample averaging (within block)', which corresponds to a temporal compression of the data within each block, and `Mean centre features using training data' operations;
+	\item Click on `Specify and run model' (the model will be immediately estimated and therefore there is no need to use the `Run model' module in this case;
+	\item If you do not wish to average the scans within each block (i.e. to do temporal compression), go back to the `Specify model' window, give another name to the model and select the same options mentioned above, except in the data operations part. Here, choose only the `Mean centre features using training data' option. Finish by clicking on the `Specify and run model' button.
+\end{itemize}
+
+\subsection{Display model (optional step)}
+
+\begin{itemize}
+\item To review the model specification, click on `Review kernel \& CV' on the main PRoNTo window;
+\item On the next window select the model (e.g. svmFacesHouses) from the list at the top and then click on `Review model' (Figure \ref{fig:31}); then select one class from the list of Classes on the top left to see which groups, subjects and conditions this class comprises (Figure \ref{fig:32});
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=6cm]{images/Tutorial/Tutorial31.png}
+	\caption{Review CV \& kernel window.}
+	\label{fig:31}
+\end{figure}
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=6cm]{images/Tutorial/Tutorial32.png}
+	\caption{Review model specification window.}
+	\label{fig:32}
+\end{figure}
+
+\item To review the data and cross-validation matrix click on `Review CV' (Figure \ref{fig:33}). For more information on what these matrices mean, please consult the previous chapters of the manual;
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=6cm]{images/Tutorial/Tutorial33.png}
+	\caption{Data and cross-validation matrix from `Review CV' option.}
+	\label{fig:33}
+\end{figure}
+
+\item To review the kernel, click on `Show kernel' (Figure \ref{fig:34}).
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=6cm]{images/Tutorial/Tutorial34.png}
+	\caption{Kernel matrix used for classification.}
+	\label{fig:34}
+\end{figure}
+
+\end{itemize}
+
+%_____________________________________________________
+
+\subsection{Compute weights (optional step)}
+
+\begin{itemize}
+\item Click `Compute weights' on the main GUI.
+	\item Select the `PRT.mat' file;
+	\item	Select the model from the list to compute the weights (e.g. the svmFacesHouses model);
+	\item Click on the `Compute weights' button (Figure \ref{fig:12}).
+\end{itemize}
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=6cm]{images/Tutorial/Tutorial12.png}
+	\caption{Weights computation graphical user interface. This window is used to select the PRT.mat file and the model to compute.}
+	\label{fig:12}
+\end{figure}
+
+%_____________________________________________________
+
+\subsection{Display results}
+
+\begin{itemize}
+	\item Press the `Display results' button in the Review Options panel of the main PRoNTo window and select the `PRT.mat' file. This will open the main results window;
+	\item In the model panel, select the model that you want to view (e.g. `svmFacesHouses'), `All folds / Average' and the `Predictions' plot to display the plot on the left side of this panel. If the selected model is that using the `Sample averaging (within block)' data operation (i.e. temporal compression), the result will be similar to the plot shown in Figure \ref{fig:18}. If the selected model is that using the `Mean centre features' operation only (i.e. no temporal compression), the result will be similar to Figure \ref{fig:19};
+	
+	\item Click on `STATS TABLE' to obtain a summary for each model's performance (Figure \ref{fig:15} and \ref{fig:16});
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial15.png}
+	\caption{Statistics table for the temporal compression analysis.}
+	\label{fig:15}
+\end{figure}
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=7cm]{images/Tutorial/Tutorial16.png}
+	\caption{Statistics table for the no temporal compression analysis.}
+	\label{fig:16}
+\end{figure}
+	
+	\item By clicking on the `...' button next to the `Load weight map' and to the `Load anatomical img' fields, a dialogue opens that allows the user to select the weight map computed in the last `Compute weights' option (Figure \ref{fig:17}) and an anatomical image for reference (a template image can be found in the SPM8's canonical folder). The final results window will look similar to that shown in Figure \ref{fig:18} for the temporal compression model. Similarly, for the no temporal compression model, the results window will look like Figure \ref{fig:19};
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=10cm]{images/Tutorial/Tutorial18.png}
+	\caption{Final state of the results display main window (temporal compression model).}
+	\label{fig:18}
+\end{figure}
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=10cm]{images/Tutorial/Tutorial19.png}
+	\caption{Final state of the results display main window (no temporal compression model).}
+	\label{fig:19}
+\end{figure}
+	
+	\item Other plots such as ROC curves and the confusion matrices can be displayed by choosing from the plots' list. To change fold or model one needs only to select from the respective lists on the right (under Model);
+	\item Finally, to check the significance of the results, run a Permutation test by clicking on the Permutation test button with 100 repetitions (Figure \ref{fig:20}); Results will be displayed on the MATLAB prompt.
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=9cm]{images/Tutorial/Tutorial20.png}
+	\caption{Sample of the MATLAB window after the permutation test (100 repetitions).}
+	\label{fig:20}
+\end{figure}
+	
+	\item If the user added the `second-level' mask on the `Prepare feature set' step, the final results window will look similar to that shown in Figure \ref{fig:21}.
+\end{itemize}
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=10cm]{images/Tutorial/Tutorial21.png}
+	\caption{Final state of the results display window with the second-level mask `fusiform\_gyrus'.}
+	\label{fig:21}
+\end{figure}
+
+
+%=====================================================
+
+\section{Batch analysis}
+
+This tutorial will now show how to analyse the same data but using the {\tt matlabbatch} system.
+
+Once again, to analyse the data, create a new directory in which to save the results of the analysis.
+
+On the main interface of PRoNTo click on the 'Batch' button to open the `{\tt matlabbatch}'. Alternatively, type `prt\_batch' in the MATLAB prompt.
+
+On the top of the batch, there is a PRoNTo menu with the 5 options shown in the main steps panel (Figure \ref{fig:23}).
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=8cm]{images/Tutorial/Tutorial23.png}
+	\caption{Menu PRoNTo in the main {\tt matlabbatch} window.}
+	\label{fig:23}
+\end{figure}
+
+%_____________________________________________________
+
+\subsection{Data \& Design}
+
+\begin{itemize}
+	\item Click on `Data \& Design in the PRoNTo menu;
+	\item Select a directory where the PRT.mat file will be written (Figure \ref{fig:24});
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=8cm]{images/Tutorial/Tutorial24.png}
+	\caption{Data and design module in {\tt matlabbatch}. }
+	\label{fig:24}
+\end{figure}
+	
+	\item Add one group and provide a name without spaces to that group (e.g. `G1');
+	\item On the `Select by' field, select the `Subjects' option (for more information on the Scans option please consult Chapter 2);
+	\item Add one subject and define the modality for this subject. Write a name for the modality (e.g. `fMRI'), enter the interscan interval of 2.5 seconds and select the image files available in the fMRI directory of the Haxby dataset;
+	
+	\item In the `Data \& Design' field, choose the option `Load SPM.mat'. This file is available for download with the same dataset;
+		\item In case there is no `SPM.mat' file already available to use, create a new design by selecting the option `Specify design'. Choose how many conditions you have, which in this case are 8 conditions (corresponding to the 8 categories of images). The unit in which the onsets/durations are read is `Scans'. Write the names, onsets and durations of each condition (Figure \ref{fig:26});
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=8cm]{images/Tutorial/Tutorial26.png}
+	\caption{Data and design module. The `Specify design' option is used to enter the conditions (names, onsets and durations), the units of design, TR and covariates.}
+	\label{fig:26}
+\end{figure}
+	
+	\item Add one mask, write the same modality name (e.g. `fMRI') and select the `whole\_brain' mask available in the masks directory (the name of the modality here has to be exactly the same as in `Modalities', otherwise PRoNTo will not work);
+	\item Leave the `HRF overlap' and the `HRF delay' parameters as default.
+\end{itemize}
+
+%_____________________________________________________
+
+\subsection{Feature set / Kernel}
+
+\begin{itemize}
+	\item Click on the Feature set / Kernel' option on PRoNTo's {\tt matlabbatch} menu;
+	\item With the `Load PRT.mat' field selected, click on the `Dependency' button to associate the PRT.mat file created in the previous Data \& Design step (Figure \ref{fig:27});
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=8cm]{images/Tutorial/Tutorial27.png}
+	\caption{Feature set / Kernel module in {\tt matlabbatch}. This window is called to establish a dependency connection with the previous `Data and design' module.}
+	\label{fig:27}
+\end{figure}
+	
+	\item Provide a name to the feature set (e.g. `HaxbyFeatures');
+	\item Add one modality and write the modality name (e.g. `fMRI'). Please note that again the name needs to be exactly the same name given in the previous step. Select `All scans' and `All voxels' to include (this means we are not entering with an additional second-level mask). Choose the polynomial detrend with order 1 and `No scaling' in the `Scale input scans' field (Figure \ref{fig:28});
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=8cm]{images/Tutorial/Tutorial28.png}
+	\caption{Feature set / Kernel module. Selected parameters in the modality option.}
+	\label{fig:28}
+\end{figure}
+	
+	\item This is an optional step. In the `Voxels to include' options, the user can specify a `second-level' mask, which would define regions of interest (ROIs) on which the classification can be performed. In this case, select the `fusiform\_gyrus' mask.
+\end{itemize}
+
+%_____________________________________________________
+
+\subsection{Specify model}
+
+\begin{itemize}
+	\item Similarly to the first step of the previous `Feature set / Kernel' module, click on the `Dependency' button to associate the PRT.mat file created in that module;
+	\item Provide a name to the model (e.g. `svmFacesHouses');
+	\item Keep the `Yes' option in the `Use kernels' field;
+	\item Write the feature set name exactly as previously defined (`HaxbyFeatures');
+	\item Select the `Classification' model type. Create 2 new classes. For Class (1) write `Faces' on the name field and add the group created in the Data \& Design module (Group name: `G1'). On the `Subjects' field, type `1' (only subject one is selected) (see Figure \ref{fig:29}) and on the `Conditions / Scans' field select the `Specify Conditions' option and provide the name of this condition (`Faces') - please note that the names need to be exactly as specified in Data and Design!;
+	
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=8cm]{images/Tutorial/Tutorial29.png}
+	\caption{Specify model module in {\tt matlabbatch}.}
+	\label{fig:29}
+\end{figure}
+	
+	\item Similarly, for Class (2) write `Houses' on the name and conditions field, and the group and subject information as in the previous step;
+	\item Select the `SVM Classification' option on the `Machine' field;
+	\item	In the `Cross-validation type' section, choose the `Select One Block Out' option;
+	\item	Keep the `No' option in the `Include all scans' field;
+	\item	Select the `Mean centre features' data operation.
+\end{itemize}
+
+%_____________________________________________________
+
+\subsection{Run model}
+
+\begin{itemize}
+	\item Click on the `Dependency' button to associate the PRT.mat file created in the previous Specify model step;
+	\item	Write the model name (`svmFacesHouses') defined in the previous module (Figure \ref{fig:30}).
+\end{itemize}
+
+\begin{figure}[!htbp]
+	\centering
+		\includegraphics[height=8cm]{images/Tutorial/Tutorial30.png}
+	\caption{Run model module in {\tt matlabbatch}.}
+	\label{fig:30}
+\end{figure}
+
+%_____________________________________________________
+
+\subsection{Compute weights (optional step)}
+
+\begin{itemize}
+	\item Click on the `Dependency' button to associate the PRT.mat file created in the previous step;
+	\item	Write the model name (`svmFacesHouses') defined in the `Specify model' step.
+\end{itemize}
+
+Finally, save the batch (e.g. as batch\_run\_all.m) and click on the `Run Batch' option, on the `File menu'. The batch file created can then be opened and edited for further analyses.
+
+The results will be equal to those obtained using the Graphical User Interface (see `Display results' section of this tutorial).
