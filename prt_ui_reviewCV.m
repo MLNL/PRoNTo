@@ -201,7 +201,7 @@ for i=1:size(handles.PRT.model(indm).input.cv_mat,2)
     xticksl{i}=num2str(i);
 end
 %inverting unused and test for colour purposes
-if max(range(CV_mat_full))>1
+if max(max(CV_mat_full)-min(CV_mat_full))>1
     indun=find(CV_mat_full==0);
     indt=find(CV_mat_full==2);
     CV_mat_full(indun)=2;
@@ -224,7 +224,7 @@ set(get(gca,'Title'),'String','Cross-Validation','FontWeight','bold')
 
 %Plot the 'legend' corresponding to the CV matrix in the right bottom part
 set(handles.figure1,'CurrentAxes',handles.axes3)
-if max(range(CV_mat_full))>1
+if max(max(CV_mat_full)-min(CV_mat_full))>1
     leg=[0; 1; 2];
     imagesc(leg);
     set(gca,'YTick',[1,2,3])
