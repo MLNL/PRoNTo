@@ -859,6 +859,10 @@ if strcmp(PRT.model(model).input.type,'classification')
                     mconmat(:,:) = PRT.model(model).output.fold(fold-1).stats.con_mat;
                 end
                 myH=bar3(handles.axes5,mconmat,'detached','w');
+                nclass = size(mconmat,1);
+                for j = 1:nclass,
+                    conLabels{j} = num2str(j);
+                end
                 rotate3d on
                 if fold == 1
                     title(handles.axes5,sprintf('Confusion matrix: all folds'),'FontWeight','bold');
@@ -867,15 +871,14 @@ if strcmp(PRT.model(model).input.type,'classification')
                 end
                 xlabel(handles.axes5,'True','FontWeight','bold');
                 ylabel(handles.axes5,'Predicted','FontWeight','bold');
-                set(handles.axes5,'XTick',[1 2]);
-                set(handles.axes5,'XTickLabel',{'1','2'});
-                set(handles.axes5,'YTick',[1 2]);
-                set(handles.axes5,'YTickLabel',{'1','2'});
+                set(handles.axes5,'XTick',1:nclass);
+                set(handles.axes5,'XTickLabel',conLabels);
+                set(handles.axes5,'YTick',1:nclass);
+                set(handles.axes5,'YTickLabel',conLabels);
                 grid(handles.axes5,'on');
                 set(handles.axes5,'Color',[0.8 0.8 0.8]);
                 axis square; axis vis3d; axis tight;
                 % add values
-                mconmat
                 for foo_row=1:size(mconmat,1)
                     for foo_col=1:size(mconmat,2)
                         foo_zval=mconmat(foo_row,foo_col);
