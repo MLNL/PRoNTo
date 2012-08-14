@@ -108,7 +108,7 @@ for b = 1:n_block
                     [inan,jnan] = find(isnan(datapr(:,sample_range)));
                     if ~isempty(inan)
                         for inn=1:length(inan)
-                            datapr(sample_range(inan(inn)),jnan(inn)) = 0;
+                            datapr(inan(inn),sample_range(jnan(inn))) = 0;
                         end
                     end
                     
@@ -273,7 +273,15 @@ for m = 1:n_mods
         
         V2 = spm_vol(char(mfile));
         mfile_new       = N;
-        mfile_new.fname = [prt_dir 'updated_2ndlevel_mask_m',num2str(mid),'.img'];
+        nummask=1;
+        %if more than one 2nd level mask to resize
+        while exist(fullfile( ...
+                prt_dir,['updated_2ndlevel_mask_m',num2str(mid),'_',...
+                num2str(nummask),'.img']))
+                nummask=nummask+1;
+        end
+        mfile_new.fname = [prt_dir 'updated_2ndlevel_mask_m',num2str(mid),...
+            '_',num2str(nummask),'.img'];
         tmp             = spm_imcalc([N V2],mfile_new,'0.*i1+(i2>0)');
         precmask{m}     = mfile_new.fname;
     else

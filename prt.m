@@ -52,7 +52,7 @@ switch lower(Action)
         %check for compiled routines
         %svm
         dumb=which('svmtrain');
-        if findstr('libsvm',dumb)
+        if ~isempty(findstr('libsvm',dumb))
             disp('SVM path OK')
         else
             warning(['SVM path not recognized. Please check that: \n', ...
