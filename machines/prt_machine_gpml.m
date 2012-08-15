@@ -236,8 +236,8 @@ output.nlml        = min(nlmls);
 output.tr_targets  = tr_lbs;
 output.te_targets  = te_lbs;
 output.alpha       = post.alpha;
-output.sW          = post.sW;
-output.L           = post.L;
+%output.sW          = post.sW;
+%output.L           = post.L;
 
 end
 
