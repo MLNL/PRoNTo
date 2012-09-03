@@ -92,7 +92,7 @@ This function is called by:
 0025 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0026 
 0027 <span class="comment">% Written by Carlton Chu</span>
-0028 <span class="comment">% $Id: prt_machine_krr.m 370 2011-11-12 15:30:53Z cphillip $</span>
+0028 <span class="comment">% $Id: prt_machine_krr.m 551 2012-05-31 08:26:54Z amarquan $</span>
 0029 
 0030 
 0031 output.type=d.pred_type;
@@ -115,17 +115,18 @@ This function is called by:
 0048     <span class="keyword">end</span>
 0049     
 0050     <span class="comment">% Run KRR</span>
-0051     <span class="comment">%--------------------------------------------------------------------------</span>
-0052     t=d.tr_targets;
-0053     w=<a href="prt_KRR.html" class="code" title="function w = prt_KRR(K,t,reg)">prt_KRR</a>(K,t,args);
-0054     
-0055     output.predictions=d.test{1}*w;
-0056     output.func_val=output.predictions;
-0057     output.alpha=w;
-0058   
-0059 <span class="keyword">end</span>
-0060 
-0061 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0051     <span class="comment">%----------------------------------------------------------------------</span>
+0052     m = mean(d.tr_targets);                     <span class="comment">% mean of the training data</span>
+0053     t = d.tr_targets - m;                             <span class="comment">% mean centre targets</span>
+0054     w = <a href="prt_KRR.html" class="code" title="function w = prt_KRR(K,t,reg)">prt_KRR</a>(K,t,args);
+0055        
+0056     output.predictions=d.test{1}*w + m;    <span class="comment">% add mean from the training set</span>
+0057     output.func_val=output.predictions;
+0058     output.alpha=w;
+0059   
+0060 <span class="keyword">end</span>
+0061 
+0062 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

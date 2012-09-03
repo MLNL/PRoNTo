@@ -96,7 +96,7 @@ This function is called by:
 0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0027 
 0028 <span class="comment">% Written by J. Schrouff</span>
-0029 <span class="comment">% $Id: prt_ui_reviewCV.m 523 2012-05-09 11:43:36Z jrichiar $</span>
+0029 <span class="comment">% $Id: prt_ui_reviewCV.m 566 2012-08-07 15:22:50Z mjrosa $</span>
 0030 
 0031 <span class="comment">% Edit the above text to modify the response to help prt_ui_reviewCV</span>
 0032 
@@ -271,7 +271,7 @@ This function is called by:
 0201     xticksl{i}=num2str(i);
 0202 <span class="keyword">end</span>
 0203 <span class="comment">%inverting unused and test for colour purposes</span>
-0204 <span class="keyword">if</span> max(range(CV_mat_full))&gt;1
+0204 <span class="keyword">if</span> max(max(CV_mat_full)-min(CV_mat_full))&gt;1
 0205     indun=find(CV_mat_full==0);
 0206     indt=find(CV_mat_full==2);
 0207     CV_mat_full(indun)=2;
@@ -294,7 +294,7 @@ This function is called by:
 0224 
 0225 <span class="comment">%Plot the 'legend' corresponding to the CV matrix in the right bottom part</span>
 0226 set(handles.figure1,<span class="string">'CurrentAxes'</span>,handles.axes3)
-0227 <span class="keyword">if</span> max(range(CV_mat_full))&gt;1
+0227 <span class="keyword">if</span> max(max(CV_mat_full)-min(CV_mat_full))&gt;1
 0228     leg=[0; 1; 2];
 0229     imagesc(leg);
 0230     set(gca,<span class="string">'YTick'</span>,[1,2,3])
@@ -379,6 +379,6 @@ This function is called by:
 0309     <span class="keyword">end</span>
 0310 <span class="keyword">end</span>
 0311 cd(wd)</pre></div>
-<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

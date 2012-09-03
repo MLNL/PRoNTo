@@ -94,186 +94,142 @@ This function is called by:
 0025 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0026 
 0027 <span class="comment">% Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi</span>
-0028 <span class="comment">% $Id: prt_machine_svm_bin.m 516 2012-04-11 14:34:30Z jmourao $</span>
+0028 <span class="comment">% $Id: prt_machine_svm_bin.m 557 2012-06-12 09:07:53Z mjrosa $</span>
 0029 
-0030 <span class="comment">% FIXME: support for multiple kernels / feature representations</span>
-0031 <span class="comment">% is not yet tested, there might be transposition or dimensionality errors.</span>
-0032 
-0033 <span class="comment">% TODO: maybe also check the prt_machine .usebf argument for compatibility</span>
-0034 <span class="comment">% with libSVM syntax ?</span>
+0030 
+0031 <span class="comment">% TODO: make sure the svmtrain we reach is the libsvm one, not the one</span>
+0032 <span class="comment">% with the same name from the bioinformatics toolbox!</span>
+0033 <span class="comment">% toolbox/bioinfo/biolearning/</span>
+0034 
 0035 
-0036 <span class="comment">% TODO: make sure the svmtrain we reach is the libsvm one, not the one</span>
-0037 <span class="comment">% with the same name from the bioinformatics toolbox!</span>
-0038 <span class="comment">% toolbox/bioinfo/biolearning/</span>
-0039 
-0040 
-0041 SANITYCHECK=true; <span class="comment">% can turn off for &quot;speed&quot;. Expert only.</span>
-0042 
-0043 <span class="keyword">if</span> SANITYCHECK==true
-0044     <span class="comment">% args should be a string (empty or otherwise)</span>
-0045     <span class="keyword">if</span> ~ischar(args)
-0046         error(<span class="string">'prt_machine_svm_bin:libSVMargsNotString'</span>,[<span class="string">'Error: libSVM'</span><span class="keyword">...</span>
-0047             <span class="string">' args should be a string. '</span> <span class="keyword">...</span>
-0048             <span class="string">' SOLUTION: Please do XXX'</span>]);
-0049     <span class="keyword">end</span>
-0050     
-0051     <span class="comment">% check we can reach the binary library</span>
-0052     <span class="keyword">if</span> ~exist(<span class="string">'svmtrain'</span>,<span class="string">'file'</span>)
-0053         error(<span class="string">'prt_machine_svm_bin:libNotFound'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
-0054             <span class="string">' libSVM svmtrain function could not be found !'</span> <span class="keyword">...</span>
-0055             <span class="string">' SOLUTION: Please check your path.'</span>]);
-0056     <span class="keyword">end</span>
-0057     <span class="comment">% check it is indeed a two-class classification problem</span>
-0058     uTL=unique(d.tr_targets(:));
-0059     nC=numel(uTL);
-0060     <span class="keyword">if</span> nC&gt;2
-0061         error(<span class="string">'prt_machine_svm_bin:problemNotBinary'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
-0062             <span class="string">' This machine is only for two-class problems but the'</span> <span class="keyword">...</span>
-0063             <span class="string">' current problem has '</span> num2str(nC) <span class="string">' ! '</span> <span class="keyword">...</span>
-0064             <span class="string">'SOLUTION: Please select another machine than '</span> <span class="keyword">...</span>
-0065             <span class="string">'prt_machine_svm_bin in XXX'</span>]);
-0066     <span class="keyword">end</span>
-0067     <span class="comment">% check it is indeed labelled correctly (probably should be done</span>
-0068     <span class="keyword">if</span> ~all(uTL==[1 2]')
-0069         error(<span class="string">'prt_machine_svm_bin:LabellingIncorect'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
-0070             <span class="string">' This machine needs labels to be in {1,2} '</span> <span class="keyword">...</span>
-0071             <span class="string">' but they are '</span> mat2str(uTL) <span class="string">' ! '</span> <span class="keyword">...</span>
-0072             <span class="string">'SOLUTION: Please relabel your classes by changing the '</span><span class="keyword">...</span>
-0073             <span class="string">' ''tr_targets'' argument to prt_machine_svm_bin'</span>]);
-0074     <span class="keyword">end</span>
-0075     
-0076     <span class="comment">% check we are using the C-SVC (exclude types -s 1,2,3,4)</span>
-0077     <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-s\s+[1234]'</span>,<span class="string">'once'</span>))
-0078         error(<span class="string">'prt_machine_svm_bin:argsProblem:onlyCSVCsupport'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
-0079             <span class="string">' This machine only supports a C-SVC formulation '</span> <span class="keyword">...</span>
-0080             <span class="string">' (''-s 0'' in the ''args'' parameter), but the args '</span> <span class="keyword">...</span>
-0081             <span class="string">' supplied are '''</span> args <span class="string">''' ! '</span> <span class="keyword">...</span>
-0082             <span class="string">'SOLUTION: Please change the offending part of args to '</span><span class="keyword">...</span>
-0083             <span class="string">'''-s 0'''</span>]);
-0084     <span class="keyword">end</span>
-0085     
-0086     <span class="comment">% check we are using linear or precomputed kernels</span>
-0087     <span class="comment">% (exclude types -t 1,2,3)</span>
-0088     <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-t\s+[123]'</span>,<span class="string">'once'</span>))
-0089         error(<span class="string">'prt_machine_svm_bin:argsProblem:onlyLinOrPrecomputeSupport'</span>,<span class="keyword">...</span>
-0090             [<span class="string">'Error: This machine only supports linear or precomputed '</span> <span class="keyword">...</span>
-0091             <span class="string">'kernels (''-t 0/4'' in the ''args'' parameter), but the args '</span> <span class="keyword">...</span>
-0092             <span class="string">' supplied are '''</span> args <span class="string">''' ! '</span> <span class="keyword">...</span>
-0093             <span class="string">'SOLUTION: Please change the offending part of args to '</span><span class="keyword">...</span>
-0094             <span class="string">'''-t 0'' or ''-t 4'' as intended'</span>]);
-0095     <span class="keyword">end</span>
-0096     
-0097 <span class="keyword">end</span>
-0098 
-0099 <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-t\s+4'</span>,<span class="string">'once'</span>))
-0100     hasPrecomputedKernel = true;
-0101 <span class="keyword">else</span>
-0102     hasPrecomputedKernel = false;
-0103 <span class="keyword">end</span>
-0104 
-0105 <span class="comment">% Run SVM</span>
-0106 <span class="comment">%--------------------------------------------------------------------------</span>
-0107 nlbs  = length(d.tr_targets);
-0108 <span class="keyword">if</span> hasPrecomputedKernel
-0109     allids_tr = (1:nlbs)';
-0110 <span class="keyword">else</span>
-0111     allids_tr = [];
-0112 <span class="keyword">end</span>
-0113 model = svmtrain(d.tr_targets,[allids_tr d.train{:}],args);
+0036 SANITYCHECK=true; <span class="comment">% can turn off for &quot;speed&quot;. Expert only.</span>
+0037 
+0038 <span class="keyword">if</span> SANITYCHECK==true
+0039     <span class="comment">% args should be a string (empty or otherwise)</span>
+0040     <span class="keyword">if</span> ~ischar(args)
+0041         error(<span class="string">'prt_machine_svm_bin:libSVMargsNotString'</span>,[<span class="string">'Error: libSVM'</span><span class="keyword">...</span>
+0042             <span class="string">' args should be a string. '</span> <span class="keyword">...</span>
+0043             <span class="string">' SOLUTION: Please do XXX'</span>]);
+0044     <span class="keyword">end</span>
+0045     
+0046     <span class="comment">% check we can reach the binary library</span>
+0047     <span class="keyword">if</span> ~exist(<span class="string">'svmtrain'</span>,<span class="string">'file'</span>)
+0048         error(<span class="string">'prt_machine_svm_bin:libNotFound'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0049             <span class="string">' libSVM svmtrain function could not be found !'</span> <span class="keyword">...</span>
+0050             <span class="string">' SOLUTION: Please check your path.'</span>]);
+0051     <span class="keyword">end</span>
+0052     <span class="comment">% check it is indeed a two-class classification problem</span>
+0053     uTL=unique(d.tr_targets(:));
+0054     nC=numel(uTL);
+0055     <span class="keyword">if</span> nC&gt;2
+0056         error(<span class="string">'prt_machine_svm_bin:problemNotBinary'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0057             <span class="string">' This machine is only for two-class problems but the'</span> <span class="keyword">...</span>
+0058             <span class="string">' current problem has '</span> num2str(nC) <span class="string">' ! '</span> <span class="keyword">...</span>
+0059             <span class="string">'SOLUTION: Please select another machine than '</span> <span class="keyword">...</span>
+0060             <span class="string">'prt_machine_svm_bin in XXX'</span>]);
+0061     <span class="keyword">end</span>
+0062     <span class="comment">% check it is indeed labelled correctly (probably should be done</span>
+0063     <span class="keyword">if</span> ~all(uTL==[1 2]')
+0064         error(<span class="string">'prt_machine_svm_bin:LabellingIncorect'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0065             <span class="string">' This machine needs labels to be in {1,2} '</span> <span class="keyword">...</span>
+0066             <span class="string">' but they are '</span> mat2str(uTL) <span class="string">' ! '</span> <span class="keyword">...</span>
+0067             <span class="string">'SOLUTION: Please relabel your classes by changing the '</span><span class="keyword">...</span>
+0068             <span class="string">' ''tr_targets'' argument to prt_machine_svm_bin'</span>]);
+0069     <span class="keyword">end</span>
+0070     
+0071     <span class="comment">% check we are using the C-SVC (exclude types -s 1,2,3,4)</span>
+0072     <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-s\s+[1234]'</span>,<span class="string">'once'</span>))
+0073         error(<span class="string">'prt_machine_svm_bin:argsProblem:onlyCSVCsupport'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0074             <span class="string">' This machine only supports a C-SVC formulation '</span> <span class="keyword">...</span>
+0075             <span class="string">' (''-s 0'' in the ''args'' parameter), but the args '</span> <span class="keyword">...</span>
+0076             <span class="string">' supplied are '''</span> args <span class="string">''' ! '</span> <span class="keyword">...</span>
+0077             <span class="string">'SOLUTION: Please change the offending part of args to '</span><span class="keyword">...</span>
+0078             <span class="string">'''-s 0'''</span>]);
+0079     <span class="keyword">end</span>
+0080     
+0081     <span class="comment">% check we are using linear or precomputed kernels</span>
+0082     <span class="comment">% (exclude types -t 1,2,3)</span>
+0083     <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-t\s+[123]'</span>,<span class="string">'once'</span>))
+0084         error(<span class="string">'prt_machine_svm_bin:argsProblem:onlyLinOrPrecomputeSupport'</span>,<span class="keyword">...</span>
+0085             [<span class="string">'Error: This machine only supports linear or precomputed '</span> <span class="keyword">...</span>
+0086             <span class="string">'kernels (''-t 0/4'' in the ''args'' parameter), but the args '</span> <span class="keyword">...</span>
+0087             <span class="string">' supplied are '''</span> args <span class="string">''' ! '</span> <span class="keyword">...</span>
+0088             <span class="string">'SOLUTION: Please change the offending part of args to '</span><span class="keyword">...</span>
+0089             <span class="string">'''-t 0'' or ''-t 4'' as intended'</span>]);
+0090     <span class="keyword">end</span>
+0091     
+0092 <span class="keyword">end</span>
+0093 
+0094 
+0095 <span class="comment">% Run SVM</span>
+0096 <span class="comment">%--------------------------------------------------------------------------</span>
+0097 nlbs  = length(d.tr_targets);
+0098 allids_tr = (1:nlbs)';
+0099 
+0100 model = svmtrain(d.tr_targets,[allids_tr d.train{:}],args);
+0101 
+0102 <span class="comment">% check if training succeeded:</span>
+0103 <span class="keyword">if</span> isempty(model)
+0104     <span class="keyword">if</span> (ischar(args))
+0105         args_str = args;
+0106     <span class="keyword">else</span>
+0107         args_str = <span class="string">''</span>;
+0108     <span class="keyword">end</span>
+0109     error(<span class="string">'prt_machine_svm_bin:libSVMsvmtrainUnsuccessful'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0110         <span class="string">' libSVM svmtrain function did not run properly!'</span> <span class="keyword">...</span>
+0111         <span class="string">' This could be a problem with the supplied function arguments'</span><span class="keyword">...</span>
+0112         <span class="string">' '</span> args_str <span class="string">''</span>]);
+0113 <span class="keyword">end</span>
 0114 
-0115 <span class="comment">% check if training succeeded:</span>
-0116 <span class="keyword">if</span> isempty(model)
-0117     <span class="keyword">if</span> (ischar(args))
-0118         args_str = args;
-0119     <span class="keyword">else</span>
-0120         args_str = <span class="string">''</span>;
-0121     <span class="keyword">end</span>
-0122     error(<span class="string">'prt_machine_svm_bin:libSVMsvmtrainUnsuccessful'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
-0123         <span class="string">' libSVM svmtrain function did not run properly!'</span> <span class="keyword">...</span>
-0124         <span class="string">' This could be a problem with the supplied function arguments'</span><span class="keyword">...</span>
-0125         <span class="string">' '</span> args_str <span class="string">''</span>]);
-0126 <span class="keyword">end</span>
-0127 sgn = -1*(2 * model.Label(1) - 3);
-0128 b     = -model.rho *sgn;
-0129 
-0130 <span class="keyword">if</span> hasPrecomputedKernel
-0131     alpha = <a href="#_sub1" class="code" title="subfunction alpha = get_alpha(model,n,sgn)">get_alpha</a>(model,nlbs,sgn);
-0132 <span class="keyword">else</span>
-0133     alpha = model.sv_coef;    <span class="comment">% recover alphas directly</span>
-0134     SVs   = model.SVs;          <span class="comment">% recover also the SV's themselves</span>
-0135 <span class="keyword">end</span>
-0136 
-0137 <span class="comment">% compute prediction directly rather than using svmpredict, which does</span>
-0138 <span class="comment">% not allow empty test labels</span>
-0139 <span class="keyword">if</span> hasPrecomputedKernel
-0140     <span class="keyword">if</span> iscell(d.test)
-0141         func_val = cell2mat(d.test)*alpha+b;
-0142     <span class="keyword">else</span>
-0143         func_val = d.test*alpha+b;
-0144     <span class="keyword">end</span>
-0145 <span class="keyword">else</span>
-0146     <span class="comment">% compute primal weight vector</span>
-0147     w = SVs'*alpha;
-0148     <span class="comment">% compute function</span>
-0149     <span class="keyword">if</span> iscell(d.test)
-0150         func_val = cell2mat(d.test)*w+b;
-0151     <span class="keyword">else</span>
-0152         func_val = d.test*w+b;
-0153     <span class="keyword">end</span>
-0154 <span class="keyword">end</span>
-0155 
-0156 <span class="comment">% compute hard decisions</span>
-0157 predictions = sign(func_val);
-0158 
-0159 <span class="comment">% % REMOVEME compare with libsvm svmpredict results</span>
-0160 <span class="comment">% if hasPrecomputedKernel</span>
-0161 <span class="comment">%     allids_te=(1:size(cell2mat(test),1))';</span>
-0162 <span class="comment">% else</span>
-0163 <span class="comment">%     allids_te=[];</span>
-0164 <span class="comment">% end</span>
-0165 <span class="comment">% [foo_preds, foo_acc, foo_decision] = svmpredict([ones(10,1); ones(10,1)*2],[allids_te cell2mat(test)], model);</span>
-0166 <span class="comment">% [func_val foo_decision]</span>
-0167 
-0168 <span class="comment">% TODO: convert labels to chosen output format</span>
-0169 
-0170 <span class="comment">% Outputs</span>
-0171 <span class="comment">%--------------------------------------------------------------------------</span>
-0172 <span class="comment">% change predictions from 1/-1 to 1/2</span>
-0173 c1PredIdx               = predictions==1; 
-0174 <span class="comment">%predictions(c1PredIdx)  = model.Label(1);</span>
-0175 <span class="comment">%predictions(~c1PredIdx) = model.Label(2);</span>
-0176 predictions(c1PredIdx)  = 1; <span class="comment">%positive values = 1</span>
-0177 predictions(~c1PredIdx) = 2; <span class="comment">%negative values = 2</span>
-0178 
-0179 output.predictions = predictions;
-0180 output.func_val    = func_val;
-0181 output.type        = <span class="string">'classifier'</span>;
-0182 output.alpha       = alpha;
-0183 output.b           = b;
-0184 output.totalSV     = model.totalSV;
-0185 <span class="keyword">if</span> exist(<span class="string">'w'</span>,<span class="string">'var'</span>)==1
-0186     output.w = w;
-0187 <span class="keyword">end</span>
-0188 
-0189 <span class="keyword">end</span>
-0190 
-0191 <span class="comment">% Get SV coefficients</span>
-0192 <span class="comment">%--------------------------------------------------------------------------</span>
-0193 <a name="_sub1" href="#_subfunctions" class="code">function alpha = get_alpha(model,n,sgn)</a>
-0194 <span class="comment">% needs a function because examples can be re-ordered by libsvm</span>
-0195 alpha = zeros(n,1);
-0196 
-0197 <span class="keyword">for</span> i = 1:model.totalSV
-0198     ind        = model.SVs(i);
-0199     alpha(ind) = model.sv_coef(i);
-0200 <span class="keyword">end</span>
-0201 
-0202 <span class="comment">% alpha = model.Label(1)*alpha;</span>
-0203 <span class="comment">% sgn = -1*(2 * model.Label(1) - 3);</span>
-0204 alpha = sgn*alpha;
-0205 
-0206 <span class="keyword">end</span>
-0207</pre></div>
-<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0115 
+0116 <span class="comment">% Get SV coefficients (alpha) in the original order and the bias term (b)</span>
+0117 sgn   = -1*(2 * model.Label(1) - 3); <span class="comment">%variable to account for label convention in PRoNTo</span>
+0118 alpha = <a href="#_sub1" class="code" title="subfunction alpha = get_alpha(model,n,sgn)">get_alpha</a>(model,nlbs,sgn);
+0119 b     = -model.rho *sgn;
+0120 
+0121 <span class="comment">% compute prediction directly rather than using svmpredict, which does</span>
+0122 <span class="comment">% not allow empty test labels</span>
+0123 <span class="keyword">if</span> iscell(d.test)
+0124     func_val = cell2mat(d.test)*alpha+b;
+0125 <span class="keyword">else</span>
+0126     func_val = d.test*alpha+b;
+0127 <span class="keyword">end</span>
+0128 
+0129 <span class="comment">% compute hard decisions</span>
+0130 predictions = sign(func_val);
+0131 
+0132 
+0133 <span class="comment">% Outputs</span>
+0134 <span class="comment">%--------------------------------------------------------------------------</span>
+0135 <span class="comment">% change predictions from 1/-1 to 1/2</span>
+0136 c1PredIdx               = predictions==1; 
+0137 predictions(c1PredIdx)  = 1; <span class="comment">%positive values = 1</span>
+0138 predictions(~c1PredIdx) = 2; <span class="comment">%negative values = 2</span>
+0139 
+0140 output.predictions = predictions;
+0141 output.func_val    = func_val;
+0142 output.type        = <span class="string">'classifier'</span>;
+0143 output.alpha       = alpha;
+0144 output.b           = b;
+0145 output.totalSV     = model.totalSV;
+0146 
+0147 <span class="keyword">end</span>
+0148 
+0149 <span class="comment">% Get SV coefficients</span>
+0150 <span class="comment">%--------------------------------------------------------------------------</span>
+0151 <a name="_sub1" href="#_subfunctions" class="code">function alpha = get_alpha(model,n,sgn)</a>
+0152 <span class="comment">% needs a function because examples can be re-ordered by libsvm</span>
+0153 alpha = zeros(n,1);
+0154 
+0155 <span class="keyword">for</span> i = 1:model.totalSV
+0156     ind        = model.SVs(i);
+0157     alpha(ind) = model.sv_coef(i);
+0158 <span class="keyword">end</span>
+0159 
+0160 alpha = sgn*alpha;
+0161 
+0162 <span class="keyword">end</span>
+0163</pre></div>
+<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

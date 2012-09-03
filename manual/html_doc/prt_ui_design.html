@@ -92,7 +92,7 @@ This function is called by:
 0024 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0025 
 0026 <span class="comment">% Written by J.Schrouff</span>
-0027 <span class="comment">% $Id: prt_ui_design.m 528 2012-05-16 13:04:31Z schrouff $</span>
+0027 <span class="comment">% $Id: prt_ui_design.m 565 2012-08-03 08:34:37Z schrouff $</span>
 0028 
 0029 <span class="comment">% Edit the above text to modify the response to help prt_ui_design</span>
 0030 
@@ -1350,118 +1350,119 @@ This function is called by:
 1282 handles.saved=1;
 1283 disp(<span class="string">'Save Done'</span>)
 1284 set(handles.save_data,<span class="string">'ForegroundColor'</span>,[0 0 0])
-1285 
-1286 <span class="comment">% Update handles structure</span>
-1287 guidata(hObject, handles);
-1288 
+1285 cd(handles.dat.dir)
+1286 
+1287 <span class="comment">% Update handles structure</span>
+1288 guidata(hObject, handles);
 1289 
-1290 <span class="comment">% --- Executes on button press in review_button.</span>
-1291 <a name="_sub29" href="#_subfunctions" class="code">function review_button_Callback(hObject, eventdata, handles)</a>
-1292 <span class="comment">% hObject    handle to review_button (see GCBO)</span>
-1293 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-1294 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-1295 <span class="keyword">try</span>
-1296     nm=length(handles.dat.group(1).subject(1).modality);
-1297 <span class="keyword">catch</span>
-1298     beep
-1299     disp(<span class="string">'Please enter at least one subject in one group before reviewing'</span>)
-1300     <span class="keyword">return</span>
-1301 <span class="keyword">end</span>
-1302 <span class="keyword">try</span>
-1303     nma=length(handles.dat.masks);
-1304 <span class="keyword">catch</span>
-1305     beep
-1306     disp(<span class="string">'A mask should be specified for each modality before reviewing'</span>)
-1307     <span class="keyword">return</span>
-1308 <span class="keyword">end</span>
-1309 <span class="keyword">if</span> nm~=nma
-1310     beep
-1311     disp(<span class="string">'Number of masks does not match number of modalities'</span>)
-1312     disp(<span class="string">'Please, correct'</span>)
-1313     <span class="keyword">return</span>
-1314 <span class="keyword">end</span>
-1315 <span class="keyword">if</span> ~(handles.saved)
-1316     PRT=struct();
-1317     PRT.group=handles.dat.group;
-1318     PRT.masks=handles.dat.masks;
-1319 <span class="keyword">else</span>
-1320     fname=[get(handles.edit1,<span class="string">'String'</span>),filesep,<span class="string">'PRT.mat'</span>];
-1321     PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(fname);
-1322     <span class="keyword">if</span> isempty(PRT)
-1323         beep
-1324         disp(<span class="string">'Could not load the saved PRT.mat'</span>)
-1325         <span class="keyword">return</span>
-1326     <span class="keyword">end</span>
-1327 <span class="keyword">end</span>
-1328 <a href="prt_data_review.html" class="code" title="function varargout = prt_data_review(varargin)">prt_data_review</a>(<span class="string">'UserData'</span>,{PRT,handles.dat.dir});
-1329 fname=[get(handles.edit1,<span class="string">'String'</span>),filesep,<span class="string">'PRT.mat'</span>];
-1330 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(fname);
-1331 handles.dat.group=PRT.group;
-1332 handles.dat.masks=PRT.masks;
-1333 <span class="comment">% Update handles structure</span>
-1334 guidata(hObject, handles);
-1335 
-1336            
-1337 
-1338 <span class="comment">% --- Executes on button press in quit_data.</span>
-1339 <a name="_sub30" href="#_subfunctions" class="code">function quit_data_Callback(hObject, eventdata, handles)</a>
-1340 <span class="comment">% hObject    handle to quit_data (see GCBO)</span>
-1341 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
-1342 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
-1343 
-1344 <span class="comment">%if no valuable information was entered, then exit</span>
-1345 <span class="keyword">if</span> ~isfield(handles,<span class="string">'ds'</span>) || length(handles.ds) &lt;1 || <span class="keyword">...</span>
-1346         length(handles.ds{1})&lt;1 || length(handles.ds{1}{1})&lt;1
-1347     <span class="comment">% The figure can be deleted now</span>
-1348     delete(handles.figure1);
-1349 <span class="keyword">else</span>
-1350     <span class="keyword">if</span> ~handles.saved
-1351         beep
-1352         disp(<span class="string">'Modifications performed since last saving, please save again'</span>)
-1353         <span class="keyword">return</span>
-1354     <span class="keyword">else</span>
-1355         <span class="comment">% The figure can be deleted now</span>
-1356         delete(handles.figure1);
-1357     <span class="keyword">end</span>
-1358 <span class="keyword">end</span>
-1359 
+1290 
+1291 <span class="comment">% --- Executes on button press in review_button.</span>
+1292 <a name="_sub29" href="#_subfunctions" class="code">function review_button_Callback(hObject, eventdata, handles)</a>
+1293 <span class="comment">% hObject    handle to review_button (see GCBO)</span>
+1294 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+1295 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+1296 <span class="keyword">try</span>
+1297     nm=length(handles.dat.group(1).subject(1).modality);
+1298 <span class="keyword">catch</span>
+1299     beep
+1300     disp(<span class="string">'Please enter at least one subject in one group before reviewing'</span>)
+1301     <span class="keyword">return</span>
+1302 <span class="keyword">end</span>
+1303 <span class="keyword">try</span>
+1304     nma=length(handles.dat.masks);
+1305 <span class="keyword">catch</span>
+1306     beep
+1307     disp(<span class="string">'A mask should be specified for each modality before reviewing'</span>)
+1308     <span class="keyword">return</span>
+1309 <span class="keyword">end</span>
+1310 <span class="keyword">if</span> nm~=nma
+1311     beep
+1312     disp(<span class="string">'Number of masks does not match number of modalities'</span>)
+1313     disp(<span class="string">'Please, correct'</span>)
+1314     <span class="keyword">return</span>
+1315 <span class="keyword">end</span>
+1316 <span class="keyword">if</span> ~(handles.saved)
+1317     PRT=struct();
+1318     PRT.group=handles.dat.group;
+1319     PRT.masks=handles.dat.masks;
+1320 <span class="keyword">else</span>
+1321     fname=[get(handles.edit1,<span class="string">'String'</span>),filesep,<span class="string">'PRT.mat'</span>];
+1322     PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(fname);
+1323     <span class="keyword">if</span> isempty(PRT)
+1324         beep
+1325         disp(<span class="string">'Could not load the saved PRT.mat'</span>)
+1326         <span class="keyword">return</span>
+1327     <span class="keyword">end</span>
+1328 <span class="keyword">end</span>
+1329 <a href="prt_data_review.html" class="code" title="function varargout = prt_data_review(varargin)">prt_data_review</a>(<span class="string">'UserData'</span>,{PRT,handles.dat.dir});
+1330 fname=[get(handles.edit1,<span class="string">'String'</span>),filesep,<span class="string">'PRT.mat'</span>];
+1331 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname)">prt_load</a>(fname);
+1332 handles.dat.group=PRT.group;
+1333 handles.dat.masks=PRT.masks;
+1334 <span class="comment">% Update handles structure</span>
+1335 guidata(hObject, handles);
+1336 
+1337            
+1338 
+1339 <span class="comment">% --- Executes on button press in quit_data.</span>
+1340 <a name="_sub30" href="#_subfunctions" class="code">function quit_data_Callback(hObject, eventdata, handles)</a>
+1341 <span class="comment">% hObject    handle to quit_data (see GCBO)</span>
+1342 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+1343 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+1344 
+1345 <span class="comment">%if no valuable information was entered, then exit</span>
+1346 <span class="keyword">if</span> ~isfield(handles,<span class="string">'ds'</span>) || length(handles.ds) &lt;1 || <span class="keyword">...</span>
+1347         length(handles.ds{1})&lt;1 || length(handles.ds{1}{1})&lt;1
+1348     <span class="comment">% The figure can be deleted now</span>
+1349     delete(handles.figure1);
+1350 <span class="keyword">else</span>
+1351     <span class="keyword">if</span> ~handles.saved
+1352         beep
+1353         disp(<span class="string">'Modifications performed since last saving, please save again'</span>)
+1354         <span class="keyword">return</span>
+1355     <span class="keyword">else</span>
+1356         <span class="comment">% The figure can be deleted now</span>
+1357         delete(handles.figure1);
+1358     <span class="keyword">end</span>
+1359 <span class="keyword">end</span>
 1360 
-1361 <span class="comment">% -------------------------------------------------------------------------</span>
-1362 <span class="comment">% --------------------- Subfunctions --------------------------------------</span>
-1363 <span class="comment">% -------------------------------------------------------------------------</span>
-1364 
-1365 <a name="_sub31" href="#_subfunctions" class="code">function update_display_data(hObject,hand)</a>
-1366 
-1367 ng=hand.cgr;
-1368 ns=hand.cs;
-1369 nm=hand.cm;
-1370 nf=hand.cf;
-1371 <span class="comment">%update group display</span>
-1372 set(hand.group_list,<span class="string">'Value'</span>,ng)
-1373 <span class="comment">%update subjects display</span>
-1374 <span class="keyword">try</span>
-1375     set(hand.subjects_list,<span class="string">'String'</span>,{hand.dat.group(ng).subject(:).subj_name})
-1376     set(hand.subjects_list,<span class="string">'Value'</span>,ns)
-1377 <span class="keyword">catch</span>
-1378     set(hand.subjects_list,<span class="string">'String'</span>,{})
-1379 <span class="keyword">end</span>
-1380 <span class="comment">%update modality display</span>
-1381 <span class="keyword">try</span>
-1382     set(hand.modality_list,<span class="string">'String'</span>,{hand.dat.group(ng).subject(ns).modality(:).mod_name})
-1383     set(hand.modality_list,<span class="string">'Value'</span>,nm)
-1384 <span class="keyword">catch</span>
-1385     set(hand.modality_list,<span class="string">'String'</span>,{})
-1386 <span class="keyword">end</span>
-1387 <span class="comment">%update file display</span>
-1388 <span class="keyword">try</span>
-1389     set(hand.file_list,<span class="string">'String'</span>,{hand.dat.group(ng).subject(ns).modality(nm).scans})
-1390     set(hand.file_list,<span class="string">'Value'</span>,nf)
-1391 <span class="keyword">catch</span>
-1392     set(hand.file_list,<span class="string">'String'</span>,{})
-1393 <span class="keyword">end</span>
-1394 
-1395 <span class="comment">% Update handles structure</span>
-1396 guidata(hObject, hand);</pre></div>
-<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+1361 
+1362 <span class="comment">% -------------------------------------------------------------------------</span>
+1363 <span class="comment">% --------------------- Subfunctions --------------------------------------</span>
+1364 <span class="comment">% -------------------------------------------------------------------------</span>
+1365 
+1366 <a name="_sub31" href="#_subfunctions" class="code">function update_display_data(hObject,hand)</a>
+1367 
+1368 ng=hand.cgr;
+1369 ns=hand.cs;
+1370 nm=hand.cm;
+1371 nf=hand.cf;
+1372 <span class="comment">%update group display</span>
+1373 set(hand.group_list,<span class="string">'Value'</span>,ng)
+1374 <span class="comment">%update subjects display</span>
+1375 <span class="keyword">try</span>
+1376     set(hand.subjects_list,<span class="string">'String'</span>,{hand.dat.group(ng).subject(:).subj_name})
+1377     set(hand.subjects_list,<span class="string">'Value'</span>,ns)
+1378 <span class="keyword">catch</span>
+1379     set(hand.subjects_list,<span class="string">'String'</span>,{})
+1380 <span class="keyword">end</span>
+1381 <span class="comment">%update modality display</span>
+1382 <span class="keyword">try</span>
+1383     set(hand.modality_list,<span class="string">'String'</span>,{hand.dat.group(ng).subject(ns).modality(:).mod_name})
+1384     set(hand.modality_list,<span class="string">'Value'</span>,nm)
+1385 <span class="keyword">catch</span>
+1386     set(hand.modality_list,<span class="string">'String'</span>,{})
+1387 <span class="keyword">end</span>
+1388 <span class="comment">%update file display</span>
+1389 <span class="keyword">try</span>
+1390     set(hand.file_list,<span class="string">'String'</span>,{hand.dat.group(ng).subject(ns).modality(nm).scans})
+1391     set(hand.file_list,<span class="string">'Value'</span>,nf)
+1392 <span class="keyword">catch</span>
+1393     set(hand.file_list,<span class="string">'String'</span>,{})
+1394 <span class="keyword">end</span>
+1395 
+1396 <span class="comment">% Update handles structure</span>
+1397 guidata(hObject, hand);</pre></div>
+<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

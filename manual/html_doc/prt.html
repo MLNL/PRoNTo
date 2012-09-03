@@ -60,7 +60,7 @@ This function is called by:
 0008 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0009 
 0010 <span class="comment">% Written by Christophe Phillips</span>
-0011 <span class="comment">% $Id: prt.m 519 2012-05-07 21:07:37Z cphillip $</span>
+0011 <span class="comment">% $Id: prt.m 571 2012-08-14 10:44:04Z schrouff $</span>
 0012 
 0013 <span class="comment">%-Format arguments</span>
 0014 <span class="comment">%-----------------------------------------------------------------------</span>
@@ -101,127 +101,157 @@ This function is called by:
 0049                 addpath(fullfile(pth_machines,ls_machinedir{ii}))
 0050             <span class="keyword">end</span>
 0051         <span class="keyword">end</span>
-0052         <span class="comment">% utils - dirty check for the moment</span>
-0053         <span class="keyword">if</span> ~exist(<span class="string">'prt_checkAlphaNumUnder'</span>,<span class="string">'file'</span>)
-0054             addpath(fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'Dir'</span>),<span class="string">'utils'</span>));
-0055         <span class="keyword">end</span>
-0056         
-0057         <span class="comment">% in particular SPM's directories: matlabbatch</span>
-0058         <span class="keyword">if</span> ~exist(<span class="string">'cfg_util'</span>,<span class="string">'file'</span>)
-0059             addpath(fullfile(spm(<span class="string">'Dir'</span>),<span class="string">'matlabbatch'</span>));
-0060         <span class="keyword">end</span>
-0061         
-0062         <span class="comment">% intialize the matlabbatch system</span>
-0063         cfg_get_defaults(<span class="string">'cfg_util.genscript_run'</span>, @genscript_run);
-0064         cfg_util(<span class="string">'initcfg'</span>);
-0065         clear prt_batch;
-0066         
-0067         <span class="comment">% launch the main GUI</span>
-0068         <a href="prt_ui_main.html" class="code" title="function varargout = prt_ui_main(varargin)">prt_ui_main</a>;
-0069         
-0070         <span class="comment">% print present working directory</span>
-0071         fprintf(<span class="string">'PRoNTo present working directory:\n\t%s\n'</span>,pwd)
-0072         
-0073         
-0074         <span class="comment">%==================================================================</span>
-0075     <span class="keyword">case</span> <span class="string">'asciiwelcome'</span>                       <span class="comment">%-ASCII PRoNTo banner welcome</span>
-0076         <span class="comment">%==================================================================</span>
-0077         disp( <span class="string">'                                                      '</span>);
-0078         disp( <span class="string">'     ____  ____        _   ________                   '</span>);
-0079         disp( <span class="string">'    / __ \/ __ \____  / | / /_  __/_         ___ ___  '</span>);
-0080         disp( <span class="string">'   / /_/ / /_/ / __ \/  |/ / / / __ \   _  _&lt;  /&lt;  /'</span>);
-0081         disp( <span class="string">'  / ____/ _, _/ /_/ / /|  / / / /_/ /  | |/ / / / / '</span>);
-0082         disp( <span class="string">' /_/   /_/ |_|\____/_/ |_/ /_/\____/   |___/_(_)_/  '</span>);
-0083         disp( <span class="string">'                                                      '</span>);
-0084         disp( <span class="string">'  PRoNTo v1.1 - http://www.mlnl.cs.ucl.ac.uk/pronto   '</span>);
-0085         fprintf(<span class="string">'\n'</span>);
+0052         <span class="comment">%check for compiled routines</span>
+0053         <span class="comment">%svm</span>
+0054         dumb=which(<span class="string">'svmtrain'</span>);
+0055         <span class="keyword">if</span> ~isempty(findstr(<span class="string">'libsvm'</span>,dumb))
+0056             disp(<span class="string">'SVM path OK'</span>)
+0057         <span class="keyword">else</span>
+0058             warning([<span class="string">'SVM path not recognized. Please check that: \n'</span>, <span class="keyword">...</span>
+0059                 <span class="string">'-PRoNTo was added with all subfolders \n'</span>,<span class="keyword">...</span>
+0060                 <span class="string">'-PRoNTo is above the biostats Matlab toolbox \n'</span>,<span class="keyword">...</span>
+0061                 <span class="string">'Otherwise, the routines surely need to be re-compiled for your OS \n'</span>,<span class="keyword">...</span>
+0062                 <span class="string">'Please look on the web or ask on the mailing list for assistance'</span>])
+0063         <span class="keyword">end</span>
+0064         <span class="comment">%GP</span>
+0065         dumb=which(<span class="string">'solve_chol'</span>);
+0066         <span class="keyword">if</span> ~isempty(dumb) &amp;&amp; ~isempty(findstr(<span class="string">'.mex'</span>,dumb))
+0067             disp(<span class="string">'GP path: OK'</span>)
+0068         <span class="keyword">else</span>
+0069             disp(<span class="string">'GP not compiled: routines will work but be slower'</span>)
+0070         <span class="keyword">end</span>
+0071         <span class="comment">%RF</span>
+0072         dumb=which(<span class="string">'rtenslearn_c'</span>);
+0073         <span class="keyword">if</span> ~isempty(dumb) || ~isempty(findstr(<span class="string">'.mex'</span>,dumb))
+0074             disp(<span class="string">'RF path OK'</span>)
+0075         <span class="keyword">else</span>
+0076             warning([<span class="string">'RF path not recognized. Please check that \n'</span>, <span class="keyword">...</span>
+0077                 <span class="string">'PRoNTo was added with all subfolders \n'</span>,<span class="keyword">...</span>
+0078                 <span class="string">'Otherwise, the routines surely need to be re-compiled for your OS \n'</span>,<span class="keyword">...</span>
+0079                 <span class="string">'Please look on the web or ask on the mailing list for assistance'</span>])
+0080         <span class="keyword">end</span>
+0081 
+0082         <span class="comment">% utils - dirty check for the moment</span>
+0083         <span class="keyword">if</span> ~exist(<span class="string">'prt_checkAlphaNumUnder'</span>,<span class="string">'file'</span>)
+0084             addpath(fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'Dir'</span>),<span class="string">'utils'</span>));
+0085         <span class="keyword">end</span>
 0086         
-0087         <span class="comment">%==================================================================</span>
-0088     <span class="keyword">case</span> <span class="string">'dir'</span>                          <span class="comment">%-Identify specific (SPM) directory</span>
-0089         <span class="comment">%==================================================================</span>
-0090         <span class="comment">% prt('Dir',Mfile)</span>
-0091         <span class="comment">%------------------------------------------------------------------</span>
-0092         <span class="keyword">if</span> nargin&lt;2,
-0093             Mfile=<span class="string">'prt'</span>;
-0094         <span class="keyword">else</span>
-0095             Mfile=varargin{2};
-0096         <span class="keyword">end</span>
-0097         PRTdir = which(Mfile);
-0098         
-0099         <span class="keyword">if</span> isempty(PRTdir)             <span class="comment">%-Not found or full pathname given</span>
-0100             <span class="keyword">if</span> exist(Mfile,<span class="string">'file'</span>)==2  <span class="comment">%-Full pathname</span>
-0101                 PRTdir = Mfile;
-0102             <span class="keyword">else</span>
-0103                 error([<span class="string">'Can''t find '</span>,Mfile,<span class="string">' on MATLABPATH'</span>]);
-0104             <span class="keyword">end</span>
-0105         <span class="keyword">end</span>
-0106         PRTdir    = fileparts(PRTdir);
-0107         varargout = {PRTdir};
-0108         
-0109         <span class="comment">%==================================================================</span>
-0110     <span class="keyword">otherwise</span>                                       <span class="comment">%-Unknown action string</span>
-0111         <span class="comment">%==================================================================</span>
-0112         error(<span class="string">'Unknown action string'</span>);
-0113         
-0114 <span class="keyword">end</span>
-0115 
-0116 <span class="keyword">return</span>
-0117 
-0118 <span class="comment">%=======================================================================</span>
-0119 <span class="comment">%% SUBFUNCTIONS</span>
-0120 <span class="comment">%=======================================================================</span>
-0121 
-0122 <span class="comment">%=======================================================================</span>
-0123 <a name="_sub1" href="#_subfunctions" class="code">function ok = check_installation</a>
-0124 <span class="comment">% function to check installation state of toolbox,</span>
-0125 <span class="comment">% particullarly the SPM path setup</span>
-0126 
-0127 ok=1;
-0128 
-0129 <span class="keyword">if</span> exist(<span class="string">'spm.m'</span>,<span class="string">'file'</span>)
-0130     <span class="keyword">if</span> ~strcmpi(spm(<span class="string">'ver'</span>),<span class="string">'spm8'</span>)
-0131         beep
-0132         fprintf(<span class="string">'\nERROR:\n'</span>)
-0133         fprintf(<span class="string">'\tSPM8 should be installed on your computer, and\n'</span>)
-0134         fprintf(<span class="string">'\tbe available on MATLABPATH!\n\n'</span>)
-0135         ok = 0;
-0136     <span class="keyword">end</span>
-0137 <span class="keyword">else</span>
-0138     beep
-0139     fprintf(<span class="string">'\nERROR:\n'</span>)
-0140     fprintf(<span class="string">'\tSPM8 should be installed on your computer, and\n'</span>)
-0141     fprintf (<span class="string">'\tbe available on MATLABPATH!\n\n'</span>)
-0142     ok = 0;
-0143 <span class="keyword">end</span>
-0144 
-0145 <span class="keyword">return</span>
-0146 
-0147 <span class="comment">%=======================================================================</span>
-0148 <a name="_sub2" href="#_subfunctions" class="code">function lsdir = list_subdir(pth_dir,rejd)</a>
-0149 <span class="comment">% function that returns the list of subdirectories of a directory,</span>
-0150 <span class="comment">% rejection those beginning with some characters ('.', '@' and '_' by</span>
-0151 <span class="comment">% default)</span>
-0152 
-0153 <span class="keyword">if</span> nargin&lt;2
-0154     rejd = <span class="string">'.@_'</span>;
-0155 <span class="keyword">end</span>
-0156 <span class="keyword">if</span> nargin&lt;1
-0157     pth_dir = pwd;
-0158 <span class="keyword">end</span>
-0159 
-0160 tmp = dir(pth_dir);
-0161 ld = find([tmp.isdir]); ld([1 2]) = [];
-0162 lsdir = {tmp(ld).name};
-0163 <span class="keyword">if</span> ~isempty(rejd)
-0164     <span class="keyword">for</span> ii=1:numel(rejd)
-0165         lrej = find(strncmp(rejd(ii),lsdir,1));
-0166         <span class="keyword">if</span> ~isempty(lrej)
-0167             lsdir(lrej) = [];
-0168         <span class="keyword">end</span>
-0169     <span class="keyword">end</span>
-0170 <span class="keyword">end</span>
-0171     
-0172 <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0087         <span class="comment">% in particular SPM's directories: matlabbatch</span>
+0088         <span class="keyword">if</span> ~exist(<span class="string">'cfg_util'</span>,<span class="string">'file'</span>)
+0089             addpath(fullfile(spm(<span class="string">'Dir'</span>),<span class="string">'matlabbatch'</span>));
+0090         <span class="keyword">end</span>
+0091         
+0092         <span class="comment">% intialize the matlabbatch system</span>
+0093         cfg_get_defaults(<span class="string">'cfg_util.genscript_run'</span>, @genscript_run);
+0094         cfg_util(<span class="string">'initcfg'</span>);
+0095         clear prt_batch;
+0096         
+0097         <span class="comment">% launch the main GUI</span>
+0098         <a href="prt_ui_main.html" class="code" title="function varargout = prt_ui_main(varargin)">prt_ui_main</a>;
+0099         
+0100         <span class="comment">% print present working directory</span>
+0101         fprintf(<span class="string">'PRoNTo present working directory:\n\t%s\n'</span>,pwd)
+0102         
+0103         
+0104         <span class="comment">%==================================================================</span>
+0105     <span class="keyword">case</span> <span class="string">'asciiwelcome'</span>                       <span class="comment">%-ASCII PRoNTo banner welcome</span>
+0106         <span class="comment">%==================================================================</span>
+0107         disp( <span class="string">'                                                      '</span>);
+0108         disp( <span class="string">'     ____  ____        _   ________                   '</span>);
+0109         disp( <span class="string">'    / __ \/ __ \____  / | / /_  __/_         ___ ___  '</span>);
+0110         disp( <span class="string">'   / /_/ / /_/ / __ \/  |/ / / / __ \   _  _&lt;  /&lt;  /'</span>);
+0111         disp( <span class="string">'  / ____/ _, _/ /_/ / /|  / / / /_/ /  | |/ / / / / '</span>);
+0112         disp( <span class="string">' /_/   /_/ |_|\____/_/ |_/ /_/\____/   |___/_(_)_/  '</span>);
+0113         disp( <span class="string">'                                                      '</span>);
+0114         disp( <span class="string">'  PRoNTo v1.1 - http://www.mlnl.cs.ucl.ac.uk/pronto   '</span>);
+0115         fprintf(<span class="string">'\n'</span>);
+0116         
+0117         <span class="comment">%==================================================================</span>
+0118     <span class="keyword">case</span> <span class="string">'dir'</span>                          <span class="comment">%-Identify specific (SPM) directory</span>
+0119         <span class="comment">%==================================================================</span>
+0120         <span class="comment">% prt('Dir',Mfile)</span>
+0121         <span class="comment">%------------------------------------------------------------------</span>
+0122         <span class="keyword">if</span> nargin&lt;2,
+0123             Mfile=<span class="string">'prt'</span>;
+0124         <span class="keyword">else</span>
+0125             Mfile=varargin{2};
+0126         <span class="keyword">end</span>
+0127         PRTdir = which(Mfile);
+0128         
+0129         <span class="keyword">if</span> isempty(PRTdir)             <span class="comment">%-Not found or full pathname given</span>
+0130             <span class="keyword">if</span> exist(Mfile,<span class="string">'file'</span>)==2  <span class="comment">%-Full pathname</span>
+0131                 PRTdir = Mfile;
+0132             <span class="keyword">else</span>
+0133                 error([<span class="string">'Can''t find '</span>,Mfile,<span class="string">' on MATLABPATH'</span>]);
+0134             <span class="keyword">end</span>
+0135         <span class="keyword">end</span>
+0136         PRTdir    = fileparts(PRTdir);
+0137         varargout = {PRTdir};
+0138         
+0139         <span class="comment">%==================================================================</span>
+0140     <span class="keyword">otherwise</span>                                       <span class="comment">%-Unknown action string</span>
+0141         <span class="comment">%==================================================================</span>
+0142         error(<span class="string">'Unknown action string'</span>);
+0143         
+0144 <span class="keyword">end</span>
+0145 
+0146 <span class="keyword">return</span>
+0147 
+0148 <span class="comment">%=======================================================================</span>
+0149 <span class="comment">%% SUBFUNCTIONS</span>
+0150 <span class="comment">%=======================================================================</span>
+0151 
+0152 <span class="comment">%=======================================================================</span>
+0153 <a name="_sub1" href="#_subfunctions" class="code">function ok = check_installation</a>
+0154 <span class="comment">% function to check installation state of toolbox,</span>
+0155 <span class="comment">% particullarly the SPM path setup</span>
+0156 
+0157 ok=1;
+0158 
+0159 <span class="keyword">if</span> exist(<span class="string">'spm.m'</span>,<span class="string">'file'</span>)
+0160     <span class="keyword">if</span> ~strcmpi(spm(<span class="string">'ver'</span>),<span class="string">'spm8'</span>)
+0161         beep
+0162         fprintf(<span class="string">'\nERROR:\n'</span>)
+0163         fprintf(<span class="string">'\tSPM8 should be installed on your computer, and\n'</span>)
+0164         fprintf(<span class="string">'\tbe available on MATLABPATH!\n\n'</span>)
+0165         ok = 0;
+0166     <span class="keyword">end</span>
+0167 <span class="keyword">else</span>
+0168     beep
+0169     fprintf(<span class="string">'\nERROR:\n'</span>)
+0170     fprintf(<span class="string">'\tSPM8 should be installed on your computer, and\n'</span>)
+0171     fprintf (<span class="string">'\tbe available on MATLABPATH!\n\n'</span>)
+0172     ok = 0;
+0173 <span class="keyword">end</span>
+0174 
+0175 <span class="keyword">return</span>
+0176 
+0177 <span class="comment">%=======================================================================</span>
+0178 <a name="_sub2" href="#_subfunctions" class="code">function lsdir = list_subdir(pth_dir,rejd)</a>
+0179 <span class="comment">% function that returns the list of subdirectories of a directory,</span>
+0180 <span class="comment">% rejection those beginning with some characters ('.', '@' and '_' by</span>
+0181 <span class="comment">% default)</span>
+0182 
+0183 <span class="keyword">if</span> nargin&lt;2
+0184     rejd = <span class="string">'.@_'</span>;
+0185 <span class="keyword">end</span>
+0186 <span class="keyword">if</span> nargin&lt;1
+0187     pth_dir = pwd;
+0188 <span class="keyword">end</span>
+0189 
+0190 tmp = dir(pth_dir);
+0191 ld = find([tmp.isdir]); ld([1 2]) = [];
+0192 lsdir = {tmp(ld).name};
+0193 <span class="keyword">if</span> ~isempty(rejd)
+0194     <span class="keyword">for</span> ii=1:numel(rejd)
+0195         lrej = find(strncmp(rejd(ii),lsdir,1));
+0196         <span class="keyword">if</span> ~isempty(lrej)
+0197             lsdir(lrej) = [];
+0198         <span class="keyword">end</span>
+0199     <span class="keyword">end</span>
+0200 <span class="keyword">end</span>
+0201     
+0202 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -68,7 +68,7 @@ This function is called by:
 0013 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0014 
 0015 <span class="comment">% Written by A Marquand and J Schrouff</span>
-0016 <span class="comment">% $Id: prt_run_fs.m 463 2012-03-21 12:27:29Z mjrosa $</span>
+0016 <span class="comment">% $Id: prt_run_fs.m 558 2012-06-19 08:09:08Z amarquan $</span>
 0017 
 0018 <span class="comment">% Job variable</span>
 0019 <span class="comment">% -------------------------------------------------------------------------</span>
@@ -87,7 +87,7 @@ This function is called by:
 0032 maskchos={job.modality(:).mod_name};
 0033 
 0034 <span class="keyword">if</span> ~isempty(setdiff(modchos,allmod))
-0035     error([<span class="string">'Couldn''t find modality &quot;'</span>,target,<span class="string">'&quot; in PRT.mat'</span>]);
+0035     error([<span class="string">'Couldn''t find modality &quot;'</span>,cell2mat(modchos),<span class="string">'&quot; in PRT.mat'</span>]);
 0036 <span class="keyword">end</span>
 0037 
 0038 <span class="keyword">for</span> i=1:length(PRT.masks)
@@ -158,6 +158,6 @@ This function is called by:
 0103 
 0104 
 0105</pre></div>
-<hr><address>Generated on Sun 20-May-2012 13:24:48 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
