@@ -87,7 +87,6 @@
 % prt_model.m                   
 % prt_normalise_kernel.m        
 % prt_permutation.m             
-% prt_preproc.m                 
 % prt_remove_confounds.m        
 % prt_stats.m                   
 % prt_struct2latex.m            

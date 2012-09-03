@@ -56,7 +56,7 @@ Phi = zeros(n);
 
 % set memory limit
 nfa = [];
-for m=1:n_mods
+for m = 1:n_mods
     nfa   = [nfa, PRT.fas(mids(m)).dat.dim(1)];
     n_vox = PRT.fas(mids(m)).dat.dim(2);
 end
@@ -64,7 +64,7 @@ mem         = def.mem_limit;
 block_size  = floor(mem/8/max([nfa, n])); % Block size (double = 8 bytes)
 n_block     = ceil(n_vox/block_size);
 
-bstart=1; bend=min(block_size,n_vox);
+bstart = 1; bend = min(block_size,n_vox);
 h = waitbar(0,'Please wait while preparing feature set');
 step=1;
 for b = 1:n_block
@@ -208,24 +208,24 @@ disp('Done.')
 function [mask, precmask, headers,PRT] = load_masks(PRT, prt_dir, in, mids)
 % function to load the mask for each modality
 % -------------------------------------------
-n_mods=length(mids);
-mask  = cell(1,n_mods);
-precmask  = cell(1,n_mods);
-headers = cell(1,n_mods);
+n_mods   =length(mids);
+mask     = cell(1,n_mods);
+precmask = cell(1,n_mods);
+headers  = cell(1,n_mods);
 for m = 1:n_mods
-    mid=mids(m);
+    mid = mids(m);
     
-    %get mask for the within-brain voxels (from data and design)
-    ddmask=PRT.masks(mid).fname;
+    % get mask for the within-brain voxels (from data and design)
+    ddmask = PRT.masks(mid).fname;
     try
-        M=nifti(ddmask);
-    catch
+        M = nifti(ddmask);
+    catch %#ok<*CTCH>
         error('prt_prepare_data:CouldNotLoadFile',...
             'Could not load mask file');
     end
     
-    %get mask for the kernel if one was specified
-    mfile=in.mod(mid).mask;
+    % get mask for the kernel if one was specified
+    mfile = in.mod(mid).mask;
     if ~isempty(mfile) %&&  mfile ~= 0
         try
             precM = spm_vol(char(mfile));
@@ -235,11 +235,11 @@ for m = 1:n_mods
         end
     end
     
-    %get header of the first scan of that modality
+    % get header of the first scan of that modality
     if isfield(PRT,'fas') && mid<=length(PRT.fas) && ~isempty(PRT.fas(mid).dat)
-        N=PRT.fas(mid).hdr;
+        N = PRT.fas(mid).hdr;
     else
-        N=spm_vol(PRT.group(1).subject(1).modality(mid).scans(1,:));
+        N = spm_vol(PRT.group(1).subject(1).modality(mid).scans(1,:));
     end
     headers{m}=N;
     
@@ -252,38 +252,63 @@ for m = 1:n_mods
             'Multiple modalities specified, but have variable numbers of features');
     end
     
-    %resize the different masks if needed
+    % resize the different masks if needed
     if any(size(M.dat(:,:,:,1)) ~= N.dim)
         warning('prt_prepare_data:maskAndImagesDifferentDim',...
             'Mask has different dimensions to the image files. Resizing...');
         
         V2 = spm_vol(char(ddmask));
-        mfile_new       = N;
-        mfile_new.fname = [prt_dir 'updated_1stlevel_mask_m',num2str(mid),'.img'];
-        tmp             = spm_imcalc([N V2],mfile_new,'0.*i1+(i2>0)');
-        mask{m}         = mfile_new.fname;
-        PRT.masks(mid).fname = mfile_new.fname;
-    else
-        mask{m} = ddmask;
-        
-    end
-    if ~isempty(mfile)  && any((precM.dim~= N.dim)) % && mfile ~= 0 
-        warning('prt_prepare_data:maskAndImagesDifferentDim',...
-            'Preprocessing mask has different dimensions to the image files. Resizing...');
-        
-        V2 = spm_vol(char(mfile));
-        mfile_new       = N;
-        nummask=1;
-        %if more than one 2nd level mask to resize
-        while exist(fullfile( ...
-                prt_dir,['updated_2ndlevel_mask_m',num2str(mid),'_',...
-                num2str(nummask),'.img']))
-                nummask=nummask+1;
+        % reslicing V2        
+        fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
+        spm_reslice([N V2],fl_res)
+        % now renaming the file 
+        [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
+        rV2_fn = [fl_res.prefix,V2_fn];
+        if strcmp(V2_ext,'.nii')
+            % turn .nii into .img/.hdr image!
+            V_in = spm_vol(fullfile(V2_pth,[rV2_fn,'.nii']));
+            V_out = V_in; V_out.fname = fullfile(V2_pth,[rV2_fn,'.img']);
+            spm_imcalc(V_in,V_out,'i1');
         end
-        mfile_new.fname = [prt_dir 'updated_2ndlevel_mask_m',num2str(mid),...
-            '_',num2str(nummask),'.img'];
-        tmp             = spm_imcalc([N V2],mfile_new,'0.*i1+(i2>0)');
-        precmask{m}     = mfile_new.fname;
+        mfile_new = ['updated_1stlevel_mask_m',num2str(mid)];
+        movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
+                    fullfile(prt_dir,[mfile_new,'.img']));
+        movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
+                    fullfile(prt_dir,[mfile_new,'.hdr']));
+        PRT.masks(mid).fname = fullfile(prt_dir,[mfile_new,'.img']);
+    else
+        mask{m} = ddmask;        
+    end
+    if ~isempty(mfile) && any((precM.dim~= N.dim)) % && mfile ~= 0 
+        warning('prt_prepare_data:maskAndImagesDifferentDim',...
+            'Preprocessing mask has different dimensions to the image files. Resizing...');      
+        V2 = spm_vol(char(mfile));
+        % reslicing V2        
+        fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
+        spm_reslice([N V2],fl_res)
+        % now renaming the file 
+        [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
+        rV2_fn = [fl_res.prefix,V2_fn];
+        if strcmp(V2_ext,'.nii')
+            % turn .nii into .img/.hdr image!
+            V_in = spm_vol(fullfile(V2_pth,[rV2_fn,'.nii']));
+            V_out = V_in; V_out.fname = fullfile(V2_pth,[rV2_fn,'.img']);
+            spm_imcalc(V_in,V_out,'i1');
+        end
+        % if more than one 2nd level mask to resize
+        nummask = 1;
+        while exist(fullfile( ...
+                    prt_dir,['updated_2ndlevel_mask_m',num2str(mid),'_',...
+                    num2str(nummask),'.img']),'file')
+                nummask = nummask+1;
+        end
+        mfile_new = ['updated_2ndlevel_mask_m',num2str(mid),...
+            '_',num2str(nummask)];
+        movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
+                    fullfile(prt_dir,[mfile_new,'.img']));
+        movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
+                    fullfile(prt_dir,[mfile_new,'.hdr']));
+        precmask{m} = fullfile(prt_dir,[mfile_new,'.img']);
     else
         precmask{m} = mfile;
     end
@@ -291,25 +316,25 @@ for m = 1:n_mods
 end
 return
 
-function c=poly_regressor(n,order)
-%n: length of the series
-%order: the order of polynomial function to fit the tend
+function c = poly_regressor(n,order)
+% n:     length of the series
+% order: the order of polynomial function to fit the tend
 
-basis=repmat([1:n]',[1 order]);
-o=repmat([1:order],[n 1]);
-c=[ones(n,1) basis.^o];
+basis = repmat([1:n]',[1 order]);
+o = repmat([1:order],[n 1]);
+c = [ones(n,1) basis.^o];
 return
 
 function c=dct_regressor(n,cut_off,TR)
-% n: length of the series
-%cut_off: the cut off perioed in second (1/ cut off frequency)
-%TR: TR
+% n:       length of the series
+% cut_off: the cut off perioed in second (1/ cut off frequency)
+% TR:      TR
 
 if cut_off<0
     error('cut off cannot be negative')
 end
 
-T=n*TR;
-order=floor((T/cut_off)*2)+1;
-c=spm_dctmtx(n,order);
+T = n*TR;
+order = floor((T/cut_off)*2)+1;
+c = spm_dctmtx(n,order);
 return
