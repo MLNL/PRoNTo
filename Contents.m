@@ -1,5 +1,3 @@
-%
-%
 % Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
 % Verion 1.1 (PRoNTo) 14-May-2012
 %__________________________________________________________________________
