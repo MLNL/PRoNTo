@@ -208,7 +208,7 @@ disp('Done.')
 function [mask, precmask, headers,PRT] = load_masks(PRT, prt_dir, in, mids)
 % function to load the mask for each modality
 % -------------------------------------------
-n_mods   =length(mids);
+n_mods   = length(mids);
 mask     = cell(1,n_mods);
 precmask = cell(1,n_mods);
 headers  = cell(1,n_mods);
@@ -236,13 +236,13 @@ for m = 1:n_mods
     end
     
     % get header of the first scan of that modality
-    if isfield(PRT,'fas') && mid<=length(PRT.fas) && ~isempty(PRT.fas(mid).dat)
+    if isfield(PRT,'fas') && mid<=length(PRT.fas) && ...
+            ~isempty(PRT.fas(mid).dat)
         N = PRT.fas(mid).hdr;
     else
         N = spm_vol(PRT.group(1).subject(1).modality(mid).scans(1,:));
     end
     headers{m}=N;
-    
     
     % compute voxel dimensions and check for equality if n_mod > 1
     if m == 1
@@ -276,6 +276,7 @@ for m = 1:n_mods
         movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
                     fullfile(prt_dir,[mfile_new,'.hdr']));
         PRT.masks(mid).fname = fullfile(prt_dir,[mfile_new,'.img']);
+        mask{m} = PRT.masks(mid).fname;        
     else
         mask{m} = ddmask;        
     end

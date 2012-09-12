@@ -109,16 +109,17 @@ else
         %get indexes from mask specified in the data and design step
         vm = spm_vol(mask{m});
         vm = spm_read_vols(vm);
-        PRT.fs(fid).modality(m).feat_idx_img = find(vm>0);
-        if isempty(find(vm>0))
+        if ~any(vm(:)>0)
             error('prt_prepare_data:NoVoxelinMask',...
                 ['Mask of modality ',num2str(m),' does not contain any voxel >0'])
+        else
+            PRT.fs(fid).modality(m).feat_idx_img = find(vm>0);
         end
-        mid=mids(m);
+        mid = mids(m);
         if m==1
-            n_vox=length(find(vm>0));
+            n_vox = sum(vm(:)>0);
         end
-        if n_vox~=length(find(vm>0))
+        if n_vox ~= sum(vm(:)>0)
             error('prt_prepare_data:MasksNotConsistent',...
                 'Masks access areas of different sizes across modalities')
         end
@@ -126,7 +127,7 @@ else
         if ~isempty(precmask{m})
             vm = spm_vol(precmask{m});
             vm = spm_read_vols(vm);
-            if isempty(find(vm>0))
+            if ~any(vm(:)>0)
                 error('prt_prepare_data:NoVoxelinMask',...
                     ['2nd level mask of modality ',num2str(m),' does not contain any voxel >0'])
             end
