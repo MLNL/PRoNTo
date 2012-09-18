@@ -11,6 +11,11 @@ function prt_batch
 % $Id$
 
 persistent batch_initialize
+global PRT_INIT
+
+if isempty(PRT_INIT) || ~PRT_INIT
+    prt('startup','nogui');
+end
 
 if isempty(batch_initialize) || ~batch_initialize
     % PRoNTo config tree

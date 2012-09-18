@@ -41,6 +41,8 @@ cv_model.prog   = @prt_run_cv_model;
 cv_model.vout   = @vout_data;
 
 %------------------------------------------------------------------------
+%% Output function
+%------------------------------------------------------------------------
 function cdep = vout_data(job)
 % Specifies the output from this modules, i.e. the filename of the mat file
 

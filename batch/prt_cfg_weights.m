@@ -57,6 +57,8 @@ weights.prog   = @prt_run_weights;
 weights.vout   = @vout_data;
 
 %------------------------------------------------------------------------
+%% Output function
+%------------------------------------------------------------------------
 function cdep = vout_data(job)
 % Specifies the output from this modules, i.e. the filename of the mat file
 
@@ -64,4 +66,8 @@ cdep(1)            = cfg_dep;
 cdep(1).sname      = 'PRT.mat file';
 cdep(1).src_output = substruct('.','files');
 cdep(1).tgt_spec   = cfg_findspec({{'filter','mat','strtype','e'}});
+cdep(2)            = cfg_dep;
+cdep(2).sname      = 'Weight image file';
+cdep(2).src_output = substruct('.','files');
+cdep(2).tgt_spec   = cfg_findspec({{'filter','img','strtype','e'}});
 %------------------------------------------------------------------------

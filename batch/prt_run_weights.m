@@ -36,13 +36,14 @@ in.img_name   = job.img_name;
 in.model_name = job.model_name;
 in.pathdir    = pathdir;
 
-prt_compute_weights(PRT, in);
+img_name = prt_compute_weights(PRT, in);
 
 % -------------------------------------------------------------------------
 % Function output
 % -------------------------------------------------------------------------
 disp('Weights computation complete.')
 out.files{1} = fname;
+out.files{2} = img_name;
 disp('Done')
 
  return

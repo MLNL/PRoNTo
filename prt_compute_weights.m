@@ -1,4 +1,4 @@
-function prt_compute_weights(PRT,in)
+function img_name = prt_compute_weights(PRT,in)
 % FORMAT prt_compute_weights(PRT,in)
 %
 % This function calls prt_weights to compute weights 
@@ -13,7 +13,8 @@ function prt_compute_weights(PRT,in)
 %           .pathdir    - directory path where to save weights (same as the
 %                         one for PRT.mat) (string)
 % Output:
-%       empty           - does not return anything (it creates an .img file)
+%       img_name        - name of the .img file created
+%       + image file created on disk
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 

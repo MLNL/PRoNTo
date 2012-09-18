@@ -22,7 +22,7 @@ infile.help   = {'Select data/design structure file (PRT.mat).'};
 % ---------------------------------------------------------------------
 k_file         = cfg_entry;
 k_file.tag     = 'k_file';
-k_file.name    = 'Name';
+k_file.name    = 'Feature/kernel name';
 k_file.help    = {['Target name for kernel matrix. This should contain' ...
                    'only alphanumerical characters or underscores (_).']};
 k_file.strtype = 's';
@@ -168,7 +168,7 @@ fmask.help   = {'Select a mask for the selected modality.'};
 % ---------------------------------------------------------------------
 mod_name         = cfg_entry;
 mod_name.tag     = 'mod_name';
-mod_name.name    = 'Name';
+mod_name.name    = 'Modality name';
 mod_name.help    = {'Name of modality. Example: ''BOLD''. Must match design specification'};
 mod_name.strtype = 's';
 mod_name.num     = [1 Inf];
@@ -250,14 +250,14 @@ modalities.values  = {modality};
 % ---------------------------------------------------------------------
 fs        = cfg_exbranch;
 fs.tag    = 'fs';
-fs.name   = 'Feature set / Kernel';
+fs.name   = 'Feature set/Kernel';
 fs.val    = {infile, k_file, modalities};
 fs.help   = {'Compute feature set according to the design specified'};
 fs.prog   = @prt_run_fs;
 fs.vout   = @vout_data;
 
 %------------------------------------------------------------------------
-% Output function
+%% Output function
 %------------------------------------------------------------------------
 function cdep = vout_data(job)
 % Specifies the output from this modules, i.e. the filename of the mat file
@@ -266,5 +266,10 @@ cdep(1)            = cfg_dep;
 cdep(1).sname      = 'PRT.mat file';
 cdep(1).src_output = substruct('.','fname');
 cdep(1).tgt_spec   = cfg_findspec({{'filter','mat','strtype','e'}});
+cdep(2)            = cfg_dep;
+cdep(2).sname      = 'Feature/kernel name';
+cdep(2).src_output = substruct('.','fs_name');
+cdep(2).tgt_spec   = cfg_findspec({{'strtype','s'}});
+
 %------------------------------------------------------------------------
 

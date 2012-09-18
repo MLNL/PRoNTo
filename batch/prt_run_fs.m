@@ -23,13 +23,13 @@ if exist('PRT','var')
     clear PRT
 end
 load(fname);
-fs_name=job.k_file;
+fs_name = job.k_file;
 
-mod=struct();
-allmod={PRT.masks(:).mod_name};
-modchos={job.modality(:).mod_name};
-%maskchos={job.mask(:).mod_name};
-maskchos={job.modality(:).mod_name};
+mod      = struct();
+allmod   = {PRT.masks(:).mod_name};
+modchos  = {job.modality(:).mod_name};
+% maskchos = {job.mask(:).mod_name};
+maskchos = {job.modality(:).mod_name};
 
 if ~isempty(setdiff(modchos,allmod))
     error(['Couldn''t find modality "',cell2mat(modchos),'" in PRT.mat']);
@@ -88,14 +88,15 @@ for i=1:length(PRT.masks)
     end
 end
 
-input=struct();
-input.fname=fname;
-input.fs_name=fs_name;
-input.mod=mod;
+input = struct( ...
+            'fname',fname, ...
+            'fs_name',fs_name, ...
+            'mod',mod);
     
 prt_fs(PRT,input);
 
 out.fname{1} = fname;
+out.fs_name  = fs_name;
 disp('Done.')
 end
 

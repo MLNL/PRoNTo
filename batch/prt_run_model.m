@@ -73,11 +73,11 @@ model.use_kernel = job.use_kernel;
 % insert feature set fields
 
 model.fs(1).fs_name = job.fsets;
-fid=prt_init_fs(PRT,model.fs(1));
-mods={PRT.fs(fid).modality(:).mod_name};
+fid = prt_init_fs(PRT,model.fs(1));
+mods = {PRT.fs(fid).modality(:).mod_name};
 
-%get the conditions which are common to all subjects from all groups
-nm=length(mods);
+% get the conditions which are common to all subjects from all groups
+nm = length(mods);
 for i=1:nm
     flag=1;
     for j=1:length(PRT.group)
@@ -238,6 +238,6 @@ prt_model(PRT,model);
 % Function output
 % -------------------------------------------------------------------------
 out.files{1} = fname;
-out.names{1} = model.model_name;
+out.mname = model.model_name;
 disp('Model configuration complete.')
 end

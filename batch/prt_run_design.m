@@ -52,6 +52,7 @@ end
 
 % Data type
 if isfield(job.group(1).select,'modality')
+    % selection by "images" in a modality
     nmod_scans = length(job.group(1).select.modality);
     for g = 1:ngroup
         
@@ -159,6 +160,7 @@ if isfield(job.group(1).select,'modality')
         PRT.group(g).hrfdelay = job.hrfdel;
     end
 else
+    % selection by subject
     for g = 1:ngroup,  
         
         nmod_subjs = length(job.group(1).select.subject{1});
@@ -199,8 +201,8 @@ else
                             return
                         end
                         clear design
-                        % Load SPM.mat design
                         if isfield(job.group(g).select.subject{j}(k).design,'load_SPM')
+                            % Load SPM.mat design
                             try
                                 load(job.group(g).select.subject{j}(k).design.load_SPM{1});
                             catch
@@ -220,7 +222,7 @@ else
                             nscans  = length(job.group(g).select.subject{j}(k).scans);
                             ncond   = length(SPM.Sess(1).U);
                             for c = 1:ncond
-                                conds(c).cond_name = SPM.Sess(1).U(c).name{1};
+                                conds(c).cond_name = SPM.Sess(1).U(c).name{1}; %#ok<*AGROW>
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
                             end                        
@@ -242,10 +244,11 @@ else
                                 end
                             end
                         else
-                            % No design
                             if isfield(job.group(g).select.subject{j}(k).design,'no_design')
+                                % No design
                                 design = 0;
                             else
+                                % Manual design
                                 nscans = length(job.group(g).select.subject{j}(k).scans);
                                 unit   = job.group(g).select.subject{j}(k).design.new_design.unit;
                                 % Create new design
@@ -432,6 +435,15 @@ end
 % Function output
 % -------------------------------------------------------------------------
 out.files{1} = fname;
+% get the group_names
+for g = 1:ngroup
+    out.(sprintf('gr_name%d',g)) = PRT.group(g).gr_name;
+end
+% get the mod_names -> use the ones from the masks!
+for m = 1:numel(mod_names_uniq)
+    out.(sprintf('mod_name%d',m)) = mod_names_uniq{m};
+end
+
 disp('Done')
 
 return

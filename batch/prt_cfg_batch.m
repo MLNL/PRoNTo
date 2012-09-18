@@ -17,7 +17,7 @@ function prt = prt_cfg_batch
 
 
 % ---------------------------------------------------------------------
-% prt PRoNTo series of modules
+%% prt PRoNTo series of modules
 % ---------------------------------------------------------------------
 prt         = cfg_choice;
 prt.tag     = 'prt';

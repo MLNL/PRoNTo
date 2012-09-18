@@ -10,12 +10,13 @@ function varargout = prt(varargin)
 % Written by Christophe Phillips
 % $Id$
 
-% TODO: 
+% TODO:
 % - fix which subdirectories from all themachines are necessary, and only
 %   add these to Matlab path.
 
 %-Format arguments
 %-----------------------------------------------------------------------
+global PRT_INIT
 if nargin == 0,
     Action = 'StartUp';
 else
@@ -29,21 +30,23 @@ switch lower(Action)
         
         % Welcome message
         prt('ASCIIwelcome');
-
+        
         % add appropriate paths, if necessary
         %   - batch dir
-        if ~exist('prt_batch','file')
+        if ~exist('prt_cfg_batch','file')
             addpath(fullfile(prt('Dir'),'batch'));
         end
         %   - machines
         if ~exist('prt_machine','file')
             pth_machines = fullfile(prt('Dir'),'machines');
             addpath(pth_machines);
-            % add each machine's sub-directory 
+            % add each machine's sub-directory
             % and ALL its subdirectories recursively
             ls_machinedir = list_subdir(pth_machines);
             for ii=1:numel(ls_machinedir)
-                addpath(genpath(fullfile(pth_machines,ls_machinedir{ii})))
+                gpath_ii = genpath(fullfile(pth_machines,ls_machinedir{ii}));
+                gpath_ii = clean_gpath(gpath_ii);
+                addpath(gpath_ii)
             end
         end
         
@@ -70,11 +73,20 @@ switch lower(Action)
         cfg_util('initcfg');
         clear prt_batch;
         
-        % launch the main GUI
-        prt_ui_main;
+        % set path to PRoNTo and SPM dir into 'file select'
+        spm_select('prevdirs',[spm('Dir') filesep]);
+        spm_select('prevdirs',[prt('Dir') filesep]);
+        
+        % launch the main GUI, if needed
+        if nargin<2 || ~strcmp(varargin{2},'nogui')
+            prt_ui_main;
+        end
         
         % print present working directory
         fprintf('PRoNTo present working directory:\n\t%s\n',pwd)
+        
+        % Init flag true
+        PRT_INIT = true;
         
         %==================================================================
     case 'asciiwelcome'                       %-ASCII PRoNTo banner welcome
@@ -95,9 +107,9 @@ switch lower(Action)
         % prt('Dir',Mfile)
         %------------------------------------------------------------------
         if nargin<2,
-            Mfile='prt';
+            Mfile = 'prt';
         else
-            Mfile=varargin{2};
+            Mfile = varargin{2};
         end
         PRTdir = which(Mfile);
         
@@ -282,3 +294,43 @@ if isempty(PRoNTo_VER) || (nargin > 0 && ReDo)
     end
     PRoNTo_VER = v;
 end
+
+return
+
+%=======================================================================
+function gpath = clean_gpath(gpath,rejd)
+%=======================================================================
+% function that "cleans up" a list of pathes to subdirectories,
+% i.e. it removes any path containing a set of strings.
+% By default, it removes all the '.svn' pathes. Other strings can be passed
+% as a cell array
+
+if nargin<2
+    rejd = {'.svn'};
+end
+if nargin<1
+    return
+end
+
+if numel(rejd)>1
+    % do it 1 by 1
+    for ii=1:numel(rejd)
+        gpath = clean_gpath(gpath,rejd{ii});
+    end
+else
+    % deal with 1 string
+    l_col = strfind(gpath,':');
+    for ii=numel(l_col):-1:1
+        if ii>1
+            pth_bit = [l_col(ii-1)+1 l_col(ii)];
+        else
+            pth_bit = [1 l_col(ii)];
+        end
+        if ~isempty(strfind(gpath(pth_bit(1):pth_bit(2)),rejd{1}))
+            % remove the bit
+            gpath(pth_bit(1):pth_bit(2)) = [];
+        end
+    end
+end
+
+return
