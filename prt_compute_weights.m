@@ -67,6 +67,14 @@ if ~isempty(in.img_name)
 else
     img_name    = fullfile(in.pathdir,img_mach);
 end
+%check that image does not exist, otherwise, delete
+if exist(img_name,'file')
+    delete(img_name);
+    %delete hdr:
+    [pth,nam]=fileparts(img_name);
+    hdr_name=[pth,filesep,nam,'.hdr'];
+    delete(hdr_name)
+end
 
 % Other info
 % -------------------------------------------------------------------------
@@ -134,7 +142,7 @@ for z = 1:zdim
     
     if isempty(feat_slc)
         
-        img4d(:,:,z,:) = zeros(hdr.dat.dim(1),hdr.dat.dim(2),1,nfold+1);
+        img4d(:,:,z,:) = NaN*zeros(hdr.dat.dim(1),hdr.dat.dim(2),1,nfold+1);
         
     else
         
@@ -175,6 +183,8 @@ for z = 1:zdim
             
             norm3d(f)      = sum(img3d.^2);
             
+            img3d(img3d==0) = NaN;
+            
             img3dav        = img3dav + img3d;
             
             img4d(:,:,z,f) = reshape(img3d,hdr.dat.dim(1),hdr.dat.dim(2),1,1);
@@ -199,7 +209,9 @@ for f = 1:nfold,
 end
 
 % Create weigths file
-%--------------------------------------------------------------------------
+%-------------------------------------------------------------------------
+
+
 disp('Creating image--------->>')
 No         = hdr;              % copy header
 No.dat     = img4d;            % change file_array

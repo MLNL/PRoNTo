@@ -183,7 +183,11 @@ else
                 valsel=find(strcmpi(modsel.mod_name,nlist));
                 set(handles.modname,'String',nlist);
                 set(handles.modname,'Value',valsel);
-                handles.mod.detrend=modsel.detrend;
+                if isfield(modsel,'detrend')
+                    handles.mod.detrend=modsel.detrend;
+                else
+                    handles.mod.detrend=0;
+                end
                 handles.mod.design=modsel.design;
                 if ~isempty(modsel.design)
                     set(handles.design_menu,'Value',2)
@@ -364,7 +368,12 @@ if choice==1
                 conds(c).cond_name = SPM.Sess(sspm).U(c).name{1};
                 list=[list, {conds(c).cond_name}];
                 conds(c).onsets = SPM.Sess(sspm).U(c).ons;
-                conds(c).durations = SPM.Sess(sspm).U(c).dur;
+                if length(SPM.Sess(sspm).U(c).dur)==1
+                    conds(c).durations=repmat(SPM.Sess(sspm).U(c).dur,...
+                        numel(conds(c).onsets),1);
+                else
+                    conds(c).durations = SPM.Sess(sspm).U(c).dur;
+                end
                 indcond=ncond;
             else  %for other sessions, look if the conditions are the same
                 name_cond=SPM.Sess(sspm).U(c).name{1};
@@ -373,11 +382,22 @@ if choice==1
                     indcond=indcond+1;
                     conds(indcond).cond_name = SPM.Sess(sspm).U(c).name{1};
                     conds(indcond).onsets = SPM.Sess(sspm).U(c).ons;
-                    conds(indcond).durations = SPM.Sess(sspm).U(c).dur;
+                    if length(SPM.Sess(sspm).U(c).dur)==1
+                        conds(indcond).durations=repmat(SPM.Sess(sspm).U(c).dur,...
+                            numel(conds(indcond).onsets),1);
+                    else
+                        conds(indcond).durations = SPM.Sess(sspm).U(c).dur;
+                    end
                     list=[list, {name_cond}];
                 else               %if yes, then add the onsets
                     conds(itoadd).onsets    = [conds(itoadd).onsets;SPM.Sess(sspm).U(c).ons];
-                    conds(itoadd).durations = [conds(itoadd).durations;SPM.Sess(sspm).U(c).dur];
+                    if length(SPM.Sess(sspm).U(c).dur)==1
+                        tmp=repmat(SPM.Sess(sspm).U(c).dur,...
+                            numel(SPM.Sess(sspm).U(c).ons),1);
+                    else
+                        tmp = SPM.Sess(sspm).U(c).dur;
+                    end
+                    conds(itoadd).durations = [conds(itoadd).durations;tmp];
                 end
             end
         end

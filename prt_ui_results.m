@@ -466,7 +466,10 @@ for z = 1:zdim,
     zords = z*zords_init;
     xyz   = [xords(I); yords(I); zords(I); fold_coord];
     zvals = spm_get_data(V,xyz);     
-    above = find(zvals~=0);
+    above = find(~isnan(zvals));
+    if length(above)==length(zvals) %old version of weight computation
+        above = find(zvals~=0);
+    end
     if ~isempty(above)
         xyz_above = [xyz_above,xyz(:,above)];
         z_above   = [z_above,zvals(above)];

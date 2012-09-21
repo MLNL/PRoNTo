@@ -58,10 +58,15 @@ Phi = zeros(n);
 nfa = [];
 for m = 1:n_mods
     nfa   = [nfa, PRT.fas(mids(m)).dat.dim(1)];
-    n_vox = PRT.fas(mids(m)).dat.dim(2);
+    if tocomp(mids(m))        
+        n_vox = PRT.fas(mids(m)).dat.dim(2); %n_vox has to be the same for all concatenated modalities (version 1.1)
+    else
+         n_vox = numel(PRT.fs(fid).modality(mids(m)).idfeat_fas);
+    end
+    %for old version, comment the 'if' except line 62
 end
 mem         = def.mem_limit;
-block_size  = floor(mem/8/max([nfa, n])); % Block size (double = 8 bytes)
+block_size  = floor(mem/(8*3)/max([nfa, n])); % Block size (double = 8 bytes)
 n_block     = ceil(n_vox/block_size);
 
 bstart = 1; bend = min(block_size,n_vox);
@@ -117,7 +122,11 @@ for b = 1:n_block
                         if  isfield(PRT.group(gid).subject(sid).modality(mid).design,'TR')
                             TR = PRT.group(gid).subject(sid).modality(mid).design.TR;
                         else
-                            TR = PRT.group(gid).subject(sid).modality(mid).TR;
+                            try
+                                TR = PRT.group(gid).subject(sid).modality(mid).TR;
+                            catch
+                                error('detrend:TRnotfound','No TR in data, suggesting that detrend is not necessary')
+                            end
                         end
                         switch in.mod(mid).detrend
                             case 1
@@ -145,7 +154,7 @@ for b = 1:n_block
             
             % get the data to build the kernel
             kern_vols(:,indm) = datapr(:,ifa).* ...
-                repmat(prec_mask,1,length(ifa));
+                repmat(prec_mask~=0,1,length(ifa));
             % if a scaling was entered, apply it now
             if ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
                 kern_vols(:,indm) = kern_vols(:,indm)./ ...
@@ -153,8 +162,11 @@ for b = 1:n_block
             end
             clear datapr
         else
-            kern_vols(:,indm) = (PRT.fas(mid).dat(ifa,vox_range))' .* ...
-                repmat(prec_mask,1,length(ifa));
+            idf=PRT.fs(fid).modality(mid).idfeat_fas;
+            kern_vols(:,indm) = (PRT.fas(mid).dat(ifa,idf(vox_range)))';
+            %old version
+%             kern_vols(:,indm) = (PRT.fas(mid).dat(ifa,vox_range))' .*...
+%                 repmat(prec_mask~=0,1,length(ifa));
             % if a scaling was entered, apply it now
             if ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
                 kern_vols(:,indm) = kern_vols(:,indm)./ ...

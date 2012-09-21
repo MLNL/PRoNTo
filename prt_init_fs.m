@@ -131,7 +131,7 @@ else
                 error('prt_prepare_data:NoVoxelinMask',...
                     ['2nd level mask of modality ',num2str(m),' does not contain any voxel >0'])
             end
-            [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm>0));
+            [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0));
         else
             PRT.fs(fid).modality(m).idfeat_fas=[];
         end

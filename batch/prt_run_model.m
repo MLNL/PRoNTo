@@ -82,7 +82,10 @@ for i=1:nm
     flag=1;
     for j=1:length(PRT.group)
         for k=1:length(PRT.group(j).subject)
-            m2= strcmpi(PRT.fs(fid).modality(nm).mod_name,mods);
+            m2= find(strcmpi(PRT.fs(fid).modality(nm).mod_name,mods));
+            if isempty(m2)
+                m2= find(strcmpi(PRT.fs(fid).modality(nm).mod_name,mods{1}));
+            end
             des=PRT.group(j).subject(k).modality(m2).design;
             if isstruct(des) && flag
                 if k==1 && j==1

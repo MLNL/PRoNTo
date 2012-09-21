@@ -286,6 +286,7 @@ if choice==1
         dat{i,2}='NaN';
         dat{i,3}='NaN';
         dat{i,4}='[]';
+        handles.cond(i).cond_name=['cond ',num2str(i)];
     end
     set(handles.condtable,'visible','on');
     set(handles.condtable,'Data',dat);
