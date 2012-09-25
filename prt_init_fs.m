@@ -213,7 +213,7 @@ else
                     n_vols_s  = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
                     
                     % now loop over conditions
-                    for cid = 2:4%1:length(conds)    % condition
+                    for cid = 1:length(conds)    % condition
                         scans     = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).scans;
                         blocks    = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
                         n_vol_s_c = length(scans);
