@@ -51,7 +51,7 @@ prt_def.prep.default_mask  = [prt_def.global.install_dir,...
 % Preprocessing defaults
 %------------------------------------------------
 % memory limit for kernel/file arrays construction
-prt_def.fs.mem_limit = 1024*1024*1024;  % bytes of memory to use
+prt_def.fs.mem_limit = 256*1024*1024;  % bytes of memory to use
 prt_def.fs.writeraw  = 0;              % flag to write the data detrended (default) or raw (to set to 1).
 
 % Design specification default
