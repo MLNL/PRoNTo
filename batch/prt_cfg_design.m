@@ -504,23 +504,30 @@ if isfield(data,'group')
     if isfield(data,'mask')
         % Checking the names of modalities in masks and groups
         % get modality names from all subjects, if any
-        subj_mod = {}; c_smod = 0;
-        if isfield(data.group.select,'subject')
-            Nsubj = numel(data.group.select.subject);
-            for ss = 1:Nsubj
-                if ~isempty(data.group.select.subject{ss})
-                    for mm = 1:numel(data.group.select.subject{ss})
-                        c_smod = c_smod+1;
-                        subj_mod{c_smod} = data.group.select.subject{ss}(mm).mod_name;
+        Ngroup = numel(data.group);
+        subj_mod = {}; gr_mod = cell(1,Ngroup); Ngr_mod = zeros(1,Ngroup);
+        for gg = 1:numel(data.group)
+            c_smod = 0;
+            if isfield(data.group(gg).select,'subject')
+                Nsubj = numel(data.group(gg).select.subject);
+                for ss = 1:Nsubj
+                    if ~isempty(data.group(gg).select.subject{ss})
+                        for mm = 1:numel(data.group(gg).select.subject{ss})
+                            c_smod = c_smod+1;
+                            subj_mod{c_smod,gg} = ...
+                                data.group(gg).select.subject{ss}(mm).mod_name;
+                        end
                     end
                 end
+            elseif isfield(data.group(gg).select,'modality')
+                Nmod = numel(data.group(gg).select.modality);
+                for mm = 1:Nmod
+                    c_smod = c_smod+1;
+                    subj_mod{c_smod,gg} = data.group(gg).select.modality(mm).mod_name;
+                end
             end
-        elseif isfield(data.group.select,'modality')
-            Nmod = numel(data.group.select.modality);
-            for mm = 1:Nmod
-                c_smod = c_smod+1;
-                subj_mod{c_smod} = data.group.select.modality(mm).mod_name;
-            end
+            gr_mod{:,gg} = unique(subj_mod(:,gg));
+            Ngr_mod(gg) = numel(gr_mod{:,gg});
         end
         % get modality names from all masks, if any
         Nmask = numel(data.mask);
@@ -528,6 +535,16 @@ if isfield(data,'group')
         for mk = 1:Nmask
             mask_mod{mk} = data.mask(mk).mod_name;
         end
+        % make sure all groups have same #modalities
+        if Ngroup>1
+            if any(diff(Ngr_mod))
+                t = {'Different number of modalities across groups!'};
+                warndlg(t,'Group modality name');
+                return
+            end
+        end
+        % NOTE: should we check if all groups have the same modalities??
+        
         % make sure masks' name fit those of the subjects'
         % and no duplicate mask names
         if numel(unique(mask_mod))~=Nmask
@@ -537,7 +554,7 @@ if isfield(data,'group')
         end
         ok = zeros(Nmask,1);
         for mk=1:Nmask
-            if any(strcmp(mask_mod{mk},subj_mod))
+            if any(strcmp(mask_mod{mk},subj_mod(:)))
                 ok(mk) = 1;
             end
         end
@@ -564,18 +581,3 @@ if isfield(data,'group')
 end
 return;
 %-------------------------------------------------------------------------
-
-
-% %     ngroup    = length(data.group);
-% %     if isfield(data.group(1).select,'modality')
-% %         % Checking there is the same numbr of img per modality
-% %         nmod_scans = length(data.group(1).select.modality);
-% %         for gg = 1:ngroup
-% %             nmod   = length(job.group(g).select.modality);
-% %             if nmod ~= nmod_scans
-% %                 t = {'#images differ between mod#1 and mod#%d'};
-% %                 warndlg(t,'Masks modality name');
-% %                 return
-% %             end
-% %         end
-% %     end
