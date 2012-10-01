@@ -28,6 +28,7 @@ end
 % read the image dimensions from the header
 N  = nifti(filenames);
 dm = size(N(1).dat);
+if length(dm)==2, dm = [dm 1]; end % handling case of 2D image
 n_vox = prod(dm(1:3));
 
 if length(dm) == 3

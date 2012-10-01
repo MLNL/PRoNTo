@@ -21,7 +21,7 @@ if ~ischar(s)
 end
 
 for i=1:length(s)
-    out=~isempty(findstr(upper(s(i)), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'));
+    out=~isempty(strfind('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_',upper(s(i))));
     if out==false
         break;
     end
