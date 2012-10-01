@@ -489,8 +489,8 @@ end
 nmod = length(job.mask);
 for m = 1:nmod
     cdep(1+ngroup+m)            = cfg_dep;
-    cdep(1+ngroup+m).sname      = sprintf('Mod#%d name',g);
-    cdep(1+ngroup+m).src_output = substruct('.',sprintf('mod_name%d',g));
+    cdep(1+ngroup+m).sname      = sprintf('Mod#%d name',m);
+    cdep(1+ngroup+m).src_output = substruct('.',sprintf('mod_name%d',m));
     cdep(1+ngroup+m).tgt_spec   = cfg_findspec({{'strtype','s'}});
 end
 
