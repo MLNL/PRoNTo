@@ -253,7 +253,7 @@ if ~isfield(handles,'notinit')
             plots = {'Confusion Matrix'};
         end
     else
-        plots = {'Predictions (scatter)', 'Predictions (bar)'};
+        plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
     end
     set(handles.plotmenu,'String',plots); 
     
@@ -916,6 +916,21 @@ else
                 ylabel(handles.axes5,'targets and predictions','FontWeight','bold');
             end
             legend(handles.axes5,{'Target', 'Predicted'});
+        case '3'
+            cla(handles.axes5);
+            preds = zeros(nfolds,2);
+            for f = 1:nfolds
+                preds(f,1) = PRT.model(model).output.fold(f).targets;
+                preds(f,2) = PRT.model(model).output.fold(f).predictions;
+            end
+            plot(handles.axes5,preds(:,1),'--ok');
+            hold on
+            plot(handles.axes5,preds(:,2),'--or');
+            hold off
+            xlabel(handles.axes5,'folds','FontWeight','bold');
+            ylabel(handles.axes5,'predictions/targets','FontWeight','bold');
+            xlim(handles.axes5,[0 nfolds+1]);
+            legend(handles.axes5,{'Target', 'Predicted'});
     end
 end
 
@@ -965,7 +980,7 @@ if strcmp(handles.PRT.model(mi(m)).input.type,'classification');
         plots = {'Confusion Matrix'};
     end
 else
-    plots = {'Predictions (scatter)', 'Predictions (bar)'};
+    plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
 end
 set(handles.plotmenu,'String',plots);
 
