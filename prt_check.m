@@ -47,7 +47,7 @@ dat_name{3} = 'FvsNF';
 % data_dir{3} = ...
 %     '/Users/chrisp/Documents/MATLAB/3_Data/PRoNTo/Course/FvsNF_data';
 
-% % or select the top directories manually
+% % or select the root directories manually
 % P = spm_select([1 inf],'dir','Select root dir for data sets');
 % data_dir = cell(size(P,1),1);
 % for ii=1:size(P,1)
@@ -55,8 +55,8 @@ dat_name{3} = 'FvsNF';
 % end
 Ndat = numel(dat_name);
 
-% Clearing Matlab then  setting up PRONTO and the batch system
-%-------------------------------------------------------------
+% Clearing Matlab then setting up PRONTO and the batch system
+%------------------------------------------------------------
  close all
  prt_batch
  
@@ -142,7 +142,7 @@ matlabbatch{2}.cfg_basicio.cfg_named_dir.dirs{1} = {rdata_dir};
 % When it'll be available, just remove this comment and the following line.
 matlabbatch(12) = [];
 
-% runs the job nd catch error if any.
+% run the job and catch the error if any.
 ok = 1;
 try
     cfg_util('run',matlabbatch)
@@ -154,14 +154,72 @@ end
 
 end
 
+%==========================================================================
 % IXI data set
 function ok = check_IXI(rdata_dir)
+%
+% This batch will go through the following modules:
+% - 'File selector' for the images: young-momentum (g1m1), 
+%   young-divergence (g1m2), old-momentum (g2m1), old-divergence (g2m2)
+% - 'File selector' for 2 masks: momentum, divergence (could be the same 
+%   file actually)
+% - 'Directory selector' for the root of the data directory
+% - 'Make directory', create 'test_results' directory at the root of the 
+%   data directory
+% - 'Data & design' such that 2 groups ('young'/'old') with 2 modalities
+%   each ('momentum'/'divergence', regression target for 'old-divergence'
+% - 'Feature set', only the 'momentum' data
+% - 'Specify model', svm young-vs-old, on momentum data, leave-1s/gr-out
+% - 'Run model'
+% - 'Compute weights' -> create 'svm_YvsO' image
+% - 'Feature set', only the 'divergence' data
+% - 'Specify model', KRR for age of old-divergence
+% - 'Run model'
+% - 'Feature set', pool 'momentum' and 'divergence' data
+% - 'Specify model', GPC young-vs-old, leave-1s/gr-out
+% - 'Run model'
 
-rdata_dir;
+% TODO:
+% sort out the file selection and feeding into the matlabbatch
+
+% % select images and mask(s)
+% d_dir = fullfile(rdata_dir,'fMRI');
+% [img_files] = spm_select('FPList',d_dir,'^w.*\.nii$');
+% s_dir = fullfile(rdata_dir,'design');
+% [spm_file] = spm_select('FPList',s_dir,'^SPM\.mat$');
+% m_dir = fullfile(rdata_dir,'masks');
+% [msk_file] = spm_select('FPList',m_dir,'^.*\.img$');
+
+% load batch file
+b_file = fullfile(prt('dir'),'_unitTests','batch_test_IXIata.mat');
+% b_file = fullfile(rdata_dir,'batch_test2.mat');
+load(b_file)
+
+% set files: images into 4 sets (g1m1-g1m2-g2m1-g2m2)
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{1} = '';
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{2} = '';      
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{3} = ''; 
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{4} = ''; 
+% set files: mask (1st level) for both modalities
+matlabbatch{2}.cfg_basicio.cfg_named_file.files{1} = cellstr('');
+matlabbatch{2}.cfg_basicio.cfg_named_file.files{2} = cellstr('');      
+% set directory where result directory is created = "root data directory"
+matlabbatch{3}.cfg_basicio.cfg_named_dir.dirs{1} = {rdata_dir};
+
+
+% run the job and catch the error if any.
 ok = 1;
+try
+    cfg_util('run',matlabbatch)
+catch ME
+    disp(ME.message)
+    ok = 0;
+    return;
+end
 
 end
 
+%==========================================================================
 % FvsNF data set
 function ok = check_FvsNF(rdata_dir)
 
