@@ -116,10 +116,10 @@ if numel(LR)~=size(H,1)
     disp('list does not contains as many names as ROIs, generic names used')
     LR=[];
     if corr
-        ei=size(ihn,1)-1;
+        ei=size(HN,1)-1;
         LR={'others'};
     else
-        ei=size(ihn,1);
+        ei=size(HN,1);
     end
     for i=1:ei
         LR=[LR;{['Region ',num2str(i)]}];
@@ -153,7 +153,7 @@ img_name=[a,filesep,'atlas_',b1,num2str(indm),'_',b,c];
 img4d = file_array(img_name,size(VV),'float64-le',0,1,0);
 for km=1:size(w,2)
     for r=r_min:R
-        w(atlas == r,km)=HN(r+corr);
+        w(atlas == r,km)=pHN(r+corr);
     end
     img4d(:,:,:,km)=reshape(w(:,km),[size(VV,1),size(VV,2), size(VV,3),1]);
 end
