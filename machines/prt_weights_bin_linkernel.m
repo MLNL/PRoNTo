@@ -57,4 +57,4 @@ for i=1:ncoeffs
 end 
 
 % weigths
-weights = img1d;
+weights{1} = img1d;
