@@ -39,41 +39,56 @@ if model_idx == 0, error('prt_compute_weights:ModelNotFound',...
 mfunc       = PRT.model(model_idx).input.machine.function;
 mname       = PRT.model(model_idx).model_name;
 m.args      = [];
-m.function  = 'prt_weights_bin_linkernel';
 
 % unfortunately a bug somewhere causes shifts in weight image if
 % .nii is used...
-img_mach    = ['weights_',mname,'.img'];
 
 switch mfunc
+    
+    case 'prt_machine_gpclap'
+        m.function  = 'prt_weights_gpclap';
+        nclass      = length(PRT.model(model_idx).input.class);
+        for c = 1:nclass
+            img_mach{c} = ['weights_',mname,'_',num2str(c),'.img'];
+        end
+        error('prt_compute_weights:MachineNotSupported',...
+            'Error: weights computation not supported for this machine (WORK IN PROGRESS)!');
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
-    case 'prt_machine_gpclap'
-        error('prt_compute_weights:MachineNotSupported',...
-            'Error: weights computation not supported yet for this machine!');
+    otherwise
+        m.function  = 'prt_weights_bin_linkernel';
+        img_mach{1} = ['weights_',mname,'_1.img'];
 end
 
+nimage = length(img_mach);
 % Image name
 % -------------------------------------------------------------------------
-
 if ~isempty(in.img_name)
     if ~(prt_checkAlphaNumUnder(in.img_name))
         error('prt_compute_weights:NameNotAlphaNumeric',...
             'Error: image name should contain only alpha-numeric elements!');
     end
-    in.img_name = [in.img_name,'.img'];
-    img_name    = fullfile(in.pathdir,in.img_name);
+    for c = 1:nimage
+        in.img_name_c  = [in.img_name,'_',num2str(c),'.img'];
+        img_name{c}    = fullfile(in.pathdir,in.img_name_c);
+    end
 else
-    img_name    = fullfile(in.pathdir,img_mach);
+    for c = 1:nimage
+        img_name{c}    = fullfile(in.pathdir,img_mach{c});
+    end
 end
+
 %check that image does not exist, otherwise, delete
-if exist(img_name,'file')
-    delete(img_name);
-    %delete hdr:
-    [pth,nam]=fileparts(img_name);
-    hdr_name=[pth,filesep,nam,'.hdr'];
-    delete(hdr_name)
+file_exist = [in.img_name,'_1.img'];
+if exist(file_exist,'file')
+    for c = 1:nimage
+        delete(img_name{c});
+        %delete hdr:
+        [pth,nam] = fileparts(img_name{c});
+        hdr_name  = [pth,filesep,nam,'.hdr'];
+        delete(hdr_name)
+    end
 end
 
 % Other info
@@ -122,20 +137,24 @@ end
 % Create image
 % -------------------------------------------------------------------------
 hdr        = PRT.fas(fas_idx(1)).hdr.private;
-dat_dim = hdr.dat.dim;
+dat_dim    = hdr.dat.dim;
+
 if length(dat_dim)==2, dat_dim = [dat_dim 1]; end % handling case of 2D image
-img4d      = file_array(img_name,[dat_dim(1),dat_dim(2),...
-    dat_dim(3),nfold+1],'float64-le',0,1,0);
+
+for c = 1:nimage
+    img4d{c}      = file_array(img_name{c},[dat_dim(1),dat_dim(2),...
+        dat_dim(3),nfold+1],'float64-le',0,1,0);  
+end
 
 zdim    = dat_dim(3);
 xydim   = dat_dim(1)*dat_dim(2);
-norm3d  = 0;
+% norm3d  = 0;
 
 disp('Computing weights.......>>')
 
 for z = 1:zdim
     
-    disp(sprintf('Slice: %d of %d',z,zdim))
+    fprintf('Slice: %d of %d \n',z,zdim);
     
     img3dav  = zeros(1,xydim); % average weight map
     
@@ -144,7 +163,9 @@ for z = 1:zdim
     
     if isempty(feat_slc)
         
-        img4d(:,:,z,:) = NaN*zeros(dat_dim(1),dat_dim(2),1,nfold+1);
+        for c = 1:nimage
+            img4d{c}(:,:,z,:) = NaN*zeros(dat_dim(1),dat_dim(2),1,nfold+1);
+        end
         
     else
         
@@ -177,46 +198,51 @@ for z = 1:zdim
             end
             d.datamat = cvdata.train{:};
             
-            wimg           = prt_weights(d,m);
+            % COMPUTE WEIGHTS
+            wimg      = prt_weights(d,m);
             
-            img3d          = zeros(1,xydim);
-            
-            img3d(mask_train(feat_slc)-xydim*(z-1)) = wimg;
-            
-            norm3d(f)      = sum(img3d.^2);
-            
-            img3d(img3d==0) = NaN;
-            
-            img3dav        = img3dav + img3d;
-            
-            img4d(:,:,z,f) = reshape(img3d,dat_dim(1),dat_dim(2),1,1);
+            for c = 1:nimage,
+                img3d              = zeros(1,xydim);
+                img3d(mask_train(feat_slc)-xydim*(z-1)) = wimg{c};
+                norm3d{c}(f)       = sum(img3d.^2);
+                img3d(img3d==0)    = NaN;
+                img3dav            = img3dav + img3d;
+                img4d{c}(:,:,z,f)  = reshape(img3d,dat_dim(1),dat_dim(2),1,1);
+            end
             
         end
         
-        norm4d(z,:) = norm3d;
+        
         
         % Create average fold
-        %--------------------------------------------------------------------------
-        img4d(:,:,z,nfold+1) = reshape(img3dav,dat_dim(1),dat_dim(2),...
-            1,1)/nfold;        
+        %------------------------------------------------------------------
+        for c = 1:nimage
+            norm4d{c}(z,:)          = norm3d{c};
+            img4d{c}(:,:,z,nfold+1) = reshape(img3dav,dat_dim(1),dat_dim(2),...
+                1,1)/nfold;
+        end
     end
     
 end
 
-norm4d = sqrt(sum(norm4d,1));
+for c =1:nimage
+    norm4d{c} = sqrt(sum(norm4d{c},1));
+end
 
 disp('Normalising weights--------->>')
 for f = 1:nfold,
-    img4d(:,:,:,f) = img4d(:,:,:,f)./norm4d(1,f);
+    for c = 1:nimage
+        img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f)./norm4d{c}(1,f);
+    end
 end
 
 % Create weigths file
 %-------------------------------------------------------------------------
-
-
-disp('Creating image--------->>')
-No         = hdr;              % copy header
-No.dat     = img4d;            % change file_array
-No.descrip = 'Pronto weigths'; % description
-create(No);                    % write header
-disp('Done.')
+for c = 1:nimage
+    fprintf('Creating image %d of %d--------->>\n',c,nimage);
+    No         = hdr;              % copy header
+    No.dat     = img4d{c};         % change file_array
+    No.descrip = 'Pronto weigths'; % description
+    create(No);                    % write header
+    disp('Done.')
+end
