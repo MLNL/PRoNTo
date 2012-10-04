@@ -66,8 +66,13 @@ weights = fnch(d,m.args);
 % final checks
 %--------------------------------------------------------------------------
 if SANITYCHECK == true
-    if ~isvector(weights)
+    if ~iscell(weights)
         error('prt_weights:weightsNotVector',...
-            'Error: weights should be a vector!');
+            'Error: weights should be a cell!');
+    else
+        if ~isvector(weights{1})
+            error('prt_weights:weightsNotVector',...
+                'Error: weights cell should contain vectors!');
+        end
     end
 end
