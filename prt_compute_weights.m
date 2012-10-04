@@ -38,6 +38,8 @@ if model_idx == 0, error('prt_compute_weights:ModelNotFound',...
 % -------------------------------------------------------------------------
 mfunc       = PRT.model(model_idx).input.machine.function;
 mname       = PRT.model(model_idx).model_name;
+nclass      = length(PRT.model(model_idx).input.class);
+if nclass > 2, mfunc = 'multiclass_machine'; end
 m.args      = [];
 
 % unfortunately a bug somewhere causes shifts in weight image if
@@ -45,14 +47,12 @@ m.args      = [];
 
 switch mfunc
     
-    case 'prt_machine_gpclap'
+    case 'multiclass_machine'
         m.function  = 'prt_weights_gpclap';
         nclass      = length(PRT.model(model_idx).input.class);
         for c = 1:nclass
             img_mach{c} = ['weights_',mname,'_',num2str(c),'.img'];
         end
-        error('prt_compute_weights:MachineNotSupported',...
-            'Error: weights computation not supported for this machine (WORK IN PROGRESS)!');
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
@@ -246,3 +246,4 @@ for c = 1:nimage
     create(No);                    % write header
     disp('Done.')
 end
+
