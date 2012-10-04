@@ -338,5 +338,5 @@ list={handles.dat.model(:).model_name};
 in.model_name=list{handles.selmod};
 in.pathdir=handles.prtdir;
 in.img_name=handles.img_name;  %for the moment, coming soon
-prt_compute_weights(handles.dat,in)
+prt_compute_weights(handles.dat,in);
 delete(handles.figure1)
