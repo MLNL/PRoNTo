@@ -1,18 +1,18 @@
 function weights = prt_weights_gpclap (d,args)
-% Run function to compute weights for linear kernel binary classifiers
-% FORMAT weights = prt_weights_bin_linkernel (d,args)
+% Run function to compute weights for linear multiclass classifiers
+% FORMAT weights = prt_weights_gpclap (d,args)
 % Inputs:
 %       d              - data structure
 %           .datamat   - data matrix [Nfeatures x Nexamples]
 %           .coeffs    - coefficients vector [Nexamples x 1]
 %       args           - function arguments (can be empty)
 % Output:
-%       weights        - vector with weights [Nfeatures x 1]
+%       weights        - vector with weights {Nclass}[Nfeatures x 1]
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by J.Mourao-Miranda and M.J.Rosa
-% $Id: prt_weights_bin_linkernel.m 192 2011-10-24 10:57:19Z mjrosa $
+% Written by M.J.Rosa
+% $Id: prt_weights_gpclap.m 192 2011-10-24 10:57:19Z mjrosa $
 
 SANITYCHECK = true; % turn off for speed
 
