@@ -1,4 +1,4 @@
-function [H HN sorted_regions] = prt_region_histogram(beta, atlas, fig)
+function [H HN sorted_regions] = prt_region_histogram(beta, atlas)
 
 %% L1-HISTOGRAM
 % (c) Luca Baldassarre
@@ -23,13 +23,8 @@ function [H HN sorted_regions] = prt_region_histogram(beta, atlas, fig)
 % [H HN sorted_regions] = l1_histogram(beta, atlas) return the list of
 % regions, sorted in descending order according to the normalized
 % histogram.
-% 
-% l1_histogram(beta,atlas,fig) also plots the histogram(s) if fig == 1;
-%
 
-if nargin < 3
-   fig = 0;
-end
+
 % Number of vectors
 m = size(beta, 2);
 % Number of regions
@@ -69,31 +64,4 @@ if nargout > 2
    [dummy sorted_regions] = sort(HN,'descend');
    % Translate back to original indeces (0 = CSF)
    sorted_regions = sorted_regions - correction;
-end
-%% PLOT HISTOGRAMS
-if fig
-   figure,
-   if nargout > 1
-      [AX,H1,H2] = plotyy(r_min:R, H, r_min:R, HN);
-      set(AX,'FontSize',16);
-      set(H1,'LineWidth',2,'LineStyle','-');
-      set(H2,'LineWidth',2,'LineStyle','--');
-      set(get(AX(1),'Ylabel'),'String','Standard histogram','FontSize',16);
-      set(get(AX(2),'Ylabel'),'String','Normalized histogram','FontSize',16);
-      % Create legend
-      str_legend = cell(2*m,1);
-      for km = 1:m
-         str_legend{km} = ['Standard: Map ',num2str(km)];
-         str_legend{m+km} = ['Normalized: Map ',num2str(km)];
-      end
-      legend(str_legend);
-      %legend('HISTOGRAM','NORMALIZED HISTOGRAM');
-   else
-      plot(r_min:R, H, 'LineWidth',2)
-      set(gca,'FontSize',16);
-      %legend('HISTOGRAM','NORMALIZED HISTOGRAM');
-   end
-   
-   xlabel('Region','FontSize',16);
-   title('ATLAS-BASED REGION HISTOGRAM','FontSize',20);
 end

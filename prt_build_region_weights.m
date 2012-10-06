@@ -74,11 +74,12 @@ if ~any(dumb.dim == V1.dim)
 
     %put the files into the PRT directory
     mfile_new=['resized_',V1_fn];
+    pp=spm_fileparts(f);
     movefile(fullfile(V1_pth,[rV1_fn,'.img']), ...
-    fullfile('C:\data\data_parkinson_pronto',[mfile_new,'.img']));
+    fullfile(pp,[mfile_new,'.img']));
     movefile(fullfile(V1_pth,[rV1_fn,'.hdr']), ...
-    fullfile('C:\data\data_parkinson_pronto',[mfile_new,'.hdr']));
-    g=spm_vol(fullfile('C:\data\data_parkinson_pronto',[mfile_new,'.img']));
+    fullfile(pp,[mfile_new,'.hdr']));
+    g=spm_vol(fullfile(pp,[mfile_new,'.img']));
     h=spm_read_vols(g);
 else
     h=spm_read_vols(V1);
@@ -139,17 +140,20 @@ pHN=(HN./repmat(shn,size(HN,1),1))*100;
 
 [a,b,c]=fileparts(dumb.fname);
 [a1,b1]=fileparts(gi);
-% if more than one 2nd level mask to resize
-indm = 1;
-while exist(fullfile( ...
-        a,['atlas_',b1,num2str(indm),'_',b,'.img']),'file')
-    indm = indm+1;
-end
-%save sorted H, HN and the list of corresponding ROIs
-save(fullfile(a,['atlas_',b1,num2str(indm),'_',b,'.mat']),'LR',...
-    'pH','pHN');
 
-img_name=[a,filesep,'atlas_',b1,num2str(indm),'_',b,c];
+% if image exists, overwrite
+if exist(fullfile( ...
+        a,['atlas_',b1,'_',b,'.img']),'file')
+    disp('Image of normalized weights per region already exists, overwriting...')
+end
+
+%save sorted H, HN and the list of corresponding ROIs
+W_roi=pH;
+NW_roi=pHN;
+save(fullfile(a,['atlas_',b1,'_',b,'.mat']),'LR',...
+    'W_roi','NW_roi');
+
+img_name=[a,filesep,'atlas_',b1,'_',b,c];
 img4d = file_array(img_name,size(VV),'float64-le',0,1,0);
 for km=1:size(w,2)
     for r=r_min:R

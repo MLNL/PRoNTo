@@ -143,27 +143,66 @@ else
         LR=varargin{2}{1};
         pH=varargin{2}{2};
         pHN=varargin{2}{3};
-        szn=length(LR);
-        dat=cell(szn,3);
-        for i=1:szn
-            dat{i,1}=LR{i};
-            dat{i,2}=pH(i);
-            dat{i,3}=pHN(i);
-        end
-        handles.LR=LR;
-        handles.pH=pH;
-        handles.pHN=pHN;
-        handles.dat=dat;
     else
-        error('PRoNTo:prt_ui_results_ROI:Nodata',...
-            'No ROI names or weight values found')
+        f=spm_select(1,'.mat','Select .mat created from atlas weights');
+        if ~isempty(f)
+            load(f);
+            try
+                pH=W_roi;
+                pHN=NW_roi;
+            catch
+                error('PRoNTo:prt_ui_results_ROI:Nodata',...
+                    'No ROI names or weight values found')
+            end
+        else
+            error('PRoNTo:prt_ui_results_ROI:Nomat',...
+                 'No file selected')
+        end
         %future: load the saved .mat file
     end
+    szn=length(LR);
+    dat=cell(szn,3);
+    for i=1:szn
+        dat{i,1}=LR{i};
+        dat{i,2}=pH(i);
+        dat{i,3}=pHN(i);
+    end
+    handles.LR=LR;
+    handles.pH=pH;
+    handles.pHN=pHN;
+    handles.dat=dat;
     set(handles.ROItable,'Data',dat);
-    set(handles.ROItable,'ColumnName',{'ROI Name','H (in %)','HN (in %)'});
+    set(handles.ROItable,'ColumnName',{'ROI Name','W_roi (in %)','NW_roi (in %)'});
     set(handles.ROItable,'ColumnEditable',[false,false,false]);
-    set(handles.ROItable,'ColumnWidth',{'auto',130,130});
+    set(handles.ROItable,'ColumnWidth',{130,80,80});
     set(handles.ROItable,'ColumnFormat',{'char','numeric','numeric'});
+    
+    % Update Graph
+    [AX,H1,H2] = plotyy(handles.axes1,1:size(dat,1), pH,...
+        1.4:size(dat,1)+0.4, pHN,'bar');
+    set(H2,'FaceColor',[1 0 0])
+    set(H2,'BarWidth',0.4)
+    set(H1,'BarWidth',0.4)
+    aa=get(AX(1),'ylim'); %adapt y scale
+    bb=get(AX(2),'ylim');
+    m1=max([dat{:,2}])/aa(2);
+    m2=max([dat{:,3}])/bb(2);
+    sc=min(max(m1,m2)+0.03,1);
+    set(AX(1),'ylim',sc*aa)
+    set(AX(2),'ylim',sc*bb)
+    d2=get(AX(1),'YLabel');
+    d1=get(d2,'Position');
+    dt=text(d1(1),d1(2)*-0.05,'W roi (in %)');
+    set(dt,'Color',[0 0 1])
+    d3=get(AX(2),'YLabel');
+    d4=get(d3,'Position');
+    dt2=text(d4(1)*0.9,d1(2)*-0.05,'NW roi (in %)');
+    set(dt2,'Color',[1 0 0])
+    set(AX,'XTick',1.4:size(dat,1)+0.4)
+    set(AX,'XTickLabel',{''})
+    set(AX,'XTick',0)
+    legend(handles.axes1,'W_{roi}','NW_{roi}','Location','SouthOutside')
+    title('Histogram of (normalized) weights per region','FontWeight','bold')
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -204,6 +243,34 @@ function sortH_Callback(hObject, eventdata, handles)
 dat=handles.dat;
 dat=dat(ih,:);
 set(handles.ROItable,'Data',dat)
+
+% Update Graph
+delete(get(handles.axes1,'Children'))
+warning('off')
+[AX,H1,H2] = plotyy(handles.axes1,1:size(dat,1), [dat{:,2}],...
+    1.4:size(dat,1)+0.4, [dat{:,3}],'bar');
+set(H2,'FaceColor',[1 0 0])
+set(H2,'BarWidth',0.4)
+set(H1,'BarWidth',0.4)
+aa=get(AX(1),'ylim'); %adapt y scale
+bb=get(AX(2),'ylim');
+m1=max([dat{:,2}])/aa(2);
+m2=max([dat{:,3}])/bb(2);
+sc=min(max(m1,m2)+0.03,1);
+set(AX(1),'ylim',sc*aa)
+set(AX(2),'ylim',sc*bb)
+d2=get(AX(1),'YLabel');
+d1=get(d2,'Position');
+dt=text(d1(1),d1(2)*-0.05,'W roi (in %)');
+set(dt,'Color',[0 0 1])
+d3=get(AX(2),'YLabel');
+d4=get(d3,'Position');
+dt2=text(d4(1)*0.9,d1(2)*-0.05,'NW roi (in %)');
+set(dt2,'Color',[1 0 0])
+set(AX,'XTick',1.4:size(dat,1)+0.4)
+set(AX,'XTickLabel',{''})
+legend(handles.axes1,'W_{roi}','NW_{roi}','Location','SouthOutside')
+title('Histogram of (normalized) weights per region','FontWeight','bold')
 % Update handles structure
 guidata(hObject, handles);
 
@@ -221,6 +288,34 @@ ihn=[d2(d4,:);d2(d3,:)];
 dat=handles.dat;
 dat=dat(ihn,:);
 set(handles.ROItable,'Data',dat)
+
+% Update Graph
+delete(get(handles.axes1,'Children'))
+warning('off')
+[AX,H1,H2] = plotyy(handles.axes1,1:size(dat,1), [dat{:,2}],...
+    1.4:size(dat,1)+0.4, [dat{:,3}],'bar');
+set(H2,'FaceColor',[1 0 0])
+set(H2,'BarWidth',0.4)
+set(H1,'BarWidth',0.4)
+aa=get(AX(1),'ylim'); %adapt y scale
+bb=get(AX(2),'ylim');
+m1=max([dat{:,2}])/aa(2);
+m2=max([dat{:,3}])/bb(2);
+sc=min(max(m1,m2)+0.03,1);
+set(AX(1),'ylim',sc*aa)
+set(AX(2),'ylim',sc*bb)
+d2=get(AX(1),'YLabel');
+d1=get(d2,'Position');
+dt=text(d1(1),d1(2)*-0.05,'W roi (in %)');
+set(dt,'Color',[0 0 1])
+d3=get(AX(2),'YLabel');
+d4=get(d3,'Position');
+dt2=text(d4(1)*0.9,d1(2)*-0.05,'NW roi (in %)');
+set(dt2,'Color',[1 0 0])
+set(AX,'XTick',1.4:size(dat,1)+0.4)
+set(AX,'XTickLabel',{''})
+legend(handles.axes1,'W_{roi}','NW_{roi}','Location','SouthOutside')
+title('Histogram of (normalized) weights per region','FontWeight','bold')
 % Update handles structure
 guidata(hObject, handles);
 
@@ -234,3 +329,5 @@ function quitbutt_Callback(hObject, eventdata, handles)
 if isfield(handles,'figure1')
     delete(handles.figure1);
 end
+
+
