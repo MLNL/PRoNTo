@@ -169,8 +169,8 @@ if isfield(job.model_type,'classification')
 
 elseif isfield(job.model_type,'regression')
     model.type = 'regression';
-    scount = 1;
     for g = 1:length(job.model_type.regression.reg_group)
+        scount = 1;
         model.group(g).gr_name = job.model_type.regression.reg_group(g).gr_name;
         sids   =  job.model_type.regression.reg_group(g).subj_nums;
         for s = 1:length(sids)

@@ -27,7 +27,7 @@ function [model, targets] = prt_cv_fold(PRT, in)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by A Marquand 
-% $Id: prt_cv_fold.m 522 2012-05-08 22:06:15Z amarquan $
+% $Id$
 
 tr_idx = in.CV == 1;
 te_idx = in.CV == 2;

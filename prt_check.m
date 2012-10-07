@@ -8,9 +8,9 @@ function ok = prt_check(list_check)
 % - batches with all the operations, in a .mat file with now location
 % 
 % Data sets considered, in this *specific order*:
-% 1. Haxby data, single subject, fmri 
-% 2. IXI data, multi subject,
-% 3. SPM's famous-vs-nonfamous data, multi subject.
+% 1. "Haxby" - Haxby data, single subject, fmri 
+% 2. "IXI"   - IXI data, multi subject, divergence & momentum maps
+% 3. "Faces" - SPM's famous-vs-nonfamous faces data, multi subject.
 %
 % See the subfunctions for a detailed description of the tests performed.
 %
@@ -28,32 +28,24 @@ function ok = prt_check(list_check)
 %_______________________________________________________________________
 % Copyright (C) 2012 Machine Learning & Neuroimaging Laboratory
 
-% Written by Christophe Phillips
-% $Id: $
+% Written by Christophe Phillips, CRC, ULg, Belgium.
+% $Id$
 
 % 
 % list here the ones you want to check, e.g. 'list_check = 1:3;' for all
 if nargin<1, list_check = 1; end
 
 % Defining the data sets and their root directory
-%----------------------------------------------------
-dat_name{1} = 'Haxby';
-data_dir{1} = ...
-    '/Users/chrisp/Documents/MATLAB/3_Data/PRoNTo/Course/Haxby_data';
-dat_name{2} = 'IXI';
-% data_dir{2} = ...
-%     '/Users/chrisp/Documents/MATLAB/3_Data/PRoNTo/Course/IXI_data';
-dat_name{3} = 'FvsNF';
-% data_dir{3} = ...
-%     '/Users/chrisp/Documents/MATLAB/3_Data/PRoNTo/Course/FvsNF_data';
-
+%------------------------------------------------
+dir_root = 'D:\3_Data\PRoNTo\PRoNTo_data';
 % % or select the root directories manually
-% P = spm_select([1 inf],'dir','Select root dir for data sets');
-% data_dir = cell(size(P,1),1);
-% for ii=1:size(P,1)
-%     data_dir{ii} = deblank(P(ii,:));
-% end
+% P = spm_select([1 1],'dir','Select root dir for data sets');
+dat_name = {'Haxby' , 'IXI ' , 'Faces'};
 Ndat = numel(dat_name);
+data_dir = cell(Ndat,1);
+for ii=1:Ndat
+    data_dir{ii} = fullfile(dir_root,deblank(dat_name{ii}));
+end
 
 % Clearing Matlab then setting up PRONTO and the batch system
 %------------------------------------------------------------
@@ -131,16 +123,10 @@ load(b_file)
 % set files: (1) images, (2) SPM.mat, (3) mask 1st level, (4) mask 2nd level
 matlabbatch{1}.cfg_basicio.cfg_named_file.files{1} = cellstr(img_files);
 matlabbatch{1}.cfg_basicio.cfg_named_file.files{2} = cellstr(spm_file);      
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{3} = cellstr(msk_file(3,:)); 
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{4} = cellstr(msk_file(2,:)); 
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{3} = cellstr(msk_file(2,:)); 
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{4} = cellstr(msk_file(1,:)); 
 % set directory where result directory is created = "root data directory"
 matlabbatch{2}.cfg_basicio.cfg_named_dir.dirs{1} = {rdata_dir};
-
-% TODO
-% Removing last module (weight computation) as this is NOT yet available 
-% for the multi-GPC machine.
-% When it'll be available, just remove this comment and the following line.
-matlabbatch(12) = [];
 
 % run the job and catch the error if any.
 ok = 1;
@@ -180,32 +166,44 @@ function ok = check_IXI(rdata_dir)
 % - 'Run model'
 
 % TODO:
-% sort out the file selection and feeding into the matlabbatch
+% specify the regressors !!!
 
 % % select images and mask(s)
-% d_dir = fullfile(rdata_dir,'fMRI');
-% [img_files] = spm_select('FPList',d_dir,'^w.*\.nii$');
-% s_dir = fullfile(rdata_dir,'design');
-% [spm_file] = spm_select('FPList',s_dir,'^SPM\.mat$');
-% m_dir = fullfile(rdata_dir,'masks');
-% [msk_file] = spm_select('FPList',m_dir,'^.*\.img$');
+d_dir{1} = fullfile(rdata_dir,'divergences');
+d_dir{2} = fullfile(rdata_dir,'momentum');
+m_dir = fullfile(prt('dir'),'masks');
+[msk_file] = spm_select('FPList',m_dir,'^.*\.img$');
 
 % load batch file
-b_file = fullfile(prt('dir'),'_unitTests','batch_test_IXIata.mat');
-% b_file = fullfile(rdata_dir,'batch_test2.mat');
+b_file = fullfile(prt('dir'),'_unitTests','batch_test_IXIdata.mat');
 load(b_file)
 
-% set files: images into 4 sets (g1m1-g1m2-g2m1-g2m2)
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{1} = '';
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{2} = '';      
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{3} = ''; 
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{4} = ''; 
+% set files: images into 4 sets (g1m1-g1m2-g2m1-g2m2-g3m1-g3m2)
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{1} = cellstr(...
+    spm_select('FPList',fullfile(d_dir{1},'Guys'),'^sdv.*\.nii$'));
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{2} = cellstr(...
+    spm_select('FPList',fullfile(d_dir{2},'Guys'),'^sa.*\.nii$'));      
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{3} = cellstr(...
+    spm_select('FPList',fullfile(d_dir{1},'HammerH'),'^sdv.*\.nii$')); 
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{4} = cellstr(...
+    spm_select('FPList',fullfile(d_dir{2},'HammerH'),'^sa.*\.nii$')); 
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{5} = cellstr(...
+    spm_select('FPList',fullfile(d_dir{1},'IOP'),'^sdv.*\.nii$')); 
+matlabbatch{1}.cfg_basicio.cfg_named_file.files{6} = cellstr(...
+    spm_select('FPList',fullfile(d_dir{2},'IOP'),'^sa.*\.nii$')); 
 % set files: mask (1st level) for both modalities
-matlabbatch{2}.cfg_basicio.cfg_named_file.files{1} = cellstr('');
-matlabbatch{2}.cfg_basicio.cfg_named_file.files{2} = cellstr('');      
+matlabbatch{2}.cfg_basicio.cfg_named_file.files{1} = cellstr(msk_file);
+matlabbatch{2}.cfg_basicio.cfg_named_file.files{2} = cellstr(msk_file);      
 % set directory where result directory is created = "root data directory"
 matlabbatch{3}.cfg_basicio.cfg_named_dir.dirs{1} = {rdata_dir};
 
+% setting regression target for momentum data
+load(fullfile(rdata_dir,'reg_targets','rt_Guys.mat'))
+matlabbatch{5}.prt.data.group(1).select.modality(2).rt_subj = rt;
+load(fullfile(rdata_dir,'reg_targets','rt_HammerH.mat'))
+matlabbatch{5}.prt.data.group(2).select.modality(2).rt_subj = rt;
+load(fullfile(rdata_dir,'reg_targets','rt_IOP.mat'))
+matlabbatch{5}.prt.data.group(3).select.modality(2).rt_subj = rt;
 
 % run the job and catch the error if any.
 ok = 1;

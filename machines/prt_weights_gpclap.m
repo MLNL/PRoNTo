@@ -12,7 +12,7 @@ function weights = prt_weights_gpclap (d,args)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by M.J.Rosa
-% $Id: prt_weights_gpclap.m 192 2011-10-24 10:57:19Z mjrosa $
+% $Id$
 
 SANITYCHECK = true; % turn off for speed
 
