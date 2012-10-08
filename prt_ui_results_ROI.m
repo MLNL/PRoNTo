@@ -129,13 +129,8 @@ else
         end
         set(aa(i),'FontUnits','pixel')
         xf=get(aa(i),'FontSize');
-        if ispc
-            set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-                'FontUnits','normalized','Units','normalized')
-        else
-            set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-                'Units','normalized')
-        end
+        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+            'Units','normalized')
     end
     
     %fill table with UserData
@@ -148,8 +143,8 @@ else
         if ~isempty(f)
             load(f);
             try
-                pH=W_roi;
-                pHN=NW_roi;
+                pH=W_roi(:,end);
+                pHN=NW_roi(:,end);
             catch
                 error('PRoNTo:prt_ui_results_ROI:Nodata',...
                     'No ROI names or weight values found')
@@ -178,7 +173,7 @@ else
     set(handles.ROItable,'ColumnFormat',{'char','numeric','numeric'});
     
     % Update Graph
-    [AX,H1,H2] = plotyy(handles.axes1,1:size(dat,1), pH,...
+    [AX,H1,H2] = plotyy(1:size(dat,1), pH,...
         1.4:size(dat,1)+0.4, pHN,'bar');
     set(H2,'FaceColor',[1 0 0])
     set(H2,'BarWidth',0.4)

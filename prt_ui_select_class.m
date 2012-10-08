@@ -59,7 +59,7 @@ function prt_ui_select_class_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_select_class (see VARARGIN)
-    
+
 set(handles.figure1,'Name','PRoNTo :: Specify classes')
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
@@ -91,7 +91,7 @@ for i=1:length(aa)
         if ~isempty(bb)
             for j=1:length(bb)
                 if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
-                        'radiobutton','checkbox'}))) 
+                        'radiobutton','checkbox'})))
                     set(bb(j),'BackgroundColor',color.bg2)
                 elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
                     set(bb(j),'BackgroundColor',color.fr)
@@ -112,13 +112,8 @@ for i=1:length(aa)
     end
     set(aa(i),'FontUnits','pixel')
     xf=get(aa(i),'FontSize');
-    if ispc
-        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            'FontUnits','normalized','Units','normalized')
-    else
-        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            'Units','normalized')
-    end
+    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+        'Units','normalized')
 end
 
 %set the different fields to disabled (will be enabled when choosing the

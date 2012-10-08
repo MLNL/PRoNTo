@@ -59,7 +59,7 @@ function prt_ui_select_reg_OpeningFcn(hObject, eventdata, handles, varargin)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_select_reg (see VARARGIN)
-    
+
 set(handles.figure1,'Name','PRoNTo :: Specify subjects/scans to regress')
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
@@ -112,13 +112,8 @@ for i=1:length(aa)
     end
     set(aa(i),'FontUnits','pixel')
     xf=get(aa(i),'FontSize');
-    if ispc
-        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            'FontUnits','normalized','Units','normalized')
-    else
-        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            'Units','normalized')
-    end
+    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+        'Units','normalized')
 end
 
 

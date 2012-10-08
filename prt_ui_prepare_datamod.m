@@ -93,7 +93,7 @@ for i=1:length(aa)
         if ~isempty(bb)
             for j=1:length(bb)
                 if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
-                        'radiobutton','checkbox'}))) 
+                        'radiobutton','checkbox'})))
                     set(bb(j),'BackgroundColor',color.bg2)
                 elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
                     set(bb(j),'BackgroundColor',color.fr)
@@ -114,13 +114,8 @@ for i=1:length(aa)
     end
     set(aa(i),'FontUnits','pixel')
     xf=get(aa(i),'FontSize');
-    if ispc
-        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            'FontUnits','normalized','Units','normalized')
-    else
-        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            'Units','normalized')
-    end
+    set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+        'Units','normalized')
 end
 
 

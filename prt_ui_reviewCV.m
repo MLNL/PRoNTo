@@ -35,11 +35,11 @@ function varargout = prt_ui_reviewCV(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @prt_ui_reviewCV_OpeningFcn, ...
-                   'gui_OutputFcn',  @prt_ui_reviewCV_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @prt_ui_reviewCV_OpeningFcn, ...
+    'gui_OutputFcn',  @prt_ui_reviewCV_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -75,68 +75,63 @@ elseif length(F)==1
 else
     set(handles.figure1,'Tag',Tag)
     
-set(handles.figure1,'Name','PRoNTo :: Review Cross-Validation')
-%set size of the window, taking screen resolution and platform into account
-S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
-if ispc
-    PF='MS Sans Serif';
-else
-    PF= spm_platform('fonts');     %-Font names (for this platform)
-    PF=PF.helvetica;
-end
-tmp  = [S0(3)/1280 (S0(4))/800];
-ratio=min(tmp)*[1 1 1 1];
-FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
-x=get(handles.figure1,'Position');
-% set(handles.figure1,'DefaultTextFontSize',FS*12,...
-%     'DefaultUicontrolFontSize',FS*12,...
-%     'DefaultTextFontName',PF,...
-%     'DefaultAxesFontName',PF,...
-%     'DefaultUicontrolFontName',PF)
-set(handles.figure1,'Position',ratio.*x)
-set(handles.figure1,'Resize','on')
-
-color=prt_get_defaults('color');
-set(handles.figure1,'Color',color.bg1)
-aa=get(handles.figure1,'children');
-for i=1:length(aa)
-    if strcmpi(get(aa(i),'type'),'uipanel')
-        set(aa(i),'BackgroundColor',color.bg2)
-        bb=get(aa(i),'children');
-        if ~isempty(bb)
-            for j=1:length(bb)
-                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
-                        'radiobutton','checkbox'}))) 
-                    set(bb(j),'BackgroundColor',color.bg2)
-                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
-                    set(bb(j),'BackgroundColor',color.fr)
+    set(handles.figure1,'Name','PRoNTo :: Review Cross-Validation')
+    %set size of the window, taking screen resolution and platform into account
+    S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+    if ispc
+        PF='MS Sans Serif';
+    else
+        PF= spm_platform('fonts');     %-Font names (for this platform)
+        PF=PF.helvetica;
+    end
+    tmp  = [S0(3)/1280 (S0(4))/800];
+    ratio=min(tmp)*[1 1 1 1];
+    FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
+    x=get(handles.figure1,'Position');
+    % set(handles.figure1,'DefaultTextFontSize',FS*12,...
+    %     'DefaultUicontrolFontSize',FS*12,...
+    %     'DefaultTextFontName',PF,...
+    %     'DefaultAxesFontName',PF,...
+    %     'DefaultUicontrolFontName',PF)
+    set(handles.figure1,'Position',ratio.*x)
+    set(handles.figure1,'Resize','on')
+    
+    color=prt_get_defaults('color');
+    set(handles.figure1,'Color',color.bg1)
+    aa=get(handles.figure1,'children');
+    for i=1:length(aa)
+        if strcmpi(get(aa(i),'type'),'uipanel')
+            set(aa(i),'BackgroundColor',color.bg2)
+            bb=get(aa(i),'children');
+            if ~isempty(bb)
+                for j=1:length(bb)
+                    if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                            'radiobutton','checkbox'})))
+                        set(bb(j),'BackgroundColor',color.bg2)
+                    elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
+                        set(bb(j),'BackgroundColor',color.fr)
+                    end
+                    set(bb(j),'FontUnits','pixel')
+                    xf=get(bb(j),'FontSize');
+                    set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                        'FontUnits','normalized','Units','normalized')
                 end
-                set(bb(j),'FontUnits','pixel')
-                xf=get(bb(j),'FontSize');
-                set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
-                    'FontUnits','normalized','Units','normalized')
+            end
+        elseif strcmpi(get(aa(i),'type'),'uicontrol')
+            if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                    'radiobutton','checkbox'})))
+                set(aa(i),'BackgroundColor',color.bg1)
+            elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+                set(aa(i),'BackgroundColor',color.fr)
             end
         end
-    elseif strcmpi(get(aa(i),'type'),'uicontrol')
-        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
-                'radiobutton','checkbox'})))
-            set(aa(i),'BackgroundColor',color.bg1)
-        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
-            set(aa(i),'BackgroundColor',color.fr)
-        end
-    end
-    if ~strcmpi(get(aa(i),'type'),'uimenu')
-        set(aa(i),'FontUnits','pixel')
-        xf=get(aa(i),'FontSize');
-        if ispc
-            set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-                'FontUnits','normalized','Units','normalized')
-        else
+        if ~strcmpi(get(aa(i),'type'),'uimenu')
+            set(aa(i),'FontUnits','pixel')
+            xf=get(aa(i),'FontSize');
             set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
                 'Units','normalized')
         end
     end
-end
 
 
 if ~isempty(varargin{1}) && strcmpi(varargin{1},'UserData')
