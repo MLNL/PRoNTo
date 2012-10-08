@@ -185,19 +185,21 @@ else
     sc=min(max(m1,m2)+0.03,1);
     set(AX(1),'ylim',sc*aa)
     set(AX(2),'ylim',sc*bb)
+    title('Histogram of (normalized) weights per region','FontWeight','bold')
+    d=get(AX(1),'Title');
+    dd=get(d,'Position');
     d2=get(AX(1),'YLabel');
     d1=get(d2,'Position');
-    dt=text(d1(1),d1(2)*-0.05,'W roi (in %)');
+    dt=text(d1(1),dd(2)*1.01,'W roi (in %)');
     set(dt,'Color',[0 0 1])
     d3=get(AX(2),'YLabel');
     d4=get(d3,'Position');
-    dt2=text(d4(1)*0.9,d1(2)*-0.05,'NW roi (in %)');
+    dt2=text(d4(1)*0.9,dd(2)*1.01,'NW roi (in %)');
     set(dt2,'Color',[1 0 0])
     set(AX,'XTick',1.4:size(dat,1)+0.4)
     set(AX,'XTickLabel',{''})
     set(AX,'XTick',0)
-    legend(handles.axes1,'W_{roi}','NW_{roi}','Location','SouthOutside')
-    title('Histogram of (normalized) weights per region','FontWeight','bold')
+    legend('W_{roi}','NW_{roi}','Location','SouthOutside')
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -240,9 +242,10 @@ dat=dat(ih,:);
 set(handles.ROItable,'Data',dat)
 
 % Update Graph
-delete(get(handles.axes1,'Children'))
+set(handles.figure1, 'Currentaxes',handles.axes1)
+delete(get(handles.axes1(1),'Children'))
 warning('off')
-[AX,H1,H2] = plotyy(handles.axes1,1:size(dat,1), [dat{:,2}],...
+[AX,H1,H2] = plotyy(1:size(dat,1), [dat{:,2}],...
     1.4:size(dat,1)+0.4, [dat{:,3}],'bar');
 set(H2,'FaceColor',[1 0 0])
 set(H2,'BarWidth',0.4)
@@ -254,17 +257,19 @@ m2=max([dat{:,3}])/bb(2);
 sc=min(max(m1,m2)+0.03,1);
 set(AX(1),'ylim',sc*aa)
 set(AX(2),'ylim',sc*bb)
+d=get(AX(1),'Title');
+dd=get(d,'Position');
 d2=get(AX(1),'YLabel');
 d1=get(d2,'Position');
-dt=text(d1(1),d1(2)*-0.05,'W roi (in %)');
+dt=text(d1(1),dd(2)*1.01,'W roi (in %)');
 set(dt,'Color',[0 0 1])
 d3=get(AX(2),'YLabel');
 d4=get(d3,'Position');
-dt2=text(d4(1)*0.9,d1(2)*-0.05,'NW roi (in %)');
+dt2=text(d4(1)*0.9,dd(2)*1.01,'NW roi (in %)');
 set(dt2,'Color',[1 0 0])
 set(AX,'XTick',1.4:size(dat,1)+0.4)
 set(AX,'XTickLabel',{''})
-legend(handles.axes1,'W_{roi}','NW_{roi}','Location','SouthOutside')
+legend('W_{roi}','NW_{roi}','Location','SouthOutside')
 title('Histogram of (normalized) weights per region','FontWeight','bold')
 % Update handles structure
 guidata(hObject, handles);
@@ -285,9 +290,10 @@ dat=dat(ihn,:);
 set(handles.ROItable,'Data',dat)
 
 % Update Graph
+set(handles.figure1, 'Currentaxes',handles.axes1)
 delete(get(handles.axes1,'Children'))
 warning('off')
-[AX,H1,H2] = plotyy(handles.axes1,1:size(dat,1), [dat{:,2}],...
+[AX,H1,H2] = plotyy(1:size(dat,1), [dat{:,2}],...
     1.4:size(dat,1)+0.4, [dat{:,3}],'bar');
 set(H2,'FaceColor',[1 0 0])
 set(H2,'BarWidth',0.4)
@@ -299,17 +305,19 @@ m2=max([dat{:,3}])/bb(2);
 sc=min(max(m1,m2)+0.03,1);
 set(AX(1),'ylim',sc*aa)
 set(AX(2),'ylim',sc*bb)
+d=get(AX(1),'Title');
+dd=get(d,'Position');
 d2=get(AX(1),'YLabel');
 d1=get(d2,'Position');
-dt=text(d1(1),d1(2)*-0.05,'W roi (in %)');
+dt=text(d1(1),dd(2)*1.01,'W roi (in %)');
 set(dt,'Color',[0 0 1])
 d3=get(AX(2),'YLabel');
 d4=get(d3,'Position');
-dt2=text(d4(1)*0.9,d1(2)*-0.05,'NW roi (in %)');
+dt2=text(d4(1)*0.9,dd(2)*1.01,'NW roi (in %)');
 set(dt2,'Color',[1 0 0])
 set(AX,'XTick',1.4:size(dat,1)+0.4)
 set(AX,'XTickLabel',{''})
-legend(handles.axes1,'W_{roi}','NW_{roi}','Location','SouthOutside')
+legend('W_{roi}','NW_{roi}','Location','SouthOutside')
 title('Histogram of (normalized) weights per region','FontWeight','bold')
 % Update handles structure
 guidata(hObject, handles);
