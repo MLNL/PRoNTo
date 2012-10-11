@@ -1046,6 +1046,7 @@ if  ~isempty(reps)
             stats.type = 'reg';
         end
         handles.stats = stats;
+        handles.PRT   = PRT;
         
         % Update GUI
         guidata(hObject, handles);
