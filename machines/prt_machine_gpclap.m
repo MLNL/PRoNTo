@@ -347,7 +347,8 @@ for i=1:size(Ks,2),
     SS(:,:,i) = S;
     
     s = RandStream.create('mt19937ar','seed',0);
-    RandStream.setDefaultStream(s);
+    %RandStream.setDefaultStream(s);
+    RandStream.setGlobalStream(s);
     nsamp  = 10000;
     r      = sqrtm(S)*randn(C,nsamp) + repmat(mu,1,nsamp);
     %r      = chol(S)'*randn(C,nsamp) + repmat(mu,1,nsamp);
