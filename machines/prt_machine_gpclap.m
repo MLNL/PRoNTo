@@ -323,7 +323,7 @@ for c1=1:C
     E(:,:,c1) = diag(sD)*(L\(L'\diag(sD) ));
 end 
 M   = chol(sum(E,3));
-os  = RandStream.getDefaultStream;
+os  = RandStream.getGlobalStream;
 p   = zeros(size(Ks,2),C);
 j   = 0;
 Mu = zeros(size(Ks,2),C); SS = zeros(C,C,size(Ks,2));
@@ -347,7 +347,6 @@ for i=1:size(Ks,2),
     SS(:,:,i) = S;
     
     s = RandStream.create('mt19937ar','seed',0);
-    %RandStream.setDefaultStream(s);
     RandStream.setGlobalStream(s);
     nsamp  = 10000;
     r      = sqrtm(S)*randn(C,nsamp) + repmat(mu,1,nsamp);
@@ -357,6 +356,6 @@ for i=1:size(Ks,2),
     r      = exp(r);
     p(j,:) = mean(r./repmat(sum(r,1),C,1),2)';
 end
-RandStream.setDefaultStream(os);
+RandStream.setGlobalStream(os);
 end
 
