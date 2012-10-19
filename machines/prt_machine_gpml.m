@@ -204,6 +204,10 @@ end
     
 % Train and test GP model
 % -------------------------------------------------------------------------
+os  = RandStream.getGlobalStream;
+s   = RandStream.create('mt19937ar','seed',0);
+RandStream.setGlobalStream(s);
+
 % train
 if optimise_theta
     if map
@@ -239,5 +243,6 @@ output.alpha       = post.alpha;
 %output.sW          = post.sW;
 %output.L           = post.L;
 
+RandStream.setGlobalStream(os);
 end
 
