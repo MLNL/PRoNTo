@@ -182,7 +182,7 @@ else
                 
             case 'regression'
                 permutation.corr(p)=perm_stats.corr;
-                if (abs(perm_stats.corr) > abs(PRT.model(modelid).output.stats.corr))
+                if (perm_stats.corr > PRT.model(modelid).output.stats.corr)
                     total_greater_corr=total_greater_corr+1;
                 end
                 permutation.mse(p)=perm_stats.mse;
