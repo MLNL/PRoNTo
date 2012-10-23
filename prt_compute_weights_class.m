@@ -20,7 +20,7 @@ function img_name = prt_compute_weights_class(PRT,in,model_idx)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by M.J.Rosa
-% $Id: prt_compute_weights.m 602 2012-10-04 15:51:18Z mjrosa $
+% $Id: $
 
 % Find machine
 % -------------------------------------------------------------------------
