@@ -427,9 +427,13 @@ fold          = get(handles.foldmenu,'Value')-1;
 Vfolds        = handles.vols{1};
 V             = Vfolds(1);
 M             = V.mat;
-DIM           = V.dim(1:3)'; 
+DIM           = V.dim(1:3)';
 xdim          = DIM(1); ydim  = DIM(2); zdim  = DIM(3);
-fdim          = V.private.dat.dim(4);
+if length(V.private.dat.dim) < 4
+    fdim = 1;                       % Handle 3D images
+else
+    fdim = V.private.dat.dim(4);    % Handle 4D images
+end
 [xords,yords] = ndgrid(1:xdim,1:ydim);
 xords         = xords(:)';  yords = yords(:)';
 I             = 1:xdim*ydim;
@@ -485,7 +489,7 @@ spm_orthviews('MaxBB');
 spm_orthviews('AddBlobs', h, XYZ, Z, M);
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
-      spm_figure('Colormap','jet');
+    spm_figure('Colormap','jet');
 end
 spm_orthviews('Redraw');
 
