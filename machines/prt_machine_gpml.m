@@ -167,7 +167,11 @@ if nhyp(2) > 0
     hyp.lik = zeros(nhyp(2),1);
 end
 if nhyp(3) > 0 
-    hyp.mean = zeros(nhyp(3),1);
+    if strcmp(mode,'regression')
+        hyp.mean = mean(d.tr_targets);
+    else
+        hyp.mean = zeros(nhyp(3),1);
+    end
 end
 
 % Assemble data matrices
