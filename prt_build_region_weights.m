@@ -90,7 +90,8 @@ end
 %--------------------------------------------------------------------------
 w=zeros(V(1).dim(1)*V(1).dim(2)*V(1).dim(3),length(V));
 VV=spm_read_vols(V);
-for i=1:size(VV,4)  %number of folds + average
+nfold=size(VV,4)-1;
+for i=1:nfold+1  %number of folds + average
     tmp=VV(:,:,:,i);
     w(:,i)=tmp(:);
 end
@@ -101,7 +102,7 @@ atlas(isnan(w(:,1)))=NaN;
 
 disp('Computing weights in each ROI--------->>')
 [H HN] = prt_region_histogram(w, atlas);
-
+nr=size(H,1);
 %compute proportions as in PCA
 r_min=min(atlas);
 R=max(atlas);
@@ -129,11 +130,52 @@ end
 
 %sum of weights in each region
 pH=H*100;
+%compute the rank of each region according to the weights 
+[dub,ih]=sort(pH,1,'descend');
+[d1,dw]=sort(ih);
+%ranking distance between each fold and the "average" fold
+drw=zeros(1,nfold); 
+for ifold=1:nfold
+    drw(ifold)=prt_comp_ranking_dist(dw(:,ifold),dw(:,end));
+end
+%Expected value of the rank for each region
+rw=zeros(nr,1);
+for i=1:nr
+    for j=1:nr
+        tmp=length(find(dw(i,:)==j));
+        rw(i)=rw(i)+j*tmp;
+    end
+end
+rw=rw/nfold;
+     
 
 %normalized sum of weights in each region
 inn=find(~isnan(HN(:,1)));
 shn=sum(HN(inn,:));
 pHN=(HN./repmat(shn,size(HN,1),1))*100;
+
+%compute the rank of each region according to the weights 
+[d1,d2]=sort(pHN,1,'descend');
+isn=find(isnan(pHN(:,1)));
+d3=1:length(isn);
+d4=length(isn)+1:size(d1,1);
+ihn=[d2(d4,:);d2(d3,:)];
+[d1,dwn]=sort(ihn);
+%ranking distance between each fold and the "average" fold
+drwn=zeros(1,nfold); 
+for ifold=1:nfold
+    drwn(ifold)=prt_comp_ranking_dist(dwn(:,ifold),dwn(:,end));
+end
+%Expected value of the rank for each region
+rwn=zeros(nr,1);
+for i=1:nr
+    for j=1:nr
+        tmp=length(find(dwn(i,1:end-1)==j));
+        rwn(i)=rwn(i)+j*tmp;
+    end
+end
+rwn=rwn/nfold;
+
 
 %build new image with the normalized weights and save values
 %--------------------------------------------------------------------------
@@ -151,10 +193,10 @@ end
 W_roi=pH;
 NW_roi=pHN;
 save(fullfile(a,['atlas_',b1,'_',b,'.mat']),'LR',...
-    'W_roi','NW_roi');
+    'W_roi','NW_roi','dw','dwn','rw','rwn','drw','drwn');
 
 img_name=[a,filesep,'atlas_',b1,'_',b,c];
-img4d = file_array(img_name,size(VV),'float64-le',0,1,0);
+img4d = file_array(img_name,size(VV),'float32-le',0,1,0);
 for km=1:size(w,2)
     for r=r_min:R
         w(atlas == r,km)=pHN(r+corr);
@@ -174,5 +216,5 @@ disp('Done.')
 
 % Displays (on the average across folds only)
 %--------------------------------------------------------------------------
-prt_ui_results_ROI('UserData',{LR,pH(:,end),pHN(:,end)});
+prt_ui_results_ROI('UserData',{LR,pH,pHN,drw,drwn,rw,rwn});
 

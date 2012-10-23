@@ -30,7 +30,7 @@ function varargout = prt_ui_results_ROI(varargin)
 
 % Edit the above text to modify the response to help prt_ui_results_ROI
 
-% Last Modified by GUIDE v2.5 20-Sep-2012 15:37:51
+% Last Modified by GUIDE v2.5 18-Oct-2012 15:49:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -138,13 +138,17 @@ else
         LR=varargin{2}{1};
         pH=varargin{2}{2};
         pHN=varargin{2}{3};
+        drw=varargin{2}{4};
+        drwn=varargin{2}{5};
+        rw=varargin{2}{6};
+        rwn=varargin{2}{7};
     else
         f=spm_select(1,'.mat','Select .mat created from atlas weights');
         if ~isempty(f)
             load(f);
             try
-                pH=W_roi(:,end);
-                pHN=NW_roi(:,end);
+                pH=W_roi;
+                pHN=NW_roi;
             catch
                 error('PRoNTo:prt_ui_results_ROI:Nodata',...
                     'No ROI names or weight values found')
@@ -156,32 +160,48 @@ else
         %future: load the saved .mat file
     end
     szn=length(LR);
-    dat=cell(szn,3);
+    dat=cell(szn,5);
     for i=1:szn
         dat{i,1}=LR{i};
-        dat{i,2}=pH(i);
-        dat{i,3}=pHN(i);
+        dat{i,2}=pH(i,end);
+        dat{i,3}=rw(i);
+        dat{i,4}=pHN(i,end);
+        dat{i,5}=rwn(i);
     end
     handles.LR=LR;
     handles.pH=pH;
     handles.pHN=pHN;
+    handles.rw=rw;
+    handles.rwn=rwn;
     handles.dat=dat;
     set(handles.ROItable,'Data',dat);
-    set(handles.ROItable,'ColumnName',{'ROI Name','W_roi (in %)','NW_roi (in %)'});
-    set(handles.ROItable,'ColumnEditable',[false,false,false]);
-    set(handles.ROItable,'ColumnWidth',{130,80,80});
-    set(handles.ROItable,'ColumnFormat',{'char','numeric','numeric'});
+    set(handles.ROItable,'ColumnName',{'ROI Name','W_roi (in %)',...
+        'Rank(W_roi)','NW_roi (in %)','Rank(NW_roi)'});
+    set(handles.ROItable,'ColumnEditable',[false,false,false,false,false]);
+    set(handles.ROItable,'ColumnWidth',{130,80,50,80,50});
+    set(handles.ROItable,'ColumnFormat',{'char','numeric',...
+        'numeric','numeric','numeric'});
     
-    % Update Graph
-    [AX,H1,H2] = plotyy(1:size(dat,1), pH,...
-        1.4:size(dat,1)+0.4, pHN,'bar');
+    %get the number of folds to create the popup menu
+    handles.nfolds=size(pH,2)-1;
+    list=get(handles.foldp,'String');
+    for ii=1:handles.nfolds
+        list=[list,{['Fold ',num2str(ii)]}];
+    end
+    set(handles.foldp,'String',list)
+    set(handles.foldp,'Value',1)
+    
+    % Update Histogram of weights
+    set(handles.figure1, 'Currentaxes',handles.axes1)
+    [AX,H1,H2] = plotyy(1:size(dat,1), pH(:,end),...
+        1.4:size(dat,1)+0.4, pHN(:,end),'bar');
     set(H2,'FaceColor',[1 0 0])
     set(H2,'BarWidth',0.4)
     set(H1,'BarWidth',0.4)
     aa=get(AX(1),'ylim'); %adapt y scale
     bb=get(AX(2),'ylim');
     m1=max([dat{:,2}])/aa(2);
-    m2=max([dat{:,3}])/bb(2);
+    m2=max([dat{:,4}])/bb(2);
     sc=min(max(m1,m2)+0.03,1);
     set(AX(1),'ylim',sc*aa)
     set(AX(2),'ylim',sc*bb)
@@ -200,6 +220,16 @@ else
     set(AX,'XTickLabel',{''})
     set(AX,'XTick',0)
     legend('W_{roi}','NW_{roi}','Location','SouthOutside')
+    
+    %Update histogram of ranking distances between each fold and the average
+    set(handles.figure1, 'Currentaxes',handles.axes2)
+    h=bar(handles.axes2,[drw',drwn']);
+    set(get(handles.axes2,'Title'),'String','Ranking distance to average',...
+        'Fontweight','bold')
+    ylabel(handles.axes2,'dr')
+    xlabel(handles.axes2,'Folds')
+    set(handles.axes2,'Xtick',1:handles.nfolds)
+    set(handles.axes2,'XTickLabel',{''})
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -230,14 +260,108 @@ function ROItable_CellEditCallback(hObject, eventdata, handles)
 % Update handles structure
 guidata(hObject, handles);
 
+% --- Executes on selection change in foldp.
+function foldp_Callback(hObject, eventdata, handles)
+% hObject    handle to foldp (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns foldp contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from foldp
+v=get(handles.foldp,'Value');
+if v==0 || isempty(v)
+    v=1;
+end
+
+szn=length(handles.LR);
+dat=cell(szn,5);
+for i=1:szn
+    dat{i,1}=handles.LR{i};
+    if v==1 %dispay the average
+        dat{i,2}=handles.pH(i,end);
+        dat{i,4}=handles.pHN(i,end);
+    else
+        dat{i,2}=handles.pH(i,v-1);
+        dat{i,4}=handles.pHN(i,v-1);
+    end
+    dat{i,3}=handles.rw(i);
+    dat{i,5}=handles.rwn(i);
+end
+set(handles.ROItable,'Data',dat)
+
+%Update histogram of weights
+set(handles.figure1, 'Currentaxes',handles.axes1)
+[AX,H1,H2] = plotyy(1:size(dat,1), [dat{:,2}],...
+    1.4:size(dat,1)+0.4, [dat{:,4}],'bar');
+set(H2,'FaceColor',[1 0 0])
+set(H2,'BarWidth',0.4)
+set(H1,'BarWidth',0.4)
+aa=get(AX(1),'ylim'); %adapt y scale
+bb=get(AX(2),'ylim');
+m1=max([dat{:,2}])/aa(2);
+m2=max([dat{:,4}])/bb(2);
+sc=min(max(m1,m2)+0.03,1);
+set(AX(1),'ylim',sc*aa)
+set(AX(2),'ylim',sc*bb)
+title('Histogram of (normalized) weights per region','FontWeight','bold')
+d=get(AX(1),'Title');
+dd=get(d,'Position');
+d2=get(AX(1),'YLabel');
+d1=get(d2,'Position');
+dt=text(d1(1),dd(2)*1.01,'W roi (in %)');
+set(dt,'Color',[0 0 1])
+d3=get(AX(2),'YLabel');
+d4=get(d3,'Position');
+dt2=text(d4(1)*0.9,dd(2)*1.01,'NW roi (in %)');
+set(dt2,'Color',[1 0 0])
+set(AX,'XTick',1.4:size(dat,1)+0.4)
+set(AX,'XTickLabel',{''})
+set(AX,'XTick',0)
+legend('W_{roi}','NW_{roi}','Location','SouthOutside')
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function foldp_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to foldp (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
 
 % --- Executes on button press in sortH.
 function sortH_Callback(hObject, eventdata, handles)
 % hObject    handle to sortH (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[dumb,ih]=sort(handles.pH,'descend');
-dat=handles.dat;
+v=get(handles.foldp,'Value');
+if v==0 || isempty(v)
+    v=1;
+end
+if v==1
+    [dumb,ih]=sort(handles.pH(:,end),'descend');
+else
+    [dumb,ih]=sort(handles.pH(:,v-1),'descend');
+end
+szn=length(handles.LR);
+dat=cell(szn,5);
+for i=1:szn
+    dat{i,1}=handles.LR{i};
+    if v==1 %dispay the average
+        dat{i,2}=handles.pH(i,end);
+        dat{i,4}=handles.pHN(i,end);
+    else
+        dat{i,2}=handles.pH(i,v-1);
+        dat{i,4}=handles.pHN(i,v-1);
+    end
+    dat{i,3}=handles.rw(i);
+    dat{i,5}=handles.rwn(i);
+end
 dat=dat(ih,:);
 set(handles.ROItable,'Data',dat)
 
@@ -246,14 +370,14 @@ set(handles.figure1, 'Currentaxes',handles.axes1)
 delete(get(handles.axes1(1),'Children'))
 warning('off')
 [AX,H1,H2] = plotyy(1:size(dat,1), [dat{:,2}],...
-    1.4:size(dat,1)+0.4, [dat{:,3}],'bar');
+    1.4:size(dat,1)+0.4, [dat{:,4}],'bar');
 set(H2,'FaceColor',[1 0 0])
 set(H2,'BarWidth',0.4)
 set(H1,'BarWidth',0.4)
 aa=get(AX(1),'ylim'); %adapt y scale
 bb=get(AX(2),'ylim');
 m1=max([dat{:,2}])/aa(2);
-m2=max([dat{:,3}])/bb(2);
+m2=max([dat{:,4}])/bb(2);
 sc=min(max(m1,m2)+0.03,1);
 set(AX(1),'ylim',sc*aa)
 set(AX(2),'ylim',sc*bb)
@@ -280,12 +404,33 @@ function sortHN_Callback(hObject, eventdata, handles)
 % hObject    handle to sortHN (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[d1,d2]=sort(handles.pHN,'descend');
+v=get(handles.foldp,'Value');
+if v==0 || isempty(v)
+    v=1;
+end
+if v==1
+    [d1,d2]=sort(handles.pHN(:,end),'descend');
+else
+    [d1,d2]=sort(handles.pHN(:,v-1),'descend');
+end
 isn=find(isnan(handles.pHN(:,1)));
 d3=1:length(isn);
 d4=length(isn)+1:size(d1,1);
 ihn=[d2(d4,:);d2(d3,:)];
-dat=handles.dat;
+szn=length(handles.LR);
+dat=cell(szn,5);
+for i=1:szn
+    dat{i,1}=handles.LR{i};
+    if v==1 %dispay the average
+        dat{i,2}=handles.pH(i,end);
+        dat{i,4}=handles.pHN(i,end);
+    else
+        dat{i,2}=handles.pH(i,v-1);
+        dat{i,4}=handles.pHN(i,v-1);
+    end
+    dat{i,3}=handles.rw(i);
+    dat{i,5}=handles.rwn(i);
+end
 dat=dat(ihn,:);
 set(handles.ROItable,'Data',dat)
 
@@ -294,14 +439,14 @@ set(handles.figure1, 'Currentaxes',handles.axes1)
 delete(get(handles.axes1,'Children'))
 warning('off')
 [AX,H1,H2] = plotyy(1:size(dat,1), [dat{:,2}],...
-    1.4:size(dat,1)+0.4, [dat{:,3}],'bar');
+    1.4:size(dat,1)+0.4, [dat{:,4}],'bar');
 set(H2,'FaceColor',[1 0 0])
 set(H2,'BarWidth',0.4)
 set(H1,'BarWidth',0.4)
 aa=get(AX(1),'ylim'); %adapt y scale
 bb=get(AX(2),'ylim');
 m1=max([dat{:,2}])/aa(2);
-m2=max([dat{:,3}])/bb(2);
+m2=max([dat{:,4}])/bb(2);
 sc=min(max(m1,m2)+0.03,1);
 set(AX(1),'ylim',sc*aa)
 set(AX(2),'ylim',sc*bb)
@@ -332,5 +477,3 @@ function quitbutt_Callback(hObject, eventdata, handles)
 if isfield(handles,'figure1')
     delete(handles.figure1);
 end
-
-
