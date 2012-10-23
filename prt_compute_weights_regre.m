@@ -24,7 +24,6 @@ function img_name = prt_compute_weights_regre(PRT,in,model_idx)
 
 % Find machine
 % -------------------------------------------------------------------------
-mfunc       = PRT.model(model_idx).input.machine.function;
 mname       = PRT.model(model_idx).model_name;
 m.args      = [];
 
