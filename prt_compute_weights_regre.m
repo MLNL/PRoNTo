@@ -40,7 +40,7 @@ if ~isempty(in.img_name)
         error('prt_compute_weights:NameNotAlphaNumeric',...
             'Error: image name should contain only alpha-numeric elements!');
     end
-    in.img_name_c  = [in.img_name,'_',num2str,'.img'];
+    in.img_name_c  = [in.img_name,'.img'];
     img_name       = fullfile(in.pathdir,in.img_name_c);
 else
     img_name       = fullfile(in.pathdir,img_mach);
