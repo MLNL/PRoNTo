@@ -4,7 +4,7 @@ function prt_struct2latex(S)
 % The routine specifically generates the 'adv_PRTstruct.tex' file that is
 % included, in the prt_manual.
 %
-% Bits of the code and copied/inspired by spm_latex.m from the SPM8
+% Bits of the code are copied/inspired by spm_latex.m from the SPM8
 % distribution: http://www.fil.ion.ucl.ac.uk/spm
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory

@@ -20,7 +20,7 @@ function img_name = prt_compute_weights_class(PRT,in,model_idx)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by M.J.Rosa
-% $Id: $
+% $Id$
 
 % Find machine
 % -------------------------------------------------------------------------
@@ -131,7 +131,7 @@ if length(dat_dim)==2, dat_dim = [dat_dim 1]; end % handling case of 2D image
 
 for c = 1:nimage
     img4d{c}      = file_array(img_name{c},[dat_dim(1),dat_dim(2),...
-        dat_dim(3),nfold+1],'float64-le',0,1,0);  
+        dat_dim(3),nfold+1],'float32-le',0,1,0);  
 end
 
 zdim    = dat_dim(3);
