@@ -21,7 +21,7 @@ function ok = prt_check(list_check,dir_root)
 %   dir_root    - root directory of data sets
 %
 % OUTPUT:
-%   ok          - vector of output (1=ok, 0=failed, -1=not tested)
+%   ok          - vector of output (1='ok', 0='failed', -1='not tested')
 %
 % NOTE:
 % - For a more automatic testing on your own system, then up date the
@@ -112,11 +112,11 @@ function ok = check_Haxby(rdata_dir)
 % - 'Data & design' as in manual example with whole brain mask
 % - 'Feature set', as in manual example, no 2nd level mask
 % - 'Specify model', as in manual example, svm Faces vs Houses
-% - 'Run model'
+% - 'Run model' with 1000 permutations
 % - 'Compute weights' -> create 'svm_weights' image
 % - 'Feature set', DCT detrending and a 2nd level mask (fusiform gyrus)
 % - 'Specify model', multi-GPC Faces vs Houses vs Shoes
-% - 'Run model'
+% - 'Run model' without any permutation
 % - 'Compute weights' -> create 'mgpc_weights' image
 % 
 % NOTE: the last module is NOT executed, see TODO below.
@@ -174,21 +174,21 @@ function ok = check_IXI(rdata_dir)
 % - 'Feature set', only the 'divergence' data
 % - 'Specify model', svm Guys-vs-(HammersH+IOP), on divergence data, 
 %   leave-1s/gr-out CV
-% - 'Run model'
+% - 'Run model' with 1000 permutations
 % - 'Compute weights' -> create 'svm_GvsHI' image
 % - 'Feature set', only the 'momentum' data
 % - 'Specify model', KRR for age of all 3 groups of scans
-% - 'Run model'
+% - 'Run model' with 1000 permutations
 % - 'Feature set', pool 'momentum' and 'divergence' data together
 % - 'Specify model', GPC Guys-vs-HammersH-vs-IOP, on 'momentum+divergence'
 %   data leave-1s/gr-out
-% - 'Run model'
+% - 'Run model' without permutation
 % - 'Specify model', RVR for age of all 3 groups of scans (using momentum
 %   feature set)
-% - 'Run model'
+% - 'Run model' with 1000 permutations
 % - 'Specify model', GPR for age of all 3 groups of scans (using momentum
 %   feature set)
-% - 'Run model'
+% - 'Run model' without permutation
 
 % set images directories and select mask(s)
 d_dir{1} = fullfile(rdata_dir,'divergences');
@@ -256,10 +256,10 @@ function ok = check_FvsNF(rdata_dir)
 % - 'Data & design', defining the 2 groups Famous/NonFamous and data
 % - 'Feature set', using the beta images
 % - 'Specify model', svm F-vs-NF, leave-1s-out CV
-% - 'Run model'
+% - 'Run model' with 1000 permutations
 % - 'Compute weights' -> create 'svm_FvsNF' image
 % - 'Specify model', gpc F-vs-NF, leave-1s/gr-out CV
-% - 'Run model'
+% - 'Run model' without permutations
 % - 'Compute weights' -> create 'gpc_FvsNF' image
 
 % select images, SPM.mat and mask(s)

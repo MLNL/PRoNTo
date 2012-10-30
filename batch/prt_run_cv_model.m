@@ -34,16 +34,24 @@ mid = prt_init_model(PRT, in);
 
 % Special cross-validation for MCKR
 if strcmp(PRT.model(mid).input.machine.function,'prt_machine_mckr')
-    out=prt_cv_mckr(PRT,in);
+    fname = prt_cv_mckr(PRT,in);
 else
-    out=prt_cv_model(PRT, in);
+    fname = prt_cv_model(PRT, in);
 end
 
+% Permutation test, required.
+load(fname) % reload updated PRT!
+if isfield(job,'perm_test') % to ensure back compatibility with older batch
+    if isfield(job.perm_test,'perm_t')
+        prt_permutation(PRT, job.perm_test.perm_t.N_perm, mid, ...
+            spm_str_manip(fname,'h'));
+    end
+end
 
 % -------------------------------------------------------------------------
 % Function output
 % -------------------------------------------------------------------------
-out=[]; %prevent warning of overwriting 'char' class
+out = []; %prevent warning of overwriting 'char' class
 disp('Model execution complete.')
 out.files{1} = in.fname{1};
 disp('Done')

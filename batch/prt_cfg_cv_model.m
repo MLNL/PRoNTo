@@ -28,12 +28,51 @@ model_name.strtype = 's';
 model_name.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
+% no_perm No permutation test
+% ---------------------------------------------------------------------
+no_perm         = cfg_const;
+no_perm.tag     = 'no_perm';
+no_perm.name    = 'No permutation test';
+no_perm.val     = {1};
+no_perm.help    = {'Do not perform permuation test'};
+
+% ---------------------------------------------------------------------
+% N_perm Number of permutations
+% ---------------------------------------------------------------------
+N_perm         = cfg_entry;
+N_perm.tag     = 'N_perm';
+N_perm.name    = 'Number of permutations';
+N_perm.help    = {'Enter the number of permutations to perform'};
+N_perm.strtype = 'e';
+N_perm.val     = {1000};
+N_perm.num     = [1 1];
+
+% ---------------------------------------------------------------------
+% perm_t Do permuatation test
+% ---------------------------------------------------------------------
+perm_t         = cfg_branch;
+perm_t.tag     = 'perm_t';
+perm_t.name    = 'Permutation test';
+perm_t.val     = {N_perm};
+perm_t.help    = {'Perform a permutation test.'};
+
+% ---------------------------------------------------------------------
+% detrend Conditions
+% ---------------------------------------------------------------------
+perm_test        = cfg_choice;
+perm_test.tag    = 'perm_test';
+perm_test.name   = 'Do permuation test?';
+perm_test.values = {no_perm, perm_t};
+perm_test.val    = {no_perm};
+perm_test.help   = {'Perform a permutation test on accuracy, or not'};
+
+% ---------------------------------------------------------------------
 % cv_model Preprocessing
 % ---------------------------------------------------------------------
 cv_model        = cfg_exbranch;
 cv_model.tag    = 'cv_model';
 cv_model.name   = 'Run model';
-cv_model.val    = {infile model_name};
+cv_model.val    = {infile model_name perm_test};
 cv_model.help   = {...
     ['Trains and tests the predictive machine using the cross-validation ',...
      'structure specified by the model.']};
