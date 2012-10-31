@@ -144,7 +144,10 @@ for z = 1:zdim
     
     fprintf('Slice: %d of %d \n',z,zdim);
     
-    img3dav  = zeros(1,xydim); % average weight map
+    img3dav = cell(1,nimage);
+    for c = 1:nimage 
+        img3dav{c}  = zeros(1,xydim); % average weight map
+    end
     
     feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
         mask_train<=(xydim*z));
@@ -194,7 +197,7 @@ for z = 1:zdim
                 img3d(mask_train(feat_slc)-xydim*(z-1)) = wimg{c};
                 norm3d{c}(f)       = sum(img3d.^2);
                 img3d(img3d==0)    = NaN;
-                img3dav            = img3dav + img3d;
+                img3dav{c}         = img3dav{c} + img3d;
                 img4d{c}(:,:,z,f)  = reshape(img3d,dat_dim(1),dat_dim(2),1,1);
             end
             
@@ -206,7 +209,7 @@ for z = 1:zdim
         %------------------------------------------------------------------
         for c = 1:nimage
             norm4d{c}(z,:)          = norm3d{c};
-            img4d{c}(:,:,z,nfold+1) = reshape(img3dav,dat_dim(1),dat_dim(2),...
+            img4d{c}(:,:,z,nfold+1) = reshape(img3dav{c},dat_dim(1),dat_dim(2),...
                 1,1)/nfold;
         end
     end
