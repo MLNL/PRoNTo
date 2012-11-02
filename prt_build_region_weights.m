@@ -43,8 +43,18 @@ try
         disp('No variable ROI_names found, generic names used')
     end
 catch
-    disp('No file containing the names of the ROIs found, generic names used')
-    LR=[];
+    fname=spm_select(1,'.mat','Select the file containing the names of the ROIs');
+    if isempty(fname)
+        disp('No file containing the names of the ROIs found, generic names used')
+        LR=[];
+    else
+        load(fname)
+        try
+            LR=ROI_names;
+        catch
+            disp('No variable ROI_names found, generic names used')
+        end
+    end
 end
 
 

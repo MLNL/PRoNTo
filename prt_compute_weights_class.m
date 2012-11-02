@@ -195,9 +195,11 @@ for z = 1:zdim
             
             for c = 1:nimage,
                 img3d              = zeros(1,xydim);
-                img3d(mask_train(feat_slc)-xydim*(z-1)) = wimg{c};
+                indi=mask_train(feat_slc)-xydim*(z-1);
+                indm=setdiff(1:xydim,indi);
+                img3d(indi) = wimg{c};
                 norm3d{c}(f)       = sum(img3d.^2);
-                img3d(img3d==0)    = NaN;
+                img3d(indm)    = NaN;
                 img3dav{c}         = img3dav{c} + img3d;
                 img4d{c}(:,:,z,f)  = reshape(img3d,dat_dim(1),dat_dim(2),1,1);
             end
