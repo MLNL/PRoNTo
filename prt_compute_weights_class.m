@@ -129,6 +129,7 @@ dat_dim    = hdr.dat.dim;
 
 if length(dat_dim)==2, dat_dim = [dat_dim 1]; end % handling case of 2D image
 
+img4d = cell(nimage,1); % afm
 for c = 1:nimage
     img4d{c}      = file_array(img_name{c},[dat_dim(1),dat_dim(2),...
         dat_dim(3),nfold+1],'float32-le',0,1,0);  
@@ -209,15 +210,17 @@ for z = 1:zdim
         %------------------------------------------------------------------
         for c = 1:nimage
             norm4d{c}(z,:)          = norm3d{c};
-            img4d{c}(:,:,z,nfold+1) = reshape(img3dav{c},dat_dim(1),dat_dim(2),...
-                1,1)/nfold;
+            img3dav{c}              = img3dav{c}/nfold; %afm
+            img4d{c}(:,:,z,nfold+1) = reshape(img3dav{c},dat_dim(1),dat_dim(2),1,1); %afm
+            norm4dav{c}(z,:)        = sum(img3dav{c}(isfinite(img3dav{c})).^2); %afm
         end
     end
     
 end
 
 for c =1:nimage
-    norm4d{c} = sqrt(sum(norm4d{c},1));
+    norm4d{c}   = sqrt(sum(norm4d{c},1));
+    norm4dav{c} = sqrt(sum(norm4dav{c},1)); %afm 
 end
 
 disp('Normalising weights--------->>')
@@ -226,6 +229,10 @@ for f = 1:nfold,
         img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f)./norm4d{c}(1,f);
     end
 end
+
+for c = 1:nimage %afm 
+    img4d{c}(:,:,:,nfold+1) = img4d{c}(:,:,:,nfold+1)./norm4dav{c}; %afm
+end %afm
 
 % Create weigths file
 %-------------------------------------------------------------------------
