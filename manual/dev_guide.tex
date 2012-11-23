@@ -31,7 +31,16 @@ The machine learning routines comprise the core of PRoNTo. These routines do mos
 
 \subsection{Machines}
 
-Integrating a new machine algorithm, i.e. classifier or regressor, into the PRoNTo framework is straightforward. PRoNTo provides a function called `prt$\_$machine.m' that works as a wrapper around the different machine learning algorithms (functions with prefix `prt$\_$machine'). In brief, this wrapper translates PRoNTo's structure and internal variables into the required inputs for each machine. This way, the machine function needs only to read a simple input format that does not depend on knowledge of how PRoNTo works or of the PRT.mat fields.
+Integrating a new machine algorithm, i.e. classifier or regressor, into the PRoNTo framework is straightforward. PRoNTo provides a function called `prt$\_$machine.m' that works as a wrapper around the different machine learning algorithms (functions with prefix `prt$\_$machine'). In brief, this wrapper translates PRoNTo's structure and internal variables into the required inputs for each machine. This way, the machine function needs only to read a simple input format that does not depend on knowledge of how PRoNTo works or of the PRT.mat fields (Figure \ref{Fig1.2}).
+
+\begin{figure}[!htbp]
+  \begin{center}
+      \includegraphics[height=3.0in]{images/machines.png}
+   \caption{Code organisation for integrating a new machine with PRoNTo. `prt$\_$machine.m' works has a wrapper that translates PRoNTo's inputs into the machine format inputs and performs extensive error checks on these variables. The machines (such as `prt$\_$machine$\_$svm$\_$bin.m') perform the classifier/regression algorithms and have inputs and outputs that are not dependent on PRoNTo's internal structures.}
+    \label{Fig1.2}
+  \end{center}
+\end{figure}
+
 More specifically, to contribute with a new machine the developer needs to provide a matlab function, which reads the following input data structure, \textit{d}, and optional arguments, \textit{args}, (all fields are mandatory except where otherwise stated):
 
 \begin{itemize}
@@ -43,7 +52,16 @@ More specifically, to contribute with a new machine the developer needs to provi
 \item    \textit{args} (optional) - anything else that is specific to the algorithm (e.g. LIBSVM arguments).
 \end{itemize}
 
-In addition, the outputs of the function need to have the following format, so that they can be read by the wrapper and translated back to the PRoNTo framework (all fields are mandatory except where otherwise stated):
+
+\begin{figure}[!htbp]
+  \begin{center}
+      \includegraphics[height=3.0in]{images/prtmachinesvmbin.png}
+   \caption{`prt$\_$machine$\_$.m' function help. Example of a PRoNTo machine for 2-class SVM classification.}
+    \label{Fig1.3}
+  \end{center}
+\end{figure}
+
+In addition, the outputs of the function need to have the following format, so that they can be read by the wrapper and translated back to the PRoNTo framework (all fields are mandatory except where otherwise stated) (Figure \ref{Fig1.2}):
 
 \begin{itemize}
 \item \textit{output}  - output structure with fields:\\
