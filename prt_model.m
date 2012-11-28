@@ -365,8 +365,14 @@ switch in.cv.type
             'k-folds LOBO CV selected with too large k');
         end
         G = cell(length(snums),1);
+        inds = 1;
         for s = 1:length(snums)
-            G{s} = ones(snums(s),1);
+            nims = zeros(length(snums),1);
+            for ii = 1:snums(s)
+                nims(ii)=length(find(ID(:,2)==inds));
+                inds = inds+1;
+            end
+            G{s} = ones(sum(nims),1);
         end
         CV = blkdiag(G{:}) + 1;
         
