@@ -158,7 +158,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
                         lcond={des.conds(:).cond_name};
                     else
                         tocmp={des.conds(:).cond_name};
-                        lcond=intersect(lcond,tocmp);
+                        lcond=intersect(lower(lcond),lower(tocmp));
                     end
                 else
                     flag=0;

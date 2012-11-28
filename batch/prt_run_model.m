@@ -92,7 +92,7 @@ for i=1:nm
                     lcond={des.conds(:).cond_name};
                 else
                     tocmp={des.conds(:).cond_name};
-                    lcond=intersect(lcond,tocmp);
+                    lcond=intersect(lower(lcond),lower(tocmp));
                 end
             else
                 flag=0;
@@ -135,7 +135,7 @@ if isfield(job.model_type,'classification')
                             job.model_type.classification.class(c).group(g).conditions.conds;
                         for cc=1:length(job.model_type.classification.class(c).group(g).conditions.conds)
                             cname=job.model_type.classification.class(c).group(g).conditions.conds(cc).cond_name;
-                            if isempty(intersect({cname},lcond))
+                            if isempty(intersect(lower({cname}),lower(lcond)))
                                 beep
                                 disp('This condition is not common to all subjects')
                                 disp('Please remove it from the selection')

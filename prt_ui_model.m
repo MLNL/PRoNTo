@@ -451,7 +451,7 @@ if strcmpi(handles.type,'classification')
     end
     if (speccl.design)
         list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Block Out'}];
+        list=[list;{'Leave One Block Out'};{'k-folds CV on Block'}];
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list))
         handles.cv.type     = 'lobo';
@@ -459,12 +459,13 @@ if strcmpi(handles.type,'classification')
     handles.loospg=speccl.loospg;
     if min(ns)>1
         list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Subject Out'}];
+        list=[list;{'Leave One Subject Out'};{'k-folds CV on Subject Out'}];
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list))
         handles.cv.type     = 'loso';
         list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Subject per Group Out'}];
+        list=[list;{'Leave One Subject per Group Out'};...
+            {'k-folds CV on Subject per Group'}];
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list))
         handles.cv.type = 'losgo';
@@ -478,7 +479,7 @@ else
     end
     if n>1
         list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Subject Out'}];
+        list=[list;{'Leave One Subject Out'};{'k-folds CV on subjects'}];
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',1)
         handles.cv.type     = 'loso';
@@ -553,6 +554,7 @@ function pop_cv_Callback(hObject, eventdata, handles)
 % assemble structure for performing cross-validation
 val=get(handles.pop_cv,'Value');
 mach=get(handles.pop_cv,'String');
+handles.cv.k=1; %by default, Leave-One-Out options
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_cv,'Value',1)
@@ -574,6 +576,10 @@ else
     handles.cv.type     = 'custom';
     cvmatf=spm_select(1,'mat','Select .mat file corresponding to the custom cross-validation');
     handles.cv.mat_file = cvmatf;
+end
+if any(strfind(mach{val},'k-fold'))
+    kt=prt_text_input('Title','Specify k, the number of folds');
+    handles.cv.k=str2num(kt);
 end
 % Update handles structure
 guidata(hObject, handles);

@@ -222,7 +222,11 @@ function CV = compute_cv_mat(PRT, in, modelid)
 % Function to compute the cross-validation matrix. Also does error checking
 
 fid = prt_init_fs(PRT, in.fs(1));
-
+if isfield(in.cv,'k')
+    k=in.cv.k;  %k-fold CV
+else
+    k=1;
+end
 if isfield(in,'include_allscans') && in.include_allscans
     % use the full id matrix
     ID = PRT.fs(fid).id_mat;
@@ -238,46 +242,128 @@ switch in.cv.type
     case 'loso'
         % leave-one-subject-out
         % give each subject a unique id
-        gids = unique(ID(:,1));
+        [gids,d1] = unique(ID(:,1));
+        [gids,d2] = unique(ID(:,1),'first');
+        %compute the number of subjects per group
+        ns=d1-d2+1;
         gc = 0;
         for g = 1:length(gids)
             gidx = ID(:,1) == gids(g);
             ID(gidx,2) = ID(gidx,2) + gc;
-            gc = gc + max(ID(gidx,2));
+            gc = gc + ns(g);
         end
-        
+        % Check that the number of folds does not exceed the number of
+        % subjects
+        if max(ID(:,2))<2*k
+            error('prt_model:losoSelectedWithTooLargeK',...
+            'Total number of subjects smaller than k');
+        end
         % Compute CV matrix
-        snums = histc(ID(:,2),unique(ID(:,2)));
+        if k>1 %k-fold CV
+            nsf=floor(max(ID(:,2))/k);
+            mns=mod(max(ID(:,2)),k);
+            snums=nsf*ones(1,k);
+            snums(end)=snums(end)+mns;
+        else %Leave-One-Subject-Out
+            snums = histc(ID(:,2),unique(ID(:,2)));
+        end
         if length(snums) == 1
             error('prt_model:losoSelectedWithOneSubject',...
             'LOSO CV selected but only one subject is included');
         end
-        %snums = accumarray(ID(:,2),1);
         G = cell(length(snums),1);
+        inds = 1;
         for s = 1:length(snums)
-            G{s} = ones(snums(s),1);
+            nims = zeros(length(snums),1);
+            for ii = 1:snums(s)
+                nims(ii)=length(find(ID(:,2)==inds));
+                inds = inds+1;
+            end
+            G{s} = ones(sum(nims),1);
         end
         CV = blkdiag(G{:}) + 1;
         
     case 'losgo'
         % leave-one-subject-per-group-out
+        [gids,d1] = unique(ID(:,1));
+        [gids,d2] = unique(ID(:,1),'first');
+        %compute the number of subjects per group
+        ns=zeros(length(gids),1);
+        for ig= 1:length(gids)
+            ns(ig)=length(unique(ID(d2(ig):d1(ig),2)));
+        end
         sids = unique(ID(:,2));
         if length(sids) == 1
             error('prt_model:losoSelectedWithOneSubject',...
             'LOSGO CV selected but only one subject is included');
         end
-        
-        CV = zeros(size(ID,1),length(sids));
-        for s = 1:length(sids)
-            sidx = ID(:,2) == sids(s);
-            CV(:,s) = double(sidx) + 1;
+        if ~isempty(find(ns<k))
+            gb=find(ns<k);
+            error('prt_model:losgoSelectedWithTooLargeK',...
+            ['Number of subjects in group ',num2str(gb),' smaller than k']);
+        elseif ~isempty(find((ns/2)<k))
+            gb=find(ns<k);
+            error('prt_model:losgoSelectedWithTooLargeK2',...
+            ['Leaving more than 50% of subjects in group ',num2str(gb),' out']);
         end
+        [nsf,im]=min(floor(ns/k));
+        if k==1
+            CV = zeros(size(ID,1),length(sids));
+        else
+            CV = zeros(size(ID,1),ceil(max(ns)/nsf));
+        end
+        if k>1 && nsf==1
+            disp(['Number of subjects in group ',num2str(im),' smaller than k'])
+            disp('Performing Leave-One Subject per Group-Out')
+        end
+        for g=1:length(ns)
+            is=ID(:,1)==g;
+            if k>1 && nsf>1 %k-fold CV
+                mns=mod(ns(g),nsf);
+                snums=nsf*ones(1,floor(max(ID(is,2))/nsf));
+                if mns>0
+                    snums=[snums, mns];
+                end
+            else %Leave-One-Subject per Group-Out
+                snums = histc(ID(is,2),unique(ID(is,2)));
+            end
+            G = cell(length(snums),1);
+            inds=1;
+            for s = 1:length(snums)
+                nims = zeros(length(snums),1);
+                for ii = 1:snums(s)
+                    nims(ii)=length(find(ID(is,2)==inds));
+                    inds = inds+1;
+                end
+                G{s} = ones(sum(nims),1);
+            end
+            CV(is,1:length(snums)) = blkdiag(G{:}) + 1;
+            if length(snums)<size(CV,2)  %smaller group, fill with 'train'
+                CV(is,length(snums)+1:size(CV,2))= ...
+                    ones(length(find(is)),length(length(snums)+1:size(CV,2)));
+            end
+        end
+              
         
     case 'lobo'
         % leave-one-block-out - limited to one single subject for the
         % moment
         % blocks already have a unique ID
-        snums = histc(ID(:,5),unique(ID(:,5))); % how many scans per block
+        if k>1 %k-fold CV
+            nsf=floor(max(ID(:,5))/k);
+            mns=mod(max(ID(:,5)),k);
+            snums=nsf*ones(1,k);
+            snums(end)=snums(end)+mns;
+        else %Leave-One-Subject-Out
+            snums = histc(ID(:,5),unique(ID(:,5)));% how many scans per block
+        end
+        if length(snums) == 1
+            error('prt_model:loboSelectedWithOneSubject',...
+            'LOBO CV selected but only one block is included');
+        elseif max(ID(:,5))< 2*k
+            error('prt_model:loboSelectedWithLargeK',...
+            'k-folds LOBO CV selected with too large k');
+        end
         G = cell(length(snums),1);
         for s = 1:length(snums)
             G{s} = ones(snums(s),1);

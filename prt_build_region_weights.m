@@ -1,11 +1,11 @@
-function prt_build_region_weights(weight_fname,atlas_fname)
+function rwn=prt_build_region_weights(weight_fname,atlas_fname,flag)
 %
 %function to compute the weights for each region as specified by the atlas
 %image (one value per region). Weights not in the atlas are comprised in an
 %additional region with name 'others'.
 %--------------------------------------------------------------------------
 %input: name of the weights image (weight_fname), name of the atlas image 
-%       (atlas_fname)
+%       (atlas_fname). flag is set to 1 to build the resulting image.
 %output: -image file with the normalized weights in each region, which can
 %         be viewed in the results GUI as a weight image.
 %        -.mat file containing the weights of each ROI, in %, pH, the
@@ -22,6 +22,10 @@ function prt_build_region_weights(weight_fname,atlas_fname)
 %select weight map
 if nargin<1
     f=spm_select(1,[],'Select weight map',[],pwd,'.img');
+    if isempty(f)
+        disp('No weight map selected, aborting')
+        return
+    end
 else
     f=weight_fname;
 end
@@ -29,8 +33,17 @@ end
 %select atlas
 if nargin<2
     gi=spm_select(1,'image','Select atlas');
+    if isempty(f)
+        disp('No atlas selected, aborting')
+        return
+    end
 else
     gi=atlas_fname;
+end
+
+%set flag to 1 if not specified
+if nargin<3
+    flag=1;
 end
 
 %get names of regions if .mat with cells present in the same directory
@@ -205,23 +218,26 @@ NW_roi=pHN;
 save(fullfile(a,['atlas_',b1,'_',b,'.mat']),'LR',...
     'W_roi','NW_roi','dw','dwn','rw','rwn','drw','drwn');
 
-img_name=[a,filesep,'atlas_',b1,'_',b,c];
-img4d = file_array(img_name,size(VV),'float32-le',0,1,0);
-for km=1:size(w,2)
-    for r=r_min:R
-        w(atlas == r,km)=pHN(r+corr);
+%build image if flag
+if flag
+    img_name=[a,filesep,'atlas_',b1,'_',b,c];
+    img4d = file_array(img_name,size(VV),'float32-le',0,1,0);
+    for km=1:size(w,2)
+        for r=r_min:R
+            w(atlas == r,km)=pHN(r+corr);
+        end
+        img4d(:,:,:,km)=reshape(w(:,km),[size(VV,1),size(VV,2), size(VV,3),1]);
     end
-    img4d(:,:,:,km)=reshape(w(:,km),[size(VV,1),size(VV,2), size(VV,3),1]);
+    
+    
+    % Create weigths file
+    %--------------------------------------------------------------------------
+    disp('Creating image--------->>')
+    No         = V(1).private;     % copy header
+    No.dat     = img4d;            % change file_array
+    No.descrip = 'Pronto weigths'; % description
+    create(No);                    % write header
 end
-
-
-% Create weigths file
-%--------------------------------------------------------------------------
-disp('Creating image--------->>')
-No         = V(1).private;     % copy header
-No.dat     = img4d;            % change file_array
-No.descrip = 'Pronto weigths'; % description
-create(No);                    % write header
 disp('Done.')
 
 % Displays (on the average across folds only)
