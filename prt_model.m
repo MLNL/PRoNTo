@@ -392,7 +392,35 @@ switch in.cv.type
         end
 
     case 'custom'
-        error('custom CV not implemented yet');
+        %load matrix and check that each fold contains test and train data.
+        if isfield(model.cv,'mat_file')
+            load(model.cv.mat_file)
+            if ~exist(CV)
+                error('No CV variable found in the mat file provided')
+            else
+                if size(CV,1) ~= size(ID,1)
+                    error('CV does not comprise the same number of samples as selected')
+                else
+                    nfo = size(CV,2);
+                    macv = max(CV);
+                    if length(find(macv==2)) ~= nfo %test data in all folds
+                        error('One (or more) fold does not contain test data')
+                    else
+                        [i,j]=find(CV==1);
+                        if length(unique(j)) ~= nfo %train data in all folds
+                            error('One (or more) fold does not contain train data')
+                        else
+                            lv=CV>2;
+                            sv=CV<0;
+                            if any(any(lv)) || any(any(sv))
+                                error('Values larger than 2 or smaller than 0 found in CV')
+                            end
+                        end
+                    end
+                end
+            end
+        end
+      
         
     otherwise
         error('prt_cv:unknownTypeSpecified',...

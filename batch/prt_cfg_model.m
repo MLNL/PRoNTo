@@ -531,6 +531,19 @@ model_type.values = {classification, regression};
 model_type.help   = {'Select which kind of predictive model is to be used.'};
 
 % ---------------------------------------------------------------------
+% k_args Define k for partioning
+% ---------------------------------------------------------------------
+k_args         = cfg_entry;
+k_args.tag     = 'k_args';
+k_args.name    = 'k';
+k_args.help    = {['Number of folds/partitions for CV. To create a 50%-50%,' ...
+    'choose k as 2. Please note that there can be more partitions than'...
+    ' specified when leaving subjects per group out. Also note that '...
+    'leaving more than 50% of the data out is not permitted.']};
+k_args.strtype = 'e';
+k_args.num     = [1 1];
+
+% ---------------------------------------------------------------------
 % cv_loso Leave-one-subject-out
 % ---------------------------------------------------------------------
 cv_loso         = cfg_const;
@@ -538,6 +551,15 @@ cv_loso.tag     = 'cv_loso';
 cv_loso.name    = 'Leave one subject out';
 cv_loso.val     = {1};
 cv_loso.help    = {'Leave a single subject out each cross-validation iteration'};
+
+% ---------------------------------------------------------------------
+% cv_lkso K-folds CV on Subjects
+% ---------------------------------------------------------------------
+cv_lkso         = cfg_branch;
+cv_lkso.tag     = 'cv_lkso';
+cv_lkso.name    = 'k-folds CV on subjects';
+cv_lkso.val     = {k_args};
+cv_lkso.help    = {'k-partitioning of subjects at each cross-validation iteration'};
 
 % ---------------------------------------------------------------------
 % cv_losgo Leave-one-subject-per-group-out
@@ -551,6 +573,17 @@ cv_losgo.help    = {...
      'Appropriate for repeated measures or paired samples designs.']};
  
 % ---------------------------------------------------------------------
+% cv_lksgo K_folds CV on Subjects per Group
+% ---------------------------------------------------------------------
+cv_lksgo         = cfg_branch;
+cv_lksgo.tag     = 'cv_lksgo';
+cv_lksgo.name    = 'k-folds CV on subjects per group';
+cv_lksgo.val     = {k_args};
+cv_lksgo.help    = {...
+    ['K-partitioning of subjects from each group at a time. ', ...
+     'Appropriate for repeated measures or paired samples designs.']};
+ 
+% ---------------------------------------------------------------------
 % cv_lobo Leave-one-block-out
 % ---------------------------------------------------------------------
 cv_lobo         = cfg_const;
@@ -559,6 +592,17 @@ cv_lobo.name    = 'Leave one block out';
 cv_lobo.val     = {1};
 cv_lobo.help    = {...
     ['Leave out a single block or event from each subject each iteration. ', ...
+     'Appropriate for single subject designs.']};
+
+% ---------------------------------------------------------------------
+% cv_lkbo K-fold CV on blocks
+% ---------------------------------------------------------------------
+cv_lkbo         = cfg_branch;
+cv_lkbo.tag     = 'cv_lkbo';
+cv_lkbo.name    = 'k-folds CV on blocks';
+cv_lkbo.val     = {k_args};
+cv_lkbo.help    = {...
+    ['k-partitioning on blocks or events from each subject each iteration. ', ...
      'Appropriate for single subject designs.']};
  
 % ---------------------------------------------------------------------
@@ -572,6 +616,7 @@ cv_loro.val     = {1};
 cv_loro.help    = {...
     ['Leave out a single run (modality) from each subject each iteration. ', ...
      'Appropriate for single subject designs with multiple runs/sessions.']};
+
    
 % ---------------------------------------------------------------------
 % cv_custom Feature set mask
@@ -592,7 +637,8 @@ cv_custom.help   = {...
 cv_type        = cfg_choice;
 cv_type.tag    = 'cv_type';
 cv_type.name   = 'Cross-validation type';
-cv_type.values = {cv_loso, cv_losgo, cv_lobo, cv_loro,cv_custom};
+cv_type.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
+    cv_lkbo, cv_loro,cv_custom};
 cv_type.val    = {cv_loso};
 cv_type.help   = {'Choose the type of cross-validation to be used'};
 
