@@ -519,14 +519,15 @@ if isfield(data,'group')
                         end
                     end
                 end
+                gr_mod{:,gg} = unique(subj_mod(1:Nsubj,gg));%[afm]
             elseif isfield(data.group(gg).select,'modality')
                 Nmod = numel(data.group(gg).select.modality);
                 for mm = 1:Nmod
                     c_smod = c_smod+1;
                     subj_mod{c_smod,gg} = data.group(gg).select.modality(mm).mod_name;
                 end
+                gr_mod{:,gg} = unique(subj_mod(:,gg));
             end
-            gr_mod{:,gg} = unique(subj_mod(:,gg));
             Ngr_mod(gg) = numel(gr_mod{:,gg});
         end
         % get modality names from all masks, if any
@@ -563,7 +564,9 @@ if isfield(data,'group')
             warndlg(t,'Masks and data modality name');
             return
         end
-        usubj_mod = unique(subj_mod);
+        smods = subj_mod(:);
+        smods = smods(~cellfun(@isempty,smods));
+        usubj_mod = unique(smods);
         Nsubj_mod = numel(usubj_mod);
         ok = zeros(Nsubj_mod,1);
         for sm = 1:Nsubj_mod
