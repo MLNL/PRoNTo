@@ -61,9 +61,8 @@ for m = 1:n_mods
     if tocomp(mids(m))        
         n_vox = PRT.fas(mids(m)).dat.dim(2); %n_vox has to be the same for all concatenated modalities (version 1.1)
     else
-         n_vox = numel(PRT.fs(fid).modality(mids(m)).idfeat_fas);
+        n_vox = numel(PRT.fs(fid).modality(m).idfeat_fas);
     end
-    %for old version, comment the 'if' except line 62
 end
 mem         = def.mem_limit;
 block_size  = floor(mem/(8*3)/max([nfa, n])); % Block size (double = 8 bytes)
@@ -162,7 +161,7 @@ for b = 1:n_block
             end
             clear datapr
         else
-            idf=PRT.fs(fid).modality(mid).idfeat_fas;
+            idf=PRT.fs(fid).modality(m).idfeat_fas;
             kern_vols(:,indm) = (PRT.fas(mid).dat(ifa,idf(vox_range)))';
             %old version
 %             kern_vols(:,indm) = (PRT.fas(mid).dat(ifa,vox_range))' .*...
