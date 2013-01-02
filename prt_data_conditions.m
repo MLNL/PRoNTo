@@ -76,9 +76,9 @@ elseif length(F)==1
 else
     set(handles.figure1,'Tag',Tag)
     %build figure when it doesn't exist yet
-set(handles.figure1,'Name','PRoNTo :: Specify conditions')
-set(handles.condmenu,'String',{'Specify','From .mat file'})
-set(handles.condmenu,'Value',2)
+    set(handles.figure1,'Name','PRoNTo :: Specify conditions')
+    set(handles.condmenu,'String',{'Specify','From .mat file'})
+    set(handles.condmenu,'Value',2)
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
 if ispc

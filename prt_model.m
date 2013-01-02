@@ -242,12 +242,12 @@ switch in.cv.type
     case 'loso'
         % leave-one-subject-out
         % give each subject a unique id
-        [gids,d1] = unique(ID(:,1));
-        [gids,d2] = unique(ID(:,1),'first');
-        %compute the number of subjects per group
-        ns=d1-d2+1;
+        [gids,d1] = unique(ID(:,1));              
+        [gids,d2] = unique(ID(:,1),'first');        
         gc = 0;
+        ns=zeros(length(gids),1);
         for g = 1:length(gids)
+            ns(g)=max(ID(d2(g):d1(g),2));
             gidx = ID(:,1) == gids(g);
             ID(gidx,2) = ID(gidx,2) + gc;
             gc = gc + ns(g);
@@ -262,24 +262,25 @@ switch in.cv.type
         if k>1 %k-fold CV
             nsf=floor(max(ID(:,2))/k);
             mns=mod(max(ID(:,2)),k);
-            snums=nsf*ones(1,k);
-            snums(end)=snums(end)+mns;
+            dk=nsf*ones(1,k);
+            dk(end)=dk(end)+mns;
+            inds=1;
+            sk=[];
+            for ii=1:length(dk)
+                sk=[sk,inds*ones(1,dk(ii))];
+                inds=inds+1;
+            end
         else %Leave-One-Subject-Out
-            snums = histc(ID(:,2),unique(ID(:,2)));
+            sk=1:gc;
         end
+        snums = histc(ID(:,2),unique(ID(:,2)));
         if length(snums) == 1
             error('prt_model:losoSelectedWithOneSubject',...
             'LOSO CV selected but only one subject is included');
         end
-        G = cell(length(snums),1);
-        inds = 1;
-        for s = 1:length(snums)
-            nims = zeros(length(snums),1);
-            for ii = 1:snums(s)
-                nims(ii)=length(find(ID(:,2)==inds));
-                inds = inds+1;
-            end
-            G{s} = ones(sum(nims),1);
+        G = cell(length(unique(sk)),1);
+        for s = 1:length(unique(sk))
+            G{s} = ones(sum(snums(sk==s)),1);
         end
         CV = blkdiag(G{:}) + 1;
         
@@ -320,27 +321,28 @@ switch in.cv.type
             is=ID(:,1)==g;
             if k>1 && nsf>1 %k-fold CV
                 mns=mod(ns(g),nsf);
-                snums=nsf*ones(1,floor(max(ID(is,2))/nsf));
+                dk=nsf*ones(1,floor(max(ID(is,2))/nsf));
                 if mns>0
-                    snums=[snums, mns];
+                    dk=[dk, mns];
+                end
+                inds=1;
+                sk=[];
+                for ii=1:length(dk)
+                    sk=[sk,inds*ones(1,dk(ii))];
+                    inds=inds+1;
                 end
             else %Leave-One-Subject per Group-Out
-                snums = histc(ID(is,2),unique(ID(is,2)));
+                sk=1:ns(g);
             end
-            G = cell(length(snums),1);
-            inds=1;
-            for s = 1:length(snums)
-                nims = zeros(length(snums),1);
-                for ii = 1:snums(s)
-                    nims(ii)=length(find(ID(is,2)==inds));
-                    inds = inds+1;
-                end
-                G{s} = ones(sum(nims),1);
+            snums = histc(ID(is,2),unique(ID(is,2)));
+            G = cell(length(unique(sk)),1);
+            for s = 1:length(unique(sk))
+                G{s} = ones(sum(snums(sk==s)),1);
             end
-            CV(is,1:length(snums)) = blkdiag(G{:}) + 1;
-            if length(snums)<size(CV,2)  %smaller group, fill with 'train'
-                CV(is,length(snums)+1:size(CV,2))= ...
-                    ones(length(find(is)),length(length(snums)+1:size(CV,2)));
+            CV(is,1:max(sk)) = blkdiag(G{:}) + 1;
+            if length(unique(sk))<size(CV,2)  %smaller group, fill with 'train'
+                CV(is,length(unique(sk))+1:size(CV,2))= ...
+                    ones(length(find(is)),length(length(unique(sk))+1:size(CV,2)));
             end
         end
               
@@ -352,11 +354,18 @@ switch in.cv.type
         if k>1 %k-fold CV
             nsf=floor(max(ID(:,5))/k);
             mns=mod(max(ID(:,5)),k);
-            snums=nsf*ones(1,k);
-            snums(end)=snums(end)+mns;
+            dk=nsf*ones(1,k);
+            dk(end)=dk(end)+mns;
+            inds=1;
+            sk=[];
+            for ii=1:length(dk)
+                sk=[sk,inds*ones(1,dk(ii))];
+                inds=inds+1;
+            end
         else %Leave-One-Subject-Out
-            snums = histc(ID(:,5),unique(ID(:,5)));% how many scans per block
+            sk=1:max(ID(:,5));
         end
+        snums = histc(ID(:,5),unique(ID(:,5)));% how many scans per block
         if length(snums) == 1
             error('prt_model:loboSelectedWithOneSubject',...
             'LOBO CV selected but only one block is included');
@@ -364,15 +373,9 @@ switch in.cv.type
             error('prt_model:loboSelectedWithLargeK',...
             'k-folds LOBO CV selected with too large k');
         end
-        G = cell(length(snums),1);
-        inds = 1;
-        for s = 1:length(snums)
-            nims = zeros(length(snums),1);
-            for ii = 1:snums(s)
-                nims(ii)=length(find(ID(:,2)==inds));
-                inds = inds+1;
-            end
-            G{s} = ones(sum(nims),1);
+        G = cell(length(unique(sk)),1);
+        for s = 1:length(unique(sk))
+            G{s} = ones(sum(snums(sk==s)),1);
         end
         CV = blkdiag(G{:}) + 1;
         

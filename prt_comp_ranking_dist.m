@@ -22,7 +22,7 @@ end
 dr=0;
 for i=1:nr
     for j=1:nr
-        if v(i)<v(j) && w(i)>w(j)
+        if (v(i)<v(j) && w(i)>w(j)) 
             tmp=1;
         else
             tmp=0;
@@ -30,4 +30,4 @@ for i=1:nr
         dr=dr+tmp;
     end
 end
-dr=dr/(nr^2);
+dr=2*dr/(nr*(nr-1));

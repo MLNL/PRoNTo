@@ -122,6 +122,10 @@ clear tmp
 
 atlas=h(:);
 atlas(isnan(w(:,1)))=NaN;
+%Compute the volume of the 'others' region
+N_other=length(find(atlas==0));
+P_other=N_other/length(find(isnan(atlas)));
+disp(['Volume of the others region: ',num2str(P_other)])
 
 disp('Computing weights in each ROI--------->>')
 [H HN] = prt_region_histogram(w, atlas);
