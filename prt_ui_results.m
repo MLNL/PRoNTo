@@ -883,42 +883,46 @@ if strcmp(PRT.model(model).input.type,'classification')
     
 else
     nfolds = length(PRT.model(model).output.fold);
+    ntargs = length(PRT.model(model).output.fold(1).targets);
     switch plotchosen
         case '1'
             cla(handles.axes5);
-            preds = zeros(nfolds,2);
+            preds1 = [];
+            preds2 = [];
             for f = 1:nfolds
-                preds(f,1) = PRT.model(model).output.fold(f).targets;
-                preds(f,2) = PRT.model(model).output.fold(f).predictions;
-                scatter(handles.axes5,preds(:,2),preds(:,1),'filled');
-                xlabel(handles.axes5,'predictions','FontWeight','bold');
-                ylabel(handles.axes5,'targets','FontWeight','bold');
+                preds1 = [preds1; PRT.model(model).output.fold(f).targets];
+                preds2 = [preds2; PRT.model(model).output.fold(f).predictions];               
             end
+            scatter(handles.axes5,preds2,preds1,'filled');
+            xlabel(handles.axes5,'predictions','FontWeight','bold');
+            ylabel(handles.axes5,'targets','FontWeight','bold');
         case '2'
             cla(handles.axes5);
-            preds = zeros(nfolds,2);
+            preds1 = [];
+            preds2 = [];
             for f = 1:nfolds
-                preds(f,1) = PRT.model(model).output.fold(f).targets;
-                preds(f,2) = PRT.model(model).output.fold(f).predictions;
-                bar(handles.axes5,preds);
+                preds1 = [preds1; PRT.model(model).output.fold(f).targets];
+                preds2 = [preds2; PRT.model(model).output.fold(f).predictions];
+            end
+                bar(handles.axes5,[preds1 preds2]);
                 xlabel(handles.axes5,'subjects','FontWeight','bold');
                 ylabel(handles.axes5,'targets and predictions','FontWeight','bold');
-            end
             legend(handles.axes5,{'Target', 'Predicted'});
         case '3'
             cla(handles.axes5);
-            preds = zeros(nfolds,2);
+            preds1 = [];
+            preds2 = [];
             for f = 1:nfolds
-                preds(f,1) = PRT.model(model).output.fold(f).targets;
-                preds(f,2) = PRT.model(model).output.fold(f).predictions;
+                preds1 = [preds1; PRT.model(model).output.fold(f).targets];
+                preds2 = [preds2; PRT.model(model).output.fold(f).predictions];
             end
-            plot(handles.axes5,preds(:,1),'--ok');
+            plot(handles.axes5,preds1,'--ok');
             hold on
-            plot(handles.axes5,preds(:,2),'--or');
+            plot(handles.axes5,preds2,'--or');
             hold off
             xlabel(handles.axes5,'folds','FontWeight','bold');
             ylabel(handles.axes5,'predictions/targets','FontWeight','bold');
-            xlim(handles.axes5,[0 nfolds+1]);
+            xlim(handles.axes5,[0 nfolds*ntargs+1]);
             legend(handles.axes5,{'Target', 'Predicted'});
     end
 end
