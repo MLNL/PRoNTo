@@ -486,7 +486,8 @@ rt=get(handles.edit_regt,'String');
 if isempty(rt)
     return
 end
-if ~isnan(str2double(rt(1)))
+if strcmp(rt(1),'-'), nrt = 2; else nrt = 1; end
+if ~isnan(str2double(rt(nrt)))
     eval(['rte=[',rt,'];'])
 else
     try
