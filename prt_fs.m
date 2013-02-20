@@ -144,7 +144,7 @@ for b = 1:n_block
             if b==1
                 % Write the detrended data into the file array .dat
                 namedat=['Feature_set_',char(in.mod(mid).mod_name),'.dat'];
-                fpd_clean(m) = fopen(fullfile(prt_dir,namedat), 'a','ieee-le'); %#ok<AGROW> % 'a' append
+                fpd_clean(m) = fopen(fullfile(prt_dir,namedat), 'w','ieee-le'); %#ok<AGROW> % 'a' append
                 fwrite(fpd_clean(m), datapr', 'float32',0,'ieee-le');
             else
                 % Append the data in file .dat
