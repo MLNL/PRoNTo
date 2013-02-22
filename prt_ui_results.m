@@ -28,7 +28,7 @@ function varargout = prt_ui_results(varargin)
 
 % Edit the above text to modify the response to help prt_ui_results
 
-% Last Modified by GUIDE v2.5 08-Apr-2012 10:35:42
+% Last Modified by GUIDE v2.5 13-Feb-2013 10:55:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -171,6 +171,7 @@ else
 
 % Initialize window
 % -------------------------------------------------------------------------
+
 if ~isfield(handles,'notinit')
     
     % Load PRT.mat
@@ -242,8 +243,12 @@ if ~isfield(handles,'notinit')
     end
     set(handles.plotmenu,'String',plots); 
     
-    % Initialize model utton
+    % Initialize model button
     handles.model_button = 0;
+    
+    % Set the 'save permutations' weights' chackbox to 0
+    handles.save_weights = 0;
+    set(handles.save_perm_weights,'Value',0);
     
     % Clear axes
     cla(handles.axes5);     
@@ -1041,7 +1046,8 @@ if  ~isempty(reps)
     if length(reps) ==1
         reps = round(reps);
         disp('Performing permutation test.........>>')
-        prt_permutation(handles.PRT, reps, mi(m), handles.pathdir);
+        prt_permutation(handles.PRT, reps, mi(m), handles.pathdir,...
+            handles.save_weights);
         % Load new PRT.mat
         PRTmat = fullfile(handles.pathdir,'PRT.mat');
         load(PRTmat);
@@ -1069,6 +1075,23 @@ else
     beep;
     disp('Repetitions should be a number!');
 end
+
+% --- Executes on button press in save_perm_weights.
+function save_perm_weights_Callback(hObject, eventdata, handles)
+% hObject    handle to save_perm_weights (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of save_perm_weights
+% Save the weights and predictions for each permutation if required
+flag=get(handles.save_perm_weights,'Value');
+if flag
+    handles.save_weights=1;
+else
+    handles.save_weights=0;
+end
+guidata(hObject, handles);
+
 
 % --- Executes on button press in statsbutton.
 function statsbutton_Callback(hObject, eventdata, handles)
@@ -1176,7 +1199,6 @@ if isfield(handles, 'wmap'), handles = rmfield(handles, 'wmap'); end
 if isfield(handles, 'aimg'), handles = rmfield(handles,'aimg'); end
 handles.noloadw = 0;
 guidata(hObject, handles);
-
 
 % Save menu
 % -------------------------------------------------------------------------

@@ -34,7 +34,7 @@ no_perm         = cfg_const;
 no_perm.tag     = 'no_perm';
 no_perm.name    = 'No permutation test';
 no_perm.val     = {1};
-no_perm.help    = {'Do not perform permuation test'};
+no_perm.help    = {'Do not perform permutation test'};
 
 % ---------------------------------------------------------------------
 % N_perm Number of permutations
@@ -48,12 +48,27 @@ N_perm.val     = {1000};
 N_perm.num     = [1 1];
 
 % ---------------------------------------------------------------------
+% flag_sw Save the permutations' weights
+% ---------------------------------------------------------------------
+flag_sw         = cfg_menu;
+flag_sw.tag     = 'flag_sw';
+flag_sw.name    = 'Save permutations parameters';
+flag_sw.help    = {['Set to Yes to save the parameterss obtained from each' ...
+    'permutation.']};
+flag_sw.labels  = {
+               'Yes'
+               'No'
+}';
+flag_sw.values  = {1 0};
+flag_sw.val     = {0};
+
+% ---------------------------------------------------------------------
 % perm_t Do permuatation test
 % ---------------------------------------------------------------------
 perm_t         = cfg_branch;
 perm_t.tag     = 'perm_t';
 perm_t.name    = 'Permutation test';
-perm_t.val     = {N_perm};
+perm_t.val     = {N_perm, flag_sw};
 perm_t.help    = {'Perform a permutation test.'};
 
 % ---------------------------------------------------------------------
@@ -61,7 +76,7 @@ perm_t.help    = {'Perform a permutation test.'};
 % ---------------------------------------------------------------------
 perm_test        = cfg_choice;
 perm_test.tag    = 'perm_test';
-perm_test.name   = 'Do permuation test?';
+perm_test.name   = 'Do permutation test?';
 perm_test.values = {no_perm, perm_t};
 perm_test.val    = {no_perm};
 perm_test.help   = {'Perform a permutation test on accuracy, or not'};

@@ -35,8 +35,13 @@ pathdir = regexprep(fname,'PRT.mat', '');
 in.img_name   = job.img_name;
 in.model_name = job.model_name;
 in.pathdir    = pathdir;
+if isfield(job,'flag_cwi')
+    flag      = job.flag_cwi;
+else
+    flag      = 0;
+end
 
-img_name = prt_compute_weights(PRT, in);
+img_name = prt_compute_weights(PRT, in, flag);
 
 % -------------------------------------------------------------------------
 % Function output

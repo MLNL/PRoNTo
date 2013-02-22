@@ -1,11 +1,12 @@
-function rwn=prt_build_region_weights(weight_fname,atlas_fname,flag)
+function [erwn,ER]=prt_build_region_weights(weight_fname,atlas_fname,build_im,comp_perm)
 %
 %function to compute the weights for each region as specified by the atlas
 %image (one value per region). Weights not in the atlas are comprised in an
 %additional region with name 'others'.
 %--------------------------------------------------------------------------
 %input: name of the weights image (weight_fname), name of the atlas image 
-%       (atlas_fname). flag is set to 1 to build the resulting image.
+%       (atlas_fname). build_im is set to 1 to build the resulting image.
+%       comp_perm is set to 1 to compute the ranking for the permutations.
 %output: -image file with the normalized weights in each region, which can
 %         be viewed in the results GUI as a weight image.
 %        -.mat file containing the weights of each ROI, in %, pH, the
@@ -43,8 +44,39 @@ end
 
 %set flag to 1 if not specified
 if nargin<3
-    flag=1;
+    flag=0;
+else
+    flag=build_im;
 end
+
+% in case the ranking has to be computed for the permutations, get the
+% names of the weight images for each permutation.
+if nargin<4
+    comp_perm=0;
+end
+
+if comp_perm
+    [a,b]=fileparts(f);
+    dirn=[a,filesep,'perm_',b];
+    pth=pwd;
+    if isdir(dirn)
+        %get the names of the weight images
+        cd(dirn)
+        files=dir('*perm*.img');
+        fp=char({files(:).name});
+        fper={[repmat(dirn,length(files),1),repmat(filesep,length(files),1),fp]};
+        fperm=char([fper;{f}]);    
+        cd(pth)
+    else
+        disp('No folder containing the weight images for permutations')
+        disp('Computing normalized weights for the provided image only')
+        comp_perm=0;
+        fperm=f;
+    end
+else
+    fperm=f;
+end
+    
 
 %get names of regions if .mat with cells present in the same directory
 [a,b]=fileparts(gi);
@@ -76,6 +108,8 @@ end
 
 %load images
 V=spm_vol(f);
+[xxx,bb]=fileparts(f);
+nfo=length(V);
 V1=spm_vol(gi);
 dumb=V(1);
 
@@ -108,122 +142,138 @@ else
     h=spm_read_vols(V1);
 end
 
-
 %compute histogram
 %--------------------------------------------------------------------------
-w=zeros(V(1).dim(1)*V(1).dim(2)*V(1).dim(3),length(V));
-VV=spm_read_vols(V);
-nfold=size(VV,4)-1;
-for i=1:nfold+1  %number of folds + average
-    tmp=VV(:,:,:,i);
-    w(:,i)=tmp(:);
-end
-clear tmp
+nroi=max(h(:))-min(h(:))+1; %number of regions+ the 'others' region
+ER=zeros(nroi,size(fperm,1));
 
-atlas=h(:);
-atlas(isnan(w(:,1)))=NaN;
-%Compute the volume of the 'others' region
-N_other=length(find(atlas==0));
-P_other=N_other/length(find(isnan(atlas)));
-disp(['Volume of the others region: ',num2str(P_other)])
-
-disp('Computing weights in each ROI--------->>')
-[H HN] = prt_region_histogram(w, atlas);
-nr=size(H,1);
-%compute proportions as in PCA
-r_min=min(atlas);
-R=max(atlas);
-if r_min==0
-    corr=1;
-    LR=[{'others'};LR];
-else
-    corr=0;
-end
-
-%get the sorted names of corresponding ROIs
-if numel(LR)~=size(H,1)
-    disp('list does not contains as many names as ROIs, generic names used')
-    LR=[];
-    if corr
-        ei=size(HN,1)-1;
-        LR={'others'};
+for ii=1:size(fperm,1)
+    
+    %Get the volumes into matrices
+    V=spm_vol(fperm(ii,:));
+    w=zeros(V(1).dim(1)*V(1).dim(2)*V(1).dim(3),length(V));
+    VV=spm_read_vols(V);
+    nfold=size(VV,4)-1;
+    if nfold == 0 %when only the average across folds was computed
+        w=VV(:);
     else
-        ei=size(HN,1);
+        for i=1:nfold+1  %number of folds + average
+            tmp=VV(:,:,:,i);
+            w(:,i)=tmp(:);
+        end
+        clear tmp
+    end    
+    atlas=h(:);
+    atlas(isnan(w(:,1)))=NaN;
+    
+     %Compute the volume of the 'others' region
+    if ii==1       
+        N_other=length(find(atlas==0));
+        P_oth=N_other/length(find(isnan(atlas)));
+        disp(['Volume of the others region: ',num2str(P_oth)])
     end
-    for i=1:ei
-        LR=[LR;{['Region ',num2str(i)]}];
+    
+    % Compute the weights and normalized weights
+    disp(['Computing weights in each ROI for image ',num2str(ii)])
+    [H HN SN] = prt_region_histogram(w, atlas);
+    nr=size(H,1);
+    
+    %Correct for the 'others' region (one time)
+    if ii==1   
+        %compute proportions as in PCA
+        r_min=min(atlas);
+        R=max(atlas);
+        if r_min==0
+            corr=1;
+            LR=[{'others'};LR];
+        else
+            corr=0;
+        end
+        
+        %get generic names for ROIs in case the list does not correspond to the
+        %number of ROIs
+        if numel(LR)~=size(H,1)
+            disp('List does not contain as many names as ROIs: Generic names used')
+            LR=[];
+            if corr
+                ei=size(HN,1)-1;
+                LR={'others'};
+            else
+                ei=size(HN,1);
+            end
+            for i=1:ei
+                LR=[LR;{['Region ',num2str(i)]}];
+            end
+        end
+    end
+    
+    %sum of weights in each region
+    pH=H*100;
+    oth_w=pH(1); %save the weight of the 'others' region
+   
+    %normalized sum of weights in each region
+    inn= ~isnan(HN(:,1));
+    shn=sum(HN(inn,:),1);
+    pHN=(HN./repmat(shn,size(HN,1),1))*100;
+    
+    %compute the rank of each region according to the normalized weights
+    [d1,d2]=sort(pHN,1,'descend');
+    isn=find(isnan(pHN(:,1)));
+    d3=1:length(isn);
+    d4=length(isn)+1:size(d1,1);
+    ihn=[d2(d4,:);d2(d3,:)];
+    [d1,dwn]=sort(ihn);
+    if ii==size(fperm,1)
+        %ranking distance between each fold and the "average" fold
+        drwn=zeros(1,nfold);
+        for ifold=1:nfold
+            drwn(ifold)=prt_comp_ranking_dist(dwn(:,ifold),dwn(:,end));
+        end
+        %Expected value of the rank for each region
+        erwn=zeros(nr,1);
+        for i=1:nr
+            for j=1:nr
+                tmp=length(find(dwn(i,1:end-1)==j));
+                erwn(i)=erwn(i)+j*tmp;
+            end
+        end
+        erwn=erwn/nfold;
+    else
+        erwn=dwn;
+    end
+    if corr
+        ER(:,ii)=erwn;
+    else
+        ER(2:end,ii)=erwn;
     end
 end
 
-%sum of weights in each region
-pH=H*100;
-%compute the rank of each region according to the weights 
-[dub,ih]=sort(pH,1,'descend');
-[d1,dw]=sort(ih);
-%ranking distance between each fold and the "average" fold
-drw=zeros(1,nfold); 
-for ifold=1:nfold
-    drw(ifold)=prt_comp_ranking_dist(dw(:,ifold),dw(:,end));
+%save sorted H, HN and the list of corresponding ROIs for the 'true' image,
+%and the ranking of the average weights for each permutation
+W_roi=pH;
+NW_roi=pHN;
+if ~corr
+    ER=ER(2:end,:);
 end
-%Expected value of the rank for each region
-rw=zeros(nr,1);
-for i=1:nr
-    for j=1:nr
-        tmp=length(find(dw(i,:)==j));
-        rw(i)=rw(i)+j*tmp;
-    end
-end
-rw=rw/nfold;
-     
-
-%normalized sum of weights in each region
-inn=find(~isnan(HN(:,1)));
-shn=sum(HN(inn,:));
-pHN=(HN./repmat(shn,size(HN,1),1))*100;
-
-%compute the rank of each region according to the weights 
-[d1,d2]=sort(pHN,1,'descend');
-isn=find(isnan(pHN(:,1)));
-d3=1:length(isn);
-d4=length(isn)+1:size(d1,1);
-ihn=[d2(d4,:);d2(d3,:)];
-[d1,dwn]=sort(ihn);
-%ranking distance between each fold and the "average" fold
-drwn=zeros(1,nfold); 
-for ifold=1:nfold
-    drwn(ifold)=prt_comp_ranking_dist(dwn(:,ifold),dwn(:,end));
-end
-%Expected value of the rank for each region
-rwn=zeros(nr,1);
-for i=1:nr
-    for j=1:nr
-        tmp=length(find(dwn(i,1:end-1)==j));
-        rwn(i)=rwn(i)+j*tmp;
-    end
-end
-rwn=rwn/nfold;
-
+SN=SN*100;
+[a,b,c]=fileparts(dumb.fname);
+[a1,b1]=fileparts(gi);
+save(fullfile(a,['atlas_',b1,'_',b,'.mat']),'LR',...
+    'W_roi','NW_roi','dwn','drwn','erwn','SN','ER','P_oth','oth_w');
 
 %build new image with the normalized weights and save values
 %--------------------------------------------------------------------------
 
-[a,b,c]=fileparts(dumb.fname);
-[a1,b1]=fileparts(gi);
-
-% if image exists, overwrite
-if exist(fullfile( ...
-        a,['atlas_',b1,'_',b,'.img']),'file')
-    disp('Image of normalized weights per region already exists, overwriting...')
-end
-
-%save sorted H, HN and the list of corresponding ROIs
-W_roi=pH;
-NW_roi=pHN;
-save(fullfile(a,['atlas_',b1,'_',b,'.mat']),'LR',...
-    'W_roi','NW_roi','dw','dwn','rw','rwn','drw','drwn');
-
-%build image if flag
 if flag
+    disp('Building image of normalized weights')
+    
+    % if image exists, overwrite
+    if exist(fullfile( ...
+            a,['atlas_',b1,'_',b,'.img']),'file')
+        disp('Image of normalized weights per region already exists, overwriting...')
+    end
+    
+    %build image if flag
     img_name=[a,filesep,'atlas_',b1,'_',b,c];
     img4d = file_array(img_name,size(VV),'float32-le',0,1,0);
     for km=1:size(w,2)
@@ -241,10 +291,28 @@ if flag
     No.dat     = img4d;            % change file_array
     No.descrip = 'Pronto weigths'; % description
     create(No);                    % write header
+    disp('Done.')
 end
-disp('Done.')
 
-% Displays (on the average across folds only)
+% Displays
 %--------------------------------------------------------------------------
-prt_ui_results_ROI('UserData',{LR,pH,pHN,drw,drwn,rw,rwn});
+prt_ui_results_ROI('UserData',{LR,pHN,drwn,erwn,SN,P_oth,oth_w});
 
+
+    %compute the rank of each region according to the weights
+%     [dub,ih]=sort(pH,1,'descend');
+%     [d1,dw]=sort(ih);
+%     %ranking distance between each fold and the "average" fold
+%     drw=zeros(1,nfold);
+%     for ifold=1:nfold
+%         drw(ifold)=prt_comp_ranking_dist(dw(:,ifold),dw(:,end));
+%     end
+%     %Expected value of the rank for each region
+%     rw=zeros(nr,1);
+%     for i=1:nr
+%         for j=1:nr
+%             tmp=length(find(dw(i,:)==j));
+%             rw(i)=rw(i)+j*tmp;
+%         end
+%     end
+%     rw=rw/nfold;

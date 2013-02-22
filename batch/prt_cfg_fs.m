@@ -232,7 +232,7 @@ voxels.help   = {...
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name conditions, voxels, detrend, normalise};
+modality.val  = {mod_name, conditions, voxels, detrend, normalise};
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------

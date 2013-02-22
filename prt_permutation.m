@@ -1,4 +1,4 @@
-function [] = prt_permutation(PRT, n_perm, modelid, path)
+function [] = prt_permutation(PRT, n_perm, modelid, path,flag)
 % Function to compute permutation test
 %
 % Inputs:
@@ -6,6 +6,8 @@ function [] = prt_permutation(PRT, n_perm, modelid, path)
 % PRT: PRT structured including model
 % n_permu: number of permutations
 % modelid: model ID
+% flag: boolean variable. set to 1 to save the weights for each
+% permutation. default: 0
 %
 % Outputs:
 % --------
@@ -28,6 +30,9 @@ function [] = prt_permutation(PRT, n_perm, modelid, path)
 % $Id$
 
 prt_dir = [path];
+if nargin<5
+    flag=0;
+end
 
 % % prt_dir = char(regexprep(in.fname,'PRT.mat', ''));
 
@@ -129,7 +134,9 @@ else
     
     % Run model with permuted labels
     % -------------------------------------------------------------------------
-    
+    if ~isfield(PRT.model(modelid).output,'permutation')
+        PRT.model(modelid).output.permutation=struct('fold',[]);
+    end
     for p=1:n_perm
         
         disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
@@ -149,6 +156,12 @@ else
             fdata.t       = t;
             
             [temp_model, targets] = prt_cv_fold(PRT,fdata);
+            
+            % save the weights per fold to further compute ranking distance
+            if flag
+                PRT.model(modelid).output.permutation(p).fold(f).alpha=temp_model.alpha;
+                PRT.model(modelid).output.permutation(p).fold(f).pred=temp_model.predictions;
+            end
             
             model.output.fold(f).predictions = temp_model.predictions;
             model.output.fold(f).targets     = targets.test;

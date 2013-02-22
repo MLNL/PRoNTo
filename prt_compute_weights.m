@@ -1,17 +1,19 @@
-function img_name = prt_compute_weights(PRT,in)
+function img_name = prt_compute_weights(PRT,in,flag)
 % FORMAT prt_compute_weights(PRT,in)
 %
 % This function calls prt_weights to compute weights 
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).
-%         in            - structure with specific information to create
+%       in              - structure with specific information to create
 %                         weights
 %           .model_name - model name (string)
 %           .img_name   - (optional) name of the file to be created
 %                         (string)
 %           .pathdir    - directory path where to save weights (same as the
 %                         one for PRT.mat) (string)
+%       flag            - set to 1 to compute the weight images for each
+%                         permutation (default: 0)
 % Output:
 %       img_name        - name of the .img file created
 %       + image file created on disk
@@ -40,7 +42,7 @@ mtype = PRT.model(model_idx).input.type;
 % -------------------------------------------------------------------
 switch mtype
     case 'classification'        
-        img_name = prt_compute_weights_class(PRT,in,model_idx);        
+        img_name = prt_compute_weights_class(PRT,in,model_idx,flag);        
     case 'regression'       
-        img_name = prt_compute_weights_regre(PRT,in,model_idx);
+        img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
 end

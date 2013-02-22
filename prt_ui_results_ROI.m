@@ -30,7 +30,7 @@ function varargout = prt_ui_results_ROI(varargin)
 
 % Edit the above text to modify the response to help prt_ui_results_ROI
 
-% Last Modified by GUIDE v2.5 18-Oct-2012 15:49:33
+% Last Modified by GUIDE v2.5 18-Feb-2013 10:31:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -136,18 +136,17 @@ else
     %fill table with UserData
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         LR=varargin{2}{1};
-        pH=varargin{2}{2};
-        pHN=varargin{2}{3};
-        drw=varargin{2}{4};
-        drwn=varargin{2}{5};
-        rw=varargin{2}{6};
-        rwn=varargin{2}{7};
+        pHN=varargin{2}{2};
+        drwn=varargin{2}{3};
+        erwn=varargin{2}{4};
+        SN=varargin{2}{5};
+        P_oth=varargin{2}{6};
+        oth_w=varargin{2}{7};
     else
         f=spm_select(1,'.mat','Select .mat created from atlas weights');
         if ~isempty(f)
             load(f);
             try
-                pH=W_roi;
                 pHN=NW_roi;
             catch
                 error('PRoNTo:prt_ui_results_ROI:Nodata',...
@@ -160,30 +159,34 @@ else
         %future: load the saved .mat file
     end
     szn=length(LR);
-    dat=cell(szn,5);
+    dat=cell(szn,4);
     for i=1:szn
         dat{i,1}=LR{i};
-        dat{i,2}=pH(i,end);
-        dat{i,3}=rw(i);
-        dat{i,4}=pHN(i,end);
-        dat{i,5}=rwn(i);
+        dat{i,2}=pHN(i,end);
+        dat{i,3}=erwn(i);
+        dat{i,4}=SN(i,end);
     end
     handles.LR=LR;
-    handles.pH=pH;
     handles.pHN=pHN;
-    handles.rw=rw;
-    handles.rwn=rwn;
+    handles.SN=SN;
+    handles.rwn=erwn;
     handles.dat=dat;
     set(handles.ROItable,'Data',dat);
-    set(handles.ROItable,'ColumnName',{'ROI Name','W_roi (in %)',...
-        'Rank(W_roi)','NW_roi (in %)','Rank(NW_roi)'});
-    set(handles.ROItable,'ColumnEditable',[false,false,false,false,false]);
-    set(handles.ROItable,'ColumnWidth',{130,80,50,80,50});
+    set(handles.ROItable,'ColumnName',{'ROI Name','NW_roi (in %)',...
+        'Ranking','Pos weights (in %)'});
+    set(handles.ROItable,'ColumnEditable',[false,false,false,false]);
+    set(handles.ROItable,'ColumnWidth',{130,80,80,80});
     set(handles.ROItable,'ColumnFormat',{'char','numeric',...
-        'numeric','numeric','numeric'});
+        'numeric','numeric'});
+    
+    %Set the values for the 'others' region
+    handles.P_oth=P_oth;
+    handles.oth_w=oth_w;
+    set(handles.vol_oth,'String',num2str(P_oth*100))
+    set(handles.w_oth,'String',num2str(oth_w))
     
     %get the number of folds to create the popup menu
-    handles.nfolds=size(pH,2)-1;
+    handles.nfolds=size(pHN,2)-1;
     list=get(handles.foldp,'String');
     for ii=1:handles.nfolds
         list=[list,{['Fold ',num2str(ii)]}];
@@ -193,41 +196,20 @@ else
     
     % Update Histogram of weights
     set(handles.figure1, 'Currentaxes',handles.axes1)
-    [AX,H1,H2] = plotyy(1:size(dat,1), pH(:,end),...
-        1.4:size(dat,1)+0.4, pHN(:,end),'bar');
-    set(H2,'FaceColor',[1 0 0])
-    set(H2,'BarWidth',0.4)
-    set(H1,'BarWidth',0.4)
-    aa=get(AX(1),'ylim'); %adapt y scale
-    bb=get(AX(2),'ylim');
-    m1=max([dat{:,2}])/aa(2);
-    m2=max([dat{:,4}])/bb(2);
-    sc=min(max(m1,m2)+0.03,1);
-    set(AX(1),'ylim',sc*aa)
-    set(AX(2),'ylim',sc*bb)
-    title('Histogram of (normalized) weights per region','FontWeight','bold')
-    d=get(AX(1),'Title');
-    dd=get(d,'Position');
-    d2=get(AX(1),'YLabel');
-    d1=get(d2,'Position');
-    dt=text(d1(1),dd(2)*1.01,'W roi (in %)');
-    set(dt,'Color',[0 0 1])
-    d3=get(AX(2),'YLabel');
-    d4=get(d3,'Position');
-    dt2=text(d4(1)*0.9,dd(2)*1.01,'NW roi (in %)');
-    set(dt2,'Color',[1 0 0])
-    set(AX,'XTick',1.4:size(dat,1)+0.4)
-    set(AX,'XTickLabel',{''})
-    set(AX,'XTick',0)
-    legend('W_{roi}','NW_{roi}','Location','SouthOutside')
+    H1 = bar(1:size(dat,1),pHN(:,end));
+    set(H1,'BarWidth',0.8)
+    set(gca,'xlim',[0 size(dat,1)+1])
+    title('Histogram of normalized weights per region','FontWeight','bold')
+    set(gca,'XTickLabel',{''})
+    set(gca,'XTick',0)
+    legend('NW_{roi}','Location','NorthEast')
     
     %Update histogram of ranking distances between each fold and the average
     set(handles.figure1, 'Currentaxes',handles.axes2)
-    h=bar(handles.axes2,[drw',drwn']);
-    set(get(handles.axes2,'Title'),'String','Ranking distance to average',...
+    h=bar(handles.axes2,drwn');
+    set(get(handles.axes2,'Title'),'String','Ranking distance to average across folds',...
         'Fontweight','bold')
-    ylabel(handles.axes2,'dr')
-    xlabel(handles.axes2,'Folds')
+    xlabel(handles.axes2,'Folds','Fontweight','bold')
     set(handles.axes2,'Xtick',1:handles.nfolds)
     set(handles.axes2,'XTickLabel',{''})
 end
@@ -274,50 +256,30 @@ if v==0 || isempty(v)
 end
 
 szn=length(handles.LR);
-dat=cell(szn,5);
+dat=cell(szn,4);
 for i=1:szn
     dat{i,1}=handles.LR{i};
     if v==1 %dispay the average
-        dat{i,2}=handles.pH(i,end);
-        dat{i,4}=handles.pHN(i,end);
+        dat{i,2}=handles.pHN(i,end);
+        dat{i,4}=handles.SN(i,end);
     else
-        dat{i,2}=handles.pH(i,v-1);
-        dat{i,4}=handles.pHN(i,v-1);
+        dat{i,2}=handles.pHN(i,v-1);
+        dat{i,4}=handles.SN(i,v-1);
     end
-    dat{i,3}=handles.rw(i);
-    dat{i,5}=handles.rwn(i);
+    dat{i,3}=handles.rwn(i);
 end
 set(handles.ROItable,'Data',dat)
 
-%Update histogram of weights
+% Update Histogram of weights
 set(handles.figure1, 'Currentaxes',handles.axes1)
-[AX,H1,H2] = plotyy(1:size(dat,1), [dat{:,2}],...
-    1.4:size(dat,1)+0.4, [dat{:,4}],'bar');
-set(H2,'FaceColor',[1 0 0])
-set(H2,'BarWidth',0.4)
-set(H1,'BarWidth',0.4)
-aa=get(AX(1),'ylim'); %adapt y scale
-bb=get(AX(2),'ylim');
-m1=max([dat{:,2}])/aa(2);
-m2=max([dat{:,4}])/bb(2);
-sc=min(max(m1,m2)+0.03,1);
-set(AX(1),'ylim',sc*aa)
-set(AX(2),'ylim',sc*bb)
-title('Histogram of (normalized) weights per region','FontWeight','bold')
-d=get(AX(1),'Title');
-dd=get(d,'Position');
-d2=get(AX(1),'YLabel');
-d1=get(d2,'Position');
-dt=text(d1(1),dd(2)*1.01,'W roi (in %)');
-set(dt,'Color',[0 0 1])
-d3=get(AX(2),'YLabel');
-d4=get(d3,'Position');
-dt2=text(d4(1)*0.9,dd(2)*1.01,'NW roi (in %)');
-set(dt2,'Color',[1 0 0])
-set(AX,'XTick',1.4:size(dat,1)+0.4)
-set(AX,'XTickLabel',{''})
-set(AX,'XTick',0)
-legend('W_{roi}','NW_{roi}','Location','SouthOutside')
+H1 = bar(1:size(dat,1),[dat{:,2}]);
+set(H1,'BarWidth',0.8)
+set(gca,'xlim',[0 size(dat,1)+1])
+title('Histogram of normalized weights per region','FontWeight','bold')
+set(gca,'XTickLabel',{''})
+set(gca,'XTick',0)
+legend('NW_{roi}','Location','NorthEast')
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -332,71 +294,6 @@ function foldp_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes on button press in sortH.
-function sortH_Callback(hObject, eventdata, handles)
-% hObject    handle to sortH (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-v=get(handles.foldp,'Value');
-if v==0 || isempty(v)
-    v=1;
-end
-if v==1
-    [dumb,ih]=sort(handles.pH(:,end),'descend');
-else
-    [dumb,ih]=sort(handles.pH(:,v-1),'descend');
-end
-szn=length(handles.LR);
-dat=cell(szn,5);
-for i=1:szn
-    dat{i,1}=handles.LR{i};
-    if v==1 %dispay the average
-        dat{i,2}=handles.pH(i,end);
-        dat{i,4}=handles.pHN(i,end);
-    else
-        dat{i,2}=handles.pH(i,v-1);
-        dat{i,4}=handles.pHN(i,v-1);
-    end
-    dat{i,3}=handles.rw(i);
-    dat{i,5}=handles.rwn(i);
-end
-dat=dat(ih,:);
-set(handles.ROItable,'Data',dat)
-
-% Update Graph
-set(handles.figure1, 'Currentaxes',handles.axes1)
-delete(get(handles.axes1(1),'Children'))
-warning('off')
-[AX,H1,H2] = plotyy(1:size(dat,1), [dat{:,2}],...
-    1.4:size(dat,1)+0.4, [dat{:,4}],'bar');
-set(H2,'FaceColor',[1 0 0])
-set(H2,'BarWidth',0.4)
-set(H1,'BarWidth',0.4)
-aa=get(AX(1),'ylim'); %adapt y scale
-bb=get(AX(2),'ylim');
-m1=max([dat{:,2}])/aa(2);
-m2=max([dat{:,4}])/bb(2);
-sc=min(max(m1,m2)+0.03,1);
-set(AX(1),'ylim',sc*aa)
-set(AX(2),'ylim',sc*bb)
-d=get(AX(1),'Title');
-dd=get(d,'Position');
-d2=get(AX(1),'YLabel');
-d1=get(d2,'Position');
-dt=text(d1(1),dd(2)*1.01,'W roi (in %)');
-set(dt,'Color',[0 0 1])
-d3=get(AX(2),'YLabel');
-d4=get(d3,'Position');
-dt2=text(d4(1)*0.9,dd(2)*1.01,'NW roi (in %)');
-set(dt2,'Color',[1 0 0])
-set(AX,'XTick',1.4:size(dat,1)+0.4)
-set(AX,'XTickLabel',{''})
-legend('W_{roi}','NW_{roi}','Location','SouthOutside')
-title('Histogram of (normalized) weights per region','FontWeight','bold')
-% Update handles structure
-guidata(hObject, handles);
 
 
 % --- Executes on button press in sortHN.
@@ -418,52 +315,31 @@ d3=1:length(isn);
 d4=length(isn)+1:size(d1,1);
 ihn=[d2(d4,:);d2(d3,:)];
 szn=length(handles.LR);
-dat=cell(szn,5);
+dat=cell(szn,4);
 for i=1:szn
     dat{i,1}=handles.LR{i};
     if v==1 %dispay the average
-        dat{i,2}=handles.pH(i,end);
-        dat{i,4}=handles.pHN(i,end);
+        dat{i,2}=handles.pHN(i,end);
+        dat{i,4}=handles.SN(i,end);
     else
-        dat{i,2}=handles.pH(i,v-1);
-        dat{i,4}=handles.pHN(i,v-1);
+        dat{i,2}=handles.pHN(i,v-1);
+        dat{i,4}=handles.SN(i,v-1);
     end
-    dat{i,3}=handles.rw(i);
-    dat{i,5}=handles.rwn(i);
+    dat{i,3}=handles.rwn(i);
 end
 dat=dat(ihn,:);
 set(handles.ROItable,'Data',dat)
 
-% Update Graph
+% Update Histogram of weights
 set(handles.figure1, 'Currentaxes',handles.axes1)
-delete(get(handles.axes1,'Children'))
-warning('off')
-[AX,H1,H2] = plotyy(1:size(dat,1), [dat{:,2}],...
-    1.4:size(dat,1)+0.4, [dat{:,4}],'bar');
-set(H2,'FaceColor',[1 0 0])
-set(H2,'BarWidth',0.4)
-set(H1,'BarWidth',0.4)
-aa=get(AX(1),'ylim'); %adapt y scale
-bb=get(AX(2),'ylim');
-m1=max([dat{:,2}])/aa(2);
-m2=max([dat{:,4}])/bb(2);
-sc=min(max(m1,m2)+0.03,1);
-set(AX(1),'ylim',sc*aa)
-set(AX(2),'ylim',sc*bb)
-d=get(AX(1),'Title');
-dd=get(d,'Position');
-d2=get(AX(1),'YLabel');
-d1=get(d2,'Position');
-dt=text(d1(1),dd(2)*1.01,'W roi (in %)');
-set(dt,'Color',[0 0 1])
-d3=get(AX(2),'YLabel');
-d4=get(d3,'Position');
-dt2=text(d4(1)*0.9,dd(2)*1.01,'NW roi (in %)');
-set(dt2,'Color',[1 0 0])
-set(AX,'XTick',1.4:size(dat,1)+0.4)
-set(AX,'XTickLabel',{''})
-legend('W_{roi}','NW_{roi}','Location','SouthOutside')
-title('Histogram of (normalized) weights per region','FontWeight','bold')
+H1 = bar(1:size(dat,1),[dat{:,2}]);
+set(H1,'BarWidth',0.8)
+set(gca,'xlim',[0 size(dat,1)+1])
+title('Histogram of normalized weights per region','FontWeight','bold')
+set(gca,'XTickLabel',{''})
+set(gca,'XTick',0)
+legend('NW_{roi}','Location','NorthEast')
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -476,4 +352,51 @@ function quitbutt_Callback(hObject, eventdata, handles)
 % The figure can be deleted now
 if isfield(handles,'figure1')
     delete(handles.figure1);
+end
+
+
+
+function vol_oth_Callback(hObject, eventdata, handles)
+% hObject    handle to vol_oth (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of vol_oth as text
+%        str2double(get(hObject,'String')) returns contents of vol_oth as a
+%        double
+
+
+% --- Executes during object creation, after setting all properties.
+function vol_oth_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to vol_oth (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function w_oth_Callback(hObject, eventdata, handles)
+% hObject    handle to w_oth (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of w_oth as text
+%        str2double(get(hObject,'String')) returns contents of w_oth as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function w_oth_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to w_oth (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end

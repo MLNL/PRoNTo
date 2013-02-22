@@ -1,4 +1,4 @@
-function [H HN sorted_regions] = prt_region_histogram(beta, atlas)
+function [H HN SN] = prt_region_histogram(beta, atlas)
 
 %% L1-HISTOGRAM
 % (c) Luca Baldassarre
@@ -39,13 +39,15 @@ else
 end
 
 H = zeros(R,m);
-
+S = zeros(R,m);
 for km = 1:m
    l1_norm = norm(beta(~isnan(beta(:,km)),km),1);
-   disp(['Fold ',num2str(km)])
+%    disp(['Fold ',num2str(km)])
    % Compute relative frequencies for each region
    for r = r_min:R
       H(r+correction,km) = sum(abs(beta(atlas == r,km)))/l1_norm;
+      %compute the proportions of positive versus negative weights
+      S(r+correction,km) = length(find(beta(atlas == r,km)>0));
    end
 end
 
@@ -57,11 +59,5 @@ if nargout > 1
       volume(r+correction) = sum(atlas == r);
    end
    HN = H./repmat(volume,1,m);
-end
-
-%% SORT REGIONS in DECREASING ORDER ACCORDING TO NORMALIZED HISTOGRAM
-if nargout > 2
-   [dummy sorted_regions] = sort(HN,'descend');
-   % Translate back to original indeces (0 = CSF)
-   sorted_regions = sorted_regions - correction;
+   SN = S./repmat(volume,1,m);
 end

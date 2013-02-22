@@ -43,8 +43,13 @@ end
 load(fname) % reload updated PRT!
 if isfield(job,'perm_test') % to ensure back compatibility with older batch
     if isfield(job.perm_test,'perm_t')
+        if isfield(job.perm_test.perm_t,'flag_sw') %keep compatibility
+            flag = job.perm_test.perm_t.flag_sw;
+        else
+            flag = 0;
+        end
         prt_permutation(PRT, job.perm_test.perm_t.N_perm, mid, ...
-            spm_str_manip(fname,'h'));
+            spm_str_manip(fname,'h'),flag);
     end
 end
 

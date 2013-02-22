@@ -42,12 +42,28 @@ img_name.num     = [0 Inf];
 img_name.val     = {''};
 
 % ---------------------------------------------------------------------
+% flag_cwi Build the weight images for each permutation (optional)
+% ---------------------------------------------------------------------
+flag_cwi         = cfg_menu;
+flag_cwi.tag     = 'flag_cwi';
+flag_cwi.name    = 'Build weight images for permutations';
+flag_cwi.help    = {['Set to Yes to compute the weight images obtained ' ...
+    'from each permutation. This is to further assess the significance ' ...
+    'of the ranking distance between two models.']};
+flag_cwi.labels  = {
+               'Yes'
+               'No'
+}';
+flag_cwi.values  = {1 0};
+flag_cwi.val     = {0};
+
+% ---------------------------------------------------------------------
 % cv_model Preprocessing
 % ---------------------------------------------------------------------
 weights        = cfg_exbranch;
 weights.tag    = 'weights';
 weights.name   = 'Compute weights';
-weights.val    = {infile model_name img_name};
+weights.val    = {infile model_name img_name flag_cwi};
 weights.help   = {[
     'Compute weights. This module computes the linear weights of a classifier ',...
     'and saves them as a 4D image. 3 dimensions correspond to the image dimensions specified in ',...

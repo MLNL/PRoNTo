@@ -167,11 +167,7 @@ if nhyp(2) > 0
     hyp.lik = zeros(nhyp(2),1);
 end
 if nhyp(3) > 0 
-    if strcmp(mode,'regression')
-        hyp.mean = mean(d.tr_targets);
-    else
-        hyp.mean = zeros(nhyp(3),1);
-    end
+    hyp.mean = zeros(nhyp(3),1);
 end
 
 % Assemble data matrices
@@ -208,10 +204,6 @@ end
     
 % Train and test GP model
 % -------------------------------------------------------------------------
-os  = RandStream.getGlobalStream;
-s   = RandStream.create('mt19937ar','seed',0);
-RandStream.setGlobalStream(s);
-
 % train
 if optimise_theta
     if map
@@ -247,6 +239,5 @@ output.alpha       = post.alpha;
 %output.sW          = post.sW;
 %output.L           = post.L;
 
-RandStream.setGlobalStream(os);
 end
 

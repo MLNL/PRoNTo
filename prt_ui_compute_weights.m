@@ -30,7 +30,7 @@ function varargout = prt_ui_compute_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_compute_weights
 
-% Last Modified by GUIDE v2.5 07-Nov-2011 12:08:08
+% Last Modified by GUIDE v2.5 13-Feb-2013 14:07:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -133,7 +133,8 @@ else
     end
 
 
-
+set(handles.flag_cwi,'Value',0);
+handles.flag = 0;
 set(handles.compbutt,'Enable','off')
 handles.img_name=[];
 end
@@ -323,6 +324,21 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+% --- Executes on button press in flag_cwi, build the weight images for
+% permutations flag
+function flag_cwi_Callback(hObject, eventdata, handles)
+% hObject    handle to flag_cwi (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of flag_cwi
+flag=get(handles.flag_cwi,'Value');
+if flag
+    handles.flag=1;
+else
+    handles.flag=0;
+end
+guidata(hObject, handles);
 
 % --- Executes on button press in compbutt.
 function compbutt_Callback(hObject, eventdata, handles)
@@ -333,5 +349,5 @@ list={handles.dat.model(:).model_name};
 in.model_name=list{handles.selmod};
 in.pathdir=handles.prtdir;
 in.img_name=handles.img_name;  %for the moment, coming soon
-prt_compute_weights(handles.dat,in);
+prt_compute_weights(handles.dat,in,handles.flag);
 delete(handles.figure1)
