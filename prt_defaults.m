@@ -66,4 +66,9 @@ prt_def.model.gprargs    = '-l gauss -h'; % -h
 prt_def.model.krrargs    = 1;
 prt_def.model.rtargs     = 601;
 
+% Parralelization of the code
+%--------------------------------------------------
+prt_def.paral.allow     = false; % use (or not) 'parfor' loops
+prt_def.paral.ncore     = 3;     % number of cores that can be used.
+
 return

@@ -1,35 +1,36 @@
-function [] = prt_permutation(PRT, n_perm, modelid, path,flag)
+function [] = prt_permutation(PRT, n_perm, modelid, path, flag)
 % Function to compute permutation test
 %
 % Inputs:
 % -------
-% PRT: PRT structured including model
-% n_permu: number of permutations
+% PRT:     PRT structured including model
+% n_perm:  number of permutations
 % modelid: model ID
-% flag: boolean variable. set to 1 to save the weights for each
-% permutation. default: 0
+% path:    path
+% flag:    boolean variable. set to 1 to save the weights for each
+%          permutation. default: 0
 %
 % Outputs:
 % --------
 %
 % for classification
-% permutation.c_acc: Permuted accuracy per class
-% permutation.b_acc: Permuted balanced accuracy
+% permutation.c_acc:        Permuted accuracy per class
+% permutation.b_acc:        Permuted balanced accuracy
 % permutation.pvalue_b_acc: p-value for c_acc
 % permutation.pvalue_c_acc: p-value for b_acc
 %
 % for regression
 % permutation.corr: Permuted correlation
-% permutation.mse: Permuted mean square error
+% permutation.mse:  Permuted mean square error
 % permutation.corr: p-value for corr
-% permutation.mse: p-value for mse
+% permutation.mse:  p-value for mse
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Mourao-Miranda
 % $Id$
 
-prt_dir = [path];
+prt_dir = path;
 if nargin<5
     flag=0;
 end
@@ -53,7 +54,6 @@ else
     n_folds  = size(CV,2);                      % number of CV folds
     n_Phi    = length(PRT.model(modelid).input.fs); % number of data matrices
     samp_idx = PRT.model(modelid).input.samp_idx;   % which samples are in the model
-    
     
     % targets
     t = PRT.model(modelid).input.targets;
@@ -109,7 +109,7 @@ else
                             (ids(:,4) == samp_c(cid)) & ...
                             (ids(:,5) == samp_b(bid)));
                         
-                        chunks{i} =rg;
+                        chunks{i} = rg;
                         
                         i=i+1;
                     end
@@ -205,13 +205,7 @@ else
                 
                 
         end
-        
-        
-        
-        
-        
     end
-    
     
     switch PRT.model(modelid).output.fold(1).type
         case 'classifier'
@@ -246,8 +240,6 @@ else
             
             permutation.pval_corr = pval_corr;
             permutation.pval_mse = pval_mse;
-            
-            
     end
     
     
