@@ -31,6 +31,7 @@ function [] = prt_permutation(PRT, n_perm, modelid, path, flag)
 % $Id$
 
 prt_dir = path;
+def_par = prt_get_defaults('paral');
 if nargin<5
     flag=0;
 end
@@ -54,6 +55,15 @@ else
     n_folds  = size(CV,2);                      % number of CV folds
     n_Phi    = length(PRT.model(modelid).input.fs); % number of data matrices
     samp_idx = PRT.model(modelid).input.samp_idx;   % which samples are in the model
+    
+    % parralel code?
+    if def_par.allow
+        try
+            matlabpool(def_par.ncore)
+        catch
+            warning('Could not use pool of Matlab processes!')
+        end
+    end
     
     % targets
     t = PRT.model(modelid).input.targets;
