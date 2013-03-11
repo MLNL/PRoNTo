@@ -444,16 +444,30 @@ if strcmpi(handles.type,'classification')
     speccl=prt_ui_select_class('UserData',{handles.dat,handles.fs(1).indfs});
     handles.class=speccl.class;
     ns=zeros(length(speccl.class),1);
+    ng1=1;
+    ng2=1;
     for ii=1:length(speccl.class)
         for jj=1:length(speccl.class(ii).group)
             ns(ii)=ns(ii)+length(speccl.class(ii).group(jj).subj);
         end
+        if jj==1
+            if ii==1
+                gname=speccl.class(ii).group(jj).gr_name;
+            else
+                if strcmpi(gname,speccl.class(ii).group(jj).gr_name)
+                    ng2=ng2+1;
+                end
+            end
+        else
+            ng1=0;
+        end
     end
-    if (speccl.design)
+    ng2=floor(ng2/length(speccl.class));
+    if (speccl.design) && max(ns)==1
         list=get(handles.pop_cv,'String');
         list=[list;{'Leave One Block Out'};{'k-folds CV on Block'}];
         set(handles.pop_cv,'String',list)
-        set(handles.pop_cv,'Value',length(list))
+        set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'lobo';
     end
     handles.loospg=speccl.loospg;
@@ -461,14 +475,14 @@ if strcmpi(handles.type,'classification')
         list=get(handles.pop_cv,'String');
         list=[list;{'Leave One Subject Out'};{'k-folds CV on Subject Out'}];
         set(handles.pop_cv,'String',list)
-        set(handles.pop_cv,'Value',length(list))
+        set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
-        list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Subject per Group Out'};...
-            {'k-folds CV on Subject per Group'}];
-        set(handles.pop_cv,'String',list)
-        set(handles.pop_cv,'Value',length(list))
-        handles.cv.type = 'losgo';
+        if ~ng1 || ~ng2
+            list=get(handles.pop_cv,'String');
+            list=[list;{'Leave One Subject per Group Out'};...
+                {'k-folds CV on Subject per Group'}];
+            set(handles.pop_cv,'String',list)
+        end
     end
 else
     sel=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});

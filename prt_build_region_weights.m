@@ -113,7 +113,7 @@ nfo=length(V);
 V1=spm_vol(gi);
 dumb=V(1);
 
-if ~any(dumb.dim == V1.dim)
+% if ~any(dumb.dim == V1.dim)
     disp('Resizing atlas--------->>')
     %reslice
     fl_res = struct('mean',false,'interp',0,'which',1,'prefix','resized_');
@@ -138,9 +138,9 @@ if ~any(dumb.dim == V1.dim)
     fullfile(pp,[mfile_new,'.hdr']));
     g=spm_vol(fullfile(pp,[mfile_new,'.img']));
     h=spm_read_vols(g);
-else
-    h=spm_read_vols(V1);
-end
+% else
+%     h=spm_read_vols(V1);
+% end
 
 %compute histogram
 %--------------------------------------------------------------------------
