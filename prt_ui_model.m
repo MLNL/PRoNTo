@@ -493,7 +493,7 @@ else
     end
     if n>1
         list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Subject Out'};{'k-folds CV on subjects'}];
+        list=[list;{'Leave One Subject Out'};{'k-folds CV on Subject Out'}];
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',1)
         handles.cv.type     = 'loso';
@@ -792,7 +792,7 @@ end
 if ~isfield(in,'class')
     if ~strcmpi(in.cv.type,'loso')
         beep
-        disp('Regression only allows a Leave One Subject Out cross-validation')
+        disp('Regression only allows a Leave (One) Subject Out cross-validation')
         disp('Please correct')
     end
 end
