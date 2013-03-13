@@ -209,7 +209,7 @@ end
 dumb = which('svmtrain');
 % if ~isempty(findstr('libsvm',dumb))
 if ~isempty(strfind(dumb,'libsvm'))
-    disp('SVM path OK')
+    disp('SVM path: OK')
 else
     beep
     warning('PRoNTo:SVMcompilation', ...
@@ -232,7 +232,7 @@ end
 % - RF
 dumb = which('rtenslearn_c');
 if ~isempty(dumb) || ~isempty(strfind(dumb,'.mex'))
-    disp('RF path OK')
+    disp('RF path: OK')
 else
     beep
     warning('PRoNTo:RFcompilation', ...
