@@ -111,15 +111,14 @@ function ok = check_Haxby(rdata_dir)
 %   data directory
 % - 'Data & design' as in manual example with whole brain mask
 % - 'Feature set', as in manual example, no 2nd level mask
-% - 'Specify model', as in manual example, svm Faces vs Houses
+% - 'Specify model', as in manual example, svm Faces vs Houses but with a
+%   k-folds CV on blocks (k=4)
 % - 'Run model' with 1000 permutations
 % - 'Compute weights' -> create 'svm_weights' image
 % - 'Feature set', DCT detrending and a 2nd level mask (fusiform gyrus)
-% - 'Specify model', multi-GPC Faces vs Houses vs Shoes
+% - 'Specify model', multi-GPC Faces vs Houses vs Shoes, LOBO CV
 % - 'Run model' without any permutation
 % - 'Compute weights' -> create 'mgpc_weights' image
-% 
-% NOTE: the last module is NOT executed, see TODO below.
 
 % select images, SPM.mat and mask(s)
 d_dir = fullfile(rdata_dir,'fMRI');
@@ -189,6 +188,8 @@ function ok = check_IXI(rdata_dir)
 % - 'Specify model', GPR for age of all 3 groups of scans (using momentum
 %   feature set)
 % - 'Run model' without permutation
+%
+% Note that the data only includes 5 subjects!
 
 % set images directories and select mask(s)
 d_dir{1} = fullfile(rdata_dir,'divergences');

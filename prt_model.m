@@ -305,7 +305,7 @@ switch in.cv.type
         elseif ~isempty(find((ns/2)<k))
             gb=find(ns<k);
             error('prt_model:losgoSelectedWithTooLargeK2',...
-            ['Leaving more than 50% of subjects in group ',num2str(gb),' out']);
+            ['Leaving more than 50%% of subjects in group ',num2str(gb),' out']);
         end
         [nsf,im]=min(floor(ns/k));
         if k==1
