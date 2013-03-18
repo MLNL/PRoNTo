@@ -495,7 +495,7 @@ else
         list=get(handles.pop_cv,'String');
         list=[list;{'Leave One Subject Out'};{'k-folds CV on Subject Out'}];
         set(handles.pop_cv,'String',list)
-        set(handles.pop_cv,'Value',1)
+        set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
     end
 end

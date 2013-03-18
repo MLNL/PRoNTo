@@ -227,10 +227,14 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             if handles.flagcond
                 listc=handles.condm{1,2};
                 selc=[];
-                for icc=1:length(listc)
-                    indcc=strcmpi(listc{icc},{mod.class(i).group(1).subj(1).modality(1).conds(:).cond_name});
-                    if any(indcc)
-                        selc=[selc,icc];
+                if isfield(mod.class(i).group(1).subj(1).modality(1),'all_cond')
+                    selc=1:length(listc);
+                elseif isfield(mod.class(i).group(1).subj(1).modality(1),'conds')
+                    for icc=1:length(listc)
+                        indcc=strcmpi(listc{icc},{mod.class(i).group(1).subj(1).modality(1).conds(:).cond_name});
+                        if any(indcc)
+                            selc=[selc,icc];
+                        end
                     end
                 end
                 allc=1:length(handles.condm{1,2});
