@@ -247,21 +247,21 @@ switch in.cv.type
         gc = 0;
         ns=zeros(length(gids),1);
         for g = 1:length(gids)
-            ns(g)=max(ID(d2(g):d1(g),2));
+            ns(g)=length(ID(d2(g):d1(g),2));
             gidx = ID(:,1) == gids(g);
             ID(gidx,2) = ID(gidx,2) + gc;
             gc = gc + ns(g);
         end
         % Check that the number of folds does not exceed the number of
         % subjects
-        if max(ID(:,2))<2*k
+        if length(unique(ID(:,2)))<2*k
             error('prt_model:losoSelectedWithTooLargeK',...
             'Total number of subjects smaller than k');
         end
         % Compute CV matrix
         if k>1 %k-fold CV
-            nsf=floor(max(ID(:,2))/k);
-            mns=mod(max(ID(:,2)),k);
+            nsf=floor(length(ID(:,2))/k);
+            mns=mod(length(ID(:,2)),k);
             dk=nsf*ones(1,k);
             dk(end)=dk(end)+mns;
             inds=1;
@@ -295,7 +295,7 @@ switch in.cv.type
         end
         sids = unique(ID(:,2));
         if length(sids) == 1
-            error('prt_model:losoSelectedWithOneSubject',...
+            error('prt_model:losgoSelectedWithOneSubject',...
             'LOSGO CV selected but only one subject is included');
         end
         if ~isempty(find(ns<k))
@@ -321,7 +321,7 @@ switch in.cv.type
             is=ID(:,1)==g;
             if k>1 && nsf>1 %k-fold CV
                 mns=mod(ns(g),nsf);
-                dk=nsf*ones(1,floor(max(ID(is,2))/nsf));
+                dk=nsf*ones(1,floor(length(ID(is,2))/nsf));
                 if mns>0
                     dk=[dk, mns];
                 end
@@ -352,8 +352,8 @@ switch in.cv.type
         % moment
         % blocks already have a unique ID
         if k>1 %k-fold CV
-            nsf=floor(max(ID(:,5))/k);
-            mns=mod(max(ID(:,5)),k);
+            nsf=floor(length(ID(:,5))/k);
+            mns=mod(length(ID(:,5)),k);
             dk=nsf*ones(1,k);
             dk(end)=dk(end)+mns;
             inds=1;

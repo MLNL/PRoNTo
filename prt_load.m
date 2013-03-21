@@ -33,23 +33,10 @@ if isfield(PRT,'fas') && ~isempty(PRT.fas)
         %get the name of the file array
         if ~isempty(PRT.fas(i).dat)
             fa_name=PRT.fas(i).dat.fname;
-            [fadir,fan,faext]=fileparts(fa_name);
-            %temporary fix : fileparts could not identify the path
-            if isempty(fadir)
-                ilin=strfind(fa_name,'/');
-                iwin=strfind(fa_name,'\');
-                iext=strfind(fa_name,'.');
-                faext=fa_name(iext:end);
-                if ~isempty(ilin)
-                    inam=max(ilin);
-                    fan=fa_name(inam+1:iext-1);
-                    fadir=fa_name(1:inam-1);
-                elseif ~isempty(iwin)
-                    inam=max(iwin);
-                    fan=fa_name(inam+1:iext-1);
-                    fadir=fa_name(1:inam-1);
-                end
-            end     
+            if ~ispc
+                fname = strrep(fname,'\',filesep); 
+            end 
+            [fadir,fan,faext]=fileparts(fa_name);    
             if ~strcmpi(fadir,prtdir) %directories of PRT and feature set are different
                 if ~exist([prtdir,filesep,fan,faext],'file')  %no feature set found
                     beep

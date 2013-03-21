@@ -116,7 +116,7 @@ else
                             set(cc(k),'FontUnits','pixel')
                             xf=get(cc(k),'FontSize');
                             set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
-                                'FontUnits','normalized','Units','normalized')
+                                'Units','normalized')
                         end
                     elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
                             ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
@@ -129,7 +129,7 @@ else
                     set(bb(j),'FontUnits','pixel')
                     xf=get(bb(j),'FontSize');
                     set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
-                        'FontUnits','normalized','Units','normalized')
+                        'Units','normalized')
                 end
             end
         elseif strcmpi(get(aa(i),'type'),'uicontrol')
