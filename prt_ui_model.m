@@ -136,8 +136,6 @@ for i=1:length(aa)
         'Units','normalized')
 end
 
-
-
 %Set defaults for some subfields and popup menus
 handles.def=prt_get_defaults('model');
 set(handles.usekern,'Value',1)
@@ -234,6 +232,13 @@ for i=1:length(PRT.fs)
 end
 set(handles.pop_featset,'String',list)
 set(handles.pop_featset,'Value',1)
+if length(handles.dat.fs(1).modality)>1
+    list=get(handles.pop_cv,'String');
+    list=[list;{'Leave One Run/Session Out'}];
+    set(handles.pop_cv,'String',list)
+    set(handles.pop_cv,'Value',length(list))
+    handles.cv.type = 'loro';
+end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
 handles.fs(1).indfs=1;
@@ -279,6 +284,13 @@ for i=1:length(PRT.fs)
 end
 set(handles.pop_featset,'String',list)
 set(handles.pop_featset,'Value',1)
+if length(handles.dat.fs(1).modality)>1
+    list=get(handles.pop_cv,'String');
+    list=[list;{'Leave One Run/Session Out'}];
+    set(handles.pop_cv,'String',list)
+    set(handles.pop_cv,'Value',length(list))
+    handles.cv.type = 'loro';
+end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
 handles.fs(1).indfs=1;

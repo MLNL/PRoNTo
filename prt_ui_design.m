@@ -418,8 +418,8 @@ elseif handles.cgr==ngr
     handles.cm=1;
     handles.cf=1;
 else
-    nlist={list{1:handles.cgr-1};list{handles.cgr+1:end}};
-    handles.ds={handles.ds{1:handles.cgr-1};handles.ds{handles.cgr+1:end}};
+    nlist=list([1:handles.cgr-1,handles.cgr+1:end]);
+    handles.ds=handles.ds([1:handles.cgr-1,handles.cgr+1:end]);
     handles.dat.group=handles.dat.group([1:handles.cgr-1,handles.cgr+1:end]);
     handles.cgr=handles.cgr-1;
     handles.cs=1;
@@ -594,9 +594,9 @@ elseif handles.cs==nsubj
     handles.cm=1;
     handles.cf=1;
 else
-    nlist={list{1:handles.cgr-1};list{handles.cgr+1:end}};
+    nlist=list([1:handles.cgr-1,handles.cgr+1:end]);
     handles.dat.group(cgr).subject=handles.dat.group(cgr).subject([1:handles.cs-1,handles.cs+1:end]);
-    handles.ds{cgr}={handles.ds{cgr}{1:handles.cs-1},handles.ds{cgr}{handles.cs+1:end}};
+    handles.ds{cgr}=handles.ds{cgr}([1:handles.cs-1,handles.cs+1:end]);
     handles.cs=handles.cs-1;
     handles.cm=1;
     handles.cf=1;
