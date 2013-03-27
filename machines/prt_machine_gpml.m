@@ -70,6 +70,7 @@ else
     mode = 'regression';
     likfunc   = @likGauss;
     inffunc   = @prt_infExact;
+    mtr       = mean(d.tr_targets);      % mean of the training data
 end
 
 % Error checks
@@ -199,7 +200,7 @@ if strcmp(mode,'classifier')
     % convert targets to +1/-1
     y = -1*(2 * tr_lbs - 3);
 else
-    y = tr_lbs;
+    y = tr_lbs - mtr;
 end
     
 % Train and test GP model
@@ -225,7 +226,7 @@ if strcmp(mode,'classifier')
     output.predictions = (1-real(p > 0.5)) + 1;
     output.func_val    = p;
 else % regression
-    output.predictions = ymu;
+    output.predictions = ymu + mtr;
     output.func_val    = output.predictions;
 end
 output.type        = mode;
