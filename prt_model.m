@@ -396,9 +396,9 @@ switch in.cv.type
 
     case 'custom'
         %load matrix and check that each fold contains test and train data.
-        if isfield(model.cv,'mat_file')
-            load(model.cv.mat_file)
-            if ~exist(CV)
+        if isfield(in.cv,'mat_file')
+            load(in.cv.mat_file)
+            if ~exist('CV')
                 error('No CV variable found in the mat file provided')
             else
                 if size(CV,1) ~= size(ID,1)
