@@ -30,7 +30,7 @@ function varargout = prt_ui_model(varargin)
 
 % Edit the above text to modify the response to help prt_ui_kernel_construction
 
-% Last Modified by GUIDE v2.5 24-Mar-2012 11:44:44
+% Last Modified by GUIDE v2.5 27-Mar-2013 13:22:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -138,7 +138,7 @@ end
 
 %Set defaults for some subfields and popup menus
 handles.def=prt_get_defaults('model');
-set(handles.usekern,'Value',1)
+set(handles.kernel_methods,'Value',1)
 handles.use_kernel=1;
 set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
@@ -149,7 +149,7 @@ set(handles.pop_reg,'Value',1)
 handles.type='classification';
 set(handles.butt_defclass,'ForegroundColor',handles.color.high)
 set(handles.pop_machine,'String',{'Binary support vector machine',...
-        'Binary Gaussian Process Classification','Random Forest',...
+        'Binary Gaussian Process Classification',...
         'Multiclass GPC'})
 set(handles.pop_machine,'Value',1)
 handles.machine.function='prt_machine_svm_bin';
@@ -382,15 +382,29 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on button press in usekern.
-function usekern_Callback(hObject, eventdata, handles)
-% hObject    handle to usekern (see GCBO)
+% --- Executes on button press in kernel_methods.
+function kernel_methods_Callback(hObject, eventdata, handles)
+% hObject    handle to kernel_methods (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of usekern
-handles.use_kernel=get(handles.usekern,'Value');
+% Hint: get(hObject,'Value') returns toggle state of kernel_methods
+handles.use_kernel=get(handles.kernel_methods,'Value');
+if get(handles.pop_reg,'Value')==1 %for classification
+    if ~handles.use_kernel
+        set(handles.pop_machine,'String',{'Random Forest'})
+        set(handles.pop_machine,'Value',1)
+        handles.machine.function='prt_machine_RT_bin';
+        handles.machine.args=handles.def.rtargs;
+    else
+        set(handles.pop_machine,'String',{'Binary support vector machine',...
+            'Binary Gaussian Process Classification',...
+            'Multiclass GPC'})
+        set(handles.pop_machine,'Value',1)
+        handles.machine.function='prt_machine_svm_bin';
+        handles.machine.args=handles.def.svmargs;
+    end
+end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -411,13 +425,22 @@ if val==0
 end
 if val==1 %Classification
     handles.type='classification';
-    %set the list of machines
-    set(handles.pop_machine,'String',{'Binary support vector machine',...
-        'Binary Gaussian Process Classification','Random Forest',...
-        'Multiclass GPC'})
-    set(handles.pop_machine,'Value',1)
-    handles.machine.function='prt_machine_svm_bin';
-    handles.machine.args=handles.def.svmargs;
+    nk=get(handles.use_kernel,'Value');
+    if nk==1
+        %set the list of machines
+        set(handles.pop_machine,'String',{'Binary support vector machine',...
+            'Binary Gaussian Process Classification',...
+            'Multiclass GPC'})
+        set(handles.pop_machine,'Value',1)
+        handles.machine.function='prt_machine_svm_bin';
+        handles.machine.args=handles.def.svmargs;
+    else
+        %set the list of machines
+        set(handles.pop_machine,'String',{'Random Forest'})
+        set(handles.pop_machine,'Value',1)
+        handles.machine.function='prt_machine_RT_bin';
+        handles.machine.args=handles.def.rtargs;  
+    end
     set(handles.butt_defclass,'String','Define classes')
 elseif val==2
     handles.type='regression';
@@ -917,4 +940,3 @@ prt_model(handles.dat,in);
 disp('Model specification complete.')
 disp('Done...')
 delete(handles.figure1)
-

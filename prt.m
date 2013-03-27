@@ -207,17 +207,61 @@ end
 %============================
 % - svm
 dumb = which('svmtrain');
-% if ~isempty(findstr('libsvm',dumb))
-if ~isempty(strfind(dumb,'libsvm'))
+if ~isempty(strfind(dumb,'libsvm'))          %svm found in libsvm folder, OK
     disp('SVM path: OK')
-else
-    beep
-    warning('PRoNTo:SVMcompilation', ...
+    flag=1;
+elseif ~isempty(strfind(dumb,'biolearning')) %svm found in the Matlab toolbox
+    flag=0;
+else                                         %svm not found at all, so need to compile
+    flag=2;
+end
+
+% in case PRoNTo was installed with all subfolders under the biostats
+if ~flag
+    pth_machines = fullfile(prt('Dir'),'machines');
+    addpath(pth_machines);
+    % add each machine's sub-directory
+    % and ALL its subdirectories recursively
+    ls_machinedir = list_subdir(pth_machines);
+    for ii=1:numel(ls_machinedir)
+        gpath_ii = genpath(fullfile(pth_machines,ls_machinedir{ii}));
+        gpath_ii = clean_gpath(gpath_ii);
+        addpath(gpath_ii)
+    end
+    dumb = which('svmtrain');
+    if isempty(strfind(dumb,'libsvm'))
+        flag=2; %still not working, need to recompile
+    else
+        flag =1;
+        disp('PRoNTo was found under the biostats toolbox, please correct path')
+        disp('SVM path: OK')
+    end
+end
+
+if flag ==2 %need to recompile for the OS
+    pth_machines = fullfile(prt('Dir'),'machines');
+    ls_machinedir = list_subdir(pth_machines);
+    for i=1:length(ls_machinedir)
+        if ~isempty(strfind(ls_machinedir{i},'libsvm'))
+            pfn= fullfile(pth_machines,ls_machinedir{i});
+            dirtorem=cd;
+            cd(pfn)
+            cd matlab
+            make;
+            cd(dirtorem)
+        end
+    end
+    dumb = which('svmtrain');
+    if isempty(strfind(dumb,'libsvm'))
+        %could not recompile
+        beep
+        warning('PRoNTo:SVMcompilation', ...
         ['SVM path not recognized. Please check that: \n', ...
         '- PRoNTo''directory was added *without* all subfolders \n',...
         '- PRoNTo is above the biostats Matlab toolbox \n',...
         'Otherwise, the routines surely need to be re-compiled for your OS \n',...
         'Please look on the web or ask on the mailing list for assistance'])
+    end
 end
 
 % - GP
