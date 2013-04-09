@@ -247,7 +247,7 @@ switch in.cv.type
         gc = 0;
         ns=zeros(length(gids),1);
         for g = 1:length(gids)
-            ns(g)=length(ID(d2(g):d1(g),2));
+            ns(g)=length(unique(ID(d2(g):d1(g),2)));
             gidx = ID(:,1) == gids(g);
             ID(gidx,2) = ID(gidx,2) + gc;
             gc = gc + ns(g);
