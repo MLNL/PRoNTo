@@ -1,0 +1,97 @@
+\begin{thebibliography}{10}
+
+\bibitem{Aizerman1964}
+M.~Aizerman, E.~Braverman, and L.~Rozonoer.
+\newblock Theoretical foundations of the potential function method in pattern
+  recognition learning.
+\newblock {\em Automation and Remote Control}, 25:821--837, 1964.
+
+\bibitem{Bishop2006}
+Christopher~M. Bishop.
+\newblock {\em Pattern Recognition and Machine learning}.
+\newblock Springer, 2006.
+
+\bibitem{Cristianini2000}
+Nello Cristianini and John Shawe-Taylor.
+\newblock {\em An introduction to support Vector Machines: and other
+  kernel-based learning methods}.
+\newblock Cambridge University Press, New York, NY, USA, 2000.
+
+\bibitem{Geurts2006}
+Pierre Geurts, Damien Ernst, and Louis Wehenkel.
+\newblock Extremely randomized trees.
+\newblock {\em Machine Learning}, 63(1):3--42, 2006.
+
+\bibitem{matlabbatch}
+Volkmar Glauche.
+\newblock {MATLAB} batch system.
+\newblock http://sourceforge.net/projects/matlabbatch/.
+
+\bibitem{Haxby2001}
+J.~V. Haxby, M.~I. Gobbini, M.~L. Furey, A.~Ishai, J.~L. Schouten, and
+  P.~Pietrini.
+\newblock Distributed and overlapping representations of faces and objects in
+  ventral temporal cortex.
+\newblock {\em Science}, 293(5539):2425--2430, 2001.
+
+\bibitem{Haynes2006}
+J.~D. Haynes and G.~Rees.
+\newblock {D}ecoding mental states from brain activity in humans.
+\newblock {\em Nat. Rev. Neurosci.}, 7:523--534, 2006.
+
+\bibitem{Hofmann2008}
+Thomas Hofmann, Bernhard Scholkopf, and Alexander~J. Smola.
+\newblock Kernel methods in machine learning.
+\newblock {\em Annals of Statistics}, 36(3):1171--1220, 2008.
+
+\bibitem{Marquand2010}
+A.~Marquand, M.~Howard, M.~Brammer, C.~Chu, S.~Coen, and J.~Mourao-Miranda.
+\newblock {Q}uantitative prediction of subjective pain intensity from
+  whole-brain f{M}{R}{I} data using {G}aussian processes.
+\newblock {\em Neuroimage}, 49:2178--2189, 2010.
+
+\bibitem{SPM8}
+{Members and collaborators of the Wellcome Trust Centre for Neuroimaging}.
+\newblock Statistical {P}arametric {M}apping, {SPM8}.
+\newblock http://www.fil.ion.ucl.ac.uk/spm, 2008.
+\newblock Wellcome Trust Centre for Neuroimaging, University College London,
+  UK.
+
+\bibitem{Mourao-Miranda2007}
+Janaina Mourao-Miranda, Karl~J Friston, and Michael Brammer.
+\newblock Dynamic discrimination analysis: a spatial-temporal svm.
+\newblock {\em Neuroimage}, 36(1):88--99, 2007.
+
+\bibitem{Norman2006}
+K.~A. Norman, S.~M. Polyn, G.~J. Detre, and J.~V. Haxby.
+\newblock {B}eyond mind-reading: multi-voxel pattern analysis of f{M}{R}{I}
+  data.
+\newblock {\em Trends Cogn. Sci. (Regul. Ed.)}, 10:424--430, 2006.
+
+\bibitem{Pereira2009}
+F.~Pereira, T.~Mitchell, and M.~Botvinick.
+\newblock {M}achine learning classifiers and f{M}{R}{I}: a tutorial overview.
+\newblock {\em Neuroimage}, 45:199--209, 2009.
+
+\bibitem{Rasmussen2006}
+Carl~Edward Rasmussen and Christopher K.~I. Williams.
+\newblock {\em Gaussian Processes for Machine Learning}.
+\newblock Adaptive Computation and Machine Learning. the MIT Press, 2006.
+
+\bibitem{Schrouff2013}
+J.~Schrouff, M.~J. Rosa, J.~M. Rodina, A.~F. Marquand, C.~Chu, J.~Ashburner,
+  C.~Phillips, J.~Richiardi, and J.~Mourao-Miranda.
+\newblock {PRoNTo: Pattern Recognition for Neuroimaging Toolbox}.
+\newblock {\em Neuroinformatics}, 2013.
+
+\bibitem{ShaweTaylor2004}
+John Shawe-Taylor and Nello Cristianini.
+\newblock {\em Kernel Methods for Pattern Analysis.}
+\newblock Cambridge University Press, 2004.
+
+\bibitem{Tipping2001}
+Michael~E. Tipping.
+\newblock Sparse bayesian learning and the relevance vector machine.
+\newblock {\em Journal of Machine Learning Research}, 1:211--244, 2001.
+
+\end{thebibliography}

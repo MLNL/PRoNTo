@@ -1,0 +1,62 @@
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.1}pronto.m}{\reset@font\mtcSfont 106}{section.15.1}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.2}prt.m}{\reset@font\mtcSfont 106}{section.15.2}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.3}prt\_apply\_operation.m}{\reset@font\mtcSfont 106}{section.15.3}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.4}prt\_check\_design.m}{\reset@font\mtcSfont 107}{section.15.4}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.5}prt\_compute\_weights.m}{\reset@font\mtcSfont 108}{section.15.5}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.6}prt\_cv\_model.m}{\reset@font\mtcSfont 108}{section.15.6}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.7}prt\_cv\_opt\_param.m}{\reset@font\mtcSfont 108}{section.15.7}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.8}prt\_data\_conditions.m}{\reset@font\mtcSfont 109}{section.15.8}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.9}prt\_data\_modality.m}{\reset@font\mtcSfont 109}{section.15.9}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.10}prt\_data\_review.m}{\reset@font\mtcSfont 110}{section.15.10}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.11}prt\_defaults.m}{\reset@font\mtcSfont 110}{section.15.11}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.12}prt\_fs.m}{\reset@font\mtcSfont 111}{section.15.12}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.13}prt\_func2html.m}{\reset@font\mtcSfont 111}{section.15.13}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.14}prt\_get\_defaults.m}{\reset@font\mtcSfont 111}{section.15.14}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.15}prt\_get\_filename.m}{\reset@font\mtcSfont 112}{section.15.15}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.16}prt\_init\_fs.m}{\reset@font\mtcSfont 112}{section.15.16}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.17}prt\_init\_model.m}{\reset@font\mtcSfont 113}{section.15.17}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.18}prt\_latex.m}{\reset@font\mtcSfont 114}{section.15.18}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.19}prt\_load.m}{\reset@font\mtcSfont 114}{section.15.19}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.20}prt\_load\_blocks.m}{\reset@font\mtcSfont 114}{section.15.20}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.21}prt\_model.m}{\reset@font\mtcSfont 114}{section.15.21}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.22}prt\_normalise\_kernel.m}{\reset@font\mtcSfont 115}{section.15.22}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.23}prt\_permutation.m}{\reset@font\mtcSfont 115}{section.15.23}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.24}prt\_preproc.m}{\reset@font\mtcSfont 116}{section.15.24}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.25}prt\_remove\_confounds.m}{\reset@font\mtcSfont 116}{section.15.25}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.26}prt\_stats.m}{\reset@font\mtcSfont 116}{section.15.26}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.27}prt\_struct2latex.m}{\reset@font\mtcSfont 117}{section.15.27}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.28}prt\_text\_input.m}{\reset@font\mtcSfont 117}{section.15.28}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.29}prt\_ui\_compute\_weights.m}{\reset@font\mtcSfont 117}{section.15.29}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.30}prt\_ui\_cv\_model.m}{\reset@font\mtcSfont 118}{section.15.30}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.31}prt\_ui\_design.m}{\reset@font\mtcSfont 118}{section.15.31}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.32}prt\_ui\_kernel\_construction.m}{\reset@font\mtcSfont 119}{section.15.32}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.33}prt\_ui\_main.m}{\reset@font\mtcSfont 119}{section.15.33}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.34}prt\_ui\_model.m}{\reset@font\mtcSfont 120}{section.15.34}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.35}prt\_ui\_prepare\_data.m}{\reset@font\mtcSfont 120}{section.15.35}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.36}prt\_ui\_prepare\_datamod.m}{\reset@font\mtcSfont 120}{section.15.36}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.37}prt\_ui\_results.m}{\reset@font\mtcSfont 121}{section.15.37}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.38}prt\_ui\_results\_help.m}{\reset@font\mtcSfont 121}{section.15.38}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.39}prt\_ui\_reviewCV.m}{\reset@font\mtcSfont 122}{section.15.39}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.40}prt\_ui\_reviewmodel.m}{\reset@font\mtcSfont 122}{section.15.40}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.41}prt\_ui\_select\_class.m}{\reset@font\mtcSfont 123}{section.15.41}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.42}prt\_ui\_select\_reg.m}{\reset@font\mtcSfont 123}{section.15.42}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.43}prt\_ui\_stats.m}{\reset@font\mtcSfont 124}{section.15.43}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.44}prt\_ui\_sure.m}{\reset@font\mtcSfont 124}{section.15.44}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.45}machines}{\reset@font\mtcSfont 124}{section.15.45}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.1}machines\textbackslash prt\_KRR.m}{\reset@font\mtcSSfont 124}{subsection.15.45.1}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.2}machines\textbackslash prt\_machine.m}{\reset@font\mtcSSfont 124}{subsection.15.45.2}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.3}machines\textbackslash prt\_machine\_RT\_bin.m}{\reset@font\mtcSSfont 125}{subsection.15.45.3}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.4}machines\textbackslash prt\_machine\_gpclap.m}{\reset@font\mtcSSfont 126}{subsection.15.45.4}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.5}machines\textbackslash prt\_machine\_gpml.m}{\reset@font\mtcSSfont 126}{subsection.15.45.5}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.6}machines\textbackslash prt\_machine\_gpr.m}{\reset@font\mtcSSfont 127}{subsection.15.45.6}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.7}machines\textbackslash prt\_machine\_krr.m}{\reset@font\mtcSSfont 128}{subsection.15.45.7}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.8}machines\textbackslash prt\_machine\_rvr.m}{\reset@font\mtcSSfont 129}{subsection.15.45.8}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.9}machines\textbackslash prt\_machine\_svm\_bin.m}{\reset@font\mtcSSfont 129}{subsection.15.45.9}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.10}machines\textbackslash prt\_rvr.m}{\reset@font\mtcSSfont 130}{subsection.15.45.10}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.11}machines\textbackslash prt\_weights.m}{\reset@font\mtcSSfont 131}{subsection.15.45.11}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.12}machines\textbackslash prt\_weights\_bin\_linkernel.m}{\reset@font\mtcSSfont 131}{subsection.15.45.12}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.45.13}machines\textbackslash prt\_weights\_svm\_bin.m}{\reset@font\mtcSSfont 131}{subsection.15.45.13}}
+{\reset@font\mtcSfont\mtc@string\contentsline{section}{\noexpand \leavevmode \numberline {15.46}utils}{\reset@font\mtcSfont 132}{section.15.46}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.46.1}utils\textbackslash prt\_centre\_kernel.m}{\reset@font\mtcSSfont 132}{subsection.15.46.1}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.46.2}utils\textbackslash prt\_checkAlphaNumUnder.m}{\reset@font\mtcSSfont 132}{subsection.15.46.2}}
+{\reset@font\mtcSSfont\mtc@string\contentsline{subsection}{\noexpand \leavevmode \numberline {15.46.3}utils\textbackslash prt\_normalise\_kernel.m}{\reset@font\mtcSSfont 132}{subsection.15.46.3}}

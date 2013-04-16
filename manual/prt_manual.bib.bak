@@ -147,7 +147,7 @@
 
 @ARTICLE{Schrouff2013,
   author = {J. Schrouff and M. J. Rosa and J. M. Rodina and A. F. Marquand and
-	C. Chu and J. Ashburner and C. Phillips and J. Richiardi and J. Mourao-Miranda},
+	C. Chu and J. Ashburner and C. Phillips and J. Richiardi and J. Mour\~{a}o-Miranda},
   title = {{PRoNTo: Pattern Recognition for Neuroimaging Toolbox}},
   journal = {Neuroinformatics},
   year = {2013},
