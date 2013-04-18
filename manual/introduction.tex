@@ -76,6 +76,43 @@ Of course most tools can also be called individually by calling them directly fr
   \end{center}
 \end{figure}	
 
+\subsection{Troubleshooting}
+%--------------------------------------
+\subsubsection{Compiling libsvm}
+Some problems when using SVMs might arise due to  libsvm, in which case, you might need to compile it on your own. The first thing that needs to be done is to download the desired libsvm version (usually the latest one) from the following website: \url{http://www.csie.ntu.edu.tw/~cjlin/libsvm/}. Then, the process will depend on your operating system.
+
+If the steps described bellow do not work, please refer to the {\tt README} file that comes with libsvm.
+
+\paragraph{Microsoft Windows}
+\begin{itemize}
+    \item Make sure you have a C++ compiler install. If not, you can install Microsoft Visual C/C++;
+    \item Copy the libsvm folder to the `machines' directory of your PRoNTo instalation\\(e.g. C:\bslash PRoNTo\bslash machines\bslash);
+    \item Open a DOS command window and change to the libsvm folder in the previous step ({\tt cd C:\bslash PRoNTo\bslash machines\bslash libsvm-3.17\bslash}). If the environment variables of VC++ have not been set, run the following command:\\{\tt C:\bslash Program Files\bslash Microsoft Visual Studio 10.0\bslash VC\bslash bin\bslash vcvars32.bat}. This command might be different, depending on the path of your Visual Studio installation;
+    \item In the libsvm folder run the command: {\tt nmake -f Makefile.win clean all} 
+    \item If no errors appear, open MATLAB;
+    \item Change to the `matlab' folder inside the libsvm folder (e.g. C:\bslash PRoNTo\bslash machines\bslash libsvm-3.17 \bslash matlab\bslash);
+    \item Run {\tt make} in the MATLAB Command Window. If there are no errors, you have just successfully compiled libsvm to be used with MATLAB.
+\end{itemize}
+
+Remember, if you want to use the version that you have just compiled, you have to add the libsvm folder to your path in MATLAB. If you have more than one libsvm folder inside the `machines' folder, please remove one of them from the MATLAB path. You should only have one libsvm folder in your path.
+
+
+\paragraph{Unix (Mac OS or Linux)}
+
+\begin{itemize}
+    \item Make sure you have a C++ compiler installed. If you are using Mac OS, please install `Xcode'. On Linux systems, you should already have `gcc' installed;
+    \item Copy the libsvm folder to the `machines' directory of your PRoNTo instalation\\(e.g. {\tt /home/<username>/PRoNTo/machines/});
+    \item Open a terminal window and change to the `machines' directory: {\tt cd PRoNTo/machines/}
+    \item Compile libsvm by running the following command: {\tt make}
+    \item If no errors appear, open MATLAB;
+    \item Change to the `matlab' folder inside the libsvm folder (e.g. PRoNTo/machines/libsvm-3.17/matlab/);
+    \item Run {\tt make} in the MATLAB Command Window. If there are no errors, you have just successfully compiled libsvm to be used with MATLAB.
+\end{itemize}
+
+Remember, if you want to use the version that you have just compiled, you have to add the libsvm folder to your path in MATLAB. If you have more than one libsvm folder inside the `machines' folder, please remove one of them from the MATLAB path. You should only have one libsvm folder in your path.
+
+
+
 %==========================
 \section{Main contributors}
 %==========================
