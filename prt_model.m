@@ -260,8 +260,8 @@ switch in.cv.type
         end
         % Compute CV matrix
         if k>1 %k-fold CV
-            nsf=floor(length(ID(:,2))/k);
-            mns=mod(length(ID(:,2)),k);
+            nsf=floor(gc/k);
+            mns=mod(gc,k);
             dk=nsf*ones(1,k);
             dk(end)=dk(end)+mns;
             inds=1;
@@ -273,7 +273,10 @@ switch in.cv.type
         else %Leave-One-Subject-Out
             sk=1:gc;
         end
-        snums = histc(ID(:,2),unique(ID(:,2)));
+        snums=[];
+        for g = 1:length(gids)
+            snums = [snums;histc(ID(d2(g):d1(g),2),unique(ID(d2(g):d1(g),2)))];
+        end
         if length(snums) == 1
             error('prt_model:losoSelectedWithOneSubject',...
             'LOSO CV selected but only one subject is included');
@@ -293,8 +296,8 @@ switch in.cv.type
         for ig= 1:length(gids)
             ns(ig)=length(unique(ID(d2(ig):d1(ig),2)));
         end
-        sids = unique(ID(:,2));
-        if length(sids) == 1
+        sids=sum(ns);
+        if sids == 1
             error('prt_model:losgoSelectedWithOneSubject',...
             'LOSGO CV selected but only one subject is included');
         end
@@ -309,7 +312,7 @@ switch in.cv.type
         end
         [nsf,im]=min(floor(ns/k));
         if k==1
-            CV = zeros(size(ID,1),length(sids));
+            CV = zeros(size(ID,1),sids);
         else
             CV = zeros(size(ID,1),ceil(max(ns)/nsf));
         end
@@ -317,11 +320,12 @@ switch in.cv.type
             disp(['Number of subjects in group ',num2str(im),' smaller than k'])
             disp('Performing Leave-One Subject per Group-Out')
         end
+        snums=[];
         for g=1:length(ns)
             is=ID(:,1)==g;
             if k>1 && nsf>1 %k-fold CV
                 mns=mod(ns(g),nsf);
-                dk=nsf*ones(1,floor(length(ID(is,2))/nsf));
+                dk=nsf*ones(1,floor(length(unique(ID(is,2)))/nsf));
                 if mns>0
                     dk=[dk, mns];
                 end
@@ -352,8 +356,8 @@ switch in.cv.type
         % moment
         % blocks already have a unique ID
         if k>1 %k-fold CV
-            nsf=floor(length(ID(:,5))/k);
-            mns=mod(length(ID(:,5)),k);
+            nsf=floor(length(unique(ID(:,5)))/k);
+            mns=mod(length(unique(ID(:,5))),k);
             dk=nsf*ones(1,k);
             dk(end)=dk(end)+mns;
             inds=1;

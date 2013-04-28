@@ -425,7 +425,7 @@ if val==0
 end
 if val==1 %Classification
     handles.type='classification';
-    nk=get(handles.use_kernel,'Value');
+    nk=get(handles.kernel_methods,'Value');
     if nk==1
         %set the list of machines
         set(handles.pop_machine,'String',{'Binary support vector machine',...
@@ -477,6 +477,11 @@ function butt_defclass_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if strcmpi(handles.type,'classification')
     speccl=prt_ui_select_class('UserData',{handles.dat,handles.fs(1).indfs});
+    if isempty(speccl)
+        beep
+        disp('No class specified')
+        return
+    end
     handles.class=speccl.class;
     ns=zeros(length(speccl.class),1);
     ng1=1;
@@ -521,6 +526,11 @@ if strcmpi(handles.type,'classification')
     end
 else
     sel=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
+    if isempty(sel)
+        beep
+        disp('No subject selected for regression')
+        return
+    end
     handles.group=sel;
     n=0;
     for i=1:length(sel)
