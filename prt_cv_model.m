@@ -81,12 +81,14 @@ for f = 1:n_folds
     % compute the model for this CV fold
     [model, targets] = prt_cv_fold(PRT,fdata);
     
-    %check that for each fold, the test targets have been trained
-    if ~all(ismember(unique(targets.test),unique(targets.train)))
-        beep
-        disp('At least one class is in the test set but not in the training set')
-        disp('Abandoning modelling, please correct class selection/cross-validation')
-        return
+    %for classification check that for each fold, the test targets have been trained
+    if strcmpi(PRT.model(mid).input.type,'classification')
+        if ~all(ismember(unique(targets.test),unique(targets.train)))
+            beep
+            disp('At least one class is in the test set but not in the training set')
+            disp('Abandoning modelling, please correct class selection/cross-validation')
+            return
+        end
     end
     
     % compute stats
