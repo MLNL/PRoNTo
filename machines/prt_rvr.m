@@ -55,7 +55,8 @@ function [varargout] = prt_rvr(varargin)
 % Sparse Bayesian Learning and the Relevance Vector Machine
 % Journal of Machine Learning Research 1 (2001) 211-244
 %________________________________________________________________________
-% Copyright (C) 2011 Wellcome Department of Imaging Neuroscience & Machine Learning & Neuroimaging Laboratory
+% Copyright (C) 2011 Wellcome Department of Imaging Neuroscience & 
+% Machine Learning & Neuroimaging Laboratory
 
 % Written by John Ashburner
 % $Id$
