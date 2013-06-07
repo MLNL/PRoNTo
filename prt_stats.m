@@ -22,7 +22,8 @@ function stats = prt_stats(model, tte, ttr)
 %
 % Regression:
 % stats.mse:     Mean square error between test and prediction
-% stats.corr:     Correlation between test and prediction
+% stats.corr:    Correlation between test and prediction
+% stats.r2:      Squared correlation
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -91,12 +92,15 @@ end
 function stats = compute_stats_regression(model, tte)
 
 if numel(tte)<3
-    stats.corr=NaN;
+    stats.corr = NaN;
+    stats.r2 = NaN;
 else
-    coef=corrcoef(model.predictions,tte);
-    stats.corr=coef(1,2);
+    coef = corrcoef(model.predictions,tte);
+    stats.corr = coef(1,2);
+    stats.r2 = coef(1,2).^2;
 end
-stats.mse=mean((model.predictions-tte).^2);
+stats.mse  = mean((model.predictions-tte).^2);
+stats.nmse = mean((model.predictions-tte).^2)/(max(tte)-min(tte));
 end
 
 function [lb,ub] = computeWilsonBinomialCI(k,n)

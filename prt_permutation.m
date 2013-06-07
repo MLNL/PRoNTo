@@ -22,8 +22,10 @@ function [] = prt_permutation(PRT, n_perm, modelid, path, flag)
 % for regression
 % permutation.corr: Permuted correlation
 % permutation.mse:  Permuted mean square error
-% permutation.corr: p-value for corr
-% permutation.mse:  p-value for mse
+% permutation.pval_corr: p-value for corr
+% permutation.pval_r2: p-value for r2;
+% permutation.pval_mse:  p-value for mse
+% permutation.pval_nmse:  p-value for nmse
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -140,6 +142,8 @@ else
         case 'regression'
             total_greater_corr = 0;
             total_greater_mse = 0;
+            total_greater_nmse = 0;
+            total_greater_r2 = 0;
     end
     
     % Run model with permuted labels
@@ -192,25 +196,33 @@ else
                 permutation.b_acc(p)=perm_stats.b_acc;
                 n_class = length(PRT.model(modelid).output.fold(1).stats.c_acc);
                 
-                if (perm_stats.b_acc > PRT.model(modelid).output.stats.b_acc)
+                if (perm_stats.b_acc >= PRT.model(modelid).output.stats.b_acc)
                     total_greater_b_acc=total_greater_b_acc+1;
                 end
                 
                 for c=1:n_class
                     permutation.c_acc(c,p)=perm_stats.c_acc(c);
-                    if (perm_stats.c_acc(c) > PRT.model(modelid).output.stats.c_acc(c))
+                    if (perm_stats.c_acc(c) >= PRT.model(modelid).output.stats.c_acc(c))
                         total_greater_c_acc(c)=total_greater_c_acc(c)+1;
                     end
                 end
                 
             case 'regression'
                 permutation.corr(p)=perm_stats.corr;
-                if (perm_stats.corr > PRT.model(modelid).output.stats.corr)
+                if (perm_stats.corr >= PRT.model(modelid).output.stats.corr)
                     total_greater_corr=total_greater_corr+1;
                 end
                 permutation.mse(p)=perm_stats.mse;
-                if (perm_stats.mse < PRT.model(modelid).output.stats.mse)
+                if (perm_stats.mse <= PRT.model(modelid).output.stats.mse)
                     total_greater_mse=total_greater_mse+1;
+                end
+                permutation.nmse(p)=perm_stats.nmse;
+                if (perm_stats.nmse >= PRT.model(modelid).output.stats.nmse)
+                    total_greater_nmse=total_greater_nmse+1;
+                end
+                permutation.r2(p)=perm_stats.r2;
+                if (perm_stats.r2 >= PRT.model(modelid).output.stats.r2)
+                    total_greater_r2=total_greater_r2+1;
                 end
                 
                 
@@ -248,8 +260,20 @@ else
                 pval_mse = 1./n_perm;
             end
             
+            pval_nmse = total_greater_nmse / n_perm;
+            if pval_nmse == 0
+                pval_nmse = 1./n_perm;
+            end
+            
+            pval_r2 = total_greater_r2 / n_perm;
+            if pval_r2 == 0
+                pval_r2 = 1./n_perm;
+            end
+            
             permutation.pval_corr = pval_corr;
             permutation.pval_mse = pval_mse;
+            permutation.pval_nmse = pval_nmse;
+            permutation.pval_r2 = pval_r2;
     end
     
     

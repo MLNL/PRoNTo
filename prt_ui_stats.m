@@ -116,7 +116,7 @@ else
                             set(cc(k),'FontUnits','pixel')
                             xf=get(cc(k),'FontSize');
                             set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
-                                'Units','normalized')
+                                'FontUnits','normalized','Units','normalized')
                         end
                     elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
                             ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
@@ -129,7 +129,7 @@ else
                     set(bb(j),'FontUnits','pixel')
                     xf=get(bb(j),'FontSize');
                     set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
-                        'Units','normalized')
+                        'FontUnits','normalized','Units','normalized')
                 end
             end
         elseif strcmpi(get(aa(i),'type'),'uicontrol')
@@ -153,95 +153,119 @@ if ~isempty(varargin)
     
     stats = varargin{1};
     
-        switch stats.type
-            
-            
-            case 'class'
-                
-                set(handles.corrtext,'Visible','off');
-                set(handles.corrvaltext,'Visible','off');
-                
-                set(handles.msetext,'Visible','off');
-                set(handles.msevaltext,'Visible','off');
-                
-                set(handles.pcorr,'Visible','off');
-                set(handles.pmse,'Visible','off');
-                
-                set(handles.accuracytext,'String','Accuracy (acc):','Visible','on');
-                set(handles.baccuracytext,'String','Balanced acc:','Visible','on');
-                set(handles.classaccuracytext,'String','Class acc (%):','Visible','on');
-                set(handles.ppvtext,'String','Class pv (%): ','Visible','on');
-                set(handles.cpvval,'String',sprintf(' %3.1f ',...
-                    stats.mcpv*100),'Visible','on');
-                set(handles.npvtext,'String','NPV: not yet available','Visible','off');
-                
-                set(handles.acctext,'String',sprintf('%3.1f %%',stats.macc*100),'Visible','on');
-                set(handles.bacctext,'String',sprintf('%3.1f %%',stats.mbacc*100),'Visible','on');
-                
-                set(handles.cacctext,'String',sprintf(' %3.1f',stats.mcacc*100),'Visible','on');
-                
-                set(handles.pcorr, 'Visible','off');
-                set(handles.pmse,'Visible','off');
-                set(handles.pbacc,'Visible','off');
-                set(handles.pcacc,'Visible','off');
-                
-                
-                if isfield(stats,'show_perm')
-                    
-                    if stats.show_perm
-                        
-                        beep;
-                        disp('...')
-                        disp('Permutations results:')
-                        disp(sprintf('Balanced accuracy p-value: %3.4f',stats.perm.pvalue_b_acc));
-                        disp(sprintf('Class accuracy p-value:'));
-                        disp(sprintf(' %3.4f',stats.perm.pvalue_c_acc));
-                        
-                    end
-                    
-                end
-                
-            case 'reg'
-                
-                set(handles.accuracytext,'String','Accuracy (acc):','Visible','off');
-                set(handles.baccuracytext,'String','Balanced acc:','Visible','off');
-                set(handles.classaccuracytext,'String','Class acc:','Visible','off');
-                set(handles.pbacc, 'Visible','off');
-                set(handles.pcacc,'Visible','off');
-                
-                set(handles.acctext,'Visible','off');
-                set(handles.bacctext,'Visible','off');
-                set(handles.cacctext,'Visible','off');
-                
-                set(handles.ppvtext,'Visible','off');
-                set(handles.npvtext,'Visible','off');
-                
-                set(handles.corrtext,'String','Correlation:','Visible','on');
-                set(handles.corrvaltext,'String',sprintf('%3.2f',stats.corr),'Visible','on');
-                
-                set(handles.msetext,'String','MSE:','Visible','on');
-                set(handles.msevaltext,'String',sprintf('%3.2f',stats.mse),'Visible','on');
-                
-                set(handles.pbacc, 'Visible','off');
-                set(handles.pcacc,'Visible','off');
-                set(handles.pcorr,'Visible','off');
-                set(handles.pmse,'Visible','off');
-                
-                if isfield(stats,'show_perm')
-                    
-                    if stats.show_perm
-                       
-                        beep;
-                        disp('...')
-                        disp('Permutations results:')
-                        disp(sprintf('Correlation p-value: %3.4f',stats.perm.pval_corr));
-                        disp(sprintf('Mean squared-error p-value: %3.4f',stats.perm.pval_mse));
-
-                    end
-                end
-        end
-        handles.prtdir=varargin{2};
+    switch stats.type
         
+        
+        case 'class'
+            
+            set(handles.corrtext,'Visible','off');
+            set(handles.corrvaltext,'Visible','off');
+            
+            set(handles.r2text,'Visible','off');
+            set(handles.r2valtext,'Visible','off');
+            
+            set(handles.msetext,'Visible','off');
+            set(handles.msevaltext,'Visible','off');
+            
+            set(handles.nmsetext,'Visible','off');
+            set(handles.nmsevaltext,'Visible','off');
+            
+            set(handles.pcorr,'Visible','off');
+            set(handles.pr2,'Visible','off');
+            set(handles.pmse,'Visible','off');
+            set(handles.pnmse,'Visible','off');
+            
+            set(handles.accuracytext,'String','Accuracy (acc):','Visible','on');
+            set(handles.baccuracytext,'String','Balanced acc:','Visible','on');
+            set(handles.classaccuracytext,'String','Class acc (%):','Visible','on');
+            set(handles.ppvtext,'String','Class pv (%): ','Visible','on');
+            set(handles.cpvval,'String',sprintf(' %3.1f ',...
+                stats.mcpv*100),'Visible','on');
+            set(handles.npvtext,'String','NPV: not yet available','Visible','off');
+            
+            set(handles.acctext,'String',sprintf('%3.1f %%',stats.macc*100),'Visible','on');
+            set(handles.bacctext,'String',sprintf('%3.1f %%',stats.mbacc*100),'Visible','on');
+            
+            set(handles.cacctext,'String',sprintf(' %3.1f',stats.mcacc*100),'Visible','on');
+            
+            set(handles.pcorr, 'Visible','off');
+            set(handles.pr2, 'Visible','off');
+            set(handles.pmse,'Visible','off');
+            set(handles.pnmse,'Visible','off');
+            set(handles.pbacc,'Visible','off');
+            set(handles.pcacc,'Visible','off');
+            
+            
+            if isfield(stats,'show_perm')
+                
+                if stats.show_perm
+                    
+                    beep;
+                    disp('...')
+                    disp('Permutations results:')
+                    disp(sprintf('Balanced accuracy p-value: %3.4f',stats.perm.pvalue_b_acc));
+                    disp(sprintf('Class accuracy p-value:'));
+                    disp(sprintf(' %3.4f',stats.perm.pvalue_c_acc));
+                    
+                end
+                
+            end
+            
+        case 'reg'
+            
+            set(handles.accuracytext,'String','Accuracy (acc):','Visible','off');
+            set(handles.baccuracytext,'String','Balanced acc:','Visible','off');
+            set(handles.classaccuracytext,'String','Class acc:','Visible','off');
+            set(handles.pbacc, 'Visible','off');
+            set(handles.pcacc,'Visible','off');
+            
+            set(handles.acctext,'Visible','off');
+            set(handles.bacctext,'Visible','off');
+            set(handles.cacctext,'Visible','off');
+            
+            set(handles.ppvtext,'Visible','off');
+            set(handles.npvtext,'Visible','off');
+            
+            set(handles.corrtext,'String','Correlation:','Visible','on');
+            set(handles.corrvaltext,'String',sprintf('%3.2f',stats.corr),'Visible','on');
+            
+            if isfield(stats,'r2')
+                set(handles.r2text,'String','Coefficient of determination:','Visible','on');
+                set(handles.r2valtext,'String',sprintf('%3.2f',stats.r2),'Visible','on');
+            end
+            
+            set(handles.msetext,'String','MSE:','Visible','on');
+            set(handles.msevaltext,'String',sprintf('%3.2f',stats.mse),'Visible','on');
+            
+            if isfield(stats,'nmse')
+                set(handles.nmsetext,'String','Normalised MSE:','Visible','on');
+                set(handles.nmsevaltext,'String',sprintf('%3.2f',stats.nmse),'Visible','on');
+            end
+            
+            set(handles.pbacc, 'Visible','off');
+            set(handles.pcacc,'Visible','off');
+            set(handles.pcorr,'Visible','off');
+            set(handles.pr2,'Visible','off');
+            set(handles.pmse,'Visible','off');
+            set(handles.pnmse,'Visible','off');
+            
+            if isfield(stats,'show_perm')
+                
+                if stats.show_perm
+                    
+                    beep;
+                    disp('...')
+                    disp('Permutations results:')
+                    disp(sprintf('Correlation p-value: %3.4f',stats.perm.pval_corr));
+                    if isfield(stats.perm,'pval_r2'), disp(sprintf('Coefficient of determination p-value: %3.4f',stats.perm.pval_r2)); end
+                    disp(sprintf('Mean squared-error p-value: %3.4f',stats.perm.pval_mse));
+                    if isfield(stats.perm,'pval_nmse'), disp(sprintf('Normalised mean squared-error p-value: %3.4f',stats.perm.pval_nmse)); end
+                    
+                end
+            end
+    end
+    handles.prtdir=varargin{2};
+    
 end
 
 rotate3d off
@@ -256,7 +280,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = prt_ui_stats_OutputFcn(hObject, eventdata, handles) 
+function varargout = prt_ui_stats_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -277,13 +301,13 @@ function savemenu_Callback(hObject, eventdata, handles)
 wd=cd;
 cd(handles.prtdir)
 [filename, pathname] = uiputfile( ...
-{'*.png','Portable Network Graphics (*.png)';...
- '*.jpeg','JPEG figure (*.jpeg)';...
- '*.tiff','Compressed TIFF figure (*.tiff)';... 
- '*.fig','Matlab figure (*.fig)';...
- '*.pdf','Color PDF file (*.pdf)';...
- '*.epsc',  'Encapsulated PostScript (*.eps)'},...
- 'Save figure as','Stats_table.png');
+    {'*.png','Portable Network Graphics (*.png)';...
+    '*.jpeg','JPEG figure (*.jpeg)';...
+    '*.tiff','Compressed TIFF figure (*.tiff)';...
+    '*.fig','Matlab figure (*.fig)';...
+    '*.pdf','Color PDF file (*.pdf)';...
+    '*.epsc',  'Encapsulated PostScript (*.eps)'},...
+    'Save figure as','Stats_table.png');
 [a,b,c]=fileparts(filename);
 ext=['-d',c(2:end)];
 

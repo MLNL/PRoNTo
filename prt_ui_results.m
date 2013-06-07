@@ -1,17 +1,17 @@
 function varargout = prt_ui_results(varargin)
 % PRT_UI_RESULTS MATLAB code for prt_ui_results.fig
-% 
-% PRT_UI_RESULTS, by itself, creates a new PRT_UI_RESULTS or raises the 
+%
+% PRT_UI_RESULTS, by itself, creates a new PRT_UI_RESULTS or raises the
 % existing singleton*.
 %
-% H = PRT_UI_RESULTS returns the handle to a new PRT_UI_RESULTS or the 
+% H = PRT_UI_RESULTS returns the handle to a new PRT_UI_RESULTS or the
 % handle to the existing singleton*.
 %
 % PRT_UI_RESULTS('CALLBACK',hObject,eventData,handles,...) calls the local
 % function named CALLBACK in PRT_UI_RESULTS.M with the given input arguments.
 %
-% PRT_UI_RESULTS('Property','Value',...) creates a new PRT_UI_RESULTS or 
-% raises the existing singleton*.  Starting from the left, property value 
+% PRT_UI_RESULTS('Property','Value',...) creates a new PRT_UI_RESULTS or
+% raises the existing singleton*.  Starting from the left, property value
 % pairs are applied to the GUI before prt_ui_results_OpeningFcn gets called.
 % An unrecognized property name or invalid value makes property application
 % stop.  All inputs are passed to prt_ui_results_OpeningFcn via varargin.
@@ -167,92 +167,92 @@ else
                 'Units','normalized')
         end
     end
-
-
-% Initialize window
-% -------------------------------------------------------------------------
-
-if ~isfield(handles,'notinit')
     
-    % Load PRT.mat
-    PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
-    pathdir = regexprep(PRT,'PRT.mat', '');
-    handles.pathdir = pathdir;
-    handles.prtdir=fileparts(PRT);
-    load(PRT);
     
-    % Save PRT
-    handles.PRT = PRT;
+    % Initialize window
+    % -------------------------------------------------------------------------
     
-    % Flag to load new weights
-    handles.noloadw = 0;
-    
-    % Load model names
-    if ~isfield(PRT,'model')
-        beep
-        disp('No models found in PRT.mat!')
-        delete(handles.figure1)
-        return
-    end
-    nmodels = length(PRT.model);
-    mi  = [];
-    nmi = 0;
-    for m = 1:nmodels
-        if isfield(PRT.model(m),'input') && ~isempty(PRT.model(m).input)
-            if isfield(PRT.model(m),'output') && ~isempty(PRT.model(m).output)
-                nmi = nmi +1;
-                model_name{nmi} = PRT.model(m).model_name;
-                mi = [mi, m];
+    if ~isfield(handles,'notinit')
+        
+        % Load PRT.mat
+        PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
+        pathdir = regexprep(PRT,'PRT.mat', '');
+        handles.pathdir = pathdir;
+        handles.prtdir=fileparts(PRT);
+        load(PRT);
+        
+        % Save PRT
+        handles.PRT = PRT;
+        
+        % Flag to load new weights
+        handles.noloadw = 0;
+        
+        % Load model names
+        if ~isfield(PRT,'model')
+            beep
+            disp('No models found in PRT.mat!')
+            delete(handles.figure1)
+            return
+        end
+        nmodels = length(PRT.model);
+        mi  = [];
+        nmi = 0;
+        for m = 1:nmodels
+            if isfield(PRT.model(m),'input') && ~isempty(PRT.model(m).input)
+                if isfield(PRT.model(m),'output') && ~isempty(PRT.model(m).output)
+                    nmi = nmi +1;
+                    model_name{nmi} = PRT.model(m).model_name;
+                    mi = [mi, m];
+                else
+                    beep;
+                    disp(sprintf('Model %s not estimated! It will not be displayed',PRT.model(m).model_name));
+                end
             else
                 beep;
-                disp(sprintf('Model %s not estimated! It will not be displayed',PRT.model(m).model_name));
+                disp(sprintf('Model %s not properly specified! It will not be displayed',PRT.model(m).model_name));
+            end
+            
+        end
+        if ~nmi, error('There are no estimated/good models in this PRT!'); end
+        
+        handles.mi = mi;
+        
+        % Set model pulldown menu
+        handles.mnames = model_name;
+        set(handles.classmenu,'String',handles.mnames);
+        
+        % Get folds pulldown menu
+        m             = get(handles.classmenu,'Value');
+        handles.nfold = length(PRT.model(mi(m)).output.fold);
+        folds{1}      = 'All folds / Average';
+        for f = 1:handles.nfold
+            folds{f+1} = num2str(f);
+        end
+        handles.folds = folds;
+        set(handles.foldmenu,'String',handles.folds);
+        
+        % Set plots menu for first model
+        if strcmp(PRT.model(mi(m)).input.type,'classification');
+            if length(PRT.model(mi(m)).output.stats.c_acc) <= 2 ;
+                plots = {'Histogram','Confusion Matrix','Predictions','ROC'};
+            else
+                plots = {'Histogram','Confusion Matrix','Predictions'};
             end
         else
-            beep;
-            disp(sprintf('Model %s not properly specified! It will not be displayed',PRT.model(m).model_name));
+            plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
         end
+        set(handles.plotmenu,'String',plots);
         
+        % Initialize model button
+        handles.model_button = 0;
+        
+        % Set the 'save permutations' weights' chackbox to 0
+        handles.save_weights = 0;
+        set(handles.save_perm_weights,'Value',0);
+        
+        % Clear axes
+        cla(handles.axes5);
     end
-    if ~nmi, error('There are no estimated/good models in this PRT!'); end
-    
-    handles.mi = mi;
-    
-    % Set model pulldown menu
-    handles.mnames = model_name;
-    set(handles.classmenu,'String',handles.mnames);
-    
-    % Get folds pulldown menu
-    m             = get(handles.classmenu,'Value');
-    handles.nfold = length(PRT.model(mi(m)).output.fold);
-    folds{1}      = 'All folds / Average';
-    for f = 1:handles.nfold
-        folds{f+1} = num2str(f);
-    end
-    handles.folds = folds;
-    set(handles.foldmenu,'String',handles.folds);
-    
-    % Set plots menu for first model
-    if strcmp(PRT.model(mi(m)).input.type,'classification');
-        if length(PRT.model(mi(m)).output.stats.c_acc) <= 2 ;
-            plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
-        else
-            plots = {'Confusion Matrix'};
-        end
-    else
-        plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
-    end
-    set(handles.plotmenu,'String',plots); 
-    
-    % Initialize model button
-    handles.model_button = 0;
-    
-    % Set the 'save permutations' weights' chackbox to 0
-    handles.save_weights = 0;
-    set(handles.save_perm_weights,'Value',0);
-    
-    % Clear axes
-    cla(handles.axes5);     
-end
 end
 
 % Choose default command line output for prt_ui_results
@@ -266,7 +266,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = prt_ui_results_OutputFcn(hObject, eventdata, handles) 
+function varargout = prt_ui_results_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -418,7 +418,7 @@ if ~isfield(handles,'wmap') || ~handles.noloadw
     V               = spm_vol(wmap);
     handles.vols{1} = V;
     handles.wmap    = wmap;
-   
+    
 end
 
 spm_orthviews('Reset');
@@ -459,7 +459,7 @@ end
 for z = 1:zdim,
     zords = z*zords_init;
     xyz   = [xords(I); yords(I); zords(I); fold_coord];
-    zvals = spm_get_data(V,xyz);     
+    zvals = spm_get_data(V,xyz);
     above = find(~isnan(zvals));
     if length(above)==length(zvals) %old version of weight computation
         above = find(zvals~=0);
@@ -560,7 +560,7 @@ st.fig = handles.figure1;
 handle = spm_orthviews('Image', img, [0.5295 0.0859 0.4196 0.4196]);
 cmap   = get(gcf,'Colormap');
 if size(cmap,1)~=128
-      spm_figure('Colormap','gray')
+    spm_figure('Colormap','gray')
 end
 
 handles.aimgh   = handle;
@@ -596,7 +596,7 @@ end
 % Change plot
 % -------------------------------------------------------------------------
 if isfield(handles,'plot')
-   plotmenu_Callback(hObject, eventdata, handles); 
+    plotmenu_Callback(hObject, eventdata, handles);
 end
 
 % Change stats
@@ -643,292 +643,53 @@ c2            = 0;
 rotate3d off
 
 if strcmp(PRT.model(model).input.type,'classification')
-    mclass        = length(handles.PRT.model(model).output.stats.c_acc);
-    if mclass == 2
-        
-        % All folds
-        % -----------------------------------------------------------------
-        classNames{1} = handles.PRT.model(model).input.class(1).class_name;
-        classNames{2} = handles.PRT.model(model).input.class(2).class_name;
-        myColours     = {'k','r'};
-        
-    else
-     
-        multiplot  = 4;
-        plotchosen = num2str(multiplot(plotm));
-        
-    end
-    
-    if fold == 1
-        fVals   = [];
-        targets = [];
-        
-        for f = 1:handles.nfold,
-            targets = [targets;handles.PRT.model(model).output.fold(f).targets];
-            if isfield(handles.PRT.model(model).output.fold(f),'func_val')
-                fVvals_exist = 1;
-                fVals  = [fVals;handles.PRT.model(model).output.fold(f).func_val];
-            else
-                fVvals_exist = 0;
-                fVals  = [fVals;...
-                    handles.PRT.model(model).output.fold(f).predictions];
-            end
-        end
-        targpos = targets == 1;
-        
-    else
-        % if folds wise
-        targets = handles.PRT.model(model).output.fold(fold-1).targets;
-        targpos = targets == 1;
-        if isfield(handles.PRT.model(model).output.fold(fold-1),'func_val')
-            fVals  = handles.PRT.model(model).output.fold(fold-1).func_val;
-            fVvals_exist = 1;
-        else
-            fVvals_exist = 0;
-            fVals  = handles.PRT.model(model).output.fold(fold-1).predictions;
-        end
-    end
+    %     mclass        = length(handles.PRT.model(model).output.stats.c_acc);
+    %     if mclass ~= 2
+    %         multiplot  = 4;
+    %         plotchosen = num2str(multiplot(plotm));
+    %     end
     
     % Plot
     % ---------------------------------------------------------------------
     switch plotchosen
         
-        % Predictions
+        
+        % Histograms
         % -----------------------------------------------------------------
         case '1'
-            cla(handles.axes5);
-            rotate3d off
-            colorbar('peer',handles.axes5,'off')
-            set(handles.axes5,'Color',[1,1,1])
-            % predictions
-            if fVvals_exist
-                if fold == 1
-                    foldlabels = 1:handles.nfold;
-                    for f = 2:handles.nfold+1
-                        targets = handles.PRT.model(model).output.fold(f-1).targets;
-                        targpos = targets == 1;
-                        fVals   = handles.PRT.model(model).output.fold(f-1).func_val;
-                        func_valsc1 = fVals(targpos);
-                        func_valsc2 = fVals(~targpos);
-                        yc1 = (f-1)*ones(length(func_valsc1),1);
-                        yc2 = (f-1)*ones(length(func_valsc2),1);
-                        if f==2
-                            maxfv = max(abs([func_valsc1;func_valsc2]));
-                        else
-                            maxtmp = max(abs([func_valsc1;func_valsc2]));
-                            if maxfv < maxtmp, maxfv = maxtmp; end
-                        end
-                        pl1 = plot(handles.axes5,func_valsc1,yc1,'kx','MarkerSize',nms);
-                        hold(handles.axes5,'on');
-                        if ~isempty(yc1), isyc1 = 1; plot1 = pl1; end
-                        pl2 = plot(handles.axes5,func_valsc2,yc2,'ro','MarkerSize',nms);
-                        hold(handles.axes5,'on');
-                        if ~isempty(yc2), isyc2 = 1; plot2 = pl2; end
-                    end
-                else
-                    foldlabels  = fold-1;
-                    func_valsc1 = fVals(targpos);
-                    func_valsc2 = fVals(~targpos);
-                    yc1 = (fold-1)*ones(length(func_valsc1),1);
-                    yc2 = (fold-1)*ones(length(func_valsc2),1);
-                    maxfv = max(abs([func_valsc1;func_valsc2]));
-                    pl1 = plot(handles.axes5,func_valsc1,yc1,'kx','MarkerSize',nms);
-                    hold(handles.axes5,'on');
-                    if ~isempty(yc1), isyc1 = 1; plot1 = pl1; end
-                    pl2 = plot(handles.axes5,func_valsc2,yc2,'ro','MarkerSize',nms);
-                    hold(handles.axes5,'on');
-                    if ~isempty(yc2), isyc2 = 1; plot2 = pl2; end
-                end
-                % Change the x axis for gaussian process - change in
-                % the future
-                y = [0:handles.nfold+1]';
-                if strcmp(PRT.model(model).input.machine.function,'prt_machine_gpml');
-                    x = 0.5*ones(handles.nfold+2,1);
-                    plot(handles.axes5,x,y,'--','Color',[1 1 1]*.6);
-                    xlim(handles.axes5,[0 1]);
-                else
-                    x = zeros(handles.nfold+2,1);
-                    plot(handles.axes5,x,y,'--','Color',[1 1 1]*.6);
-                    xlim(handles.axes5,[-maxfv-0.5 maxfv+0.5]);
-                end
-                ylim(handles.axes5,[0 handles.nfold+1.3]);
-                xlabel(handles.axes5,'function value','FontWeight','bold');
-                h=ylabel(handles.axes5,'fold','FontWeight','bold');
-                set(h,'Rotation',90)
-                if isyc1 && isyc2
-                    legend([plot1,plot2],classNames,'Color',[1,1,1]);
-                else
-                    if isyc1
-                        legend(plot1,classNames{1},'Color',[1,1,1]);
-                    else
-                        legend(plot2,classNames{2},'Color',[1,1,1]);
-                    end
-                end
-                set(handles.axes5,'YTick',foldlabels)
-                hold(handles.axes5,'off');
-                set(handles.axes5,'Color',[1,1,1],'Visible','on')
-%                 axis normal
-%                 axis xy
-                title(handles.axes5,'')
-            else
-                set(handles.axes5,'Color',[1,1,1])
-                beep
-                disp('No function values to display!')
-            end
-            
-            % ROC / AUC
-            % -------------------------------------------------------------
-        case '2'
-            % ROC curve
-                rotate3d off
-                cla(handles.axes5);
-                [y,idx] = sort(fVals);
-                targpos = targpos(idx);
-                
-                fp      = cumsum(single(targpos))/sum(single(targpos));
-                tp      = cumsum(single(~targpos))/sum(single(~targpos));
-                
-                tp      = [0 ; tp ; 1];
-                fp      = [0 ; fp ; 1];
-                
-                n       = size(tp, 1);
-                A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
-%                 
-%                 axis xy
-                plot(handles.axes5,fp,tp,'--ks','LineWidth',1, 'MarkerEdgeColor','k',...
-                    'MarkerFaceColor','k',...
-                    'MarkerSize',2);
-                title(handles.axes5,sprintf('Receiver Operator Curve / Area Under Curve = %3.2f',A));
-                xlabel(handles.axes5,'False positives','FontWeight','bold')
-                ylabel(handles.axes5,'True positives','FontWeight','bold')
-                set(handles.axes5,'Color',[1,1,1])
-                
-            
-            % Histograms
-            % -------------------------------------------------------------
-        case '3'
-                cla(handles.axes5);
-                rotate3d off
-%                 axis xy
-                set(handles.axes5,'Color',[1,1,1])
-                % func_val distributions
-                if fVvals_exist
-                    for cl=1:2
-                        func_vals = fVals(targpos);
-                        if cl == 2, func_vals=fVals(~targpos); end
-                        if ~isempty(func_vals)
-                            if cl==1, c1 = 1; else c2 = 1; end
-                            if exist('ksdensity','file')==2
-                                [f,x] = ksdensity(func_vals,'width',[]);
-                                plot(handles.axes5,x,f,myColours{cl},'LineWidth',2);
-                                hold(handles.axes5,'on')
-                            else
-                                % can't plot density, be happy with a histogram
-                                [myHist,myX]=hist(func_vals,100);
-                                bar(handles.axes5,myX,myHist,myColours{cl});
-                                hold(handles.axes5,'on')
-                            end
-                            if cl == 2, hold(handles.axes5,'off'); end
-                        end
-                    end
-                    if c1 && c2
-                    legend(handles.axes5,classNames{1},classNames{2});
-                    else 
-                        if c1
-                            legend(handles.axes5,classNames{1});
-                        else
-                            legend(handles.axes5,classNames{2});
-                        end
-                    end
-                      xlabel(handles.axes5,'function value','FontWeight','bold');      
-                else
-                    % do nothing, no func_val available
-                end
+            prt_plot_histograms(handles.PRT, model, fold, handles.axes5);
             
             % Confusion matrix
             % -------------------------------------------------------------
+        case '2'
+            prt_plot_confusion_matrix(handles.PRT, model, fold, handles.axes5);
+            
+            % Predictions
+            % -------------------------------------------------------------
+        case '3'
+            prt_plot_prediction(handles.PRT, model, fold, nms, handles.axes5);
+            
+            % ROC / AUC
+            % -------------------------------------------------------------
         case '4'
-            % confusion matrix
-                cla(handles.axes5);
-                if fold == 1
-                    mconmat(:,:) = PRT.model(model).output.stats.con_mat;
-                else
-                    mconmat(:,:) = PRT.model(model).output.fold(fold-1).stats.con_mat;
-                end
-                myH=bar3(handles.axes5,mconmat,'detached','w');
-                nclass = size(mconmat,1);
-                for j = 1:nclass,
-                    conLabels{j} = num2str(j);
-                end
-                rotate3d on
-                if fold == 1
-                    title(handles.axes5,sprintf('Confusion matrix: all folds'),'FontWeight','bold');
-                else
-                    title(handles.axes5,sprintf('Confusion matrix: fold %d',fold-1),'FontWeight','bold');
-                end
-                xlabel(handles.axes5,'True','FontWeight','bold');
-                ylabel(handles.axes5,'Predicted','FontWeight','bold');
-                set(handles.axes5,'XTick',1:nclass);
-                set(handles.axes5,'XTickLabel',conLabels);
-                set(handles.axes5,'YTick',1:nclass);
-                set(handles.axes5,'YTickLabel',conLabels);
-                grid(handles.axes5,'on');
-                set(handles.axes5,'Color',[0.8 0.8 0.8]);
-                axis square; axis vis3d; axis tight;
-                % add values
-                for foo_row=1:size(mconmat,1)
-                    for foo_col=1:size(mconmat,2)
-                        foo_zval=mconmat(foo_row,foo_col);
-                        if foo_row==foo_col, foo_color='g'; else foo_color='r';end
-                        text(foo_col,foo_row,foo_zval,num2str(foo_zval),...
-                            'Color',foo_color);
-                    end
-                end
+            prt_plot_ROC(handles.PRT, model, fold, handles.axes5);
+            
     end
     
 else
-    nfolds = length(PRT.model(model).output.fold);
-    ntargs = length(PRT.model(model).output.fold(1).targets);
+    
+    % Plot
+    % ---------------------------------------------------------------------
     switch plotchosen
         case '1'
-            cla(handles.axes5);
-            preds1 = [];
-            preds2 = [];
-            for f = 1:nfolds
-                preds1 = [preds1; PRT.model(model).output.fold(f).targets];
-                preds2 = [preds2; PRT.model(model).output.fold(f).predictions];               
-            end
-            scatter(handles.axes5,preds2,preds1,'filled');
-            xlabel(handles.axes5,'predictions','FontWeight','bold');
-            ylabel(handles.axes5,'targets','FontWeight','bold');
+            prt_plot_prediction_reg_scatter(handles.PRT, model, handles.axes5);
+            
         case '2'
-            cla(handles.axes5);
-            preds1 = [];
-            preds2 = [];
-            for f = 1:nfolds
-                preds1 = [preds1; PRT.model(model).output.fold(f).targets];
-                preds2 = [preds2; PRT.model(model).output.fold(f).predictions];
-            end
-                bar(handles.axes5,[preds1 preds2]);
-                xlabel(handles.axes5,'subjects','FontWeight','bold');
-                ylabel(handles.axes5,'targets and predictions','FontWeight','bold');
-            legend(handles.axes5,{'Target', 'Predicted'});
+            prt_plot_prediction_reg_bar(handles.PRT, model, handles.axes5);
+            
         case '3'
-            cla(handles.axes5);
-            preds1 = [];
-            preds2 = [];
-            for f = 1:nfolds
-                preds1 = [preds1; PRT.model(model).output.fold(f).targets];
-                preds2 = [preds2; PRT.model(model).output.fold(f).predictions];
-            end
-            plot(handles.axes5,preds1,'--ok');
-            hold on
-            plot(handles.axes5,preds2,'--or');
-            hold off
-            xlabel(handles.axes5,'folds','FontWeight','bold');
-            ylabel(handles.axes5,'predictions/targets','FontWeight','bold');
-            xlim(handles.axes5,[0 nfolds*ntargs+1]);
-            legend(handles.axes5,{'Target', 'Predicted'});
+            prt_plot_prediction_reg_line(handles.PRT, model, handles.axes5);
+            
     end
 end
 
@@ -973,9 +734,9 @@ end
 % Set plots menu for first model
 if strcmp(handles.PRT.model(mi(m)).input.type,'classification');
     if length(handles.PRT.model(mi(m)).output.stats.c_acc) <= 2 ;
-        plots = {'Predictions','ROC','Histogram','Confusion Matrix'};
+        plots = {'Histogram','Confusion Matrix','Predictions','ROC'};
     else
-        plots = {'Confusion Matrix'};
+        plots = {'Histogram', 'Confusion Matrix'};
     end
 else
     plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
@@ -991,7 +752,7 @@ foldmenu_Callback(hObject, eventdata, handles);
 
 % Update stats if they are being shown
 if isfield(handles, 'stats')
-   statsbutton_Callback(hObject, eventdata, handles);
+    statsbutton_Callback(hObject, eventdata, handles);
 end
 
 handles.model_button = 0;
@@ -1064,7 +825,7 @@ if  ~isempty(reps)
         
         % Update GUI
         guidata(hObject, handles);
-       
+        
         % Call stats button
         statsbutton_Callback(hObject, eventdata, handles);
     else
@@ -1132,46 +893,66 @@ if strcmp(PRT.model(mi(m)).input.type,'classification')
         mcacc = PRT.model(mi(m)).output.fold(fold-1).stats.c_acc;
         mcpv  = PRT.model(mi(m)).output.fold(fold-1).stats.c_pv;
     end
-
+    
     stats.macc  = macc;
     stats.mbacc = mbacc;
     stats.mcacc = mcacc;
     stats.mcpv  = mcpv;
     stats.type  = 'class';
-
+    
     prt_ui_stats(stats,handles.prtdir);
     
 else
     if fold == 1
         corr  = PRT.model(mi(m)).output.stats.corr;  % overall correlation
+        if isfield(PRT.model(mi(m)).output.stats,'r2')
+            r2  = PRT.model(mi(m)).output.stats.r2;  % squared correlation
+        end
         mse   = PRT.model(mi(m)).output.stats.mse;  % overall mse
+        if isfield(PRT.model(mi(m)).output.stats,'nmse')
+            nmse  = PRT.model(mi(m)).output.stats.nmse;  % normalised mse
+        end
         if isfield(PRT.model(mi(m)).output.stats,'permutation') && ...
                 ~isempty(PRT.model(mi(m)).output.stats.permutation)
             stats.show_perm=1;
-            stats.perm.pval_corr=PRT.model(mi(m)).output.stats.permutation.pval_corr;
-            stats.perm.pval_mse=PRT.model(mi(m)).output.stats.permutation.pval_mse;
+            stats.perm.pval_corr = PRT.model(mi(m)).output.stats.permutation.pval_corr;
+            stats.perm.pval_mse = PRT.model(mi(m)).output.stats.permutation.pval_mse;
+            
+          if isfield(PRT.model(mi(m)).output.stats.permutation, 'pval_r2'),...
+                  stats.perm.pval_r2 = PRT.model(mi(m)).output.stats.permutation.pval_r2; end
+          if isfield(PRT.model(mi(m)).output.stats.permutation, 'pval_nmse'),...
+            stats.perm.pval_nmse = PRT.model(mi(m)).output.stats.permutation.pval_nmse; end
+            
         end
     else
         corr  = PRT.model(mi(m)).output.fold(fold-1).stats.corr;  % overall correlation
+        if isfield(PRT.model(mi(m)).output.stats,'r2')
+            r2  = PRT.model(mi(m)).output.fold(fold-1).stats.r2;  % overall correlation
+        end
         mse   = PRT.model(mi(m)).output.fold(fold-1).stats.mse;  % overall mse
+        if isfield(PRT.model(mi(m)).output.stats,'nmse')
+            nmse  = PRT.model(mi(m)).output.fold(fold-1).stats.nmse;  % normalised mse
+        end
     end
-
-    stats.corr = corr;
-    stats.mse  = mse;
-    stats.type = 'reg';
     
+    stats.corr = corr;
+    if isfield(PRT.model(mi(m)).output.stats,'r2'), stats.r2 = r2; end
+    stats.mse  = mse;
+    if isfield(PRT.model(mi(m)).output.stats,'nmse'), stats.nmse = nmse; end
+    stats.type = 'reg';
+  
     prt_ui_stats(stats,handles.prtdir);
     
 end
-    
+
 stats.show_perm = 0;
 handles.stats = stats;
 guidata(hObject, handles);
 
-% Show crosshairs position 
+% Show crosshairs position
 % -------------------------------------------------------------------------
 function showpos()
- 
+
 global st
 
 mp13 = st.handles.mmedit;
@@ -1185,7 +966,7 @@ set(tx20,'String',sprintf('%g',spm_sample_vol(st.V,pos(1),pos(2),pos(3),st.hld))
 
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
-      spm_figure('Colormap','gray-jet');
+    spm_figure('Colormap','gray-jet');
 end
 
 
@@ -1209,13 +990,13 @@ function savemenu_Callback(hObject, eventdata, handles)
 wd=cd;
 cd(handles.prtdir)
 [filename, pathname] = uiputfile( ...
-{'*.png','Portable Network Graphics (*.png)';...
- '*.jpeg','JPEG figure (*.jpeg)';...
- '*.tiff','Compressed TIFF figure (*.tiff)';... 
- '*.fig','Matlab figure (*.fig)';...
- '*.pdf','Color PDF file (*.pdf)';...
- '*.epsc',  'Encapsulated PostScript (*.eps)'},...
- 'Save figure as','.png');
+    {'*.png','Portable Network Graphics (*.png)';...
+    '*.jpeg','JPEG figure (*.jpeg)';...
+    '*.tiff','Compressed TIFF figure (*.tiff)';...
+    '*.fig','Matlab figure (*.fig)';...
+    '*.pdf','Color PDF file (*.pdf)';...
+    '*.epsc',  'Encapsulated PostScript (*.eps)'},...
+    'Save figure as','.png');
 [a,b,c]=fileparts(filename);
 ext=['-d',c(2:end)];
 
