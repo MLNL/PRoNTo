@@ -102,13 +102,13 @@ fas_idx = find(fas);
 
 % Get the indexes of the voxels which are in the second level mask
 % -------------------------------------------------------------------------
-idfeat=PRT.fas(fas_idx(1)).idfeat_img;
+idfeat = PRT.fas(fas_idx(1)).idfeat_img;
 if ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas)
-    mask_train=idfeat(PRT.fs(fs_idx).modality(mm).idfeat_fas);
-    voxtr=find(ismember(idfeat,mask_train));
+    mask_train = idfeat(PRT.fs(fs_idx).modality(mm).idfeat_fas);
+    voxtr = find(ismember(idfeat,mask_train));
 else
-    mask_train=idfeat;
-    voxtr=1:length(idfeat);
+    mask_train = idfeat;
+    voxtr = 1:length(idfeat);
 end
 
 % Create image
@@ -117,37 +117,37 @@ end
 if flag
     %create images for each permutation
     if isfield(PRT.model(model_idx).output,'permutation')
-        maxp=length(PRT.model(model_idx).output.permutation);
+        maxp = length(PRT.model(model_idx).output.permutation);
     else
         disp('No parameters saved for the permutation, building weight image only')
     end
 else
     maxp=0;
 end
-pthperm=cell(nimage,1);
+pthperm = cell(nimage,1);
 for p=0:maxp
     if p>0
         for c = 1:nimage
             [pth,nam] = fileparts(img_name{c});            
             if p==1
-                pthperm{c}=[pth,filesep,['perm_',nam]];
+                pthperm{c} = fullfile(pth,['perm_',nam]);
                 if ~exist(pthperm{c},'dir')
                     mkdir(pth,['perm_',nam]);
                 end
             end            
-            img_nam{c}=[pthperm{c},filesep,nam,'_perm',num2str(p),'.img'];
+            img_nam{c} = fullfile(pthperm{c},[nam,'_perm',num2str(p),'.img']);
         end
         fprintf('Permutation: %d of %d \n',p, ...
             length(PRT.model(model_idx).output.permutation));
     else
-        img_nam=img_name;
+        img_nam = img_name;
     end
     
-    %check that image does not exist, otherwise, delete
+    % check that image does not exist, otherwise, delete
     if exist(img_nam{1},'file')
         for c = 1:nimage
             delete(img_nam{c});
-            %delete hdr:
+            % delete hdr:
             [pth,nam] = fileparts(img_nam{c});
             hdr_name  = [pth,filesep,nam,'.hdr'];
             delete(hdr_name)
@@ -175,7 +175,6 @@ for p=0:maxp
     % norm3d  = 0;
     
     disp('Computing weights.......>>')
-    
     
     for z = 1:zdim
         
