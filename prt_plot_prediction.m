@@ -87,10 +87,10 @@ if fVvals_exist
             end
             pl1 = plot(axes_handle,func_valsc1,yc1,'kx','MarkerSize',marker_size);
             hold(axes_handle,'on');
-            if ~isempty(yc1), isyc1 = 1; plot1 = pl1; end
+            if ~isempty(yc1), isyc1 = 1; plot1 = pl1; else isyc1 = 0; end
             pl2 = plot(axes_handle,func_valsc2,yc2,'ro','MarkerSize',marker_size);
             hold(axes_handle,'on');
-            if ~isempty(yc2), isyc2 = 1; plot2 = pl2; end
+            if ~isempty(yc2), isyc2 = 1; plot2 = pl2; else isyc2 = 0; end
         end
     else
         foldlabels  = fold-1;
@@ -101,10 +101,10 @@ if fVvals_exist
         maxfv = max(abs([func_valsc1;func_valsc2]));
         pl1 = plot(axes_handle,func_valsc1,yc1,'kx','MarkerSize',marker_size);
         hold(axes_handle,'on');
-        if ~isempty(yc1), isyc1 = 1; plot1 = pl1; end
+        if ~isempty(yc1), isyc1 = 1; plot1 = pl1; else isyc1 = 0; end
         pl2 = plot(axes_handle,func_valsc2,yc2,'ro','MarkerSize',marker_size);
         hold(axes_handle,'on');
-        if ~isempty(yc2), isyc2 = 1; plot2 = pl2; end
+        if ~isempty(yc2), isyc2 = 1; plot2 = pl2; else isyc2 = 0;  end
     end
     % Change the x axis for gaussian process or RT - change in
     % the future
@@ -127,17 +127,17 @@ if fVvals_exist
     
     %These 2 lines were added. See if it's better to give the class names
     %as input
-    classNames{1} = PRT.model(model).input.class(1).class_name;
-    classNames{2} = PRT.model(model).input.class(2).class_name;
+    classNames{1} = PRT.model(model).input.class(2).class_name;
+    classNames{2} = PRT.model(model).input.class(1).class_name;
     
     
     if isyc1 && isyc2
         legend([plot1,plot2],classNames,'Color',[1,1,1]);
     else
         if isyc1
-            legend(plot1,classNames{1},'Color',[1,1,1]);
+            legend(plot1,classNames{1});
         else
-            legend(plot2,classNames{2},'Color',[1,1,1]);
+            legend(plot2,classNames{2});
         end
     end
     set(axes_handle,'YTick',foldlabels)
