@@ -290,15 +290,36 @@ switch in.cv.type
         CV = blkdiag(G{:}) + 1;
         
     case 'losgo'
+        %modify the ID to take the structure of the classes into account
+        vcl=zeros(size(ID,1),2);
+        ngr={};
+        for ic=1:length(in.class)
+            nsg=1;
+            for ig=1:length(in.class(ic).group)
+                if ismember(in.class(ic).group(ig).gr_name,ngr)
+                    [d,ng] = ismember(in.class(ic).group(ig).gr_name,ngr);
+                else
+                    ngr=[ngr,{in.class(ic).group(ig).gr_name}];
+                    ng=length(ngr);
+                end
+                for is=1:length(in.class(ic).group(ig).subj)
+                    inds=find(ID(:,1)==ng);
+                    indss=find(ID(inds,2)==is);
+                    vcl(inds(indss),1)=ic;
+                    vcl(inds(indss),2)=nsg;
+                    nsg=nsg+1;
+                end
+            end
+        end
         % leave-one-subject-per-group-out
-        [gids,d1] = unique(ID(:,1));
-        [gids,d2] = unique(ID(:,1),'first');
-        %compute the number of subjects per group
+        [gids,d1] = unique(vcl(:,1));
+        [gids,d2] = unique(vcl(:,1),'first');
+        %compute the number of subjects per class
         ns=zeros(length(gids),1);
         for ig= 1:length(gids)
-            ns(ig)=length(unique(ID(d2(ig):d1(ig),2)));
+            ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
         end
-        sids=sum(ns);
+        sids=max(ns);
         if sids == 1
             error('prt_model:losgoSelectedWithOneSubject',...
             'LOSGO CV selected but only one subject is included');
@@ -324,10 +345,10 @@ switch in.cv.type
         end
         snums=[];
         for g=1:length(ns)
-            is=ID(:,1)==g;
+            is=vcl(:,1)==g;
             if k>1 && nsf>1 %k-fold CV
                 mns=mod(ns(g),nsf);
-                dk=nsf*ones(1,floor(length(unique(ID(is,2)))/nsf));
+                dk=nsf*ones(1,floor(length(unique(vcl(is,2)))/nsf));
                 if mns>0
                     dk=[dk, mns];
                 end
@@ -340,7 +361,7 @@ switch in.cv.type
             else %Leave-One-Subject per Group-Out
                 sk=1:ns(g);
             end
-            snums = histc(ID(is,2),unique(ID(is,2)));
+            snums = histc(vcl(is,2),unique(vcl(is,2)));
             G = cell(length(unique(sk)),1);
             for s = 1:length(unique(sk))
                 G{s} = ones(sum(snums(sk==s)),1);
