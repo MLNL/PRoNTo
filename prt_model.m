@@ -1,4 +1,4 @@
-function PRT = prt_model(PRT,in)
+function [PRT, CV, ID] = prt_model(PRT,in)
 % Function to configure and build the PRT.model data structure
 %
 % Input:
@@ -85,7 +85,9 @@ PRT.model(modelid).input.targ_allscans    = t_allscans;
 
 % compute cross-validation matrix and specify operations to apply
 % -------------------------------------------------------------------------
-PRT.model(modelid).input.cv_mat     = compute_cv_mat(PRT,in, modelid);
+    
+[CV,ID] = compute_cv_mat(PRT,in, modelid);
+PRT.model(modelid).input.cv_mat     = CV;
 PRT.model(modelid).input.operations = in.operations;
 
 % Added by Carlton
@@ -218,7 +220,7 @@ targets  = t_all(samp_idx);
 
 end
 
-function CV = compute_cv_mat(PRT, in, modelid)
+function [CV,ID] = compute_cv_mat(PRT, in, modelid)
 % Function to compute the cross-validation matrix. Also does error checking
 
 fid = prt_init_fs(PRT, in.fs(1));
@@ -400,7 +402,7 @@ switch in.cv.type
 
     case 'custom'
         %load matrix and check that each fold contains test and train data.
-        if isfield(in.cv,'mat_file')
+        if isfield(in.cv,'mat_file') && ~isempty(in.cv.mat_file)
             load(in.cv.mat_file)
             if ~exist('CV')
                 error('No CV variable found in the mat file provided')
@@ -426,6 +428,15 @@ switch in.cv.type
                     end
                 end
             end
+        elseif isfield(PRT.model(modelid).input,'cv_mat') && ...
+                ~isempty(PRT.model(modelid).input.cv_mat) %custom CV specified by GUI
+            CV=PRT.model(modelid).input.cv_mat;
+        else
+            %custom CV with only number of folds specified
+            if isfield(in.cv,'k')
+                CV = ones (size(ID,1),in.cv.k);
+            end
+                
         end
       
         

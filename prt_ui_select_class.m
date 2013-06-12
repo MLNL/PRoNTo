@@ -848,6 +848,8 @@ aa=struct();
 aa.class=handles.class;
 aa.design=handles.design;
 aa.loospg=handles.loospg;
+aa.condm=handles.condm; %outputs for the custom CV GUI
+aa.indclas=handles.clas;
 handles.output=aa;
 % Update handles structure
 guidata(hObject, handles);

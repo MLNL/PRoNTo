@@ -173,6 +173,7 @@ handles.operations = [];
 handles.namop=list;
 set(handles.uns_list,'Value',1)
 set(handles.sel_list,'Value',1)
+handles.flagguicv=0;
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -238,6 +239,7 @@ if length(handles.dat.fs(1).modality)>1
     set(handles.pop_cv,'String',list)
     set(handles.pop_cv,'Value',length(list))
     handles.cv.type = 'loro';
+    handles.multimod = 1;
 end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
@@ -290,6 +292,7 @@ if length(handles.dat.fs(1).modality)>1
     set(handles.pop_cv,'String',list)
     set(handles.pop_cv,'Value',length(list))
     handles.cv.type = 'loro';
+    handles.multimod = 1;
 end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
@@ -366,6 +369,7 @@ if length(handles.dat.fs(val).modality)>1
     set(handles.pop_cv,'String',list)
     set(handles.pop_cv,'Value',length(list))
     handles.cv.type = 'loro';
+    handles.multimod = 1;
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -477,6 +481,9 @@ function butt_defclass_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if strcmpi(handles.type,'classification')
     speccl=prt_ui_select_class('UserData',{handles.dat,handles.fs(1).indfs});
+    handles.design=speccl.design;
+    handles.listnames=speccl.condm;
+    handles.indclas=speccl.indclas;
     if isempty(speccl)
         beep
         disp('No class specified')
@@ -633,8 +640,58 @@ elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type = 'loro';
 else
     handles.cv.type     = 'custom';
-    cvmatf=spm_select(1,'mat','Select .mat file corresponding to the custom cross-validation');
-    handles.cv.mat_file = cvmatf;
+    %fill the input of the 'prt_model' button
+    in.fname=get(handles.edit_prt,'String');
+    if ~isfield(handles,'model_name')
+        beep
+        disp('Please enter a valid model name')
+    end
+    in.model_name=handles.model_name;
+    in.type=handles.type;
+    in.machine=handles.machine;
+    in.use_kernel=handles.use_kernel;
+    in.operations=handles.operations;
+    in.fs(1).fs_name=handles.fs(1).fs_name;
+    in.cv=handles.cv;
+    %check that classes/subjects/scans were defined
+    if strcmpi(in.type,'classification')
+        if ~isfield(handles,'class')
+            beep
+            disp('No class selected for classification')
+            disp('Please, define classes')
+            return
+        else
+            for i=1:length(handles.class)
+                ind=[];
+                for g=1:length(handles.class(i).group)
+                    if ~isempty(handles.class(i).group(g).gr_name)
+                        ind=[ind,g];
+                    end
+                end
+                handles.class(i).group=handles.class(i).group(ind);
+            end
+            in.class=handles.class;
+        end
+    else
+        if ~isfield(handles,'group')
+            beep
+            disp('No subjects/scans selected for classification')
+            disp('Please, select subjects/scans')
+            return
+        else
+            ind=[];
+            for g=1:length(handles.group)
+                if ~isempty(handles.group(g).gr_name)
+                    ind=[ind,g];
+                end
+            end
+            handles.group=handles.group(ind);
+            in.group=handles.group;
+        end
+    end
+    handles.in=in;
+    prt_ui_specify_CV_basis(handles);
+    handles.flagguicv=1;
 end
 if any(strfind(mach{val},'k-fold'))
     kt=prt_text_input('Title','Specify k, the number of folds');
@@ -765,10 +822,11 @@ if ~isfield(handles,'model_name')
     disp('Please, provide a model name')
     return
 end
-if strcmpi(handles.cv.type,'custom') && isempty(handles.cv.mat_file)
-    beep
-    disp('Please, select a cross-validation or provide a custom matrix')
-    return
+if handles.flagguicv
+    %reload prt since the new CV has been saved in it
+    fname=get(handles.edit_prt,'String');
+    load(fname) % no need for prt_load here
+    handles.dat = PRT;   
 end
 in.model_name=handles.model_name;
 in.type=handles.type;
@@ -872,6 +930,12 @@ in.fname=get(handles.edit_prt,'String');
 if ~isfield(handles,'model_name')
     beep
     disp('Please enter a valid model name')
+end
+if handles.flagguicv
+    %reload prt since the new CV has been saved in it
+    fname=get(handles.edit_prt,'String');
+    load(fname) % no need for prt_load here
+    handles.dat = PRT;   
 end
 in.model_name=handles.model_name;
 in.type=handles.type;
