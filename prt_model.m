@@ -292,16 +292,11 @@ switch in.cv.type
     case 'losgo'
         %modify the ID to take the structure of the classes into account
         vcl=zeros(size(ID,1),2);
-        ngr={};
         for ic=1:length(in.class)
             nsg=1;
             for ig=1:length(in.class(ic).group)
-                if ismember(in.class(ic).group(ig).gr_name,ngr)
-                    [d,ng] = ismember(in.class(ic).group(ig).gr_name,ngr);
-                else
-                    ngr=[ngr,{in.class(ic).group(ig).gr_name}];
-                    ng=length(ngr);
-                end
+                gnames={PRT.group(:).gr_name};
+                [d,ng]=ismember(in.class(ic).group(ig).gr_name,gnames);
                 for is=1:length(in.class(ic).group(ig).subj)
                     inds=find(ID(:,1)==ng);
                     indss=find(ID(inds,2)==is);
@@ -333,11 +328,12 @@ switch in.cv.type
             error('prt_model:losgoSelectedWithTooLargeK2',...
             ['Leaving more than 50%% of subjects in group ',num2str(gb),' out']);
         end
-        [nsf,im]=min(floor(ns/k));
+        [nsf]=floor(min(ns/k));
         if k==1
             CV = zeros(size(ID,1),sids);
         else
-            CV = zeros(size(ID,1),ceil(max(ns)/nsf));
+%             CV = zeros(size(ID,1),ceil(max(ns)/nsf));
+            CV = zeros(size(ID,1),k);
         end
         if k>1 && nsf==1
             disp(['Number of subjects in group ',num2str(im),' smaller than k'])
@@ -347,10 +343,11 @@ switch in.cv.type
         for g=1:length(ns)
             is=vcl(:,1)==g;
             if k>1 && nsf>1 %k-fold CV
-                mns=mod(ns(g),nsf);
-                dk=nsf*ones(1,floor(length(unique(vcl(is,2)))/nsf));
+                nsfg=floor(ns(g)/k);
+                mns=mod(ns(g),nsfg);
+                dk=nsfg*ones(1,floor(length(unique(vcl(is,2)))/nsfg));
                 if mns>0
-                    dk=[dk, mns];
+                    dk(end)=dk(end)+mns;
                 end
                 inds=1;
                 sk=[];
