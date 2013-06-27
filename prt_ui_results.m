@@ -249,6 +249,8 @@ else
         % Set the 'save permutations' weights' chackbox to 0
         handles.save_weights = 0;
         set(handles.save_perm_weights,'Value',0);
+        set(handles.save_perm_weights,'Visible','off');
+        set(handles.save_perm_weights,'Enable','off');
         
         % Clear axes
         cla(handles.axes5);

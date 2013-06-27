@@ -134,6 +134,8 @@ else
 
 
 set(handles.flag_cwi,'Value',0);
+set(handles.flag_cwi,'Visible','off');
+set(handles.flag_cwi,'Enable','off');
 handles.flag = 0;
 set(handles.compbutt,'Enable','off')
 handles.img_name=[];
