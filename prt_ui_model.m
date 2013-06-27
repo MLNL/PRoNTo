@@ -139,6 +139,7 @@ end
 %Set defaults for some subfields and popup menus
 handles.def=prt_get_defaults('model');
 set(handles.kernel_methods,'Value',1)
+set(handles.kernel_methods,'Enable','off')
 handles.use_kernel=1;
 set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
