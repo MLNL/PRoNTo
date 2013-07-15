@@ -30,7 +30,7 @@ function varargout = prt_ui_custom_CV(varargin)
 
 % Edit the above text to modify the response to help prt_ui_custom_CV
 
-% Last Modified by GUIDE v2.5 11-Jun-2013 14:45:36
+% Last Modified by GUIDE v2.5 15-Jul-2013 13:13:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -152,6 +152,7 @@ for i=1:size(handles.CV,1)
 end
 set(handles.editcv,'RowName',lr)
 handles.flagdone=0;
+handles.selectedcells=[];
 % Update handles structure
 guidata(hObject, handles);
 
@@ -194,12 +195,37 @@ function editcv_CellEditCallback(hObject, eventdata, handles)
 %	Error: error string when failed to convert EditData to appropriate value for Data
 % handles    structure with handles and user data (see GUIDATA)
 handles.CV=cell2mat(get(handles.editcv,'Data'));
+% No way to get the last cell selected in time, only in indices, so need to
+% select the multiple cells in increasing order!!!
+if ~isempty(handles.selectedcells)
+    vtp=handles.CV(handles.selectedcells(end,1),handles.selectedcells(end,2));
+end
+tcol=unique(handles.selectedcells(:,2));
+ncol=length(tcol);
+for i=1:ncol
+    icol=find(handles.selectedcells(:,2)==tcol(i));
+    handles.CV(handles.selectedcells(icol,1),i)= ...
+        vtp*ones(length(icol),1);
+end
+dat=num2cell(handles.CV);
 if any(any(~ismember(handles.CV,[0,1,2])))
     beep
     disp('Values should be either 0, 1 or 2')
     return
 end
+set(handles.editcv,'Data',dat)
 disp_CV(hObject,handles,handles.ID,handles.CV)
+% Update handles structure
+guidata(hObject, handles);
+
+
+% --- Executes when selected cell(s) is changed in editcv.
+function editcv_CellSelectionCallback(hObject, eventdata, handles)
+% hObject    handle to editcv (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Indices: row and column indices of the cell(s) currently selecteds
+% handles    structure with handles and user data (see GUIDATA)
+handles.selectedcells=eventdata.Indices;
 % Update handles structure
 guidata(hObject, handles);
 
