@@ -46,6 +46,13 @@ else
     t = PRT.model(mid).input.targets;
 end
 
+%get number of classes
+if strcmpi(PRT.model(mid).input.type,'classification')
+    nk=max(t);
+else
+    nk=[];
+end
+
 % load data files and configure ID matrix
 disp('Loading data files.....>>');
 Phi_all = cell(1,n_Phi);
@@ -92,7 +99,7 @@ for f = 1:n_folds
     end
     
     % compute stats
-    stats = prt_stats(model, targets.test, targets.train);
+    stats = prt_stats(model, targets.test, nk);
     
     % update PRT
     PRT.model(mid).output.fold(f).targets     = targets.test; 
@@ -114,7 +121,7 @@ t             = vertcat(PRT.model(mid).output.fold(:).targets);
 m.type        = PRT.model(mid).output.fold(1).type;
 m.predictions = vertcat(PRT.model(mid).output.fold(:).predictions);
 %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
-stats         = prt_stats(m,t(:),t(:));
+stats         = prt_stats(m,t(:),nk);
 
 PRT.model(mid).output.stats=stats;
 

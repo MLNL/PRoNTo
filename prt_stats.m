@@ -1,4 +1,4 @@
-function stats = prt_stats(model, tte, ttr)
+function stats = prt_stats(model, tte, nk)
 % Function to compute predictions machine performance statistcs statistics
 %
 % Inputs:
@@ -7,7 +7,7 @@ function stats = prt_stats(model, tte, ttr)
 % model.type:        what type of prediction machine (e.g. 'classifier','regression')
 %
 % tte: true targets (test set)
-% ttr: true targets (training set - needed to get the number of classes)
+% nk:  number of classes if classification (empty otherwise)
 % flag:  'fold' for statistics in each fold
 %         'model' for statistics in each model
 % 
@@ -40,7 +40,7 @@ end
 switch model.type
     case 'classifier'
         
-        stats = compute_stats_classifier(model, tte, ttr);
+        stats = compute_stats_classifier(model, tte, nk);
         
     case 'regression'
         
@@ -57,9 +57,9 @@ end
 % Private functions
 % -------------------------------------------------------------------------
 
-function stats = compute_stats_classifier(model, tte, ttr)
+function stats = compute_stats_classifier(model, tte, k)
 
-k = max(unique(ttr));        % number of classes
+% k = max(unique(ttr));        % number of classes
 
 stats.con_mat = zeros(k,k);
 for i = 1:length(tte)

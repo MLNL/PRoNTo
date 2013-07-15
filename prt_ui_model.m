@@ -641,60 +641,60 @@ elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type = 'loro';
 else
     handles.cv.type     = 'custom';
-    cvmatf=spm_select(1,'mat','Select .mat file corresponding to the custom cross-validation');
-    handles.cv.mat_file = cvmatf;
+%     cvmatf=spm_select(1,'mat','Select .mat file corresponding to the custom cross-validation');
+%     handles.cv.mat_file = cvmatf;
     %fill the input of the 'prt_model' button
-%     in.fname=get(handles.edit_prt,'String');
-%     if ~isfield(handles,'model_name')
-%         beep
-%         disp('Please enter a valid model name')
-%     end
-%     in.model_name=handles.model_name;
-%     in.type=handles.type;
-%     in.machine=handles.machine;
-%     in.use_kernel=handles.use_kernel;
-%     in.operations=handles.operations;
-%     in.fs(1).fs_name=handles.fs(1).fs_name;
-%     in.cv=handles.cv;
-%     %check that classes/subjects/scans were defined
-%     if strcmpi(in.type,'classification')
-%         if ~isfield(handles,'class')
-%             beep
-%             disp('No class selected for classification')
-%             disp('Please, define classes')
-%             return
-%         else
-%             for i=1:length(handles.class)
-%                 ind=[];
-%                 for g=1:length(handles.class(i).group)
-%                     if ~isempty(handles.class(i).group(g).gr_name)
-%                         ind=[ind,g];
-%                     end
-%                 end
-%                 handles.class(i).group=handles.class(i).group(ind);
-%             end
-%             in.class=handles.class;
-%         end
-%     else
-%         if ~isfield(handles,'group')
-%             beep
-%             disp('No subjects/scans selected for classification')
-%             disp('Please, select subjects/scans')
-%             return
-%         else
-%             ind=[];
-%             for g=1:length(handles.group)
-%                 if ~isempty(handles.group(g).gr_name)
-%                     ind=[ind,g];
-%                 end
-%             end
-%             handles.group=handles.group(ind);
-%             in.group=handles.group;
-%         end
-%     end
-%     handles.in=in;
-%     prt_ui_specify_CV_basis(handles);
-%     handles.flagguicv=1;
+    in.fname=get(handles.edit_prt,'String');
+    if ~isfield(handles,'model_name')
+        beep
+        disp('Please enter a valid model name')
+    end
+    in.model_name=handles.model_name;
+    in.type=handles.type;
+    in.machine=handles.machine;
+    in.use_kernel=handles.use_kernel;
+    in.operations=handles.operations;
+    in.fs(1).fs_name=handles.fs(1).fs_name;
+    in.cv=handles.cv;
+    %check that classes/subjects/scans were defined
+    if strcmpi(in.type,'classification')
+        if ~isfield(handles,'class')
+            beep
+            disp('No class selected for classification')
+            disp('Please, define classes')
+            return
+        else
+            for i=1:length(handles.class)
+                ind=[];
+                for g=1:length(handles.class(i).group)
+                    if ~isempty(handles.class(i).group(g).gr_name)
+                        ind=[ind,g];
+                    end
+                end
+                handles.class(i).group=handles.class(i).group(ind);
+            end
+            in.class=handles.class;
+        end
+    else
+        if ~isfield(handles,'group')
+            beep
+            disp('No subjects/scans selected for classification')
+            disp('Please, select subjects/scans')
+            return
+        else
+            ind=[];
+            for g=1:length(handles.group)
+                if ~isempty(handles.group(g).gr_name)
+                    ind=[ind,g];
+                end
+            end
+            handles.group=handles.group(ind);
+            in.group=handles.group;
+        end
+    end
+    handles.in=in;
+    prt_ui_specify_CV_basis(handles);
+    handles.flagguicv=1;
 end
 if any(strfind(mach{val},'k-fold'))
     kt=prt_text_input('Title','Specify k, the number of folds');
