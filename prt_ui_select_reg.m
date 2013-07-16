@@ -398,7 +398,23 @@ for i=1:size(handles.clas,1)
         return
     end
 end
-handles.output=handles.class.group;
+%get names of selected groups for custom CV GUI
+lg={};
+lc={};
+for i=1:size(handles.clas,1)
+    %get which groups
+    d=handles.clas{i,2};
+    for j=1:size(d,1)
+        if ~isempty(d{j,2}) && any(d{j,2}~=0)
+            lg=[lg;handles.condm{1}(j)];
+        end
+    end
+end
+legends=struct();
+legends.lg=lg;
+legends.lc=lc;
+handles.class.legends=legends;
+handles.output=handles.class;
 % Update handles structure
 guidata(hObject, handles);
 

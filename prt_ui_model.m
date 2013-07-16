@@ -483,8 +483,8 @@ function butt_defclass_Callback(hObject, eventdata, handles)
 if strcmpi(handles.type,'classification')
     speccl=prt_ui_select_class('UserData',{handles.dat,handles.fs(1).indfs});
     handles.design=speccl.design;
-    handles.listnames=speccl.condm;
-    handles.indclas=speccl.indclas;
+%     handles.listnames=speccl.condm;
+    handles.legs=speccl.legends;
     if isempty(speccl)
         beep
         disp('No class specified')
@@ -533,7 +533,9 @@ if strcmpi(handles.type,'classification')
         end
     end
 else
-    sel=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
+    d1=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
+    sel=d1.group;
+    handles.legs=d1.legends;
     if isempty(sel)
         beep
         disp('No subject selected for regression')
@@ -641,13 +643,15 @@ elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type = 'loro';
 else
     handles.cv.type     = 'custom';
-%     cvmatf=spm_select(1,'mat','Select .mat file corresponding to the custom cross-validation');
-%     handles.cv.mat_file = cvmatf;
     %fill the input of the 'prt_model' button
     in.fname=get(handles.edit_prt,'String');
     if ~isfield(handles,'model_name')
         beep
         disp('Please enter a valid model name')
+    end
+    if ~isfield(handles,'model_name')
+        beep
+        disp('Please provide model name first')
     end
     in.model_name=handles.model_name;
     in.type=handles.type;

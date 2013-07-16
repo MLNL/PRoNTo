@@ -132,6 +132,7 @@ if ~isempty(varargin)
     handles.ID=varargin{2};
     handles.in=varargin{3};
     handles.prt=varargin{4};
+    handles.leg=varargin{5};
 end
 set(handles.editcv,'Data',dat);
 disp_CV(hObject,handles,handles.ID,handles.CV)
@@ -142,15 +143,31 @@ for i=1:size(handles.CV,2)
 end
 set(handles.editcv,'ColumnName',lc)
 lr=cell(size(handles.CV,1),1);
+lg=[];
+lc=[];
 for i=1:size(handles.CV,1)
+    if max(handles.ID(:,1))>1
+        lr{i}=['G',num2str(handles.ID(i,1)),' '];
+        lg=[lg;handles.ID(i,1)];
+    end
     if max(handles.ID(:,2))>1
-        lr{i}=['S',num2str(handles.ID(i,2)),' '];
+        lr{i}=[lr{i},'S',num2str(handles.ID(i,2)),' '];
     end
     if max(handles.ID(:,4))>1
         lr{i}=[lr{i},'c',num2str(handles.ID(i,4))];
+        lc=[lc;handles.ID(i,4)];
     end
 end
+lg=unique(lg);
+sg='G';
+lg=[repmat(sg,length(lg),1), num2str(lg),repmat('   ',length(lg),1)];
+lc=unique(lc);
+sg='c';
+lc=[repmat(sg,length(lc),1), num2str(lc),repmat('   ',length(lc),1)];
+cc=strvcat(lg,lc);
+nc=char([handles.leg.lg;handles.leg.lc]);
 set(handles.editcv,'RowName',lr)
+set(handles.tlegends,'String',[cc,nc])
 handles.flagdone=0;
 handles.selectedcells=[];
 % Update handles structure
@@ -204,7 +221,7 @@ tcol=unique(handles.selectedcells(:,2));
 ncol=length(tcol);
 for i=1:ncol
     icol=find(handles.selectedcells(:,2)==tcol(i));
-    handles.CV(handles.selectedcells(icol,1),i)= ...
+    handles.CV(handles.selectedcells(icol,1),tcol(i))= ...
         vtp*ones(length(icol),1);
 end
 dat=num2cell(handles.CV);
@@ -242,6 +259,28 @@ if any(any(~ismember(handles.CV,[0,1,2])))
     disp('Values should be either 0, 1 or 2')
     return
 end
+%checks
+ind=[];
+for i=1:size(handles.CV,2)
+    %if columns are set to 0, then delete them
+    if ~any(handles.CV(:,i))
+        beep
+        disp(['Column ',num2str(i),' has only zero values, it will be removed'])
+    else %each column should have at least a train and a test instance
+        if all(handles.CV(:,i)==1) %only train data
+            beep
+            disp(['Column ',num2str(i),' contains only train data'])
+            return
+        elseif all(handles.CV(:,i)==2) %only test data
+            beep
+            disp(['Column ',num2str(i),' contains only test data'])
+            return
+        else
+            ind=[ind,i];
+        end
+    end
+end
+handles.CV=handles.CV(:,ind);
 [modelid, PRT] = prt_init_model(handles.prt,handles.in);
 PRT.model(modelid).input.cv_mat     = handles.CV;
 PRT.model(modelid).input.cv_type=handles.in.cv.type;
@@ -266,6 +305,29 @@ function save_button_Callback(hObject, eventdata, handles)
 % hObject    handle to save_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+%checks
+ind=[];
+for i=1:size(handles.CV,2)
+    %if columns are set to 0, then delete them
+    if ~any(handles.CV(:,i))
+        beep
+        disp(['Column ',num2str(i),' has only zero values, it will be removed'])
+    else %each column should have at least a train and a test instance
+        if all(handles.CV(:,i)==1) %only train data
+            beep
+            disp(['Column ',num2str(i),' contains only train data'])
+            return
+        elseif all(handles.CV(:,i)==2) %only test data
+            beep
+            disp(['Column ',num2str(i),' contains only test data'])
+            return
+        else
+            ind=[ind,i];
+        end
+    end
+end
+handles.CV=handles.CV(:,ind);
+disp_CV(hObject,handles,handles.ID,handles.CV)
 CV=handles.CV;
 if ~ispc
     handles.in.fname = strrep(handles.in.fname,'\',filesep);
@@ -278,6 +340,8 @@ if spm_matlab_version_chk('7') >= 0
 else
     save(cvnam,'-V6','CV');
 end
+% Update handles structure
+guidata(hObject, handles);
 
 %--------------------------------------------------------------------------
 %------------------------- Subfunctions -----------------------------------
@@ -296,10 +360,11 @@ end
 imagesc(dat);
 set(gca,'XTick',1:6)
 set(gca,'XTickLabel',{'Group','Subject','Modality','Condition','Block','Scans'},...
-    'FontWeight','demi','FontSize',9);
+    'FontWeight','demi','FontSize',7);
 set(gca,'YTickLabel',{})
 colorbar('Location','WestOutside')
-set(get(gca,'Title'),'String','Feature set','FontWeight','bold')
+set(get(gca,'Title'),'String','Feature set','FontWeight','bold',...
+    'FontSize',10)
 
 %Plot the CV matrix in the right part of the window
 set(handles.figure1,'CurrentAxes',handles.axes2)
@@ -325,9 +390,10 @@ xlabel('CV Folds','fontweight','demi')
 imagesc(CV);
 set(gca,'XTick',1:i)
 set(gca,'YTickLabel',{})
-set(gca,'XTickLabel',xticksl,'FontWeight','demi','FontSize',9)
+set(gca,'XTickLabel',xticksl,'FontWeight','demi','FontSize',8)
 colormap(gray)
-set(get(gca,'Title'),'String','Cross-Validation','FontWeight','bold')
+set(get(gca,'Title'),'String','Cross-Validation','FontWeight','bold',...
+    'FontSize',10)
 
 %Plot the 'legend' corresponding to the CV matrix in the right bottom part
 set(handles.figure1,'CurrentAxes',handles.axes3)
@@ -335,12 +401,12 @@ if max(max(CV)-min(CV))>1
     leg=[0; 1; 2];
     imagesc(leg);
     set(gca,'YTick',[1,2,3])
-    set(gca,'YTickLabel',{'Test','Train','Unused'});
+    set(gca,'YTickLabel',{'Test','Train','Unused'},'FontSize',8);
 else
     leg=[1; 2];
     imagesc(leg);
     set(gca,'YTick',[1,2])
-    set(gca,'YTickLabel',{'Test','Train'});
+    set(gca,'YTickLabel',{'Test','Train'},'Fontsize',8);
 end
 set(gca,'YAxisLocation','right')
 set(gca,'XTickLabel',{})

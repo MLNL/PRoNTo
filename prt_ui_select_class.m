@@ -116,7 +116,7 @@ for i=1:length(aa)
         'Units','normalized')
 end
 
-%set the different fields to disabled (will be enabled when choosing the
+%set the different fields to disable (will be enabled when choosing the
 %number of classes)
 set(handles.group_list,'Enable','off')
 set(handles.uns_list,'Enable','off')
@@ -848,8 +848,29 @@ aa=struct();
 aa.class=handles.class;
 aa.design=handles.design;
 aa.loospg=handles.loospg;
-aa.condm=handles.condm; %outputs for the custom CV GUI
-aa.indclas=handles.clas;
+%get names of selected groups and conditions for custom CV GUI
+lg={};
+lc={};
+for i=1:size(handles.clas,1)
+    %get which groups
+    d=handles.clas{i,2};
+    for j=1:size(d,1)
+        if ~isempty(d{j,2}) && any(d{j,2}~=0)
+            lg=[lg;handles.condm{1}(j)];
+        end
+    end
+    %get which conditions
+    d=handles.clas{i,4};
+    for j=1:size(d,1)
+        if ~isempty(d{j,2}) && any(d{j,2}~=0)
+            lc=[lc;handles.condm{2}(j)];
+        end
+    end
+end
+legends=struct();
+legends.lg=lg;
+legends.lc=lc;
+aa.legends=legends;
 handles.output=aa;
 % Update handles structure
 guidata(hObject, handles);

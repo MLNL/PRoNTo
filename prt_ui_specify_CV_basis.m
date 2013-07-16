@@ -118,13 +118,7 @@ handles.prt=a.dat;
 handles.in=a.in; %inputs for call to prt_model
 
 %get useful info in one structure
-io.type=a.type; %classification or regression
-io.indfs = a.fs.indfs; %index of feature set
-io.class = a.class;
-io.indclas=a.indclas;
-io.listnames=a.listnames;
-io.design=a.design;
-handles.io=io;
+handles.legs=a.legs;
 handles.cv.type='custom';
 % Choose default command line output for prt_ui_specify_CV_basis
 handles.output = hObject;
@@ -309,7 +303,7 @@ end
 [d, CV, ID]=prt_model(handles.prt, in);
 handles.flagdone=1;
 delete(handles.figure1)
-prt_ui_custom_CV(CV,ID,in,handles.prt);
+prt_ui_custom_CV(CV,ID,in,handles.prt,handles.legs);
 
 
 
