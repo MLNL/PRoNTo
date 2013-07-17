@@ -159,13 +159,25 @@ for i=1:size(handles.CV,1)
     end
 end
 lg=unique(lg);
-sg='G';
-lg=[repmat(sg,length(lg),1), num2str(lg),repmat('   ',length(lg),1)];
 lc=unique(lc);
+if isempty(lg)
+    nc=char([handles.leg.lc]);
+    [du1,loc]=ismember(lc,handles.leg.lci);
+    nc=nc(loc,:);
+elseif isempty(lc)
+    nc=char([handles.leg.lg]);
+    [du1,loc]=ismember(lg,handles.leg.lcg);
+    nc=nc(loc,:);
+else
+    [du1,loc]=ismember(lc,handles.leg.lci);
+    [du1,loc1]=ismember(lg,handles.leg.lcg);
+    nc=char([handles.leg.lg(loc1);handles.leg.lc(loc)]);
+end
 sg='c';
 lc=[repmat(sg,length(lc),1), num2str(lc),repmat('   ',length(lc),1)];
+sg='G';
+lg=[repmat(sg,length(lg),1), num2str(lg),repmat('   ',length(lg),1)];
 cc=strvcat(lg,lc);
-nc=char([handles.leg.lg;handles.leg.lc]);
 set(handles.editcv,'RowName',lr)
 set(handles.tlegends,'String',[cc,nc])
 handles.flagdone=0;
