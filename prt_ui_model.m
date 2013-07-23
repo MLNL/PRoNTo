@@ -623,7 +623,7 @@ function pop_cv_Callback(hObject, eventdata, handles)
 % assemble structure for performing cross-validation
 val=get(handles.pop_cv,'Value');
 mach=get(handles.pop_cv,'String');
-handles.cv.k=1; %by default, Leave-One-Out options
+handles.cv.k=0; %by default, Leave-One-Out options
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_cv,'Value',1)

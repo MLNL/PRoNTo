@@ -28,7 +28,7 @@ function varargout = prt_ui_prepare_data(varargin)
 
 % Edit the above text to modify the response to help prt_ui_kernel
 
-% Last Modified by GUIDE v2.5 28-Sep-2011 17:30:50
+% Last Modified by GUIDE v2.5 23-Jul-2013 12:53:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -133,7 +133,10 @@ end
 
 
 set(handles.sel_mod,'Enable','off')
+set(handles.multkernflag,'Enable','off')
+set(handles.multkernflag,'Value',0)
 handles.kname=[];
+handles.flag_mm = 0;
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -291,6 +294,9 @@ function num_mod_Callback(hObject, eventdata, handles)
 val=str2double(get(handles.num_mod,'String'));
 set(handles.text8,'ForegroundColor',handles.color.high)
 n_mod=length(handles.modnames);
+if n_mod>1
+    set(handles.multkernflag,'Enable','on')
+end
 %handles.mod=struct();
 list=[];
 %initialize for all modalities
@@ -349,14 +355,27 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+% --- Executes on button press in multkernflag.
+function multkernflag_Callback(hObject, eventdata, handles)
+% hObject    handle to multkernflag (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of multkernflag
+v=get(handles.multkernflag,'Value');
+handles.flag_mm=v;
+% Update handles structure
+guidata(hObject, handles);
+
 % --- Executes on button press in buildbutt.
 function buildbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to buildbutt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-input=struct('fname',[],'kname',[],'mod',[]);
+input=struct('fname',[],'kname',[],'mod',[],'flag_mm',[]);
 input.fname=handles.fname;
+input.flag_mm = handles.flag_mm;
 if isempty(handles.kname)
     beep
     disp('Enter a name for the feature set to be saved')

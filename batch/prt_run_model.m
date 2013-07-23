@@ -201,27 +201,22 @@ end
 % assemble structure for performing cross-validation
 if isfield(job.cv_type,'cv_loso')
     model.cv.type = 'loso';
-    model.cv.k = 1;
+    model.cv.k = 0;
 elseif isfield(job.cv_type,'cv_lkso')
     model.cv.type = 'loso';
     model.cv.k = job.cv_type.cv_lkso.k_args;
 elseif isfield(job.cv_type,'cv_losgo')
     model.cv.type = 'losgo';
-    model.cv.k = 1;
+    model.cv.k = 0;
 elseif isfield(job.cv_type,'cv_lksgo')
     model.cv.type = 'losgo';
     model.cv.k = job.cv_type.cv_lksgo.k_args;
 elseif isfield(job.cv_type,'cv_lobo') 
     model.cv.type = 'lobo';
-    model.cv.k = 1;
+    model.cv.k = 0;
 elseif isfield(job.cv_type,'cv_lkbo')
     model.cv.type = 'lobo';
     model.cv.k = job.cv_type.cv_lkbo.k_args;
-%     if scount>1
-%         beep
-%         disp('Leave One Block Out Cross Validation only allowed for within subject modeling')
-%         disp('Please correct')
-%     end
 elseif isfield(job.cv_type,'cv_loro') %currently implemented for MCKR only
     model.cv.type = 'loro';
 else
