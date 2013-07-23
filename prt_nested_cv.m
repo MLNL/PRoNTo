@@ -25,9 +25,18 @@ fdata.CV      = fdata.CV(train_entries);
 fdata.Phi_all{1} = Phi(samp_idx,samp_idx); % TODO: I'm not sure this is correct. CHECK!
 fdata.t       = fdata.t(train_entries);
 
-% Change PRT
-PRT_out = PRT;
-PRT_out.fs(1).id_mat = fdata.ID; % TODO: I'm not sure this is enought. CHECK!
+
+
+
+% TODO: have inner cv function returning performance for each hyper value
+
+% TODO: change hyper value in PRT.model(mid).machine.args
+
+% generate new CV matrix
+[CV,~] = prt_compute_cv_mat(PRT, in, mid, use_nested_cv);
+PRT_nest.model(modelid).input.cv_mat = CV;
+
+
 
 
 

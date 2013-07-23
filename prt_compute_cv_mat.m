@@ -1,6 +1,12 @@
-function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid)
+function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)
 % Function to compute the cross-validation matrix. Also does error checking
 
+% Check if the use_nested_cv varible has been inputed
+if ~exist('use_nested_cv', 'var')
+    use_nested_cv = false;
+end
+
+%TODO: include the k in the PRT instead of the in
 fid = prt_init_fs(PRT, in.fs(1));
 if isfield(in.cv,'k')
     k=in.cv.k;  %k-fold CV
@@ -13,9 +19,15 @@ if k==1 %half-half
 else
     flaghh=0;
 end
+
+
 if isfield(in,'include_allscans') && in.include_allscans
     % use the full id matrix
+    if use_nested_cv == false %TODO: make sure the use_nested_cv flag does not afect this function when it's called for the first time in prt_model
     ID = PRT.fs(fid).id_mat;
+    else
+        ID = in.ID;
+    end
 else
     % id matrix only contains samples within the CV structure
     % it is initialised in prt_init_fs. The columns contents are described

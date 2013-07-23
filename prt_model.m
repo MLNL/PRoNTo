@@ -86,10 +86,12 @@ PRT.model(modelid).input.targ_allscans    = t_allscans;
 % compute cross-validation matrix and specify operations to apply
 % -------------------------------------------------------------------------
     
-[CV,ID] = compute_cv_mat(PRT,in, modelid);
+[CV,ID] = prt_compute_cv_mat(PRT,in, modelid);
 PRT.model(modelid).input.cv_mat     = CV;
 PRT.model(modelid).input.operations = in.operations;
 
+% TODO: save k in PRT.model(modelid).input.cv_k
+% PRT.model(modelid).input.
 % TODO: Remove this line, this is just for testing with the nested cv
 PRT.model(modelid).input.use_nested_cv = false;
 
