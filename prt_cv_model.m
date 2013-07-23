@@ -75,46 +75,99 @@ end
 
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
-PRT.model(mid).output.fold = struct();
-for f = 1:n_folds
-    disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
-    % configure data structure for prt_cv_fold
-    fdata.ID      = ID;
-    fdata.mid     = mid;
-    fdata.CV      = CV(:,f);
-    fdata.Phi_all = Phi_all;
-    fdata.t       = t;
-    
-    % compute the model for this CV fold
-    [model, targets] = prt_cv_fold(PRT,fdata);
-    
-    %for classification check that for each fold, the test targets have been trained
-    if strcmpi(PRT.model(mid).input.type,'classification')
-        if ~all(ismember(unique(targets.test),unique(targets.train)))
-            beep
-            disp('At least one class is in the test set but not in the training set')
-            disp('Abandoning modelling, please correct class selection/cross-validation')
-            return
+if PRT.model(mid).input.use_nested_cv == true
+    PRT.model(mid).output.fold = struct();
+    for f = 1:n_folds
+        disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
+        % configure data structure for prt_cv_fold
+        fdata.ID      = ID;
+        fdata.mid     = mid; %index of model
+        fdata.CV      = CV(:,f);
+        fdata.Phi_all = Phi_all; %kernel
+        fdata.t       = t; %targets
+        
+        % TODO: have inner cv function returning performance for each hyper value
+        
+        % TODO: change hyper value in PRT.model(mid).machine.args
+        
+        % remove the test data
+        [PRT_nest, fdata] = prt_clip_data(PRT, fdata, Phi, samp_idx);
+        
+        % generate new CV matrix
+        [CV,~] = prt_compute_cv_mat(PRT_nest, in, mid);
+        PRT_nest.model(modelid).input.cv_mat = CV;
+        
+        % compute the model for this CV fold
+        [model, targets] = prt_cv_fold(PRT_nest,fdata);
+        
+               
+        %for classification check that for each fold, the test targets have been trained
+        if strcmpi(PRT.model(mid).input.type,'classification')
+            if ~all(ismember(unique(targets.test),unique(targets.train)))
+                beep
+                disp('At least one class is in the test set but not in the training set')
+                disp('Abandoning modelling, please correct class selection/cross-validation')
+                return
+            end
+        end
+        
+        % compute stats
+        stats = prt_stats(model, targets.test, targets.train);
+        
+        % update PRT
+        PRT.model(mid).output.fold(f).targets     = targets.test;
+        PRT.model(mid).output.fold(f).predictions = model.predictions(:);
+        PRT.model(mid).output.fold(f).stats       = stats;
+        % copy other fields from the model
+        flds = fieldnames(model);
+        for fld = 1:length(flds)
+            fldnm = char(flds(fld));
+            if ~strcmpi(fldnm,'predictions')
+                PRT.model(mid).output.fold(f).(fldnm)=model.(fldnm);
+            end
         end
     end
-    
-    % compute stats
-    stats = prt_stats(model, targets.test, nk);
-    
-    % update PRT
-    PRT.model(mid).output.fold(f).targets     = targets.test; 
-    PRT.model(mid).output.fold(f).predictions = model.predictions(:);
-    PRT.model(mid).output.fold(f).stats       = stats;
-    % copy other fields from the model
-    flds = fieldnames(model);
-    for fld = 1:length(flds)
-        fldnm = char(flds(fld));
-        if ~strcmpi(fldnm,'predictions')
-            PRT.model(mid).output.fold(f).(fldnm)=model.(fldnm);
+else
+    PRT.model(mid).output.fold = struct();
+    for f = 1:n_folds
+        disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
+        % configure data structure for prt_cv_fold
+        fdata.ID      = ID;
+        fdata.mid     = mid; %index of model
+        fdata.CV      = CV(:,f);
+        fdata.Phi_all = Phi_all; %kernel
+        fdata.t       = t; %targets
+                
+        % compute the model for this CV fold
+        [model, targets] = prt_cv_fold(PRT,fdata);
+        
+        %for classification check that for each fold, the test targets have been trained
+        if strcmpi(PRT.model(mid).input.type,'classification')
+            if ~all(ismember(unique(targets.test),unique(targets.train)))
+                beep
+                disp('At least one class is in the test set but not in the training set')
+                disp('Abandoning modelling, please correct class selection/cross-validation')
+                return
+            end
+        end
+        
+        % compute stats
+        stats = prt_stats(model, targets.test, targets.train);
+        
+        % update PRT
+        PRT.model(mid).output.fold(f).targets     = targets.test;
+        PRT.model(mid).output.fold(f).predictions = model.predictions(:);
+        PRT.model(mid).output.fold(f).stats       = stats;
+        % copy other fields from the model
+        flds = fieldnames(model);
+        for fld = 1:length(flds)
+            fldnm = char(flds(fld));
+            if ~strcmpi(fldnm,'predictions')
+                PRT.model(mid).output.fold(f).(fldnm)=model.(fldnm);
+            end
         end
     end
 end
-
 
 % Model level statistics (across folds)
 t             = vertcat(PRT.model(mid).output.fold(:).targets);
