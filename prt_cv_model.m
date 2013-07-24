@@ -48,7 +48,7 @@ end
 
 %get number of classes
 if strcmpi(PRT.model(mid).input.type,'classification')
-    nk=max(t);
+    nk=max(unique(t));
 else
     nk=[];
 end
@@ -86,6 +86,10 @@ for f = 1:n_folds
     fdata.Phi_all = Phi_all; %kernel
     fdata.t       = t; %targets
     
+    % Nested CV for hyper-parameter optimisation or feature selection
+    if PRT.model(mid).input.use_nested_cv
+        [PRT] = prt_nested_cv(PRT, fdata, Phi, samp_idx);
+    end
     
     % compute the model for this CV fold
     [model, targets] = prt_cv_fold(PRT,fdata);
