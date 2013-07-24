@@ -628,8 +628,7 @@ cv_custom.filter = 'mat';
 cv_custom.ufilter = '.*';
 cv_custom.num    = [1 1];
 cv_custom.help   = {...
-    ['Load a cross-validation matrix. Note that an interface ',...
-     'will be provided for this functionality in a later release']};
+    ['Load a cross-validation matrix comprising a CV variable']};
 
 % ---------------------------------------------------------------------
 % cv_type Cross-validation type

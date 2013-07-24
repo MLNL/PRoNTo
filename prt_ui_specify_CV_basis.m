@@ -283,33 +283,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in donebut.
-function donebut_Callback(hObject, eventdata, handles)
-% hObject    handle to donebut (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-in=handles.in;
-in.cv.type=handles.cv.type;
-if isfield(handles.cv,'k')
-    in.cv.k=handles.cv.k;
-else
-    in.cv.k=0;
-end
-if isfield(handles.cv,'mat_file')
-    in.cv.mat_file=handles.cv.mat_file;
-else
-    in.cv.mat_file=[];
-end
-[d, CV, ID]=prt_model(handles.prt, in);
-handles.flagdone=1;
-delete(handles.figure1)
-prt_ui_custom_CV(CV,ID,in,handles.prt,handles.legs);
-
-
-
-
-
-
 % --- Executes on button press in load.
 function load_Callback(hObject, eventdata, handles)
 % hObject    handle to load (see GCBO)
@@ -337,3 +310,25 @@ handles.cv.type='custom';
 handles.cv.mat_file = cvmatf;
 % Update handles structure
 guidata(hObject, handles);
+
+% --- Executes on button press in donebut.
+function donebut_Callback(hObject, eventdata, handles)
+% hObject    handle to donebut (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+in=handles.in;
+in.cv.type=handles.cv.type;
+if isfield(handles.cv,'k')
+    in.cv.k=handles.cv.k;
+else
+    in.cv.k=0;
+end
+if isfield(handles.cv,'mat_file')
+    in.cv.mat_file=handles.cv.mat_file;
+else
+    in.cv.mat_file=[];
+end
+[d, CV, ID]=prt_model(handles.prt, in);
+handles.flagdone=1;
+delete(handles.figure1)
+prt_ui_custom_CV(CV,ID,in,handles.prt,handles.legs);

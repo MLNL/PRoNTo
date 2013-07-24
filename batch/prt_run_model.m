@@ -221,7 +221,7 @@ elseif isfield(job.cv_type,'cv_loro') %currently implemented for MCKR only
     model.cv.type = 'loro';
 else
     model.cv.type     = 'custom';
-    model.cv.mat_file = job.cv_type;
+    model.cv.mat_file = job.cv_type.cv_custom{1};
 end
 
 model.include_allscans = job.include_allscans;
