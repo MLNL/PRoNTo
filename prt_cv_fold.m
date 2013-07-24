@@ -108,6 +108,7 @@ for i = 1:n_mat;
     end
     
     Phi_tr{i} = Phi_all{i}(tr_idx,cols_tr);
+
 end
 
 % test

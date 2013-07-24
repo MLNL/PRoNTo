@@ -88,7 +88,7 @@ for f = 1:n_folds
     
     % Nested CV for hyper-parameter optimisation or feature selection
     if PRT.model(mid).input.use_nested_cv
-        [PRT] = prt_nested_cv(PRT, fdata, Phi, samp_idx);
+        [PRT] = prt_nested_cv(PRT, mid, fdata, Phi, samp_idx);
     end
     
     % compute the model for this CV fold

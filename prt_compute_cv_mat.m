@@ -24,7 +24,7 @@ end
 if isfield(in,'include_allscans') && in.include_allscans
     % use the full id matrix
     if use_nested_cv == false %TODO: make sure the use_nested_cv flag does not afect this function when it's called for the first time in prt_model
-    ID = PRT.fs(fid).id_mat;
+        ID = PRT.fs(fid).id_mat;
     else
         ID = in.ID;
     end
@@ -33,15 +33,19 @@ else
     % it is initialised in prt_init_fs. The columns contents are described
     % in PRT.fs(fid).id_col_names
     % ('group','subject','modality','condition','block','scan')
-    ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
+    if use_nested_cv == false
+        ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
+    else
+        ID = in.ID;
+    end
 end
 
 switch in.cv.type
     case 'loso'
         % leave-one-subject-out
         % give each subject a unique id
-        [gids,d1] = unique(ID(:,1), 'last');              
-        [gids,d2] = unique(ID(:,1),'first');        
+        [gids,d1] = unique(ID(:,1), 'last');
+        [gids,d2] = unique(ID(:,1),'first');
         gc = 0;
         ns=zeros(length(gids),1);
         for g = 1:length(gids)
@@ -77,7 +81,7 @@ switch in.cv.type
         end
         if length(snums) == 1
             error('prt_model:losoSelectedWithOneSubject',...
-            'LOSO CV selected but only one subject is included');
+                'LOSO CV selected but only one subject is included');
         end
         G = cell(length(unique(sk)),1);
         for s = 1:length(unique(sk))
@@ -87,7 +91,7 @@ switch in.cv.type
         if flaghh
             CV=CV(:,1);
         end
-
+        
         
     case 'losgo'
         %modify the ID to take the structure of the classes into account
@@ -117,7 +121,7 @@ switch in.cv.type
         sids=max(ns);
         if sids == 1
             error('prt_model:losgoSelectedWithOneSubject',...
-            'LOSGO CV selected but only one subject is included');
+                'LOSGO CV selected but only one subject is included');
         end
         [nsf]=floor(min(ns/k));
         if k==0
@@ -168,7 +172,7 @@ switch in.cv.type
                 CV=CV(:,1);
             end
         end
-              
+        
         
     case 'lobo'
         % leave-one-block-out - limited to one single subject for the
@@ -186,13 +190,14 @@ switch in.cv.type
                 inds=inds+1;
             end
         else %Leave-One-Subject-Out
-            sk=1:max(ID(:,5));
+            % sk=1:max(ID(:,5));
+            sk=1:length(unique(ID(:,5))); % TODO: Check if this change has not created problems
             nsf=1;
         end
         snums = histc(ID(:,5),unique(ID(:,5)));% how many scans per block
         if length(snums) == 1
             error('prt_model:loboSelectedWithOneSubject',...
-            'LOBO CV selected but only one block is included');
+                'LOBO CV selected but only one block is included');
         elseif max(ID(:,5))< 2*nsf
             error('prt_model:loboSelectedWithLargeK',...
                 'Leaving more than 50%% of blocks out, decrease k');
@@ -220,7 +225,7 @@ switch in.cv.type
             midx = ID(:,3) == mids(m);
             CV(:,m) = double(midx) + 1;
         end
-
+        
     case 'custom'
         %load matrix and check that each fold contains test and train data.
         if isfield(in.cv,'mat_file') && ~isempty(in.cv.mat_file)
@@ -257,9 +262,9 @@ switch in.cv.type
             if isfield(in.cv,'k')
                 CV = ones (size(ID,1),in.cv.k);
             end
-                
+            
         end
-      
+        
         
     otherwise
         error('prt_cv:unknownTypeSpecified',...
