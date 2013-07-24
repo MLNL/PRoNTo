@@ -59,7 +59,7 @@ end
 
 function stats = compute_stats_classifier(model, tte, k)
 
-% k = max(unique(ttr));        % number of classes
+k = max(unique(k));        % number of classes
 
 stats.con_mat = zeros(k,k);
 for i = 1:length(tte)

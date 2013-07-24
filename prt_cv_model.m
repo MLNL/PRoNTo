@@ -88,7 +88,7 @@ for f = 1:n_folds
     
     
     % compute the model for this CV fold
-    [model, targets] = prt_cv_fold(PRT_nest,fdata);
+    [model, targets] = prt_cv_fold(PRT,fdata);
     
     
     %for classification check that for each fold, the test targets have been trained

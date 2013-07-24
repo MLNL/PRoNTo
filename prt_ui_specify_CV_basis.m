@@ -163,7 +163,7 @@ if a
     set(handles.load,'Value',0)
     val=get(handles.basepop,'Value');
     mach=get(handles.basepop,'String');
-    handles.cv.k=1; %by default, Leave-One-Out options
+    handles.cv.k=0; %by default, Leave-One-Out options
     if val==0
         warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
         set(handles.basepop,'Value',1)
@@ -221,7 +221,7 @@ function basepop_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from basepop
 val=get(handles.basepop,'Value');
 mach=get(handles.basepop,'String');
-handles.cv.k=1; %by default, Leave-One-Out options
+handles.cv.k=0; %by default, Leave-One-Out options
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.basepop,'Value',1)
