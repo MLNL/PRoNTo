@@ -294,7 +294,7 @@ function num_mod_Callback(hObject, eventdata, handles)
 val=str2double(get(handles.num_mod,'String'));
 set(handles.text8,'ForegroundColor',handles.color.high)
 n_mod=length(handles.modnames);
-if n_mod>1
+if n_mod>1 && val>1
     set(handles.multkernflag,'Enable','on')
 end
 %handles.mod=struct();
@@ -302,12 +302,12 @@ list=[];
 %initialize for all modalities
 for i=1:n_mod
     handles.mod(i)=struct('mod_name',[],'mode',[],'mask',[],'detrend',[], ...
-        'param_dt',[],'normalise',[],'matnorm',[]);
+        'param_dt',[],'normalise',[],'matnorm',[],'multroi',[],'atlasroi',[]);
 end
 %get information for the selected modalities 
 for i=1:val
     try
-        tmp=prt_ui_prepare_datamod('UserData',{handles.dat,i});
+        tmp=prt_ui_prepare_datamod('UserData',{handles.dat,val});
     catch
         return
     end

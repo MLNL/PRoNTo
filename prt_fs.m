@@ -14,6 +14,8 @@ function [outfile] = prt_fs(PRT,in)
 % in.mod(m).mask:      mask file used to create the kernel
 % in.mod(m).normalise: 0 = none, 1 = normalise_kernel, 2 = scale modality
 % in.mod(m).matnorm:   filename for scaling matrix
+% in.mod(m).multroi    1 if one kernel per region required
+% in.mod(m).atlasroi   name of the atlas to build one kernel per region
 %
 % in.flag_mm:   Perform multi-kernel learning (1) or not (0)? If yes, the
 % kernel is saved as a cell vector, with one kernel per modality
@@ -43,7 +45,7 @@ for i=1:n_mods
 end
 n_mods=length(mids);
 % Load mask(s) and resize if necessary
-[mask,precmask,headers,PRT] = load_masks(PRT, prt_dir, in,mids);
+[mask,precmask,headers,PRT,ratl] = load_masks(PRT, prt_dir, in,mids);
 
 % Initialize the file arrays, kernel and feature set parameters
 [fid,PRT,tocomp] = prt_init_fs(PRT,in,mids,mask,precmask,headers);
@@ -54,14 +56,49 @@ in.fid = fid;
 
 % Build the feature set and kernel
 %--------------------------------------------------------------------------
-if n_mods>1 && in.flag_mm %for multi-kernel learning
+    % One kernel per modality
+if n_mods>1 && in.flag_mm 
     Phi=cell(n_mods,1);
-    for i=1:n_mods
-        [PRT,Phim] = prt_fs_modality(PRT,in);
+    for i=1:n_mods          % loop through modalities and save each kernel in a cell
+        [PRT,Phim] = prt_fs_modality(PRT,in,0,[]);
         Phi{i}=Phim;
     end
+    
+    % One kernel per region as defined by an atlas
+elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
+        && in.mod(mids).multroi  
+    %For each region, get the indexes of the voxels in the 2nd level mask
+    atl=spm_vol(ratl{1});
+    h=spm_read_vols(atl);
+    %Initialize all fields and compute the feature sets if needed
+    if any(tocomp)
+        [PRT] = prt_fs_modality(PRT,in);
+    end
+    if ~isempty(PRT.fs(fid).modality(mids).idfeat_fas)
+        idt = PRT.fs(fid).modality(mids).idfeat_fas;
+    else
+        idt = PRT.fas(mids).idfeat_img;
+    end
+    interh = h(idt);
+    roi = unique(interh(interh>0));
+    nroi = length(roi);
+    Phi=cell(nroi,1);
+    in.tocomp = zeros(1,n_mods);
+    %For each region, compute kernel and save the indexes in the image for
+    %further computation of the weights
+    PRT.fs(fid).modality(mids).idfeat_img = cell(nroi,1);
+    for i=1:nroi
+        disp ([' > Computing kernel: ', num2str(i),' of ',num2str(nroi),' ...'])
+        addin.idvox_fas = find(interh == roi(i));
+        [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
+        Phi{i}=Phim;
+        idts = idt(interh == roi(i));
+        PRT.fs(fid).modality(mids).idfeat_atl{i} = idts ;  
+    end
+    
+    % Concatenate modalities in time
 else
-    [PRT,Phi] = prt_fs_modality(PRT,in);
+    [PRT,Phi] = prt_fs_modality(PRT,in,0,[]);
 end
 
 % Save kernel and function output
@@ -83,13 +120,14 @@ disp('Done.')
 %------------------------- Private function -------------------------------
 %--------------------------------------------------------------------------
 
-function [mask, precmask, headers,PRT] = load_masks(PRT, prt_dir, in, mids)
+function [mask, precmask, headers,PRT, ratl] = load_masks(PRT, prt_dir, in, mids)
 % function to load the mask for each modality
 % -------------------------------------------
 n_mods   = length(mids);
 mask     = cell(1,n_mods);
 precmask = cell(1,n_mods);
 headers  = cell(1,n_mods);
+ratl     = cell(1,n_mods);
 for m = 1:n_mods
     mid = mids(m);
     
@@ -111,6 +149,21 @@ for m = 1:n_mods
             error('prt_prepare_data:CouldNotLoadFile',...
                 'Could not load mask file for preprocessing');
         end
+    end
+    
+    % get atlas for the ROI based kernel if one was specified
+    if isfield(in.mod(mid),'atlasroi')
+        alfile = in.mod(mid).atlasroi;
+        if ~isempty(alfile) %&&  mfile ~= 0
+            try
+                precA = spm_vol(char(alfile));
+            catch
+                error('prt_prepare_data:CouldNotLoadFile',...
+                    'Could not load mask file for preprocessing');
+            end
+        end
+    else
+        alfile=[];
     end
     
     % get header of the first scan of that modality
@@ -191,6 +244,39 @@ for m = 1:n_mods
         precmask{m} = fullfile(prt_dir,[mfile_new,'.img']);
     else
         precmask{m} = mfile;
+    end
+    if ~isempty(alfile) && any((precA.dim~= N.dim)) 
+        warning('prt_prepare_data:atlasAndImagesDifferentDim',...
+            'Atlas has different dimensions to the image files. Resizing...');      
+        V2 = spm_vol(char(alfile));
+        % reslicing V2        
+        fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
+        spm_reslice([N V2],fl_res)
+        % now renaming the file 
+        [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
+        rV2_fn = [fl_res.prefix,V2_fn];
+        if strcmp(V2_ext,'.nii')
+            % turn .nii into .img/.hdr image!
+            V_in = spm_vol(fullfile(V2_pth,[rV2_fn,'.nii']));
+            V_out = V_in; V_out.fname = fullfile(V2_pth,[rV2_fn,'.img']);
+            spm_imcalc(V_in,V_out,'i1');
+        end
+        % if more than one 2nd level mask to resize
+        nummask = 1;
+        while exist(fullfile( ...
+                    prt_dir,['updated_atlas_m',num2str(mid),'_',...
+                    num2str(nummask),'.img']),'file')
+                nummask = nummask+1;
+        end
+        alfile_new = ['updated_atlas_m',num2str(mid),...
+            '_',num2str(nummask)];
+        movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
+                    fullfile(prt_dir,[alfile_new,'.img']));
+        movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
+                    fullfile(prt_dir,[alfile_new,'.hdr']));
+        ratl{m} = fullfile(prt_dir,[alfile_new,'.img']);
+    else
+        ratl{m} = alfile;
     end
     clear M N precM V1 V2 mfile mfile_new
 end

@@ -30,7 +30,7 @@ function varargout = prt_ui_prepare_datamod(varargin)
 
 % Edit the above text to modify the response to help prt_ui_kernel_modality
 
-% Last Modified by GUIDE v2.5 30-Sep-2011 15:37:09
+% Last Modified by GUIDE v2.5 25-Jul-2013 11:28:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -128,14 +128,26 @@ set(handles.pop_det,'Value',1)
 set(handles.pop_norm,'String',{'No scaling', ...
     'Specify from .mat'});
 set(handles.pop_norm,'Value',1)
+set(handles.froi, 'Value',0)
+set(handles.froi,'Enable','off')
+set(handles.edit_atlas,'Visible','off')
+set(handles.br_atlas,'Visible','off')
+set(handles.edit_atlas,'Enable','off')
+set(handles.br_atlas,'Enable','off')
 if ~isempty(varargin{1}) && strcmpi(varargin{1},'UserData')
     handles.PRT=varargin{2}{1};
+    handles.nmtc=varargin{2}{2};
 else
     beep
     disp('Select a PRT.mat first')
     return
 end
-mod_n={handles.PRT.masks(:).mod_name};
+mod_n={handles.PRT.masks(:).mod_name}; %only one modality
+if handles.nmtc == 1
+    set(handles.froi,'Enable','on')
+    set(handles.edit_atlas,'Visible','on')
+    set(handles.br_atlas,'Visible','on')
+end
 set(handles.pop_mod,'String',mod_n)
 set(handles.pop_mod,'Value',1)
 % if only one modality and no design, suppress the "all conditions" option
@@ -153,6 +165,8 @@ handles.mod.mode='all_scans';
 handles.mod.detrend=0;
 handles.mod.normalise=0;
 handles.mod.mask=[];
+handles.mod.multroi=0;
+handles.mod.atlasroi=[];
 
 % Update handles structure
 guidata(hObject, handles);
@@ -207,7 +221,7 @@ function br_mask_Callback(hObject, eventdata, handles)
 % hObject    handle to br_mask (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.mod.mask=spm_select(1,'image','Select mask for the selected modality');
+handles.mod.mask=spm_select(1,'image','Select mask for the considered modality');
 set(handles.edit_mask,'String',handles.mod.mask);
 % Update handles structure
 guidata(hObject, handles);
@@ -408,13 +422,73 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+% Specify atlas for defining one kernel per region
+
+% --- Executes on button press in froi.
+function froi_Callback(hObject, eventdata, handles)
+% hObject    handle to froi (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of froi
+handles.mod.multroi=get(handles.froi,'Value');
+if handles.mod.multroi
+    set(handles.edit_atlas,'Enable','on')
+    set(handles.br_atlas,'Enable','on')
+else
+    set(handles.edit_atlas,'Enable','off')
+    set(handles.br_atlas,'Enable','off')
+end
+% Update handles structure
+guidata(hObject, handles);
+
+function edit_atlas_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_atlas (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_atlas as text
+%        str2double(get(hObject,'String')) returns contents of edit_atlas as a double
+handles.mod.atlasroi=get(handles.edit_atlas,'String');
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function edit_atlas_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_atlas (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in br_atlas.
+function br_atlas_Callback(hObject, eventdata, handles)
+% hObject    handle to br_atlas (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.mod.atlasroi=spm_select(1,'image','Select atlas to build one kernel per region');
+set(handles.edit_atlas,'String',handles.mod.atlasroi);
+% Update handles structure
+guidata(hObject, handles);
 
 % --- Executes on button press in okbutt.
 function okbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to okbutt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    
+
+if handles.mod.multroi ==1 && isempty(handles.mod.atlasroi)
+    beep
+    disp('One kernel per region selected but no atlas provided')
+    disp('Please provide atlas')
+    return
+end
+
 handles.output=handles.mod;
 % Update handles structure
 guidata(hObject, handles);

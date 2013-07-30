@@ -52,9 +52,17 @@ n_mods=length(mids);
 % get the indexes of the samples and of the features to use if flag is set
 % to 1
 if nargin>=3 && flag
-    ID = addin.ID;
-    nfa = 0;
-    idvox = addin.idvox_fas;
+    if ~isfield(addin,'ID')
+        ID= PRT.fs(fid).id_mat;
+    else
+        ID = addin.ID;
+    end
+    if isfield(addin,'idvox_fas')
+        idvox = addin.idvox_fas;
+    else
+        idvox = PRT.fs(fid).modality(1).idfeat_fas;
+    end
+    nfa = 0;    
     n_vox = numel(idvox);
 else
     ID= PRT.fs(fid).id_mat;
@@ -88,7 +96,9 @@ if nargin<3 || ~flag
     step=1;
 end
 for b = 1:n_block
-    disp ([' > preparing block: ', num2str(b),' of ',num2str(n_block),' ...'])
+    if nargin<3 || ~flag
+        disp ([' > preparing block: ', num2str(b),' of ',num2str(n_block),' ...'])
+    end
     vox_range  = bstart:bend;
     block_size = length(vox_range);
     kern_vols  = zeros(block_size,n);
