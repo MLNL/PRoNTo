@@ -60,10 +60,11 @@ in.fid = fid;
 if n_mods>1 && in.flag_mm 
     Phi=cell(n_mods,1);
     for i=1:n_mods          % loop through modalities and save each kernel in a cell
-        [PRT,Phim] = prt_fs_modality(PRT,in,0,[]);
+        idtk = PRT.fs(fid).id_mat(:,3) == mids(i);
+        addin.ID = PRT.fs(fid).id_mat(idtk,:);
+        [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
         Phi{i}=Phim;
     end
-    
     % One kernel per region as defined by an atlas
 elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
         && in.mod(mids).multroi  

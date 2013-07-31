@@ -39,32 +39,44 @@ prt_dir  = regexprep(in.fname,'PRT.mat', ''); % or: fileparts(fname);
 def=prt_get_defaults('fs');
 fid = in.fid;
 
-% get the index of the modalities for which the user wants a kernel/data
-n_mods=length(in.mod);
-mids=[];
-for i=1:n_mods
-    if ~isempty(in.mod(i).mod_name)
-        mids = [mids, i];
-    end
-end
-n_mods=length(mids);
-
 % get the indexes of the samples and of the features to use if flag is set
 % to 1
 if nargin>=3 && flag
     if ~isfield(addin,'ID')
         ID= PRT.fs(fid).id_mat;
+        n_mods=length(in.mod);
+        mids=[];
+        for i=1:n_mods
+            if ~isempty(in.mod(i).mod_name)
+                mids = [mids, i];
+            end
+        end
     else
         ID = addin.ID;
+        mids = unique(ID(:,3));
     end
+    n_mods=length(mids);
     if isfield(addin,'idvox_fas')
         idvox = addin.idvox_fas;
     else
-        idvox = PRT.fs(fid).modality(1).idfeat_fas;
+        if ~isempty(PRT.fs(fid).modality(mids(1)).idfeat_fas)
+            idvox = PRT.fs(fid).modality(mids(1)).idfeat_fas;
+        else
+            idvox = 1:PRT.fas(mids(1)).dat.dim(2);
+        end
     end
-    nfa = 0;    
     n_vox = numel(idvox);
+    nfa = 0;    
 else
+    % get the index of the modalities for which the user wants a kernel/data
+    n_mods=length(in.mod);
+    mids=[];
+    for i=1:n_mods
+        if ~isempty(in.mod(i).mod_name)
+            mids = [mids, i];
+        end
+    end
+    n_mods=length(mids);
     ID= PRT.fs(fid).id_mat;
     nfa = [];
     for m = 1:n_mods
@@ -72,7 +84,11 @@ else
         if in.tocomp(mids(m))
             n_vox = PRT.fas(mids(m)).dat.dim(2); %n_vox has to be the same for all concatenated modalities (version 1.1)
         else
-            idvox = PRT.fs(fid).modality(m).idfeat_fas;
+            if ~isempty(PRT.fs(fid).modality(m).idfeat_fas)
+                idvox = PRT.fs(fid).modality(m).idfeat_fas;
+            else
+                idvox = 1:PRT.fas(mids(m)).dat.dim(2);
+            end
             n_vox = numel(idvox);
         end
     end
@@ -119,6 +135,7 @@ for b = 1:n_block
         %indexes to access the file array
         indm = find(PRT.fs(fid).fas.im==mid);
         ifa  = PRT.fs(fid).fas.ifa(indm);
+        indm = find(ID(:,3) == mid);
         %get the data from each subject of each group and save its linear
         %detrended version in a file array
         %-------------------------------------------------------------------

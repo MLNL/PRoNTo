@@ -248,24 +248,25 @@ for g = 1:length(in.group)
         error('prt_model:groupNotFoundInPRT',...
             ['Group ',gr_name,' not found in PRT.mat']);
     end
-    targets=zeros(length(in.group(g).subj),1);
+    nmod=length(in.group(g).subj(1).modality);
+    targets=zeros(nmod,length(in.group(g).subj));
     % subjects
     for s = 1:length(in.group(g).subj)
-        % modalities, currently only one is allowed
-        m=1;
-        mod_name = in.group(g).subj(s).modality(m).mod_name;
-        if any(strcmpi(mod_name,modalities))
-            mid = find(strcmpi(mod_name,modalities));
-        else
-            error('prt_model:modalityNotFoundInPRT',...
-                ['Modality ',mod_name,' not found in PRT.mat']);
-        end
-        idx = in.group(g).subj(s).num;
-        targets(s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
-        samp_idx=[samp_idx; find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)];
-        
+        %modalities
+        for m = 1:length(in.group(g).subj(s).modality)
+            mod_name = in.group(g).subj(s).modality(m).mod_name;
+            if any(strcmpi(mod_name,modalities))
+                mid = find(strcmpi(mod_name,modalities));
+            else
+                error('prt_model:groupNotFoundInPRT',...
+                    ['Modality ',mod_name,' not found in PRT.mat']);
+            end
+            idx = in.group(g).subj(s).num;
+            targets(m,s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
+            samp_idx=[samp_idx; find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)];
+        end        
     end
-    targ_g=[targ_g;targets];
+    targ_g=[targ_g;targets(:)];
 end
 targ_allscans(samp_idx)=targ_g;
 targets=targ_g;
