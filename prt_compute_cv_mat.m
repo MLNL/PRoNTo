@@ -6,19 +6,37 @@ if ~exist('use_nested_cv', 'var')
     use_nested_cv = false;
 end
 
-%TODO: include the k in the PRT instead of the in
+
 fid = prt_init_fs(PRT, in.fs(1));
-if isfield(in.cv,'k')
-    k=in.cv.k;  %k-fold CV
+
+% TODO: The code bellow is not very well written, the PRT.model(modelid).input.cv.k
+% field should probably be set outside this function. If not, then PRT has
+% to be an output of the function (to update the value of k)
+
+
+% create the PRT.model(modelid).input.cv field
+if ~isfield(PRT.model(modelid).input, 'cv')
+    PRT.model(modelid).input.cv={};
+end
+
+% if isfield(in.cv,'k')
+if isfield(PRT.model(modelid).input.cv,'k')
+    %     k=in.cv.k;  %k-fold CV
+    k = PRT.model(modelid).input.cv.k;
 else
     k=0; %loo cv
+    PRT.model(modelid).input.cv.k = k;
 end
 if k==1 %half-half
     k=2;
     flaghh=1;
+    PRT.model(modelid).input.cv.k = k;
 else
     flaghh=0;
 end
+
+
+
 
 
 if isfield(in,'include_allscans') && in.include_allscans

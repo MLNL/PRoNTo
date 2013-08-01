@@ -90,8 +90,7 @@ PRT.model(modelid).input.targ_allscans    = t_allscans;
 PRT.model(modelid).input.cv_mat     = CV;
 PRT.model(modelid).input.operations = in.operations;
 
-% TODO: save k in PRT.model(modelid).input.cv_k
-% PRT.model(modelid).input.
+
 % TODO: Remove this line, this is just for testing with the nested cv
 PRT.model(modelid).input.use_nested_cv = false;
 

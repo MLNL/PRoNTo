@@ -26,16 +26,19 @@ samp_idx = samp_idx(train_entries);
 
 % Change fdata
 in.ID      = in.ID(train_entries, :);
-in.Phi_all{1} = Phi(samp_idx,samp_idx); % won't work for multiple kernels, i.e. Phi_all{i}!!!
 in.t       = in.t(train_entries);
-in.fs = PRT.fs;
+in.fs      = PRT.fs;
 in.cv.type = PRT.model(mid).input.cv_type;
+for i=1:length(in.Phi_all)
+    in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
+end 
+
 
 % Set range of the hyper parameters
 switch PRT.model.input.machine.function
     case 'prt_machine_svm_bin'
-        c = 1:5;
-        bacc = zeros(size(c));
+        c = 0.1:0.1:10;
+        b_acc = zeros(size(c));
         
     otherwise
         error('Machine not currently supported for nested CV');
@@ -58,15 +61,15 @@ for i = 1:length(c)
     end
     
     % compute the model for each fold of the inner CV
-    for f = 1:size(CV, 2)
+    for f = 1:size(in.CV, 2)
         
         fold.ID      = in.ID;
         fold.CV      = in.CV(:,f);
         fold.Phi_all = in.Phi_all;
         fold.t       = in.t;
         fold.mid     = mid;
-       
-        [model, targets] = prt_cv_fold(PRT,fold);        
+        
+        [model, targets] = prt_cv_fold(PRT,fold);
         
         %for classification check that for each fold, the test targets have been trained
         if strcmpi(PRT.model(mid).input.type,'classification')
@@ -78,14 +81,27 @@ for i = 1:length(c)
             end
         end
         
-        % compute stats
-        stats = prt_stats(model, targets.test, targets.train); %only need to compute the stats outside the loop
+        
         
     end
     
-    
+    % compute stats
+    par(i).c = c(i);
+    par(i).stats = prt_stats(model, targets.test, targets.train);
+    b_acc(i) = par(i).stats.b_acc;
     
 end
+
+
+% Copy the optimal parameter to PRT
+[max_b_acc, max_b_acc_ind] = max(b_acc);
+c_max = c(max_b_acc_ind);
+
+if ~isfield(PRT.model.machine, 'opt_par')
+    PRT.model.machine.opt_par = [];
+end
+PRT.model.machine.opt_par = [PRT.model.machine.opt_par, c_max];
+
 
 
 end
