@@ -26,10 +26,8 @@ samp_idx = samp_idx(train_entries);
 
 % Change fdata
 in.ID      = in.ID(train_entries, :);
-in.CV      = in.CV(train_entries);
-in.Phi_all{1} = Phi(samp_idx,samp_idx); % TODO: I'm not sure this is correct. CHECK!
+in.Phi_all{1} = Phi(samp_idx,samp_idx); % won't work for multiple kernels, i.e. Phi_all{i}!!!
 in.t       = in.t(train_entries);
-
 in.fs = PRT.fs;
 in.cv.type = PRT.model(mid).input.cv_type;
 
@@ -45,10 +43,9 @@ switch PRT.model.input.machine.function
 end
 
 % generate new CV matrix
-[CV,~] = prt_compute_cv_mat(PRT, in, mid, use_nested_cv);
-in.CV = CV;
+in.CV = prt_compute_cv_mat(PRT, in, mid, use_nested_cv);
 
-
+% compute model performance based on hyper-parameter range
 for i = 1:length(c)
     
     switch PRT.model.input.machine.function
@@ -60,8 +57,7 @@ for i = 1:length(c)
             
     end
     
-    % compute the model for this CV fold
-    
+    % compute the model for each fold of the inner CV
     for f = 1:size(CV, 2)
         
         fold.ID      = in.ID;
@@ -69,11 +65,8 @@ for i = 1:length(c)
         fold.Phi_all = in.Phi_all;
         fold.t       = in.t;
         fold.mid     = mid;
-
-        
-        [model, targets] = prt_cv_fold(PRT,fold);
-        
-        
+       
+        [model, targets] = prt_cv_fold(PRT,fold);        
         
         %for classification check that for each fold, the test targets have been trained
         if strcmpi(PRT.model(mid).input.type,'classification')
@@ -86,7 +79,7 @@ for i = 1:length(c)
         end
         
         % compute stats
-        stats = prt_stats(model, targets.test, targets.train);
+        stats = prt_stats(model, targets.test, targets.train); %only need to compute the stats outside the loop
         
     end
     
