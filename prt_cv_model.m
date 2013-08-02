@@ -88,6 +88,11 @@ for f = 1:n_folds
     
     % Nested CV for hyper-parameter optimisation or feature selection
     if PRT.model(mid).input.use_nested_cv
+        % Clear all the results from previous parameter optimisations
+        if f == 1
+            PRT.model(mid).machine.opt_par = [];
+        end
+        
         [PRT] = prt_nested_cv(PRT, mid, fdata, Phi, samp_idx);
     end
     

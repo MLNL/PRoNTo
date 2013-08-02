@@ -14,7 +14,7 @@ function [PRT] = prt_nested_cv(PRT, mid, in, Phi, samp_idx)
 % $Id: $
 
 % Set flag
-use_nested_cv = PRT.model.input.use_nested_cv;
+use_nested_cv = PRT.model(mid).input.use_nested_cv;
 if use_nested_cv == false
     error('prt_nested_cv function called with use_nested_cv = false');
 end
@@ -35,9 +35,9 @@ end
 
 
 % Set range of the hyper parameters
-switch PRT.model.input.machine.function
+switch PRT.model(mid).input.machine.function
     case 'prt_machine_svm_bin'
-        c = 0.1:0.1:10;
+        c = 1:0.1:10;
         b_acc = zeros(size(c));
         
     otherwise
@@ -51,8 +51,9 @@ in.CV = prt_compute_cv_mat(PRT, in, mid, use_nested_cv);
 % compute model performance based on hyper-parameter range
 for i = 1:length(c)
     
-    switch PRT.model.input.machine.function
+    switch PRT.model(mid).input.machine.function
         case 'prt_machine_svm_bin'
+            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' int2str(c(i))];
             PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' int2str(c(i))];
             
         otherwise
@@ -97,10 +98,8 @@ end
 [max_b_acc, max_b_acc_ind] = max(b_acc);
 c_max = c(max_b_acc_ind);
 
-if ~isfield(PRT.model.machine, 'opt_par')
-    PRT.model.machine.opt_par = [];
-end
-PRT.model.machine.opt_par = [PRT.model.machine.opt_par, c_max];
+% Save best parameter in the PRT
+PRT.model(mid).machine.opt_par = [PRT.model(mid).machine.opt_par, c_max];
 
 
 
