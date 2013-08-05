@@ -21,7 +21,7 @@ end
 
 train_entries = find(in.CV == 1);
 
-% Change samp_idx (used for the kernel)
+% Change samp_idx
 samp_idx = samp_idx(train_entries);
 
 % Change fdata
@@ -31,13 +31,15 @@ in.fs      = PRT.fs;
 in.cv.type = PRT.model(mid).input.cv_type;
 for i=1:length(in.Phi_all)
     in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
-end 
+end
 
 
 % Set range of the hyper parameters
 switch PRT.model(mid).input.machine.function
     case 'prt_machine_svm_bin'
-        c = 1:0.1:10;
+        % c = 1:100:10000;
+        c = logspace(-2, 5);
+               
         b_acc = zeros(size(c));
         
     otherwise
@@ -53,8 +55,8 @@ for i = 1:length(c)
     
     switch PRT.model(mid).input.machine.function
         case 'prt_machine_svm_bin'
-            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' int2str(c(i))];
-            PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' int2str(c(i))];
+            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(c(i))];
+            PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' num2str(c(i))];
             
         otherwise
             error('Machine not currently supported for nested CV');
@@ -90,6 +92,7 @@ for i = 1:length(c)
     par(i).c = c(i);
     par(i).stats = prt_stats(model, targets.test, targets.train);
     b_acc(i) = par(i).stats.b_acc;
+    
     
 end
 
