@@ -44,6 +44,7 @@ SANITYCHECK = true; % can turn off for "speed"
 
 %% INPUT CHECKS
 %--------------------------------------------------------------------------
+fnch   = str2func(m.function);
 if SANITYCHECK==true
     % Check machine struct properties
     if ~isempty(m)
@@ -135,9 +136,9 @@ if SANITYCHECK==true
         Nk_train   = length(d.train);
         
         % 5: Check if data has more than one cell
-        if Nk_train > 1
+        if ~strcmpi(fnch,'Multi') && Nk_train > 1
              error('prt_machine:MKLnotSupported',...
-                    'Error: Multi-kernel learning not supported yet!');
+                    'Error: Multi-kernel learning not supported for this machine!');
         end 
         
         %6: Check validity of machines chosen.(e.g. use SVM to do
@@ -200,8 +201,6 @@ end % SANITYCHECK
 
 %% Run model
 %--------------------------------------------------------------------------
-fnch   = str2func(m.function);
-
 try
     output = fnch(d,m.args);
 catch

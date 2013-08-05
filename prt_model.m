@@ -247,8 +247,8 @@ for g = 1:length(in.group)
         error('prt_model:groupNotFoundInPRT',...
             ['Group ',gr_name,' not found in PRT.mat']);
     end
-    nmod=length(in.group(g).subj(1).modality);
-    targets=zeros(nmod,length(in.group(g).subj));
+%     nmod=length(in.group(g).subj(1).modality);
+    targets=zeros(1,length(in.group(g).subj)); %replace by nmod for multiple targets per subject
     % subjects
     for s = 1:length(in.group(g).subj)
         %modalities
@@ -260,9 +260,11 @@ for g = 1:length(in.group)
                 error('prt_model:groupNotFoundInPRT',...
                     ['Modality ',mod_name,' not found in PRT.mat']);
             end
-            idx = in.group(g).subj(s).num;
-            targets(m,s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
-            samp_idx=[samp_idx; find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)];
+            if m==1 %only one regression target per subject, whatever the number of modalities
+                idx = in.group(g).subj(s).num;
+                targets(m,s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
+                samp_idx=[samp_idx; find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)];
+            end
         end        
     end
     targ_g=[targ_g;targets(:)];

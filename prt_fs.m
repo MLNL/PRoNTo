@@ -65,6 +65,10 @@ if n_mods>1 && in.flag_mm
         [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
         Phi{i}=Phim;
     end
+    %post-hoc: the ID mat should be the same for all modalities involved,
+    %so only the first one will be saved
+    indm=PRT.fs(fid).fas.im==1;
+    PRT.fs(fid).id_mat=PRT.fs(fid).id_mat(indm,:);
     % One kernel per region as defined by an atlas
 elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
         && in.mod(mids).multroi  
