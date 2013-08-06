@@ -65,6 +65,7 @@ prt_def.model.gpclapargs = '-h'; %'-h';
 prt_def.model.gprargs    = '-l gauss -h'; % -h
 prt_def.model.krrargs    = 1;
 prt_def.model.rtargs     = 601;
+prt_def.model.l1MKLargs  = 1;
 
 % Parralelization of the code
 %--------------------------------------------------

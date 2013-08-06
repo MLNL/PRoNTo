@@ -136,7 +136,7 @@ if SANITYCHECK==true
         Nk_train   = length(d.train);
         
         % 5: Check if data has more than one cell
-        if ~strcmpi(fnch,'Multi') && Nk_train > 1
+        if isempty(strfind(char(fnch),'MKL')) && Nk_train > 1
              error('prt_machine:MKLnotSupported',...
                     'Error: Multi-kernel learning not supported for this machine!');
         end 

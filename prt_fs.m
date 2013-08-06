@@ -69,6 +69,7 @@ if n_mods>1 && in.flag_mm
     %so only the first one will be saved
     indm=PRT.fs(fid).fas.im==1;
     PRT.fs(fid).id_mat=PRT.fs(fid).id_mat(indm,:);
+    PRT.fs(fid).multkernel = 1;
     % One kernel per region as defined by an atlas
 elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
         && in.mod(mids).multroi  
@@ -100,10 +101,11 @@ elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
         idts = idt(interh == roi(i));
         PRT.fs(fid).modality(mids).idfeat_atl{i} = idts ;  
     end
-    
+    PRT.fs(fid).multkernel = 1;
     % Concatenate modalities in time
 else
     [PRT,Phi] = prt_fs_modality(PRT,in,0,[]);
+    PRT.fs(fid).multkernel = 0;
 end
 
 % Save kernel and function output

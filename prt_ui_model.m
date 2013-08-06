@@ -364,13 +364,46 @@ end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{val};
 handles.fs(1).indfs=val;
-if length(handles.dat.fs(val).modality)>1
-    list=get(handles.pop_cv,'String');
-    list=[list;{'Leave One Run/Session Out'}];
-    set(handles.pop_cv,'String',list)
-    set(handles.pop_cv,'Value',length(list))
-    handles.cv.type = 'loro';
+list=get(handles.pop_cv,'String');
+if length(handles.dat.fs(val).modality)>1 %LOO Run if not in list
+    if ~any(strcmpi(list,'Leave One Run/Session Out'))
+        list=[list;{'Leave One Run/Session Out'}];
+        set(handles.pop_cv,'String',list)
+        set(handles.pop_cv,'Value',length(list))
+        handles.cv.type = 'loro';
+        handles.multimod = 1;
+    end
+else                                    %delete LOO Run if not available for the selected feature set
+    if any(strcmpi(list,'Leave One Run/Session Out'))
+        idlist = find(strcmpi(list,'Leave One Run/Session Out'));
+        tidl = 1:length(list);
+        idtk = setdiff(tidl,idlist);
+        set(handles.pop_cv,'String',list(idtk))
+        set(handles.pop_cv,'Value',1)
+        handles.cv.type = 'custom';
+        handles.multimod = 0;
+    end
+end
+% Add multi-kernel learning if flag to 1
+if handles.dat.fs(val).multkernel %allowing for multi-kernel learning
     handles.multimod = 1;
+else
+    handles.multimod = 0;
+end
+handles.use_kernel=get(handles.kernel_methods,'Value');
+if get(handles.pop_reg,'Value')==1 %for classification
+    if handles.use_kernel
+        list = {'Binary support vector machine',...
+            'Binary Gaussian Process Classification',...
+            'Multiclass GPC'};
+        if handles.multimod
+            list = [list,{'L1- Multi-Kernel Learning'}];
+        end
+        set(handles.pop_machine,'String',list)
+        set(handles.pop_machine,'Value',1)
+        handles.machine.function='prt_machine_svm_bin';
+        handles.machine.args=handles.def.svmargs;
+    end
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -402,9 +435,13 @@ if get(handles.pop_reg,'Value')==1 %for classification
         handles.machine.function='prt_machine_RT_bin';
         handles.machine.args=handles.def.rtargs;
     else
-        set(handles.pop_machine,'String',{'Binary support vector machine',...
+        list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
-            'Multiclass GPC'})
+            'Multiclass GPC'};
+        if handles.multimod
+            list = [list,{'L1- Multi-Kernel Learning'}];
+        end
+        set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
         handles.machine.function='prt_machine_svm_bin';
         handles.machine.args=handles.def.svmargs;
@@ -433,9 +470,13 @@ if val==1 %Classification
     nk=get(handles.kernel_methods,'Value');
     if nk==1
         %set the list of machines
-        set(handles.pop_machine,'String',{'Binary support vector machine',...
+        list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
-            'Multiclass GPC'})
+            'Multiclass GPC'};
+        if handles.multimod
+            list = [list,{'L1- Multi-Kernel Learning'}];
+        end
+        set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
         handles.machine.function='prt_machine_svm_bin';
         handles.machine.args=handles.def.svmargs;
@@ -595,6 +636,9 @@ elseif any(strfind(mach{val},'Process Regression'))
 elseif any(strfind(mach{val},'Random'))
     handles.machine.function='prt_machine_RT_bin';
     handles.machine.args=handles.def.rtargs;    
+elseif any(strfind(mach{val},'L1- Multi-Kernel'))
+    handles.machine.function='prt_machine_simpleMKL';
+    handles.machine.args=handles.def.l1MKLargs; 
 end
 % Update handles structure
 guidata(hObject, handles);

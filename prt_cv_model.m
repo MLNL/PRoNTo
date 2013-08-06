@@ -49,9 +49,9 @@ end
 
 %get number of classes
 if strcmpi(PRT.model(mid).input.type,'classification')
-    nk=max(unique(t));
+    nc=max(unique(t));
 else
-    nk=[];
+    nc=[];
 end
 
  if ~isfield(in,'f_ind_models')
@@ -86,23 +86,14 @@ for i = 1:length(PRT.model(mid).input.fs)
         if PRT.model(mid).input.use_kernel
             fid = prt_init_fs(PRT, PRT.model(mid).input.fs(i));
             load(fullfile(prt_dir, PRT.fs(fid).k_file));
-            Phi_all=cell(1,length(Phi));
             ID = PRT.fs(fid).id_mat(samp_idx,:);
-            if length(Phi)==1
+            if ~iscell(Phi) || length(Phi)==1
                 Phi_all{1} = Phi(samp_idx,samp_idx);
             else
+                Phi_all=cell(1,length(Phi));
                 for j=1:length(Phi)
                     Phi_all{j}=Phi{j}(samp_idx,samp_idx);
                 end
-                %                 n_mods = unique(ID(:,3));
-                %                 if length(n_mods)>1 %multiple modalities in multiple kernels
-                %                     for k=1:length(n_mods)
-                %                         smpi = samp_idx(ID(:,3)==n_mods(k));
-                %                         Phi_all{k}=Phi{k}(smpi,smpi);
-                %                     end
-                %                 else %multiple regions in one modality
-                %
-                %                 end
             end
         else
             error('training with features not implemented yet');
@@ -162,7 +153,7 @@ for k = 1:nk
         end
         
         % compute stats
-        stats = prt_stats(model, targets.test, targets.train);
+        stats = prt_stats(model, targets.test, nc); %targets.train
         
         % update PRT
         PRT.model(mid).output(k).fold(f).targets     = targets.test;
@@ -184,11 +175,11 @@ for k = 1:nk
     m.type        = PRT.model(mid).output(k).fold(1).type;
     m.predictions = vertcat(PRT.model(mid).output(k).fold(:).predictions);
     %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
-    stats         = prt_stats(m,t(:),nk);
+    stats         = prt_stats(m,t(:),nc);
     
     PRT.model(mid).output(k).stats=stats;
 end
-if length(Phi_all)>1
+if flag && length(Phi_all)>1
     PRT.model(mid).output = rmfield(PRT.model(mid).output,'fold');
 end
 
@@ -203,11 +194,4 @@ else
     save(outfile,'PRT');
 end
 end
-
-%--------------------------------------------------------------------------
-%--------------------------- Subfunctions ---------------------------------
-%--------------------------------------------------------------------------
-
-% Compute model
-%--------------------------------------------------------------------------
 
