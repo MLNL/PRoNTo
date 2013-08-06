@@ -54,11 +54,11 @@ else
     nc=[];
 end
 
- if ~isfield(in,'f_ind_models')
-     flag = 0;
- else
-     flag = in.f_ind_models;
- end
+if ~isfield(in,'f_ind_models')
+    flag = 0;
+else
+    flag = in.f_ind_models;
+end
 
 % load data files and configure ID matrix
 disp('Loading data files.....>>');
@@ -132,7 +132,15 @@ for k = 1:nk
         if PRT.model(mid).input.use_nested_cv
             % Clear all the results from previous parameter optimisations
             if f == 1
+                PRT.model(mid).input.machine.opt_par = [];
+                % TODO: I don't know why but this field exists on the PRT for
+                % classification. I'm just putting this here to be sure everthing is fine
                 PRT.model(mid).machine.opt_par = [];
+                
+                
+                PRT.model(mid).input.machine.stats = [];
+                PRT.model(mid).machine.stats = [];
+                
             end
             
             [PRT] = prt_nested_cv(PRT, mid, fdata, Phi, samp_idx);

@@ -11,7 +11,7 @@ function [PRT] = prt_nested_cv(PRT, mid, in, Phi, samp_idx)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Matos Monteiro
-% $Id: $
+% $Id$
 
 % Set flag
 use_nested_cv = PRT.model(mid).input.use_nested_cv;
@@ -37,10 +37,12 @@ end
 % Set range of the hyper parameters
 switch PRT.model(mid).input.machine.function
     case 'prt_machine_svm_bin'
-        % c = 1:100:10000;
-        c = logspace(-2, 5);
-               
-        b_acc = zeros(size(c));
+        par = logspace(-2, 5);
+        stats_vec = zeros(size(par));
+        
+    case 'prt_machine_krr'
+        par = 0.1:0.1:1;
+        stats_vec = zeros(size(par));
         
     otherwise
         error('Machine not currently supported for nested CV');
@@ -51,12 +53,22 @@ end
 in.CV = prt_compute_cv_mat(PRT, in, mid, use_nested_cv);
 
 % compute model performance based on hyper-parameter range
-for i = 1:length(c)
+for i = 1:length(par)
     
     switch PRT.model(mid).input.machine.function
         case 'prt_machine_svm_bin'
-            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(c(i))];
-            PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' num2str(c(i))];
+            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
+            % TODO: I don't know why but this field exists on the PRT for
+            % classification. I'm changing the parameter on both fields
+            % of the PRT struct just to be sure everthing is fine
+            PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
+            
+        case 'prt_machine_krr'
+            PRT.model(mid).input.machine.args = par(i);
+            % TODO: I don't know why but this field exists on the PRT for
+            % classification. I'm changing the parameter on both fields
+            % of the PRT struct just to be sure everthing is fine
+            PRT.model(mid).machine.args = par(i);
             
         otherwise
             error('Machine not currently supported for nested CV');
@@ -89,21 +101,35 @@ for i = 1:length(c)
     end
     
     % compute stats
-    par(i).c = c(i);
-    par(i).stats = prt_stats(model, targets.test, targets.train);
-    b_acc(i) = par(i).stats.b_acc;
+    results(i).par = par(i);
+    results(i).stats = prt_stats(model, targets.test, targets.train);
+    
+    switch PRT.model(mid).input.machine.function
+        case 'prt_machine_svm_bin'
+            stats_vec(i) = results(i).stats.b_acc;
+        case 'prt_machine_krr'
+            % The smaller, the better. Thus, negative is stored
+            stats_vec(i) = -results(i).stats.mse;
+            
+        otherwise
+            error('Machine not currently supported for nested CV');
+    end
     
     
 end
 
 
-% Copy the optimal parameter to PRT
-[max_b_acc, max_b_acc_ind] = max(b_acc);
-c_max = c(max_b_acc_ind);
+
+% Get optimal parameter
+[max_stats, max_stats_ind] = max(stats_vec);
+par_max = par(max_stats_ind);
 
 % Save best parameter in the PRT
-PRT.model(mid).machine.opt_par = [PRT.model(mid).machine.opt_par, c_max];
+PRT.model(mid).input.machine.opt_par = [PRT.model(mid).input.machine.opt_par, par_max];
+PRT.model(mid).machine.opt_par = [PRT.model(mid).machine.opt_par, par_max];
 
-
+% Save all the stats
+PRT.model(mid).input.machine.stats = [PRT.model(mid).input.machine.stats, stats_vec'];
+PRT.model(mid).machine.stats = [PRT.model(mid).machine.stats, stats_vec'];
 
 end
