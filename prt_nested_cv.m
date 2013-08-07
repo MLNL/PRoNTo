@@ -37,7 +37,8 @@ end
 % Set range of the hyper parameters
 switch PRT.model(mid).input.machine.function
     case 'prt_machine_svm_bin'
-        par = logspace(-2, 5);
+        d1 = -2 : 5;
+        par = 10 .^(d1);
         stats_vec = zeros(size(par));
         
     case 'prt_machine_krr'
@@ -121,8 +122,12 @@ end
 
 
 % Get optimal parameter
-[max_stats, max_stats_ind] = max(stats_vec);
-par_max = par(max_stats_ind);
+if length(unique(stats_vec)) ==1 % No effect of parameter, so get default
+    par_max = 1; % Change from defaults and in function of the machine!!!
+else
+    [max_stats, max_stats_ind] = max(stats_vec);
+    par_max = par(max_stats_ind);
+end
 
 % Save best parameter in the PRT
 PRT.model(mid).input.machine.opt_par = [PRT.model(mid).input.machine.opt_par, par_max];
@@ -131,5 +136,3 @@ PRT.model(mid).machine.opt_par = [PRT.model(mid).machine.opt_par, par_max];
 % Save all the stats
 PRT.model(mid).input.machine.stats = [PRT.model(mid).input.machine.stats, stats_vec'];
 PRT.model(mid).machine.stats = [PRT.model(mid).machine.stats, stats_vec'];
-
-end

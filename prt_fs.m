@@ -80,8 +80,8 @@ elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
     if any(tocomp)
         [PRT] = prt_fs_modality(PRT,in);
     end
-    if ~isempty(PRT.fs(fid).modality(mids).idfeat_fas)
-        idt = PRT.fs(fid).modality(mids).idfeat_fas;
+    if ~isempty(PRT.fs(fid).modality(1).idfeat_fas)
+        idt = PRT.fs(fid).modality(1).idfeat_fas;
     else
         idt = PRT.fas(mids).idfeat_img;
     end
@@ -89,17 +89,17 @@ elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
     roi = unique(interh(interh>0));
     nroi = length(roi);
     Phi=cell(nroi,1);
-    in.tocomp = zeros(1,n_mods);
+    in.tocomp = zeros(1,length(tocomp));
     %For each region, compute kernel and save the indexes in the image for
     %further computation of the weights
-    PRT.fs(fid).modality(mids).idfeat_img = cell(nroi,1);
+    PRT.fs(fid).modality(1).idfeat_img = cell(nroi,1);
     for i=1:nroi
         disp ([' > Computing kernel: ', num2str(i),' of ',num2str(nroi),' ...'])
         addin.idvox_fas = find(interh == roi(i));
         [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
         Phi{i}=Phim;
         idts = idt(interh == roi(i));
-        PRT.fs(fid).modality(mids).idfeat_atl{i} = idts ;  
+        PRT.fs(fid).modality(1).idfeat_atl{i} = idts ;  
     end
     PRT.fs(fid).multkernel = 1;
     % Concatenate modalities in time

@@ -723,8 +723,14 @@ function classmenu_Callback(hObject, eventdata, handles)
 % Get folds
 m  = get(handles.classmenu,'Value');
 mi = handles.mi;
-
+if length(handles.PRT.model(mi(m)).output)>1
+    beep
+    disp('Cannot display results per kernel in results window')
+    return
+end
 handles.nfold = length(handles.PRT.model(mi(m)).output.fold);
+
+
 folds{1}      = 'All folds / Average';
 for f = 1:handles.nfold
     folds{f+1} = num2str(f);
@@ -732,7 +738,7 @@ end
 
 % Set plots menu for first model
 if strcmp(handles.PRT.model(mi(m)).input.type,'classification');
-    if length(handles.PRT.model(mi(m)).output.stats.c_acc) <= 2 ;
+    if length(handles.PRT.model(mi(m)).output(1).stats.c_acc) <= 2 ;
         plots = {'Histogram','Confusion Matrix','Predictions','ROC'};
     else
         plots = {'Histogram', 'Confusion Matrix'};

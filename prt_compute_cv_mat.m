@@ -6,8 +6,11 @@ if ~exist('use_nested_cv', 'var')
     use_nested_cv = false;
 end
 
-
-fid = prt_init_fs(PRT, in.fs(1));
+if use_nested_cv
+    fid = prt_init_fs(PRT,PRT.model(modelid).input.fs(1));
+else
+    fid = prt_init_fs(PRT, in.fs(1));
+end
 
 % TODO: The code bellow is not very well written, the PRT.model(modelid).input.cv.k
 % field should probably be set outside this function. If not, then PRT has
@@ -114,17 +117,32 @@ switch in.cv.type
     case 'losgo'
         %modify the ID to take the structure of the classes into account
         vcl=zeros(size(ID,1),2);
-        for ic=1:length(in.class)
-            nsg=1;
-            for ig=1:length(in.class(ic).group)
-                gnames={PRT.group(:).gr_name};
-                [d,ng]=ismember(in.class(ic).group(ig).gr_name,gnames);
-                for is=1:length(in.class(ic).group(ig).subj)
-                    inds=find(ID(:,1)==ng);
-                    indss=find(ID(inds,2)==is);
-                    vcl(inds(indss),1)=ic;
-                    vcl(inds(indss),2)=nsg;
-                    nsg=nsg+1;
+        if isfield(in,'class')
+            for ic=1:length(in.class)
+                nsg=1;
+                for ig=1:length(in.class(ic).group)
+                    gnames={PRT.group(:).gr_name};
+                    [d,ng]=ismember(in.class(ic).group(ig).gr_name,gnames);
+                    for is=1:length(in.class(ic).group(ig).subj)
+                        inds=find(ID(:,1)==ng);
+                        indss=find(ID(inds,2)==is);
+                        vcl(inds(indss),1)=ic;
+                        vcl(inds(indss),2)=nsg;
+                        nsg=nsg+1;
+                    end
+                end
+            end
+        elseif isfield(in,'t')
+            ntar = unique(in.t);
+            nsg = 1;
+            for ic = 1:length(ntar)
+                inds = find(in.t == ic);
+                vcl(inds,1) = ic;
+                indss = unique(ID(inds,2));
+                for is = 1:length(indss)
+                    inss = find(ID(inds,2) == indss(is));
+                    vcl(inds(inss),2) = nsg;
+                    nsg = nsg + 1;
                 end
             end
         end

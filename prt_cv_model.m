@@ -143,7 +143,7 @@ for k = 1:nk
                 
             end
             
-            [PRT] = prt_nested_cv(PRT, mid, fdata, Phi, samp_idx);
+            [PRT] = prt_nested_cv(PRT, mid, fdata, Phi(k), samp_idx);
         end
         
         % compute the model for this CV fold
@@ -179,11 +179,11 @@ for k = 1:nk
     
     
     % Model level statistics (across folds)
-    t             = vertcat(PRT.model(mid).output(k).fold(:).targets);
+    ttt             = vertcat(PRT.model(mid).output(k).fold(:).targets);
     m.type        = PRT.model(mid).output(k).fold(1).type;
     m.predictions = vertcat(PRT.model(mid).output(k).fold(:).predictions);
     %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
-    stats         = prt_stats(m,t(:),nc);
+    stats         = prt_stats(m,ttt(:),nc);
     
     PRT.model(mid).output(k).stats=stats;
 end
