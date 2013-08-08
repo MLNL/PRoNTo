@@ -1,4 +1,4 @@
-function [PRT] = prt_nested_cv(PRT, mid, in, Phi, samp_idx)
+function [out] = prt_nested_cv(PRT, mid, in)
 % Function to perform the nested CV
 %
 % Inputs:
@@ -21,9 +21,6 @@ end
 
 train_entries = find(in.CV == 1);
 
-% Change samp_idx
-samp_idx = samp_idx(train_entries);
-
 % Change fdata
 in.ID      = in.ID(train_entries, :);
 in.t       = in.t(train_entries);
@@ -33,22 +30,33 @@ for i=1:length(in.Phi_all)
     in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
 end
 
-
 % Set range of the hyper parameters
 switch PRT.model(mid).input.machine.function
-    case 'prt_machine_svm_bin'
-        d1 = -2 : 5;
-        par = 10 .^(d1);
-        stats_vec = zeros(size(par));
+    case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
+        if ~isempty(PRT.model(mid).input.nested_param)
+            d1 = PRT.model(mid).input.nested_param;
+        else
+            d1 = -2 : 5;
+            beep
+            disp('No parameter range specified for C, using 10^-2 to 10^5')
+        end
+        par = 10 .^(d1);       
         
     case 'prt_machine_krr'
-        par = 0.1:0.1:1;
-        stats_vec = zeros(size(par));
+        if ~isempty(PRT.model(mid).input.nested_param)
+            par = PRT.model(mid).input.nested_param;
+        else
+            par = 0.1:0.1:1;
+            beep
+            disp('No parameter range specified for K, using 0.1 to 1')
+        end
         
     otherwise
         error('Machine not currently supported for nested CV');
         
 end
+stats_vec = zeros(size(par));
+out.param = par;
 
 % generate new CV matrix
 in.CV = prt_compute_cv_mat(PRT, in, mid, use_nested_cv);
@@ -61,16 +69,16 @@ for i = 1:length(par)
             PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
             % TODO: I don't know why but this field exists on the PRT for
             % classification. I'm changing the parameter on both fields
-            % of the PRT struct just to be sure everthing is fine
-            PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
+%             % of the PRT struct just to be sure everthing is fine
+%             PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
             
-        case 'prt_machine_krr'
+        case {'prt_machine_krr','prt_machine_simpleMKL'}
             PRT.model(mid).input.machine.args = par(i);
             % TODO: I don't know why but this field exists on the PRT for
             % classification. I'm changing the parameter on both fields
             % of the PRT struct just to be sure everthing is fine
-            PRT.model(mid).machine.args = par(i);
-            
+%             PRT.model(mid).machine.args = par(i);
+                        
         otherwise
             error('Machine not currently supported for nested CV');
             
@@ -102,15 +110,14 @@ for i = 1:length(par)
     end
     
     % compute stats
-    results(i).par = par(i);
-    results(i).stats = prt_stats(model, targets.test, targets.train);
+    stats = prt_stats(model, targets.test, in.nc);
     
-    switch PRT.model(mid).input.machine.function
-        case 'prt_machine_svm_bin'
-            stats_vec(i) = results(i).stats.b_acc;
-        case 'prt_machine_krr'
+    switch PRT.model(mid).input.type
+        case 'classification'
+            stats_vec(i) =stats.b_acc;
+        case 'regression'
             % The smaller, the better. Thus, negative is stored
-            stats_vec(i) = -results(i).stats.mse;
+            stats_vec(i) = -stats.mse;
             
         otherwise
             error('Machine not currently supported for nested CV');
@@ -120,19 +127,15 @@ for i = 1:length(par)
 end
 
 
-
+% For now, only parameter optimisation. Add flag for feature selection
 % Get optimal parameter
-if length(unique(stats_vec)) ==1 % No effect of parameter, so get default
-    par_max = 1; % Change from defaults and in function of the machine!!!
+if length(unique(stats_vec)) ==1 % No effect of parameter, so get median
+    par_max = median(par);
 else
     [max_stats, max_stats_ind] = max(stats_vec);
     par_max = par(max_stats_ind);
 end
+out.opt_param = par_max;
+out.vary_param = stats_vec;
 
-% Save best parameter in the PRT
-PRT.model(mid).input.machine.opt_par = [PRT.model(mid).input.machine.opt_par, par_max];
-PRT.model(mid).machine.opt_par = [PRT.model(mid).machine.opt_par, par_max];
 
-% Save all the stats
-PRT.model(mid).input.machine.stats = [PRT.model(mid).input.machine.stats, stats_vec'];
-PRT.model(mid).machine.stats = [PRT.model(mid).machine.stats, stats_vec'];

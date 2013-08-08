@@ -12,24 +12,22 @@ else
     fid = prt_init_fs(PRT, in.fs(1));
 end
 
-% TODO: The code bellow is not very well written, the PRT.model(modelid).input.cv.k
-% field should probably be set outside this function. If not, then PRT has
-% to be an output of the function (to update the value of k)
-
-
 % create the PRT.model(modelid).input.cv field
 if ~isfield(PRT.model(modelid).input, 'cv')
     PRT.model(modelid).input.cv={};
 end
 
-% if isfield(in.cv,'k')
+
 if isfield(PRT.model(modelid).input.cv,'k')
-    %     k=in.cv.k;  %k-fold CV
     k = PRT.model(modelid).input.cv.k;
+elseif isfield(in.cv,'k')
+    k = in.cv.k;
+    PRT.model(modelid).input.cv.k = k;
 else
     k=0; %loo cv
     PRT.model(modelid).input.cv.k = k;
 end
+
 if k==1 %half-half
     k=2;
     flaghh=1;
@@ -38,22 +36,14 @@ else
     flaghh=0;
 end
 
-
-
-
-
 if isfield(in,'include_allscans') && in.include_allscans
-    % use the full id matrix
-    if use_nested_cv == false %TODO: make sure the use_nested_cv flag does not afect this function when it's called for the first time in prt_model
+    % use the full id matrix if not user-provided (nested CV)
+    if use_nested_cv == false 
         ID = PRT.fs(fid).id_mat;
     else
         ID = in.ID;
     end
 else
-    % id matrix only contains samples within the CV structure
-    % it is initialised in prt_init_fs. The columns contents are described
-    % in PRT.fs(fid).id_col_names
-    % ('group','subject','modality','condition','block','scan')
     if use_nested_cv == false
         ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
     else

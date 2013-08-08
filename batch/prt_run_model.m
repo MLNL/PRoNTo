@@ -161,6 +161,9 @@ if isfield(job.model_type,'classification')
     elseif isfield(job.model_type.classification.machine_cl,'rt')
         model.machine.function='prt_machine_RT_bin';
         model.machine.args=job.model_type.classification.machine_cl.rt.rt_args;
+    elseif isfield(job.model_type.classification.machine_cl,'sMKL')
+        model.machine.function='prt_machine_simpleMKL';
+        model.machine.args=job.model_type.classification.machine_cl.sMKL.sMKL_args;
     else
         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
         model.machine.function = nam;

@@ -53,6 +53,7 @@ if strcmpi(PRT.model(mid).input.type,'classification')
 else
     nc=[];
 end
+fdata.nc = nc;
 
 if ~isfield(in,'f_ind_models')
     flag = 0;
@@ -129,27 +130,14 @@ for k = 1:nk
         fdata.t       = t; %targets
         
         % Nested CV for hyper-parameter optimisation or feature selection
-        if PRT.model(mid).input.use_nested_cv
-            % Clear all the results from previous parameter optimisations
-            if f == 1
-                PRT.model(mid).input.machine.opt_par = [];
-                % TODO: I don't know why but this field exists on the PRT for
-                % classification. I'm just putting this here to be sure everthing is fine
-                PRT.model(mid).machine.opt_par = [];
-                
-                
-                PRT.model(mid).input.machine.stats = [];
-                PRT.model(mid).machine.stats = [];
-                
-            end
-            
-            [PRT] = prt_nested_cv(PRT, mid, fdata, Phi(k), samp_idx);
+        if PRT.model(mid).input.use_nested_cv            
+            [out] = prt_nested_cv(PRT, mid, fdata);
+            PRT.model(mid).output(k).fold(f).param_effect = out;
         end
         
         % compute the model for this CV fold
         [model, targets] = prt_cv_fold(PRT,fdata);
-        
-        
+               
         %for classification check that for each fold, the test targets have been trained
         if strcmpi(PRT.model(mid).input.type,'classification')
             if ~all(ismember(unique(targets.test),unique(targets.train)))

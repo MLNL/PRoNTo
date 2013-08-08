@@ -377,6 +377,27 @@ gpclap.help    = {'Multiclass GPC'};
 gpclap.val     = {gpclap_args};
 
 % ---------------------------------------------------------------------
+% sMKL_args L1-MKL arguments
+% ---------------------------------------------------------------------
+sMKL_args         = cfg_entry;
+sMKL_args.tag     = 'sMKL_args';
+sMKL_args.name    = 'Arguments';
+sMKL_args.help    = {['Arguments for prt_machine_simpleMKL (same as for SVM)']};
+sMKL_args.strtype = 'e';
+sMKL_args.val     = {def.model.L1MKLargs};
+sMKL_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% sMKL simple (L1) MKL
+% ---------------------------------------------------------------------
+sMKL         = cfg_branch;
+sMKL.tag     = 'sMKL';
+sMKL.name    = 'L1 Multi-Kernel Learning';
+sMKL.help    = {'Multi-Kernel Learning. Choose only if multiple kernels' ...
+    'were built during the feature set construction (either multiple modalities or ROIs)'};
+sMKL.val     = {sMKL_args};
+
+% ---------------------------------------------------------------------
 % gpr_args GPR arguments
 % ---------------------------------------------------------------------
 gpr_args         = cfg_entry;
@@ -465,7 +486,7 @@ rt.val     = {rt_args};
 machine_cl       = cfg_choice;
 machine_cl.tag    = 'machine_cl';
 machine_cl.name   = 'Machine';
-machine_cl.values = {svm,gpc,gpclap,rt,custom_machine};
+machine_cl.values = {svm,gpc,gpclap,rt,sMKL,custom_machine};
 machine_cl.val    =  {svm};
 machine_cl.help   = {...
     ['Choose a prediction machine for this model']};

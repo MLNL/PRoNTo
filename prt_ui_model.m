@@ -145,6 +145,7 @@ set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
 handles.cv.type='custom';
 handles.cv.mat_file=[];
+handles.cv.k = 0;
 set(handles.pop_reg,'String',{'Classification','Regression'})
 set(handles.pop_reg,'Value',1)
 handles.type='classification';
@@ -175,6 +176,10 @@ handles.namop=list;
 set(handles.uns_list,'Value',1)
 set(handles.sel_list,'Value',1)
 handles.flagguicv=0;
+set(handles.flag_opt_param,'Value',0)
+set(handles.edit_param_range,'Enable','off')
+handles.cv.nested = 0;
+handles.cv.nested_param = [];
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -655,6 +660,72 @@ function pop_machine_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+% --- Executes on button press in flag_opt_param.
+function flag_opt_param_Callback(hObject, eventdata, handles)
+% hObject    handle to flag_opt_param (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of flag_opt_param
+v = get(handles.flag_opt_param,'Value');
+if v
+    switch handles.machine.function
+        case {'prt_machine_svm_bin','prt_machine_simpleMKL','prt_machine_krr'}
+            set(handles.edit_param_range,'Enable','on')
+            handles.cv.nested = 1;
+        otherwise
+            set(handles.edit_param_range,'Enable','off')
+            handles.cv.nested = 0;
+            handles.cv.nested_param = [];
+            beep
+            disp('No hyper-parameter can be optimized for this machine')
+    end
+else
+    handles.cv.nested = 0;
+    handles.cv.nested_param = [];
+    set(handles.edit_param_range,'Enable','off')
+end
+
+% Update handles structure
+guidata(hObject, handles);
+
+
+function edit_param_range_Callback(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit7 as text
+%        str2double(get(hObject,'String')) returns contents of edit7 as a double
+vp = get(handles.edit_param_range,'String');
+try
+    p = eval(vp);
+catch
+    beep
+    disp('Parameter range cannot be evaluated, please enter as min:step:max')
+end
+if isnumeric(p)
+    handles.nested_param = p;
+else
+    beep
+    disp('Parameter range is not numeric, please enter as min:step:max')
+end
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function edit_param_range_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
 
 % --- Executes on selection change in pop_cv.
 function pop_cv_Callback(hObject, eventdata, handles)
