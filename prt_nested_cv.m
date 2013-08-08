@@ -1,8 +1,13 @@
-function [out] = prt_nested_cv(PRT, mid, in)
+function [out] = prt_nested_cv(PRT, in)
 % Function to perform the nested CV
 %
 % Inputs:
 % -------
+%   in.nc:         number of classes
+%   in.ID:         ID matrix
+%   in.mid:        model id
+%   in.CV:         cross-validation matrix
+%   in.Phi_all:    Kernel
 %
 % Outputs:
 % --------
@@ -14,7 +19,7 @@ function [out] = prt_nested_cv(PRT, mid, in)
 % $Id$
 
 % Set flag
-use_nested_cv = PRT.model(mid).input.use_nested_cv;
+use_nested_cv = PRT.model(in.mid).input.use_nested_cv;
 if use_nested_cv == false
     error('prt_nested_cv function called with use_nested_cv = false');
 end
@@ -25,16 +30,16 @@ train_entries = find(in.CV == 1);
 in.ID      = in.ID(train_entries, :);
 in.t       = in.t(train_entries);
 in.fs      = PRT.fs;
-in.cv.type = PRT.model(mid).input.cv_type;
+in.cv.type = PRT.model(in.mid).input.cv_type;
 for i=1:length(in.Phi_all)
     in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
 end
 
 % Set range of the hyper parameters
-switch PRT.model(mid).input.machine.function
+switch PRT.model(in.mid).input.machine.function
     case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
-        if ~isempty(PRT.model(mid).input.nested_param)
-            d1 = PRT.model(mid).input.nested_param;
+        if ~isempty(PRT.model(in.mid).input.nested_param)
+            d1 = PRT.model(in.mid).input.nested_param;
         else
             d1 = -2 : 5;
             beep
@@ -43,8 +48,8 @@ switch PRT.model(mid).input.machine.function
         par = 10 .^(d1);
         
     case 'prt_machine_krr'
-        if ~isempty(PRT.model(mid).input.nested_param)
-            par = PRT.model(mid).input.nested_param;
+        if ~isempty(PRT.model(in.mid).input.nested_param)
+            par = PRT.model(in.mid).input.nested_param;
         else
             par = 0.1:0.1:1;
             beep
@@ -59,34 +64,16 @@ stats_vec = zeros(size(par));
 out.param = par;
 
 % generate new CV matrix
-in.CV = prt_compute_cv_mat(PRT, in, mid, use_nested_cv);
+in.CV = prt_compute_cv_mat(PRT, in, in.mid, use_nested_cv);
 
 % compute model performance based on hyper-parameter range
 for i = 1:length(par)
     
-    switch PRT.model(mid).input.machine.function
-<<<<<<< .mine
+    switch PRT.model(in.mid).input.machine.function
         case 'prt_machine_svm_bin'
-            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
-            % TODO: I don't know why but this field exists on the PRT for
-            % classification. I'm changing the parameter on both fields
-            %             % of the PRT struct just to be sure everthing is fine
-            %             PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
-            
+            PRT.model(in.mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
         case {'prt_machine_krr','prt_machine_simpleMKL'}
-=======
-        case {'prt_machine_krr','prt_machine_simpleMKL','prt_machine_svm_bin'}
->>>>>>> .r770
-            PRT.model(mid).input.machine.args = par(i);
-<<<<<<< .mine
-            % TODO: I don't know why but this field exists on the PRT for
-            % classification. I'm changing the parameter on both fields
-            % of the PRT struct just to be sure everthing is fine
-            %             PRT.model(mid).machine.args = par(i);
-            
-=======
-            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
->>>>>>> .r770
+            PRT.model(in.mid).input.machine.args = par(i);
         otherwise
             error('Machine not currently supported for nested CV');            
     end
@@ -98,12 +85,12 @@ for i = 1:length(par)
         fold.CV      = in.CV(:,f);
         fold.Phi_all = in.Phi_all;
         fold.t       = in.t;
-        fold.mid     = mid;
+        fold.mid     = in.mid;
         
         [model, targets] = prt_cv_fold(PRT,fold);
         
         %for classification check that for each fold, the test targets have been trained
-        if strcmpi(PRT.model(mid).input.type,'classification')
+        if strcmpi(PRT.model(in.mid).input.type,'classification')
             if ~all(ismember(unique(targets.test),unique(targets.train)))
                 beep
                 disp('At least one class is in the test set but not in the training set')
@@ -119,7 +106,7 @@ for i = 1:length(par)
     % compute stats
     stats = prt_stats(model, targets.test, in.nc);
     
-    switch PRT.model(mid).input.type
+    switch PRT.model(in.mid).input.type
         case 'classification'
             stats_vec(i) = stats.b_acc;
         case 'regression'
@@ -137,7 +124,7 @@ end
 if length(unique(stats_vec)) == 1 % No effect of parameter, so get median
     par_opt = median(par);
 else
-    switch PRT.model(mid).input.type
+    switch PRT.model(in.mid).input.type
         case 'classification'
             [opt_stats, opt_stats_ind] = max(stats_vec);
         case 'regression'

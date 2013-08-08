@@ -131,7 +131,7 @@ for k = 1:nk
         
         % Nested CV for hyper-parameter optimisation or feature selection
         if PRT.model(mid).input.use_nested_cv            
-            [out] = prt_nested_cv(PRT, mid, fdata);
+            [out] = prt_nested_cv(PRT, fdata);
             PRT.model(mid).output(k).fold(f).param_effect = out;
         end
         
