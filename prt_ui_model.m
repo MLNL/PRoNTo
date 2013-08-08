@@ -706,7 +706,7 @@ catch
     disp('Parameter range cannot be evaluated, please enter as min:step:max')
 end
 if isnumeric(p)
-    handles.nested_param = p;
+    handles.cv.nested_param = p;
 else
     beep
     disp('Parameter range is not numeric, please enter as min:step:max')
