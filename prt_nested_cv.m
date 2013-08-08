@@ -40,7 +40,7 @@ switch PRT.model(mid).input.machine.function
             beep
             disp('No parameter range specified for C, using 10^-2 to 10^5')
         end
-        par = 10 .^(d1);       
+        par = 10 .^(d1);
         
     case 'prt_machine_krr'
         if ~isempty(PRT.model(mid).input.nested_param)
@@ -65,9 +65,28 @@ in.CV = prt_compute_cv_mat(PRT, in, mid, use_nested_cv);
 for i = 1:length(par)
     
     switch PRT.model(mid).input.machine.function
-        case {'prt_machine_krr','prt_machine_simpleMKL','prt_machine_svm_bin'}
-            PRT.model(mid).input.machine.args = par(i);
+<<<<<<< .mine
+        case 'prt_machine_svm_bin'
             PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
+            % TODO: I don't know why but this field exists on the PRT for
+            % classification. I'm changing the parameter on both fields
+            %             % of the PRT struct just to be sure everthing is fine
+            %             PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
+            
+        case {'prt_machine_krr','prt_machine_simpleMKL'}
+=======
+        case {'prt_machine_krr','prt_machine_simpleMKL','prt_machine_svm_bin'}
+>>>>>>> .r770
+            PRT.model(mid).input.machine.args = par(i);
+<<<<<<< .mine
+            % TODO: I don't know why but this field exists on the PRT for
+            % classification. I'm changing the parameter on both fields
+            % of the PRT struct just to be sure everthing is fine
+            %             PRT.model(mid).machine.args = par(i);
+            
+=======
+            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
+>>>>>>> .r770
         otherwise
             error('Machine not currently supported for nested CV');            
     end
@@ -102,13 +121,11 @@ for i = 1:length(par)
     
     switch PRT.model(mid).input.type
         case 'classification'
-            stats_vec(i) =stats.b_acc;
+            stats_vec(i) = stats.b_acc;
         case 'regression'
-            % The smaller, the better. Thus, negative is stored
-            stats_vec(i) = -stats.mse;
-            
+            stats_vec(i) = stats.mse;
         otherwise
-            error('Machine not currently supported for nested CV');
+            error('Type of model not recognised');
     end
     
     
@@ -117,13 +134,20 @@ end
 
 % For now, only parameter optimisation. Add flag for feature selection
 % Get optimal parameter
-if length(unique(stats_vec)) ==1 % No effect of parameter, so get median
-    par_max = median(par);
+if length(unique(stats_vec)) == 1 % No effect of parameter, so get median
+    par_opt = median(par);
 else
-    [max_stats, max_stats_ind] = max(stats_vec);
-    par_max = par(max_stats_ind);
+    switch PRT.model(mid).input.type
+        case 'classification'
+            [opt_stats, opt_stats_ind] = max(stats_vec);
+        case 'regression'
+            [opt_stats, opt_stats_ind] = min(stats_vec);
+        otherwise
+            error('Type of model not recognised');
+    end
+    par_opt = par(opt_stats_ind);
 end
-out.opt_param = par_max;
+
+
+out.opt_param = par_opt;
 out.vary_param = stats_vec;
-
-
