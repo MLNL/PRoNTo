@@ -27,13 +27,13 @@ function output = prt_machine_svm_bin(d,args)
 % Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
 % $Id$
 
-
-% TODO: make sure the svmtrain we reach is the libsvm one, not the one
-% with the same name from the bioinformatics toolbox!
-% toolbox/bioinfo/biolearning/
-
-
 SANITYCHECK=true; % can turn off for "speed". Expert only.
+
+%Turn the value of the C hyper-parameter into the arguments format for LIBSVM
+if ~ischar(args)
+    def = prt_get_defaults('model');
+    args = [def.libsvmargs, num2str(args)];
+end
 
 if SANITYCHECK==true
     % args should be a string (empty or otherwise)

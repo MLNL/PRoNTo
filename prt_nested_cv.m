@@ -65,23 +65,11 @@ in.CV = prt_compute_cv_mat(PRT, in, mid, use_nested_cv);
 for i = 1:length(par)
     
     switch PRT.model(mid).input.machine.function
-        case 'prt_machine_svm_bin'
-            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
-            % TODO: I don't know why but this field exists on the PRT for
-            % classification. I'm changing the parameter on both fields
-%             % of the PRT struct just to be sure everthing is fine
-%             PRT.model(mid).machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
-            
-        case {'prt_machine_krr','prt_machine_simpleMKL'}
+        case {'prt_machine_krr','prt_machine_simpleMKL','prt_machine_svm_bin'}
             PRT.model(mid).input.machine.args = par(i);
-            % TODO: I don't know why but this field exists on the PRT for
-            % classification. I'm changing the parameter on both fields
-            % of the PRT struct just to be sure everthing is fine
-%             PRT.model(mid).machine.args = par(i);
-                        
+            PRT.model(mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
         otherwise
-            error('Machine not currently supported for nested CV');
-            
+            error('Machine not currently supported for nested CV');            
     end
     
     % compute the model for each fold of the inner CV

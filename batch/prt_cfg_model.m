@@ -315,16 +315,31 @@ custom_machine.help    = {'Choose another prediction machine'};
 custom_machine.val     = {machine_func, machine_args};
 
 % ---------------------------------------------------------------------
+% svm_opt SVM : flag whether to optimize C
+% ---------------------------------------------------------------------
+svm_opt         = cfg_menu;
+svm_opt.tag     = 'svm_opt';
+svm_opt.name    = 'Optimize hyper-parameter';
+svm_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
+    'If Yes, than provide a range of possible values for C, in the form '...
+    'min:step:max, knowing that those numbers are exponents of 10.' ...
+    'Example: -2:5 . If not, a default value will be used.']};
+svm_opt.labels  = {
+    'No'
+    'Yes'
+    }';
+svm_opt.values  = {0 1};
+svm_opt.val     = {0};
+
+% ---------------------------------------------------------------------
 % svm_args Regression Targets
 % ---------------------------------------------------------------------
 svm_args         = cfg_entry;
 svm_args.tag     = 'svm_args';
-svm_args.name    = 'Arguments';
-svm_args.help    = {['Arguments for prt_machine_svm_bin. You should use '...
-                    '-t 4 if you selected ''use kernels'' option, and ' ...
-                    '-t 0 otherwise. See libSVM documentation for details.']};
-svm_args.strtype = 's';
-svm_args.val     = {'-s 0 -t 4 -c 1'};
+svm_args.name    = 'Soft-margin hyper-parameter';
+svm_args.help    = {['Value(s) for prt_machine_svm_bin: soft-margin C.']};
+svm_args.strtype = 'e';
+svm_args.val     = {def.model.svmargs};
 svm_args.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
@@ -334,7 +349,7 @@ svm         = cfg_branch;
 svm.tag     = 'svm';
 svm.name    = 'SVM Classification';
 svm.help    = {'Binary support vector machine.'};
-svm.val     = {svm_args};
+svm.val     = {svm_opt, svm_args};
 
 % ---------------------------------------------------------------------
 % gpc_args GPC arguments
@@ -377,6 +392,23 @@ gpclap.help    = {'Multiclass GPC'};
 gpclap.val     = {gpclap_args};
 
 % ---------------------------------------------------------------------
+% sMKL_opt L1-MKL : flag whether to optimize C
+% ---------------------------------------------------------------------
+sMKL_opt         = cfg_menu;
+sMKL_opt.tag     = 'sMKL_opt';
+sMKL_opt.name    = 'Optimize hyper-parameter';
+sMKL_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
+    'If Yes, than provide a range of possible values for C, in the form '...
+    'min:step:max, knowing that those numbers are exponents of 10.' ...
+    'Example: -2:5. If not, a default value will be used.']};
+sMKL_opt.labels  = {
+    'No'
+    'Yes'
+    }';
+sMKL_opt.values  = {0 1};
+sMKL_opt.val     = {0};
+
+% ---------------------------------------------------------------------
 % sMKL_args L1-MKL arguments
 % ---------------------------------------------------------------------
 sMKL_args         = cfg_entry;
@@ -384,7 +416,7 @@ sMKL_args.tag     = 'sMKL_args';
 sMKL_args.name    = 'Arguments';
 sMKL_args.help    = {['Arguments for prt_machine_simpleMKL (same as for SVM)']};
 sMKL_args.strtype = 'e';
-sMKL_args.val     = {def.model.L1MKLargs};
+sMKL_args.val     = {def.model.l1MKLargs};
 sMKL_args.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
@@ -395,7 +427,7 @@ sMKL.tag     = 'sMKL';
 sMKL.name    = 'L1 Multi-Kernel Learning';
 sMKL.help    = {'Multi-Kernel Learning. Choose only if multiple kernels' ...
     'were built during the feature set construction (either multiple modalities or ROIs)'};
-sMKL.val     = {sMKL_args};
+sMKL.val     = {sMKL_opt, sMKL_args};
 
 % ---------------------------------------------------------------------
 % gpr_args GPR arguments
@@ -418,6 +450,23 @@ gpr.help    = {'Gaussian Process Regression'};
 gpr.val     = {gpr_args};
 
 % ---------------------------------------------------------------------
+% krr_opt SVM : flag whether to optimize C
+% ---------------------------------------------------------------------
+krr_opt         = cfg_menu;
+krr_opt.tag     = 'krr_opt';
+krr_opt.name    = 'Optimize hyper-parameter';
+krr_opt.help    = {['Whether to optimize K, the KRR hyper-parameter, or not. '...
+    'If Yes, than provide a range of possible values for K, in the form '...
+    'min:step:max. , knowing that those numbers are exponents of 10.' ...
+    'Example: -2:5. If not, a default value will be used.']};
+krr_opt.labels  = {
+    'No'
+    'Yes'
+    }';
+krr_opt.values  = {0 1};
+krr_opt.val     = {0};
+
+% ---------------------------------------------------------------------
 % krr_args Regression Targets
 % ---------------------------------------------------------------------
 krr_args         = cfg_entry;
@@ -435,7 +484,7 @@ krr         = cfg_branch;
 krr.tag     = 'krr';
 krr.name    = 'Kernel Ridge Regression';
 krr.help    = {'Kernel Ridge Regression.'};
-krr.val     = {krr_args};
+krr.val     = {krr_opt,krr_args};
 
 % ---------------------------------------------------------------------
 % RVR group
