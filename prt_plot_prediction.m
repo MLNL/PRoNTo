@@ -1,7 +1,7 @@
 function prt_plot_prediction(PRT, model, fold, marker_size, axes_handle)
 % FORMAT prt_plot_prediction(PRT, model, fold, marker_size, axes_handle)
 %
-% This function plots the prediction plot that appears on prt_ui_results 
+% This function plots the prediction plot that appears on prt_ui_results
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).
@@ -12,7 +12,7 @@ function prt_plot_prediction(PRT, model, fold, marker_size, axes_handle)
 %       axes_handle     - (Optional) axes where the plot will be displayed
 %
 % Output:
-%       None        
+%       None
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -61,9 +61,11 @@ end
 if ~exist('axes_handle', 'var')
     figure;
     axes_handle = axes;
+else
+    set(axes_handle, 'XScale','linear');
 end
 
-cla(axes_handle);
+cla(axes_handle, 'reset');
 rotate3d off
 colorbar('peer',axes_handle,'off')
 set(axes_handle,'Color',[1,1,1])

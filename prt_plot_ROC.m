@@ -56,11 +56,13 @@ end
 if ~exist('axes_handle', 'var')
     figure;
     axes_handle = axes;
+else
+    set(axes_handle, 'XScale','linear');
 end
 
 
 rotate3d off
-cla(axes_handle);
+cla(axes_handle, 'reset');
 [y,idx] = sort(fVals);
 targpos = targpos(idx);
 

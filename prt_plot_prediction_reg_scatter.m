@@ -1,7 +1,7 @@
 function prt_plot_prediction_reg_scatter(PRT, model, axes_handle)
 % FORMAT prt_plot_prediction_reg_scatter(PRT, model, axes_handle)
 %
-% This function plots the scatter plot that appears on prt_ui_results 
+% This function plots the scatter plot that appears on prt_ui_results
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).
@@ -9,7 +9,7 @@ function prt_plot_prediction_reg_scatter(PRT, model, axes_handle)
 %       axes_handle     - (Optional) axes where the plot will be displayed
 %
 % Output:
-%       None        
+%       None
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -22,10 +22,12 @@ nfold = length(PRT.model(model).output.fold);
 if ~exist('axes_handle', 'var')
     figure;
     axes_handle = axes;
+else
+    set(axes_handle, 'XScale','linear');
 end
 
 
-cla(axes_handle);
+cla(axes_handle, 'reset');
 preds1 = [];
 preds2 = [];
 for f = 1:nfold

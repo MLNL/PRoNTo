@@ -1,7 +1,7 @@
 function prt_plot_confusion_matrix(PRT, model, fold, axes_handle)
 % FORMAT prt_plot_confusion_matrix(PRT, model, fold, axes_handle)
 %
-% This function plots the confusion matrix that appears on prt_ui_results 
+% This function plots the confusion matrix that appears on prt_ui_results
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).
@@ -10,7 +10,7 @@ function prt_plot_confusion_matrix(PRT, model, fold, axes_handle)
 %       axes_handle     - (Optional) axes where the plot will be displayed
 %
 % Output:
-%       None        
+%       None
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
@@ -21,11 +21,13 @@ function prt_plot_confusion_matrix(PRT, model, fold, axes_handle)
 if ~exist('axes_handle', 'var')
     figure;
     axes_handle = axes;
+else
+    set(axes_handle, 'XScale','linear');
 end
 
 
 % confusion matrix
-cla(axes_handle);
+cla(axes_handle, 'reset');
 if fold == 1
     mconmat(:,:) = PRT.model(model).output.stats.con_mat;
 else

@@ -44,7 +44,7 @@ if fold == 1
         end
     end
     
-   
+    
     for i=1:nClasses
         targval(:, i) = targets == i;
     end
@@ -52,7 +52,7 @@ if fold == 1
 else
     % if folds wise
     targets = PRT.model(model).output.fold(fold-1).targets;
-
+    
     for i=1:nClasses
         targval(:, i) = targets == i;
     end
@@ -80,9 +80,11 @@ colourList = {'black','red', 'blue', 'green', 'cyan', 'magenta', 'yellow'};
 if ~exist('axes_handle', 'var')
     figure;
     axes_handle = axes;
+else
+    set(axes_handle, 'XScale','linear');
 end
 
-cla(axes_handle);
+cla(axes_handle, 'reset');
 rotate3d off
 %                 axis xy
 set(axes_handle,'Color',[1,1,1])

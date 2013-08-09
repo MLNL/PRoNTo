@@ -189,7 +189,7 @@ else
         
         % Load model names
         if ~isfield(PRT,'model')
-            error('No models found in PRT.mat!')           
+            error('No models found in PRT.mat!')
         end
         nmodels = length(PRT.model);
         mi  = [];
@@ -238,6 +238,9 @@ else
         else
             plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
         end
+        if PRT.model(mi(m)).input.use_nested_cv
+            plots{length(plots)+1} = 'Nested CV';
+        end
         set(handles.plotmenu,'String',plots);
         
         % Initialize model button
@@ -246,8 +249,8 @@ else
         % Set the 'save permutations' weights' chackbox to 0
         handles.save_weights = 0;
         set(handles.save_perm_weights,'Value',0);
-%         set(handles.save_perm_weights,'Visible','off');
-%         set(handles.save_perm_weights,'Enable','off');
+        %         set(handles.save_perm_weights,'Visible','off');
+        %         set(handles.save_perm_weights,'Enable','off');
         
         % Clear axes
         cla(handles.axes5);
@@ -673,6 +676,11 @@ if strcmp(PRT.model(model).input.type,'classification')
         case '4'
             prt_plot_ROC(handles.PRT, model, fold, handles.axes5);
             
+            % TODO: Check if this does not cause problems when the
+            % nested CV was not used
+        case '5'
+            prt_plot_nested_cv(handles.PRT, model, fold, handles.axes5);
+            
     end
     
 else
@@ -688,6 +696,11 @@ else
             
         case '3'
             prt_plot_prediction_reg_line(handles.PRT, model, handles.axes5);
+            
+            % TODO: Check if this does not cause problems when the
+            % nested CV was not used
+        case '4'
+            prt_plot_nested_cv(handles.PRT, model, fold, handles.axes5);
             
     end
 end
@@ -746,6 +759,11 @@ if strcmp(handles.PRT.model(mi(m)).input.type,'classification');
 else
     plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
 end
+if handles.PRT.model(mi(m)).input.use_nested_cv
+    plots{length(plots)+1} = 'Nested CV';
+end
+
+
 set(handles.plotmenu,'String',plots);
 
 % Set folds and call fold function to change plot/stats
@@ -923,10 +941,10 @@ else
             stats.perm.pval_corr = PRT.model(mi(m)).output.stats.permutation.pval_corr;
             stats.perm.pval_mse = PRT.model(mi(m)).output.stats.permutation.pval_mse;
             
-          if isfield(PRT.model(mi(m)).output.stats.permutation, 'pval_r2'),...
-                  stats.perm.pval_r2 = PRT.model(mi(m)).output.stats.permutation.pval_r2; end
-          if isfield(PRT.model(mi(m)).output.stats.permutation, 'pval_nmse'),...
-            stats.perm.pval_nmse = PRT.model(mi(m)).output.stats.permutation.pval_nmse; end
+            if isfield(PRT.model(mi(m)).output.stats.permutation, 'pval_r2'),...
+                    stats.perm.pval_r2 = PRT.model(mi(m)).output.stats.permutation.pval_r2; end
+            if isfield(PRT.model(mi(m)).output.stats.permutation, 'pval_nmse'),...
+                    stats.perm.pval_nmse = PRT.model(mi(m)).output.stats.permutation.pval_nmse; end
             
         end
     else
@@ -945,7 +963,7 @@ else
     stats.mse  = mse;
     if isfield(PRT.model(mi(m)).output.stats,'nmse'), stats.nmse = nmse; end
     stats.type = 'reg';
-  
+    
     prt_ui_stats(stats,handles.prtdir);
     
 end

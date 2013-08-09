@@ -3,15 +3,17 @@ function [out] = prt_nested_cv(PRT, in)
 %
 % Inputs:
 % -------
-%   in.nc:         number of classes
-%   in.ID:         ID matrix
-%   in.mid:        model id
-%   in.CV:         cross-validation matrix
-%   in.Phi_all:    Kernel
+%   in.nc:          number of classes
+%   in.ID:          ID matrix
+%   in.mid:         model id
+%   in.CV:          cross-validation matrix
+%   in.Phi_all:     Kernel
 %
 % Outputs:
 % --------
-%
+%   out.opt_param:  optimal hyper-parameter choosen using the stats from
+%                   the inner CVs
+%   out.vary_param: stats values associated with all the hyper-parameters
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
