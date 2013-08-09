@@ -88,8 +88,8 @@ if fold == 1
 else
     
     % Get function values
-    x = PRT.model(model).output.fold(fold).param_effect.param;
-    f = PRT.model(model).output.fold(fold).param_effect.vary_param;
+    x = PRT.model(model).output.fold(fold-1).param_effect.param;
+    f = PRT.model(model).output.fold(fold-1).param_effect.vary_param;
     
     % Plot
     plot(axes_handle, x, f, 'xk', 'markersize', 7, 'linewidth', 2);
