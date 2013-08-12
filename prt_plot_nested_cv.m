@@ -31,9 +31,8 @@ switch PRT.model(model).input.machine.function
             figure;
             axes_handle = axes('XScale','log','XMinorTick','on');
         else
-            % Clear EVERYTHING in the UI axes before apply the log
+            % Clear EVERYTHING in the UI before defining the axes
             cla(axes_handle, 'reset');
-            
             set(axes_handle, 'XScale','log','XMinorTick','on');
         end
         box(axes_handle,'on');
@@ -49,6 +48,8 @@ switch PRT.model(model).input.machine.function
             figure;
             axes_handle = axes;
         else
+            % Clear EVERYTHING in the UI before defining the axes
+            cla(axes_handle, 'reset');
             set(axes_handle, 'XScale','linear');
         end
         
@@ -61,9 +62,6 @@ cla(axes_handle)
 rotate3d off
 set(axes_handle,'Color',[1,1,1])
 
-% TODO: There is something strange happening in the last fold of my Haxby
-% SVM model. I might have to change something in the prt_nested_cv.m
-% CHECK THIS!!!
 if fold == 1
     
     nfold = length(PRT.model(model).output.fold);
@@ -78,26 +76,34 @@ if fold == 1
     end
     
     % Plot
-    
-    % Create axes
-    errorbar(x, mean(f), std(f), 'xk', 'markersize', 7, 'linewidth', 2);
-    xlabel(x_label);
-    ylabel(y_label);
-    
+    errorbar(axes_handle, x, mean(f), std(f), 'xk', 'markersize', 7, 'linewidth', 2);
+    xlabel(axes_handle, x_label);
+    ylabel(axes_handle, y_label);
     
 else
     
-    % Get function values
+    % Get all function values
     x = PRT.model(model).output.fold(fold-1).param_effect.param;
     f = PRT.model(model).output.fold(fold-1).param_effect.vary_param;
     
-    % Plot
+    % Get maximum function values
+    x_max = find(f==max(f));
+
+       
+    % Plot all points
+    hold on
     plot(axes_handle, x, f, 'xk', 'markersize', 7, 'linewidth', 2);
-    xlabel(x_label);
-    ylabel(y_label);
+    % Plot the max on top of the original
+    max_handle = plot(axes_handle, x(x_max), f(x_max), 'xr', 'markersize', 7, 'linewidth', 2);
+    hold off
+    
+    % Properties
+    axis(axes_handle, [min(x) max(x) min(f) max(f)]);
+    xlabel(axes_handle, x_label);
+    ylabel(axes_handle, y_label);
+    legend(max_handle, 'Maximum');
     
 end
-
 
 
 end
