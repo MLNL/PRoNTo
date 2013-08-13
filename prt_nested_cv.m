@@ -20,6 +20,7 @@ function [out] = prt_nested_cv(PRT, in)
 % Written by J. Matos Monteiro
 % $Id$
 
+
 % Set flag
 use_nested_cv = PRT.model(in.mid).input.use_nested_cv;
 if use_nested_cv == false
@@ -45,7 +46,7 @@ switch PRT.model(in.mid).input.machine.function
         else
             d1 = -2 : 5;
             beep
-            disp('No parameter range specified for C, using 10^-2 to 10^5')
+            warning('No parameter range specified for C, using 10^-2 to 10^5')
         end
         par = 10 .^(d1);
         
@@ -55,29 +56,50 @@ switch PRT.model(in.mid).input.machine.function
         else
             par = 0.1:0.1:1;
             beep
-            disp('No parameter range specified for K, using 0.1 to 1')
+            warning('No parameter range specified for K, using 0.1 to 1')
         end
+        
+    case 'prt_machine_ENMKL'
+        if ~isempty(PRT.model(in.mid).input.nested_param)
+            % Get parameter ranges from PRT
+            c = PRT.model(in.mid).input.nested_param{1};
+            mu = PRT.model(in.mid).input.nested_param{2};
+            % Convert them to a matrix with all the combinations
+            [c_mesh,mu_mesh] = meshgrid(c, mu);
+            par = [c_mesh(:); mu_mesh(:)];
+        else
+            d1 = -2 : 5;
+            c = 10 .^(d1);
+            mu = 0:0.1:1;
+            [c_mesh,mu_mesh] = meshgrid(c, mu);
+            par = [c_mesh(:) mu_mesh(:)]';
+            beep
+            warning('No parameter range specified for C and mu, using 10^-2 to 10^5 and 0 to 1')
+        end
+        
         
     otherwise
         error('Machine not currently supported for nested CV');
         
 end
-stats_vec = zeros(size(par));
+stats_vec = zeros(1, size(par, 2));
 out.param = par;
 
 % generate new CV matrix
 in.CV = prt_compute_cv_mat(PRT, in, in.mid, use_nested_cv);
 
 % compute model performance based on hyper-parameter range
-for i = 1:length(par)
+for i = 1:size(par, 2)
     
     switch PRT.model(in.mid).input.machine.function
-        case 'prt_machine_svm_bin'
+        case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
             PRT.model(in.mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
-        case {'prt_machine_krr','prt_machine_simpleMKL'}
+        case 'prt_machine_krr'
             PRT.model(in.mid).input.machine.args = par(i);
+        case 'prt_machine_ENMKL'
+            PRT.model(in.mid).input.machine.args = par(:,i)';
         otherwise
-            error('Machine not currently supported for nested CV');            
+            error('Machine not currently supported for nested CV');
     end
     
     % compute the model for each fold of the inner CV
@@ -102,12 +124,10 @@ for i = 1:length(par)
         end
         
         
-        
     end
     
     % compute stats
     stats = prt_stats(model, targets.test, in.nc);
-    
     switch PRT.model(in.mid).input.type
         case 'classification'
             stats_vec(i) = stats.b_acc;
@@ -120,23 +140,50 @@ for i = 1:length(par)
     
 end
 
-
 % For now, only parameter optimisation. Add flag for feature selection
 % Get optimal parameter
-if length(unique(stats_vec)) == 1 % No effect of parameter, so get median
-    par_opt = median(par);
-else
-    switch PRT.model(in.mid).input.type
-        case 'classification'
-            [opt_stats, opt_stats_ind] = max(stats_vec);
-        case 'regression'
-            [opt_stats, opt_stats_ind] = min(stats_vec);
-        otherwise
-            error('Type of model not recognised');
+if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_ENMKL')
+    
+    % Reshape the stats vector into a matrix
+    stats = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';
+    
+    [opt_stats, c_max_ind] = max(max(stats'));
+    [opt_stats, mu_max_ind] = max(max(stats));
+    
+    % Find c max
+    if length(stats(c_max_ind,:)) == 1 % No effect of parameter, so get median
+        c_max = median(c);
+    else
+        c_max = c(c_max_ind);
     end
-    par_opt = par(opt_stats_ind);
+    
+    % Find mu max
+    if length(stats(:,mu_max_ind)) == 1 % No effect of parameter, so get median
+        mu_max = median(mu);
+    else
+        mu_max = mu(mu_max_ind);
+    end
+    
+    out.opt_param = [c_max, mu_max];
+    out.vary_param = stats;
+    
+    
+else
+    if length(unique(stats_vec)) == 1 % No effect of parameter, so get median
+        par_opt = median(par);
+    else
+        switch PRT.model(in.mid).input.type
+            case 'classification'
+                [opt_stats, opt_stats_ind] = max(stats_vec);
+            case 'regression'
+                [opt_stats, opt_stats_ind] = min(stats_vec);
+            otherwise
+                error('Type of model not recognised');
+        end
+        par_opt = par(opt_stats_ind);
+    end
+    
+    out.opt_param = par_opt;
+    out.vary_param = stats_vec;
+    
 end
-
-
-out.opt_param = par_opt;
-out.vary_param = stats_vec;

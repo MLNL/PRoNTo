@@ -22,7 +22,7 @@ function prt_plot_nested_cv(PRT, model, fold, axes_handle)
 
 % Check machine and set the labels an axes
 switch PRT.model(model).input.machine.function
-    case 'prt_machine_svm_bin'
+    case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
         x_label = 'C';
         y_label = 'Balanced Accuracy';
         
@@ -39,7 +39,7 @@ switch PRT.model(model).input.machine.function
         hold(axes_handle,'all');
         
         
-    case {'prt_machine_krr','prt_machine_simpleMKL'}
+    case 'prt_machine_krr'
         x_label = 'Args';
         y_label = 'MSE';
         
@@ -53,6 +53,7 @@ switch PRT.model(model).input.machine.function
             set(axes_handle, 'XScale','linear');
         end
         
+                
     otherwise
         error('Machine not currently supported for nested CV');
 end
