@@ -220,8 +220,8 @@ else % It's a 1 parameter optimisation problem
         % Plot all points
         hold on
         plot(axes_handle, x, f, 'xk', 'markersize', 7, 'linewidth', 2);
-        % Plot the max on top of the original
-        max_handle = plot(axes_handle, x(x_opt), f(x_opt), 'xr', 'markersize', 7, 'linewidth', 2);
+        % Plot the optimal on top of the original
+        opt_handle = plot(axes_handle, x(x_opt), f(x_opt), 'xr', 'markersize', 7, 'linewidth', 2);
         hold off
         
         % Properties
@@ -229,7 +229,7 @@ else % It's a 1 parameter optimisation problem
         axis(axes_handle, [min(x) max(x) (min(f)-1E-6) (max(f)+1E-6)]);
         xlabel(axes_handle, x_label);
         ylabel(axes_handle, y_label);
-        legend(max_handle, 'Optimal value(s)');
+        legend(opt_handle, 'Optimal value(s)');
         
     end
     

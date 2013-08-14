@@ -49,7 +49,7 @@ switch PRT.model(in.mid).input.machine.function
             warning('No parameter range specified for C, using 10^-2 to 10^5')
         end
         par = 10 .^(d1);
-        out.param = par;
+        
         
     case 'prt_machine_krr'
         if ~isempty(PRT.model(in.mid).input.nested_param)
@@ -59,7 +59,7 @@ switch PRT.model(in.mid).input.machine.function
             beep
             warning('No parameter range specified for K, using 0.1 to 1')
         end
-        out.param = par;
+        
         
     case 'prt_machine_ENMKL'
         if ~isempty(PRT.model(in.mid).input.nested_param)
@@ -78,7 +78,7 @@ switch PRT.model(in.mid).input.machine.function
             beep
             warning('No parameter range specified for C and mu, using 10^-2 to 10^5 and 0 to 1')
         end
-        out.param = [c;mu];
+        
         
         
     otherwise
@@ -86,6 +86,7 @@ switch PRT.model(in.mid).input.machine.function
         
 end
 
+out.param = par;
 stats_vec = zeros(1, size(par, 2));
 
 % generate new CV matrix
@@ -131,6 +132,8 @@ for i = 1:size(par, 2)
     
     % compute stats
     stats = prt_stats(model, targets.test, in.nc);
+    
+    
     switch PRT.model(in.mid).input.type
         case 'classification'
             stats_vec(i) = stats.b_acc;
@@ -150,43 +153,69 @@ if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_ENMKL')
     % Reshape the stats vector into a matrix
     stats_mat = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';
     
-    [opt_stats, c_max_ind] = max(max(stats_mat'));
-    [opt_stats, mu_max_ind] = max(max(stats_mat));
-    
-    % Find c max
-    if length(stats_mat(c_max_ind,:)) == 1 % No effect of parameter, so get median
-        c_max = median(c);
-    else
-        c_max = c(c_max_ind);
-    end
-    
-    % Find mu max
-    if length(stats_mat(:,mu_max_ind)) == 1 % No effect of parameter, so get median
-        mu_max = median(mu);
-    else
-        mu_max = mu(mu_max_ind);
-    end
+    % Find max
+    opt_stats_ind = get_opt_stats_ind(stats_mat, 2, true);
+    c_max = c(opt_stats_ind(1));
+    mu_max = mu(opt_stats_ind(2));
     
     out.opt_param = [c_max, mu_max];
     out.vary_param = stats_mat;
     
     
 else
-    if length(unique(stats_vec)) == 1 % No effect of parameter, so get median
-        par_opt = median(par);
-    else
-        switch PRT.model(in.mid).input.type
-            case 'classification'
-                [opt_stats, opt_stats_ind] = max(stats_vec);
-            case 'regression'
-                [opt_stats, opt_stats_ind] = min(stats_vec);
-            otherwise
-                error('Type of model not recognised');
-        end
-        par_opt = par(opt_stats_ind);
+    
+    switch PRT.model(in.mid).input.type
+        case 'classification'
+            opt_stats_ind = get_opt_stats_ind(stats_vec, 1, true);
+        case 'regression'
+            opt_stats_ind = get_opt_stats_ind(stats_vec, 1, false);
+        otherwise
+            error('Type of model not recognised');
     end
+    
+    par_opt = par(opt_stats_ind);
     
     out.opt_param = par_opt;
     out.vary_param = stats_vec;
     
+end
+
+end
+
+
+
+% -------------------------------------------------------------------------
+% Private functions
+% -------------------------------------------------------------------------
+function opt_stats_ind = get_opt_stats_ind(stats, n_par, classification)
+
+switch n_par
+    
+    case 1
+        if classification
+            opt_stats = max(stats);
+        else
+            opt_stats = min(stats);
+        end
+        
+        ind = find(stats == opt_stats);
+        opt_stats_ind = round(median(ind));
+        
+    case 2
+        if classification
+            opt_stats = max(max(stats));
+        else
+            opt_stats = min(min(stats));
+        end
+        
+        [ind_c, ind_mu] = find(stats==opt_stats);
+        
+        opt_stats_ind(1) = round(median(ind_c));
+        opt_stats_ind(2) = round(median(ind_mu));
+        
+    otherwise
+        error('The number of parameters to optimise must be <=2')
+end
+
+
 end
