@@ -49,6 +49,7 @@ switch PRT.model(in.mid).input.machine.function
             warning('No parameter range specified for C, using 10^-2 to 10^5')
         end
         par = 10 .^(d1);
+        out.param = par;
         
     case 'prt_machine_krr'
         if ~isempty(PRT.model(in.mid).input.nested_param)
@@ -58,6 +59,7 @@ switch PRT.model(in.mid).input.machine.function
             beep
             warning('No parameter range specified for K, using 0.1 to 1')
         end
+        out.param = par;
         
     case 'prt_machine_ENMKL'
         if ~isempty(PRT.model(in.mid).input.nested_param)
@@ -66,24 +68,25 @@ switch PRT.model(in.mid).input.machine.function
             mu = PRT.model(in.mid).input.nested_param{2};
             % Convert them to a matrix with all the combinations
             [c_mesh,mu_mesh] = meshgrid(c, mu);
-            par = [c_mesh(:); mu_mesh(:)];
+            par = [c_mesh(:), mu_mesh(:)]';
         else
             d1 = -2 : 5;
             c = 10 .^(d1);
             mu = 0:0.1:1;
             [c_mesh,mu_mesh] = meshgrid(c, mu);
-            par = [c_mesh(:) mu_mesh(:)]';
+            par = [c_mesh(:), mu_mesh(:)]';
             beep
             warning('No parameter range specified for C and mu, using 10^-2 to 10^5 and 0 to 1')
         end
+        out.param = [c;mu];
         
         
     otherwise
         error('Machine not currently supported for nested CV');
         
 end
+
 stats_vec = zeros(1, size(par, 2));
-out.param = par;
 
 % generate new CV matrix
 in.CV = prt_compute_cv_mat(PRT, in, in.mid, use_nested_cv);
@@ -145,27 +148,27 @@ end
 if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_ENMKL')
     
     % Reshape the stats vector into a matrix
-    stats = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';
+    stats_mat = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';
     
-    [opt_stats, c_max_ind] = max(max(stats'));
-    [opt_stats, mu_max_ind] = max(max(stats));
+    [opt_stats, c_max_ind] = max(max(stats_mat'));
+    [opt_stats, mu_max_ind] = max(max(stats_mat));
     
     % Find c max
-    if length(stats(c_max_ind,:)) == 1 % No effect of parameter, so get median
+    if length(stats_mat(c_max_ind,:)) == 1 % No effect of parameter, so get median
         c_max = median(c);
     else
         c_max = c(c_max_ind);
     end
     
     % Find mu max
-    if length(stats(:,mu_max_ind)) == 1 % No effect of parameter, so get median
+    if length(stats_mat(:,mu_max_ind)) == 1 % No effect of parameter, so get median
         mu_max = median(mu);
     else
         mu_max = mu(mu_max_ind);
     end
     
     out.opt_param = [c_max, mu_max];
-    out.vary_param = stats;
+    out.vary_param = stats_mat;
     
     
 else
