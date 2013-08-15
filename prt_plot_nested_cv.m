@@ -24,7 +24,7 @@ function prt_plot_nested_cv(PRT, model, fold, axes_handle)
 switch PRT.model(model).input.machine.function
     case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
         x_label = 'C';
-        y_label = 'Balanced Accuracy';
+        y_label = 'Balanced Accuracy (%)';
         
         %If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
@@ -56,7 +56,7 @@ switch PRT.model(model).input.machine.function
     case 'prt_machine_ENMKL'
         x_label = 'mu';
         y_label = 'C';
-        z_label = 'Balanced Accuracy';
+        z_label = 'Balanced Accuracy (%)';
         
         % If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
@@ -95,12 +95,14 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         
         f_mean = mean(f, 3);
 %         f_std = std(f, 0, 3);
-        
+
+        f_mean = 100.*f_mean;        
+
         % Plot points
         
         %         subplot(2,1,1);
         axes_handle = image(f_mean, 'CDataMapping', 'scaled', 'XData', [min(mu), max(mu)], 'YData', [min(c) max(c)]);
-        colorbar;
+        axes_color = colorbar;
         title('Mean')
         %         subplot(2,1,2);
         %         axes_handle = image(f_std, 'CDataMapping', 'scaled', 'XData', [min(mu), max(mu)], 'YData', [min(c) max(c)]);
@@ -111,7 +113,7 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         % Properties
         xlabel(x_label);
         ylabel(y_label);
-        zlabel(z_label);
+        ylabel(axes_color, z_label);
         
         
         
@@ -169,14 +171,16 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         
         f = PRT.model(model).output.fold(fold-1).param_effect.vary_param;
         
+        f = 100.*f;
+        
         % Plot points
         axes_handle = image(f, 'CDataMapping', 'scaled', 'XData', [min(mu), max(mu)], 'YData', [min(c) max(c)]);
-        colorbar;
+        axes_color = colorbar;
         
         % Properties
         xlabel(x_label);
         ylabel(y_label);
-        zlabel(z_label);
+        ylabel(axes_color, z_label);
         
         
     end
@@ -195,6 +199,7 @@ else % It's a 1 parameter optimisation problem
         for i = 1:nfold
             f(i,:) = PRT.model(model).output.fold(i).param_effect.vary_param;
         end
+        f = 100.*f;
         
         % Plot
         errorbar(axes_handle, x, mean(f), std(f), 'xk', 'markersize', 7, 'linewidth', 2);
@@ -206,6 +211,7 @@ else % It's a 1 parameter optimisation problem
         % Get all function values
         x = PRT.model(model).output.fold(fold-1).param_effect.param;
         f = PRT.model(model).output.fold(fold-1).param_effect.vary_param;
+        f = 100.*f;
         
         % Get optimal function values
         switch PRT.model(model).input.type
