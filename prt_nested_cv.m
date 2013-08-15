@@ -98,10 +98,16 @@ for i = 1:size(par, 2)
     switch PRT.model(in.mid).input.machine.function
         case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
             PRT.model(in.mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
+            m.type = 'classifier';
+            
         case 'prt_machine_krr'
             PRT.model(in.mid).input.machine.args = par(i);
+            m.type = 'regression';
+        
         case 'prt_machine_ENMKL'
             PRT.model(in.mid).input.machine.args = par(:,i)';
+            m.type = 'classifier';
+        
         otherwise
             error('Machine not currently supported for nested CV');
     end
@@ -127,11 +133,19 @@ for i = 1:size(par, 2)
             end
         end
         
+        % Compute stats
+        stats = prt_stats(model, targets.test, in.nc);
+        f_stats(f).targets     = targets.test;
+        f_stats(f).predictions = model.predictions(:);
+        f_stats(f).stats       = stats;
+        
         
     end
     
-    % compute stats
-    stats = prt_stats(model, targets.test, in.nc);
+    % Model level statistics (across folds)
+    ttt           = vertcat(f_stats(:).targets);
+    m.predictions = vertcat(f_stats(:).predictions);
+    stats         = prt_stats(m, ttt(:), in.nc);
     
     
     switch PRT.model(in.mid).input.type
