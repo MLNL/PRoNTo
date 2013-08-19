@@ -110,7 +110,7 @@ else
         vm = spm_vol(mask{m});
         vm = spm_read_vols(vm);
         if ~any(vm(:)>0)
-            error('prt_prepare_data:NoVoxelinMask',...
+            error('prt_init_fs:NoVoxelinMask',...
                 ['Mask of modality ',num2str(m),' does not contain any voxel >0'])
         else
             PRT.fs(fid).modality(m).feat_idx_img = find(vm>0);
@@ -120,7 +120,7 @@ else
             n_vox = sum(vm(:)>0);
         end
         if n_vox ~= sum(vm(:)>0)
-            error('prt_prepare_data:MasksNotConsistent',...
+            error('prt_init_fs:MasksNotConsistent',...
                 'Masks access areas of different sizes across modalities')
         end
         %get subindexes from mask specified in the data prepare step
@@ -128,7 +128,7 @@ else
             vm = spm_vol(precmask{m});
             vm = spm_read_vols(vm);
             if ~any(vm(:)>0)
-                error('prt_prepare_data:NoVoxelinMask',...
+                error('prt_init_fs:NoVoxelinMask',...
                     ['2nd level mask of modality ',num2str(m),' does not contain any voxel >0'])
             end
             [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0));
@@ -152,7 +152,7 @@ else
                     n = n + size(PRT.group(gid).subject(sid).modality(mid).scans,1);
                 elseif strcmpi(in.mod(mid).mode,'all_cond')
                     if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
-                        error('prt_model:fsIsAllCondModelisAllScans',...
+                        error('prt_init_fs:fsIsAllCondModelisAllScans',...
                             ['''All conditions'' selected for modality ', num2str(m)...
                             ' but no design was specified. This syntax is invalid, '...
                             'Please use ''All Scans'' instead.']);

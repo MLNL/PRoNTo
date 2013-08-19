@@ -91,9 +91,29 @@ for i = 1:length(PRT.model(mid).input.fs)
             if ~iscell(Phi) || length(Phi)==1
                 Phi_all{1} = Phi(samp_idx,samp_idx);
             else
-                Phi_all=cell(1,length(Phi));
-                for j=1:length(Phi)
-                    Phi_all{j}=Phi{j}(samp_idx,samp_idx);
+                %Check that if multiple kernels, MKL was selected,
+                %otherwise add the kernels (normalized)
+                if ~flag && isempty(strfind(PRT.model(mid).input.machine.function,'MKL'))
+                    warning('prt_cv_model:AddKernels',...
+                                'Multiple kernels but machine cannot deal with them, adding the kernels');
+                    Phi_tmp = zeros(size(Phi{1},1),size(Phi{1},2));
+                    for j=1:length(Phi)
+                        try
+                            %normalize each kernel before adding
+                            tp = prt_normalise_kernel(Phi{j}(samp_idx,samp_idx));
+                            Phi_tmp=Phi_tmp + tp;
+                        catch
+                            error('prt_cv_model:KernelsWithDifferentDimensions', ...
+                                'Kernels cannot be added since they have different dimensions')
+                        end
+                    end
+                    Phi_all{1} = Phi_tmp;
+                    clear Phi_tmp
+                else 
+                    Phi_all=cell(1,length(Phi));
+                    for j=1:length(Phi)
+                        Phi_all{j}=Phi{j}(samp_idx,samp_idx);
+                    end
                 end
             end
         else
@@ -103,6 +123,7 @@ for i = 1:length(PRT.model(mid).input.fs)
         end
     end
 end
+clear Phi
 
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
@@ -113,6 +134,7 @@ if flag %loop over the kernels and output accuracy for each kernel only
 else
     nk = 1;
 end
+perf_per_region = zeros(nk,1);
 
 for k = 1:nk
     PRT.model(mid).output(k).fold = struct();
@@ -174,11 +196,22 @@ for k = 1:nk
     stats         = prt_stats(m,ttt(:),nc);
     
     PRT.model(mid).output(k).stats=stats;
-end
-if flag && length(Phi_all)>1
-    PRT.model(mid).output = rmfield(PRT.model(mid).output,'fold');
+    
+    %Save the accuracy per region
+    if flag && length(Phi_all)>1
+        if strcmpi(PRT.model(mid).input.type,'classification')
+            perf_per_region(k) = PRT.model(mid).output(k).stats.b_acc;
+        else
+            perf_per_region(k) = PRT.model(mid).output(k).stats.nmse;
+        end
+    end       
+        
 end
 
+if flag && length(Phi_all)>1
+    outfile = perf_per_region;
+    return
+end
 
 % Save PRT containing machine output
 % -------------------------------------------------------------------------

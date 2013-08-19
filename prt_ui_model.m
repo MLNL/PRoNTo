@@ -165,7 +165,7 @@ handles.machine.args=handles.def.svmargs;
 list={'Sample averaging (within block)',...
     'Sample averaging (within subject/condition)',...
     'Mean centre features using training data',...
-    'Divide data vectors by their norm'};
+    'Normalize samples'};
 
 handles.indop{1}=1:length(list);
 handles.indop{2}=0;
@@ -250,6 +250,26 @@ end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
 handles.fs(1).indfs=1;
+if handles.dat.fs(1).multkernel %allowing for multi-kernel learning
+    handles.multimod = 1;
+else
+    handles.multimod = 0;
+end
+handles.use_kernel=get(handles.kernel_methods,'Value');
+if get(handles.pop_reg,'Value')==1 %for classification
+    if handles.use_kernel
+        list = {'Binary support vector machine',...
+            'Binary Gaussian Process Classification',...
+            'Multiclass GPC'};
+        if handles.multimod
+            list = [list,{'L1- Multi-Kernel Learning'}];
+        end
+        set(handles.pop_machine,'String',list)
+        set(handles.pop_machine,'Value',1)
+        handles.machine.function='prt_machine_svm_bin';
+        handles.machine.args=handles.def.svmargs;
+    end
+end
 
 % Update handles structure
 guidata(hObject, handles);
@@ -303,6 +323,26 @@ end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
 handles.fs(1).indfs=1;
+if handles.dat.fs(1).multkernel %allowing for multi-kernel learning
+    handles.multimod = 1;
+else
+    handles.multimod = 0;
+end
+handles.use_kernel=get(handles.kernel_methods,'Value');
+if get(handles.pop_reg,'Value')==1 %for classification
+    if handles.use_kernel
+        list = {'Binary support vector machine',...
+            'Binary Gaussian Process Classification',...
+            'Multiclass GPC'};
+        if handles.multimod
+            list = [list,{'L1- Multi-Kernel Learning'}];
+        end
+        set(handles.pop_machine,'String',list)
+        set(handles.pop_machine,'Value',1)
+        handles.machine.function='prt_machine_svm_bin';
+        handles.machine.args=handles.def.svmargs;
+    end
+end
 
 % Update handles structure
 guidata(hObject, handles);

@@ -322,8 +322,8 @@ svm_opt.tag     = 'svm_opt';
 svm_opt.name    = 'Optimize hyper-parameter';
 svm_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
     'If Yes, than provide a range of possible values for C, in the form '...
-    'min:step:max, knowing that those numbers are exponents of 10.' ...
-    'Example: -2:5 . If not, a default value will be used.']};
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.' ...
+    'If not, a default value will be used (C=1).']};
 svm_opt.labels  = {
     'No'
     'Yes'
@@ -337,7 +337,8 @@ svm_opt.val     = {0};
 svm_args         = cfg_entry;
 svm_args.tag     = 'svm_args';
 svm_args.name    = 'Soft-margin hyper-parameter';
-svm_args.help    = {['Value(s) for prt_machine_svm_bin: soft-margin C.']};
+svm_args.help    = {['Value(s) for prt_machine_svm_bin: soft-margin C.',...
+    'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.']};
 svm_args.strtype = 'e';
 svm_args.val     = {def.model.svmargs};
 svm_args.num     = [1 Inf];
@@ -399,8 +400,8 @@ sMKL_opt.tag     = 'sMKL_opt';
 sMKL_opt.name    = 'Optimize hyper-parameter';
 sMKL_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
     'If Yes, than provide a range of possible values for C, in the form '...
-    'min:step:max, knowing that those numbers are exponents of 10.' ...
-    'Example: -2:5. If not, a default value will be used.']};
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.' ...
+    'If not, a default value will be used (C=1).']};
 sMKL_opt.labels  = {
     'No'
     'Yes'
@@ -414,7 +415,8 @@ sMKL_opt.val     = {0};
 sMKL_args         = cfg_entry;
 sMKL_args.tag     = 'sMKL_args';
 sMKL_args.name    = 'Arguments';
-sMKL_args.help    = {['Arguments for prt_machine_simpleMKL (same as for SVM)']};
+sMKL_args.help    = {['Arguments for prt_machine_simpleMKL (same as for SVM)',...
+    'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.']};
 sMKL_args.strtype = 'e';
 sMKL_args.val     = {def.model.l1MKLargs};
 sMKL_args.num     = [1 Inf];
@@ -426,7 +428,8 @@ sMKL         = cfg_branch;
 sMKL.tag     = 'sMKL';
 sMKL.name    = 'L1 Multi-Kernel Learning';
 sMKL.help    = {'Multi-Kernel Learning. Choose only if multiple kernels' ...
-    'were built during the feature set construction (either multiple modalities or ROIs)'};
+    'were built during the feature set construction (either multiple modalities or ROIs)' ...
+    'It is strongly advised to "normalize" the kernels (in "operations").'};
 sMKL.val     = {sMKL_opt, sMKL_args};
 
 % ---------------------------------------------------------------------
@@ -457,8 +460,8 @@ krr_opt.tag     = 'krr_opt';
 krr_opt.name    = 'Optimize hyper-parameter';
 krr_opt.help    = {['Whether to optimize K, the KRR hyper-parameter, or not. '...
     'If Yes, than provide a range of possible values for K, in the form '...
-    'min:step:max. , knowing that those numbers are exponents of 10.' ...
-    'Example: -2:5. If not, a default value will be used.']};
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.' ...
+    'If not, a default value will be used.']};
 krr_opt.labels  = {
     'No'
     'Yes'
@@ -472,7 +475,8 @@ krr_opt.val     = {0};
 krr_args         = cfg_entry;
 krr_args.tag     = 'krr_args';
 krr_args.name    = 'Regularization';
-krr_args.help    = {['Regularization for prt_machine_krr.']};
+krr_args.help    = {['Regularization for prt_machine_krr.',...
+    'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.']};
 krr_args.strtype = 'e';
 krr_args.val     = {1};
 krr_args.num     = [1 Inf];
@@ -755,7 +759,7 @@ data_op.labels  = {
     'Sample averaging (within block)'
     'Sample averaging (within subject/condition)'
     'Mean centre features using training data'
-    'Divide data vectors by their norm'
+    'Normalize samples'
     'Perform a GLM (fMRI only)'
 }';
 data_op.values  = {0 1 2 3 4 5};
