@@ -40,27 +40,15 @@ end
 
 % Set range of the hyper parameters
 switch PRT.model(in.mid).input.machine.function
-    case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
-        if ~isempty(PRT.model(in.mid).input.nested_param)
-            d1 = PRT.model(in.mid).input.nested_param;
-        else
-            d1 = -2 : 5;
-            beep
-            warning('No parameter range specified for C, using 10^-2 to 10^5')
-        end
-        par = 10 .^(d1);
-        
-        
-    case 'prt_machine_krr'
+    case {'prt_machine_svm_bin','prt_machine_simpleMKL','prt_machine_krr'}
         if ~isempty(PRT.model(in.mid).input.nested_param)
             par = PRT.model(in.mid).input.nested_param;
         else
-            par = 0.1:0.1:1;
+            d1 = -2 : 3;
+            par = 10 .^(d1);
             beep
-            warning('No parameter range specified for K, using 0.1 to 1')
-        end
-        
-        
+            warning('No parameter range specified for optimization, using 10^-2 to 10^3')
+        end        
     case 'prt_machine_ENMKL'
         if ~isempty(PRT.model(in.mid).input.nested_param)
             % Get parameter ranges from PRT
@@ -70,16 +58,14 @@ switch PRT.model(in.mid).input.machine.function
             [c_mesh,mu_mesh] = meshgrid(c, mu);
             par = [c_mesh(:), mu_mesh(:)]';
         else
-            d1 = -2 : 5;
+            d1 = -2 : 3;
             c = 10 .^(d1);
             mu = 0:0.1:1;
             [c_mesh,mu_mesh] = meshgrid(c, mu);
             par = [c_mesh(:), mu_mesh(:)]';
             beep
-            warning('No parameter range specified for C and mu, using 10^-2 to 10^5 and 0 to 1')
-        end
-        
-        
+            warning('No parameter range specified for C and mu, using 10^-2 to 10^3 and 0 to 1')
+        end   
         
     otherwise
         error('Machine not currently supported for nested CV');
@@ -97,7 +83,7 @@ for i = 1:size(par, 2)
     
     switch PRT.model(in.mid).input.machine.function
         case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
-            PRT.model(in.mid).input.machine.args = ['-s 0 -t 4 -c ' num2str(par(i))];
+            PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'classifier';
             
         case 'prt_machine_krr'

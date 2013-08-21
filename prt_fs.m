@@ -96,11 +96,12 @@ elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
         [PRT] = prt_fs_modality(PRT,in);
     end
     if ~isempty(PRT.fs(fid).modality(1).idfeat_fas)
-        idt = PRT.fs(fid).modality(1).idfeat_fas;
+        idt = PRT.fs(fid).modality(1).idfeat_fas; %indexes of voxels in second-level mask
     else
-        idt = PRT.fas(mids).idfeat_img;
+        idt = 1:length(PRT.fas(mids).idfeat_img);
     end
-    interh = h(idt);
+    idm1 = PRT.fas(mids).idfeat_img(idt); %indexes of voxels in first level mask
+    interh = h(idm1);
     roi = unique(interh(interh>0));
     nroi = length(roi);
     Phi=cell(nroi,1);
@@ -111,7 +112,7 @@ elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
     igd = []; %indexes of non 0 kernels
     for i=1:nroi
         disp ([' > Computing kernel: ', num2str(i),' of ',num2str(nroi),' ...'])
-        addin.idvox_fas = find(interh == roi(i));
+        addin.idvox_fas = idt(interh == roi(i));
         [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
         [d1,idmax] = max(Phim);
         [d1,idmin] = min(Phim);
@@ -124,12 +125,13 @@ elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
             disp(['Region ',num2str(i),' will be removed from further analysis'])
         end
         Phi{i}=Phim;
-        idts = idt(interh == roi(i));
-        PRT.fs(fid).modality(1).idfeat_img{i} = idts ;  
+%         idts = idt(interh == roi(i));
+        PRT.fs(fid).modality(1).idfeat_img{i} = addin.idvox_fas ;  
     end
     PRT.fs(fid).multkernel = 1;
     if ~isempty(igd)
         PRT.fs(fid).modality(1).idfeat_img = PRT.fs(fid).modality(1).idfeat_img(igd);
+        PRT.fs(fid).modality(1).num_ROI = roi(igd);
     end
     PRT.fs(fid).atlas_name = ratl{1};
     % Concatenate modalities in time
