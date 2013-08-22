@@ -239,7 +239,7 @@ else
             plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
         end
         if PRT.model(mi(m)).input.use_nested_cv
-            plots{length(plots)+1} = 'Nested CV';
+            plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
         end
         set(handles.plotmenu,'String',plots);
         
@@ -677,7 +677,7 @@ if strcmp(PRT.model(model).input.type,'classification')
             prt_plot_ROC(handles.PRT, model, fold, handles.axes5);
             
             % TODO: Check if this does not cause problems when the
-            % nested CV was not used
+            % Influence of the hyper-parameter on performance was not used
         case '5'
             prt_plot_nested_cv(handles.PRT, model, fold, handles.axes5);
             
@@ -760,7 +760,7 @@ else
     plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
 end
 if handles.PRT.model(mi(m)).input.use_nested_cv
-    plots{length(plots)+1} = 'Nested CV';
+    plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
 end
 
 

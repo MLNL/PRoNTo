@@ -20,6 +20,7 @@ function prt_plot_nested_cv(PRT, model, fold, axes_handle)
 % $Id$
 
 
+
 % Check machine and set the labels an axes
 switch PRT.model(model).input.machine.function
     case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
@@ -65,7 +66,7 @@ switch PRT.model(model).input.machine.function
         else
             % Clear EVERYTHING in the UI before defining the axes
             cla(axes_handle, 'reset');
-            set(axes_handle, 'XScale','linear');
+            set(axes_handle, 'XScale','linear', 'YScale','log', 'XMinorTick','on', 'YMinorTick','on');
         end
         
     otherwise
@@ -94,14 +95,16 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         end
         
         f_mean = mean(f, 3);
-%         f_std = std(f, 0, 3);
-
-        f_mean = 100.*f_mean;        
-
+        %         f_std = std(f, 0, 3);
+        
+        f_mean = 100.*f_mean;
+        
         % Plot points
         
         %         subplot(2,1,1);
+        % TODO: Put Logscale on the Y axis
         axes_handle = image(f_mean, 'CDataMapping', 'scaled', 'XData', [min(mu), max(mu)], 'YData', [min(c) max(c)]);
+        % set(axes_handle,'Yscale','log','Ydir','normal');
         axes_color = colorbar;
         title('Mean')
         %         subplot(2,1,2);
@@ -111,9 +114,9 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         
         
         % Properties
-        xlabel(x_label);
-        ylabel(y_label);
-        ylabel(axes_color, z_label);
+        xlabel(x_label,'FontWeight','bold');
+        ylabel(y_label,'FontWeight','bold');
+        ylabel(axes_color, z_label,'FontWeight','bold');
         
         
         
@@ -178,15 +181,29 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         axes_color = colorbar;
         
         % Properties
-        xlabel(x_label);
-        ylabel(y_label);
-        ylabel(axes_color, z_label);
+        xlabel(x_label,'FontWeight','bold');
+        ylabel(y_label,'FontWeight','bold');
+        ylabel(axes_color, z_label,'FontWeight','bold');
         
         
     end
     
     
 else % It's a 1 parameter optimisation problem
+    
+    % general properties of the plots
+    markersize = 10;
+            switch PRT.model(model).input.type
+            case 'classification'
+                f_min = 0;
+                f_max = 100;
+            case 'regression'
+                f_min = 0;
+                f_max = 1;
+            otherwise
+                error('Type of model not recognised');
+        end
+    
     if fold == 1
         
         nfold = length(PRT.model(model).output.fold);
@@ -198,13 +215,41 @@ else % It's a 1 parameter optimisation problem
         % Get mean f values
         for i = 1:nfold
             f(i,:) = PRT.model(model).output.fold(i).param_effect.vary_param;
+            
+            % Get optimal function values
+            switch PRT.model(model).input.type
+                case 'classification'
+                    x_opt(i,:) = find(f(i,:)==max(f(i,:)));
+                case 'regression'
+                    x_opt(i,:) = find(f==min(f(i,:)));
+                otherwise
+                    error('Type of model not recognised');
+            end
         end
         f = 100.*f;
+        f_mean = mean(f);
+        f_std = std(f);
+        
+        % get frequencies of optimal values
+        x_opt = reshape(x_opt, 1, size(x_opt,1)*size(x_opt,2));
+        x_opt = tabulate(x_opt);
+        x_opt(:, end) = x_opt(:, end)./100;
+        
         
         % Plot
-        errorbar(axes_handle, x, mean(f), std(f), 'xk', 'markersize', 7, 'linewidth', 2);
-        xlabel(axes_handle, x_label);
-        ylabel(axes_handle, y_label);
+        hold on
+        errorbar(axes_handle, x, f_mean, f_std, 'xk', 'markersize', markersize, 'linewidth', 2);
+        plot(axes_handle, x, mean(f), '-k', 'linewidth', 1);
+        for i = 1:size(x_opt, 1)
+            plot(x(x_opt(i, 1)), f_mean(x_opt(i, 1)), 'x', 'markersize', markersize, ...
+                'linewidth', 2,'Color', [x_opt(i,end) 0 0]);
+        end
+        hold off
+        
+        % Properties
+        xlabel(axes_handle, x_label,'FontWeight','bold');
+        ylabel(axes_handle, y_label,'FontWeight','bold');
+        axis(axes_handle, [min(x) max(x) f_min f_max]);
         
     else
         
@@ -225,17 +270,16 @@ else % It's a 1 parameter optimisation problem
         
         % Plot all points
         hold on
-        plot(axes_handle, x, f, 'xk', 'markersize', 7, 'linewidth', 2);
+        plot(axes_handle, x, f, '-xk', 'markersize', markersize, 'linewidth', 1);
         % Plot the optimal on top of the original
-        opt_handle = plot(axes_handle, x(x_opt), f(x_opt), 'xr', 'markersize', 7, 'linewidth', 2);
+        opt_handle = plot(axes_handle, x(x_opt), f(x_opt), 'xr', 'markersize', markersize, 'linewidth', 2);
         hold off
         
         % Properties
-        % The 1E-6 is only there to prevent the cases in which length(unique(f))==1
-        axis(axes_handle, [min(x) max(x) (min(f)-1E-6) (max(f)+1E-6)]);
-        xlabel(axes_handle, x_label);
-        ylabel(axes_handle, y_label);
+        xlabel(axes_handle, x_label,'FontWeight','bold');
+        ylabel(axes_handle, y_label,'FontWeight','bold');
         legend(opt_handle, 'Optimal value(s)');
+        axis(axes_handle, [min(x) max(x) f_min f_max]);
         
     end
     
