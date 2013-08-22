@@ -103,11 +103,26 @@ for i = 1:nfas
 end
 fas_idx = find(fas);
 
-% Get the indexes of the voxels which are in the second level mask
+% Get the indexes of the voxels which are in the first/second level mask
 % -------------------------------------------------------------------------
+
+idROI = [];
 idfeat = PRT.fas(fas_idx(1)).idfeat_img;
-if ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas)
-    mask_train = idfeat(PRT.fs(fs_idx).modality(mm).idfeat_fas);
+if ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas) % if ROIs defined by an atlas, get the 3rd level masking
+    if PRT.fs(fs_idx).multkernel && ...   %multiple kernels in feature set
+        isfield(PRT.fs(fs_idx).modality(mm),'idfeat_img') %ROIs
+        m_train = cell(length(PRT.fs(fs_idx).modality(mm).idfeat_img),1);
+        for i = 1:length(PRT.fs(fs_idx).modality(mm).idfeat_img)
+            tmp1 = PRT.fs(fs_idx).modality(mm).idfeat_img{i};
+            idROI=[idROI;tmp1];
+            tmp = PRT.fs(fs_idx).modality(mm).idfeat_fas(tmp1);
+            m_train{i} = idfeat(tmp);
+        end
+        id2 = PRT.fs(fs_idx).modality(mm).idfeat_fas(sort(idROI));
+    else
+        id2 = PRT.fs(fs_idx).modality(mm).idfeat_fas;
+    end
+    mask_train = idfeat(id2);
     voxtr = find(ismember(idfeat,mask_train));
 else
     mask_train = idfeat;
@@ -188,6 +203,16 @@ for p=0:maxp
             img3dav{c}  = zeros(1,xydim); % average weight map
         end
         
+        if ~isempty(idROI) %get indexes in each slice for each ROI
+            feat_slc = mask_train(mask_train>=(xydim*(z-1)+1) & ...
+                mask_train<=(xydim*z));
+            for ir = 1:length(m_train)
+                tmp = m_train{ir}(m_train{ir}>=(xydim*(z-1)+1) & ...
+                    m_train{ir}<=(xydim*z));
+                m.args.idfeat_img{ir} = find(ismember(feat_slc,tmp));
+            end
+        end
+        
         feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
             mask_train<=(xydim*z));
         
@@ -230,6 +255,10 @@ for p=0:maxp
                     cvdata = prt_apply_operation(PRT, cvdata, ops(o));
                 end
                 d.datamat = cvdata.train{:};
+                
+                if strcmpi(mfunc,'prt_machine_simpleMKL')
+                    m.args.betas = PRT.model(model_idx).output.fold(f).beta;
+                end
                 
                 % COMPUTE WEIGHTS
                 wimg      = prt_weights(d,m);

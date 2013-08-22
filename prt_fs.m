@@ -60,8 +60,14 @@ in.fid = fid;
 if n_mods>1 && in.flag_mm 
     Phi=cell(n_mods,1);
     igd = [];
+    nim1 =length(unique(PRT.fs(fid).id_mat(:,3) == mids(1)));
     for i=1:n_mods          % loop through modalities and save each kernel in a cell
         idtk = PRT.fs(fid).id_mat(:,3) == mids(i);
+        nimm = length(unique(PRT.fs(fid).id_mat(:,3) == mids(i)));
+        if nimm~= nim1 %check that modalities have the same dimensions in terms of samples
+            error('prt_fs:MultKernMod_DifIm',...
+                'Modalities should have the same number of images to be considered for MKL')
+        end
         addin.ID = PRT.fs(fid).id_mat(idtk,:);
         [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
         [d1,idmax] = max(Phim);
@@ -85,6 +91,7 @@ if n_mods>1 && in.flag_mm
     if ~isempty(igd)
         PRT.fs(fid).modality = PRT.fs(fid).modality(igd);
     end
+    
     % One kernel per region as defined by an atlas
 elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
         && in.mod(mids).multroi  
@@ -126,7 +133,7 @@ elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
         end
         Phi{i}=Phim;
 %         idts = idt(interh == roi(i));
-        PRT.fs(fid).modality(1).idfeat_img{i} = addin.idvox_fas ;  
+        PRT.fs(fid).modality(1).idfeat_img{i} = find(interh == roi(i)) ;  
     end
     PRT.fs(fid).multkernel = 1;
     if ~isempty(igd)
@@ -134,6 +141,7 @@ elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
         PRT.fs(fid).modality(1).num_ROI = roi(igd);
     end
     PRT.fs(fid).atlas_name = ratl{1};
+    
     % Concatenate modalities in time
 else
     [PRT,Phi] = prt_fs_modality(PRT,in,0,[]);

@@ -37,7 +37,7 @@ if SANITYCHECK == true
         end
     end
 end
-
+weights=cell(nclass,1);
 for c = 1:nclass
     % create 1D image
     %----------------------------------------------------------------------
