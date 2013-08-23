@@ -103,26 +103,27 @@ mm = in.mm;
 
 idROI = [];
 idfeat = PRT.fas(fas_idx(1)).idfeat_img;
-if ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas) % if ROIs defined by an atlas, get the 3rd level masking
-    if PRT.fs(fs_idx).multkernel && ...   %multiple kernels in feature set
-        isfield(PRT.fs(fs_idx).modality(mm),'idfeat_img') %ROIs
-        m_train = cell(length(PRT.fs(fs_idx).modality(mm).idfeat_img),1);
-        for i = 1:length(PRT.fs(fs_idx).modality(mm).idfeat_img)
-            tmp1 = PRT.fs(fs_idx).modality(mm).idfeat_img{i};
-            idROI=[idROI;tmp1];
-            tmp = PRT.fs(fs_idx).modality(mm).idfeat_fas(tmp1);
-            m_train{i} = idfeat(tmp);
-        end
-        id2 = PRT.fs(fs_idx).modality(mm).idfeat_fas(sort(idROI));
-    else
-        id2 = PRT.fs(fs_idx).modality(mm).idfeat_fas;
-    end
-    mask_train = idfeat(id2);
-    voxtr = find(ismember(idfeat,mask_train));
+if isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas) % get the 2nd level masking
+    idfeat_fas = 1:length(idfeat);
 else
-    mask_train = idfeat;
-    voxtr = 1:length(idfeat);
+    idfeat_fas = PRT.fs(fs_idx).modality(mm).idfeat_fas;
 end
+if PRT.fs(fs_idx).multkernel && ...   %multiple kernels in feature set
+        isfield(PRT.fs(fs_idx).modality(mm),'idfeat_img') %ROIs
+    m_train = cell(length(PRT.fs(fs_idx).modality(mm).idfeat_img),1);
+    for i = 1:length(PRT.fs(fs_idx).modality(mm).idfeat_img)
+        tmp1 = PRT.fs(fs_idx).modality(mm).idfeat_img{i};
+        idROI=[idROI;tmp1];
+        tmp = PRT.fs(fs_idx).modality(mm).idfeat_fas(tmp1);
+        m_train{i} = idfeat(tmp);
+    end
+    id2 = idfeat_fas(sort(idROI));
+else
+    id2 = idfeat_fas;
+end
+mask_train = idfeat(id2);
+voxtr = find(ismember(idfeat,mask_train));
+
 
 % Create image
 % -------------------------------------------------------------------------
