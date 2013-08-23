@@ -193,16 +193,16 @@ else % It's a 1 parameter optimisation problem
     
     % general properties of the plots
     markersize = 10;
-            switch PRT.model(model).input.type
-            case 'classification'
-                f_min = 0;
-                f_max = 108;
-            case 'regression'
-                f_min = 0;
-                f_max = 1.08;
-            otherwise
-                error('Type of model not recognised');
-        end
+    switch PRT.model(model).input.type
+        case 'classification'
+            f_min = 0;
+            f_max = 108;
+        case 'regression'
+            f_min = 0;
+            f_max = 1.08;
+        otherwise
+            error('Type of model not recognised');
+    end
     
     if fold == 1
         
@@ -241,8 +241,10 @@ else % It's a 1 parameter optimisation problem
         errorbar(axes_handle, x, f_mean, f_std, 'xk', 'markersize', markersize, 'linewidth', 2);
         plot(axes_handle, x, mean(f), '-k', 'linewidth', 1);
         for i = 1:size(x_opt, 1)
+            R = x_opt(i, end);
+            B = 1-R;
             plot(x(x_opt(i, 1)), f_mean(x_opt(i, 1)), 'x', 'markersize', markersize, ...
-                'linewidth', 2,'Color', [x_opt(i,end) 0 0]);
+                'linewidth', 3,'Color', [R 0 B]);
         end
         hold off
         
@@ -272,7 +274,7 @@ else % It's a 1 parameter optimisation problem
         hold on
         plot(axes_handle, x, f, '-xk', 'markersize', markersize, 'linewidth', 1);
         % Plot the optimal on top of the original
-        opt_handle = plot(axes_handle, x(x_opt), f(x_opt), 'xr', 'markersize', markersize, 'linewidth', 2);
+        opt_handle = plot(axes_handle, x(x_opt), f(x_opt), 'xr', 'markersize', markersize, 'linewidth', 3);
         hold off
         
         % Properties
