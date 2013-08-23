@@ -1,7 +1,7 @@
 function img_name = prt_compute_weights(PRT,in,flag)
 % FORMAT prt_compute_weights(PRT,in)
 %
-% This function calls prt_weights to compute weights 
+% This function calls prt_weights to compute weights
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).
@@ -37,12 +37,81 @@ if model_idx == 0, error('prt_compute_weights:ModelNotFound',...
         'Error: model not found in PRT.mat!'); end
 
 mtype = PRT.model(model_idx).input.type;
+mname = PRT.model(model_idx).model_name;
 
-% Chose weights function
+% Compute weights for each modality
 % -------------------------------------------------------------------
-switch mtype
-    case 'classification'        
-        img_name = prt_compute_weights_class(PRT,in,model_idx,flag);        
-    case 'regression'       
-        img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
+% Get index of feature set
+fs_name  = PRT.model(model_idx).input.fs.fs_name;
+nfs = length(PRT.fs);
+for f = 1:nfs
+    if strcmp(PRT.fs(f).fs_name,fs_name)
+        fs_idx = f;
+    end
 end
+
+% Find modality
+nfas = length(PRT.fas);
+mods = {PRT.fs(fs_idx).modality.mod_name};
+fas  = zeros(1,nfas);
+mm=zeros(length(mods),nfas);
+for i = 1:nfas
+    for j = 1:length(mods)
+        if strcmpi(PRT.fas(i).mod_name,mods{j})
+            fas(i) = 1;
+            mm(i,j)= 1;
+        end
+    end
+end
+fas_idx = find(fas);
+
+% Loop over the different feature sets if they were considered as separate
+% kernels (i.e. one kernel per modality)
+
+if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 %create one image per modality
+    %get image names
+    im_name = cell(1,length(fas_idx));
+    if ~isempty(in.img_name)
+        if ~(prt_checkAlphaNumUnder(in.img_name))
+            error('prt_compute_weights:NameNotAlphaNumeric',...
+                'Error: image name should contain only alpha-numeric elements!');
+        end
+        for i = 1:length(fas_idx)
+            im_name{i} = [in.img_name,'_',PRT.fas(fas_idx(i)).mod_name];
+        end
+    else
+        for i = 1:length(fas_idx)
+            im_name{i} = ['weights_',mname,'_',PRT.fas(fas_idx(i)).mod_name];
+        end
+    end
+    ifa_all = PRT.fs(fs_idx).fas.ifa;
+    im_all = PRT.fs(fs_idx).fas.im;
+    for i = 1:length(fas_idx)
+        in.img_name = im_name{i};
+        in.fas_idx = fas_idx(i);
+        in.mm = find(mm(i,:));
+        %Modify inputs according to file array and modality
+        PRT.fs(fs_idx).id_mat(:,3) = in.mm * ones(size(PRT.fs(fs_idx).id_mat,1),1);
+        PRT.fs(fs_idx).fas.im = im_all(im_all == fas_idx(i));
+        PRT.fs(fs_idx).fas.ifa = ifa_all(im_all == fas_idx(i));
+        switch mtype
+            case 'classification'
+                img_name = prt_compute_weights_class(PRT,in,model_idx,flag,i);
+            case 'regression'
+                img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,i);
+        end
+    end
+else
+    in.fas_idx=fas_idx;
+    in.mm = find(mm(1,:));
+    switch mtype
+        case 'classification'
+            img_name = prt_compute_weights_class(PRT,in,model_idx,flag);
+        case 'regression'
+            img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
+    end
+end
+
+
+
+

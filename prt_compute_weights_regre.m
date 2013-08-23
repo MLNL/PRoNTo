@@ -1,4 +1,4 @@
-function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag)
+function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,ibe)
 % FORMAT prt_compute_weights_regre(PRT,in,model_idx)
 %
 % This function calls prt_weights to compute weights
@@ -14,6 +14,7 @@ function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag)
 %                         one for PRT.mat) (string)
 %         model_idx     - model index (integer)
 %         flag          - compute weight images for each permutation if 1
+%         ibe           - which beta to use for MKL and multiple modalities
 % Output:
 %       img_name        - name of the .img file created
 %       + image file created on disk
@@ -30,8 +31,17 @@ m.args      = [];
 
 % unfortunately a bug somewhere causes shifts in weight image if
 % .nii is used...
+mfunc       = PRT.model(model_idx).input.machine.function;
+switch mfunc
+    case 'prt_machine_simpleMKL_reg'
+        m.function = 'prt_weights_simpleMKL';
+    case 'prt_machine_RT_bin'
+        error('prt_compute_weights:MachineNotSupported',...
+            'Error: weights computation not supported for this machine!');
+    otherwise
+        m.function  = 'prt_weights_bin_linkernel';
+end
 
-m.function  = 'prt_weights_bin_linkernel';
 img_mach    = ['weights_',mname,'_1.img'];
 
 % Image name
@@ -67,28 +77,32 @@ ID_all = PRT.fs(fs_idx).id_mat;
 
 % Find modality
 % -------------------------------------------------------------------------
-nfas = length(PRT.fas);
-mods = {PRT.fs(fs_idx).modality.mod_name};
-fas  = zeros(1,nfas);
-for i = 1:nfas
-    for j = 1:length(mods)
-        if strcmpi(PRT.fas(i).mod_name,mods{j})
-            fas(i) = 1;
-            mm=j;
-        end
-    end
-end
-fas_idx = find(fas);
+fas_idx = in.fas_idx;
+mm = in.mm;
 
 % Get the indexes of the voxels which are in the second level mask
 % -------------------------------------------------------------------------
-idfeat=PRT.fas(fas_idx(1)).idfeat_img;
-if ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas)
-    mask_train=idfeat(PRT.fs(fs_idx).modality(mm).idfeat_fas);
-    voxtr=find(ismember(idfeat,mask_train));
+idROI = [];
+idfeat = PRT.fas(fas_idx(1)).idfeat_img;
+if ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas) % if ROIs defined by an atlas, get the 3rd level masking
+    if PRT.fs(fs_idx).multkernel && ...   %multiple kernels in feature set
+        isfield(PRT.fs(fs_idx).modality(mm),'idfeat_img') %ROIs
+        m_train = cell(length(PRT.fs(fs_idx).modality(mm).idfeat_img),1);
+        for i = 1:length(PRT.fs(fs_idx).modality(mm).idfeat_img)
+            tmp1 = PRT.fs(fs_idx).modality(mm).idfeat_img{i};
+            idROI=[idROI;tmp1];
+            tmp = PRT.fs(fs_idx).modality(mm).idfeat_fas(tmp1);
+            m_train{i} = idfeat(tmp);
+        end
+        id2 = PRT.fs(fs_idx).modality(mm).idfeat_fas(sort(idROI));
+    else
+        id2 = PRT.fs(fs_idx).modality(mm).idfeat_fas;
+    end
+    mask_train = idfeat(id2);
+    voxtr = find(ismember(idfeat,mask_train));
 else
-    mask_train=idfeat;
-    voxtr=1:length(idfeat);
+    mask_train = idfeat;
+    voxtr = 1:length(idfeat);
 end
 
 % Create image
@@ -155,8 +169,21 @@ for p=0:maxp
         
         img3dav  = zeros(1,xydim); % average weight map
         
-        feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
-            mask_train<=(xydim*z));
+        if ~isempty(idROI) %get indexes in each slice for each ROI
+            feat_slc = mask_train(mask_train>=(xydim*(z-1)+1) & ...
+                mask_train<=(xydim*z));
+            for ir = 1:length(m_train)
+                tmp = m_train{ir}(m_train{ir}>=(xydim*(z-1)+1) & ...
+                    m_train{ir}<=(xydim*z));
+                m.args.idfeat_img{ir} = find(ismember(feat_slc,tmp));
+            end
+            feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
+                mask_train<=(xydim*z));
+        else
+            feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
+                mask_train<=(xydim*z));
+            m.args.idfeat_img = {1:length(feat_slc)};
+        end 
         
         if isempty(feat_slc)
             
@@ -195,6 +222,14 @@ for p=0:maxp
                     cvdata = prt_apply_operation(PRT, cvdata, ops(o));
                 end
                 d.datamat = cvdata.train{:};
+                
+                if strcmpi(mfunc,'prt_machine_simpleMKL_reg')
+                    if isempty(ibe)
+                        m.args.betas = PRT.model(model_idx).output.fold(f).beta;
+                    else
+                        m.args.betas = PRT.model(model_idx).output.fold(f).beta(ibe);
+                    end
+                end
                 
                 % COMPUTE WEIGHTS
                 wimg               = prt_weights(d,m);

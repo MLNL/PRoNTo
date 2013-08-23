@@ -1,4 +1,4 @@
-function img_name = prt_compute_weights_class(PRT,in,model_idx,flag)
+function img_name = prt_compute_weights_class(PRT,in,model_idx,flag, ibe)
 % FORMAT prt_compute_weights_class(PRT,in,model_idx)
 %
 % This function calls prt_weights to compute weights 
@@ -14,6 +14,7 @@ function img_name = prt_compute_weights_class(PRT,in,model_idx,flag)
 %                         one for PRT.mat) (string)
 %         model_idx     - model index (integer)
 %         flag          - compute weight images for each permutation if 1
+%         ibe           - which beta to use for MKL and multiple modalities
 % Output:
 %       img_name        - name of the .img file created
 %       + image file created on disk
@@ -30,6 +31,10 @@ mname       = PRT.model(model_idx).model_name;
 nclass      = length(PRT.model(model_idx).input.class);
 if nclass > 2, mfunc = 'multiclass_machine'; end
 m.args      = [];
+
+if nargin<5
+    ibe=[];
+end
 
 % unfortunately a bug somewhere causes shifts in weight image if
 % .nii is used...
@@ -88,20 +93,10 @@ end
 ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
 ID_all = PRT.fs(fs_idx).id_mat;
 
-% Find modality
+% Find modality (now as inputs)
 % -------------------------------------------------------------------------
-nfas = length(PRT.fas);
-mods = {PRT.fs(fs_idx).modality.mod_name};
-fas  = zeros(1,nfas);
-for i = 1:nfas
-    for j = 1:length(mods)
-        if strcmpi(PRT.fas(i).mod_name,mods{j})
-            fas(i) = 1;
-            mm=j;
-        end
-    end
-end
-fas_idx = find(fas);
+fas_idx = in.fas_idx;
+mm = in.mm;
 
 % Get the indexes of the voxels which are in the first/second level mask
 % -------------------------------------------------------------------------
@@ -211,10 +206,13 @@ for p=0:maxp
                     m_train{ir}<=(xydim*z));
                 m.args.idfeat_img{ir} = find(ismember(feat_slc,tmp));
             end
-        end
-        
-        feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
-            mask_train<=(xydim*z));
+            feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
+                mask_train<=(xydim*z));
+        else
+            feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
+                mask_train<=(xydim*z));
+            m.args.idfeat_img = {1:length(feat_slc)};
+        end      
         
         if isempty(feat_slc)
             
@@ -257,7 +255,11 @@ for p=0:maxp
                 d.datamat = cvdata.train{:};
                 
                 if strcmpi(mfunc,'prt_machine_simpleMKL')
-                    m.args.betas = PRT.model(model_idx).output.fold(f).beta;
+                    if isempty(ibe)
+                        m.args.betas = PRT.model(model_idx).output.fold(f).beta;
+                    else
+                        m.args.betas = PRT.model(model_idx).output.fold(f).beta(ibe);
+                    end
                 end
                 
                 % COMPUTE WEIGHTS

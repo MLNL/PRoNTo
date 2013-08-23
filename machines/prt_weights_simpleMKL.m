@@ -72,10 +72,11 @@ img1d     = zeros(size(d.datamat(1,:)),'single');
 
 for k=1:length(args.betas)
     
+    betas = single(args.betas(k));
     index_k = args.idfeat_img{k};
-    if ~isempty(index_k)
-        
-        
+    
+    if ~isempty(index_k) && betas~=0
+ 
         for i=1:ncoeffs
             
             tmp1 = single(d.datamat(i,index_k));
@@ -83,9 +84,7 @@ for k=1:length(args.betas)
             
             img1d(index_k) = img1d(index_k) + tmp1 * tmp2;
             
-        end
-        
-        betas = single(args.betas(k));
+        end    
         
         img1d(index_k) = betas * img1d(index_k);
     end

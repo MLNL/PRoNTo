@@ -66,7 +66,7 @@ if n_mods>1 && in.flag_mm
         nimm = length(unique(PRT.fs(fid).id_mat(:,3) == mids(i)));
         if nimm~= nim1 %check that modalities have the same dimensions in terms of samples
             error('prt_fs:MultKernMod_DifIm',...
-                'Modalities should have the same number of images to be considered for MKL')
+                'Modalities should have the same number of samples to be considered for MKL')
         end
         addin.ID = PRT.fs(fid).id_mat(idtk,:);
         [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
