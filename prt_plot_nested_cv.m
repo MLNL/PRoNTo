@@ -196,10 +196,10 @@ else % It's a 1 parameter optimisation problem
             switch PRT.model(model).input.type
             case 'classification'
                 f_min = 0;
-                f_max = 100;
+                f_max = 108;
             case 'regression'
                 f_min = 0;
-                f_max = 1;
+                f_max = 1.08;
             otherwise
                 error('Type of model not recognised');
         end
@@ -219,9 +219,9 @@ else % It's a 1 parameter optimisation problem
             % Get optimal function values
             switch PRT.model(model).input.type
                 case 'classification'
-                    x_opt(i,:) = find(f(i,:)==max(f(i,:)));
+                    x_opt{i} = find(f(i,:)==max(f(i,:)));
                 case 'regression'
-                    x_opt(i,:) = find(f==min(f(i,:)));
+                    x_opt{i} = find(f==min(f(i,:)));
                 otherwise
                     error('Type of model not recognised');
             end
@@ -231,7 +231,7 @@ else % It's a 1 parameter optimisation problem
         f_std = std(f);
         
         % get frequencies of optimal values
-        x_opt = reshape(x_opt, 1, size(x_opt,1)*size(x_opt,2));
+        x_opt = cell2mat(x_opt);
         x_opt = tabulate(x_opt);
         x_opt(:, end) = x_opt(:, end)./100;
         
