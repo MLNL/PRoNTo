@@ -30,7 +30,7 @@ function varargout = prt_ui_compute_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_compute_weights
 
-% Last Modified by GUIDE v2.5 13-Feb-2013 14:07:47
+% Last Modified by GUIDE v2.5 23-Aug-2013 13:50:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -139,6 +139,11 @@ set(handles.flag_cwi,'Value',0);
 handles.flag = 0;
 set(handles.compbutt,'Enable','off')
 handles.img_name=[];
+handles.flag2 = 0;
+handles.atl_name = [];
+set(handles.edit_atlas,'Enable','off')
+set(handles.br_atlas,'Enable','off')
+set(handles.build_ROI_flag2,'Value',0)
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -342,6 +347,68 @@ else
 end
 guidata(hObject, handles);
 
+% --- Executes on button press in build_ROI_flag2.
+function build_ROI_flag2_Callback(hObject, eventdata, handles)
+% hObject    handle to build_ROI_flag2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of build_ROI_flag2
+val = get(handles.build_ROI_flag2,'Value');
+if val
+    handles.flag2 = 1;
+    handles.atl_name = [];
+    set(handles.edit_atlas,'Enable','on')
+    set(handles.br_atlas,'Enable','on')
+else
+    handles.flag2 = 0;
+    handles.atl_name = [];
+    set(handles.edit_atlas,'Enable','off')
+    set(handles.br_atlas,'Enable','off')
+end
+guidata(hObject, handles);
+
+
+function edit_atlas_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_atlas (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_atlas as text
+%        str2double(get(hObject,'String')) returns contents of edit_atlas as a double
+handles.atl_name=get(handles.edit_atlas,'String');
+if ~prt_checkAlphaNumUnder(handles.atl_name)
+    beep
+    disp('Name of the atlas should be in alphanumeric format (no extension)')
+    disp('Please correct')
+    return
+end
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function edit_atlas_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_atlas (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in br_atlas.
+function br_atlas_Callback(hObject, eventdata, handles)
+% hObject    handle to br_atlas (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.atl_name=spm_select(1,'img','Select atlas to build weights per region',[],pwd,'*.img');
+set(handles.edit_atlas,'String',handles.atl_name)
+% Update handles structure
+guidata(hObject, handles);
+
 % --- Executes on button press in compbutt.
 function compbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to compbutt (see GCBO)
@@ -351,5 +418,6 @@ list={handles.dat.model(:).model_name};
 in.model_name=list{handles.selmod};
 in.pathdir=handles.prtdir;
 in.img_name=handles.img_name;  %for the moment, coming soon
-prt_compute_weights(handles.dat,in,handles.flag);
+in.atl_name = handles.atl_name;
+prt_compute_weights(handles.dat,in,handles.flag,handles.flag2);
 delete(handles.figure1)

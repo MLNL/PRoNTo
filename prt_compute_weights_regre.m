@@ -15,6 +15,7 @@ function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,ibe)
 %         model_idx     - model index (integer)
 %         flag          - compute weight images for each permutation if 1
 %         ibe           - which beta to use for MKL and multiple modalities
+%         flag2         - build image of weights per region
 % Output:
 %       img_name        - name of the .img file created
 %       + image file created on disk
@@ -28,6 +29,13 @@ function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,ibe)
 % -------------------------------------------------------------------------
 mname       = PRT.model(model_idx).model_name;
 m.args      = [];
+
+if nargin<5
+    ibe=[];
+end
+if nargin<6
+    flag2 = 0;
+end
 
 % unfortunately a bug somewhere causes shifts in weight image if
 % .nii is used...
@@ -229,6 +237,10 @@ for p=0:maxp
                     else
                         m.args.betas = PRT.model(model_idx).output.fold(f).beta(ibe);
                     end
+                end
+                
+                if flag2
+                    m.args.flag = 1;
                 end
                 
                 % COMPUTE WEIGHTS

@@ -1,4 +1,4 @@
-function img_name = prt_compute_weights(PRT,in,flag)
+function img_name = prt_compute_weights(PRT,in,flag,flag2)
 % FORMAT prt_compute_weights(PRT,in)
 %
 % This function calls prt_weights to compute weights
@@ -14,6 +14,7 @@ function img_name = prt_compute_weights(PRT,in,flag)
 %                         one for PRT.mat) (string)
 %       flag            - set to 1 to compute the weight images for each
 %                         permutation (default: 0)
+%       flag2           - set to 1 to build image of weight per ROI
 % Output:
 %       img_name        - name of the .img file created
 %       + image file created on disk
@@ -68,6 +69,21 @@ fas_idx = find(fas);
 % Loop over the different feature sets if they were considered as separate
 % kernels (i.e. one kernel per modality)
 
+if PRT.fs(fs_idx).multkernel && ...   %multiple kernels in feature set
+        isfield(PRT.fs(fs_idx).modality(find(mm(1,:))),'idfeat_img')
+    mult_kern_ROI = 1;
+else
+    mult_kern_ROI = 0;
+end
+
+%Check inputs for weights per region
+if flag2
+    if isempty(in.atl_name) && ~mult_kern_ROI
+        error('prt_compute_weights:NoAtlas',...
+            'Error: Atlas should be provided to compute weights per region')
+    end
+end
+
 if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 %create one image per modality
     %get image names
     im_name = cell(1,length(fas_idx));
@@ -107,8 +123,28 @@ else
     switch mtype
         case 'classification'
             img_name = prt_compute_weights_class(PRT,in,model_idx,flag);
+            if flag2 % Build image of weights per region
+                if mult_kern_ROI
+                    disp('Building image of weights per region')
+                    in.img_name = ['ROI_',in.img_name];
+                    img_name = prt_compute_weights_class(PRT,in,model_idx,flag,[],1);
+                else
+                    disp('Not implemented yet')
+                    %TO do: add call to prt_build_region_weights
+                end
+            end
         case 'regression'
             img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
+             if flag2 % Build image of weights per region
+                if mult_kern_ROI
+                    disp('Building image of weights per region')
+                    in.img_name = ['ROI_',in.img_name];
+                    img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,[],1);
+                else
+                    disp('Not implemented yet')
+                    %TO do: add call to prt_build_region_weights
+                end
+            end
     end
 end
 

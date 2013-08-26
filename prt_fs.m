@@ -44,7 +44,13 @@ for i=1:n_mods
     end
 end
 n_mods=length(mids);
+
 % Load mask(s) and resize if necessary
+%force second-level masking by atlas if provided
+if ~isempty(in.mod(1).atlasroi) && isempty(in.mod(1).mask)
+    in.mod(1).mask = in.mod(1).atlasroi;    %option only available for one modality
+end
+
 [mask,precmask,headers,PRT,ratl] = load_masks(PRT, prt_dir, in,mids);
 
 % Initialize the file arrays, kernel and feature set parameters

@@ -1,4 +1,4 @@
-function img_name = prt_compute_weights_class(PRT,in,model_idx,flag, ibe)
+function img_name = prt_compute_weights_class(PRT,in,model_idx,flag, ibe, flag2)
 % FORMAT prt_compute_weights_class(PRT,in,model_idx)
 %
 % This function calls prt_weights to compute weights 
@@ -15,6 +15,7 @@ function img_name = prt_compute_weights_class(PRT,in,model_idx,flag, ibe)
 %         model_idx     - model index (integer)
 %         flag          - compute weight images for each permutation if 1
 %         ibe           - which beta to use for MKL and multiple modalities
+%         flag2         - build image of weights per region
 % Output:
 %       img_name        - name of the .img file created
 %       + image file created on disk
@@ -34,6 +35,9 @@ m.args      = [];
 
 if nargin<5
     ibe=[];
+end
+if nargin<6
+    flag2 = 0;
 end
 
 % unfortunately a bug somewhere causes shifts in weight image if
@@ -114,7 +118,7 @@ if PRT.fs(fs_idx).multkernel && ...   %multiple kernels in feature set
     for i = 1:length(PRT.fs(fs_idx).modality(mm).idfeat_img)
         tmp1 = PRT.fs(fs_idx).modality(mm).idfeat_img{i};
         idROI=[idROI;tmp1];
-        tmp = PRT.fs(fs_idx).modality(mm).idfeat_fas(tmp1);
+        tmp = idfeat_fas(tmp1);
         m_train{i} = idfeat(tmp);
     end
     id2 = idfeat_fas(sort(idROI));
@@ -261,6 +265,10 @@ for p=0:maxp
                     else
                         m.args.betas = PRT.model(model_idx).output.fold(f).beta(ibe);
                     end
+                end
+                
+                if flag2
+                    m.args.flag = 1;
                 end
                 
                 % COMPUTE WEIGHTS

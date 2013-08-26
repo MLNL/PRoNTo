@@ -8,6 +8,7 @@ function weights = prt_weights_simpleMKL (d,args)
 %       args            - function arguments (can be left empty)
 %           .betas      - kernel weights
 %           .idfeat_img - cell with indece
+%           .flag       - 1 to build image with weights per region
 % Output:
 %       weights         - vector with weights [Nfeatures x 1]
 %__________________________________________________________________________
@@ -76,15 +77,18 @@ for k=1:length(args.betas)
     index_k = args.idfeat_img{k};
     
     if ~isempty(index_k) && betas~=0
- 
-        for i=1:ncoeffs
+        if ~isfield(args,'flag') || ~args.flag
+            for i=1:ncoeffs
             
             tmp1 = single(d.datamat(i,index_k));
             tmp2 = single(d.coeffs(i));
             
             img1d(index_k) = img1d(index_k) + tmp1 * tmp2;
             
-        end    
+            end   
+        else
+            img1d(index_k) = ones(1,length(index_k));
+        end        
         
         img1d(index_k) = betas * img1d(index_k);
     end
