@@ -150,20 +150,23 @@ elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
     
     % Concatenate modalities in time
 else
-    [PRT,Phi] = prt_fs_modality(PRT,in,0,[]);
+    [PRT,Phim] = prt_fs_modality(PRT,in,0,[]);
     PRT.fs(fid).multkernel = 0;
     PRT.fs(fid).atlas_name = [];
-    [d1,idmax] = max(Phi);
-    [d1,idmin] = min(Phi);
+    [d1,idmax] = max(Phim);
+    [d1,idmin] = min(Phim);
     min_max = find(idmax==idmin);
-    if isempty(min_max) || unique(Phi(:,min_max))~=0 %Kernel does not contain a whole line of zeros
+    if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
         igd = 1;
     else
         error('prt_fs:NoDataInMask',...
             'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
     end
+    Phi{1}=Phim;
 end
 
+ clear Phim
+ 
 if isempty(igd)
     error('prt_fs:NoDataInMask',...
         'No overlap between data and mask/atlas for at least one sample, cannot create kernel')

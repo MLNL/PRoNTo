@@ -126,7 +126,8 @@ else
             if flag2 % Build image of weights per region
                 if mult_kern_ROI
                     disp('Building image of weights per region')
-                    in.img_name = ['ROI_',in.img_name];
+                    [du,name_fin] = spm_fileparts(img_name{1}); 
+                    in.img_name = ['ROI_',name_fin];
                     img_name = prt_compute_weights_class(PRT,in,model_idx,flag,[],1);
                 else
                     disp('Not implemented yet')
@@ -138,7 +139,8 @@ else
              if flag2 % Build image of weights per region
                 if mult_kern_ROI
                     disp('Building image of weights per region')
-                    in.img_name = ['ROI_',in.img_name];
+                    [du,name_fin] = spm_fileparts(img_name{1}); 
+                    in.img_name = ['ROI_',name_fin];
                     img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,[],1);
                 else
                     disp('Not implemented yet')

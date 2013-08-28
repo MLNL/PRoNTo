@@ -88,15 +88,15 @@ for i = 1:length(PRT.model(mid).input.fs)
             fid = prt_init_fs(PRT, PRT.model(mid).input.fs(i));
             load(fullfile(prt_dir, PRT.fs(fid).k_file));
             ID = PRT.fs(fid).id_mat(samp_idx,:);
-            if ~iscell(Phi) || length(Phi)==1
-                Phi_all{1} = Phi(samp_idx,samp_idx);
+            if length(Phi)==1
+                Phi_all{1} = Phi{1}(samp_idx,samp_idx);
             else
                 %Check that if multiple kernels, MKL was selected,
                 %otherwise add the kernels (normalized)
                 if ~flag && isempty(strfind(PRT.model(mid).input.machine.function,'MKL'))
                     warning('prt_cv_model:AddKernels',...
                                 'Multiple kernels but machine cannot deal with them, adding the kernels');
-                    Phi_tmp = zeros(size(Phi{1},1),size(Phi{1},2));
+                    Phi_tmp = zeros(length(samp_idx));
                     for j=1:length(Phi)
                         try
                             %normalize each kernel before adding
