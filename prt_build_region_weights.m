@@ -44,7 +44,7 @@ end
 
 %set flag to 1 if not specified
 if nargin<3
-    flag=0;
+    flag=1;
 else
     flag=build_im;
 end
