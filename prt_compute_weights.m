@@ -15,6 +15,8 @@ function img_name = prt_compute_weights(PRT,in,flag,flag2)
 %       flag            - set to 1 to compute the weight images for each
 %                         permutation (default: 0)
 %       flag2           - set to 1 to build image of weight per ROI
+%       atl_name        - name of the atlas for post-hoc local averages of
+%                         weights according to atlas
 % Output:
 %       img_name        - name of the .img file created
 %       + image file created on disk
@@ -117,37 +119,67 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 %create one image per modality
                 img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,i);
         end
     end
+    PRT.fs(fs_idx).fas.ifa = ifa_all;
+    PRT.fs(fs_idx).fas.im = im_all;
+    PRT.fs(fs_idx).id_mat(:,3) = ones(size(PRT.fs(fs_idx).id_mat,1),1);
+    [du,name_fin] = spm_fileparts(img_name{1}); 
 else
     in.fas_idx=fas_idx;
     in.mm = find(mm(1,:));
     switch mtype
         case 'classification'
             img_name = prt_compute_weights_class(PRT,in,model_idx,flag);
+            [du,name_fin] = spm_fileparts(img_name{1}); 
             if flag2 % Build image of weights per region
                 if mult_kern_ROI
                     disp('Building image of weights per region')
-                    [du,name_fin] = spm_fileparts(img_name{1}); 
                     in.img_name = ['ROI_',name_fin];
-                    img_name = prt_compute_weights_class(PRT,in,model_idx,flag,[],1);
+                    prt_compute_weights_class(PRT,in,model_idx,flag,[],1);
+                    tmp = [PRT.model(model_idx).output.fold(:).beta];
+                    tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
+                        length(PRT.model(model_idx).output.fold));
+                    betas = [tmp, mean(tmp,2)];
+                    PRT.model(model_idx).output.weight_ROI = betas;
                 else
-                    disp('Not implemented yet')
-                    %TO do: add call to prt_build_region_weights
+                    disp('Building image of weights per region')
+                    NW = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
+                    PRT.model(model_idx).output.weight_ROI = NW;
                 end
+            else
+                PRT.model(model_idx).output.weight_ROI = [];
             end
         case 'regression'
             img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
+            [du,name_fin] = spm_fileparts(img_name{1}); 
              if flag2 % Build image of weights per region
                 if mult_kern_ROI
-                    disp('Building image of weights per region')
-                    [du,name_fin] = spm_fileparts(img_name{1}); 
+                    disp('Building image of weights per region')                   
                     in.img_name = ['ROI_',name_fin];
-                    img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,[],1);
+                    prt_compute_weights_regre(PRT,in,model_idx,flag,[],1);
+                    tmp = [PRT.model(model_idx).output.fold(:).beta];
+                    tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
+                        length(PRT.model(model_idx).output.fold));
+                    betas = [tmp, mean(tmp,2)];
+                    PRT.model(model_idx).output.weight_ROI = betas;
                 else
-                    disp('Not implemented yet')
-                    %TO do: add call to prt_build_region_weights
+                    disp('Building image of weights per region')
+                    NW = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
+                    PRT.model(model_idx).output.weight_ROI = NW;
                 end
-            end
+             else
+                 PRT.model(model_idx).output.weight_ROI = [];
+             end
     end
+end
+
+PRT.model(model_idx).output.weight_img = name_fin;
+outfile = fullfile(in.pathdir, 'PRT.mat');
+disp('Updating PRT.mat.......>>')
+if spm_matlab_version_chk('7') < 0
+    save(outfile,'-V6','PRT');
+else
+    save(outfile,'PRT');
+end
 end
 
 

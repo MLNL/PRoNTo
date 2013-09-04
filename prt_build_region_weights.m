@@ -296,7 +296,7 @@ end
 
 % Displays
 %--------------------------------------------------------------------------
-prt_ui_results_ROI('UserData',{LR,pHN,drwn,erwn,SN,P_oth,oth_w});
+% prt_ui_results_ROI('UserData',{LR,pHN,drwn,erwn,SN,P_oth,oth_w});
 
 
     %compute the rank of each region according to the weights

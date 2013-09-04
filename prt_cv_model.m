@@ -196,6 +196,8 @@ for k = 1:nk
     stats         = prt_stats(m,ttt(:),nc);
     
     PRT.model(mid).output(k).stats=stats;
+%     PRT.model(mid).output(k).weight_ROI = [];
+%     PRT.model(mid).output(k).weight_img = [];
     
     %Save the accuracy per region
     if flag && length(Phi_all)>1
@@ -215,9 +217,9 @@ end
 
 % Save PRT containing machine output
 % -------------------------------------------------------------------------
-outfile = [prt_dir, 'PRT'];
+outfile = [prt_dir, filesep,'PRT.mat'];
 disp('Updating PRT.mat.......>>')
-if spm_matlab_version_chk('7') >= 0
+if spm_matlab_version_chk('7') < 0
     save(outfile,'-V6','PRT');
 else
     save(outfile,'PRT');

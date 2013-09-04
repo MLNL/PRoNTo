@@ -182,7 +182,7 @@ outfile = in.fname;
 disp('Saving feature set to: PRT.mat.......>>')
 disp(['Saving kernel to: ',in.fs_name,'.mat.......>>'])
 fs_file = [prt_dir,in.fs_name];
-if spm_matlab_version_chk('7') >= 0
+if spm_matlab_version_chk('7') < 0
     save(outfile,'-V6','PRT');
     save(fs_file,'-V6','Phi');
 else
