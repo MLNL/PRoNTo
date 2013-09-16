@@ -103,7 +103,7 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         
         %         subplot(2,1,1);
         % TODO: Put Logscale on the Y axis
-        axes_handle = image(f_mean, 'CDataMapping', 'scaled', 'XData', [min(mu), max(mu)], 'YData', [min(c) max(c)]);
+        axes_handle = image(f_mean, 'CDataMapping', 'scaled', 'XData', mu, 'YData', c);
         % set(axes_handle,'Yscale','log','Ydir','normal');
         axes_color = colorbar;
         title('Mean')
@@ -177,7 +177,7 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         f = 100.*f;
         
         % Plot points
-        axes_handle = image(f, 'CDataMapping', 'scaled', 'XData', [min(mu), max(mu)], 'YData', [min(c) max(c)]);
+        axes_handle = image(f, 'CDataMapping', 'scaled', 'XData', mu, 'YData', c);
         axes_color = colorbar;
         
         % Properties
@@ -215,35 +215,25 @@ else % It's a 1 parameter optimisation problem
         % Get mean f values
         for i = 1:nfold
             f(i,:) = PRT.model(model).output.fold(i).param_effect.vary_param;
-            
-            % Get optimal function values
-            switch PRT.model(model).input.type
-                case 'classification'
-                    x_opt{i} = find(f(i,:)==max(f(i,:)));
-                case 'regression'
-                    x_opt{i} = find(f==min(f(i,:)));
-                otherwise
-                    error('Type of model not recognised');
-            end
+            % Get the chosen optimal values            
+            x_opt(i) = PRT.model(model).output.fold(i).param_effect.opt_param;
         end
         f = 100.*f;
         f_mean = mean(f);
         f_std = std(f);
         
         % get frequencies of optimal values
-        x_opt = cell2mat(x_opt);
-        x_opt = tabulate(x_opt);
-        x_opt(:, end) = x_opt(:, end)./100;
+        x_opt = hist(x_opt, x)./size(f,1);
         
         
         % Plot
         hold on
         errorbar(axes_handle, x, f_mean, f_std, 'xk', 'markersize', markersize, 'linewidth', 2);
         plot(axes_handle, x, mean(f), '-k', 'linewidth', 1);
-        for i = 1:size(x_opt, 1)
-            R = x_opt(i, end);
+        for i = 1:length(x_opt)
+            R = x_opt(i);
             B = 1-R;
-            plot(x(x_opt(i, 1)), f_mean(x_opt(i, 1)), 'x', 'markersize', markersize, ...
+            plot(x(i), f_mean(i), 'x', 'markersize', markersize, ...
                 'linewidth', 3,'Color', [R 0 B]);
         end
         hold off
