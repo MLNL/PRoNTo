@@ -1074,7 +1074,12 @@ for i=1:length(aa)
     end
 end
 
-print(handles.figure1,ext,[pathname,filesep,b],'-r500')
+if ~strcmp(ext, '-dfig')
+    print(handles.figure1,ext,[pathname,filesep,b],'-r500')
+else
+    saveas(handles.figure1,[pathname,filesep,b],'fig')
+end
+
 
 % Set the color of the different backgrounds and figure parameters to white
 set(handles.figure1,'Color',cf)
