@@ -79,7 +79,7 @@ else
 end
 
 %Check inputs for weights per region
-if flag2
+if exist('flag2','var') && flag2
     if isempty(in.atl_name) && ~mult_kern_ROI
         error('prt_compute_weights:NoAtlas',...
             'Error: Atlas should be provided to compute weights per region')
@@ -130,7 +130,7 @@ else
         case 'classification'
             img_name = prt_compute_weights_class(PRT,in,model_idx,flag);
             [du,name_fin] = spm_fileparts(img_name{1}); 
-            if flag2 % Build image of weights per region
+            if exist('flag2','var') && flag2 % Build image of weights per region
                 if mult_kern_ROI
                     disp('Building image of weights per region')
                     in.img_name = ['ROI_',name_fin];
@@ -151,7 +151,7 @@ else
         case 'regression'
             img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
             [du,name_fin] = spm_fileparts(img_name{1}); 
-             if flag2 % Build image of weights per region
+             if exist('flag2','var') && flag2 % Build image of weights per region
                 if mult_kern_ROI
                     disp('Building image of weights per region')                   
                     in.img_name = ['ROI_',name_fin];
