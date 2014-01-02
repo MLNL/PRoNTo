@@ -80,7 +80,7 @@ else
         
         if PRT.model(modelid).input.use_kernel
             load(fullfile(prt_dir, PRT.fs(i).k_file));
-            Phi_all{i} = Phi(samp_idx,samp_idx);
+            Phi_all{i} = Phi{i}(samp_idx,samp_idx);
         else
             error('training with features not implemented yet');
             % this should be improved (e.g. need to load feat_idx)
