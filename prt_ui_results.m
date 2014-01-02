@@ -761,10 +761,11 @@ if strcmp(handles.PRT.model(mi(m)).input.type,'classification');
 else
     plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
 end
-if handles.PRT.model(mi(m)).input.use_nested_cv
-    plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
+if isfield(handles.PRT.model(mi(m)).input,'use_nested_cv')
+    if handles.PRT.model(mi(m)).input.use_nested_cv
+        plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
+    end
 end
-
 
 set(handles.plotmenu,'String',plots);
 
