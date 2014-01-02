@@ -47,8 +47,10 @@ n_mods=length(mids);
 
 % Load mask(s) and resize if necessary
 %force second-level masking by atlas if provided
-if ~isempty(in.mod(1).atlasroi) && isempty(in.mod(1).mask)
-    in.mod(1).mask = in.mod(1).atlasroi;    %option only available for one modality
+if isfield(in.mod(1),'atlasroi')
+    if ~isempty(in.mod(1).atlasroi) && isempty(in.mod(1).mask)
+        in.mod(1).mask = in.mod(1).atlasroi;    %option only available for one modality
+    end
 end
 
 [mask,precmask,headers,PRT,ratl] = load_masks(PRT, prt_dir, in,mids);
