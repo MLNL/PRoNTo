@@ -65,7 +65,9 @@ in.fid = fid;
 % Build the feature set and kernel
 %--------------------------------------------------------------------------
     % One kernel per modality
-if n_mods>1 && in.flag_mm 
+    
+% if n_mods>1 && in.flag_mm 
+if n_mods>1
     Phi=cell(n_mods,1);
     igd = [];
     nim1 =length(unique(PRT.fs(fid).id_mat(:,3) == mids(1)));
