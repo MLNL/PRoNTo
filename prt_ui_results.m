@@ -238,8 +238,10 @@ else
         else
             plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
         end
-        if PRT.model(mi(m)).input.use_nested_cv
-            plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
+        if isfield(PRT.model(mi(m)).input,'use_nested_cv')
+            if PRT.model(mi(m)).input.use_nested_cv
+                plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
+            end
         end
         set(handles.plotmenu,'String',plots);
         
