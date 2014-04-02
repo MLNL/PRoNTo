@@ -102,7 +102,7 @@ PRT.model(modelid).input.operations = in.operations;
 % Save PRT.mat
 % -------------------------------------------------------------------------
 disp('Updating PRT.mat.......>>')
-if spm_matlab_version_chk('7') >= 0
+if spm_check_version('MATLAB','7') >= 0
     save(in.fname,'-V7','PRT');
 else
     save(in.fname,'-V6','PRT');

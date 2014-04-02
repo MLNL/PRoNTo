@@ -300,7 +300,7 @@ PRT.model(modelid).input.cv_type=handles.in.cv.type;
 % Save PRT.mat
 % -------------------------------------------------------------------------
 disp('Updating PRT.mat.......>>')
-if spm_matlab_version_chk('7') >= 0
+if spm_check_version('MATLAB','7') >= 0
     save(handles.in.fname,'-V7','PRT');
 else
     save(handles.in.fname,'-V6','PRT');
@@ -347,7 +347,7 @@ end
 a=fileparts(handles.in.fname);
 cvnam=fullfile(a,['CV_model_',handles.in.model_name,'.mat']);
 disp('Saving Cross-Validation matrix in a .mat.......>>')
-if spm_matlab_version_chk('7') >= 0
+if spm_check_version('MATLAB','7') >= 0
     save(cvnam,'-V7','CV');
 else
     save(cvnam,'-V6','CV');
