@@ -420,7 +420,7 @@ PRT.masks  = masks;
 % Save PRT.mat file
 % -------------------------------------------------------------------------
 disp('Saving PRT.mat.......>>')
-if spm_check_version('MATLAB','7') >= 0
+if spm_check_version('MATLAB','7') < 0
     save(fname,'-V6','PRT');
 else
     save(fname,'PRT');

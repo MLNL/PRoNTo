@@ -285,7 +285,7 @@ else
     % -------------------------------------------------------------------------
     outfile = fullfile(path,'PRT.mat');
     disp('Updating PRT.mat.......>>')
-    if spm_check_version('MATLAB','7') >= 0
+    if spm_check_version('MATLAB','7') < 0
         save(outfile,'-V6','PRT');
     else
         save(outfile,'PRT');
