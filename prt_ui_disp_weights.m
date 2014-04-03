@@ -23,7 +23,7 @@ function varargout = prt_ui_disp_weights(varargin)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M. J. Rosa
+% Written by M. J. Rosa and J. Schrouff
 % $Id: prt_ui_disp_weights.m 784 2013-08-22 16:43:32Z monteiro $
 
 % Edit the above text to modify the response to help prt_ui_disp_weights

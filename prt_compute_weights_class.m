@@ -113,7 +113,8 @@ else
     idfeat_fas = PRT.fs(fs_idx).modality(mm).idfeat_fas;
 end
 if PRT.fs(fs_idx).multkernel && ...   %multiple kernels in feature set
-        isfield(PRT.fs(fs_idx).modality(mm),'idfeat_img') %ROIs
+        isfield(PRT.fs(fs_idx).modality(mm),'idfeat_img') && ... %ROIs
+        ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_img)
     m_train = cell(length(PRT.fs(fs_idx).modality(mm).idfeat_img),1);
     for i = 1:length(PRT.fs(fs_idx).modality(mm).idfeat_img)
         tmp1 = PRT.fs(fs_idx).modality(mm).idfeat_img{i};
@@ -134,7 +135,8 @@ voxtr = find(ismember(idfeat,mask_train));
 
 if flag
     %create images for each permutation
-    if isfield(PRT.model(model_idx).output,'permutation')
+    if isfield(PRT.model(model_idx).output,'permutation') && ...
+            ~isempty(PRT.model(model_idx).output.permutation)
         maxp = length(PRT.model(model_idx).output.permutation);
     else
         disp('No parameters saved for the permutation, building weight image only')

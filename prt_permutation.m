@@ -80,6 +80,9 @@ else
         
         if PRT.model(modelid).input.use_kernel
             load(fullfile(prt_dir, PRT.fs(i).k_file));
+            if ~iscell(Phi)
+                Phi = {Phi};
+            end
             Phi_all{i} = Phi{i}(samp_idx,samp_idx);
         else
             error('training with features not implemented yet');

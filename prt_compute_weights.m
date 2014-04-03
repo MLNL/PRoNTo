@@ -72,7 +72,8 @@ fas_idx = find(fas);
 % kernels (i.e. one kernel per modality)
 
 if PRT.fs(fs_idx).multkernel && ...   %multiple kernels in feature set
-        isfield(PRT.fs(fs_idx).modality(find(mm(1,:))),'idfeat_img')
+        isfield(PRT.fs(fs_idx).modality(find(mm(1,:))),'idfeat_img') && ...
+        ~isempty(PRT.fs(fs_idx).modality(find(mm(1,:))).idfeat_img)    
     mult_kern_ROI = 1;
 else
     mult_kern_ROI = 0;

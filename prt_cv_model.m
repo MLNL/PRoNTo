@@ -64,19 +64,28 @@ end
 % load data files and configure ID matrix
 disp('Loading data files.....>>');
 for i = 1:length(PRT.model(mid).input.fs)
+    %Backwards compatibility with v0 and v1: transform kernel into cell if needed
+    if PRT.model(mid).input.use_kernel
+        fid = prt_init_fs(PRT, PRT.model(mid).input.fs(i));
+        load(fullfile(prt_dir, PRT.fs(fid).k_file));
+        if ~iscell(Phi)
+            Phi = {Phi};
+        end
+    end
+    
     %first case: combine feature sets
     if length(PRT.model(mid).input.fs)>1
         n_Phi = length(PRT.model(mid).input.fs);
-        Phi_all=cell(1,n_Phi);
-        fid = prt_init_fs(PRT, PRT.model(mid).input.fs(i));
+        Phi_all=[];
         
         if i == 1
             ID = PRT.fs(fid).id_mat(PRT.model(mid).input.samp_idx,:);
         end
         
         if PRT.model(mid).input.use_kernel
-            load(fullfile(prt_dir, PRT.fs(fid).k_file));
-            Phi_all{i} = Phi(samp_idx,samp_idx);
+            for j = 1:length(Phi)
+                Phi_all = [Phi_all, {Phi{j}(samp_idx,samp_idx)}]; % in case one feature set comprises multiple kernels already
+            end
         else
             error('training with features not implemented yet');
             %vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);
@@ -85,10 +94,8 @@ for i = 1:length(PRT.model(mid).input.fs)
     else
         %If only one feature set, load kernel to see which case
         if PRT.model(mid).input.use_kernel
-            fid = prt_init_fs(PRT, PRT.model(mid).input.fs(i));
-            load(fullfile(prt_dir, PRT.fs(fid).k_file));
             ID = PRT.fs(fid).id_mat(samp_idx,:);
-            if length(Phi)==1
+            if length(Phi)==1 
                 Phi_all{1} = Phi{1}(samp_idx,samp_idx);
             else
                 %Check that if multiple kernels, MKL was selected,

@@ -89,7 +89,11 @@ PRT.model(modelid).input.targ_allscans    = t_allscans;
 [CV,ID] = prt_compute_cv_mat(PRT,in, modelid);
 PRT.model(modelid).input.cv_mat     = CV;
 PRT.model(modelid).input.cv_type=in.cv.type;
-PRT.model(modelid).input.cv_k=in.cv.k;
+if isfield(in.cv,'k')
+    PRT.model(modelid).input.cv_k=in.cv.k;
+else
+    PRT.model(modelid).input.cv_k = 0;
+end
 
 % Use nested CV to optimize hyperparameter?
 if isfield(in.cv,'nested')

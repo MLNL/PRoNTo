@@ -59,10 +59,11 @@ switch in.cv.type
         [gids,d2] = unique(ID(:,1),'first');
         gc = 0;
         ns=zeros(length(gids),1);
+        dID = ID;
         for g = 1:length(gids)
             ns(g)=length(unique(ID(d2(g):d1(g),2)));
             gidx = ID(:,1) == gids(g);
-            ID(gidx,2) = ID(gidx,2) + gc;
+            dID(gidx,2) = dID(gidx,2) + gc;
             gc = gc + ns(g);
         end
         % Compute CV matrix
@@ -70,7 +71,7 @@ switch in.cv.type
             nsf=floor(gc/k);
             % Check that the number of folds does not exceed the number of
             % subjects
-            if length(unique(ID(:,2)))<2*nsf
+            if length(unique(dID(:,2)))<2*nsf
                 error('prt_model:losoSelectedWithTooLargeK',...
                     'More than 50%% of data in testing set, reduce k');
             end
@@ -88,7 +89,7 @@ switch in.cv.type
         end
         snums=[];
         for g = 1:length(gids)
-            snums = [snums;histc(ID(d2(g):d1(g),2),unique(ID(d2(g):d1(g),2)))];
+            snums = [snums;histc(dID(d2(g):d1(g),2),unique(dID(d2(g):d1(g),2)))];
         end
         if length(snums) == 1
             error('prt_model:losoSelectedWithOneSubject',...

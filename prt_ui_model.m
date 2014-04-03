@@ -250,7 +250,7 @@ end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
 handles.fs(1).indfs=1;
-if handles.dat.fs(1).multkernel %allowing for multi-kernel learning
+if isfield(handles.dat.fs(1),'multkernel') && handles.dat.fs(1).multkernel %allowing for multi-kernel learning
     handles.multimod = 1;
 else
     handles.multimod = 0;
@@ -430,7 +430,7 @@ else                                    %delete LOO Run if not available for the
     end
 end
 % Add multi-kernel learning if flag to 1
-if handles.dat.fs(val).multkernel %allowing for multi-kernel learning
+if isfield(handles.dat.fs(val),'multkernel')&& handles.dat.fs(val).multkernel %allowing for multi-kernel learning
     handles.multimod = 1;
 else
     handles.multimod = 0;
@@ -803,10 +803,7 @@ else
     if ~isfield(handles,'model_name')
         beep
         disp('Please enter a valid model name')
-    end
-    if ~isfield(handles,'model_name')
-        beep
-        disp('Please provide model name first')
+        return
     end
     in.model_name=handles.model_name;
     in.type=handles.type;

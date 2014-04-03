@@ -143,43 +143,61 @@ for i=1:size(handles.CV,2)
 end
 set(handles.editcv,'ColumnName',lc)
 lr=cell(size(handles.CV,1),1);
-lg=[];
-lc=[];
-for i=1:size(handles.CV,1)
-    if max(handles.ID(:,1))>1
-        lr{i}=['G',num2str(handles.ID(i,1)),' '];
-        lg=[lg;handles.ID(i,1)];
-    end
-    if max(handles.ID(:,2))>1
-        lr{i}=[lr{i},'S',num2str(handles.ID(i,2)),' '];
-    end
-    if max(handles.ID(:,4))>1
-        lr{i}=[lr{i},'c',num2str(handles.ID(i,4))];
-        lc=[lc;handles.ID(i,4)];
+ID = handles.ID;
+ng = length(unique(ID(:,1)));
+if ng>1 % Labels of table contain the group names
+    for i = 1:length(lr)
+        lr{i}=[handles.prt.group(ID(i,1)).gr_name,' '];
     end
 end
-lg=unique(lg);
-lc=unique(lc);
-if isempty(lg)
-    nc=char([handles.leg.lc]);
-    [du1,loc]=ismember(lc,handles.leg.lci);
-    nc=nc(loc,:);
-elseif isempty(lc)
-    nc=char([handles.leg.lg]);
-    [du1,loc]=ismember(lg,handles.leg.lcg);
-    nc=nc(loc,:);
-else
-    [du1,loc]=ismember(lc,handles.leg.lci);
-    [du1,loc1]=ismember(lg,handles.leg.lcg);
-    nc=char([handles.leg.lg(loc1);handles.leg.lc(loc)]);
+ns = length(unique(ID(:,2)));
+if ns>1  % Labels of table contain the subject names
+    for i = 1:length(lr)
+        lr{i}=[lr{i},...
+            handles.prt.group(ID(i,1)).subject(ID(i,2)).subj_name,' '];
+    end
+end      
+nm = length(unique(ID(:,3)));
+if nm>1  % Labels of table contain the modality names
+    for i = 1:length(lr)
+        lr{i}=[lr{i},...
+            handles.prt.group(ID(i,1)).subject(ID(i,2)).modality(ID(i,3)).mod_name,...
+            ' '];
+    end
 end
-sg='c';
-lc=[repmat(sg,length(lc),1), num2str(lc),repmat('   ',length(lc),1)];
-sg='G';
-lg=[repmat(sg,length(lg),1), num2str(lg),repmat('   ',length(lg),1)];
-cc=strvcat(lg,lc);
+            
+nc = length(unique(ID(:,4)));
+if nc>1  % Labels of table contain the modality names
+    for i = 1:length(lr)
+        lr{i}=[lr{i},...
+            handles.prt.group(ID(i,1)).subject(ID(i,2)).modality(ID(i,3)).design.conds(ID(i,4)).cond_name,...
+            ' '];
+    end
+end
+
+
+% lg=unique(lg);
+% lc=unique(lc);
+% if isempty(lg)
+%     nc=char([handles.leg.lc]);
+%     [du1,loc]=ismember(lc,handles.leg.lci);
+%     nc=nc(loc,:);
+% elseif isempty(lc)
+%     nc=char([handles.leg.lg]);
+%     [du1,loc]=ismember(lg,handles.leg.lcg);
+%     nc=nc(loc,:);
+% else
+%     [du1,loc]=ismember(lc,handles.leg.lci);
+%     [du1,loc1]=ismember(lg,handles.leg.lcg);
+%     nc=char([handles.leg.lg(loc1);handles.leg.lc(loc)]);
+% end
+% sg='c';
+% lc=[repmat(sg,length(lc),1), num2str(lc),repmat('   ',length(lc),1)];
+% sg='G';
+% lg=[repmat(sg,length(lg),1), num2str(lg),repmat('   ',length(lg),1)];
+% cc=strvcat(lg,lc);
 set(handles.editcv,'RowName',lr)
-set(handles.tlegends,'String',[cc,nc])
+% set(handles.tlegends,'String',[cc,nc])
 handles.flagdone=0;
 handles.selectedcells=[];
 % Update handles structure
@@ -229,23 +247,25 @@ handles.CV=cell2mat(get(handles.editcv,'Data'));
 if ~isempty(handles.selectedcells)
     vtp=handles.CV(handles.selectedcells(end,1),handles.selectedcells(end,2));
 end
-tcol=unique(handles.selectedcells(:,2));
-ncol=length(tcol);
-for i=1:ncol
-    icol=find(handles.selectedcells(:,2)==tcol(i));
-    handles.CV(handles.selectedcells(icol,1),tcol(i))= ...
-        vtp*ones(length(icol),1);
-end
-dat=num2cell(handles.CV);
-if any(any(~ismember(handles.CV,[0,1,2])))
+if any(any(~ismember(vtp,[0,1,2])))
     beep
     disp('Values should be either 0, 1 or 2')
     return
+else
+    tcol=unique(handles.selectedcells(:,2));
+    ncol=length(tcol);
+    for i=1:ncol
+        icol=find(handles.selectedcells(:,2)==tcol(i));
+        handles.CV(handles.selectedcells(icol,1),tcol(i))= ...
+            vtp*ones(length(icol),1);
+    end
+    dat=num2cell(handles.CV);
+    set(handles.editcv,'Data',dat)
+    disp_CV(hObject,handles,handles.ID,handles.CV)
+    % Update handles structure
+    guidata(hObject, handles);
 end
-set(handles.editcv,'Data',dat)
-disp_CV(hObject,handles,handles.ID,handles.CV)
-% Update handles structure
-guidata(hObject, handles);
+
 
 
 % --- Executes when selected cell(s) is changed in editcv.
@@ -384,22 +404,35 @@ xticksl=cell(1,size(CV,2));
 for i=1:size(CV,2)
     xticksl{i}=num2str(i);
 end
+clow1 = 0;
+clow2 = 0.5;
+chigh1 = 1;
+d1 = find(max(CV==0));
+d2 = find(min(CV==0));
+d3 = find(ismember(d1,d2));
+flag = 0;
+if ~isempty(d3)
+    flag = 1; % empty columns  =  unused
+end
+
 %inverting unused and test for colour purposes
-if max(max(CV)-min(CV))>1
-    indt=(CV==0);
-    indu= (CV==2);
-    CV(indt)=2;
-    CV(indu)=0;
+if max(max(CV)-min(CV))>0.5
+    indu=(CV==0);
+    indt= (CV==2);
+    indr = (CV==1);
+    CV(indt)=clow1;
+    CV(indu)=chigh1;
+    CV(indr) = clow2;
 else
-    indt=(CV==1);
-    indu= (CV==2);
-    CV(indt)=2;
-    CV(indu)=1;
+    indr=(CV==1);
+    indt= (CV==2);
+    CV(indt)=clow1;
+    CV(indr)=clow2;
 end
 
 set(gca,'FontWeight','bold')
 xlabel('CV Folds','fontweight','demi')
-imagesc(CV);
+imagesc(CV,[clow1 chigh1]);
 set(gca,'XTick',1:i)
 set(gca,'YTickLabel',{})
 set(gca,'XTickLabel',xticksl,'FontWeight','demi','FontSize',8)
@@ -409,14 +442,15 @@ set(get(gca,'Title'),'String','Cross-Validation','FontWeight','bold',...
 
 %Plot the 'legend' corresponding to the CV matrix in the right bottom part
 set(handles.figure1,'CurrentAxes',handles.axes3)
-if max(max(CV)-min(CV))>1
-    leg=[0; 1; 2];
-    imagesc(leg);
+
+if max(max(CV)-min(CV))>0.5 || flag
+    leg=[clow1; clow2; chigh1];
+    imagesc(leg,[clow1 chigh1]);
     set(gca,'YTick',[1,2,3])
     set(gca,'YTickLabel',{'Test','Train','Unused'},'FontSize',8);
 else
-    leg=[1; 2];
-    imagesc(leg);
+    leg=[clow1; clow2];
+    imagesc(leg,[clow1 chigh1]);
     set(gca,'YTick',[1,2])
     set(gca,'YTickLabel',{'Test','Train'},'Fontsize',8);
 end
