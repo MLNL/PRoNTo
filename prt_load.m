@@ -63,7 +63,7 @@ if isfield(PRT,'fas') && ~isempty(PRT.fas)
 end
 
 %Check integrity of all PRT fields, for backward compatibility
-[PRT,flag] = prt_struct(PRT);
+[PRT,flag] = prt_struct(PRT,prtdir);
 if ~flag
     error('prt_load:EssentialFieldsMissing',['Essentials fields are missing. ',...
         'This PRT cannot be used. Data and Design should be started from scratch'])

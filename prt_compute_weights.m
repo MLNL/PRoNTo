@@ -143,8 +143,11 @@ else
                     PRT.model(model_idx).output.weight_ROI = betas;
                 else
                     disp('Building image of weights per region')
-                    NW = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
+                    in.flag = flag;
+                    [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
                     PRT.model(model_idx).output.weight_ROI = NW;
+                    PRT.model(model_idx).output.weight_idfeatroi = idfeatroi;
+                    PRT.model(model_idx).output.weight_atlas = in.atl_name;
                 end
             else
                 PRT.model(model_idx).output.weight_ROI = [];
@@ -164,8 +167,11 @@ else
                     PRT.model(model_idx).output.weight_ROI = betas;
                 else
                     disp('Building image of weights per region')
-                    NW = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
+                    in.flag = flag;
+                    [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
                     PRT.model(model_idx).output.weight_ROI = NW;
+                    PRT.model(model_idx).output.weight_idfeatroi = idfeatroi;
+                    PRT.model(model_idx).output.weight_atlas = in.atl_name;
                 end
              else
                  PRT.model(model_idx).output.weight_ROI = [];

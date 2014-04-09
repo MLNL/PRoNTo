@@ -1,4 +1,4 @@
-function [PRT,flag] = prt_struct(PRT)
+function [PRT,flag] = prt_struct(PRT,prtdir)
 %% Function to load the PRT.mat and check its integrity regarding the 
 % fields that it is supposed to contain. Updates the PRT if needed.
 %
@@ -12,7 +12,7 @@ function [PRT,flag] = prt_struct(PRT)
 % $Id: prt_struct.m 803 2013-06-11 11:46:24Z cphillip $
 
 flag = 1; % If any essential fields are missing, change flag and error
-
+flagch = 0; % 1 if structure is updated
 % Data and Design
 %--------------------------------------------------------------------------
 % Group
@@ -60,6 +60,7 @@ ng = {'mod_name','detrend','covar','rt_subj','design','scans'};
 np = fieldnames(PRT.group(1).subject(1).modality(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
+    flagch = 1;
     ita = find(cg==0);
     for i = 1:length(ita)
         for j=1:length(PRT.group)
@@ -83,6 +84,7 @@ ng = {'mod_name','fname'};
 np = fieldnames(PRT.masks(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
+    flagch = 1;
     ita = find(cg==0);
     for i = 1:length(ita)
         for j=1:length(PRT.masks)
@@ -100,6 +102,7 @@ if isfield(PRT,'fs')
     np = fieldnames(PRT.fs(1));
     cg = ismember(ng,np);
     if ~all(cg) % missing fields
+        flagch = 1;
         ita = find(cg==0);
         for i = 1:length(ita)
             for j=1:length(PRT.fs)
@@ -120,6 +123,7 @@ if isfield(PRT,'fs')
     np = fieldnames(PRT.fs(1).fas);
     cg = ismember(ng,np);
     if ~all(cg) % missing fields
+        flagch = 1;
         ita = find(cg==0);
         for i = 1:length(ita)
             for j=1:length(PRT.fs)
@@ -135,6 +139,7 @@ if isfield(PRT,'fs')
     np = fieldnames(PRT.fs(1).modality);
     cg = ismember(ng,np);
     if ~all(cg) % missing fields
+        flagch = 1;
         ita = find(cg==0);
         for i = 1:length(ita)
             for j=1:length(PRT.fs)
@@ -165,6 +170,7 @@ if isfield(PRT,'fas')
     np = fieldnames(PRT.fas(1));
     cg = ismember(ng,np);
     if ~all(cg) % missing fields
+        flagch = 1;
         ita = find(cg==0);
         for i = 1:length(ita)
             for j=1:length(PRT.fas)
@@ -187,6 +193,7 @@ if isfield(PRT,'model')
     np = fieldnames(PRT.model(1));
     cg = ismember(ng,np);
     if ~all(cg) % missing fields
+        flagch = 1;
         ita = find(cg==0);
         for i = 1:length(ita)
             for j=1:length(PRT.model)
@@ -202,50 +209,66 @@ if isfield(PRT,'model')
     ng = {'use_kernel','type','machine','fs','samp_idx','include_allscans',...
         'targets','targ_allscans','cv_mat','cv_type','cv_k','use_nested_cv',...
         'nested_param','operations'};
-    np = fieldnames(PRT.model(1).input);
-    cg = ismember(ng,np);
-    if ~all(cg) % missing fields
-        ita = find(cg==0);
-        for i = 1:length(ita)
-            for j=1:length(PRT.model)
-                for k= length(PRT.model(j).input)
-                    PRT.model(j).input(k).(ng{ita(i)}) = [];
-                    if ita(i) == 1
-                        PRT.model(j).input(k).use_kernel = 0;
-                    elseif ita(i)== 3
-                        PRT.model(j).input(k).machine.function = '';
-                        PRT.model(j).input(k).machine.args=[];
-                    elseif ita(i) ==4
-                        PRT.model(j).input(k).fs(1).fs_name = '';
-                    elseif ita(i) == 6
-                        PRT.model(j).input(k).include_allscans = 0;
-                    elseif ita(i) == 11
-                        PRT.model(j).input(k).cv_k = 0;
-                    elseif ita(i) == 12
-                        PRT.model(j).input(k).use_nested_cv = 0;
+    for j=1:length(PRT.model)
+        if  ~isempty(PRT.model(j).input)
+            np = fieldnames(PRT.model(j).input);
+            cg = ismember(ng,np);
+            if ~all(cg) % missing fields
+                flagch = 1;
+                ita = find(cg==0);
+                for i = 1:length(ita)
+                    for k= length(PRT.model(j).input)
+                        PRT.model(j).input(k).(ng{ita(i)}) = [];
+                        if ita(i) == 1
+                            PRT.model(j).input(k).use_kernel = 0;
+                        elseif ita(i)== 3
+                            PRT.model(j).input(k).machine.function = '';
+                            PRT.model(j).input(k).machine.args=[];
+                        elseif ita(i) ==4
+                            PRT.model(j).input(k).fs(1).fs_name = '';
+                        elseif ita(i) == 6
+                            PRT.model(j).input(k).include_allscans = 0;
+                        elseif ita(i) == 11
+                            PRT.model(j).input(k).cv_k = 0;
+                        elseif ita(i) == 12
+                            PRT.model(j).input(k).use_nested_cv = 0;
+                        end
                     end
                 end
             end
         end
-    end    
-end   
+    end
+    
+%   Dealing with model outputs
+    % model.output
+    ng = {'fold','stats','weight_ROI','weight_img'};
+    for j=1:length(PRT.model)
+        if ~isempty(PRT.model(j).output)
+            np = fieldnames(PRT.model(j).output(1));
+            cg = ismember(ng,np);
+            if ~all(cg) % missing fields
+                flagch = 1;
+                ita = find(cg==0);
+                for i = 1:length(ita)                    
+                    for k = 1:length(PRT.model(j).output)
+                        PRT.model(j).output(k).(ng{ita(i)}) = [];
+                        winame = fullfile(prtdir,['weights_',PRT.model(j).model_name,'.img']); %potential weight image name
+                        if exist(winame,'file')
+                            PRT.model(j).output(k).(ng{ita(i)}) = ['weights_',PRT.model(j).model_name];
+                        end
+                    end
+                end
+            end
+        end
+    end
+end 
+
+if flagch
+    disp('PRT structure has been updated and saved')
+end
 
 
-% Dealing with model outputs
-%     % model.output
-%     ng = {'fold','stats'};
-%     np = fieldnames(PRT.model(1).output(1));
-%     cg = ismember(ng,np);
-%     if ~all(cg) % missing fields
-%         ita = find(cg==0);
-%         for i = 1:length(ita)
-%             for j=1:length(PRT.model)
-%                 for k = 1:length(PRT.model(j).output(k))
-%                     PRT.model(j).output(k).(ng{ita(i)}) = [];
-%                 end
-%             end
-%         end
-%     end
+
 %     
 % %     ng = {'targets','predictions','stats','func_val',...
 % %         'alpha','b'};

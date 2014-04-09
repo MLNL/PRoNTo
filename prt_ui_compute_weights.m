@@ -404,7 +404,7 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.atl_name=spm_select(1,'img','Select atlas to build weights per region',[],pwd,'*.img');
+handles.atl_name=spm_select(1,'img','Select atlas to build weights per region',[],pwd,'.*');
 set(handles.edit_atlas,'String',handles.atl_name)
 % Update handles structure
 guidata(hObject, handles);

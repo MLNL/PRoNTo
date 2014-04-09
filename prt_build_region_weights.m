@@ -1,4 +1,4 @@
-function [erwn,ER]=prt_build_region_weights(weight_fname,atlas_fname,build_im,comp_perm)
+function [NW_roi,idfeatroi,ER]=prt_build_region_weights(weight_fname,atlas_fname,build_im,comp_perm)
 %
 %function to compute the weights for each region as specified by the atlas
 %image (one value per region). Weights not in the atlas are comprised in an
@@ -12,9 +12,6 @@ function [erwn,ER]=prt_build_region_weights(weight_fname,atlas_fname,build_im,co
 %        -.mat file containing the weights of each ROI, in %, pH, the
 %        normalized weights for each region, in %, pHN and the list of
 %        region names.
-%        -GUI giving the possibility of viewing the weights for each ROI
-%        and sorting the regions by pH or pHN.
-%        (display for average across folds).
 %--------------------------------------------------------------------------
 %Written by Jessica Schrouff, 19/09/2012
 %for PRoNTo
@@ -28,7 +25,7 @@ if nargin<1
         return
     end
 else
-    f=weight_fname;
+    f=weight_fname{1};
 end
 
 %select atlas
@@ -56,7 +53,7 @@ if nargin<4
 end
 
 if comp_perm
-    [a,b]=fileparts(f);
+    [a,b]=fileparts(char(f));
     dirn=[a,filesep,'perm_',b];
     pth=pwd;
     if isdir(dirn)
@@ -113,7 +110,7 @@ nfo=length(V);
 V1=spm_vol(gi);
 dumb=V(1);
 
-% if ~any(dumb.dim == V1.dim)
+if ~any(dumb.dim == V1.dim)
     disp('Resizing atlas--------->>')
     %reslice
     fl_res = struct('mean',false,'interp',0,'which',1,'prefix','resized_');
@@ -138,9 +135,9 @@ dumb=V(1);
     fullfile(pp,[mfile_new,'.hdr']));
     g=spm_vol(fullfile(pp,[mfile_new,'.img']));
     h=spm_read_vols(g);
-% else
-%     h=spm_read_vols(V1);
-% end
+else
+    h=spm_read_vols(V1);
+end
 
 %compute histogram
 %--------------------------------------------------------------------------
@@ -175,7 +172,7 @@ for ii=1:size(fperm,1)
     
     % Compute the weights and normalized weights
     disp(['Computing weights in each ROI for image ',num2str(ii)])
-    [H HN SN] = prt_region_histogram(w, atlas);
+    [H HN SN idfeatroi] = prt_region_histogram(w, atlas);
     nr=size(H,1);
     
     %Correct for the 'others' region (one time)
@@ -251,15 +248,15 @@ end
 %save sorted H, HN and the list of corresponding ROIs for the 'true' image,
 %and the ranking of the average weights for each permutation
 W_roi=pH;
-NW_roi=pHN;
+NW_roi=pHN/100;
 if ~corr
     ER=ER(2:end,:);
 end
 SN=SN*100;
 [a,b,c]=fileparts(dumb.fname);
 [a1,b1]=fileparts(gi);
-save(fullfile(a,['atlas_',b1,'_',b,'.mat']),'LR',...
-    'W_roi','NW_roi','dwn','drwn','erwn','SN','ER','P_oth','oth_w');
+% save(fullfile(a,['atlas_',b1,'_',b,'.mat']),'LR',...
+%     'W_roi','NW_roi','dwn','drwn','erwn','SN','ER','P_oth','oth_w');
 
 %build new image with the normalized weights and save values
 %--------------------------------------------------------------------------
@@ -294,9 +291,6 @@ if flag
     disp('Done.')
 end
 
-% Displays
-%--------------------------------------------------------------------------
-% prt_ui_results_ROI('UserData',{LR,pHN,drwn,erwn,SN,P_oth,oth_w});
 
 
     %compute the rank of each region according to the weights

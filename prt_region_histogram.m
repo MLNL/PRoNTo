@@ -1,4 +1,4 @@
-function [H HN SN] = prt_region_histogram(beta, atlas)
+function [H HN SN idfeatroi] = prt_region_histogram(beta, atlas)
 
 %% L1-HISTOGRAM
 % (c) Luca Baldassarre
@@ -55,8 +55,10 @@ end
 if nargout > 1
    % Compute volumes according to atlas
    volume = zeros(R,1);
+   idfeatroi = cell(R,1);
    for r = r_min:R
       volume(r+correction) = sum(atlas == r);
+      idfeatroi{r+correction} = find(atlas==r);
    end
    HN = H./repmat(volume,1,m);
    SN = S./repmat(volume,1,m);

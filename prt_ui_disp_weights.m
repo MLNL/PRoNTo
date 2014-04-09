@@ -28,7 +28,7 @@ function varargout = prt_ui_disp_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_disp_weights
 
-% Last Modified by GUIDE v2.5 04-Sep-2013 16:51:57
+% Last Modified by GUIDE v2.5 09-Apr-2014 16:47:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -176,6 +176,10 @@ else
         
         % Load PRT.mat
         PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
+        if isempty(PRT)
+            error('prt_ui_disp_weights:NoPRT','No PRT file selected')        
+        end
+
         pathdir = regexprep(PRT,'PRT.mat', '');
         handles.pathdir = pathdir;
         handles.prtdir=fileparts(PRT);
@@ -196,6 +200,7 @@ else
         nmodels = length(PRT.model);
         mi  = [];
         nmi = 0;
+        nmroi = 0;
         for m = 1:nmodels
             if isfield(PRT.model(m),'input') && ~isempty(PRT.model(m).input)
                 if isfield(PRT.model(m),'output') && ~isempty(PRT.model(m).output)
@@ -203,8 +208,11 @@ else
                         nmi = nmi +1;
                         model_name{nmi} = PRT.model(m).model_name;
                         mi = [mi, m];
+                        if isfield(PRT.model(m).output,'weight_ROI') && ...
+                                ~isempty(PRT.model(m).output.weight_ROI)
+                            nmroi = nmroi+1;
+                        end
                     else
-                        beep;
                         disp(sprintf('Weights not computed for model %s ! It will not be displayed',PRT.model(m).model_name));
                     end
                 else
@@ -217,37 +225,37 @@ else
             end
             
         end
-        if ~nmi, error('There are no estimated/good models in this PRT!'); end
+        %         if ~nmi, error('There are no estimated/good models in this
+        %         PRT!'); end
         
-        handles.mi = mi;
-        
-        % Set model pulldown menu
-        handles.mnames = model_name;
-        set(handles.classmenu,'String',handles.mnames);
-        
-        % Get folds pulldown menu
-        m             = get(handles.classmenu,'Value');
-        handles.nfold = length(PRT.model(mi(m)).output.fold);
-        folds{1}      = 'All folds / Average';
-        for f = 1:handles.nfold
-            folds{f+1} = num2str(f);
-        end
-        handles.folds = folds;
-        set(handles.foldmenu,'String',handles.folds);
-        
-        %set weight image to first model
-        if exist([handles.prtdir,filesep,PRT.model(m).output.weight_img,'.img'],'file')
-            handles.wmap = [handles.prtdir,filesep,PRT.model(m).output.weight_img,'.img'];
-            V               = spm_vol(handles.wmap);
-            handles.vols{1} = V;
-            handles.noloadw = 1;
-            % Update handles structure
-            guidata(hObject, handles);
-            weightbutton_Callback(hObject, eventdata, handles)
+        if nmi
+            handles.mi = mi;
+            
+            % Set model pulldown menu
+            handles.mnames = model_name;
+            set(handles.classmenu,'String',handles.mnames);
+            
+            % Get folds pulldown menu
+            m             = get(handles.classmenu,'Value');
+            handles.nfold = length(PRT.model(mi(m)).output.fold);
+            folds{1}      = 'All folds / Average';
+            for f = 1:handles.nfold
+                folds{f+1} = num2str(f);
+            end
+            handles.folds = folds;
+            set(handles.foldmenu,'String',handles.folds);
+            set(handles.foldmenu,'Value',1);
+            
         end
         % Initialize model button
         handles.model_button = 0;
         
+        % Deal with ROI table and bar graph: 1st turned off        
+        set(handles.axes1, 'visible','off')
+        set(handles.ROItable,'visible','off')
+        handles.selectedcell = [];
+        handles.labels=cell(length(handles.mi),1);
+        set(handles.butt_load_labels,'visible','off');
         % Clear axes
         cla(handles.axes1);
     end
@@ -432,6 +440,16 @@ xords         = xords(:)';  yords = yords(:)';
 I             = 1:xdim*ydim;
 zords_init    = ones(1,xdim*ydim);
 
+if ~isempty(handles.selectedcell)
+    matroi = NaN * ones(xdim,ydim,zdim);
+    idroi = handles.idfeat_roi{handles.sort_roi(handles.selectedcell(1))};
+    matroi(idroi) = 1;
+    handles.roimatdisp = matroi;
+else
+    matroi = ones(xdim,ydim,zdim);
+    handles.roimatdisp = matroi;
+end
+
 % Get image values above zero for each fold and all folds
 % -------------------------------------------------------------------------
 xyz_above = [];
@@ -448,6 +466,11 @@ for z = 1:zdim,
     zords = z*zords_init;
     xyz   = [xords(I); yords(I); zords(I); fold_coord];
     zvals = spm_get_data(V,xyz);
+    if isfield(handles,'roimatdisp') && ~isempty(handles.roimatdisp)
+        indmask = sub2ind([xdim,ydim,zdim],xords(I)', yords(I)', zords(I)');
+        mroi = handles.roimatdisp(indmask);
+        zvals = zvals.*mroi';
+    end
     above = find(~isnan(zvals));
     if length(above)==length(zvals) %old version of weight computation
         above = find(zvals~=0);
@@ -460,6 +483,13 @@ end
 XYZ   = xyz_above(1:3,:);
 Z     = z_above;
 
+%compute center of gravity to reposition crosshairs
+xm = round(median(XYZ(1,:)));
+ym = round(median(XYZ(2,:)));
+zm = round(median(XYZ(3,:)));
+% xmin = min(XYZ(1,:));
+% xmax = max(XYZ(1,:));
+% xfov =xmax-xmin;
 % Set spm_orthviews properties
 % -------------------------------------------------------------------------
 rotate3d off
@@ -475,6 +505,11 @@ st.callback = 'prt_ui_results(''showpos'')';
 
 % Display maps
 % -------------------------------------------------------------------------
+[BB vx] = spm_get_bbox(handles.wmap);
+xax = BB(1,1):abs(vx(1)):BB(2,1);
+yax = BB(1,2):abs(vx(2)):BB(2,2);
+zax = BB(1,3):abs(vx(3)):BB(2,3);
+
 h  = spm_orthviews('Image', handles.wmap,[0.0519 0.5304 0.4182 0.3951]);
 handles.wimgh = h;
 spm_orthviews('AddContext', h);
@@ -484,6 +519,8 @@ cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
     spm_figure('Colormap','jet');
 end
+spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
+% spm_orthviews('Zoom',(xfov*abs(vx(1))))
 spm_orthviews('Redraw');
 
 % Show positions
@@ -577,21 +614,47 @@ function foldmenu_Callback(hObject, eventdata, handles)
 if ~handles.model_button
     if isfield(handles,'vols')
         handles.noloadw = 1;
+        handles.selectedcell = [];
         weightbutton_Callback(hObject, eventdata, handles);
     end
 end
 
-% Change plot
-% -------------------------------------------------------------------------
-if isfield(handles,'plot')
-    plotmenu_Callback(hObject, eventdata, handles);
+% Update table and bar graph
+m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
 end
+mi = handles.mi;
+ffi = get(handles.foldmenu,'Value')-1;
+if ffi == -1 % for Mac issues with popup menus
+    ffi = 0;
+end
+if ffi==0 % for average
+    ffi=length(get(handles.foldmenu,'String'));
+end
+if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
+   dat = handles.dattable;
+   weights = handles.PRT.model(mi(m)).output.weight_ROI(:,ffi)*100;
+   dat(:,2) = num2cell(weights);
+   dat(:,5) = num2cell(handles.hom_roi(:,ffi)*100);
+   [vald,idwroi] = sort(weights,'descend');
+   dat = dat(idwroi,:);
+   set(handles.ROItable,'Data',dat);
+   set(handles.ROItable,'visible','on');
+   
+   %Bar graph to show decrease in ROI weights
+   set(handles.axes1,'visible','on')
+   bar(handles.axes1,weights(idwroi));
+   set(get(handles.axes1,'XLabel'),'FontWeight','demi')
+   set(get(handles.axes1,'XLabel'),'String','ROI index')
+   set(get(handles.axes1,'YLabel'),'String','ROI weight')
+   set(get(handles.axes1,'YLabel'),'FontWeight','demi')    
+end
+guidata(hObject, handles);
 
-% Change stats
-% -------------------------------------------------------------------------
-if isfield(handles,'stats')
-    statsbutton_Callback(hObject, eventdata, handles);
-end
+
+
 
 % --- Executes during object creation, after setting all properties.
 function foldmenu_CreateFcn(hObject, eventdata, handles)
@@ -620,6 +683,9 @@ function classmenu_Callback(hObject, eventdata, handles)
 
 % Get folds
 m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
+end
 mi = handles.mi;
 handles.nfold = length(handles.PRT.model(mi(m)).output.fold);
 
@@ -630,12 +696,177 @@ for f = 1:handles.nfold
 end
 
 
-% Set folds and call fold function to change plot/stats
+% Set folds and call fold function to plot the weights for that model
 handles.folds = folds;
 set(handles.foldmenu,'String',handles.folds);
-handles.model_button = 1;
 
-foldmenu_Callback(hObject, eventdata, handles);
+ffi = get(handles.foldmenu,'Value')-1;
+if ffi == -1 % for Mac issues with popup menus
+    ffi = 0;
+end
+if ffi==0 % for average
+    ffi=length(get(handles.foldmenu,'String'));
+end
+if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
+   in = struct();
+   in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
+   fid = prt_init_fs(handles.PRT,in);
+   if isfield(handles.PRT.fs(fid).modality(1),'num_ROI')
+        num_roi = handles.PRT.fs(fid).modality(1).num_ROI;
+        atl_name = handles.PRT.fs(fid).atlas_name;
+   else
+       num_roi = 1:length(handles.PRT.model(mi(m)).output.weight_ROI);
+       atl_name = handles.PRT.model(mi(m)).output.weight_atlas ;
+   end
+   handles.num_roi = num_roi;
+   % Get the labels if they are stored in a .mat along the atlas file
+   [a,b]=fileparts(atl_name);
+   try
+       load(fullfile(a,[b,'.mat']))
+       try
+           handles.labels{mi(m)}=ROI_names;
+       catch
+           disp('No variable ROI_names found, generic names used')
+       end
+   catch
+         disp('No file containing the names of the ROIs found, generic names used')
+   end
+   if ~isfield(handles,'labels') || isempty(handles.labels{mi(m)})
+       label=cell(length(num_roi),1);
+       for i=1:length(num_roi)
+           label{i} = ['ROI_',num2str(num_roi(i))];
+       end
+   else
+       if isfield(handles.PRT.fs(fid),'igood_kerns') && ...
+               length(handles.PRT.fs(fid).igood_kerns)==length(num_roi)
+            label = handles.labels{mi(m)}(handles.PRT.fs(fid).igood_kerns); %take 0 kernels out
+            handles.num_roi = handles.PRT.fs(fid).igood_kerns;
+       else
+           label = handles.labels{mi(m)}(num_roi);
+           handles.num_roi = num_roi;
+       end
+   end   
+   dat(:,1) = label;
+   weights = handles.PRT.model(mi(m)).output.weight_ROI(:,ffi)*100;
+   dat(:,2) = num2cell(weights);   
+   lc = {'ROI label','ROI weight (%)'};
+   if ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && ...
+           handles.PRT.fs(fid).multkernel && ...
+           ~isempty(handles.PRT.fs(fid).atlas_name) %Multiple kernel learning on ROIs
+       if isfield(handles.PRT.fs(1).modality,'idfeat_img')&& ... % Get the indexes of each ROI in the image
+               ~isempty(handles.PRT.fs(1).modality.idfeat_img)
+           lc = [lc,{'ROI size (vox)'}];
+           for i=1:length(handles.PRT.fas)
+               if strcmpi(handles.PRT.fs(fid).modality.mod_name,...
+                       handles.PRT.fas(i).mod_name)
+                   mid = i;
+               end
+           end
+           idfeat = handles.PRT.fas(mid).idfeat_img;
+           if isempty(handles.PRT.fs(fid).modality(1).idfeat_fas) % get the 2nd level masking
+               idfeat_fas = 1:length(idfeat);
+           else
+               idfeat_fas = handles.PRT.fs(fid).modality(1).idfeat_fas;
+           end
+           handles.idfeat_roi = cell(length(handles.PRT.fs(1).modality.idfeat_img),1);
+           for i = 1:length(handles.PRT.fs(1).modality.idfeat_img)
+               dat(i,3) = {length(handles.PRT.fs(1).modality.idfeat_img{i})};
+               handles.idfeat_roi{i} = idfeat(idfeat_fas(handles.PRT.fs(1).modality.idfeat_img{i}));
+           end
+       end
+   else % Summarizing the weights
+       if isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') && ... % Get the indexes of each ROI in the image
+               ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi)
+           lc = [lc,{'ROI size (vox)'}];
+           handles.idfeat_roi = cell(length(handles.PRT.model(mi(m)).output.weight_idfeatroi),1);
+           for i = 1:length(handles.PRT.model(mi(m)).output.weight_idfeatroi)
+               dat(i,3) = {length(handles.PRT.model(mi(m)).output.weight_idfeatroi{i})};
+               handles.idfeat_roi{i} = handles.PRT.model(mi(m)).output.weight_idfeatroi{i};
+           end
+       end
+   end
+   % Compute Expected Ranking for model
+   w_all = handles.PRT.model(mi(m)).output.weight_ROI(:,1:handles.nfold)*100;
+   [d1,d2]=sort(w_all,1,'descend');
+   isn=find(isnan(w_all(:,1)));
+   d3=1:length(isn);
+   d4=length(isn)+1:size(d1,1);
+   ihn=[d2(d4,:);d2(d3,:)];
+   [d1,dwn]=sort(ihn);
+   erwn=zeros(length(num_roi),1);
+   for i=1:length(num_roi)
+       for j=1:length(num_roi)
+           tmp=length(find(dwn(i,1:end-1)==j));
+           erwn(i)=erwn(i)+j*tmp;
+       end
+   end
+   erwn=erwn/handles.nfold;
+   dat(:,4) = num2cell(erwn); 
+   lc = [lc,{'Exp. Ranking'}];
+   handles.dattable = dat;
+   [vald,idwroi] = sort(weights,'descend');
+   handles.sort_roi= idwroi;
+else
+    % Cut window
+    
+end
+
+if exist([handles.prtdir,filesep,handles.PRT.model(mi(m)).output.weight_img,'.img'],'file') || ...
+        exist([handles.prtdir,filesep,handles.PRT.model(mi(m)).output.weight_img],'file')
+    [a,b] = fileparts(handles.PRT.model(mi(m)).output.weight_img);
+    handles.wmap = [handles.prtdir,filesep,b,'.img'];
+    V               = spm_vol(handles.wmap);
+    handles.vols{1} = V;
+    handles.noloadw = 1;
+    handles.model_button = 0;
+    handles.selectedcell = [];
+    % Update handles structure
+    guidata(hObject, handles);
+    weightbutton_Callback(hObject, eventdata, handles);
+end
+
+if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+        isfield(handles,'wmap') && ~isempty(handles.wmap)
+    
+    % Get homogeneity of each ROI in terms of sign from the image
+    dat = handles.dattable;
+    [vald,idwroi] = sort([dat{:,2}],'descend');
+    hom = zeros(length(vald),handles.nfold+1);
+    for f = 1:handles.nfold+1
+        imtl = V(f);
+        vv = spm_read_vols(imtl);
+        for i = 1:length(vald) %for each ROI
+            val = vv(handles.idfeat_roi{i});
+            hom(i,f) = length(find(val>0))/length(val);
+        end
+    end
+   handles.hom_roi = hom;
+   dat(:,5) = num2cell(hom(:,end)*100);
+   lc = [lc,{'# Pos. (%)'}];
+   handles.dattable = dat;
+   
+   set(handles.butt_load_labels,'visible','on');
+   dat = dat(handles.sort_roi,:);
+   set(handles.ROItable,'Data',dat);
+   set(handles.ROItable,'ColumnEditable',false(1,length(lc)));
+   set(handles.ROItable,'ColumnName',lc);
+   set(handles.ROItable,'visible','on');
+   
+   %Bar graph to show decrease in ROI weights
+   set(handles.axes1,'visible','on')
+   bar(handles.axes1,weights(idwroi));
+   set(get(handles.axes1,'XLabel'),'FontWeight','demi')
+   set(get(handles.axes1,'XLabel'),'String','ROI index')
+   set(get(handles.axes1,'YLabel'),'String','ROI weight')
+   set(get(handles.axes1,'YLabel'),'FontWeight','demi')
+else
+    cla(handles.axes1, 'reset');
+    set(handles.ROItable,'visible','off');
+    set(handles.axes1,'visible','off');
+    set(handles.butt_load_labels,'visible','off');
+end
 
 handles.model_button = 0;
 guidata(hObject, handles);
@@ -830,6 +1061,19 @@ end
 
 cd(wd)
 
+% --- Executes on selection change in table if it is a ROI label.
+function disp_weights_CellSelectionCallback(hObject,eventdata,handles)
+% hObject    handle to foldmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.selectedcell=eventdata.Indices;
+if ~isempty(handles.selectedcell) && handles.selectedcell(2)==1 % ROI label selected
+    weightbutton_Callback(hObject, eventdata, handles);
+else
+    handles.selectedcell = [];
+end
+% Update handles structure
+guidata(hObject, handles);
 
 % --- Executes on selection change in foldmenu.
 function listbox1_Callback(hObject, eventdata, handles)
@@ -853,16 +1097,42 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on button press in but_ROIind.
-function but_ROIind_Callback(hObject, eventdata, handles)
-% hObject    handle to but_ROIind (see GCBO)
+% --- Executes on button press in butt_load_labels.
+function butt_load_labels_Callback(hObject, eventdata, handles)
+% hObject    handle to butt_load_labels (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+mi = handles.mi;
+m = get(handles.classmenu,'Value');
+if m==0 % Mac weird error with popup menus
+    m=1;
+end
+fname=spm_select(1,'.mat','Select the file containing the names of the ROIs');
+if isempty(fname)
+    disp('No file containing the names of the ROIs found, generic names used')
+    handles.labels{mi(m)}=[];
+else
+    load(fname)
+    try
+        handles.labels{mi(m)}=ROI_names;
+    catch
+        disp('No variable ROI_names found, generic names used')
+    end
+end
+try
+    label = handles.labels{mi(m)}(handles.num_roi);
+catch
+    label=[];
+    disp('Number of labels is not consistent with atlas')
+end
+if ~isempty(handles.labels{mi(m)}) && ~isempty(label)
+    dat = handles.dattable;
+    dat(:,1) = label;
+    dat = dat(handles.sort_roi,:);
+    set(handles.ROItable,'Data',dat);
+    set(handles.ROItable,'visible','on');
+    guidata(hObject, handles);
+end
 
 
-% --- Executes on button press in sortHN.
-function sortHN_Callback(hObject, eventdata, handles)
-% hObject    handle to sortHN (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+

@@ -28,7 +28,7 @@ function varargout = prt_ui_main(varargin)
 
 % Edit the above text to modify the response to help prt_ui_main
 
-% Last Modified by GUIDE v2.5 04-Nov-2011 19:08:48
+% Last Modified by GUIDE v2.5 04-Apr-2014 04:25:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -233,7 +233,14 @@ function resrev_Callback(hObject, eventdata, handles)
 % hObject    handle to resrev (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-prt_ui_results
+prt_ui_results_stats
+
+% --- Executes on button press in dispweights.
+function dispweights_Callback(hObject, eventdata, handles)
+% hObject    handle to dispweights (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+prt_ui_disp_weights
 
 % --- Executes on button press in batchbutt.
 function batchbutt_Callback(hObject, eventdata, handles)
