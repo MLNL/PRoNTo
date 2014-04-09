@@ -25,6 +25,13 @@ end
 load(fname);
 fs_name = job.k_file;
 
+% Check for multimodal MKL flag
+if isfield(job.mkl,'flag_mm')
+    flag_mm = job.mkl.flag_mm;
+else
+    flag_mm = 0;
+end
+
 mod      = struct();
 allmod   = {PRT.masks(:).mod_name};
 modchos  = {job.modality(:).mod_name};
@@ -79,7 +86,18 @@ for i=1:length(PRT.masks)
         else
             mod(i).mask = [];
         end
-            
+        
+        if isfield(job.mkl,'atlasroi')
+            mod(i).atlasroi = job.mkl.atlasroi{1};
+            if ~isempty(mod(i).atlasroi)
+                mod(i).multroi = 1;
+            else
+                mod(i).multroi = 0;
+            end
+        else
+            mod(i).multroi = 0;
+        end
+        
     else
         mod(i).mod_name=[];%allmod{i};
         mod(i).detrend=nan;
@@ -91,7 +109,8 @@ end
 input = struct( ...
             'fname',fname, ...
             'fs_name',fs_name, ...
-            'mod',mod);
+            'mod',mod, ...
+            'flag_mm', flag_mm);
     
 prt_fs(PRT,input);
 

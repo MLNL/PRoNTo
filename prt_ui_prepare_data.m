@@ -132,7 +132,7 @@ for i=1:length(aa)
 end
 
 
-set(handles.sel_mod,'Enable','off')
+set(handles.sel_mod,'Enable','on')
 set(handles.multkernflag,'Enable','off')
 set(handles.multkernflag,'Value',0)
 handles.kname=[];

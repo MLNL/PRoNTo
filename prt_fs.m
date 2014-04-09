@@ -53,7 +53,7 @@ if isfield(in.mod(1),'atlasroi')
     end
 end
 
-[mask,precmask,headers,PRT,ratl] = load_masks(PRT, prt_dir, in,mids);
+[mask,precmask,headers,PRT,ratl] = load_masks(PRT, prt_dir, in, mids);
 
 % Initialize the file arrays, kernel and feature set parameters
 [fid,PRT,tocomp] = prt_init_fs(PRT,in,mids,mask,precmask,headers);
@@ -62,12 +62,20 @@ in.tocomp = tocomp;
 in.precmask = precmask;
 in.fid = fid;
 
+% Check if the two MKL options (Multi-model and Multi-ROI) have not been
+% selected at the same time
+for i = 1:length(mids)
+    if in.flag_mm && in.mod(mids(i)).multroi
+        error('MKL selected for two options: multi-modal and multi-ROI. Please choose only one.')
+    end
+end
+
 % Build the feature set and kernel
 %--------------------------------------------------------------------------
     % One kernel per modality
     
-% if n_mods>1 && in.flag_mm 
-if n_mods>1
+if n_mods>1 && in.flag_mm 
+%if n_mods>1
     Phi=cell(n_mods,1);
     igd = [];
     nim1 =length(unique(PRT.fs(fid).id_mat(:,3) == mids(1)));
