@@ -254,7 +254,7 @@ else
         set(handles.axes1, 'visible','off')
         set(handles.ROItable,'visible','off')
         handles.selectedcell = [];
-        handles.labels=cell(length(handles.mi),1);
+        handles.labels=cell(nmodels,1);
         set(handles.butt_load_labels,'visible','off');
         % Clear axes
         cla(handles.axes1);
@@ -754,8 +754,8 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
    if ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && ...
            handles.PRT.fs(fid).multkernel && ...
            ~isempty(handles.PRT.fs(fid).atlas_name) %Multiple kernel learning on ROIs
-       if isfield(handles.PRT.fs(1).modality,'idfeat_img')&& ... % Get the indexes of each ROI in the image
-               ~isempty(handles.PRT.fs(1).modality.idfeat_img)
+       if isfield(handles.PRT.fs(fid).modality,'idfeat_img')&& ... % Get the indexes of each ROI in the image
+               ~isempty(handles.PRT.fs(fid).modality.idfeat_img)
            lc = [lc,{'ROI size (vox)'}];
            for i=1:length(handles.PRT.fas)
                if strcmpi(handles.PRT.fs(fid).modality.mod_name,...
@@ -769,10 +769,10 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
            else
                idfeat_fas = handles.PRT.fs(fid).modality(1).idfeat_fas;
            end
-           handles.idfeat_roi = cell(length(handles.PRT.fs(1).modality.idfeat_img),1);
-           for i = 1:length(handles.PRT.fs(1).modality.idfeat_img)
-               dat(i,3) = {length(handles.PRT.fs(1).modality.idfeat_img{i})};
-               handles.idfeat_roi{i} = idfeat(idfeat_fas(handles.PRT.fs(1).modality.idfeat_img{i}));
+           handles.idfeat_roi = cell(length(handles.PRT.fs(fid).modality.idfeat_img),1);
+           for i = 1:length(handles.PRT.fs(fid).modality.idfeat_img)
+               dat(i,3) = {length(handles.PRT.fs(fid).modality.idfeat_img{i})};
+               handles.idfeat_roi{i} = idfeat(idfeat_fas(handles.PRT.fs(fid).modality.idfeat_img{i}));
            end
        end
    else % Summarizing the weights
