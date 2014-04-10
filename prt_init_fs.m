@@ -166,7 +166,7 @@ else
     end  % group
     PRT.fs(fid).id_mat = zeros(n,length(PRT.fs(fid).id_col_names));
     PRT.fs(fid).fas.im = zeros(n,1);
-    PRT.fs(fid).fas.ifa= zeros(n,1);
+    PRT.fs(fid).fas.ifa= zeros(n,1); 
     
     % Count the total number of samples and set sample ids for the kernel
     % Set fas for the file arrays
