@@ -132,7 +132,9 @@ else
             img_name = prt_compute_weights_class(PRT,in,model_idx,flag);
             [du,name_fin] = spm_fileparts(img_name{1}); 
             if exist('flag2','var') && flag2 % Build image of weights per region
-                if mult_kern_ROI
+                if mult_kern_ROI && ...
+                        isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
+                        ~isempty(PRT.model(model_idx).output.fold(1).beta)
                     disp('Building image of weights per region')
                     in.img_name = ['ROI_',name_fin];
                     prt_compute_weights_class(PRT,in,model_idx,flag,[],1);
@@ -156,7 +158,9 @@ else
             img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
             [du,name_fin] = spm_fileparts(img_name{1}); 
              if exist('flag2','var') && flag2 % Build image of weights per region
-                if mult_kern_ROI
+                if mult_kern_ROI && ...
+                        isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
+                        ~isempty(PRT.model(model_idx).output.fold(1).beta)
                     disp('Building image of weights per region')                   
                     in.img_name = ['ROI_',name_fin];
                     prt_compute_weights_regre(PRT,in,model_idx,flag,[],1);
