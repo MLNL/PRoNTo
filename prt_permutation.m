@@ -151,7 +151,8 @@ else
     
     % Run model with permuted labels
     % -------------------------------------------------------------------------
-    if ~isfield(PRT.model(modelid).output,'permutation')
+    if ~isfield(PRT.model(modelid).output,'permutation') || ...
+        (isfield(PRT.model(modelid).output,'permutation') && flag) %Back to empty to save other perm param
         PRT.model(modelid).output.permutation=struct('fold',[]);
     end
     for p=1:n_perm
