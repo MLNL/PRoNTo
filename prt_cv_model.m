@@ -93,7 +93,7 @@ for i = 1:length(PRT.model(mid).input.fs)
             else
                 %Check that if multiple kernels, MKL was selected,
                 %otherwise add the kernels (normalized)
-                if ~flag && isempty(strfind(PRT.model(mid).input.machine.function,'MKL'))
+                if isempty(strfind(PRT.model(mid).input.machine.function,'MKL'))
                     warning('prt_cv_model:AddKernels',...
                         'Multiple kernels but machine cannot deal with them, adding the kernels');
                     Phi_tmp = zeros(length(samp_idx));
@@ -112,7 +112,7 @@ for i = 1:length(PRT.model(mid).input.fs)
                 else
                     Phi_all=cell(1,length(Phi));
                     for j=1:length(Phi)
-                        Phi_all{j}=Phi{j}(samp_idx,samp_idx);
+                        Phi_all{j}=prt_normalise_kernel(Phi{j}(samp_idx,samp_idx));
                     end
                 end
             end

@@ -132,7 +132,10 @@ else
     switch mtype
         case 'classification'
             img_name = prt_compute_weights_class(PRT,in,model_idx,flag);
-            [du,name_fin] = spm_fileparts(img_name{1}); 
+            name_fin = cell(length(img_name),1);
+            for i=1:length(name_fin)
+                [du,name_fin{i}] = spm_fileparts(img_name{i}); 
+            end
             if exist('flag2','var') && flag2 % Build image of weights per region
                 if mult_kern_ROI && ...
                         isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
@@ -144,15 +147,19 @@ else
                     tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
                         length(PRT.model(model_idx).output.fold));
                     betas = [tmp, mean(tmp,2)];
-                    PRT.model(model_idx).output.weight_ROI = betas;
+                    PRT.model(model_idx).output.weight_ROI = {betas};
                 else
                     disp('Building image of weights per region')
                     in.flag = flag;
                     if isempty(in.atl_name) && mult_kern_ROI
                         in.atl_name = PRT.fs(fs_idx).atlas_name;
+                    end                    
+                    nimage = size(name_fin,1); % Multiclass?
+                    PRT.model(model_idx).output.weight_ROI = cell(nimage,1);
+                    for c = 1:nimage
+                        [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
+                        PRT.model(model_idx).output.weight_ROI(c) = {NW};
                     end
-                    [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
-                    PRT.model(model_idx).output.weight_ROI = NW;
                     PRT.model(model_idx).output.weight_idfeatroi = idfeatroi;
                     PRT.model(model_idx).output.weight_atlas = in.atl_name;
                 end
@@ -161,7 +168,10 @@ else
             end
         case 'regression'
             img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
-            [du,name_fin] = spm_fileparts(img_name{1}); 
+            name_fin = cell(length(img_name),1);
+            for i=1:length(name_fin)
+                [du,name_fin{i}] = spm_fileparts(img_name{i}); 
+            end
              if exist('flag2','var') && flag2 % Build image of weights per region
                 if mult_kern_ROI && ...
                         isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
@@ -173,15 +183,19 @@ else
                     tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
                         length(PRT.model(model_idx).output.fold));
                     betas = [tmp, mean(tmp,2)];
-                    PRT.model(model_idx).output.weight_ROI = betas;
+                    PRT.model(model_idx).output.weight_ROI(1) = {betas}; %only one class for now
                 else
                     disp('Building image of weights per region')
                     in.flag = flag;
                     if isempty(in.atl_name) && mult_kern_ROI
                         in.atl_name = PRT.fs(fs_idx).atlas_name;
                     end
-                    [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
-                    PRT.model(model_idx).output.weight_ROI = NW;
+                    nimage = size(name_fin,1); % Multiclass?
+                    PRT.model(model_idx).output.weight_ROI = cell(nimage,1);
+                    for c = 1:nimage
+                        [NW idfeatroi] = prt_build_region_weights(img_name{c},in.atl_name,1,in.flag);
+                        PRT.model(model_idx).output.weight_ROI(c) = {NW};
+                    end
                     PRT.model(model_idx).output.weight_idfeatroi = idfeatroi;
                     PRT.model(model_idx).output.weight_atlas = in.atl_name;
                 end
@@ -191,6 +205,9 @@ else
     end
 end
 
+if ~iscell(name_fin)
+    name_fin = {name_fin};
+end
 PRT.model(model_idx).output.weight_img = name_fin;
 outfile = fullfile(in.pathdir, 'PRT.mat');
 disp('Updating PRT.mat.......>>')

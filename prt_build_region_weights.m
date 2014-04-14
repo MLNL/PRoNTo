@@ -81,11 +81,7 @@ try
     load(fullfile(a,[b,'.mat']))
     try
         LR=ROI_names;
-    catch
-        disp('No variable ROI_names found, generic names used')
     end
-catch
-    disp('No file containing the names of the ROIs found, generic names used')
 end
 
 

@@ -28,7 +28,7 @@ function varargout = prt_ui_disp_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_disp_weights
 
-% Last Modified by GUIDE v2.5 09-Apr-2014 16:47:24
+% Last Modified by GUIDE v2.5 14-Apr-2014 15:42:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -260,7 +260,10 @@ else
         cla(handles.axes1);
     end
 end
-
+set(handles.disp_voxels,'Value',1)
+set(handles.disp_voxels,'Enable','off')
+set(handles.disp_regions,'Value',0)
+set(handles.disp_regions,'Enable','off')
 % Choose default command line output for prt_ui_disp_weights
 handles.output = hObject;
 
@@ -506,7 +509,7 @@ xax = BB(1,1):abs(vx(1)):BB(2,1);
 yax = BB(1,2):abs(vx(2)):BB(2,2);
 zax = BB(1,3):abs(vx(3)):BB(2,3);
 
-h  = spm_orthviews('Image', handles.wmap,[0.0519 0.5304 0.4182 0.3951]);
+h  = spm_orthviews('Image', handles.wmap,[0.0519 0.498 0.4182 0.3951]);
 handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
@@ -582,7 +585,7 @@ end
 % -------------------------------------------------------------------------
 rotate3d off
 st.fig = handles.figure1;
-handle = spm_orthviews('Image', img, [0.5595 0.5304 0.4182 0.3951]);
+handle = spm_orthviews('Image', img, [0.5595 0.498 0.4182 0.3951]);
 cmap   = get(gcf,'Colormap');
 if size(cmap,1)~=128
     spm_figure('Colormap','gray')
@@ -635,7 +638,7 @@ end
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
    dat = handles.dattable;
-   weights = handles.PRT.model(mi(m)).output.weight_ROI(:,ffi)*100;
+   weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
    dat(:,2) = num2cell(weights);
    dat(:,5) = num2cell(handles.hom_roi(:,ffi)*100);
    [vald,idwroi] = sort(weights,'descend');
@@ -680,8 +683,47 @@ function classmenu_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns classmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from classmenu
+m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
+end
+mi = handles.mi;
 
-% Get folds
+list = handles.PRT.model(mi(m)).output.weight_img;
+if ~isempty(list)
+    set(handles.imagemenu,'String',list)
+else
+    set(handles.imagemenu,'Enable','off')
+end
+set(handles.imagemenu,'Value',1);
+handles.class = 1;
+guidata(hObject, handles);
+imagemenu_Callback(hObject,eventdata,handles)
+handles = guidata(hObject);
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function classmenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to classmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes on selection change in imagemenu.
+function imagemenu_Callback(hObject, eventdata, handles)
+% hObject    handle to imagemenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns imagemenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from imagemenu
+% Get models (classmenu), classes (imagemenu) and folds (foldmenu)
 m  = get(handles.classmenu,'Value');
 if m==0
     m=1;
@@ -690,15 +732,18 @@ mi = handles.mi;
 handles.nfold = length(handles.PRT.model(mi(m)).output.fold);
 
 
+
 folds{1}      = 'All folds / Average';
 for f = 1:handles.nfold
     folds{f+1} = num2str(f);
 end
 
-
 % Set folds and call fold function to plot the weights for that model
 handles.folds = folds;
 set(handles.foldmenu,'String',handles.folds);
+
+disp_vox = get(handles.disp_voxels,'Value');
+set(handles.disp_voxels,'Enable','on')
 
 ffi = get(handles.foldmenu,'Value')-1;
 if ffi == -1 % for Mac issues with popup menus
@@ -707,6 +752,11 @@ end
 if ffi==0 % for average
     ffi=length(get(handles.foldmenu,'String'));
 end
+handles.class = get(handles.imagemenu,'Value');
+if handles.class ==0
+    handles.class = 1;
+end
+
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
    in = struct();
@@ -716,7 +766,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
         num_roi = handles.PRT.fs(fid).modality(1).num_ROI;
         atl_name = handles.PRT.fs(fid).atlas_name;
    else
-       num_roi = 1:length(handles.PRT.model(mi(m)).output.weight_ROI);
+       num_roi = 1:length(handles.PRT.model(mi(m)).output.weight_ROI{handles.class});
        atl_name = handles.PRT.model(mi(m)).output.weight_atlas ;
    end
    handles.num_roi = num_roi;
@@ -748,7 +798,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
        end
    end   
    dat(:,1) = label;
-   weights = handles.PRT.model(mi(m)).output.weight_ROI(:,ffi)*100;
+   weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
    dat(:,2) = num2cell(weights);   
    lc = {'ROI label','ROI weight (%)'};
    if ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && ...
@@ -787,7 +837,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
        end
    end
    % Compute Expected Ranking for model
-   w_all = handles.PRT.model(mi(m)).output.weight_ROI(:,1:handles.nfold)*100;
+   w_all = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,1:handles.nfold)*100;
    [d1,d2]=sort(w_all,1,'descend');
    isn=find(isnan(w_all(:,1)));
    d3=1:length(isn);
@@ -807,14 +857,33 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
    handles.dattable = dat;
    [vald,idwroi] = sort(weights,'descend');
    handles.sort_roi= idwroi;
+   set(handles.disp_regions,'Enable','on')
 else
     % Cut window
-    
+    set(handles.disp_regions,'Enable','off')
 end
 
-if exist([handles.prtdir,filesep,handles.PRT.model(mi(m)).output.weight_img,'.img'],'file') || ...
-        exist([handles.prtdir,filesep,handles.PRT.model(mi(m)).output.weight_img],'file')
-    [a,b] = fileparts(handles.PRT.model(mi(m)).output.weight_img);
+if disp_vox
+    fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
+    set(handles.disp_voxels,'Value',1)
+    set(handles.disp_regions,'Value',0)
+elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
+    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
+    set(handles.disp_voxels,'Value',0)
+    set(handles.disp_regions,'Value',1)
+else
+    beep
+    disp('Weights per region selected, but no ROI_ image found')
+    disp('Displaying image of weights per voxels')
+    fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
+    set(handles.disp_voxels,'Value',1)
+    set(handles.disp_regions,'Value',0)
+end
+
+if exist([handles.prtdir,filesep,fntl,'.img'],'file') || ...
+        exist([handles.prtdir,filesep,fntl],'file')
+    [a,b] = fileparts(fntl);
     handles.wmap = [handles.prtdir,filesep,b,'.img'];
     V               = spm_vol(handles.wmap);
     handles.vols{1} = V;
@@ -871,10 +940,9 @@ end
 handles.model_button = 0;
 guidata(hObject, handles);
 
-
 % --- Executes during object creation, after setting all properties.
-function classmenu_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to classmenu (see GCBO)
+function imagemenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to imagemenu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1135,4 +1203,116 @@ if ~isempty(handles.labels{mi(m)}) && ~isempty(label)
 end
 
 
+
+
+
+% --- Executes on button press in disp_voxels.
+function disp_voxels_Callback(hObject, eventdata, handles)
+% hObject    handle to disp_voxels (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of disp_voxels
+
+% Get folds and model indexes
+m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
+end
+mi = handles.mi;
+handles.nfold = length(handles.PRT.model(mi(m)).output.fold);
+ffi = get(handles.foldmenu,'Value')-1;
+if ffi == -1 % for Mac issues with popup menus
+    ffi = 0;
+end
+if ffi==0 % for average
+    ffi=handles.nfold+1;
+end
+
+% Select which image to display: weights per voxels or regions
+disp_vox = get(handles.disp_voxels,'Value');
+if disp_vox
+    fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
+    set(handles.disp_regions,'Value',0);
+else
+    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
+    set(handles.disp_regions,'Value',1);
+    set(handles.disp_voxels,'Value',0);
+end
+
+%Load corresponding weight image if it exists
+if exist([handles.prtdir,filesep,fntl,'.img'],'file') || ...
+        exist([handles.prtdir,filesep,fntl],'file')
+    [a,b] = fileparts(fntl);
+    handles.wmap = [handles.prtdir,filesep,b,'.img'];
+    V               = spm_vol(handles.wmap);
+    handles.vols{1} = V;
+    handles.noloadw = 1;
+    handles.model_button = 0;
+    handles.selectedcell = [];
+    % Update handles structure
+    guidata(hObject, handles);
+    weightbutton_Callback(hObject, eventdata, handles);
+else
+    beep
+    disp('Weight image does not exist for this model')
+end
+
+    % Update handles structure
+    guidata(hObject, handles);
+
+% --- Executes on button press in disp_regions.
+function disp_regions_Callback(hObject, eventdata, handles)
+% hObject    handle to disp_regions (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of disp_regions
+% Get folds and model indexes
+m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
+end
+mi = handles.mi;
+handles.nfold = length(handles.PRT.model(mi(m)).output.fold);
+ffi = get(handles.foldmenu,'Value')-1;
+if ffi == -1 % for Mac issues with popup menus
+    ffi = 0;
+end
+if ffi==0 % for average
+    ffi=handles.nfold+1;
+end
+
+% Select which image to display: weights per voxels or regions
+disp_reg = get(handles.disp_regions,'Value');
+if ~disp_reg
+    fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
+    set(handles.disp_regions,'Value',0);
+    set(handles.disp_voxels,'Value',1);
+else
+    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
+    set(handles.disp_regions,'Value',1);
+    set(handles.disp_voxels,'Value',0);
+end
+
+%Load corresponding weight image if it exists
+if exist([handles.prtdir,filesep,fntl,'.img'],'file') || ...
+        exist([handles.prtdir,filesep,fntl],'file')
+    [a,b] = fileparts(fntl);
+    handles.wmap = [handles.prtdir,filesep,b,'.img'];
+    V               = spm_vol(handles.wmap);
+    handles.vols{1} = V;
+    handles.noloadw = 1;
+    handles.model_button = 0;
+    handles.selectedcell = [];
+    % Update handles structure
+    guidata(hObject, handles);
+    weightbutton_Callback(hObject, eventdata, handles);
+else
+    beep
+    disp('Weight image does not exist for this model')
+end
+
+    % Update handles structure
+    guidata(hObject, handles);
 
