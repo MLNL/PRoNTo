@@ -87,7 +87,9 @@ if exist('flag2','var') && flag2
     end
 end
 
-if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 %create one image per modality
+if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ...
+        isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
+        ~isempty(PRT.model(model_idx).output.fold(1).beta)%create one image per modality, from MKL learning
     %get image names
     im_name = cell(1,length(fas_idx));
     if ~isempty(in.img_name)
@@ -146,6 +148,9 @@ else
                 else
                     disp('Building image of weights per region')
                     in.flag = flag;
+                    if isempty(in.atl_name) && mult_kern_ROI
+                        in.atl_name = PRT.fs(fs_idx).atlas_name;
+                    end
                     [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
                     PRT.model(model_idx).output.weight_ROI = NW;
                     PRT.model(model_idx).output.weight_idfeatroi = idfeatroi;
@@ -172,6 +177,9 @@ else
                 else
                     disp('Building image of weights per region')
                     in.flag = flag;
+                    if isempty(in.atl_name) && mult_kern_ROI
+                        in.atl_name = PRT.fs(fs_idx).atlas_name;
+                    end
                     [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
                     PRT.model(model_idx).output.weight_ROI = NW;
                     PRT.model(model_idx).output.weight_idfeatroi = idfeatroi;

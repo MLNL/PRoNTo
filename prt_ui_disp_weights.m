@@ -418,10 +418,6 @@ if ~isfield(handles,'wmap') || ~handles.noloadw
 end
 
 spm_orthviews('Reset');
-if isfield(handles,'aimg')
-    anatomicalbutton_Callback(hObject, eventdata, handles);
-end
-
 % Image dimensions
 % -------------------------------------------------------------------------
 fold          = get(handles.foldmenu,'Value')-1;
@@ -522,6 +518,10 @@ end
 spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
 % spm_orthviews('Zoom',(xfov*abs(vx(1))))
 spm_orthviews('Redraw');
+
+if isfield(handles,'aimg')
+    anatomicalbutton_Callback(hObject, eventdata, handles);
+end
 
 % Show positions
 % -------------------------------------------------------------------------

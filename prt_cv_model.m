@@ -6,8 +6,6 @@ function [outfile]=prt_cv_model(PRT,in)
 % PRT:             data structure
 % in.fname:        filename for PRT.mat (string)
 % in.model_name:   name for this model (string)
-% in.f_ind_models: compute models using the kernels independently (1) or
-%                  not (0, default)
 %
 % Outputs:
 % --------
@@ -55,11 +53,6 @@ else
 end
 fdata.nc = nc;
 
-if ~isfield(in,'f_ind_models')
-    flag = 0;
-else
-    flag = in.f_ind_models;
-end
 
 % load data files and configure ID matrix
 disp('Loading data files.....>>');
@@ -95,14 +88,14 @@ for i = 1:length(PRT.model(mid).input.fs)
         %If only one feature set, load kernel to see which case
         if PRT.model(mid).input.use_kernel
             ID = PRT.fs(fid).id_mat(samp_idx,:);
-            if length(Phi)==1 
+            if length(Phi)==1
                 Phi_all{1} = Phi{1}(samp_idx,samp_idx);
             else
                 %Check that if multiple kernels, MKL was selected,
                 %otherwise add the kernels (normalized)
                 if ~flag && isempty(strfind(PRT.model(mid).input.machine.function,'MKL'))
                     warning('prt_cv_model:AddKernels',...
-                                'Multiple kernels but machine cannot deal with them, adding the kernels');
+                        'Multiple kernels but machine cannot deal with them, adding the kernels');
                     Phi_tmp = zeros(length(samp_idx));
                     for j=1:length(Phi)
                         try
@@ -116,7 +109,7 @@ for i = 1:length(PRT.model(mid).input.fs)
                     end
                     Phi_all{1} = Phi_tmp;
                     clear Phi_tmp
-                else 
+                else
                     Phi_all=cell(1,length(Phi));
                     for j=1:length(Phi)
                         Phi_all{j}=Phi{j}(samp_idx,samp_idx);
@@ -135,94 +128,64 @@ clear Phi
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
 PRT.model(mid).output=struct();
-
-if flag %loop over the kernels and output accuracy for each kernel only
-    nk = length(Phi_all);
-else
-    nk = 1;
-end
-perf_per_region = zeros(nk,1);
-
-for k = 1:nk
-    PRT.model(mid).output(k).fold = struct();
-    for f = 1:n_folds
-        disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
-        % configure data structure for prt_cv_fold
-        fdata.ID      = ID;
-        fdata.mid     = mid; %index of model
-        fdata.CV      = CV(:,f);
-        if nk ==1
-            fdata.Phi_all = Phi_all; %kernels for multiple kernel learning
-        else
-            fdata.Phi_all = Phi_all(k); %kernel to be treated independently
-        end
-        fdata.t       = t; %targets
-        
-        % Nested CV for hyper-parameter optimisation or feature selection
-        if isfield(PRT.model(mid).input,'use_nested_cv')
-            if PRT.model(mid).input.use_nested_cv
-                [out] = prt_nested_cv(PRT, fdata);
-                PRT.model(mid).output(k).fold(f).param_effect = out;
-            end
-        end
-        
-        % compute the model for this CV fold
-        [model, targets] = prt_cv_fold(PRT,fdata);
-               
-        %for classification check that for each fold, the test targets have been trained
-        if strcmpi(PRT.model(mid).input.type,'classification')
-            if ~all(ismember(unique(targets.test),unique(targets.train)))
-                beep
-                disp('At least one class is in the test set but not in the training set')
-                disp('Abandoning modelling, please correct class selection/cross-validation')
-                return
-            end
-        end
-        
-        % compute stats
-        stats = prt_stats(model, targets.test, nc); %targets.train
-        
-        % update PRT
-        PRT.model(mid).output(k).fold(f).targets     = targets.test;
-        PRT.model(mid).output(k).fold(f).predictions = model.predictions(:);
-        PRT.model(mid).output(k).fold(f).stats       = stats;
-        % copy other fields from the model
-        flds = fieldnames(model);
-        for fld = 1:length(flds)
-            fldnm = char(flds(fld));
-            if ~strcmpi(fldnm,'predictions')
-                PRT.model(mid).output(k).fold(f).(fldnm)=model.(fldnm);
-            end
+PRT.model(mid).output.fold = struct();
+for f = 1:n_folds
+    disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
+    % configure data structure for prt_cv_fold
+    fdata.ID      = ID;
+    fdata.mid     = mid; %index of model
+    fdata.CV      = CV(:,f);
+    fdata.Phi_all = Phi_all; %kernel(s)
+    fdata.t       = t; %targets
+    
+    % Nested CV for hyper-parameter optimisation or feature selection
+    if isfield(PRT.model(mid).input,'use_nested_cv')
+        if PRT.model(mid).input.use_nested_cv
+            [out] = prt_nested_cv(PRT, fdata);
+            PRT.model(mid).output.fold(f).param_effect = out;
         end
     end
     
+    % compute the model for this CV fold
+    [model, targets] = prt_cv_fold(PRT,fdata);
     
-    % Model level statistics (across folds)
-    ttt             = vertcat(PRT.model(mid).output(k).fold(:).targets);
-    m.type        = PRT.model(mid).output(k).fold(1).type;
-    m.predictions = vertcat(PRT.model(mid).output(k).fold(:).predictions);
-    %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
-    stats         = prt_stats(m,ttt(:),nc);
-    
-    PRT.model(mid).output(k).stats=stats;
-%     PRT.model(mid).output(k).weight_ROI = [];
-%     PRT.model(mid).output(k).weight_img = [];
-    
-    %Save the accuracy per region
-    if flag && length(Phi_all)>1
-        if strcmpi(PRT.model(mid).input.type,'classification')
-            perf_per_region(k) = PRT.model(mid).output(k).stats.b_acc;
-        else
-            perf_per_region(k) = PRT.model(mid).output(k).stats.nmse;
+    %for classification check that for each fold, the test targets have been trained
+    if strcmpi(PRT.model(mid).input.type,'classification')
+        if ~all(ismember(unique(targets.test),unique(targets.train)))
+            beep
+            disp('At least one class is in the test set but not in the training set')
+            disp('Abandoning modelling, please correct class selection/cross-validation')
+            return
         end
-    end       
-        
+    end
+    
+    % compute stats
+    stats = prt_stats(model, targets.test, nc); %targets.train
+    
+    % update PRT
+    PRT.model(mid).output.fold(f).targets     = targets.test;
+    PRT.model(mid).output.fold(f).predictions = model.predictions(:);
+    PRT.model(mid).output.fold(f).stats       = stats;
+    % copy other fields from the model
+    flds = fieldnames(model);
+    for fld = 1:length(flds)
+        fldnm = char(flds(fld));
+        if ~strcmpi(fldnm,'predictions')
+            PRT.model(mid).output.fold(f).(fldnm)=model.(fldnm);
+        end
+    end
 end
 
-if flag && length(Phi_all)>1
-    outfile = perf_per_region;
-    return
-end
+
+% Model level statistics (across folds)
+ttt             = vertcat(PRT.model(mid).output.fold(:).targets);
+m.type        = PRT.model(mid).output.fold(1).type;
+m.predictions = vertcat(PRT.model(mid).output.fold(:).predictions);
+%m.func_val    = [PRT.model(mid).output.fold(:).func_val];
+stats         = prt_stats(m,ttt(:),nc);
+
+PRT.model(mid).output.stats=stats;
+
 
 % Save PRT containing machine output
 % -------------------------------------------------------------------------
