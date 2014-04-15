@@ -87,9 +87,7 @@ if exist('flag2','var') && flag2
     end
 end
 
-if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ...
-        isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
-        ~isempty(PRT.model(model_idx).output.fold(1).beta)%create one image per modality, from MKL learning
+if PRT.fs(fs_idx).multkernel && length(fas_idx)>1
     %get image names
     im_name = cell(1,length(fas_idx));
     if ~isempty(in.img_name)
@@ -134,14 +132,22 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ...
     % prt_ui_disp_weights: NEEDS to be adapted for multiclass (depending on
     % how the betas are output for each class), and for multiple regions
     % per modality
-    for i=1:size(name_fin,1)
-        [du,name_fin{i}] = spm_fileparts(name_fin{i});
-        tmp = [PRT.model(model_idx).output.fold(:).beta];
-        tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
-            length(PRT.model(model_idx).output.fold));
-        betas = [tmp, mean(tmp,2)];
-        PRT.model(model_idx).output.weight_ROI(i) = {betas}; % for now, replicate the betas for each modality
-    end   
+    if isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
+            ~isempty(PRT.model(model_idx).output.fold(1).beta)%create one image per modality, from MKL learning
+        PRT.model(model_idx).output.weight_ROI = cell(size(name_fin,1),1);
+        for i=1:size(name_fin,1)
+            [du,name_fin{i}] = spm_fileparts(name_fin{i});
+            tmp = [PRT.model(model_idx).output.fold(:).beta];
+            tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
+                length(PRT.model(model_idx).output.fold));
+            betas = [tmp, mean(tmp,2)];
+            PRT.model(model_idx).output.weight_ROI(i) = {betas}; % for now, replicate the betas for each modality
+        end
+    else
+        for i=1:size(name_fin,1)
+            [du,name_fin{i}] = spm_fileparts(name_fin{i}); %get rid of path
+        end
+    end
 else
     in.fas_idx=fas_idx;
     in.mm = find(mm(1,:));

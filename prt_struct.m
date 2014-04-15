@@ -252,9 +252,18 @@ if isfield(PRT,'model')
                 for i = 1:length(ita)                    
                     for k = 1:length(PRT.model(j).output)
                         PRT.model(j).output(k).(ng{ita(i)}) = [];
-                        winame = fullfile(prtdir,['weights_',PRT.model(j).model_name,'.img']); %potential weight image name
-                        if exist(winame,'file')
-                            PRT.model(j).output(k).(ng{ita(i)}) = ['weights_',PRT.model(j).model_name];
+                        nclass = length(PRT.model(j).input.class);
+                        winame = [prtdir,filesep,'weights_',PRT.model(j).model_name]; %potential weight image name
+                        if nclass>2
+                            for nc=1:nclass
+                                if exist([winame,'_',num2str(nc),'.img'],'file')
+                                    PRT.model(j).output(k).(ng{ita(i)})(nc) = {'weights_',PRT.model(j).model_name,'_',num2str(nc)};
+                                end
+                            end
+                        else
+                            if exist(winame,'file')
+                                PRT.model(j).output(k).(ng{ita(i)}) = {'weights_',PRT.model(j).model_name};
+                            end
                         end
                     end
                 end

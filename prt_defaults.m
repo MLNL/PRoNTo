@@ -39,6 +39,7 @@ prt_def.color.bg1  = [0.83,0.83,0.83];
 prt_def.color.bg2  = [0.88,0.88,0.88];
 prt_def.color.fr   = [0.92,0.92,0.92];
 prt_def.color.high = [0.8 0 0];
+prt_def.color.black = [0 0 0];
 
 % Parameters for the data and design
 %-----------------------------------------------

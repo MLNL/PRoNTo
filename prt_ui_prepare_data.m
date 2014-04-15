@@ -309,13 +309,17 @@ for i=1:val
     try
         tmp=prt_ui_prepare_datamod('UserData',{handles.dat,val});
     catch
-        return
+        error('prt_ui_prepare_data:NoModSpecified','No modality was specified')
+    end
+    if isempty(tmp)
+        error('prt_ui_prepare_data:EmptyModality','No modality was specified')
     end
     list=[list,tmp.mod_name];
     set(handles.sel_mod,'String',list)
     ind=find(strcmpi(handles.modnames,tmp.mod_name));
     handles.mod(ind)=tmp;
 end
+set(handles.text8,'ForegroundColor',handles.color.black)
 % Update handles structure
 guidata(hObject, handles);
 

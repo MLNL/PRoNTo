@@ -248,10 +248,10 @@ for p=0:maxp
                 for i = 1:length(fas_idx)
                     % indexes to access the file array
                     indm = PRT.fs(fs_idx).fas.im == fas_idx(i) & train_all;
+                    indtr = ID(train_idx,3) == fas_idx(i);
                     ifa  = PRT.fs(fs_idx).fas.ifa(indm);
                     
-                    % index for the target data matrix
-                    indtr = ID(train_idx,3) == fas_idx(i);
+                    % index for the target data matrix                    
                     d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,voxtr(feat_slc));
                 end
                 

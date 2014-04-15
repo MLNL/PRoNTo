@@ -73,13 +73,13 @@ else
     % load data files and configure ID matrix
     Phi_all = cell(1,n_Phi);
     for i = 1:length(PRT.model(modelid).input.fs)
-        if i == 1
-            ID = PRT.fs(i).id_mat(PRT.model(modelid).input.samp_idx,:);
-        end
         fid=find(strcmp({PRT.fs(:).fs_name},PRT.model(modelid).input.fs(i).fs_name));
+        if i == 1
+            ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
+        end
         
         if PRT.model(modelid).input.use_kernel
-            load(fullfile(prt_dir, PRT.fs(i).k_file));
+            load(fullfile(prt_dir, PRT.fs(fid).k_file));
             if ~iscell(Phi)
                 Phi = {Phi};
             end
