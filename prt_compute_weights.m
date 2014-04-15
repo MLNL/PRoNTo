@@ -107,6 +107,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ...
     end
     ifa_all = PRT.fs(fs_idx).fas.ifa;
     im_all = PRT.fs(fs_idx).fas.im;
+    name_fin = [];
     for i = 1:length(fas_idx)
         in.img_name = im_name{i};
         in.fas_idx = fas_idx(i);
@@ -121,11 +122,26 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ...
             case 'regression'
                 img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,i);
         end
+        if ~iscell(img_name)
+            img_name={img_name};
+        end
+        name_fin = [name_fin; img_name];
     end
     PRT.fs(fs_idx).fas.ifa = ifa_all;
     PRT.fs(fs_idx).fas.im = im_all;
     PRT.fs(fs_idx).id_mat(:,3) = ones(size(PRT.fs(fs_idx).id_mat,1),1);
-    [du,name_fin] = spm_fileparts(img_name{1}); 
+    % Used for the display of the weights per modality in
+    % prt_ui_disp_weights: NEEDS to be adapted for multiclass (depending on
+    % how the betas are output for each class), and for multiple regions
+    % per modality
+    for i=1:size(name_fin,1)
+        [du,name_fin{i}] = spm_fileparts(name_fin{i});
+        tmp = [PRT.model(model_idx).output.fold(:).beta];
+        tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
+            length(PRT.model(model_idx).output.fold));
+        betas = [tmp, mean(tmp,2)];
+        PRT.model(model_idx).output.weight_ROI(i) = {betas}; % for now, replicate the betas for each modality
+    end   
 else
     in.fas_idx=fas_idx;
     in.mm = find(mm(1,:));

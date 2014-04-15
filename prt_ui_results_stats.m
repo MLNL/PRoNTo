@@ -258,7 +258,7 @@ else
         cla(handles.axes5);
     end
 end
-
+set(handles.save_perm_weights,'Visible','off')
 % Choose default command line output for prt_ui_results_stats
 handles.output = hObject;
 

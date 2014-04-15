@@ -76,10 +76,7 @@ end
 
 % do we want to initialise the feature set?
 if nargout == 1
-    if fs_exists
-        % just display message and exit (returning id)
-        disp(['Feature set ''',in.fs_name,''' found in PRT.mat.']);
-    else
+    if ~fs_exists
         error('prt_init_fs:fsNotFoundinPRT',...
             ['Feature set ''',in.fs_name,''' not found in PRT.mat.']);
     end

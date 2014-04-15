@@ -30,7 +30,7 @@ function varargout = prt_ui_compute_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_compute_weights
 
-% Last Modified by GUIDE v2.5 23-Aug-2013 13:50:56
+% Last Modified by GUIDE v2.5 15-Apr-2014 11:57:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -134,8 +134,8 @@ else
 
 
 set(handles.flag_cwi,'Value',0);
-% set(handles.flag_cwi,'Visible','off');
-% set(handles.flag_cwi,'Enable','off');
+set(handles.flag_cwi,'Visible','off');
+set(handles.flag_cwi,'Enable','off');
 handles.flag = 0;
 set(handles.compbutt,'Enable','off')
 handles.img_name=[];
@@ -267,6 +267,12 @@ set(handles.pop_models,'String',list(handles.indm))
 set(handles.pop_models,'Value',1)
 handles.selmod=handles.indm(1);
 set(handles.compbutt,'Enable','on')
+in = struct();
+in.fs_name = handles.dat.model(1).input.fs(1).fs_name;
+fid = prt_init_fs(handles.dat,in);
+if isfield(handles.dat.fs(fid),'atlas_name')
+    set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name)
+end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -284,6 +290,12 @@ if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_models,'Value',1)
     val=1;
+end
+in = struct();
+in.fs_name = handles.dat.model(val).input.fs(1).fs_name;
+fid = prt_init_fs(handles.dat,in);
+if isfield(handles.dat.fs(fid),'atlas_name')
+    set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name)
 end
 handles.selmod=handles.indm(val);
 % Update handles structure

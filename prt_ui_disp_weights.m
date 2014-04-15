@@ -640,7 +640,9 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
    dat = handles.dattable;
    weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
    dat(:,2) = num2cell(weights);
-   dat(:,5) = num2cell(handles.hom_roi(:,ffi)*100);
+   if ~handles.flagmodMKL 
+        dat(:,5) = num2cell(handles.hom_roi(:,ffi)*100);
+   end
    [vald,idwroi] = sort(weights,'descend');
    dat = dat(idwroi,:);
    set(handles.ROItable,'Data',dat);
@@ -756,51 +758,69 @@ handles.class = get(handles.imagemenu,'Value');
 if handles.class ==0
     handles.class = 1;
 end
-
-if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
+flagmodMKL = 0;
+if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values or weights per modality
        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
    in = struct();
    in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
    fid = prt_init_fs(handles.PRT,in);
    if isfield(handles.PRT.fs(fid).modality(1),'num_ROI')
-        num_roi = handles.PRT.fs(fid).modality(1).num_ROI;
+        num_roi = handles.PRT.fs(fid).modality(1).num_ROI; % MKL on regions
         atl_name = handles.PRT.fs(fid).atlas_name;
    else
        num_roi = 1:length(handles.PRT.model(mi(m)).output.weight_ROI{handles.class});
-       atl_name = handles.PRT.model(mi(m)).output.weight_atlas ;
+       if isfield(handles.PRT.model(mi(m)).output,'weight_atlas') && ...
+               ~isempty(handles.PRT.model(mi(m)).output.weight_atlas)
+            atl_name = handles.PRT.model(mi(m)).output.weight_atlas ; %summarized weights
+       else
+           atl_name = []; %MKL on modalities
+       end
    end
    handles.num_roi = num_roi;
-   % Get the labels if they are stored in a .mat along the atlas file
-   [a,b]=fileparts(atl_name);
-   try
-       load(fullfile(a,[b,'.mat']))
+   % Get the labels if they are stored in a .mat along the atlas file for
+   % MKL on regions and summarisation
+   if ~isempty(atl_name)
+       [a,b]=fileparts(atl_name);
        try
-           handles.labels{mi(m)}=ROI_names;
+           load(fullfile(a,['Labels_',b,'.mat']))
+           try
+               handles.labels{mi(m)}=ROI_names;
+           catch
+               disp('No variable ROI_names found, generic names used')
+           end
        catch
-           disp('No variable ROI_names found, generic names used')
+             disp('No file containing the names of the ROIs found, generic names used')
        end
-   catch
-         disp('No file containing the names of the ROIs found, generic names used')
-   end
-   if ~isfield(handles,'labels') || isempty(handles.labels{mi(m)})
-       label=cell(length(num_roi),1);
-       for i=1:length(num_roi)
-           label{i} = ['ROI_',num2str(num_roi(i))];
-       end
-   else
-       if isfield(handles.PRT.fs(fid),'igood_kerns') && ...
-               length(handles.PRT.fs(fid).igood_kerns)==length(num_roi)
-            label = handles.labels{mi(m)}(handles.PRT.fs(fid).igood_kerns); %take 0 kernels out
-            handles.num_roi = handles.PRT.fs(fid).igood_kerns;
+       if ~isfield(handles,'labels') || isempty(handles.labels{mi(m)})
+           label=cell(length(num_roi),1);
+           for i=1:length(num_roi)
+               label{i} = ['ROI_',num2str(num_roi(i))];
+           end
        else
-           label = handles.labels{mi(m)}(num_roi);
-           handles.num_roi = num_roi;
+           if isfield(handles.PRT.fs(fid),'igood_kerns') && ...
+                   length(handles.PRT.fs(fid).igood_kerns)==length(num_roi)
+                label = handles.labels{mi(m)}(handles.PRT.fs(fid).igood_kerns); %take 0 kernels out
+                handles.num_roi = handles.PRT.fs(fid).igood_kerns;
+           else
+               label = handles.labels{mi(m)}(num_roi);
+               handles.num_roi = num_roi;
+           end
+       end 
+       lc = {'ROI label','ROI weight (%)'};
+       xlabel = 'ROI index';
+       ylabel = 'ROI weight';
+   else %get names of the modalities for MKL on modalities
+       label = cell(length(PRT.fs(fid).modality),1);
+       for i = 1:length(PRT.fs(fid).modality)
+           label{i} = PRT.fs(fid).modality(i).mod_name;
        end
-   end   
+       lc = {'Modality','Mod. weight (%)'};
+       xlabel = 'Modality index';
+       ylabel = 'Modality weight';
+   end
    dat(:,1) = label;
    weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
    dat(:,2) = num2cell(weights);   
-   lc = {'ROI label','ROI weight (%)'};
    if ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && ...
            handles.PRT.fs(fid).multkernel && ...
            ~isempty(handles.PRT.fs(fid).atlas_name) %Multiple kernel learning on ROIs
@@ -825,9 +845,10 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
                handles.idfeat_roi{i} = idfeat(idfeat_fas(handles.PRT.fs(fid).modality.idfeat_img{i}));
            end
        end
-   else % Summarizing the weights
-       if isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') && ... % Get the indexes of each ROI in the image
-               ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi)
+       set(handles.disp_regions,'Enable','on')
+       flagmodMKL = 0;
+   elseif isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') % Summarizing the weights for ROI
+       if ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi) % Get the indexes of each ROI in the image               
            lc = [lc,{'ROI size (vox)'}];
            handles.idfeat_roi = cell(length(handles.PRT.model(mi(m)).output.weight_idfeatroi),1);
            for i = 1:length(handles.PRT.model(mi(m)).output.weight_idfeatroi)
@@ -835,7 +856,12 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
                handles.idfeat_roi{i} = handles.PRT.model(mi(m)).output.weight_idfeatroi{i};
            end
        end
-   end
+       set(handles.disp_regions,'Enable','on')
+       flagmodMKL = 0;
+   else % if MKL on modalities, do not fill third column and do not display weights per region
+       set(handles.disp_regions,'Enable','off')
+       flagmodMKL = 1;
+   end 
    % Compute Expected Ranking for model
    w_all = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,1:handles.nfold)*100;
    [d1,d2]=sort(w_all,1,'descend');
@@ -852,15 +878,18 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
        end
    end
    erwn=erwn/handles.nfold;
-   dat(:,4) = num2cell(erwn); 
+   dat = [dat, num2cell(erwn)]; 
    lc = [lc,{'Exp. Ranking'}];
    handles.dattable = dat;
    [vald,idwroi] = sort(weights,'descend');
    handles.sort_roi= idwroi;
-   set(handles.disp_regions,'Enable','on')
 else
     % Cut window
     set(handles.disp_regions,'Enable','off')
+end
+
+if ~iscell(handles.PRT.model(mi(m)).output.weight_img)
+    handles.PRT.model(mi(m)).output.weight_img={handles.PRT.model(mi(m)).output.weight_img};
 end
 
 if disp_vox
@@ -895,7 +924,8 @@ if exist([handles.prtdir,filesep,fntl,'.img'],'file') || ...
     weightbutton_Callback(hObject, eventdata, handles);
 end
 
-if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
+% Compute homogeneity of ROIs if MKL on ROIs or summarizing
+if ~flagmodMKL && isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
         isfield(handles,'wmap') && ~isempty(handles.wmap)
     
@@ -912,8 +942,14 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
         end
     end
    handles.hom_roi = hom;
-   dat(:,5) = num2cell(hom(:,end)*100);
+   dat =[dat, num2cell(hom(:,end)*100)];
    lc = [lc,{'# Pos. (%)'}];
+end
+
+% Fill table and bar graph if needed
+if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI or modality weight values
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+        isfield(handles,'wmap') && ~isempty(handles.wmap)
    handles.dattable = dat;
    
    set(handles.butt_load_labels,'visible','on');
@@ -927,8 +963,8 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
    set(handles.axes1,'visible','on')
    bar(handles.axes1,weights(idwroi));
    set(get(handles.axes1,'XLabel'),'FontWeight','demi')
-   set(get(handles.axes1,'XLabel'),'String','ROI index')
-   set(get(handles.axes1,'YLabel'),'String','ROI weight')
+   set(get(handles.axes1,'XLabel'),'String',xlabel)
+   set(get(handles.axes1,'YLabel'),'String',ylabel)
    set(get(handles.axes1,'YLabel'),'FontWeight','demi')
 else
     cla(handles.axes1, 'reset');
@@ -936,7 +972,7 @@ else
     set(handles.axes1,'visible','off');
     set(handles.butt_load_labels,'visible','off');
 end
-
+handles.flagmodMKL = flagmodMKL;
 handles.model_button = 0;
 guidata(hObject, handles);
 
@@ -1004,6 +1040,10 @@ function resetbutton_Callback(hObject, eventdata, handles)
 spm_orthviews('Reset');
 if isfield(handles, 'wmap'), handles = rmfield(handles, 'wmap'); end
 if isfield(handles, 'aimg'), handles = rmfield(handles,'aimg'); end
+cla(handles.axes1, 'reset');
+set(handles.ROItable,'visible','off');
+set(handles.axes1,'visible','off');
+set(handles.butt_load_labels,'visible','off');
 handles.noloadw = 0;
 guidata(hObject, handles);
 
@@ -1196,6 +1236,7 @@ end
 if ~isempty(handles.labels{mi(m)}) && ~isempty(label)
     dat = handles.dattable;
     dat(:,1) = label;
+    handles.dattable = dat;
     dat = dat(handles.sort_roi,:);
     set(handles.ROItable,'Data',dat);
     set(handles.ROItable,'visible','on');
