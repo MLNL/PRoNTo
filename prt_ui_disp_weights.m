@@ -1190,7 +1190,8 @@ function disp_weights_CellSelectionCallback(hObject,eventdata,handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.selectedcell=eventdata.Indices;
-if ~isempty(handles.selectedcell) && handles.selectedcell(2)==1 % ROI label selected
+if ~isempty(handles.selectedcell) && handles.selectedcell(2)==1 && ...% ROI label selected
+    ~handles.flagmodMKL
     weightbutton_Callback(hObject, eventdata, handles);
 else
     handles.selectedcell = [];
