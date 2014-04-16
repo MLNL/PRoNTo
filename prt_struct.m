@@ -252,7 +252,11 @@ if isfield(PRT,'model')
                 for i = 1:length(ita)                    
                     for k = 1:length(PRT.model(j).output)
                         PRT.model(j).output(k).(ng{ita(i)}) = [];
-                        nclass = length(PRT.model(j).input.class);
+                        if isfield(PRT.model(j).input,'class')
+                            nclass = length(PRT.model(j).input.class);
+                        else
+                            nclass=1; %regression
+                        end
                         winame = [prtdir,filesep,'weights_',PRT.model(j).model_name]; %potential weight image name
                         if nclass>2
                             for nc=1:nclass
