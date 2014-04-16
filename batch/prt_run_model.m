@@ -152,6 +152,12 @@ if isfield(job.model_type,'classification')
     if isfield(job.model_type.classification.machine_cl,'svm')
         model.machine.function = 'prt_machine_svm_bin';
         model.machine.args     = job.model_type.classification.machine_cl.svm.svm_args;
+        if isfield(job.model_type.classification.machine_cl.svm, 'svm_opt')
+            if job.model_type.classification.machine_cl.svm.svm_opt
+                model.cv.nested = 1;
+                model.cv.nested_param = job.model_type.classification.machine_cl.svm.svm_args;
+            end
+        end
     elseif isfield(job.model_type.classification.machine_cl,'gpc')
         model.machine.function='prt_machine_gpml';
         model.machine.args=job.model_type.classification.machine_cl.gpc.gpc_args;
@@ -169,7 +175,7 @@ if isfield(job.model_type,'classification')
         model.machine.function = nam;
         model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
     end
-
+    
 elseif isfield(job.model_type,'regression')
     model.type = 'regression';
     for g = 1:length(job.model_type.regression.reg_group)
@@ -184,8 +190,14 @@ elseif isfield(job.model_type,'regression')
     end
     
     if isfield(job.model_type.regression.machine_rg,'krr')
-        model.machine.function='prt_machine_krr';
+        model.machine.function = 'prt_machine_krr';
         model.machine.args=job.model_type.regression.machine_rg.krr.krr_args;
+        if isfield(job.model_type.classification.machine_cl.krr, 'krr_opt')
+            if job.model_type.classification.machine_cl.krr.krr_opt
+                model.cv.nested = 1;
+                model.cv.nested_param = job.model_type.classification.machine_cl.krr.krr_args;
+            end
+        end
     elseif isfield(job.model_type.regression.machine_rg,'rvr')
         model.machine.function='prt_machine_rvr';
         model.machine.args=[];
@@ -196,9 +208,9 @@ elseif isfield(job.model_type,'regression')
         [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
         model.machine.function = nam;
         model.machine.args = job.model_type.regression.machine_rg.custom_machine.machine_args;
-    end   
+    end
 else
-    error('this is not implemented yet');   
+    error('this is not implemented yet');
 end
 
 % assemble structure for performing cross-validation
@@ -214,7 +226,7 @@ elseif isfield(job.cv_type,'cv_losgo')
 elseif isfield(job.cv_type,'cv_lksgo')
     model.cv.type = 'losgo';
     model.cv.k = job.cv_type.cv_lksgo.k_args;
-elseif isfield(job.cv_type,'cv_lobo') 
+elseif isfield(job.cv_type,'cv_lobo')
     model.cv.type = 'lobo';
     model.cv.k = 0;
 elseif isfield(job.cv_type,'cv_lkbo')
