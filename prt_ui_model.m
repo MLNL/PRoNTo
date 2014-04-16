@@ -30,7 +30,7 @@ function varargout = prt_ui_model(varargin)
 
 % Edit the above text to modify the response to help prt_ui_kernel_construction
 
-% Last Modified by GUIDE v2.5 27-Mar-2013 13:22:40
+% Last Modified by GUIDE v2.5 16-Apr-2014 11:04:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
