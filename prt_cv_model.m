@@ -100,7 +100,9 @@ for i = 1:length(PRT.model(mid).input.fs)
                     for j=1:length(Phi)
                         try
                             %normalize each kernel before adding
-                            tp = prt_normalise_kernel(Phi{j}(samp_idx,samp_idx));
+                            tp = Phi{j}(samp_idx,samp_idx);
+%                             tp =
+%                             prt_normalise_kernel(Phi{j}(samp_idx,samp_idx));
                             Phi_tmp=Phi_tmp + tp;
                         catch
                             error('prt_cv_model:KernelsWithDifferentDimensions', ...
@@ -112,7 +114,9 @@ for i = 1:length(PRT.model(mid).input.fs)
                 else
                     Phi_all=cell(1,length(Phi));
                     for j=1:length(Phi)
-                        Phi_all{j}=prt_normalise_kernel(Phi{j}(samp_idx,samp_idx));
+                        Phi_all{j}=Phi{j}(samp_idx,samp_idx);
+%                         Phi_all{j}=prt_normalise_kernel(Phi{j}(samp_idx,s
+%                         amp_idx));
                     end
                 end
             end
