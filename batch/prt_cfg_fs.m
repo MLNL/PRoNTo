@@ -53,7 +53,7 @@ use_mkl         = cfg_const;
 use_mkl.tag     = 'use_mkl';
 use_mkl.name    = 'None';
 use_mkl.val     = {0};
-use_mkl.help    = {['Do not use MKL']};
+use_mkl.help    = {'Do not use MKL'};
 
 % ---------------------------------------------------------------------
 % atlasroi Filename(s) of atlas for ROI MKL
@@ -61,8 +61,10 @@ use_mkl.help    = {['Do not use MKL']};
 atlasroi        = cfg_files;
 atlasroi.tag    = 'atlasroi';
 atlasroi.name   = 'Use one kernel per ROI';
-atlasroi.ufilter = '.*';
+atlasroi.ufilter= '.*';
+atlasroi.filter = 'image';
 atlasroi.num    = [1 1];
+atlasroi.def     = @(val)prt_get_defaults('fs.atlasroi', val{:});
 atlasroi.help   = {'Select atlas file to build one kernel per ROI.'};
 
 
@@ -75,7 +77,7 @@ mkl.name   = 'Multi Kernel Learning';
 mkl.values = {use_mkl, flag_mm, atlasroi};
 mkl.val    = {use_mkl};
 mkl.help   = {...
-['']};
+                ['']};
 
 % ---------------------------------------------------------------------
 % cond_name Name

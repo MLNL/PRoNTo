@@ -5,7 +5,7 @@ function ok = prt_check(list_check,dir_root)
 % calculations proceed smoothly.
 % This relies on pre-specified 
 % - organisation of data in subdirectories
-% - batches with all the operations, in a .mat file with now location
+% - batches with all the operations, in a .mat file with known location
 % 
 % Data sets considered, in this *specific order*:
 % 1. "Haxby" - Haxby data, single subject, fmri 
@@ -17,8 +17,9 @@ function ok = prt_check(list_check,dir_root)
 % FORMAT ok = prt_check(list_check,dir_root)
 %
 % INPUT
-%   list_check  - list of data sets to use
-%   dir_root    - root directory of data sets
+%   list_check  - list of data sets to use, [1 2 3] by default
+%   dir_root    - root directory of data sets (you'd better set this for
+%                 your own HD organization!)
 %
 % OUTPUT:
 %   ok          - vector of output (1='ok', 0='failed', -1='not tested')
@@ -45,7 +46,7 @@ function ok = prt_check(list_check,dir_root)
 if nargin<1, list_check = [1 2 3]; end
 if nargin<2
      % adjust with your own data set
-    dir_root = 'D:\3_Data\PRoNTo\PRoNTo_data'; 
+    dir_root = '/Users/chrisp/Documents/MATLAB/3_Data/PRoNTo'; 
 end
 while isempty(dir_root) || ~exist(dir_root,'dir')
     % or select the root directories manually

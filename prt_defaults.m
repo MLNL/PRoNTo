@@ -46,8 +46,8 @@ prt_def.color.black = [0 0 0];
 prt_def.datad.hrfd = 0; % HRF delay in seconds
 prt_def.datad.hrfw = 0; % HRF FWHM, used to compute the overlap between conditions
 
-prt_def.prep.default_mask  = [prt_def.global.install_dir,...
-                            '/masks/SPM_mask_noeyes.hdr'];% default mask
+prt_def.prep.default_mask  = fullfile(prt('dir'),'masks', ...
+                                'SPM_mask_noeyes.hdr');% default mask
 
 % Preprocessing defaults
 %------------------------------------------------
@@ -55,8 +55,14 @@ prt_def.prep.default_mask  = [prt_def.global.install_dir,...
 prt_def.fs.mem_limit = 256*1024*1024;  % bytes of memory to use
 prt_def.fs.writeraw  = 0;              % flag to write the data detrended (default) or raw (to set to 1).
 
+% Default atlas for ROI defintion
+prt_def.fs.atlasroi  = cellstr(fullfile(prt('dir'),'atlas', ...
+    'aal_79x91x69.img')); 
+
 % Design specification default
 prt_def.dspec.use3 = [1 2];
+
+
 
 % Specify model: Parameters of the different machines
 %--------------------------------------------------

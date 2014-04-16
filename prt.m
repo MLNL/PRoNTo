@@ -11,7 +11,7 @@ function varargout = prt(varargin)
 % $Id$
 
 % TODO:
-% - fix which subdirectories from all themachines are necessary, and only
+% - fix which subdirectories from all the machines are necessary, and only
 %   add these to Matlab path.
 
 %-Format arguments
