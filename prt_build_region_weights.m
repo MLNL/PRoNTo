@@ -75,16 +75,6 @@ else
 end
     
 
-%get names of regions if .mat with cells present in the same directory
-[a,b]=fileparts(gi);
-try
-    load(fullfile(a,[b,'.mat']))
-    try
-        LR=ROI_names;
-    end
-end
-
-
 %resize atlas if needed
 %--------------------------------------------------------------------------
 
@@ -126,8 +116,6 @@ end
 
 %compute histogram
 %--------------------------------------------------------------------------
-nroi=max(h(:))-min(h(:))+1; %number of regions+ the 'others' region
-ER=zeros(nroi,size(fperm,1));
 
 for ii=1:size(fperm,1)
     
@@ -167,25 +155,8 @@ for ii=1:size(fperm,1)
         R=max(atlas);
         if r_min==0
             corr=1;
-            LR=[{'others'};LR];
         else
             corr=0;
-        end
-        
-        %get generic names for ROIs in case the list does not correspond to the
-        %number of ROIs
-        if numel(LR)~=size(H,1)
-            disp('List does not contain as many names as ROIs: Generic names used')
-            LR=[];
-            if corr
-                ei=size(HN,1)-1;
-                LR={'others'};
-            else
-                ei=size(HN,1);
-            end
-            for i=1:ei
-                LR=[LR;{['Region ',num2str(i)]}];
-            end
         end
     end
     
@@ -242,6 +213,8 @@ if flag
 end
 
 
+
+% Previous functions that were saving all results in a separate .mat file
 
     %compute the rank of each region according to the weights
 %     [dub,ih]=sort(pH,1,'descend');
