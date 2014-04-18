@@ -192,10 +192,10 @@ elseif isfield(job.model_type,'regression')
     if isfield(job.model_type.regression.machine_rg,'krr')
         model.machine.function = 'prt_machine_krr';
         model.machine.args=job.model_type.regression.machine_rg.krr.krr_args;
-        if isfield(job.model_type.classification.machine_cl.krr, 'krr_opt')
-            if job.model_type.classification.machine_cl.krr.krr_opt
+        if isfield(job.model_type.regression.machine_rg.krr, 'krr_opt')
+            if job.model_type.regression.machine_rg.krr.krr_opt
                 model.cv.nested = 1;
-                model.cv.nested_param = job.model_type.classification.machine_cl.krr.krr_args;
+                model.cv.nested_param = job.model_type.regression.machine_rg.krr.krr_args;
             end
         end
     elseif isfield(job.model_type.regression.machine_rg,'rvr')
