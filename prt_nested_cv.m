@@ -40,7 +40,7 @@ end
 
 % Set range of the hyper parameters
 switch PRT.model(in.mid).input.machine.function
-    case {'prt_machine_svm_bin','prt_machine_simpleMKL','prt_machine_krr'}
+    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr'}
         if ~isempty(PRT.model(in.mid).input.nested_param)
             par = PRT.model(in.mid).input.nested_param;
         else
@@ -82,7 +82,7 @@ in.CV = prt_compute_cv_mat(PRT, in, in.mid, use_nested_cv);
 for i = 1:size(par, 2)
     
     switch PRT.model(in.mid).input.machine.function
-        case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
+        case {'prt_machine_svm_bin','prt_machine_sMKL_cla'}
             PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'classifier';
             

@@ -51,8 +51,8 @@ switch mfunc
         for c = 1:nclass
             img_mach{c} = ['weights_',mname,'_',num2str(c),'.img'];
         end
-    case 'prt_machine_simpleMKL'
-        m.function = 'prt_weights_simpleMKL';
+    case 'prt_machine_sMKL_reg'
+        m.function = 'prt_weights_sMKL_reg';
         img_mach{1} = ['weights_',mname,'.img'];
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...
@@ -265,7 +265,7 @@ for p=0:maxp
                 end
                 d.datamat = cvdata.train{:};
                 
-                if strcmpi(mfunc,'prt_machine_simpleMKL')
+                if strcmpi(mfunc,'prt_machine_sMKL_cla')
                     if isempty(ibe)
                         m.args.betas = PRT.model(model_idx).output.fold(f).beta;
                     else

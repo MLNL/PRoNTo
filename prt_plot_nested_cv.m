@@ -23,7 +23,7 @@ function prt_plot_nested_cv(PRT, model, fold, axes_handle)
 
 % Check machine and set the labels an axes
 switch PRT.model(model).input.machine.function
-    case {'prt_machine_svm_bin','prt_machine_simpleMKL'}
+    case {'prt_machine_svm_bin','prt_machine_sMKL_cla'}
         x_label = 'C';
         y_label = 'Balanced Accuracy (%)';
         

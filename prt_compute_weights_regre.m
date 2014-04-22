@@ -41,8 +41,8 @@ end
 % .nii is used...
 mfunc       = PRT.model(model_idx).input.machine.function;
 switch mfunc
-    case 'prt_machine_simpleMKL_reg'
-        m.function = 'prt_weights_simpleMKL';
+    case 'prt_machine_sMKL_reg'
+        m.function = 'prt_weights_sMKL_reg';
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
@@ -233,7 +233,7 @@ for p=0:maxp
                 end
                 d.datamat = cvdata.train{:};
                 
-                if strcmpi(mfunc,'prt_machine_simpleMKL_reg')
+                if strcmpi(mfunc,'prt_machine_sMKL_reg')
                     if isempty(ibe)
                         m.args.betas = PRT.model(model_idx).output.fold(f).beta;
                     else

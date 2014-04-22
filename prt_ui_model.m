@@ -538,7 +538,7 @@ elseif val==2
     set(handles.butt_defclass,'String','Select subjects/scans')
     %set the list of machines
     set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
-        'Relevance Vector Regression','Gaussian Process Regression'})
+        'Relevance Vector Regression','Gaussian Process Regression', 'Multi-Kernel Regression'})
     set(handles.pop_machine,'Value',1)
     handles.machine.function='prt_machine_krr';
     handles.machine.args=handles.def.krrargs;
@@ -682,8 +682,11 @@ elseif any(strfind(mach{val},'Random'))
     handles.machine.function='prt_machine_RT_bin';
     handles.machine.args=handles.def.rtargs;    
 elseif any(strfind(mach{val},'L1- Multi-Kernel'))
-    handles.machine.function='prt_machine_simpleMKL';
-    handles.machine.args=handles.def.l1MKLargs; 
+    handles.machine.function='prt_machine_sMKL_cla';
+    handles.machine.args=handles.def.l1MKLargs;
+elseif any(strfind(mach{val},'Multi-Kernel Regression'))
+    handles.machine.function='prt_machine_sMKL_reg';
+    handles.machine.args=handles.def.l1MKLargs; %TODO: Check if this is correct
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -711,7 +714,7 @@ function flag_opt_param_Callback(hObject, eventdata, handles)
 v = get(handles.flag_opt_param,'Value');
 if v
     switch handles.machine.function
-        case {'prt_machine_svm_bin','prt_machine_simpleMKL','prt_machine_krr'}
+        case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr'}
             set(handles.edit_param_range,'Enable','on')
             handles.cv.nested = 1;
         otherwise

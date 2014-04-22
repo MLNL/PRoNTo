@@ -145,7 +145,7 @@ if SANITYCHECK==true
         %regression is not valid
         if  strcmp(d.pred_type,'regression') 
             if ~any(strcmp(m.function,{'prt_machine_krr','prt_machine_rvr',...
-                                       'prt_machine_gpml','prt_machine_gpr'}))
+                                       'prt_machine_gpml','prt_machine_gpr', 'prt_machine_sMKL_reg'}))
                 error('prt_machine:RgressionMachineSupport',...
                     'Error: Regresion can only chose use KRR or RVR machines');
             end

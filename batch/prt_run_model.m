@@ -109,12 +109,12 @@ if isfield(job.model_type,'classification')
     model.type = 'classification';
     for c = 1:length(job.model_type.classification.class)
         model.class(c).class_name = job.model_type.classification.class(c).class_name;
-        
+
         for g = 1:length(job.model_type.classification.class(c).group)
             scount = 1;
             model.class(c).group(g).gr_name = ...
                 job.model_type.classification.class(c).group(g).gr_name;
-            
+
             sids   = job.model_type.classification.class(c).group(g).subj_nums;
             for s = 1:length(sids)
                 model.class(c).group(g).subj(scount).num = sids(s);
@@ -167,15 +167,15 @@ if isfield(job.model_type,'classification')
     elseif isfield(job.model_type.classification.machine_cl,'rt')
         model.machine.function='prt_machine_RT_bin';
         model.machine.args=job.model_type.classification.machine_cl.rt.rt_args;
-    elseif isfield(job.model_type.classification.machine_cl,'sMKL')
-        model.machine.function='prt_machine_simpleMKL';
-        model.machine.args=job.model_type.classification.machine_cl.sMKL.sMKL_args;
+    elseif isfield(job.model_type.classification.machine_cl,'sMKL_cla')
+        model.machine.function='prt_machine_sMKL_cla';
+        model.machine.args=job.model_type.classification.machine_cl.sMKL_cla.sMKL_cla_args;
     else
         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
         model.machine.function = nam;
         model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
     end
-    
+
 elseif isfield(job.model_type,'regression')
     model.type = 'regression';
     for g = 1:length(job.model_type.regression.reg_group)
@@ -204,6 +204,9 @@ elseif isfield(job.model_type,'regression')
     elseif isfield(job.model_type.regression.machine_rg,'gpr')
         model.machine.function='prt_machine_gpr';
         model.machine.args=job.model_type.regression.machine_rg.gpr.gpr_args;
+    elseif isfield(job.model_type.regression.machine_rg,'sMKL_reg')
+        model.machine.function='prt_machine_sMKL_reg';
+        model.machine.args=job.model_type.regression.machine_rg.sMKL_reg.sMKL_reg_args;
     else
         [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
         model.machine.function = nam;

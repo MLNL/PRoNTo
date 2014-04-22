@@ -28,7 +28,7 @@ function varargout = prt_ui_disp_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_disp_weights
 
-% Last Modified by GUIDE v2.5 14-Apr-2014 15:42:56
+% Last Modified by GUIDE v2.5 16-Apr-2014 17:50:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1373,3 +1373,15 @@ end
     % Update handles structure
     guidata(hObject, handles);
 
+
+
+% --- Executes when entered data in editable cell(s) in ROItable.
+function ROItable_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to ROItable (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)

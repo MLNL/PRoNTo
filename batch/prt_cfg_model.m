@@ -393,44 +393,44 @@ gpclap.help    = {'Multiclass GPC'};
 gpclap.val     = {gpclap_args};
 
 % ---------------------------------------------------------------------
-% sMKL_opt L1-MKL : flag whether to optimize C
+% sMKL_cla_opt L1-MKL : flag whether to optimize C
 % ---------------------------------------------------------------------
-sMKL_opt         = cfg_menu;
-sMKL_opt.tag     = 'sMKL_opt';
-sMKL_opt.name    = 'Optimize hyper-parameter';
-sMKL_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
+sMKL_cla_opt         = cfg_menu;
+sMKL_cla_opt.tag     = 'sMKL_cla_opt';
+sMKL_cla_opt.name    = 'Optimize hyper-parameter';
+sMKL_cla_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
     'If Yes, than provide a range of possible values for C, in the form '...
     'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.' ...
     'If not, a default value will be used (C=1).']};
-sMKL_opt.labels  = {
+sMKL_cla_opt.labels  = {
     'No'
     'Yes'
     }';
-sMKL_opt.values  = {0 1};
-sMKL_opt.val     = {0};
+sMKL_cla_opt.values  = {0 1};
+sMKL_cla_opt.val     = {0};
 
 % ---------------------------------------------------------------------
-% sMKL_args L1-MKL arguments
+% sMKL_cla_args L1-MKL arguments
 % ---------------------------------------------------------------------
-sMKL_args         = cfg_entry;
-sMKL_args.tag     = 'sMKL_args';
-sMKL_args.name    = 'Arguments';
-sMKL_args.help    = {['Arguments for prt_machine_simpleMKL (same as for SVM)',...
+sMKL_cla_args         = cfg_entry;
+sMKL_cla_args.tag     = 'sMKL_cla_args';
+sMKL_cla_args.name    = 'Arguments';
+sMKL_cla_args.help    = {['Arguments for prt_machine_sMKL_cla (same as for SVM)',...
     'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.']};
-sMKL_args.strtype = 'e';
-sMKL_args.val     = {def.model.l1MKLargs};
-sMKL_args.num     = [1 Inf];
+sMKL_cla_args.strtype = 'e';
+sMKL_cla_args.val     = {def.model.l1MKLargs};
+sMKL_cla_args.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
-% sMKL simple (L1) MKL
+% sMKL_cla simple (L1) MKL
 % ---------------------------------------------------------------------
-sMKL         = cfg_branch;
-sMKL.tag     = 'sMKL';
-sMKL.name    = 'L1 Multi-Kernel Learning';
-sMKL.help    = {'Multi-Kernel Learning. Choose only if multiple kernels' ...
+sMKL_cla         = cfg_branch;
+sMKL_cla.tag     = 'sMKL_cla';
+sMKL_cla.name    = 'L1 Multi-Kernel Learning';
+sMKL_cla.help    = {'Multi-Kernel Learning. Choose only if multiple kernels' ...
     'were built during the feature set construction (either multiple modalities or ROIs)' ...
     'It is strongly advised to "normalize" the kernels (in "operations").'};
-sMKL.val     = {sMKL_opt, sMKL_args};
+sMKL_cla.val     = {sMKL_cla_opt, sMKL_cla_args};
 
 % ---------------------------------------------------------------------
 % gpr_args GPR arguments
@@ -451,6 +451,28 @@ gpr.tag     = 'gpr';
 gpr.name    = 'Gaussian Process Regression';
 gpr.help    = {'Gaussian Process Regression'};
 gpr.val     = {gpr_args};
+
+
+% ---------------------------------------------------------------------
+% sMKL_reg_args sMKL_reg arguments
+% ---------------------------------------------------------------------
+sMKL_reg_args         = cfg_entry;
+sMKL_reg_args.tag     = 'sMKL_reg_args';
+sMKL_reg_args.name    = 'Arguments';
+sMKL_reg_args.help    = {['Arguments for prt_machine_sMKL_reg']};
+sMKL_reg_args.strtype = 'e';
+sMKL_reg_args.val     = {def.model.l1MKLargs};
+sMKL_reg_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% sMKL_reg sMKL regression
+% ---------------------------------------------------------------------
+sMKL_reg         = cfg_branch;
+sMKL_reg.tag     = 'sMKL_reg';
+sMKL_reg.name    = 'Multi-Kernel Regression';
+sMKL_reg.help    = {'Multi-Kernel Regression'};
+sMKL_reg.val     = {sMKL_reg_args};
+
 
 % ---------------------------------------------------------------------
 % krr_opt SVM : flag whether to optimize C
@@ -539,7 +561,7 @@ rt.val     = {rt_args};
 machine_cl       = cfg_choice;
 machine_cl.tag    = 'machine_cl';
 machine_cl.name   = 'Machine';
-machine_cl.values = {svm,gpc,gpclap,rt,sMKL,custom_machine};
+machine_cl.values = {svm,gpc,gpclap,rt,sMKL_cla,custom_machine};
 machine_cl.val    =  {svm};
 machine_cl.help   = {...
     ['Choose a prediction machine for this model']};
@@ -550,7 +572,7 @@ machine_cl.help   = {...
 machine_rg       = cfg_choice;
 machine_rg.tag    = 'machine_rg';
 machine_rg.name   = 'Machine';
-machine_rg.values = {krr,rvr,gpr,custom_machine};
+machine_rg.values = {krr,rvr,gpr,sMKL_reg,custom_machine};
 machine_rg.val    =  {krr};
 machine_rg.help   = {...
     ['Choose a prediction machine for this model']};
