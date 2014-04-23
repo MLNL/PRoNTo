@@ -52,9 +52,9 @@ end
 
 img1d     = zeros(size(d.datamat(1,:)),'single');
 
-for k=1:length(d.betas)
+for k=1:length(args.betas)
     
-    index_k = d.idfeat_img{k};
+    index_k = args.idfeat_img{k};
     
     for i=1:ncoeffs
         
@@ -65,10 +65,10 @@ for k=1:length(d.betas)
         
     end
     
-    betas = single(d.betas(k));
+    betas = single(args.betas(k));
     
     img1d(index_k) = betas * img1d(index_k);
 end
 
 % weigths
-weights  = img1d;
+weights{1}  = img1d; % originally, it was: weights  = img1d

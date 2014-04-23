@@ -51,8 +51,8 @@ switch mfunc
         for c = 1:nclass
             img_mach{c} = ['weights_',mname,'_',num2str(c),'.img'];
         end
-    case 'prt_machine_sMKL_reg'
-        m.function = 'prt_weights_sMKL_reg';
+    case 'prt_machine_sMKL_cla'
+        m.function = 'prt_weights_sMKL_cla';
         img_mach{1} = ['weights_',mname,'.img'];
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...

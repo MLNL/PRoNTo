@@ -71,4 +71,4 @@ for k=1:length(args.betas)
 end
 
 % weigths
-weights  = num2cell(img1d); % originally, it was: weights  = img1d
+weights{1}  = img1d; % originally, it was: weights  = img1d
