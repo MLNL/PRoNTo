@@ -60,9 +60,9 @@ if ~isempty(in.img_name)
             'Error: image name should contain only alpha-numeric elements!');
     end
     in.img_name_c  = [in.img_name,'.img'];
-    img_name       = fullfile(in.pathdir,in.img_name_c);
+    img_name{1}       = fullfile(in.pathdir,in.img_name_c);
 else
-    img_name       = fullfile(in.pathdir,img_mach);
+    img_name{1}      = fullfile(in.pathdir,img_mach);
 end
 
 
@@ -142,7 +142,7 @@ for p=0:maxp
         img_nam=[pthperm,filesep,nam,'_perm',num2str(p),'.img'];
         fprintf('Permutation: %d of %d \n',p,length(PRT.model(model_idx).output.permutation));
     else
-        img_nam=img_name;
+        img_nam=img_name{1};
     end
     
     %check that image does not exist, otherwise, delete
