@@ -26,8 +26,8 @@ load(fname);
 fs_name = job.k_file;
 
 % Check for multimodal MKL flag
-if isfield(job.mkl,'flag_mm')
-    flag_mm = job.mkl.flag_mm;
+if isfield(job, 'flag_mm')
+    flag_mm = job.flag_mm;
 else
     flag_mm = 0;
 end
@@ -87,8 +87,8 @@ for i=1:length(PRT.masks)
             mod(i).mask = [];
         end
         
-        if isfield(job.mkl,'atlasroi')
-            mod(i).atlasroi = job.mkl.atlasroi{1};
+        if isfield(job.modality(i),'atlasroi')
+            mod(i).atlasroi = job.modality(i).atlasroi{1};
             if ~isempty(mod(i).atlasroi)
                 mod(i).multroi = 1;
             else

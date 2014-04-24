@@ -29,6 +29,20 @@ k_file.strtype = 's';
 k_file.num     = [1 Inf];
 
 
+            
+% ---------------------------------------------------------------------
+% use_mkl Use MKL?
+% ---------------------------------------------------------------------
+use_mkl         = cfg_menu;
+use_mkl.tag     = 'use_mkl';
+use_mkl.name    = 'Generate Multiple Kernels?';
+use_mkl.labels  = {
+               'Yes'
+               'No'
+}';
+use_mkl.values  = {1 0};
+use_mkl.val     = {0};
+use_mkl.help    = {'Do you wish to generate Multiple Kernels?'};
 
 
 % ---------------------------------------------------------------------
@@ -37,48 +51,29 @@ k_file.num     = [1 Inf];
 flag_mm         = cfg_menu;
 flag_mm.tag     = 'flag_mm';
 flag_mm.name    = 'Use one kernel per modality';
-flag_mm.help    = {'Select Yes to use one kernel per modality (for MKL).'};
+flag_mm.help    = {'Select "Yes" to use one kernel per modality.'};
 flag_mm.labels  = {
-               'Yes'
-               'No'
-}';
+    'Yes'
+    'No'
+    }';
 flag_mm.values  = {1 0};
 flag_mm.val     = {0};
 
 
 % ---------------------------------------------------------------------
-% no_mkl_roi No MKL ROI
-% ---------------------------------------------------------------------
-use_mkl         = cfg_const;
-use_mkl.tag     = 'use_mkl';
-use_mkl.name    = 'None';
-use_mkl.val     = {0};
-use_mkl.help    = {'Do not use MKL'};
-
-% ---------------------------------------------------------------------
 % atlasroi Filename(s) of atlas for ROI MKL
 % ---------------------------------------------------------------------
-atlasroi        = cfg_files;
-atlasroi.tag    = 'atlasroi';
-atlasroi.name   = 'Use one kernel per ROI';
-atlasroi.ufilter= '.*';
-atlasroi.filter = 'image';
-atlasroi.num    = [1 1];
-atlasroi.def     = @(val)prt_get_defaults('fs.atlasroi', val{:});
-atlasroi.help   = {'Select atlas file to build one kernel per ROI.'};
+atlasroi         = cfg_files;
+atlasroi.tag     = 'atlasroi';
+atlasroi.name    = 'Load Atlas';
+atlasroi.ufilter = '.*';
+atlasroi.filter  = 'image';
+atlasroi.num     = [1 1];
+% atlasroi.def     = @(val)prt_get_defaults('fs.atlasroi', val{:});
+atlasroi.help    = {'Select atlas file to build one kernel per ROI.'};
 
-
-% ---------------------------------------------------------------------
-% mkl_roi Choose if the user wants to use MKL with ROIs
-% ---------------------------------------------------------------------
-mkl        = cfg_choice;
-mkl.tag    = 'mkl';
-mkl.name   = 'Multi Kernel Learning';
-mkl.values = {use_mkl, flag_mm, atlasroi};
-mkl.val    = {use_mkl};
-mkl.help   = {...
-                ['']};
-
+        
+            
 % ---------------------------------------------------------------------
 % cond_name Name
 % ---------------------------------------------------------------------
@@ -283,7 +278,7 @@ voxels.help   = {...
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name, conditions, voxels, detrend, normalise};
+modality.val  = {mod_name, conditions, voxels, detrend, normalise, atlasroi};
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
@@ -304,7 +299,7 @@ modalities.values  = {modality};
 fs        = cfg_exbranch;
 fs.tag    = 'fs';
 fs.name   = 'Feature set/Kernel';
-fs.val    = {infile, k_file, mkl, modalities};
+fs.val    = {infile, k_file, modalities, use_mkl, flag_mm};
 fs.help   = {'Compute feature set according to the design specified'};
 fs.prog   = @prt_run_fs;
 fs.vout   = @vout_data;
