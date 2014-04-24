@@ -1,4 +1,4 @@
-function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,ibe)
+function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,ibe,flag2)
 % FORMAT prt_compute_weights_regre(PRT,in,model_idx)
 %
 % This function calls prt_weights to compute weights

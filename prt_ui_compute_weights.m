@@ -268,7 +268,8 @@ set(handles.pop_models,'Value',1)
 handles.selmod=handles.indm(1);
 set(handles.compbutt,'Enable','on')
 in = struct();
-in.fs_name = handles.dat.model(1).input.fs(1).fs_name;
+im = handles.indm(1);
+in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
 fid = prt_init_fs(handles.dat,in);
 if isfield(handles.dat.fs(fid),'atlas_name')
     set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name)
@@ -292,11 +293,16 @@ if val==0
     val=1;
 end
 in = struct();
-in.fs_name = handles.dat.model(val).input.fs(1).fs_name;
+im = handles.indm(val);
+in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
 fid = prt_init_fs(handles.dat,in);
-if isfield(handles.dat.fs(fid),'atlas_name')
+if isfield(handles.dat.fs(fid),'atlas_name') && ~isempty(handles.dat.fs(fid).atlas_name)
     set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name)
+else
+    set(handles.edit_atlas,'String','Load atlas')
 end
+im_name = ['weights_',handles.dat.model(im).model_name,'.img'];
+set(handles.edit_imgname,'String',im_name)
 handles.selmod=handles.indm(val);
 % Update handles structure
 guidata(hObject, handles);

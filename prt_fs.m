@@ -47,9 +47,11 @@ n_mods=length(mids);
 
 % Load mask(s) and resize if necessary
 %force second-level masking by atlas if provided
-if isfield(in.mod(1),'atlasroi')
-    if ~isempty(in.mod(1).atlasroi) && isempty(in.mod(1).mask)
-        in.mod(1).mask = in.mod(1).atlasroi;    %option only available for one modality
+for i=1:length(in.mod)
+    if isfield(in.mod(i),'atlasroi')
+        if ~isempty(in.mod(i).atlasroi) && isempty(in.mod(i).mask)
+            in.mod(i).mask = in.mod(i).atlasroi;    %option only available for one modality
+        end
     end
 end
 
@@ -62,123 +64,126 @@ in.tocomp = tocomp;
 in.precmask = precmask;
 in.fid = fid;
 
-% Check if the two MKL options (Multi-model and Multi-ROI) have not been
-% selected at the same time
-for i = 1:length(mids)
-    if in.flag_mm && in.mod(mids(i)).multroi
-        error('MKL selected for two options: multi-modal and multi-ROI. Please choose only one.')
-    end
-end
-
 % Build the feature set and kernel
 %--------------------------------------------------------------------------
-    % One kernel per modality
-    
-if n_mods>1 && in.flag_mm 
-%if n_mods>1
-    Phi=cell(n_mods,1);
-    igd = [];
-    nim1 =length(unique(PRT.fs(fid).id_mat(:,3) == mids(1)));
-    for i=1:n_mods          % loop through modalities and save each kernel in a cell
+
+Phi = [];
+igd = [];
+PRT.fs(fid).multkernelROI = 0; % Multiple kernels with an atlas
+PRT.fs(fid).multkernel = 0;    % Multiple kernels from different modalities
+nroi = 0;
+
+if in.flag_mm   % One kernel per modality so need to treat them independently
+    for i = 1:n_mods  % multiple modalities
+        % For each modality, get the corresponding ID mat and sample index
         idtk = PRT.fs(fid).id_mat(:,3) == mids(i);
         nimm = length(unique(PRT.fs(fid).id_mat(:,3) == mids(i)));
-        if nimm~= nim1 %check that modalities have the same dimensions in terms of samples
+        
+        %check that modalities have the same dimensions in terms of samples
+        nim1 =length(unique(PRT.fs(fid).id_mat(:,3) == mids(1)));
+        if nimm~= nim1
             error('prt_fs:MultKernMod_DifIm',...
                 'Modalities should have the same number of samples to be considered for MKL')
         end
         addin.ID = PRT.fs(fid).id_mat(idtk,:);
-        [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
-        [d1,idmax] = max(Phim);
-        [d1,idmin] = min(Phim);
-        min_max = find(idmax==idmin);
-        if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
-            igd = [igd,i];
+        
+        % If second-level, i.e. atlas-based kernels as well
+        if isfield(in.mod(mids(i)),'multroi') ...
+                && in.mod(mids(i)).multroi
+            atl=spm_vol(ratl{i});
+            %Initialize all fields and compute the feature sets if needed
+            if any(in.tocomp)
+                [PRT] = prt_fs_modality(PRT,in,1,addin);
+            end
+            nroiprev = nroi;
+            [PRT,Phim,igk,nroi] = prt_compute_ROI_kernels(PRT,in,fid,mids(i),atl,addin,i);
+            PRT.fs(fid).atlas_name = ratl;            
+            igd = [igd,igk+nroiprev];
         else
-            beep
-            disp('No overlap between data and mask/atlas for at least one sample')
-            disp(['Kernel ',num2str(i),' will be removed from further analysis'])
+            [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
+            [d1,idmax] = max(Phim);
+            [d1,idmin] = min(Phim);
+            min_max = find(idmax==idmin);
+            if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
+                igd = [igd,i];
+            else
+                beep
+                disp('No overlap between data and mask/atlas for at least one sample')
+                disp(['Kernel ',num2str(i),' will be removed from further analysis'])
+            end
+            Phim = {Phim};
+            PRT.fs(fid).atlas_name = {};
         end
-        Phi{i}=Phim;
+        Phi = [Phi, Phim];
     end
     %post-hoc: the ID mat should be the same for all modalities involved,
     %so only the first one will be saved
+    if ~isempty(igd) && isempty(PRT.fs(fid).atlas_name)
+        PRT.fs(fid).modality = PRT.fs(fid).modality(igd);
+    end
     indm=PRT.fs(fid).fas.im==1;
     PRT.fs(fid).id_mat=PRT.fs(fid).id_mat(indm,:);
     PRT.fs(fid).multkernel = 1;
-    PRT.fs(fid).atlas_name = [];
-    if ~isempty(igd)
-        PRT.fs(fid).modality = PRT.fs(fid).modality(igd);
+else
+    % Concatenate the modalities in samples or only one modality
+    % Does the same as before without playing with the ID matrix
+    % If second-level, i.e. atlas-based kernels as well
+    
+    % First check that all concatenated modalitlies have the same flag and
+    % atlas, or no atlas
+    if n_mods>1
+        mult = zeros(n_mods,1);
+        for i = 1:n_mods
+            if isfield(in.mod(mids(i)),'multroi') ...
+                    && in.mod(mids(i)).multroi
+                mult(i) = 1;
+                atl = ratl{i};
+                if i ==1
+                    atlmod = atl;
+                end
+                if ~strcmpi(atl,atlmod)
+                    error('prt_fs:ConcatenatingWithDifferentAtlases',...
+                        'Concatenated multiple modalities should have the same atlas');
+                end
+            end
+        end
+        if length(unique(mult))~=1
+            error('prt_fs:ConcatenateModalitiesWithandWithoutAtlas',...
+                'Modalities cannot be concatenated unless they all have no or the same atlas')
+        end
     end
     
-    % One kernel per region as defined by an atlas
-elseif n_mods==1 && isfield(in.mod(mids),'multroi') ...
-        && in.mod(mids).multroi  
-    %For each region, get the indexes of the voxels in the 2nd level mask
     atl=spm_vol(ratl{1});
-    h=spm_read_vols(atl);
+    addin = struct();
     %Initialize all fields and compute the feature sets if needed
-    if any(tocomp)
-        [PRT] = prt_fs_modality(PRT,in);
-    end
-    if ~isempty(PRT.fs(fid).modality(1).idfeat_fas)
-        idt = PRT.fs(fid).modality(1).idfeat_fas; %indexes of voxels in second-level mask
-    else
-        idt = 1:length(PRT.fas(mids).idfeat_img);
-    end
-    idm1 = PRT.fas(mids).idfeat_img(idt); %indexes of voxels in first level mask
-    interh = h(idm1);
-    roi = unique(interh(interh>0));
-    nroi = length(roi);
-    Phi=cell(nroi,1);
-    in.tocomp = zeros(1,length(tocomp));
-    %For each region, compute kernel and save the indexes in the image for
-    %further computation of the weights
-    PRT.fs(fid).modality(1).idfeat_img = cell(nroi,1);
-    igd = []; %indexes of non 0 kernels
-    for i=1:nroi
-        disp ([' > Computing kernel: ', num2str(i),' of ',num2str(nroi),' ...'])
-        addin.idvox_fas = idt(interh == roi(i));
-        [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
+    if isfield(in.mod(mids(1)),'multroi') ...
+            && in.mod(mids(1)).multroi
+        if any(in.tocomp)
+            [PRT] = prt_fs_modality(PRT,in,0,[]);
+        end
+        [PRT,Phim,igd] = prt_compute_ROI_kernels(PRT,in,fid,mids(1),atl,addin,1);
+        PRT.fs(fid).atlas_name{1} = ratl{1};
+        Phi = Phim;
+    else % Simply concatenate the modalities in samples
+        [PRT,Phim] = prt_fs_modality(PRT,in,0,[]);
+        PRT.fs(fid).multkernel = 0;
+        PRT.fs(fid).atlas_name = {};
         [d1,idmax] = max(Phim);
         [d1,idmin] = min(Phim);
         min_max = find(idmax==idmin);
         if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
-            igd = [igd,i];
+            igd = 1;
         else
-            beep
-            disp('No overlap between data and mask/atlas for at least one sample')
-            disp(['Region ',num2str(i),' will be removed from further analysis'])
+            error('prt_fs:NoDataInMask',...
+                'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
         end
-        Phi{i}=Phim;
-%         idts = idt(interh == roi(i));
-        PRT.fs(fid).modality(1).idfeat_img{i} = find(interh == roi(i)) ;  
+        Phi{1}=Phim;
     end
-    PRT.fs(fid).multkernel = 1;
-    if ~isempty(igd)
-        PRT.fs(fid).modality(1).idfeat_img = PRT.fs(fid).modality(1).idfeat_img(igd);
-        PRT.fs(fid).modality(1).num_ROI = roi(igd);
-    end
-    PRT.fs(fid).atlas_name = ratl{1};
-    
-    % Concatenate modalities in time
-else
-    [PRT,Phim] = prt_fs_modality(PRT,in,0,[]);
-    PRT.fs(fid).multkernel = 0;
-    PRT.fs(fid).atlas_name = [];
-    [d1,idmax] = max(Phim);
-    [d1,idmin] = min(Phim);
-    min_max = find(idmax==idmin);
-    if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
-        igd = 1;
-    else
-        error('prt_fs:NoDataInMask',...
-            'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
-    end
-    Phi{1}=Phim;
 end
 
- clear Phim
- 
+
+clear Phim
+
 if isempty(igd)
     error('prt_fs:NoDataInMask',...
         'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
@@ -277,10 +282,10 @@ for m = 1:n_mods
             'Mask has different dimensions to the image files. Resizing...');
         
         V2 = spm_vol(char(ddmask));
-        % reslicing V2        
+        % reslicing V2
         fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
         spm_reslice([N V2],fl_res)
-        % now renaming the file 
+        % now renaming the file
         [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
         rV2_fn = [fl_res.prefix,V2_fn];
         if strcmp(V2_ext,'.nii')
@@ -291,22 +296,22 @@ for m = 1:n_mods
         end
         mfile_new = ['updated_1stlevel_mask_m',num2str(mid)];
         movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
-                    fullfile(prt_dir,[mfile_new,'.img']));
+            fullfile(prt_dir,[mfile_new,'.img']));
         movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
-                    fullfile(prt_dir,[mfile_new,'.hdr']));
+            fullfile(prt_dir,[mfile_new,'.hdr']));
         PRT.masks(mid).fname = fullfile(prt_dir,[mfile_new,'.img']);
-        mask{m} = PRT.masks(mid).fname;        
+        mask{m} = PRT.masks(mid).fname;
     else
-        mask{m} = ddmask;        
+        mask{m} = ddmask;
     end
-    if ~isempty(mfile) && any((precM.dim~= N.dim)) % && mfile ~= 0 
+    if ~isempty(mfile) && any((precM.dim~= N.dim)) % && mfile ~= 0
         warning('prt_fs:maskAndImagesDifferentDim',...
-            'Preprocessing mask has different dimensions to the image files. Resizing...');      
+            'Preprocessing mask has different dimensions to the image files. Resizing...');
         V2 = spm_vol(char(mfile));
-        % reslicing V2        
+        % reslicing V2
         fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
         spm_reslice([N V2],fl_res)
-        % now renaming the file 
+        % now renaming the file
         [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
         rV2_fn = [fl_res.prefix,V2_fn];
         if strcmp(V2_ext,'.nii')
@@ -318,28 +323,28 @@ for m = 1:n_mods
         % if more than one 2nd level mask to resize
         nummask = 1;
         while exist(fullfile( ...
-                    prt_dir,['updated_2ndlevel_mask_m',num2str(mid),'_',...
-                    num2str(nummask),'.img']),'file')
-                nummask = nummask+1;
+                prt_dir,['updated_2ndlevel_mask_m',num2str(mid),'_',...
+                num2str(nummask),'.img']),'file')
+            nummask = nummask+1;
         end
         mfile_new = ['updated_2ndlevel_mask_m',num2str(mid),...
             '_',num2str(nummask)];
         movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
-                    fullfile(prt_dir,[mfile_new,'.img']));
+            fullfile(prt_dir,[mfile_new,'.img']));
         movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
-                    fullfile(prt_dir,[mfile_new,'.hdr']));
+            fullfile(prt_dir,[mfile_new,'.hdr']));
         precmask{m} = fullfile(prt_dir,[mfile_new,'.img']);
     else
         precmask{m} = mfile;
     end
-    if ~isempty(alfile) && any((precA.dim~= N.dim)) 
+    if ~isempty(alfile) && any((precA.dim~= N.dim))
         warning('prt_fs:atlasAndImagesDifferentDim',...
-            'Atlas has different dimensions to the image files. Resizing...');      
+            'Atlas has different dimensions to the image files. Resizing...');
         V2 = spm_vol(char(alfile));
-        % reslicing V2        
+        % reslicing V2
         fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
         spm_reslice([N V2],fl_res)
-        % now renaming the file 
+        % now renaming the file
         [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
         rV2_fn = [fl_res.prefix,V2_fn];
         if strcmp(V2_ext,'.nii')
@@ -350,13 +355,61 @@ for m = 1:n_mods
         end
         alfile_new = ['updated_atlas_',V2_fn];
         movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
-                    fullfile(prt_dir,[alfile_new,'.img']));
+            fullfile(prt_dir,[alfile_new,'.img']));
         movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
-                    fullfile(prt_dir,[alfile_new,'.hdr']));
+            fullfile(prt_dir,[alfile_new,'.hdr']));
         ratl{m} = fullfile(prt_dir,[alfile_new,'.img']);
     else
         ratl{m} = alfile;
     end
     clear M N precM V1 V2 mfile mfile_new
 end
+
+
+function [PRT,Phi,igd,nroi] = prt_compute_ROI_kernels(PRT,in,fid,mids,atl,addin,ind_mod)
+% function to load the mask for each modality
+% -------------------------------------------
+
+%For each region, get the indexes of the voxels in the 2nd level mask
+h=spm_read_vols(atl);
+if ~isempty(PRT.fs(fid).modality(ind_mod).idfeat_fas)
+    idt = PRT.fs(fid).modality(ind_mod).idfeat_fas; %indexes of voxels in second-level mask
+else
+    idt = 1:length(PRT.fas(mids).idfeat_img);
+end
+idm1 = PRT.fas(mids).idfeat_img(idt); %indexes of voxels in first level mask
+interh = h(idm1);
+roi = unique(interh(interh>0));
+nroi = length(roi);
+Phi=cell(nroi,1);
+in.tocomp = zeros(1,length(in.tocomp));
+%For each region, compute kernel and save the indexes in the image for
+%further computation of the weights
+PRT.fs(fid).modality(ind_mod).idfeat_img = cell(nroi,1);
+igd = []; %indexes of non 0 kernels
+for i=1:nroi
+    disp ([' > Computing kernel: ', num2str(i),' of ',num2str(nroi),' ...'])
+    addin.idvox_fas = idt(interh == roi(i));
+    [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
+    [d1,idmax] = max(Phim);
+    [d1,idmin] = min(Phim);
+    min_max = find(idmax==idmin);
+    if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
+        igd = [igd,i];
+    else
+        beep
+        disp('No overlap between data and mask/atlas for at least one sample')
+        disp(['Region ',num2str(i),' will be removed from further analysis'])
+    end
+    Phi{i}=Phim;
+    %         idts = idt(interh == roi(i));
+    PRT.fs(fid).modality(ind_mod).idfeat_img{i} = find(interh == roi(i)) ;
+end
+PRT.fs(fid).multkernelROI = 1;
+if ~isempty(igd)
+    PRT.fs(fid).modality(ind_mod).idfeat_img = PRT.fs(fid).modality(ind_mod).idfeat_img(igd);
+    PRT.fs(fid).modality(ind_mod).num_ROI = roi(igd);
+end
+
+
 return

@@ -148,6 +148,17 @@ for ii=1:size(fperm,1)
     [H HN SN idfeatroi] = prt_region_histogram(w, atlas);
     nr=size(H,1);
     
+    % Put 0 if the fold has only NaNs
+    indnan = [];
+    for i=1:size(HN,2)
+        if length(find(isnan(HN(:,i))))==size(HN,1) || ...
+                length(find(HN(:,i)==0))==size(HN,1)
+            HN(:,i) = 0;
+            H(:,i) = 0;
+            indnan = [indnan i];
+        end
+    end
+    
     %Correct for the 'others' region (one time)
     if ii==1   
         %compute proportions as in PCA
@@ -168,6 +179,9 @@ for ii=1:size(fperm,1)
     inn= ~isnan(HN(:,1));
     shn=sum(HN(inn,:),1);
     pHN=(HN./repmat(shn,size(HN,1),1))*100;
+    pHN(:,indnan)=0;
+        
+    
 end
 
 %save sorted H, HN and the list of corresponding ROIs for the 'true' image,
@@ -196,7 +210,7 @@ if flag
     img4d = file_array(img_name,size(VV),'float32-le',0,1,0);
     for km=1:size(w,2)
         for r=r_min:R
-            w(atlas == r,km)=pHN(r+corr);
+            w(idfeatroi{r+corr},km)=pHN(r+corr,km);
         end
         img4d(:,:,:,km)=reshape(w(:,km),[size(VV,1),size(VV,2), size(VV,3),1]);
     end

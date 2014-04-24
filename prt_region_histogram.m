@@ -41,11 +41,12 @@ end
 H = zeros(R,m);
 S = zeros(R,m);
 for km = 1:m
-   l1_norm = norm(beta(~isnan(beta(:,km)),km),1);
-%    disp(['Fold ',num2str(km)])
+    disp(['Fold ',num2str(km)])
    % Compute relative frequencies for each region
    for r = r_min:R
-      H(r+correction,km) = sum(abs(beta(atlas == r,km)))/l1_norm;
+       tmp = sum(abs(beta(atlas == r,km)));
+       H(r+correction,km) = tmp;
+
       %compute the proportions of positive versus negative weights
       S(r+correction,km) = length(find(beta(atlas == r,km)>0));
    end

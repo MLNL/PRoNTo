@@ -74,7 +74,10 @@ model.use_kernel = job.use_kernel;
 
 model.fs(1).fs_name = job.fsets;
 fid = prt_init_fs(PRT,model.fs(1));
-mods = {PRT.fs(fid).modality(:).mod_name};
+mods = [PRT.fs(fid).modality(:).mod_name];
+if ~iscell(mods)
+    mods = {mods};
+end
 
 % get the conditions which are common to all subjects from all groups
 nm = length(mods);
@@ -82,9 +85,9 @@ for i=1:nm
     flag=1;
     for j=1:length(PRT.group)
         for k=1:length(PRT.group(j).subject)
-            m2= find(strcmpi(PRT.fs(fid).modality(nm).mod_name,mods));
+            m2= find(strcmpi(PRT.fs(fid).modality(i).mod_name,mods));
             if isempty(m2)
-                m2= find(strcmpi(PRT.fs(fid).modality(nm).mod_name,mods{1}));
+                m2= find(strcmpi(PRT.fs(fid).modality(i).mod_name,mods{1}));
             end
             des=PRT.group(j).subject(k).modality(m2).design;
             if isstruct(des) && flag

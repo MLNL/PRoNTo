@@ -54,20 +54,26 @@ img1d     = zeros(size(d.datamat(1,:)),'single');
 
 for k=1:length(args.betas)
     
+    betas = single(args.betas(k));
     index_k = args.idfeat_img{k};
     
-    for i=1:ncoeffs
+    if ~isempty(index_k) && betas~=0
+        if ~isfield(args,'flag') || ~args.flag
+            for i=1:ncoeffs
+            
+            tmp1 = single(d.datamat(i,index_k));
+            tmp2 = single(d.coeffs(i));
+            
+            img1d(index_k) = img1d(index_k) + tmp1 * tmp2;
+            
+            end   
+        else
+            img1d(index_k) = ones(1,length(index_k));
+        end        
         
-        tmp1 = single(d.datamat(i,index_k));
-        tmp2 = single(d.coeffs(i));
-        
-        img1d(index_k) = img1d(index_k) + tmp1 * tmp2;
-        
+        img1d(index_k) = betas * img1d(index_k);
     end
     
-    betas = single(args.betas(k));
-    
-    img1d(index_k) = betas * img1d(index_k);
 end
 
 % weigths

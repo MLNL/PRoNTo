@@ -111,17 +111,15 @@ mm = in.mm;
 
 idROI = [];
 idfeat = PRT.fas(fas_idx(1)).idfeat_img;
-if isempty(PRT.fs(fs_idx).modality(mm).idfeat_fas) % get the 2nd level masking
+if isempty(PRT.fs(fs_idx).modality(mm(1)).idfeat_fas) % get the 2nd level masking
     idfeat_fas = 1:length(idfeat);
 else
-    idfeat_fas = PRT.fs(fs_idx).modality(mm).idfeat_fas;
+    idfeat_fas = PRT.fs(fs_idx).modality(mm(1)).idfeat_fas;
 end
-if PRT.fs(fs_idx).multkernel && ...   %multiple kernels in feature set
-        isfield(PRT.fs(fs_idx).modality(mm),'idfeat_img') && ... %ROIs
-        ~isempty(PRT.fs(fs_idx).modality(mm).idfeat_img)
-    m_train = cell(length(PRT.fs(fs_idx).modality(mm).idfeat_img),1);
-    for i = 1:length(PRT.fs(fs_idx).modality(mm).idfeat_img)
-        tmp1 = PRT.fs(fs_idx).modality(mm).idfeat_img{i};
+if PRT.fs(fs_idx).multkernelROI
+    m_train = cell(length(PRT.fs(fs_idx).modality(mm(1)).idfeat_img),1);
+    for i = 1:length(PRT.fs(fs_idx).modality(mm(1)).idfeat_img)
+        tmp1 = PRT.fs(fs_idx).modality(mm(1)).idfeat_img{i};
         idROI=[idROI;tmp1];
         tmp = idfeat_fas(tmp1);
         m_train{i} = idfeat(tmp);
@@ -318,7 +316,11 @@ for p=0:maxp
     if p==0
         for f = 1:nfold,
             for c = 1:nimage
-                img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f)./norm4d{c}(1,f);
+                if unique(norm4d{c}(1,f))~=0
+                    img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f)./norm4d{c}(1,f);
+                else
+                    img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f);
+                end
             end
         end
     end

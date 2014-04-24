@@ -231,10 +231,12 @@ if ~flag
     dumb = which('svmtrain');
     if isempty(strfind(dumb,'libsvm'))
         flag=2; %still not working, need to recompile
-    else
-        flag =1;
+    elseif ~isempty(strfind(dumb,'biolearning'))
+        flag = 2;
         disp('PRoNTo was found under the biostats toolbox, please correct path')
         disp('SVM path: OK')
+    else
+        flag =1;
     end
 end
 

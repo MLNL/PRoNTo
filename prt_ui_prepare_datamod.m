@@ -129,9 +129,9 @@ set(handles.pop_norm,'String',{'No scaling', ...
     'Specify from .mat'});
 set(handles.pop_norm,'Value',1)
 set(handles.froi, 'Value',0)
-set(handles.froi,'Enable','off')
-set(handles.edit_atlas,'Visible','off')
-set(handles.br_atlas,'Visible','off')
+set(handles.froi,'Enable','on')
+set(handles.edit_atlas,'Visible','on')
+set(handles.br_atlas,'Visible','on')
 set(handles.edit_atlas,'Enable','off')
 set(handles.br_atlas,'Enable','off')
 if ~isempty(varargin{1}) && strcmpi(varargin{1},'UserData')
@@ -143,11 +143,6 @@ else
     return
 end
 mod_n={handles.PRT.masks(:).mod_name}; %only one modality
-if handles.nmtc == 1
-    set(handles.froi,'Enable','on')
-    set(handles.edit_atlas,'Visible','on')
-    set(handles.br_atlas,'Visible','on')
-end
 set(handles.pop_mod,'String',mod_n)
 set(handles.pop_mod,'Value',1)
 % if only one modality and no design, suppress the "all conditions" option
