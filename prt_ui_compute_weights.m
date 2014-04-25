@@ -213,6 +213,13 @@ set(handles.pop_models,'String',list(handles.indm))
 set(handles.pop_models,'Value',1)
 handles.selmod=handles.indm(1);
 set(handles.compbutt,'Enable','on')
+in = struct();
+im = handles.indm(1);
+in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+fid = prt_init_fs(handles.dat,in);
+if isfield(handles.dat.fs(fid),'atlas_name')
+    set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -272,7 +279,7 @@ im = handles.indm(1);
 in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
 fid = prt_init_fs(handles.dat,in);
 if isfield(handles.dat.fs(fid),'atlas_name')
-    set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name)
+    set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
 end
 % Update handles structure
 guidata(hObject, handles);
