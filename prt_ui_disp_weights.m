@@ -734,11 +734,11 @@ if strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')
     nmod = length(handles.PRT.fs(fid).modality);
     mods = cell(nmod,1);
     for i=1:nmod
-        mods{i} = handles.PRT.fs(fid).modality(i).mod_name{1};
+        mods{i} = handles.PRT.fs(fid).modality(i).mod_name;
     end
     handles.summed = 0;
 else
-    mods{1} = handles.PRT.fs(fid).modality(1).mod_name{1};
+    mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
     handles.summed = 1; % either summed modalities or only one
 end
 handles.nmods = mods;
@@ -1116,23 +1116,126 @@ handles.datmod = datmod;
 
 % Fill table and bar graph if needed
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI or modality weight values
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
         isfield(handles,'wmap') && ~isempty(handles.wmap)
-   handles.dattable = dat;
-   
-   dat = dat(handles.sort_roi,:);
-   set(handles.ROItable,'Data',dat);
-   set(handles.ROItable,'ColumnEditable',false(1,length(lc)));
-   set(handles.ROItable,'ColumnName',lc);
-   set(handles.ROItable,'visible','on');
-   
-   %Bar graph to show decrease in ROI weights
-   set(handles.axes1,'visible','on')
-   bar(handles.axes1,weights(idwroi));
-   set(get(handles.axes1,'XLabel'),'FontWeight','demi')
-   set(get(handles.axes1,'XLabel'),'String',xlabel)
-   set(get(handles.axes1,'YLabel'),'String',ylabel)
-   set(get(handles.axes1,'YLabel'),'FontWeight','demi')
+    handles.dattable = dat;
+    
+    dat = dat(handles.sort_roi,:);
+    set(handles.ROItable,'Data',dat);
+    set(handles.ROItable,'ColumnEditable',false(1,length(lc)));
+    set(handles.ROItable,'ColumnName',lc);
+    set(handles.ROItable,'visible','on');
+    
+    %Bar graph to show decrease in ROI weights
+    set(handles.axes1,'visible','on')
+    bar(handles.axes1,weights(idwroi));
+    set(get(handles.axes1,'XLabel'),'FontWeight','demi')
+    set(get(handles.axes1,'XLabel'),'String',xlabel)
+    set(get(handles.axes1,'YLabel'),'String',ylabel)
+    set(get(handles.axes1,'YLabel'),'FontWeight','demi')
+    
+    
+    
+    
+    %set size of the window, taking screen resolution and platform into account
+    %--------------------------------------------------------------------------
+    S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+    if ispc
+        PF='MS Sans Serif';
+    else
+        PF= spm_platform('fonts');     %-Font names (for this platform)
+        PF=PF.helvetica;
+    end
+    tmp  = [S0(3)/1280 (S0(4))/800];
+    ratio=min(tmp)*[1 1 1 1];
+    FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
+    x=get(handles.figure1,'Position');
+    set(handles.figure1,'Position',ratio.*x)
+    set(handles.figure1,'Resize','on')
+    
+    
+    color=prt_get_defaults('color');
+    set(handles.figure1,'Color',color.bg1)
+    aa=get(handles.figure1,'children');
+    for i=1:length(aa)
+        if strcmpi(get(aa(i),'type'),'uipanel')
+            set(aa(i),'BackgroundColor',color.bg2)
+            bb=get(aa(i),'children');
+            if ~isempty(bb)
+                for j=1:length(bb)
+                    if strcmpi(get(bb(j),'type'),'uipanel')
+                        cc=get(bb(j),'children');
+                        set(bb(j),'BackgroundColor',color.bg2)
+                        for k=1:length(cc)
+                            if strcmpi(get(cc(k),'type'),'uipanel')
+                                dd=get(cc(k),'children');
+                                set(cc(k),'BackgroundColor',color.bg2)
+                                for l=1:length(dd)
+                                    if strcmpi(get(dd(l),'type'),'uicontrol')
+                                        if ~isempty(find(strcmpi(get(dd(l),'Style'),{'text',...
+                                                'radiobutton','checkbox'})))
+                                            set(dd(l),'BackgroundColor',color.bg2)
+                                        elseif ~isempty(find(strcmpi(get(dd(l),'Style'),'pushbutton')))
+                                            set(dd(l),'BackgroundColor',color.fr)
+                                        end
+                                    end
+                                    set(dd(l),'FontUnits','pixel')
+                                    xf=get(dd(l),'FontSize');
+                                    if ispc
+                                        set(dd(l),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                            'FontUnits','normalized','Units','normalized')
+                                    else
+                                        set(dd(l),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                            'Units','normalized')
+                                    end
+                                end
+                            elseif strcmpi(get(cc(k),'type'),'uicontrol') && ...
+                                    ~isempty(find(strcmpi(get(cc(k),'Style'),{'text',...
+                                    'radiobutton','checkbox'})))
+                                set(cc(k),'BackgroundColor',color.bg2)
+                            elseif strcmpi(get(cc(k),'type'),'uicontrol')&& ...
+                                    ~isempty(find(strcmpi(get(cc(k),'Style'),'pushbutton')))
+                                set(cc(k),'BackgroundColor',color.fr)
+                            end
+                            set(cc(k),'FontUnits','pixel')
+                            xf=get(cc(k),'FontSize');
+                            set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                'Units','normalized')
+                        end
+                    elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
+                            ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                            'radiobutton','checkbox'})))
+                        set(bb(j),'BackgroundColor',color.bg2)
+                    elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
+                            ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
+                        set(bb(j),'BackgroundColor',color.fr)
+                    end
+                    set(bb(j),'FontUnits','pixel')
+                    xf=get(bb(j),'FontSize');
+                    set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                        'Units','normalized')
+                end
+            end
+        elseif strcmpi(get(aa(i),'type'),'uicontrol')
+            if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                    'radiobutton','checkbox'})))
+                set(aa(i),'BackgroundColor',color.bg1)
+            elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+                set(aa(i),'BackgroundColor',color.fr)
+            end
+        end
+        if ~strcmpi(get(aa(i),'type'),'uimenu')
+            set(aa(i),'FontUnits','pixel')
+            xf=get(aa(i),'FontSize');
+            set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+                'Units','normalized')
+        end
+    end
+    
+    
+    
+    
+    
    if ~isempty(datmod)
       set(handles.modtable,'Visible','on')
       set(handles.modtable,'Enable','on')
