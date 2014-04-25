@@ -217,8 +217,16 @@ in = struct();
 im = handles.indm(1);
 in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
 fid = prt_init_fs(handles.dat,in);
-if isfield(handles.dat.fs(fid),'atlas_name')
-    set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+if isfield(handles.dat.fs(fid),'atlas_name') && ...
+        ~isempty(handles.dat.fs(fid).atlas_name) && ...
+        ~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL'))
+    if iscell(handles.dat.fs(fid).atlas_name)
+        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+    else
+        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name);
+    end
+else
+    set(handles.edit_atlas,'String','Load atlas');
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -278,8 +286,16 @@ in = struct();
 im = handles.indm(1);
 in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
 fid = prt_init_fs(handles.dat,in);
-if isfield(handles.dat.fs(fid),'atlas_name')
-    set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+if isfield(handles.dat.fs(fid),'atlas_name') && ...
+        ~isempty(handles.dat.fs(fid).atlas_name) && ...
+        ~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL'))
+    if iscell(handles.dat.fs(fid).atlas_name)
+        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+    else
+        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name);
+    end
+else
+    set(handles.edit_atlas,'String','Load atlas');
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -303,15 +319,16 @@ in = struct();
 im = handles.indm(val);
 in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
 fid = prt_init_fs(handles.dat,in);
-if isfield(handles.dat.fs(fid),'atlas_name') && ~isempty(handles.dat.fs(fid).atlas_name)
+if isfield(handles.dat.fs(fid),'atlas_name') && ...
+        ~isempty(handles.dat.fs(fid).atlas_name) && ...
+        ~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL'))
     if iscell(handles.dat.fs(fid).atlas_name)
-        atlas_name = handles.dat.fs(fid).atlas_name{1};
+        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
     else
-        atlas_name = handles.dat.fs(fid).atlas_name;
+        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name);
     end
-    set(handles.edit_atlas,'String',atlas_name)
 else
-    set(handles.edit_atlas,'String','Load atlas')
+    set(handles.edit_atlas,'String','Load atlas');
 end
 im_name = ['weights_',handles.dat.model(im).model_name,'.img'];
 set(handles.edit_imgname,'String',im_name)

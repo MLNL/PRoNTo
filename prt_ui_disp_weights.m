@@ -730,13 +730,18 @@ handles.class = 1;
 in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
 fid = prt_init_fs(handles.PRT,in);
 handles.fid = fid;
-nmod = length(handles.PRT.fs(fid).modality);
-mods = cell(nmod,1);
-for i=1:nmod
-    mods{i} = handles.PRT.fs(fid).modality(i).mod_name{1};
+if strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')
+    nmod = length(handles.PRT.fs(fid).modality);
+    mods = cell(nmod,1);
+    for i=1:nmod
+        mods{i} = handles.PRT.fs(fid).modality(i).mod_name{1};
+    end
+    handles.summed = 0;
+else
+    mods{1} = handles.PRT.fs(fid).modality(1).mod_name{1};
+    handles.summed = 1; % either summed modalities or only one
 end
 handles.nmods = mods;
-
 guidata(hObject, handles);
 imagemenu_Callback(hObject,eventdata,handles)
 handles = guidata(hObject);
@@ -822,7 +827,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
    fid = prt_init_fs(handles.PRT,in);
    % For each modality if multiple modalities in multiple kernel settings
-   if handles.PRT.fs(fid).multkernel
+   if handles.PRT.fs(fid).multkernel && ~handles.summed
        stm = length(handles.nmods); %if multiple modalities used in multiple kernels
    else
        stm =1; % if modalities concatenated or only one
@@ -834,7 +839,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    handles.num_roi = [];
    
    for i = 1:stm
-       if isfield(handles.PRT.fs(fid).modality(i),'num_ROI')
+       if isfield(handles.PRT.fs(fid).modality(i),'num_ROI') && ~handles.summed
             num_roi = handles.PRT.fs(fid).modality(i).num_ROI; % MKL on regions
             atl_name = handles.PRT.fs(fid).atlas_name{i};
        else
@@ -869,7 +874,8 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
                end
            else
                if isfield(handles.PRT.fs(fid),'igood_kerns') && ...
-                       length(handles.PRT.fs(fid).igood_kerns)==length(num_roi)
+                       length(handles.PRT.fs(fid).igood_kerns)==length(num_roi) &&...
+                       ~handles.summed
                     label = handles.labels{mi(m)}{i}(handles.PRT.fs(fid).igood_kerns); %take 0 kernels out
                     handles.num_roi(:,i) = handles.PRT.fs(fid).igood_kerns;
                else

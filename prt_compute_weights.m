@@ -344,7 +344,7 @@ else
                         [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
                         PRT.model(model_idx).output.weight_ROI(c) = {NW};
                     end
-                    PRT.model(model_idx).output.weight_idfeatroi = idfeatroi;
+                    PRT.model(model_idx).output.weight_idfeatroi{1} = idfeatroi;
                     PRT.model(model_idx).output.weight_atlas{1} = in.atl_name;
                 end
             else
@@ -376,7 +376,7 @@ else
                     end
                     [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
                     PRT.model(model_idx).output.weight_ROI(1) = {NW};
-                    PRT.model(model_idx).output.weight_idfeatroi = idfeatroi;
+                    PRT.model(model_idx).output.weight_idfeatroi{1} = idfeatroi;
                     PRT.model(model_idx).output.weight_atlas{1} = in.atl_name;
                 end
              else
