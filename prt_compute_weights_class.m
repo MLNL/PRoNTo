@@ -245,8 +245,13 @@ for p=0:maxp
                 d.datamat = zeros(length(train), length(feat_slc));
                 for i = 1:length(fas_idx)
                     % indexes to access the file array
-                    indm = PRT.fs(fs_idx).fas.im == fas_idx(i) & train_all;
-                    indtr = ID(train_idx,3) == fas_idx(i);
+                    indm = find(PRT.fs(fs_idx).fas.im == fas_idx(i));
+                    indm = indm(find(train_all));
+                    if PRT.fs(fs_idx).multkernel
+                        indtr = ID(train_idx,3) == fas_idx(1);
+                    else
+                        indtr = ID(train_idx,3) == fas_idx(i);
+                    end
                     ifa  = PRT.fs(fs_idx).fas.ifa(indm);
                     
                     % index for the target data matrix                    

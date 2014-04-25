@@ -59,10 +59,14 @@ if nargin>=3 && flag
     if isfield(addin,'idvox_fas')
         idvox = addin.idvox_fas;
     else
-        if ~isempty(PRT.fs(fid).modality(mids(1)).idfeat_fas)
-            idvox = PRT.fs(fid).modality(mids(1)).idfeat_fas;
+        if in.tocomp(mids(1)) % build everything
+            idvox = 1:PRT.fas(mids(1)).dat.dim(2); %n_vox has to be the same for all concatenated modalities (version 1.1)
         else
-            idvox = 1:PRT.fas(mids(1)).dat.dim(2);
+            if ~isempty(PRT.fs(fid).modality(mids(1)).idfeat_fas)
+                idvox = PRT.fs(fid).modality(mids(1)).idfeat_fas;
+            else
+                idvox = 1:PRT.fas(mids(1)).dat.dim(2);
+            end
         end
     end
     n_vox = numel(idvox);
