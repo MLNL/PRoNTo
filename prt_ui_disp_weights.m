@@ -949,7 +949,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    elseif isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') &&... % Summarizing the weights for ROI
            ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi) % Get the indexes of each ROI in the image
        lc = [lc,{'ROI size (vox)'}];
-       handles.idfeat_roi = cell(length(handles.PRT.model(mi(m)).output.weight_idfeatroi),1);
+       handles.idfeat_roi = cell(length(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}),1);
        for i = 1:length(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class})
            dat(i,3) = {length(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}{i})};
            handles.idfeat_roi{i} = handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}{i};
