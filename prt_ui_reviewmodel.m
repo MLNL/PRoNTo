@@ -253,6 +253,6 @@ catch
     disp('Could not load kernel file')
     return
 end
-imagesc(Phi)
+imagesc(Phi{1})
 colormap(jet)
 colorbar
