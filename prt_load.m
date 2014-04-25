@@ -1,4 +1,4 @@
-function PRT = prt_load(fname)
+function PRT = prt_load(fname,flag)
 
 % Function to load the PRT.mat and check its integrity regarding the 
 % kernels and feature sets that it is supposed to contain. Updates the  set
@@ -20,6 +20,10 @@ catch
     disp('Could not load file')
     PRT = [];
     return
+end
+
+if nargin<2
+    flag = 0;
 end
 
 % get path
@@ -65,10 +69,13 @@ if isfield(PRT,'fas') && ~isempty(PRT.fas)
 end
 
 %Check integrity of all PRT fields, for backward compatibility
-[PRT,flag] = prt_struct(PRT,prtdir);
-if ~flag
-    error('prt_load:EssentialFieldsMissing',['Essentials fields are missing. ',...
-        'This PRT cannot be used. Data and Design should be started from scratch'])
+if flag==1
+    [PRT,flag] = prt_struct(PRT,prtdir);
+    if ~flag
+        error('prt_load:EssentialFieldsMissing',['Essentials fields are missing. ',...
+            'This PRT cannot be used. Data and Design should be started from scratch'])
+    end
 end
+
 
 save([prtdir,filesep,'PRT.mat'],'PRT')
