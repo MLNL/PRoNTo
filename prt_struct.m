@@ -98,7 +98,7 @@ end
 if isfield(PRT,'fs')
     % Feature set .fs
     ng = {'fs_name','k_file','id_col_names','fas','modality','id_mat','multkernel',...
-        'atlas_name','igood_kerns'};
+        'atlas_name','igood_kerns','multkernelROI'};
     np = fieldnames(PRT.fs(1));
     cg = ismember(ng,np);
     if ~all(cg) % missing fields
@@ -113,6 +113,8 @@ if isfield(PRT,'fs')
                     PRT.fs(j).igood_kerns = 1;
                 elseif ita(i) == 1
                     PRT.fs(j).fs_name = '';
+                elseif ita(i) == 10
+                    PRT.fs(j).multkernelROI = 0;
                 end
             end
         end
