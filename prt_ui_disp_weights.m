@@ -1138,7 +1138,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
       set(handles.modtable,'Enable','on')
       set(handles.modtable,'Data',datmod(handles.sort_mod,:))
       set(handles.modtable,'ColumnEditable',false(1,size(datmod,2)));
-      set(handles.modtable,'ColumnName',{'Modality','Weight (%)','ER'});
+      set(handles.modtable,'ColumnName',{'Modality','Weight (%)','Exp. Ranking'});
    else
       set(handles.modtable,'Visible','off')
       set(handles.modtable,'Enable','off') 
