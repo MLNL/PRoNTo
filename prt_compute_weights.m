@@ -77,8 +77,8 @@ if PRT.fs(fs_idx).multkernelROI   %multiple ROI kernels in feature set
         count = 0;
         % get the indexes of the betas for each modality
         for i=1:length(fas_idx)
-            mim = find(mm(fas_idx(i),:));
-            numk = length(PRT.fs(fs_idx).modality(mim).idfeat_img);
+%             mim = find(mm(i,:));
+            numk = length(PRT.fs(fs_idx).modality(i).idfeat_img);
             ibeta_mod{i} = (1:numk)+count;
             count = count + numk;
         end
@@ -175,9 +175,9 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
     for i = 1:length(fas_idx)
         in.img_name = im_name{i};
         in.fas_idx = fas_idx(i);
-        in.mm = find(mm(i,:));
+        in.mm = find(mm(fas_idx(i),:));
         %Modify inputs according to file array and modality
-        PRT.fs(fs_idx).id_mat(:,3) = in.mm * ones(size(PRT.fs(fs_idx).id_mat,1),1);
+        PRT.fs(fs_idx).id_mat(:,3) = in.fas_idx * ones(size(PRT.fs(fs_idx).id_mat,1),1);
         PRT.fs(fs_idx).fas.im = im_all(im_all == fas_idx(i));
         PRT.fs(fs_idx).fas.ifa = ifa_all(im_all == fas_idx(i));
         switch mtype
