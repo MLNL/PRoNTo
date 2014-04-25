@@ -50,6 +50,8 @@ if isfield(PRT,'fas') && ~isempty(PRT.fas)
             else
                 ind = [ind,i];
             end
+        elseif isempty(PRT.fas(i).dat) && ~isempty(PRT.fas(i).mod_name) %modality there in data and design, but not built in feature set
+            ind = [ind,i];
         end
     end
     if isempty(ind)
