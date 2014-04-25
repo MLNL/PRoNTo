@@ -77,7 +77,7 @@ if PRT.fs(fs_idx).multkernelROI   %multiple ROI kernels in feature set
         count = 0;
         % get the indexes of the betas for each modality
         for i=1:length(fas_idx)
-            mim = find(mm(i,:));
+            mim = find(mm(fas_idx(i),:));
             numk = length(PRT.fs(fs_idx).modality(mim).idfeat_img);
             ibeta_mod{i} = (1:numk)+count;
             count = count + numk;
