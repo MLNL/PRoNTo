@@ -135,10 +135,11 @@ if isfield(PRT.model(model_idx).output,'weight_idfeatroi') && ...
     PRT.model(model_idx).output.weight_idfeatroi =[];
 end
 
-if isfield(PRT.model(model_idx).output,'weight_atlas') && ...
-        ~isempty(PRT.model(model_idx).output.weight_atlas)
-    PRT.model(model_idx).output.weight_atlas =[];
-end
+% if isfield(PRT.model(model_idx).output,'weight_atlas') && ...
+%         ~isempty(PRT.model(model_idx).output.weight_atlas)
+%     PRT.model(model_idx).output.weight_atlas =[];
+% end
+PRT.model(model_idx).output.weight_MOD = cell(nim,1);
 
 if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over the modalities since multiple kernels
     summroi  = 0;
@@ -169,7 +170,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
         PRT.model(model_idx).output.weight_idfeatroi = cell(nim,1);
         PRT.model(model_idx).output.weight_atlas = cell(nim,1);
     end
-    PRT.model(model_idx).output.weight_MOD = cell(nim,1);
+    
     imgcnt = 1;
     
     for i = 1:length(fas_idx)
