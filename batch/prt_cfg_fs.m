@@ -28,8 +28,6 @@ k_file.help    = {['Target name for kernel matrix. This should contain' ...
 k_file.strtype = 's';
 k_file.num     = [1 Inf];
 
-
-            
 % ---------------------------------------------------------------------
 % use_mkl Use MKL?
 % ---------------------------------------------------------------------
@@ -43,7 +41,6 @@ use_mkl.labels  = {
 use_mkl.values  = {1 0};
 use_mkl.val     = {0};
 use_mkl.help    = {'Do you wish to generate Multiple Kernels?'};
-
 
 % ---------------------------------------------------------------------
 % multkernflag Use multiple Kernels
@@ -59,7 +56,6 @@ flag_mm.labels  = {
 flag_mm.values  = {1 0};
 flag_mm.val     = {0};
 
-
 % ---------------------------------------------------------------------
 % atlasroi Filename(s) of atlas for ROI MKL
 % ---------------------------------------------------------------------
@@ -68,12 +64,11 @@ atlasroi.tag     = 'atlasroi';
 atlasroi.name    = 'Load Atlas';
 atlasroi.ufilter = '.*';
 atlasroi.filter  = 'image';
-atlasroi.num     = [1 1];
+atlasroi.num     = [0 1];
+atlasroi.val     = {{''}};
 % atlasroi.def     = @(val)prt_get_defaults('fs.atlasroi', val{:});
 atlasroi.help    = {'Select atlas file to build one kernel per ROI.'};
-
-        
-            
+           
 % ---------------------------------------------------------------------
 % cond_name Name
 % ---------------------------------------------------------------------
@@ -291,8 +286,6 @@ modalities.help    = {'Add modalities'};
 modalities.num     = [1 Inf];
 modalities.values  = {modality};
 
-
-
 % ---------------------------------------------------------------------
 % Configure Feature set
 % ---------------------------------------------------------------------
@@ -303,8 +296,6 @@ fs.val    = {infile, k_file, modalities, use_mkl, flag_mm};
 fs.help   = {'Compute feature set according to the design specified'};
 fs.prog   = @prt_run_fs;
 fs.vout   = @vout_data;
-
-
 
 %------------------------------------------------------------------------
 %% Output function
