@@ -246,11 +246,12 @@ for p=0:maxp
                 for i = 1:length(fas_idx)
                     % indexes to access the file array
                     indm = find(PRT.fs(fs_idx).fas.im == fas_idx(i));
-                    indm = indm(find(train_all));
                     if PRT.fs(fs_idx).multkernel
                         indtr = ID(train_idx,3) == fas_idx(1);
+                        indm = indm(find(train_all));
                     else
                         indtr = ID(train_idx,3) == fas_idx(i);
+                        indm = indm(find(train_all(ID_all(:,3)==fas_idx(i))));
                     end
                     ifa  = PRT.fs(fs_idx).fas.ifa(indm);
                     
