@@ -250,18 +250,24 @@ end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
 handles.fs(1).indfs=1;
-if isfield(handles.dat.fs(1),'multkernel') && handles.dat.fs(1).multkernel %allowing for multi-kernel learning
+if isfield(handles.dat.fs(1),'multkernel') && handles.dat.fs(1).multkernel %allowing for multi-kernel learning (
     handles.multimod = 1;
 else
     handles.multimod = 0;
 end
+if isfield(handles.dat.fs(1),'multkernelROI') && handles.dat.fs(1).multkernelROI %allowing for multi-kernel learning
+    handles.multiroi = 1;
+else
+    handles.multiroi = 0;
+end
+
 handles.use_kernel=get(handles.kernel_methods,'Value');
 if get(handles.pop_reg,'Value')==1 %for classification
     if handles.use_kernel
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod
+        if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
@@ -328,13 +334,18 @@ if handles.dat.fs(1).multkernel %allowing for multi-kernel learning
 else
     handles.multimod = 0;
 end
+if handles.dat.fs(1).multkernelROI %allowing for multi-kernel learning
+    handles.multiroi = 1;
+else
+    handles.multiroi = 0;
+end
 handles.use_kernel=get(handles.kernel_methods,'Value');
 if get(handles.pop_reg,'Value')==1 %for classification
     if handles.use_kernel
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod
+        if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
@@ -435,13 +446,18 @@ if isfield(handles.dat.fs(val),'multkernel')&& handles.dat.fs(val).multkernel %a
 else
     handles.multimod = 0;
 end
+if isfield(handles.dat.fs(val),'multkernelROI')&& handles.dat.fs(val).multkernelROI %allowing for multi-kernel learning
+    handles.multiroi = 1;
+else
+    handles.multiroi = 0;
+end
 handles.use_kernel=get(handles.kernel_methods,'Value');
 if get(handles.pop_reg,'Value')==1 %for classification
     if handles.use_kernel
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod
+        if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)

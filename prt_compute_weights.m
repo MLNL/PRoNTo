@@ -109,8 +109,13 @@ end
 
 % Compute the total number of images to be computed to initialize the
 % outputs
-nc = size(PRT.model(model_idx).output.stats.con_mat,2);
-if nc>2
+switch mtype
+    case 'classification'
+        nc = size(PRT.model(model_idx).output.stats.con_mat, 2);
+    case 'regression'
+        nc = 1;
+end
+if nc > 2
     nim = nim*nc;
 end
 
