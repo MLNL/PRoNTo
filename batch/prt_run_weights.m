@@ -29,6 +29,7 @@ else
 end
 pathdir = regexprep(fname,'PRT.mat', '');
 
+
 % -------------------------------------------------------------------------
 % Input file
 % -------------------------------------------------------------------------
@@ -41,7 +42,21 @@ else
     flag      = 0;
 end
 
-img_name = prt_compute_weights(PRT, in, flag);
+
+% -------------------------------------------------------------------------
+% Weights per ROI
+% -------------------------------------------------------------------------
+if isfield(job, 'atl_name')
+    if ~isempty(job.atl_name)
+        in.atl_name = job.atl_name;
+        flag2 = 1;
+    else
+        in.atl_name = [];
+        flag2 = 0;
+    end
+end
+
+img_name = prt_compute_weights(PRT, in, flag, flag2);
 
 % -------------------------------------------------------------------------
 % Function output

@@ -58,12 +58,26 @@ flag_cwi.values  = {1 0};
 flag_cwi.val     = {0};
 
 % ---------------------------------------------------------------------
+% atlasroi Filename for the atlas to compute the weights per ROI
+% ---------------------------------------------------------------------
+atl_name         = cfg_files;
+atl_name.tag     = 'atl_name';
+atl_name.name    = 'Load Atlas';
+atl_name.ufilter = '.*';
+atl_name.filter  = 'image';
+atl_name.num     = [0 1];
+atl_name.val     = {{''}};
+% atlasroi.def     = @(val)prt_get_defaults('fs.atlasroi', val{:});
+atl_name.help    = {'Select atlas file to build weights per ROI.'};
+
+
+% ---------------------------------------------------------------------
 % cv_model Preprocessing
 % ---------------------------------------------------------------------
 weights        = cfg_exbranch;
 weights.tag    = 'weights';
 weights.name   = 'Compute weights';
-weights.val    = {infile model_name img_name flag_cwi};
+weights.val    = {infile model_name img_name flag_cwi atl_name};
 weights.help   = {[
     'Compute weights. This module computes the linear weights of a classifier ',...
     'and saves them as a 4D image. 3 dimensions correspond to the image dimensions specified in ',...
