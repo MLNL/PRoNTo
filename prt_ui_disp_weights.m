@@ -872,7 +872,9 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
            catch
                  disp('No file containing the names of the ROIs found, generic names used')
            end
-           if ~isfield(handles,'labels') || isempty(handles.labels{mi(m)}{i})
+           if ~isfield(handles,'labels') || ...
+                   isempty(handles.labels{mi(m)}) || ...
+                   isempty(handles.labels{mi(m)}{i})
                label=cell(length(num_roi),1);
                for j=1:length(num_roi)
                    label{j} = ['ROI_',num2str(num_roi(j))];
