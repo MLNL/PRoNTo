@@ -221,7 +221,7 @@ else
                     total_greater_mse=total_greater_mse+1;
                 end
                 permutation.nmse(p)=perm_stats.nmse;
-                if (perm_stats.nmse >= PRT.model(modelid).output.stats.nmse)
+                if (perm_stats.nmse <= PRT.model(modelid).output.stats.nmse)
                     total_greater_nmse=total_greater_nmse+1;
                 end
                 permutation.r2(p)=perm_stats.r2;
