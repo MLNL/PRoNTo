@@ -147,6 +147,7 @@ for f = 1:n_folds
         if PRT.model(mid).input.use_nested_cv
             [out] = prt_nested_cv(PRT, fdata);
             PRT.model(mid).output.fold(f).param_effect = out;
+            PRT.model(mid).input.machine.args = out.opt_param;
         end
     end
     
