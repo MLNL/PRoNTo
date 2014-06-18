@@ -173,6 +173,12 @@ if isfield(job.model_type,'classification')
     elseif isfield(job.model_type.classification.machine_cl,'sMKL_cla')
         model.machine.function='prt_machine_sMKL_cla';
         model.machine.args=job.model_type.classification.machine_cl.sMKL_cla.sMKL_cla_args;
+        if isfield(job.model_type.classification.machine_cl.sMKL_cla, 'sMKL_cla_opt')
+            if job.model_type.classification.machine_cl.sMKL_cla.sMKL_cla_opt
+                model.cv.nested = 1;
+                model.cv.nested_param = job.model_type.classification.machine_cl.sMKL_cla.sMKL_cla_args;
+            end
+        end
     else
         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
         model.machine.function = nam;
