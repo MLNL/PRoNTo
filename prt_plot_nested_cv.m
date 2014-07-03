@@ -39,6 +39,22 @@ switch PRT.model(model).input.machine.function
         box(axes_handle,'on');
         hold(axes_handle,'all');
         
+    case 'prt_machine_sMKL_reg'
+        x_label = 'Args';
+        y_label = 'MSE';
+        
+        %If no axes_handle is given, create a new window
+        if ~exist('axes_handle', 'var')
+            figure;
+            axes_handle = axes('XScale','log','XMinorTick','on');
+        else
+            % Clear EVERYTHING in the UI before defining the axes
+            cla(axes_handle, 'reset');
+            set(axes_handle, 'XScale','log','XMinorTick','on');
+        end
+        box(axes_handle,'on');
+        hold(axes_handle,'all');
+        
         
     case 'prt_machine_krr'
         x_label = 'Args';
@@ -53,6 +69,8 @@ switch PRT.model(model).input.machine.function
             cla(axes_handle, 'reset');
             set(axes_handle, 'XScale','linear');
         end
+        
+        
         
     case 'prt_machine_ENMKL'
         x_label = 'mu';
@@ -215,7 +233,7 @@ else % It's a 1 parameter optimisation problem
         % Get mean f values
         for i = 1:nfold
             f(i,:) = PRT.model(model).output.fold(i).param_effect.vary_param;
-            % Get the chosen optimal values            
+            % Get the chosen optimal values
             x_opt(i) = PRT.model(model).output.fold(i).param_effect.opt_param;
         end
         f = 100.*f;

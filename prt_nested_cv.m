@@ -40,7 +40,7 @@ end
 
 % Set range of the hyper parameters
 switch PRT.model(in.mid).input.machine.function
-    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr'}
+    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr', 'prt_machine_sMKL_reg'}
         if ~isempty(PRT.model(in.mid).input.nested_param)
             par = PRT.model(in.mid).input.nested_param;
         else
@@ -86,7 +86,7 @@ for i = 1:size(par, 2)
             PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'classifier';
             
-        case 'prt_machine_krr'
+        case {'prt_machine_krr', 'prt_machine_sMKL_reg'}
             PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'regression';
         
