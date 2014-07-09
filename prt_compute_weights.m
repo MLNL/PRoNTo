@@ -234,7 +234,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
                     if mult_kern_ROI % Kernels built from an atlas directly
                         disp('Building image of weights per region')
                         in.img_name = ['ROI_',name_f{1}];
-                        prt_compute_weights_regre(PRT,in,model_idx,flag,ibe,1);
+                        prt_compute_weights_regre(PRT,in,model_idx,flag,ibeta_mod{i},1);
                         
                     else % Need to summarize the weights per region
                         disp('Building image of weights per region')

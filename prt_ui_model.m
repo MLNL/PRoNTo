@@ -730,7 +730,7 @@ function flag_opt_param_Callback(hObject, eventdata, handles)
 v = get(handles.flag_opt_param,'Value');
 if v
     switch handles.machine.function
-        case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr'}
+        case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr','prt_machine_sMKL_reg'}
             set(handles.edit_param_range,'Enable','on')
             handles.cv.nested = 1;
         otherwise
