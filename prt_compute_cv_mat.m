@@ -18,20 +18,20 @@ if ~isfield(PRT.model(modelid).input, 'cv')
 end
 
 
-if isfield(PRT.model(modelid).input.cv,'k')
-    k = PRT.model(modelid).input.cv.k;
+if isfield(PRT.model(modelid).input,'cv_k')
+    k = PRT.model(modelid).input.cv_k;
 elseif isfield(in.cv,'k')
     k = in.cv.k;
-    PRT.model(modelid).input.cv.k = k;
+    PRT.model(modelid).input.cv_k = k;
 else
     k=0; %loo cv
-    PRT.model(modelid).input.cv.k = k;
+    PRT.model(modelid).input.cv_k = k;
 end
 
 if k==1 %half-half
     k=2;
     flaghh=1;
-    PRT.model(modelid).input.cv.k = k;
+    PRT.model(modelid).input.cv_k = k;
 else
     flaghh=0;
 end

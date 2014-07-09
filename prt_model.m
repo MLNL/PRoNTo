@@ -85,15 +85,15 @@ PRT.model(modelid).input.targ_allscans    = t_allscans;
 
 % compute cross-validation matrix and specify operations to apply
 % -------------------------------------------------------------------------
-    
-[CV,ID] = prt_compute_cv_mat(PRT,in, modelid);
-PRT.model(modelid).input.cv_mat     = CV;
-PRT.model(modelid).input.cv_type=in.cv.type;
 if isfield(in.cv,'k')
     PRT.model(modelid).input.cv_k=in.cv.k;
 else
     PRT.model(modelid).input.cv_k = 0;
-end
+end  
+[CV,ID] = prt_compute_cv_mat(PRT,in, modelid);
+PRT.model(modelid).input.cv_mat     = CV;
+PRT.model(modelid).input.cv_type=in.cv.type;
+
 
 % Use nested CV to optimize hyperparameter?
 if isfield(in.cv,'nested')
