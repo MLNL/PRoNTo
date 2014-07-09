@@ -653,6 +653,12 @@ if strcmp(PRT.model(model).input.type,'classification')
     %         plotchosen = num2str(multiplot(plotm));
     %     end
     
+    % Check if the model has hyper-parameter optimization
+    if (~isfield(handles.PRT.model(model).input,'use_nested_cv') || ...
+            ~handles.PRT.model(model).input.use_nested_cv) && plotchosen == '4'
+        plotchosen = '1';
+    end
+    
     % Plot
     % ---------------------------------------------------------------------
     switch plotchosen
