@@ -1,4 +1,4 @@
-function [] = prt_permutation(PRT, n_perm, modelid, path, flag)
+﻿function [] = prt_permutation(PRT, n_perm, modelid, path, flag)
 % Function to compute permutation test
 %
 % Inputs:
@@ -55,8 +55,6 @@ else
     % configure some variables
     CV       = PRT.model(modelid).input.cv_mat;     % CV matrix
     n_folds  = size(CV,2);                      % number of CV folds
-    n_Phi    = length(PRT.model(modelid).input.fs); % number of data matrices
-    samp_idx = PRT.model(modelid).input.samp_idx;   % which samples are in the model
     
     % parralel code?
     if def_par.allow
@@ -71,28 +69,15 @@ else
     t = PRT.model(modelid).input.targets;
     
     % load data files and configure ID matrix
-    Phi_all = cell(1,n_Phi);
-    for i = 1:length(PRT.model(modelid).input.fs)
-        fid=find(strcmp({PRT.fs(:).fs_name},PRT.model(modelid).input.fs(i).fs_name));
-        if i == 1
-            ID = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
-        end
-        
-        if PRT.model(modelid).input.use_kernel
-            load(fullfile(prt_dir, PRT.fs(fid).k_file));
-            if ~iscell(Phi)
-                Phi = {Phi};
-            end
-            Phi_all{i} = Phi{i}(samp_idx,samp_idx);
-        else
-            error('training with features not implemented yet');
-            % this should be improved (e.g. need to load feat_idx)
-            vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);
-            eval(['Phi_all{',num2str(i),'}=',vname,'(samp_idx,:);']);
-        end
-        
+    [Phi_all,ID,fid] = prt_getKernelModel(PRT,prt_dir,modelid);
+
+    %get number of classes
+    if strcmpi(PRT.model(modelid).input.type,'classification')
+        nc=max(unique(t));
+    else
+        nc=[];
     end
-    
+    fdata.nc = nc;
     
     % Find chunks in the data (e.g. temporal correlated samples)
     % -------------------------------------------------------------------------
@@ -172,6 +157,15 @@ else
             fdata.CV      = CV(:,f);
             fdata.Phi_all = Phi_all;
             fdata.t       = t;
+            
+            % Nested CV for hyper-parameter optimisation or feature selection
+            if isfield(PRT.model(modelid).input,'use_nested_cv')
+                if PRT.model(modelid).input.use_nested_cv
+                    [out] = prt_nested_cv(PRT, fdata);
+                    PRT.model(modelid).output.fold(f).param_effect = out;
+                    PRT.model(modelid).input.machine.args = out.opt_param;
+                end
+            end
             
             [temp_model, targets] = prt_cv_fold(PRT,fdata);
             
@@ -298,3 +292,4 @@ else
 end
 
 end
+
