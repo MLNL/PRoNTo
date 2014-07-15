@@ -1,4 +1,4 @@
-﻿function [outfile]=prt_cv_model(PRT,in)
+function [outfile]=prt_cv_model(PRT,in)
 % Function to run a cross-validation structure on a given model
 %
 % Inputs:
