@@ -735,15 +735,15 @@ if ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && .
     nmod = length(handles.PRT.fs(fid).modality);
     mods = cell(nmod,1);
     for i=1:nmod
-        mods{i} = handles.PRT.fs(fid).modality(i).mod_name{1};
+        mods{i} = handles.PRT.fs(fid).modality(i).mod_name;
     end
     handles.summed = 0;
 elseif ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && ...
         ~handles.PRT.fs(fid).multkernel
-    mods{1} = handles.PRT.fs(fid).modality(1).mod_name{1};
+    mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
     handles.summed = 0; % either summed modalities or only one
 else
-    mods{1} = handles.PRT.fs(fid).modality(1).mod_name{1};
+    mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
     handles.summed = 1; % either summed modalities or only one
 end
 handles.nmods = mods;
