@@ -30,6 +30,8 @@ function ok = prt_check(list_check,dir_root)
 %   directory on your system.
 % - This will close all Matlab windows before relaunching PRoNTo and the
 %   matlabbatch system.
+%
+% TODO:
 % - Need to include the RandomForest classification for a more complete 
 %   check, when available and working. Simple case could be to use RF on 
 %   the Faces data set.
@@ -46,7 +48,7 @@ function ok = prt_check(list_check,dir_root)
 if nargin<1, list_check = [1 2 3]; end
 if nargin<2
      % adjust with your own data set
-    dir_root = '/Users/chrisp/Documents/MATLAB/3_Data/PRoNTo'; 
+    dir_root = '/Users/chrisp/Documents/MATLAB/3_Data/PRoNTo/PRoNTo_data'; 
 end
 while isempty(dir_root) || ~exist(dir_root,'dir')
     % or select the root directories manually
@@ -202,7 +204,7 @@ m_dir = fullfile(prt('dir'),'masks');
 b_file = fullfile(prt('dir'),'_unitTests','batch_test_IXIdata.mat');
 load(b_file)
 
-% set files: images into 4 sets (g1m1-g1m2-g2m1-g2m2-g3m1-g3m2)
+% set files: images into 6 sets (g1m1-g1m2-g2m1-g2m2-g3m1-g3m2)
 matlabbatch{1}.cfg_basicio.cfg_named_file.files{1} = cellstr(...
     spm_select('FPList',fullfile(d_dir{1},'Guys'),'^sdv.*\.nii$'));
 matlabbatch{1}.cfg_basicio.cfg_named_file.files{2} = cellstr(...
