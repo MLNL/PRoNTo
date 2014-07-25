@@ -74,10 +74,7 @@ model.use_kernel = job.use_kernel;
 
 model.fs(1).fs_name = job.fsets;
 fid = prt_init_fs(PRT,model.fs(1));
-mods = [PRT.fs(fid).modality(:).mod_name];
-if ~iscell(mods)
-    mods = {mods};
-end
+mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
 
 % get the conditions which are common to all subjects from all groups
 nm = length(mods);

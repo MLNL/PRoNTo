@@ -87,8 +87,8 @@ for i=1:length(PRT.masks)
             mod(i).mask = [];
         end
         
-        if isfield(job.modality(i),'atlasroi')
-            mod(i).atlasroi = job.modality(i).atlasroi{1};
+        if isfield(job.modality(ind),'atlasroi')
+            mod(i).atlasroi = job.modality(ind).atlasroi{1};
             if ~isempty(mod(i).atlasroi)
                 mod(i).multroi = 1;
             else
