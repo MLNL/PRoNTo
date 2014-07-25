@@ -19,9 +19,9 @@ job   = varargin{1};
 % Load PRT.mat
 % -------------------------------------------------------------------------
 fname  = char(job.infile);
-PRT=prt_load(fname);
+PRT    = prt_load(fname);
 if ~isempty(PRT)
-    handles.dat=PRT;
+    handles.dat = PRT;
 else
     beep
     disp('Could not load file')
@@ -47,13 +47,16 @@ end
 % Weights per ROI
 % -------------------------------------------------------------------------
 if isfield(job, 'atl_name')
-    if ~isempty(job.atl_name)
-        in.atl_name = job.atl_name;
+    if ~isempty(job.atl_name{1})
+        in.atl_name = job.atl_name{1};
         flag2 = 1;
     else
         in.atl_name = [];
         flag2 = 0;
     end
+else % This should make things compatible older jobs...
+    in.atl_name = [];
+    flag2 = 0;
 end
 
 img_name = prt_compute_weights(PRT, in, flag, flag2);

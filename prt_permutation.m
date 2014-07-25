@@ -1,4 +1,4 @@
-﻿function [] = prt_permutation(PRT, n_perm, modelid, path, flag)
+function [] = prt_permutation(PRT, n_perm, modelid, path, flag)
 % Function to compute permutation test
 %
 % Inputs:

@@ -12,10 +12,10 @@ function img_name = prt_compute_weights(PRT,in,flag,flag2)
 %                         (string)
 %           .pathdir    - directory path where to save weights (same as the
 %                         one for PRT.mat) (string)
+%           .atl_name   - name of the atlas for post-hoc local averages of
 %       flag            - set to 1 to compute the weight images for each
 %                         permutation (default: 0)
 %       flag2           - set to 1 to build image of weight per ROI
-%       atl_name        - name of the atlas for post-hoc local averages of
 %                         weights according to atlas
 % Output:
 %       img_name        - name of the .img file created
@@ -119,7 +119,7 @@ if nc > 2
     nim = nim*nc;
 end
 
-%Check inputs for weights per region
+% Check inputs for weights per region
 if exist('flag2','var') && flag2
     if isempty(in.atl_name) && ~mult_kern_ROI
         error('prt_compute_weights:NoAtlas',...
@@ -312,12 +312,12 @@ else
                 [du,name_fin{i}] = spm_fileparts(img_name{i}); 
             end
             if exist('flag2','var') && flag2 % Build image of weights per region
-                
+                disp('Building image of weights per region')
+
                 if mult_kern_ROI && ...
                         isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
                         ~isempty(PRT.model(model_idx).output.fold(1).beta)
                     
-                    disp('Building image of weights per region')
                     if length(name_fin)>1 % multiple classes
                         in.img_name = ['ROI_',name_fin{j}(1:end-2)];
                     else
@@ -334,7 +334,6 @@ else
                         PRT.model(model_idx).output.weight_ROI(i) = {betas};
                     end
                 else
-                    disp('Building image of weights per region')
                     in.flag = flag;
                     if isempty(in.atl_name) && mult_kern_ROI
                         in.atl_name = PRT.fs(fs_idx).atlas_name;
