@@ -144,10 +144,13 @@ else
         
         disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
         
-        % permute labels
+        % permute
         chunkperm=randperm(length(chunks));
-        for i=1:length(chunks)
-            t(chunks{i},1)= unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)}));
+        for i = 1:length(chunks)
+            for j = 1:length(Phi_all)
+                Phi_all{j}(cell2mat(chunks(i)), cell2mat(chunks(i))) = ...
+                    Phi_all{j}(cell2mat(chunks(chunkperm(i))), cell2mat(chunks(chunkperm(i))));
+            end
         end
         
         for f = 1:n_folds
