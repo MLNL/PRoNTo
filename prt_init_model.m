@@ -1,13 +1,13 @@
 function [mid, PRT] = prt_init_model(PRT, in)
 % function to initialise the model data structure
 %
-% FORMAT: Two modes are possible: 
+% FORMAT: Two modes are possible:
 %     mid = prt_init_model(PRT, in)
 %     [mid, PRT] = prt_init_model(PRT, in)
 %
 % USAGE 1:
 % ------------------------------------------------------------------------
-% function will return the id of a model or an error if it doesn't 
+% function will return the id of a model or an error if it doesn't
 % exist in PRT.mat
 % Input:
 % ------
@@ -17,7 +17,7 @@ function [mid, PRT] = prt_init_model(PRT, in)
 % -------
 % mid : is the identifier for the model in PRT.mat
 %
-% USAGE 2: 
+% USAGE 2:
 % -------------------------------------------------------------------------
 % function will create the model in PRT.mat and overwrite it if it
 % already exists.
@@ -32,9 +32,9 @@ function [mid, PRT] = prt_init_model(PRT, in)
 % Output:
 % -------
 % Populates the following fields in PRT.mat (copied from above):
-% PRT.model(m).input.model_name 
-% PRT.model(m).input.type 
-% PRT.model(m).input.use_kernel 
+% PRT.model(m).input.model_name
+% PRT.model(m).input.type
+% PRT.model(m).input.use_kernel
 % PRT.model(m).input.machine
 %
 % Note: this function does not write PRT.mat. That should be done by the
@@ -42,7 +42,7 @@ function [mid, PRT] = prt_init_model(PRT, in)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by A. Marquand 
+% Written by A. Marquand
 % $Id$
 
 % find model index
@@ -80,6 +80,16 @@ else
     PRT.model(mid).input.use_kernel = in.use_kernel;
     PRT.model(mid).input.type       = in.type;
     PRT.model(mid).input.machine    = in.machine;
+    
+    % Use nested CV to optimize hyperparameter?
+    if isfield(in.cv,'nested')
+        PRT.model(mid).input.use_nested_cv = in.cv.nested;
+        PRT.model(mid).input.nested_param  = in.cv.nested_param;
+    else
+        PRT.model(mid).input.use_nested_cv = 0;
+        PRT.model(mid).input.nested_param  = [];
+    end
+    
 end
 
 end
