@@ -66,14 +66,15 @@ prt_def.dspec.use3 = [1 2];
 
 % Specify model: Parameters of the different machines
 %--------------------------------------------------
-prt_def.model.svmargs    = 1;
-prt_def.model.libsvmargs = '-s 0 -t 4 -c ';
-prt_def.model.gpcargs    = '-l erf -h';%-h 
-prt_def.model.gpclapargs = '-h'; %'-h';
-prt_def.model.gprargs    = '-l gauss -h'; % -h
-prt_def.model.krrargs    = 1;
-prt_def.model.rtargs     = 601;
-prt_def.model.l1MKLargs  = 1;
+prt_def.model.svmargs     = 1;
+prt_def.model.libsvmargs  = '-s 0 -t 4 -c ';
+prt_def.model.gpcargs     = '-l erf -h';%-h 
+prt_def.model.gpclapargs  = '-h'; %'-h';
+prt_def.model.gprargs     = '-l gauss -h'; % -h
+prt_def.model.krrargs     = 1;
+prt_def.model.rtargs      = 601;
+prt_def.model.l1MKLargs   = 1;
+prt_def.model.l1MKLmaxitr = 500;
 
 % Parralelization of the code
 %--------------------------------------------------

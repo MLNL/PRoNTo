@@ -27,6 +27,8 @@ function output = prt_machine_sMKL_cla(d,args)
 
 % Written by J. Mourao-Miranda 
 
+def = prt_get_defaults;
+
 %------------------------------------------------------
 % configure simpleMKL options
 %------------------------------------------------------
@@ -61,7 +63,7 @@ options.lambdareg = 1e-8;          % ridge added to kernel matrix
 %------------------------------------------------------
 options.firstbasevariable='first'; % tie breaking method for choosing the base
 % variable in the reduced gradient method
-options.nbitermax=500;             % maximal number of iteration
+options.nbitermax=def.model.l1MKLmaxitr;  % maximal number of iteration
 options.seuil=0;                   % forcing to zero weights lower than this
 options.seuilitermax=10;           % value, for iterations lower than this one
 
