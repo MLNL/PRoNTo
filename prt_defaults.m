@@ -74,7 +74,7 @@ prt_def.model.gprargs     = '-l gauss -h'; % -h
 prt_def.model.krrargs     = 1;
 prt_def.model.rtargs      = 601;
 prt_def.model.l1MKLargs   = 1;
-prt_def.model.l1MKLmaxitr = 500;
+prt_def.model.l1MKLmaxitr = 250;
 
 % Parralelization of the code
 %--------------------------------------------------

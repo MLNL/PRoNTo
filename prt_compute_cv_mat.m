@@ -17,16 +17,20 @@ if ~isfield(PRT.model(modelid).input, 'cv')
     PRT.model(modelid).input.cv={};
 end
 
-
-if isfield(PRT.model(modelid).input,'cv_k')
-    k = PRT.model(modelid).input.cv_k;
-elseif isfield(in.cv,'k')
-    k = in.cv.k;
-    PRT.model(modelid).input.cv_k = k;
+if ~use_nested_cv
+    if isfield(PRT.model(modelid).input,'cv_k')
+        k = PRT.model(modelid).input.cv_k;
+    elseif isfield(in.cv,'k')
+        k = in.cv.k;
+        PRT.model(modelid).input.cv_k = k;
+    else
+        k=0; %loo cv
+        PRT.model(modelid).input.cv_k = k;
+    end
 else
-    k=0; %loo cv
-    PRT.model(modelid).input.cv_k = k;
+    k = in.cv.k;    
 end
+
 
 if k==1 %half-half
     k=2;

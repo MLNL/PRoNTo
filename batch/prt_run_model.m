@@ -158,6 +158,11 @@ if isfield(job.model_type,'classification')
                 model.cv.nested_param = job.model_type.classification.machine_cl.svm.svm_args;
             end
         end
+         if isfield(job.model_type.classification.machine_cl.svm, 'cv_type_nested')
+           [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.svm.cv_type_nested);
+           model.cv_type_nested = cv_type;
+           model.cv_k_nested = k;
+        end
     elseif isfield(job.model_type.classification.machine_cl,'gpc')
         model.machine.function='prt_machine_gpml';
         model.machine.args=job.model_type.classification.machine_cl.gpc.gpc_args;
@@ -176,6 +181,12 @@ if isfield(job.model_type,'classification')
                 model.cv.nested_param = job.model_type.classification.machine_cl.sMKL_cla.sMKL_cla_args;
             end
         end
+        if isfield(job.model_type.classification.machine_cl.sMKL_cla, 'cv_type_nested')
+           [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.sMKL_cla.cv_type_nested);
+           model.cv_type_nested = cv_type;
+           model.cv_k_nested = k;
+        end
+        
     else
         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
         model.machine.function = nam;
@@ -204,6 +215,11 @@ elseif isfield(job.model_type,'regression')
                 model.cv.nested_param = job.model_type.regression.machine_rg.krr.krr_args;
             end
         end
+         if isfield(job.model_type.classification.machine_cl.krr, 'cv_type_nested')
+           [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.krr.cv_type_nested);
+           model.cv_type_nested = cv_type;
+           model.cv_k_nested = k;
+        end
     elseif isfield(job.model_type.regression.machine_rg,'rvr')
         model.machine.function='prt_machine_rvr';
         model.machine.args=[];
@@ -223,6 +239,7 @@ else
 end
 
 % assemble structure for performing cross-validation
+% TODO: This code is repeated bellow, as get_cv_type function. Clean it up
 if isfield(job.cv_type,'cv_loso')
     model.cv.type = 'loso';
     model.cv.k = 0;
@@ -274,4 +291,38 @@ prt_model(PRT,model);
 out.files{1} = fname;
 out.mname = model.model_name;
 disp('Model configuration complete.')
+end
+
+
+%--------------------------------------------------------------------------
+% Private functions
+%--------------------------------------------------------------------------
+function [cv_type, k] = get_cv_type(cv_struct)
+
+% assemble structure for performing cross-validation
+if isfield(cv_struct,'cv_loso')
+    cv_type = 'loso';
+    k = 0;
+elseif isfield(cv_struct,'cv_lkso')
+    cv_type = 'loso';
+    k = job.cv_type.cv_lkso.k_args;
+elseif isfield(cv_struct,'cv_losgo')
+    cv_type = 'losgo';
+    k = 0;
+elseif isfield(cv_struct,'cv_lksgo')
+    cv_type = 'losgo';
+    k = cv_struct.cv_lksgo.k_args;
+elseif isfield(cv_struct,'cv_lobo')
+    cv_type = 'lobo';
+    k = 0;
+elseif isfield(cv_struct,'cv_lkbo')
+    cv_type = 'lobo';
+    k = job.cv_type.cv_lkbo.k_args;
+elseif isfield(cv_struct,'cv_loro') %currently implemented for MCKR only
+    cv_type = 'loro';
+else
+    cv_type     = 'custom';
+    k = cv_struct.cv_custom{1};
+end
+
 end

@@ -118,33 +118,7 @@ else
         end
     end
     
-    
-    
-    % If nested CV was used, set optimal parameters
-    % -------------------------------------------------------------------------
-    if isfield(PRT.model(modelid).input,'use_nested_cv')
-        if PRT.model(modelid).input.use_nested_cv
-            
-            %--- Check which parameter was the best
-            opt_pars = nan(1, n_folds);
-            for f = 1:n_folds
-                opt_pars(f) = PRT.model.output.fold(f).param_effect.opt_param;
-            end
-            [top_opt_par, freq , all_equal_pars] = mode(opt_pars);
-            
-            % Check if there is more than 1 top par, if so, do the median
-            if length(all_equal_pars{1}) > 1
-                warning('Permutations: Multiple hyperparameters selected as being the best. The median will be used.');
-                top_opt_par = median(all_equal_pars{1});
-            end
-            
-            %--- Set the args of the machine as the optimal ones
-            PRT.model(modelid).input.machine.args = top_opt_par;        
-            
-        end
-    end
-    
-    
+ 
     
     % Initialize counts
     % -------------------------------------------------------------------------
@@ -187,7 +161,16 @@ else
             fdata.CV      = CV(:,f);
             fdata.Phi_all = Phi_all;
             fdata.t       = t;
-                        
+            
+            % Nested CV for hyper-parameter optimisation or feature selection
+            if isfield(PRT.model(modelid).input,'use_nested_cv')
+                if PRT.model(modelid).input.use_nested_cv
+                    [out] = prt_nested_cv(PRT, fdata);
+                    PRT.model(modelid).output.fold(f).param_effect = out;
+                    PRT.model(modelid).input.machine.args = out.opt_param;
+                end
+            end
+            
             [temp_model, targets] = prt_cv_fold(PRT,fdata);
             
             % save the weights per fold to further compute ranking distance

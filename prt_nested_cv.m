@@ -17,7 +17,7 @@ function [out] = prt_nested_cv(PRT, in)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by J. Matos Monteiro
+% Written by J.M. Monteiro
 % $Id$
 
 
@@ -33,7 +33,14 @@ train_entries = find(in.CV == 1);
 in.ID      = in.ID(train_entries, :);
 in.t       = in.t(train_entries);
 in.fs      = PRT.fs;
-in.cv.type = PRT.model(in.mid).input.cv_type;
+if isfield(PRT.model(in.mid).input,'cv_type_nested')
+    in.cv.type = PRT.model(in.mid).input.cv_type_nested;
+    in.cv.k = PRT.model(in.mid).input.cv_k_nested;
+else
+    in.cv.type = PRT.model(in.mid).input.cv_type;
+    in.cv.k = PRT.model(in.mid).input.cv_k;
+end
+
 for i=1:length(in.Phi_all)
     in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
 end
@@ -48,7 +55,7 @@ switch PRT.model(in.mid).input.machine.function
             par = 10 .^(d1);
             beep
             warning('No parameter range specified for optimization, using 10^-2 to 10^3')
-        end        
+        end
     case 'prt_machine_ENMKL'
         if ~isempty(PRT.model(in.mid).input.nested_param)
             % Get parameter ranges from PRT
@@ -65,7 +72,7 @@ switch PRT.model(in.mid).input.machine.function
             par = [c_mesh(:), mu_mesh(:)]';
             beep
             warning('No parameter range specified for C and mu, using 10^-2 to 10^3 and 0 to 1')
-        end   
+        end
         
     otherwise
         error('Machine not currently supported for nested CV');
@@ -89,11 +96,11 @@ for i = 1:size(par, 2)
         case {'prt_machine_krr', 'prt_machine_sMKL_reg'}
             PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'regression';
-        
+            
         case 'prt_machine_ENMKL'
             PRT.model(in.mid).input.machine.args = par(:,i)';
             m.type = 'classifier';
-        
+            
         otherwise
             error('Machine not currently supported for nested CV');
     end
