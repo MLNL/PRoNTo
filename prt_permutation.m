@@ -147,20 +147,20 @@ else
         
         % permute
         chunkperm=randperm(length(chunks));
-        for i = 1:length(chunks)
-            for j = 1:length(Phi_all)
-                Phi_all{j}(cell2mat(chunks(i)), cell2mat(chunks(i))) = ...
-                    Phi_all{j}(cell2mat(chunks(chunkperm(i))), cell2mat(chunks(chunkperm(i))));
-            end
+        CVperm = zeros(size(CV));
+        t_perm = zeros(length(t),1);
+        for i=1:length(chunks)
+            t_perm(chunks{i},1)= unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)})); 
+            CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
         end
-        
+                
         for f = 1:n_folds
             % configure data structure for prt_cv_fold
             fdata.ID      = ID;
             fdata.mid     = modelid;
-            fdata.CV      = CV(:,f);
+            fdata.CV      = CVperm(:,f);
             fdata.Phi_all = Phi_all;
-            fdata.t       = t;
+            fdata.t       = t_perm;
             
             % Nested CV for hyper-parameter optimisation or feature selection
             if isfield(PRT.model(modelid).input,'use_nested_cv')

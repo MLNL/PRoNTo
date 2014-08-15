@@ -127,28 +127,36 @@ switch in.cv.type
                     end
                 end
             end
+            % leave-one-subject-per-group-out
+            [gids,d1] = unique(vcl(:,1), 'last');
+            [gids,d2] = unique(vcl(:,1),'first');
+            %compute the number of subjects per class
+            ns=zeros(length(gids),1);
+            for ig= 1:length(gids)
+                ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
+            end
         elseif isfield(in,'t')
             ntar = unique(in.t);
             nsg = 1;
+            ns=zeros(length(ntar),1);
             for ic = 1:length(ntar)
                 inds = find(in.t == ic);
+                ns(ic) = length(inds);
                 vcl(inds,1) = ic;
-                indss = unique(ID(inds,2));
-                for is = 1:length(indss)
-                    inss = find(ID(inds,2) == indss(is));
-                    vcl(inds(inss),2) = nsg;
-                    nsg = nsg + 1;
+                ngi = unique(ID(inds,1));
+                for ig = 1:length(ngi)
+                    igi = find(ID(inds,1)==ngi(ig));
+                    indss = unique(ID(inds(igi),2));
+                    for is = 1:length(indss)
+                        inss = find(ID(inds(igi),2) == indss(is));
+                        vcl(inds(igi(inss)),2) = nsg;
+                        nsg = nsg + 1;
+                    end
                 end
             end
         end
-        % leave-one-subject-per-group-out
-        [gids,d1] = unique(vcl(:,1), 'last');
-        [gids,d2] = unique(vcl(:,1),'first');
-        %compute the number of subjects per class
-        ns=zeros(length(gids),1);
-        for ig= 1:length(gids)
-            ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
-        end
+        
+        
         sids=max(ns);
         if sids == 1
             error('prt_model:losgoSelectedWithOneSubject',...
@@ -203,6 +211,7 @@ switch in.cv.type
                 CV=CV(:,1);
             end
         end
+
         
         
     case 'lobo'
