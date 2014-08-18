@@ -50,6 +50,7 @@ switch mfunc
             'Error: weights computation not supported for this machine!');
     otherwise
         m.function  = 'prt_weights_bin_linkernel';
+        img_mach{1} = ['weights_',mname,'.img'];
 end
 
 nimage = length(img_mach);
