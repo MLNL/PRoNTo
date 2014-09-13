@@ -499,7 +499,7 @@ if get(handles.pop_reg,'Value')==1 %for classification
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod
+        if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
@@ -534,7 +534,7 @@ if val==1 %Classification
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod
+        if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
