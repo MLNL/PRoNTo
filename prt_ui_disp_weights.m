@@ -59,7 +59,7 @@ function prt_ui_disp_weights_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to prt_ui_disp_weights (see VARARGIN)
 
 %if window already exists, just put it as the current figure
-Tag='Results';
+Tag='WeightResults';
 F = findall(allchild(0),'Flat','Tag',Tag);
 if length(F) > 1
     % Multiple Graphics windows - close all but most recent
