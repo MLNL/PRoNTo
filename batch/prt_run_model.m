@@ -229,6 +229,18 @@ elseif isfield(job.model_type,'regression')
     elseif isfield(job.model_type.regression.machine_rg,'sMKL_reg')
         model.machine.function='prt_machine_sMKL_reg';
         model.machine.args=job.model_type.regression.machine_rg.sMKL_reg.sMKL_reg_args;
+        if isfield(job.model_type.regression.machine_rg.sMKL_reg, 'sMKL_reg_opt')
+            if job.model_type.regression.machine_rg.sMKL_reg.sMKL_reg_opt
+                model.cv.nested = 1;
+                model.cv.nested_param = job.model_type.regression.machine_rg.sMKL_reg.sMKL_reg_args;
+            end
+        end
+        if isfield(job.model_type.regression.machine_rg.sMKL_reg, 'cv_type_nested')
+           [cv_type, k] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
+           model.cv_type_nested = cv_type;
+           model.cv_k_nested = k;
+        end        
+        
     else
         [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
         model.machine.function = nam;
@@ -239,32 +251,7 @@ else
 end
 
 % assemble structure for performing cross-validation
-% TODO: This code is repeated bellow, as get_cv_type function. Clean it up
-if isfield(job.cv_type,'cv_loso')
-    model.cv.type = 'loso';
-    model.cv.k = 0;
-elseif isfield(job.cv_type,'cv_lkso')
-    model.cv.type = 'loso';
-    model.cv.k = job.cv_type.cv_lkso.k_args;
-elseif isfield(job.cv_type,'cv_losgo')
-    model.cv.type = 'losgo';
-    model.cv.k = 0;
-elseif isfield(job.cv_type,'cv_lksgo')
-    model.cv.type = 'losgo';
-    model.cv.k = job.cv_type.cv_lksgo.k_args;
-elseif isfield(job.cv_type,'cv_lobo')
-    model.cv.type = 'lobo';
-    model.cv.k = 0;
-elseif isfield(job.cv_type,'cv_lkbo')
-    model.cv.type = 'lobo';
-    model.cv.k = job.cv_type.cv_lkbo.k_args;
-elseif isfield(job.cv_type,'cv_loro') %currently implemented for MCKR only
-    model.cv.type = 'loro';
-else
-    model.cv.type     = 'custom';
-    model.cv.mat_file = job.cv_type.cv_custom{1};
-end
-
+[model.cv.type, model.cv.k] = get_cv_type(job.cv_type);
 model.include_allscans = job.include_allscans;
 
 % specify operations to apply to the data prior to prediction
@@ -305,7 +292,7 @@ if isfield(cv_struct,'cv_loso')
     k = 0;
 elseif isfield(cv_struct,'cv_lkso')
     cv_type = 'loso';
-    k = job.cv_type.cv_lkso.k_args;
+    k = cv_struct.cv_lkso.k_args;
 elseif isfield(cv_struct,'cv_losgo')
     cv_type = 'losgo';
     k = 0;
@@ -317,7 +304,7 @@ elseif isfield(cv_struct,'cv_lobo')
     k = 0;
 elseif isfield(cv_struct,'cv_lkbo')
     cv_type = 'lobo';
-    k = job.cv_type.cv_lkbo.k_args;
+    k = cv_struct.cv_lkbo.k_args;
 elseif isfield(cv_struct,'cv_loro') %currently implemented for MCKR only
     cv_type = 'loro';
 else
