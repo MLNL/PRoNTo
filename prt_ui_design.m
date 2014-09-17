@@ -438,8 +438,23 @@ handles=guidata(hObject);
 handles.saved=0;
 set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
+Clear_Filenumber_Callback(hObject, eventdata, handles);
 guidata(hObject, handles);
 
+
+function Update_Filenumber_Callback(hObject, eventdata, handles, filenum)
+
+str = sprintf('%d files selected',filenum);
+set(handles.text8,'String',str);
+% Update handles structure
+guidata(hObject, handles);
+
+
+function Clear_Filenumber_Callback(hObject, eventdata, handles)
+
+set(handles.text8,'String','');
+% Update handles structure
+guidata(hObject, handles);
 
 % --- Executes on button press in subj_add.
 function subj_add_Callback(hObject, eventdata, handles)
@@ -607,6 +622,7 @@ handles=guidata(hObject);
 handles.saved=0;
 set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
+Clear_Filenumber_Callback(hObject, eventdata, handles);
 guidata(hObject, handles);
 
 % --- Executes on button press in mod_add.
@@ -690,6 +706,8 @@ handles.saved=0;
 set(handles.save_data,'ForegroundColor',handles.color.high)
 
 % Update handles structure
+filenum = size(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans,1);
+Update_Filenumber_Callback(hObject, eventdata, handles, filenum);
 guidata(hObject, handles);
 
 %Function called when right-clicking on the 'rename' menu
@@ -772,6 +790,8 @@ if ~strcmpi(list{val},mod.name)
     end
 end
 % Update handles structure
+filenum = size(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans,1);
+Update_Filenumber_Callback(hObject, eventdata, handles, filenum);
 guidata(hObject, handles);
 
 
@@ -866,6 +886,12 @@ handles=guidata(hObject);
 handles.saved=0;
 set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
+if size(handles.dat.group(cgr).subject(cs).modality,1) == 0
+    Clear_Filenumber_Callback(hObject, eventdata, handles);
+else
+    filenum = size(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans,1);
+    Update_Filenumber_Callback(hObject, eventdata, handles, filenum);
+end
 guidata(hObject, handles);
 
 % --- Executes on button press in file_add.
@@ -903,6 +929,8 @@ handles=guidata(hObject);
 handles.saved=0;
 set(handles.save_data,'ForegroundColor',handles.color.high)
 % Update handles structure
+filenum = size(handles.dat.group(cgr).subject(cs).modality(cm).scans,1);
+Update_Filenumber_Callback(hObject, eventdata, handles, filenum);
 guidata(hObject, handles);
 
 
