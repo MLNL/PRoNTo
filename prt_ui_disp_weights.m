@@ -265,6 +265,7 @@ else
         handles.selectedcell = [];
         handles.labels=cell(nmodels,1);
         set(handles.butt_load_labels,'visible','off');
+        set(handles.saveweight,'visible','off');
         set(handles.modtable,'Visible','off')
         set(handles.modtable,'Enable','off')
         % Clear axes
@@ -912,6 +913,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
            xlabel = 'Index in table';
            ylabel = 'Weight';
            set(handles.butt_load_labels,'Visible','on')
+           set(handles.saveweight,'Visible','on')
        else %get names of the modalities for MKL on modalities
            label = cell(length(handles.PRT.fs(fid).modality),1);
            for j = 1:length(handles.PRT.fs(fid).modality)
@@ -921,6 +923,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
            xlabel = 'Index in table';
            ylabel = 'Weight';
            set(handles.butt_load_labels,'Visible','off')
+           set(handles.saveweight,'Visible','off')
        end
    end
    dat(:,1) = label;
@@ -1119,7 +1122,7 @@ else
     datmod = [];
 end
 handles.datmod = datmod;  
-    
+
 
 % Fill table and bar graph if needed
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI or modality weight values
@@ -1158,6 +1161,7 @@ else
     set(handles.ROItable,'visible','off');
     set(handles.axes1,'visible','off');
     set(handles.butt_load_labels,'visible','off');
+    set(handles.saveweight,'Visible','off')
     set(handles.modtable,'Visible','off')
     set(handles.modtable,'Enable','off')
 end
@@ -1233,6 +1237,7 @@ cla(handles.axes1, 'reset');
 set(handles.ROItable,'visible','off');
 set(handles.axes1,'visible','off');
 set(handles.butt_load_labels,'visible','off');
+set(handles.saveweight,'visible','off');
 set(handles.modtable,'Visible','off')
 set(handles.modtable,'Enable','off')
 handles.noloadw = 0;
@@ -1559,8 +1564,8 @@ else
     disp('Weight image does not exist for this model')
 end
 
-    % Update handles structure
-    guidata(hObject, handles);
+% Update handles structure
+guidata(hObject, handles);
 
 
 
@@ -1574,3 +1579,57 @@ function ROItable_CellEditCallback(hObject, eventdata, handles)
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
 % handles    structure with handles and user data (see GUIDATA)
+
+
+
+function edit7_Callback(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit7 as text
+%        str2double(get(hObject,'String')) returns contents of edit7 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit7_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in saveweight.
+function saveweight_Callback(hObject, eventdata, handles)
+% hObject    handle to saveweight (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% chosen model has ROI values or weights per modality : create the table
+
+%If there are weights per region, then save the weightes for different
+%regisons
+mim = get(handles.imagemenu,'Value');
+if mim==0
+    mim=1;
+end
+num_roi = handles.num_roi(:,mim);
+
+disp('Saving the weightes map to text file.....>>');
+modelname = char(strcat(handles.mnames,'_Weightsmap.txt'));
+weightname=fullfile(handles.pathdir,modelname);
+disp(weightname);
+fid=fopen(weightname,'w');
+fprintf(fid,'%23s %20s %20s %23s %19s\n','"ROI Label"','"ROI weight (%)"','"ROI size (vox)"','"Exp. Ranking"','"# Pos. (%)"');
+dat = handles.dattable;
+dat = dat(handles.sort_roi,:);
+for i = 1:size(num_roi)
+    cellvalue= dat(i,:);
+    fprintf(fid, '%22s %19f %20d %23f %19f\n', cellvalue{:});
+end
+fclose(fid);
+disp('Save Done!');
