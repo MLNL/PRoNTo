@@ -137,9 +137,31 @@ if SANITYCHECK==true
         
         % 5: Check if data has more than one cell
         if isempty(strfind(char(fnch),'MKL')) && Nk_train > 1
-             error('prt_machine:MKLnotSupported',...
-                    'Error: Multi-kernel learning not supported for this machine!');
-        end 
+            %Check that if multiple kernels, MKL was selected,
+            %otherwise add the kernels
+            tr_tmp = zeros(size(d.train{1}));
+            te_tmp = zeros(size(d.test{1}));
+            tecov_tmp = zeros(size(d.testcov{1}));
+            for j=1:Nk_train
+                try
+                    %add kernels
+                    tp = d.train{j}; %train set
+                    tr_tmp=tr_tmp + tp;
+                    tp = d.test{j}; %test set
+                    te_tmp=te_tmp + tp;
+                    tp = d.testcov{j}; %test set covariance matrix for GP
+                    tecov_tmp=tecov_tmp + tp;
+                catch
+                    error('prt_cv_model:KernelsWithDifferentDimensions', ...
+                        'Kernels cannot be added since they have different dimensions')
+                end
+            end
+            d.train = {tr_tmp};
+            d.test = {te_tmp};
+            d.testcov = {tecov_tmp};
+            Nk_train = 1;
+            clear tr_tmp te_tmp tecov_tmp     
+        end
         
         %6: Check validity of machines chosen.(e.g. use SVM to do
         %regression is not valid

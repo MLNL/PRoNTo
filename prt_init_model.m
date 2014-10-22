@@ -85,8 +85,13 @@ else
     if isfield(in.cv,'nested')
         PRT.model(mid).input.use_nested_cv = in.cv.nested;
         PRT.model(mid).input.nested_param  = in.cv.nested_param;
-        PRT.model(mid).input.cv_type_nested = in.cv_type_nested;
-        PRT.model(mid).input.cv_k_nested = in.cv_k_nested;
+        if ~isfield(in.cv,'cv_type_nested')
+            PRT.model(mid).input.cv_type_nested = in.cv.type;
+            PRT.model(mid).input.cv_k_nested = in.cv.k;
+        else
+            PRT.model(mid).input.cv_type_nested = in.cv_type_nested;
+            PRT.model(mid).input.cv_k_nested = in.cv_k_nested;
+        end
     else
         PRT.model(mid).input.use_nested_cv = 0;
         PRT.model(mid).input.nested_param  = [];
