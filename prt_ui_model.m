@@ -499,7 +499,7 @@ if get(handles.pop_reg,'Value')==1 %for classification
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod
+        if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
@@ -534,7 +534,7 @@ if val==1 %Classification
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod
+        if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
@@ -615,7 +615,12 @@ if strcmpi(handles.type,'classification')
     ng2=floor(ng2/length(speccl.class));
     if (speccl.design) && max(ns)==1
         list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Block Out'};{'k-folds CV on Block'}];
+        if ~any(ismember(list, 'Leave One Block Out'))
+            list=[list;{'Leave One Block Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Block'))
+            list=[list;{'k-folds CV on Block'}];
+        end
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'lobo';
@@ -623,14 +628,23 @@ if strcmpi(handles.type,'classification')
     handles.loospg=speccl.loospg;
     if min(ns)>1
         list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Subject Out'};{'k-folds CV on Subject Out'}];
+        if ~any(ismember(list, 'Leave One Subject Out'))
+            list=[list;{'Leave One Subject Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Subject Out'))
+            list=[list;{'k-folds CV on Subject Out'}];
+        end
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
         if ~ng1 || ~ng2
             list=get(handles.pop_cv,'String');
-            list=[list;{'Leave One Subject per Group Out'};...
-                {'k-folds CV on Subject per Group'}];
+            if ~any(ismember(list, 'Leave One Subject per Group Out'))
+                list=[list;{'Leave One Subject per Group Out'}];
+            end
+            if ~any(ismember(list, 'k-folds CV on Subject per Group'))
+                list=[list;{'k-folds CV on Subject per Group'}];
+            end
             set(handles.pop_cv,'String',list)
         end
     end
@@ -650,7 +664,12 @@ else
     end
     if n>1
         list=get(handles.pop_cv,'String');
-        list=[list;{'Leave One Subject Out'};{'k-folds CV on Subject Out'}];
+        if ~any(ismember(list, 'Leave One Subject Out'))
+            list=[list;{'Leave One Subject Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Subject Out'))
+            list=[list;{'k-folds CV on Subject Out'}];
+        end
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';

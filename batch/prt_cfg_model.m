@@ -593,6 +593,23 @@ gpr.val     = {gpr_args};
 
 
 % ---------------------------------------------------------------------
+% sMKL_reg_opt L1-MKL : flag whether to optimize the hyperparameter
+% ---------------------------------------------------------------------
+sMKL_reg_opt         = cfg_menu;
+sMKL_reg_opt.tag     = 'sMKL_reg_opt';
+sMKL_reg_opt.name    = 'Optimize hyper-parameter';
+sMKL_reg_opt.help    = {['Whether to optimize C, the MKL hyper-parameter, or not. '...
+    'If Yes, than provide a range of possible values for C, in the form '...
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.' ...
+    'If not, a default value will be used (C=1).']};
+sMKL_reg_opt.labels  = {
+    'No'
+    'Yes'
+    }';
+sMKL_reg_opt.values  = {0 1};
+sMKL_reg_opt.val     = {0};
+
+% ---------------------------------------------------------------------
 % sMKL_reg_args sMKL_reg arguments
 % ---------------------------------------------------------------------
 sMKL_reg_args         = cfg_entry;
@@ -604,14 +621,24 @@ sMKL_reg_args.val     = {def.model.l1MKLargs};
 sMKL_reg_args.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
+% cv_type Cross-validation type
+% ---------------------------------------------------------------------
+sMKL_reg_cv_type_nested        = cfg_choice;
+sMKL_reg_cv_type_nested.tag    = 'cv_type_nested';
+sMKL_reg_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
+sMKL_reg_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
+    cv_lkbo, cv_loro,cv_custom};
+sMKL_reg_cv_type_nested.val    = {cv_loso};
+sMKL_reg_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
+
+% ---------------------------------------------------------------------
 % sMKL_reg sMKL regression
 % ---------------------------------------------------------------------
 sMKL_reg         = cfg_branch;
 sMKL_reg.tag     = 'sMKL_reg';
 sMKL_reg.name    = 'Multi-Kernel Regression';
 sMKL_reg.help    = {'Multi-Kernel Regression'};
-sMKL_reg.val     = {sMKL_reg_args};
-
+sMKL_reg.val     = {sMKL_reg_opt, sMKL_reg_args, sMKL_reg_cv_type_nested};
 
 % ---------------------------------------------------------------------
 % krr_opt SVM : flag whether to optimize C

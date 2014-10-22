@@ -209,18 +209,6 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
     
 else % It's a 1 parameter optimisation problem
     
-    % general properties of the plots
-    markersize = 10;
-    switch PRT.model(model).input.type
-        case 'classification'
-            f_min = 0;
-            f_max = 108;
-        case 'regression'
-            f_min = 0;
-            f_max = 1.08;
-        otherwise
-            error('Type of model not recognised');
-    end
     
     if fold == 1
         
@@ -236,12 +224,29 @@ else % It's a 1 parameter optimisation problem
             % Get the chosen optimal values
             x_opt(i) = PRT.model(model).output.fold(i).param_effect.opt_param;
         end
-        f = 100.*f;
+        
+        if strcmp(PRT.model(model).input.type, 'classification')
+            f = 100.*f; % Convert to percentage
+        end
         f_mean = mean(f);
         f_std = std(f);
         
         % get frequencies of optimal values
         x_opt = hist(x_opt, x)./size(f,1);
+        
+        
+        % general properties of the plots
+        markersize = 10;
+        switch PRT.model(model).input.type
+            case 'classification'
+                f_min = 0;
+                f_max = 108;
+            case 'regression'
+                f_min = min(f(:));
+                f_max = max(f(:));
+            otherwise
+                error('Type of model not recognised');
+        end
         
         
         % Plot
@@ -266,7 +271,9 @@ else % It's a 1 parameter optimisation problem
         % Get all function values
         x = PRT.model(model).output.fold(fold-1).param_effect.param;
         f = PRT.model(model).output.fold(fold-1).param_effect.vary_param;
-        f = 100.*f;
+        if strcmp(PRT.model(model).input.type, 'classification')
+            f = 100.*f; % Convert to percentage
+        end
         
         % Get optimal function values
         switch PRT.model(model).input.type
@@ -277,6 +284,20 @@ else % It's a 1 parameter optimisation problem
             otherwise
                 error('Type of model not recognised');
         end
+        
+        % general properties of the plots
+        markersize = 10;
+        switch PRT.model(model).input.type
+            case 'classification'
+                f_min = 0;
+                f_max = 108;
+            case 'regression'
+                f_min = min(f(:));
+                f_max = max(f(:));
+            otherwise
+                error('Type of model not recognised');
+        end
+        
         
         % Plot all points
         hold on
