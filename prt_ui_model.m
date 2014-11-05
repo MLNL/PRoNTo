@@ -30,7 +30,7 @@ function varargout = prt_ui_model(varargin)
 
 % Edit the above text to modify the response to help prt_ui_kernel_construction
 
-% Last Modified by GUIDE v2.5 16-Apr-2014 11:04:10
+% Last Modified by GUIDE v2.5 05-Nov-2014 15:07:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -143,9 +143,14 @@ set(handles.kernel_methods,'Enable','off')
 handles.use_kernel=1;
 set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
+set(handles.pop_cv_nested,'String',{'Custom'})
+set(handles.pop_cv_nested,'Value',1)
 handles.cv.type='custom';
+handles.cv_nested.type='custom';
 handles.cv.mat_file=[];
+handles.cv_nested.mat_file=[];
 handles.cv.k = 0;
+handles.cv_nested.k = 0;
 set(handles.pop_reg,'String',{'Classification','Regression'})
 set(handles.pop_reg,'Value',1)
 handles.type='classification';
@@ -176,6 +181,7 @@ handles.namop=list;
 set(handles.uns_list,'Value',1)
 set(handles.sel_list,'Value',1)
 handles.flagguicv=0;
+handles.flagguicv_nested=0;
 set(handles.flag_opt_param,'Value',0)
 set(handles.edit_param_range,'Enable','off')
 handles.cv.nested = 0;
@@ -324,6 +330,14 @@ if length(handles.dat.fs(1).modality)>1
     set(handles.pop_cv,'String',list)
     set(handles.pop_cv,'Value',length(list))
     handles.cv.type = 'loro';
+    handles.multimod = 1;
+end
+if length(handles.dat.fs(1).modality)>2
+    list=get(handles.pop_cv_nested,'String');
+    list=[list;{'Leave One Run/Session Out'}];
+    set(handles.pop_cv_nested,'String',list)
+    set(handles.pop_cv_nested,'Value',length(list))
+    handles.cv.type_nested = 'loro';
     handles.multimod = 1;
 end
 list=get(handles.pop_featset,'String');
@@ -612,6 +626,8 @@ if strcmpi(handles.type,'classification')
             ng1=0;
         end
     end
+    
+    % Options for the outter CV
     ng2=floor(ng2/length(speccl.class));
     if (speccl.design) && max(ns)==1
         list=get(handles.pop_cv,'String');
@@ -648,6 +664,49 @@ if strcmpi(handles.type,'classification')
             set(handles.pop_cv,'String',list)
         end
     end
+    
+    
+    % Options for the inner CV
+    % TODO: This should be checked to see if it's correct
+    %       It's practically copy/paste from above (code for the outter CV)
+    %       some special restrictions might be applied for the inner CV
+    if (speccl.design) && max(ns)==1
+        list=get(handles.pop_cv_nested,'String');
+        if ~any(ismember(list, 'Leave One Block Out'))
+            list=[list;{'Leave One Block Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Block'))
+            list=[list;{'k-folds CV on Block'}];
+        end
+        set(handles.pop_cv_nested,'String',list)
+        set(handles.pop_cv_nested,'Value',length(list)-1)
+        handles.cv.type_nested     = 'lobo';
+    end
+    if min(ns)>1
+        list=get(handles.pop_cv_nested,'String');
+        if ~any(ismember(list, 'Leave One Subject Out'))
+            list=[list;{'Leave One Subject Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Subject Out'))
+            list=[list;{'k-folds CV on Subject Out'}];
+        end
+        set(handles.pop_cv_nested,'String',list)
+        set(handles.pop_cv_nested,'Value',length(list)-1)
+        handles.cv.type_nested     = 'loso';
+        if ~ng1 || ~ng2
+            list=get(handles.pop_cv_nested,'String');
+            if ~any(ismember(list, 'Leave One Subject per Group Out'))
+                list=[list;{'Leave One Subject per Group Out'}];
+            end
+            if ~any(ismember(list, 'k-folds CV on Subject per Group'))
+                list=[list;{'k-folds CV on Subject per Group'}];
+            end
+            set(handles.pop_cv_nested,'String',list)
+        end
+    end
+    
+    
+    
 else
     d1=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
     sel=d1.group;
@@ -1211,3 +1270,107 @@ prt_model(handles.dat,in);
 disp('Model specification complete.')
 disp('Done...')
 delete(handles.figure1)
+
+
+% --- Executes on selection change in pop_cv_nested.
+function pop_cv_nested_Callback(hObject, eventdata, handles)
+% hObject    handle to pop_cv_nested (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns pop_cv_nested contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from pop_cv_nested
+val=get(handles.pop_cv_nested,'Value');
+mach=get(handles.pop_cv_nested,'String');
+handles.cv.k_nested=0; %by default, Leave-One-Out options
+if val==0
+    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
+    set(handles.pop_cv_nested,'Value',1)
+    val=1;
+end
+if any(strfind(mach{val},'Subject Out'))
+    handles.cv_nested.type = 'loso';
+elseif any(strfind(mach{val},'Subject per Group'))
+    if ~handles.loospg
+        beep
+        disp('Warning: Subjects are not balanced across classes!')
+    end
+    handles.cv.type_nested = 'losgo';
+elseif any(strfind(mach{val},'Block'))
+    handles.cv.type_nested = 'lobo';
+elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
+    handles.cv.type_nested = 'loro';
+else
+    handles.cv_nested.type     = 'custom';
+    %fill the input of the 'prt_model' button
+    in.fname=get(handles.edit_prt,'String');
+    if ~isfield(handles,'model_name')
+        beep
+        disp('Please enter a valid model name')
+        return
+    end
+    in.model_name=handles.model_name;
+    in.type=handles.type;
+    in.machine=handles.machine;
+    in.use_kernel=handles.use_kernel;
+    in.operations=handles.operations;
+    in.fs(1).fs_name=handles.fs(1).fs_name;
+    in.cv_nested=handles.cv_nested;
+    %check that classes/subjects/scans were defined
+    if strcmpi(in.type,'classification')
+        if ~isfield(handles,'class')
+            beep
+            disp('No class selected for classification')
+            disp('Please, define classes')
+            return
+        else
+            for i=1:length(handles.class)
+                ind=[];
+                for g=1:length(handles.class(i).group)
+                    if ~isempty(handles.class(i).group(g).gr_name)
+                        ind=[ind,g];
+                    end
+                end
+                handles.class(i).group=handles.class(i).group(ind);
+            end
+            in.class=handles.class;
+        end
+    else
+        if ~isfield(handles,'group')
+            beep
+            disp('No subjects/scans selected for classification')
+            disp('Please, select subjects/scans')
+            return
+        else
+            ind=[];
+            for g=1:length(handles.group)
+                if ~isempty(handles.group(g).gr_name)
+                    ind=[ind,g];
+                end
+            end
+            handles.group=handles.group(ind);
+            in.group=handles.group;
+        end
+    end
+    handles.in=in;
+    prt_ui_specify_CV_basis(handles);
+    handles.flagguicv=1;
+end
+if any(strfind(mach{val},'k-fold'))
+    kt=prt_text_input('Title','Specify k, the number of folds');
+    handles.cv.k_nested=str2num(kt);
+end
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function pop_cv_nested_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pop_cv_nested (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

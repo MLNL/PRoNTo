@@ -160,8 +160,8 @@ if isfield(job.model_type,'classification')
         end
          if isfield(job.model_type.classification.machine_cl.svm, 'cv_type_nested')
            [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.svm.cv_type_nested);
-           model.cv_type_nested = cv_type;
-           model.cv_k_nested = k;
+           model.cv.type_nested = cv_type;
+           model.cv.k_nested = k;
         end
     elseif isfield(job.model_type.classification.machine_cl,'gpc')
         model.machine.function='prt_machine_gpml';
@@ -183,8 +183,8 @@ if isfield(job.model_type,'classification')
         end
         if isfield(job.model_type.classification.machine_cl.sMKL_cla, 'cv_type_nested')
            [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.sMKL_cla.cv_type_nested);
-           model.cv_type_nested = cv_type;
-           model.cv_k_nested = k;
+           model.cv.type_nested = cv_type;
+           model.cv.k_nested = k;
         end
         
     else
@@ -217,8 +217,8 @@ elseif isfield(job.model_type,'regression')
         end
          if isfield(job.model_type.classification.machine_cl.krr, 'cv_type_nested')
            [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.krr.cv_type_nested);
-           model.cv_type_nested = cv_type;
-           model.cv_k_nested = k;
+           model.cv.type_nested = cv_type;
+           model.cv.k_nested = k;
         end
     elseif isfield(job.model_type.regression.machine_rg,'rvr')
         model.machine.function='prt_machine_rvr';
@@ -237,8 +237,8 @@ elseif isfield(job.model_type,'regression')
         end
         if isfield(job.model_type.regression.machine_rg.sMKL_reg, 'cv_type_nested')
            [cv_type, k] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
-           model.cv_type_nested = cv_type;
-           model.cv_k_nested = k;
+           model.cv.type_nested = cv_type;
+           model.cv.k_nested = k;
         end        
         
     else
