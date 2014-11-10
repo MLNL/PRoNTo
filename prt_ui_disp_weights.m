@@ -652,13 +652,11 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
    dat = handles.dattable;
    weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
    dat(:,2) = num2cell(weights);
-   if ~handles.flagmodMKL 
-        dat(:,5) = num2cell(handles.hom_roi(:,ffi)*100);
-   end
    [vald,idwroi] = sort(weights,'descend');
    dat = dat(idwroi,:);
    set(handles.ROItable,'Data',dat);
    set(handles.ROItable,'visible','on');
+   set(handles.butt_load_labels,'visible','on');
    
    %Bar graph to show decrease in ROI weights
    set(handles.axes1,'visible','on')
@@ -1049,30 +1047,30 @@ if exist([handles.prtdir,filesep,fntl,'.img'],'file') || ...
     weightbutton_Callback(hObject, eventdata, handles);
 end
 
-% Compute homogeneity of ROIs if MKL on ROIs or summarizing
-if ~flagmodMKL && isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
-        isfield(handles,'wmap') && ~isempty(handles.wmap)
-    
-    % Get homogeneity of each ROI in terms of sign from the image
-    dat = handles.dattable;
-    [vald,idwroi] = sort([dat{:,2}],'descend');
-    hom = zeros(length(vald),handles.nfold+1);
-    for f = 1:handles.nfold+1
-        imtl = V(f);
-        vv = spm_read_vols(imtl);
-        for i = 1:length(vald) %for each ROI
-            val = vv(handles.idfeat_roi{i});
-            hom(i,f) = length(find(val>0))/length(val);
-        end
-        if length(unique(hom(:,f)))==1 % probably all weights to zero
-            hom(:,f) = NaN;
-        end
-    end
-   handles.hom_roi = hom;
-   dat =[dat, num2cell(hom(:,end)*100)];
-   lc = [lc,{'# Pos. (%)'}];
-end
+% % Compute homogeneity of ROIs if MKL on ROIs or summarizing
+% if ~flagmodMKL && isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
+%        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+%         isfield(handles,'wmap') && ~isempty(handles.wmap)
+%     
+%     % Get homogeneity of each ROI in terms of sign from the image
+%     dat = handles.dattable;
+%     [vald,idwroi] = sort([dat{:,2}],'descend');
+%     hom = zeros(length(vald),handles.nfold+1);
+%     for f = 1:handles.nfold+1
+%         imtl = V(f);
+%         vv = spm_read_vols(imtl);
+%         for i = 1:length(vald) %for each ROI
+%             val = vv(handles.idfeat_roi{i});
+%             hom(i,f) = length(find(val>0))/length(val);
+%         end
+%         if length(unique(hom(:,f)))==1 % probably all weights to zero
+%             hom(:,f) = NaN;
+%         end
+%     end
+%    handles.hom_roi = hom;
+%    dat =[dat, num2cell(hom(:,end)*100)];
+%    lc = [lc,{'# Pos. (%)'}];
+% end
 
 % Fill modality table in the case of multiple modalities and multiple ROIs
 % (whether summarized or MKL)
@@ -1619,17 +1617,18 @@ if mim==0
 end
 num_roi = handles.num_roi(:,mim);
 
-disp('Saving the weightes map to text file.....>>');
-modelname = char(strcat(handles.mnames,'_Weightsmap.txt'));
-weightname=fullfile(handles.pathdir,modelname);
+disp('Saving the sorted list of regions to text file.....>>');
+modelname = char(strcat(handles.mnames(get(handles.classmenu,'value')),'_RegionList.txt'));
+path = fileparts(handles.pathdir);
+weightname=fullfile(path,modelname);
 disp(weightname);
 fid=fopen(weightname,'w');
-fprintf(fid,'%23s %20s %20s %23s %19s\n','"ROI Label"','"ROI weight (%)"','"ROI size (vox)"','"Exp. Ranking"','"# Pos. (%)"');
+fprintf(fid,'%23s %20s %20s %23s\r\n','"ROI Label"','"ROI weight (%)"','"ROI size (vox)"','"Exp. Ranking"');
 dat = handles.dattable;
 dat = dat(handles.sort_roi,:);
 for i = 1:size(num_roi)
     cellvalue= dat(i,:);
-    fprintf(fid, '%22s %19f %20d %23f %19f\n', cellvalue{:});
+    fprintf(fid, '%22s %19f %20d %23f\r\n', cellvalue{:});
 end
 fclose(fid);
 disp('Save Done!');
