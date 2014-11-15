@@ -172,7 +172,35 @@ function fs_Callback(hObject, eventdata, handles)
 % hObject    handle to fs (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-prt_ui_prepare_data
+
+% Load PRT  to see if we need to launch prt_ui_fs_datatype or if only one
+% type of data in PRT structure (i.e. either images or MEEG but not both).
+
+PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
+if isempty(PRT)
+    error('prt_ui_main:NoPRT','No PRT file selected')
+end
+fname = PRT;
+pathdir = regexprep(PRT,'PRT.mat', '');
+handles.pathdir = pathdir;
+handles.prtdir=fileparts(PRT);
+load(PRT);
+% Get type of data from the masks
+nm = length(PRT.masks);
+flagim = 0;
+flagMEEG = 0;
+for i=1:nm
+    if isfield(PRT.masks(i),'MEEG') && PRT.masks(i).MEEG
+        flagMEEG = flagMEEG + 1;
+    else
+        flagim = flagim + 1;
+    end
+end
+if flagMEEG && flagim
+    prt_ui_fs_datatype('UserData',{PRT,fname}) % User chooses whether to build feature set for MEEG or images
+else
+    prt_ui_prepare_data('UserData',{PRT,flagMEEG,fname})
+end
 
 
 % --- Executes on button press in crval.

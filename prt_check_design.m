@@ -64,7 +64,7 @@ for i=1:ncond
         cdur=floor(cond(i).durations/tr);
     else
         cs=round(cond(i).onsets+(hrfd/tr)+1);
-        cdur=round(cond(i).durations);
+        cdur=floor(cond(i).durations);
     end
     cdur=max(1,cdur);
     for j=1:length(cs)
@@ -72,8 +72,8 @@ for i=1:ncond
         condsc=[condsc,temp];
         bl=[bl j*ones(1,length(temp))]; 
     end
-    cond(i).scans=unique(condsc);
-    cond(i).blocks=bl;
+    [cond(i).scans,ics]=unique(condsc);
+    cond(i).blocks=bl(ics);
     conds=[conds;i*ones(length(cond(i).scans),1)];
     all=[all; cond(i).scans'];
 end
@@ -122,7 +122,7 @@ for i=1:length(chan)
         togap=thresh-intvl;
         disc_c=allgood(chan(i)+1):allgood(chan(i)+1)+togap-1;
         interall=intersect(allgood,disc_c);
-        alldisc=[alldisc,interall];
+        alldisc=[alldisc;interall];
     end
 end
 if ~isempty(alldisc)

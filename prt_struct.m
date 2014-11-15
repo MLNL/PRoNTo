@@ -56,7 +56,7 @@ if ~all(cg) % missing fields
 end
 
 %Modality
-ng = {'mod_name','detrend','covar','rt_subj','design','scans'};
+ng = {'mod_name','detrend','covar','rt_subj','design','scans','MEEG'};
 np = fieldnames(PRT.group(1).subject(1).modality(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
@@ -71,6 +71,8 @@ if ~all(cg) % missing fields
                         PRT.group(j).subject(k).modality(l).detrend = 0;
                     elseif ita(i)==1
                         PRT.group(j).subject(k).modality(l).mod_name = '';
+                    elseif ita(i)==7
+                        PRT.group(j).subject(k).modality(l).MEEG = 0;
                     end
                 end
             end
@@ -80,7 +82,7 @@ end
 
 % Masks
 %--------------------------------------------------------------------------
-ng = {'mod_name','fname'};
+ng = {'mod_name','fname','MEEG'};
 np = fieldnames(PRT.masks(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
@@ -89,6 +91,9 @@ if ~all(cg) % missing fields
     for i = 1:length(ita)
         for j=1:length(PRT.masks)
             PRT.masks(j).(ng{ita(i)}) = [];
+            if ita(i)==3
+                PRT.masks(j).MEEG = 0;
+            end
         end
     end
 end

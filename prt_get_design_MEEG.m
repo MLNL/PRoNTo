@@ -1,0 +1,55 @@
+function desn = prt_get_design_MEEG(D)
+% Fill the design with the events extracted from the MEEG file. No need to
+% check the design for overlap. We assume that the user has defined his/her
+% epochs correctly/according to his/her needs.
+% Input: loaded SPM MEEG object
+% Output: design structure desn with fields:
+%           - conds: with name, onsets (in s), durations (in s), associated
+%           scans/epochs and discarded scans (trials marked as bad).
+%           - stats: information about overlap between events. Here zero in
+%           most cases.
+%           - TR: here corresponding to the sampling rate.
+%           - unit: 1 for seconds, 0 for scans. Here seconds.
+%__________________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+% Written by J. Schrouff
+
+ncond = D.nconditions;
+desn = struct();
+conds=struct();
+cname = D.condlist;
+% allons = [];
+alldisc = [];
+allscans = [];
+for c=1:ncond
+    conds(c).cond_name = cname{c};
+    indcond = indtrial(D,cname{c});
+    conds(c).onsets = [trialonset(D,indcond)]';
+%     allons = [allons, trialonset(D,indcond)];
+    conds(c).durations = repmat(D.nsamples/D.fsample,length(indcond),1);
+    conds(c).scans = [indtrial(D,cname{c},'good')]';
+    allscans = [allscans, conds(c).scans];
+    conds(c).blocks = 1:length(conds(c).scans);
+    conds(c).discardedscans = indtrial(D,cname{c},'bad');
+    alldisc = [alldisc, conds(c).discardedscans];
+    conds(c).hrfdiscardedscans = [];
+end
+stats = struct();
+% Compute overlap between in events in seconds
+% allons = sort(allons,'ascend');
+% stats.overlap = allons(2:end)-(allons(1:end-1)+D.nsamples/D.fsample);
+% stats.overlap(stats.overlap>=0) = 0;
+% stats.overlap = abs(stats.overlap);
+% Compute overlap in epochs (assuming epochs were defined correctly)
+stats.overlap = diff(sort(allscans));
+stats.goodscans = allscans;
+stats.discscans = alldisc;
+stats.meanovl = mean(stats.overlap);
+stats.stdovl = std(stats.overlap);
+stats.mgoodovl = mean(stats.overlap);
+stats.sgoodovl = std(stats.overlap);
+stats.goodovl = stats.overlap;
+desn.conds = conds;
+desn.stats = stats;
+desn.TR = 1/D.fsample;
+desn.unit = 1;

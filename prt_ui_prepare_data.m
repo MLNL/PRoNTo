@@ -130,8 +130,62 @@ for i=1:length(aa)
     set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
         'Units','normalized')
 end
+% load PRT structure and MEEG_flag from varargin
+if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
+    handles.dat = varargin{2}{1};
+    handles.flagMEEG = varargin{2}{2};
+    handles.fname = varargin{2}{3};
+end
+% Fill some fields automatically if only one modality in dataset
+n_mod=length(handles.dat.masks);
+handles.modnames={handles.dat.masks(:).mod_name};
+nmeeg = 0;
+indmeeg = [];
+indimg = [];
+for i = 1:n_mod
+    if isfield(handles.dat.masks(i),'MEEG') && ...
+            handles.dat.masks(i).MEEG
+        nmeeg = nmeeg + 1;
+        indmeeg = [indmeeg,i];
+    else
+        indimg = [indimg,i];
+    end
+end
+if handles.flagMEEG
+    n_mod = nmeeg;
+    handles.indmod = indmeeg;
+else
+    n_mod = n_mod - nmeeg;
+    handles.indmod = indimg;
+end
 
-
+if n_mod==1
+    if ~handles.flagMEEG
+        try
+            handles.mod=prt_ui_prepare_datamod('UserData',{handles.dat,indimg,handles.indmod});
+            set(handles.num_mod,'Value',1)
+            set(handles.num_mod,'String',1)
+            set(handles.sel_mod,'String',{handles.dat.masks(indimg).mod_name})
+        catch
+            set(handles.edit_prt,'String','');
+            return
+        end
+        set(handles.edit_kname,'ForegroundColor',handles.color.high)
+    else
+        try
+            handles.mod=prt_ui_prepare_MEEG('UserData',{handles.dat,indmeeg,handles.indmod});
+            set(handles.num_mod,'Value',1)
+            set(handles.num_mod,'String',1)
+            set(handles.sel_mod,'String',{handles.dat.masks(indmeeg).mod_name})
+        catch
+            set(handles.edit_prt,'String','');
+            return
+        end
+        set(handles.edit_kname,'ForegroundColor',handles.color.high)
+    end
+else
+    set(handles.text8,'ForegroundColor',handles.color.high)
+end
 set(handles.sel_mod,'Enable','on')
 set(handles.multkernflag,'Enable','off')
 set(handles.multkernflag,'Value',0)
@@ -154,100 +208,6 @@ function varargout = prt_ui_prepare_data_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-
-
-
-function edit_prt_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_prt (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_prt as text
-%        str2double(get(hObject,'String')) returns contents of edit_prt as a double
-fname=get(handles.edit_prt,'String');
-if exist('PRT','var')
-    clear PRT
-end
-try
-    load(fname)
-    handles.dat=PRT;
-catch
-    beep
-    disp('Could not load file')
-    return
-end
-%if only one modality, than fill some fields automatically
-n_mod=length(PRT.group(1).subject(1).modality);
-handles.modnames={PRT.masks(:).mod_name};
-if n_mod==1
-    try
-        handles.mod=prt_ui_prepare_datamod('UserData',{PRT,1});
-        set(handles.num_mod,'Value',1)
-        set(handles.num_mod,'String',1)
-        set(handles.sel_mod,'String',{PRT.masks(1).mod_name})
-    catch
-        set(handles.edit_prt,'String','');
-        return
-    end
-    set(handles.edit_kname,'ForegroundColor',handles.color.high)
-else
-    set(handles.text8,'ForegroundColor',handles.color.high)
-end
-handles.fname=fname;
-% Update handles structure
-guidata(hObject, handles);
-
-% --- Executes during object creation, after setting all properties.
-function edit_prt_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_prt (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in br_prt.
-function br_prt_Callback(hObject, eventdata, handles)
-% hObject    handle to br_prt (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-fname=spm_select(1,'.mat','Select PRT.mat',[],pwd,'PRT.mat');
-if exist('PRT','var')
-    clear PRT
-end
-try
-    load(fname)
-    handles.dat=PRT;
-    set(handles.edit_prt,'String',fname);
-catch
-    beep
-    disp('Could not load file')
-    return
-end
-%if only one modality, than fill some fields automatically
-n_mod=length(PRT.group(1).subject(1).modality);
-handles.modnames={PRT.masks(:).mod_name};
-if n_mod==1
-    try
-        handles.mod=prt_ui_prepare_datamod('UserData',{PRT,1});
-        set(handles.num_mod,'Value',1)
-        set(handles.num_mod,'String',1)
-        set(handles.sel_mod,'String',{PRT.masks(1).mod_name})
-    catch
-        set(handles.edit_prt,'String','');
-        return
-    end
-    set(handles.edit_kname,'ForegroundColor',handles.color.high)
-else
-    set(handles.text8,'ForegroundColor',handles.color.high)
-end
-handles.fname=fname;
-% Update handles structure
-guidata(hObject, handles);
 
 
 function edit_kname_Callback(hObject, eventdata, handles)
@@ -293,9 +253,13 @@ function num_mod_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of num_mod as a double
 val=str2double(get(handles.num_mod,'String'));
 set(handles.text8,'ForegroundColor',handles.color.high)
-n_mod=length(handles.modnames);
+n_mod=length(handles.indmod);
 if n_mod>1 && val>1
     set(handles.multkernflag,'Enable','on')
+end
+if val>n_mod
+    error('prt_ui_prepare_data:Toomanymodalities',...
+        'Too many modalities specified for feature set, please correct')
 end
 %handles.mod=struct();
 list=[];
@@ -307,7 +271,7 @@ end
 %get information for the selected modalities 
 for i=1:val
     try
-        tmp=prt_ui_prepare_datamod('UserData',{handles.dat,val});
+        tmp=prt_ui_prepare_datamod('UserData',{handles.dat,val,handles.indmod});
     catch
         error('prt_ui_prepare_data:NoModSpecified','No modality was specified')
     end
@@ -395,6 +359,5 @@ if ~isfield(handles,'mod') || isempty(handles.mod)
     return
 end
 input.mod=handles.mod;
-load(input.fname);
-prt_fs(PRT,input);
+prt_fs(handles.dat,input);
 delete(handles.figure1)

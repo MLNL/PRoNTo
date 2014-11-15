@@ -299,6 +299,15 @@ end
 val=get(handles.modlist,'Value');
 set(handles.figure1,'CurrentAxes',handles.axes2)
 prt_disp_conditions(handles.PRT,handles.ind(val),handles,hObject);
+indm = find(strcmpi({handles.PRT.masks(:).mod_name},list(val)));
+if isfield(handles.PRT.masks(indm),'MEEG') && ...
+        handles.PRT.masks(indm).MEEG
+    set(handles.edit_hrfdel,'Enable','off')
+    set(handles.hrfover_edit, 'Enable','off')
+else
+    set(handles.edit_hrfdel,'Enable','on')
+    set(handles.hrfover_edit, 'Enable','on')
+end
 
 % Update handles structure
 guidata(hObject, handles);

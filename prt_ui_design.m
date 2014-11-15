@@ -136,7 +136,7 @@ else
     set(handles.save_data,'FontWeight','bold')
     set(handles.text6,'ForegroundColor',handles.color.high)
     
-    
+    set(handles.use_scans,'Enable','off'); %cannot select 'scans' if no group
     handles.cgr=1; %current group
     handles.cs=1;
     handles.cm=1;
@@ -351,6 +351,7 @@ item1=uimenu(ren,'Label','Rename','Callback',@rengroup);
 set(handles.group_list,'UIContextMenu',ren)
 handles=guidata(hObject);
 if val==1
+    set(handles.use_scans,'Enable','on');
     set(handles.use_scans,'Value',0)
     set(handles.subj_add,'enable','on')
     set(handles.subj_remove,'enable','on')
@@ -677,16 +678,42 @@ handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).covar=mo
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).rt_subj=mod.rt_subj;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).MEEG = mod.MEEG;
+
 newlist=[get(handles.modality_list,'String'); {mod.name}];
 set(handles.modality_list,'String',newlist);
 set(handles.modality_list,'Value',length(newlist));
-if ~isempty(handles.modlist)
-    set(handles.mask_list,'String',handles.modlist);
-    set(handles.mask_list,'Value',length(handles.modlist));
+%update mask list and structure if modality was not MEEG
+masklist = get(handles.mask_list,'String');
+if size(masklist,1)==1 && strcmpi(masklist,'none')
+    masklist = {};
+end
+if ~handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).MEEG
+    masklist = [masklist; {mod.name}];
+end
+if ~isempty(masklist) 
+    set(handles.mask_list,'String',masklist);
+    set(handles.mask_list,'Value',length(masklist));
 else
     set(handles.mask_list,'String',{'none'});
     set(handles.mask_list,'Value',1);
 end
+flag=0;
+if ~isfield(handles.dat.masks,'mod_name')
+    indm=1;
+else
+    for i=1:size(handles.dat.masks,2)
+        if strcmpi(handles.dat.masks(i).mod_name, mod.name)
+            indm=i;
+            flag=1;
+        end
+    end
+    if ~flag
+        indm=length(handles.dat.masks)+1;
+    end
+end
+handles.dat.masks(indm).MEEG = mod.MEEG;
+handles.dat.masks(indm).mod_name = mod.name;
 if ~isempty(mod.scans)
     set(handles.file_list,'String',cellstr(mod.scans));
 end
@@ -701,6 +728,22 @@ handles=guidata(hObject);
 guidata(hObject, handles);
 
 update_display_data(hObject,handles);
+%check if the masks structure was completely filled by user
+if length(handles.modlist)==length(handles.dat.masks)
+    f=0;
+    for i=1:length(handles.modlist)
+        if (isfield(handles.dat.masks(i),'fname') && ...
+                ~isempty(handles.dat.masks(i).fname)) || ...
+                handles.dat.masks(i).MEEG
+            f=f+1;
+        end
+    end
+    if f==length(handles.modlist)
+        set(handles.text6,'ForegroundColor',[0 0 0])
+    else
+        set(handles.text6,'ForegroundColor',handles.color.high)
+    end
+end
 handles=guidata(hObject);
 handles.saved=0;
 set(handles.save_data,'ForegroundColor',handles.color.high)
@@ -730,6 +773,7 @@ handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).covar=mo
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).rt_subj=mod.rt_subj;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).MEEG=mod.MEEG;
 
 %update list of modalities and remove the former name from the modlist and
 %mask_list if it is not present in any other subject
@@ -762,14 +806,7 @@ if ~strcmpi(list{val},mod.name)
     end
     list{val}=mod.name;
     set(handles.modality_list,'String',list);
-    %update mask list and structure
-    if isempty(handles.modlist)
-        set(handles.mask_list,'String',{'none'});
-        set(handles.mask_list,'Value',1);
-    else
-        set(handles.mask_list,'String',handles.modlist);
-        set(handles.mask_list,'Value',length(handles.modlist));
-    end
+    % Update mask structure
     if isfield(handles.dat.masks,'mod_name')
         for i=1:size(handles.dat.masks,2)
             if strcmpi(handles.dat.masks(i).mod_name, list{val})
@@ -788,6 +825,20 @@ if ~strcmpi(list{val},mod.name)
             handles.dat.masks=[handles.dat.masks(1:indm-1), handles.dat.masks(indm+1:end)];
         end
     end
+    masklist = []; % Update list of modalities for which a mask is needed
+    for i=1:length(handles.dat.masks)
+        if ~handles.dat.masks(i).MEEG
+            masklist = [masklist;{handles.dat.masks(i).mod_name}];
+        end
+    end
+    if isempty(masklist)
+        set(handles.mask_list,'String',{'none'});
+        set(handles.mask_list,'Value',1);
+    else
+        set(handles.mask_list,'String',masklist);
+        set(handles.mask_list,'Value',length(masklist));
+    end
+    
 end
 % Update handles structure
 filenum = size(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans,1);
@@ -855,14 +906,7 @@ if ~isempty(handles.modlist)
         end
     end
 end
-%update mask list and structure
-if isempty(handles.modlist)
-    set(handles.mask_list,'String',{'none'});
-    set(handles.mask_list,'Value',1);
-else
-    set(handles.mask_list,'String',handles.modlist);
-    set(handles.mask_list,'Value',length(handles.modlist));
-end
+
 if isfield(handles.dat.masks,'mod_name')
     for i=1:size(handles.dat.masks,2)
         if strcmpi(handles.dat.masks(i).mod_name, list{get(handles.modality_list,'Value')})
@@ -879,6 +923,19 @@ if isfield(handles.dat.masks,'mod_name')
         handles.dat.masks=handles.dat.masks(1:end-1);
     else
         handles.dat.masks=[handles.dat.masks(1:indm-1), handles.dat.masks(indm+1:end)];
+    end
+    masklist = []; % Update list of modalities for which a mask is needed
+    for i=1:length(handles.dat.masks)
+        if ~handles.dat.masks(i).MEEG
+            masklist = [masklist;{handles.dat.masks(i).mod_name}];
+        end
+    end
+    if isempty(masklist)
+        set(handles.mask_list,'String',{'none'});
+        set(handles.mask_list,'Value',1);
+    else
+        set(handles.mask_list,'String',masklist);
+        set(handles.mask_list,'Value',length(masklist));
     end
 end
 update_display_data(hObject,handles);
@@ -916,7 +973,12 @@ try
 catch
     prevlist={};
 end
-fnames=spm_select([1 Inf],'image','Select files for the modality',prevlist);
+if isfield(handles.dat.group(cgr).subject(cs).modality(cm),'MEEG') && ...
+        handles.dat.group(cgr).subject(cs).modality(cm).MEEG
+    fnames=spm_select([1 Inf],'mat','Select files for the modality',prevlist);
+else
+    fnames=spm_select([1 Inf],'image','Select files for the modality',prevlist);
+end
 handles.dat.group(cgr).subject(cs).modality(cm).scans=fnames;
 handles.ds{cgr}{cs}{cm}=length(fnames);
 handles.cf=1;
@@ -959,7 +1021,10 @@ if ~isfield(handles.dat.masks,'mod_name')
 else
     for i=1:size(handles.dat.masks,2)
         if strcmpi(handles.dat.masks(i).mod_name, val)
-            sel=handles.dat.masks(i).fname;
+            if isfield(handles.dat.masks(i),'fname')
+                sel=handles.dat.masks(i).fname;
+            else sel='';
+            end
             indm=i;
             flag=1;
         end
@@ -979,7 +1044,9 @@ end
 if length(handles.modlist)==length(handles.dat.masks)
     f=0;
     for i=1:length(handles.modlist)
-        if ~isempty(handles.dat.masks(i))
+        if (isfield(handles.dat.masks(i),'fname') && ...
+                ~isempty(handles.dat.masks(i).fname)) || ...
+                handles.dat.masks(i).MEEG
             f=f+1;
         end
     end
@@ -1081,8 +1148,14 @@ if ~flagmask==1
     set(handles.save_data,'ForegroundColor',handles.color.high)
     set(handles.text6,'ForegroundColor',handles.color.high)
 end
-if ~isempty(handles.modlist)
-    set(handles.mask_list,'String',handles.modlist);
+masklist = []; % Create list of modalities for which a mask is needed
+for i=1:length(handles.dat.masks)
+    if ~handles.dat.masks(i).MEEG
+        masklist = [masklist;{handles.dat.masks(i).mod_name}];
+    end
+end
+if ~isempty(masklist)
+    set(handles.mask_list,'String',masklist);
 else
     set(handles.mask_list,'String',{'none'});
 end
@@ -1093,6 +1166,7 @@ handles.cf=1;
 a=fileparts(prtname);
 set(handles.edit1,'String',a)
 set(handles.group_list,'String',{PRT.group(:).gr_name})
+set(handles.use_scans,'Enable','on');
 
 %set the 'rename' and 'modify' right-clicks
 %for groups
@@ -1209,9 +1283,20 @@ ng=length(handles.ds);
 nm=length(handles.ds{1}{1});
 ns=length(handles.ds{1});
 list=get(handles.mask_list,'String');
-nmask=length(list);
+nmask=size(list,1);
+if nmask == 1 && strcmpi(list,'none')
+    nmask = 0;
+end
 %check that one mask was entered for each modality
-if nmask~=length(handles.dat.masks)
+nmimg = 0;
+for i = 1:length(handles.dat.masks)
+    if ~handles.dat.masks(i).MEEG && ...
+            isfield(handles.dat.masks(i),'fname') && ...
+            ~isempty(handles.dat.masks(i).fname)
+        nmimg = nmimg+1;
+    end
+end
+if nmask~=nmimg
     beep
     sprintf('%d masks were found, while %d modalities were added',length(handles.dat.masks),nmask)
     disp('Please correct')
@@ -1234,19 +1319,20 @@ for i=1:ng
             sprintf('Numbers of modalities in groups 1 and %d differ \n',i)
             disp('Please correct')
             return
-        elseif nmj~=nmask
-            beep
-            sprintf('%d modalities found for subject %d of group %d, while %d masks found \n',nmj,j,i,nmask)
-            disp('Possible errors in the modalities names, please correct')
-            return
+%         elseif nmj~=nmask
+%             beep
+%             sprintf('%d modalities found for subject %d of group %d, while %d masks found \n',nmj,j,i,nmask)
+%             disp('Possible errors in the modalities names, please correct')
+%             return
         end
         for k=1:nm
-            m2=find(strcmpi({handles.dat.group(i).subject(j).modality(:).mod_name},list(k)));
+            m2=find(strcmpi({handles.dat.group(i).subject(j).modality(:).mod_name},{handles.dat.masks(k).mod_name}));
             matdat(j,k)=handles.ds{i}{j}{m2};
             if isstruct(handles.dat.group(i).subject(j).modality(m2).design)
                 des=handles.dat.group(i).subject(j).modality(m2).design;
                 maxcond=max([des.conds(:).scans]);
-                if matdat(j,k)<maxcond
+                if matdat(j,k)<maxcond && ...
+                        ~handles.dat.group(i).subject(j).modality(m2).MEEG
                     beep
                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',j,i,k)
                     disp('Corresponding events were discarded')

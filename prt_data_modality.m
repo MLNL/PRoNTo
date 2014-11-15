@@ -28,7 +28,7 @@ function varargout = prt_data_modality(varargin)
 
 % Edit the above text to modify the response to help prt_data_modality
 
-% Last Modified by GUIDE v2.5 25-Oct-2011 18:14:12
+% Last Modified by GUIDE v2.5 11-Nov-2014 15:51:02
 
 % Begin initialization code - DO NOT EDIT
 
@@ -77,10 +77,7 @@ else
     set(handles.figure1,'Tag',Tag)
 
     set(handles.figure1,'Name','PRoNTo :: Specify modality')
-    set(handles.design_menu,...
-            'String',{'Load SPM.mat','Specify design','No design'},...
-            'Value',3);
-
+    
     %set size of the window, taking screen resolution and platform into account
     S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
     if ispc
@@ -146,33 +143,35 @@ else
 
 
     handles.mod=[];
-    handles.mod.detrend=1;
+    handles.mod.detrend=0;
     handles.mod.design=0;
     handles.mod.scans=[];
     handles.mod.name={};
     handles.mod.covar=[];
     handles.mod.rt_subj=[];
+    handles.mod.MEEG = 0;
     handles.subj1=0;
+    set(handles.design_menu,...
+            'String',{'Load SPM.mat','Specify design','No design'},...
+            'Value',3);
+
 
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         %Particular options if you select by 'scans'
         if ~isempty(varargin{2}{2}) && strcmpi(varargin{2}{2}.subj_name,'Scans')
             set(handles.design_menu,'Enable','off')
-            set(handles.edit_regt,'Enable','on')
-            set(handles.edit_regt,'Visible','on')
             set(handles.edit_covar,'Enable','on')
             set(handles.edit_covar,'Visible','on')
-            set(handles.text7,'Visible','on')
-            set(handles.text6,'Visible','on')
+            set(handles.text7,'Visible','on')            
         else
             set(handles.design_menu,'Enable','on')
-            set(handles.edit_regt,'Enable','off')
-            set(handles.edit_regt,'Visible','off')
             set(handles.edit_covar,'Enable','off')
             set(handles.edit_covar,'Visible','off')
             set(handles.text7,'Visible','off')
-            set(handles.text6,'Visible','off')
         end
+        set(handles.text6,'Visible','on')
+        set(handles.edit_regt,'Enable','on')
+        set(handles.edit_regt,'Visible','on')
 
         if ~isempty(varargin{2}{2}) && isfield(varargin{2}{2},'modality') && ...
                 ~isempty(varargin{2}{2}.modality)
@@ -197,6 +196,15 @@ else
                 handles.mod.name=modsel.mod_name;
                 handles.mod.covar=modsel.covar;
                 handles.mod.rt_subj=modsel.rt_subj;
+                if ~isempty(modsel.rt_subj)
+                    set(handles.edit_regt,'String',num2str(modsel.rt_subj'))
+                end
+                if isfield(modsel,'MEEG')
+                    set(handles.MEEGflag,'Value',modsel.MEEG)
+                    handles.mod.MEEG = modsel.MEEG;
+                else
+                    set(handles.MEEGflag,'Value',0)
+                end
             else
                 nlist=[varargin{2}{1}, {'Enter new'}];
                 set(handles.modname,'String',nlist,'Value',length(nlist));  
@@ -350,7 +358,7 @@ if choice==0
     choice=handles.desnmenu;
     set(handles.design_menu,'Value')
 end
-if choice==1
+if ~handles.mod.MEEG && choice==1
     desn=spm_select(1,'mat','Select SPM.mat file',[],[],'SPM.mat');
     try
         load(desn);
@@ -426,16 +434,29 @@ if choice==1
     end
     desn=prt_check_design(conds,SPM.xX.K(1).RT,units,overl,del);
     desn.covar = [];
-elseif choice==2
+elseif ~handles.mod.MEEG && choice==2
     if isstruct(handles.mod.design)
         desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT});
     else
         desn=prt_data_conditions;
     end
-elseif choice ==3
+elseif ~handles.mod.MEEG && choice ==3
     desn=[];
-elseif choice==4
+elseif choice==4        % replicate design of 1st subject
     desn=handles.subj1(handles.indmods1).design;
+elseif handles.mod.MEEG         %load desing from D object if file was selected
+    if isempty(handles.mod.scans)
+        beep
+        disp('Select .mat for subject first')
+        return
+    elseif size(handles.mod.scans,1)>1
+        beep
+        disp('Select only one file per modality for MEEG')
+        return
+    end
+    D = spm_eeg_load(handles.mod.scans(1,:));
+    desn = prt_get_design_MEEG(D);
+    desn.covar = [];
 end
 handles.mod.design=desn;
 if isfield(desn,'covar') && ~isempty(desn.covar)
@@ -467,10 +488,49 @@ if ~isempty(handles.mod.scans)
 else
     sel=[];
 end
-t=spm_select([1 Inf],'image','Select files for the modality',sel);
+t=spm_select([1 Inf],'any','Select files for the modality',sel);
 handles.mod.scans=t;
 % Update handles structure
 guidata(hObject, handles);
+
+% --- Executes on button press in MEEGflag.
+function MEEGflag_Callback(hObject, eventdata, handles)
+% hObject    handle to MEEGflag (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of MEEGflag
+val = get(handles.MEEGflag,'Value');
+if val
+    %load desing from D object if file was selected
+    if isempty(handles.mod.scans)
+        beep
+        disp('Select .mat for subject first')
+        return
+    elseif size(handles.mod.scans,1)>1
+        beep
+        disp('Select only one file per modality for MEEG')
+        return
+    end
+    set(handles.design_menu,...
+        'String',{'Events in file'},...
+        'Value',1);
+    set(handles.design_menu,'Enable','off')
+    D = spm_eeg_load(handles.mod.scans(1,:));
+    desn = prt_get_design_MEEG(D);
+    desn.covar = [];
+    handles.mod.design=desn;
+else
+    set(handles.design_menu,...
+            'String',{'Load SPM.mat','Specify design','No design'},...
+            'Value',3);
+    set(handles.design_menu,'Enable','on')
+end
+handles.mod.MEEG = val;
+% Update handles structure
+guidata(hObject, handles);
+
+
 
 
 function edit_regt_Callback(hObject, eventdata, handles)
@@ -587,14 +647,27 @@ if isempty(handles.mod.scans)
 end
 
 %check that the regression targets have the same number of elements as the
-%number of scans
+%number of scans or as the number of events in design
 if ~isempty(handles.mod.rt_subj)
     szrt=length(handles.mod.rt_subj);
-    if  size(handles.mod.scans,1)~=szrt
-        beep
-        disp('Number of regression targets must be the number of files selected! ')
-        disp('Please correct!')
-        return
+    if isempty(handles.mod.design)
+        if  size(handles.mod.scans,1)~=szrt
+            beep
+            disp('Number of regression targets must be the same as number of files selected! ')
+            disp('Please correct!')
+            return
+        end
+    else
+        allons = [];
+        for ic=1:length(handles.mod.design.conds)
+            allons = [allons; handles.mod.design.conds(ic).onsets];
+        end
+        if length(allons) ~= szrt
+            beep
+            disp('Number of regression targets must be the same as number of trials in design! ')
+            disp('Please correct!')
+            return
+        end
     end
 end
 %check that the covariates have the same number of elements as the
