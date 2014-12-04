@@ -25,17 +25,36 @@ if nargin <2 || nargin >3
     return;
 end
 
-% read the image dimensions from the header
-N  = nifti(filenames);
-dm = size(N(1).dat);
-if length(dm)==2, dm = [dm 1]; end % handling case of 2D image
-n_vox = prod(dm(1:3));
-
-if length(dm) == 3
-    n_vol = 1;
-else
-    n_vol = dm(4);
+% Read the data
+flagi = 0;
+N = [];
+D = [];
+try
+    N  = nifti(filenames); % read the image dimensions from the header
+    dm = size(N(1).dat);
+    if length(dm)==2, dm = [dm 1]; end % handling case of 2D image 
+    if length(dm) == 3
+        n_vol = 1;
+    else
+        n_vol = dm(4);
+    end
+catch
+    try
+        D = spm_eeg_load(filenames); % read an MEEG object
+        dm = size(D);
+        if length(dm)==3
+            dm = [dm(1) 1 dm(2) dm(3)];
+            flagi = 1;
+        end % handling non t-f
+        n_tot = 1:dm(4);
+        nbad = D.badtrials;
+        igt = setdiff(n_tot,nbad); % does not write bad trials
+        n_vol = length(igt);
+    catch
+        error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
+    end
 end
+n_vox = prod(dm(1:3));  
 
 % get the data
 if nargin==3
@@ -44,14 +63,20 @@ else
     data_range = bs;
 end
 
-block=zeros(length(data_range),length(N));
-if n_vol==1
+block=zeros(length(data_range),n_vol);
+if n_vol==1 && ~isempty(N) && isempty(D)
     for i=1:length(N)
         block(:,i) = N(i).dat(data_range);
     end
 else
     for i=1:n_vol
-        dat_r = N(1).dat(:,:,:,i);
+        if ~isempty(N)            
+            dat_r = N(1).dat(:,:,:,i);            
+        elseif ~isempty(D) && flagi
+            dat_r = D(:,:,igt(i));
+        elseif ~isempty(D) && ~flagi
+            dat_r = D(:,:,:,igt(i));
+        end
         block(:,i) = dat_r(data_range);
     end
 end

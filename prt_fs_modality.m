@@ -62,15 +62,18 @@ if nargin>=3 && flag
         if in.tocomp(mids(1)) % build everything
             idvox = 1:PRT.fas(mids(1)).dat.dim(2); %n_vox has to be the same for all concatenated modalities (version 1.1)
         else
-            if ~isempty(PRT.fs(fid).modality(mids(1)).idfeat_fas)
-                idvox = PRT.fs(fid).modality(mids(1)).idfeat_fas;
+            if ~isempty(PRT.fs(fid).modality(1).idfeat_fas)
+                idvox = PRT.fs(fid).modality(1).idfeat_fas;
             else
                 idvox = 1:PRT.fas(mids(1)).dat.dim(2);
             end
         end
     end
     n_vox = numel(idvox);
-    nfa = 0;    
+    nfa = zeros(n_mods,1);
+    for m = 1:n_mods
+        nfa(m)  = PRT.fas(mids(m)).dat.dim(1);
+    end
 else
     % get the index of the modalities for which the user wants a kernel/data
     n_mods=length(in.mod);
@@ -82,9 +85,9 @@ else
     end
     n_mods=length(mids);
     ID= PRT.fs(fid).id_mat;
-    nfa = [];
+    nfa = zeros(n_mods,1);
     for m = 1:n_mods
-        nfa   = [nfa, PRT.fas(mids(m)).dat.dim(1)];
+        nfa(m)  = PRT.fas(mids(m)).dat.dim(1);
         if in.tocomp(mids(m))
             n_vox = PRT.fas(mids(m)).dat.dim(2); %n_vox has to be the same for all concatenated modalities (version 1.1)
         else
@@ -115,6 +118,8 @@ if nargin<3 || ~flag
     h = waitbar(0,'Please wait while preparing feature set');
     step=1;
 end
+%average across one or multiple dimensions
+flagav = zeros(n_mods,length(PRT.fas(mids(1)).hdr));
 for b = 1:n_block
     if nargin<3 || ~flag
         disp ([' > preparing block: ', num2str(b),' of ',num2str(n_block),' ...'])
@@ -128,31 +133,47 @@ for b = 1:n_block
         %-------------------------------------------------------------------
         % get the indices of the voxels within the file array mask (data &
         % design step)
-        ind_ddmask = PRT.fas(mid).idfeat_img(vox_range);
-        
-        %load the mask for that modality if another one was specified
-        if ~isempty(in.precmask{m})
-            prec_mask = prt_load_blocks(in.precmask{m},ind_ddmask);
+        if ~isempty(PRT.fas(mid).idfeat_img) %i.e. specified neuroimaging mask
+            ind_ddmask = PRT.fas(mid).idfeat_img(vox_range);            
+            %load the second-level mask if specified
+            if ~isempty(in.precmask{m})
+                prec_mask = prt_load_blocks(in.precmask{m},ind_ddmask);
+            else
+                prec_mask = ones(block_size,1);
+            end
         else
-            prec_mask = ones(block_size,1);
+            ind_ddmask = vox_range; %typically for MEEG, select all the file array
+            if ~isempty(in.precmask{m})
+                prec_mask = in.precmask{m}(vox_range); %mask was built in prt_fs_EEG
+            else
+                prec_mask = ones(block_size,1);
+            end
         end
         %indexes to access the file array
         indm = find(PRT.fs(fid).fas.im==mid);
         ifa  = PRT.fs(fid).fas.ifa(indm);
         indm = find(ID(:,3) == mid);
+        %Does the user want to average over one or multiple dimensions?
+        if isfield(PRT.fs(fid).modality(m),'aver')
+            flagav(m,:) = PRT.fs(fid).modality(m).aver;
+        end
         %get the data from each subject of each group and save its linear
         %detrended version in a file array
         %-------------------------------------------------------------------
         if in.tocomp(mid)  %need to build the file array corresponding to that modality
             n_groups = length(PRT.group);
             sample_range=0;
-            nfa=PRT.fas(mid).dat.dim(1);
-            datapr=zeros(block_size,nfa);
+            nfai=PRT.fas(mid).dat.dim(1);
+            datapr=zeros(block_size,nfai);
             
             %get the data for each subject of each group
             for gid = 1:n_groups
                 for sid = 1:length(PRT.group(gid).subject)
-                    n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+                    if nargin>3 && isfield(addin,'n_vols_s')
+                        n_vols_s = addin.n_vols_s{gid,m}{sid};
+                    else
+                        n_vols_s = size(PRT.group(gid).subject(sid).modality(mid).scans,1);
+                    end
                     sample_range = (1:n_vols_s)+max(sample_range);
                     fname = PRT.group(gid).subject(sid).modality(mid).scans;
                     datapr(:,sample_range) = prt_load_blocks(fname,ind_ddmask);
@@ -165,7 +186,8 @@ for b = 1:n_block
                     end
                     
                     %detrend if necessary
-                    if in.mod(mid).detrend ~= 0
+                    if isfield(in.mod(mid),'detrend') && ...
+                            in.mod(mid).detrend ~= 0
                         if  isfield(PRT.group(gid).subject(sid).modality(mid).design,'TR')
                             TR = PRT.group(gid).subject(sid).modality(mid).design.TR;
                         else
@@ -199,30 +221,36 @@ for b = 1:n_block
                 fwrite(fpd_clean(m), datapr', 'float32',0,'ieee-le');
             end
             
-            % get the data to build the kernel
-            kern_vols(:,indm) = datapr(:,ifa).* ...
-                repmat(prec_mask~=0,1,length(ifa));
-            % if a scaling was entered, apply it now
-            if ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
-                kern_vols(:,indm) = kern_vols(:,indm)./ ...
-                    repmat(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
+            % get the data to build the kernel if no average across
+            % features
+            if ~any(flagav(m,:))
+                kern_vols(:,indm) = datapr(:,ifa).* ...
+                    repmat(prec_mask~=0,1,length(ifa));
+                % if a scaling was entered, apply it now
+                if isfield(PRT.fs(fid).modality(m),'normalize') && ...
+                        ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
+                    kern_vols(:,indm) = kern_vols(:,indm)./ ...
+                        repmat(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
+                end
             end
             clear datapr
         else
-            kern_vols(:,indm) = (PRT.fas(mid).dat(ifa,idvox(vox_range)))';
-            % if a scaling was entered, apply it now
-            if ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
-                kern_vols(:,indm) = kern_vols(:,indm)./ ...
-                    repmat(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
+            if ~any(flagav(m,:))
+                kern_vols(:,indm) = (PRT.fas(mid).dat(ifa,idvox(vox_range)))';
+                % if a scaling was entered, apply it now
+                if isfield(PRT.fs(fid).modality(m),'normalize') && ...
+                        ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
+                    kern_vols(:,indm) = kern_vols(:,indm)./ ...
+                        repmat(PRT.fs(fid).modality(m).normalise.scaling,block_size,1);
+                end
             end
-            
         end
         if nargin<3 || ~flag
             waitbar(step/ (n_block*n_mods),h);
             step=step+1;
         end
     end
-    if size(kern_vols,2)>6e3
+    if ~any(flagav(m,:)) && size(kern_vols,2)>6e3
         % Slower way of estimating kernel but using less memory.
         % size limit setup such that no more than ~1Gb of mem is required:
         % 1Gb/3(nr of matrices)/8(double)= ~40e6 -> sqrt -> 6e3 element
@@ -242,9 +270,64 @@ end
 % closing feature file(s)
 if exist('fpd_clean','var')
     for ii=1:numel(fpd_clean)
-        fclose(fpd_clean(ii));
+        if fpd_clean>0
+            fclose(fpd_clean(ii));
+        end
     end
 end
+
+% Average the features across one or various dimensions: Need to rebuild the
+% kernel
+if any(flagav) && exist('addin','var')
+    disp('Building Kernel....')
+    for m=1:n_mods
+        mid=mids(m);
+        if isfield(addin,'idvox_fas')
+            idvox = addin.idvox_fas;
+        else
+            if ~isempty(PRT.fs(fid).modality(m).idfeat_fas)%mid
+                idvox = PRT.fs(fid).modality(m).idfeat_fas;
+            else
+                idvox = 1:PRT.fas(mid).dat.dim(2);
+            end
+        end
+        n_vox = numel(idvox);
+        %Define blocks of trials to load
+        block_size  = floor(mem/(8*3)/(n_vox*2));
+        n_block = ceil(nfa(m)/block_size);
+        bstart = 1; bend = min(block_size,nfa(m));
+        dimm = addin.dim_m(m,:);
+        %indexes to access the file array
+        indm = find(PRT.fs(fid).fas.im==mid);
+        ifa  = PRT.fs(fid).fas.ifa(indm);
+        indm = find(ID(:,3) == mid);
+        for it = 1:n_block
+            itr = bstart:bend ;
+            tmp = average_features(ifa,itr,mid,idvox,m,PRT,flagav,dimm,fid);
+            for m2=1:n_mods
+                mid2=mids(m2);
+                %Define blocks of trials to load
+                n_block2     = ceil(nfa(m2)/block_size);
+                bstart2 = 1; bend2 = min(block_size,nfa(m2));
+                dimm2 = addin.dim_m(m2,:);
+                %indexes to access the file array
+                indm2 = find(PRT.fs(fid).fas.im==mid2);
+                ifa2  = PRT.fs(fid).fas.ifa(indm2);
+                indm2 = find(ID(:,3) == mid2);
+                for it2 = 1:n_block2
+                    itr2 = bstart2:bend2 ;
+                    tmp2 = average_features(ifa2,itr2,mid2,idvox,m2,PRT,flagav,dimm2,fid);
+                    % Compute kernel
+                    Phi(indm(itr),indm2(itr2)) = tmp' * tmp2;
+                    bstart2 = bend2+1; bend2 = min(bstart2+block_size-1,nfa(m2));
+                end
+            end
+            bstart = bend+1; bend = min(bstart+block_size-1,nfa(m));
+        end
+    end
+end
+
+
 
 
 % -------------------------------------------------------------------------
@@ -272,3 +355,22 @@ T = n*TR;
 order = floor((T/cut_off)*2)+1;
 c = spm_dctmtx(n,order);
 return
+
+function  tmp = average_features(ifa,itr,mid,idvox,m,PRT,flagav,dimm,fid)
+
+tmp = (PRT.fas(mid).dat(ifa(itr),idvox))';
+% if a scaling was entered, apply it now
+if isfield(PRT.fs(fid).modality(m),'normalize') &&...
+        ~isempty(PRT.fs(fid).modality(m).normalise.scaling)
+    tmp = tmp./ ...
+        repmat(PRT.fs(fid).modality(m).normalise.scaling(ifa(itr)),1,n_vox);
+end
+tmp = reshape(tmp,[dimm length(itr)]);
+dimta = find(flagav(m,:)); %dimensions to average
+for iav = 1:length(dimta)
+    tmp = mean(tmp, dimta(iav));
+end
+dimav = dimm;
+dimav(find(flagav(m,:))) = 1;
+tmp = reshape(tmp,prod(dimav),length(itr));
+ 

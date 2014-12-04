@@ -146,11 +146,9 @@ set(handles.pop_cv,'Value',1)
 set(handles.pop_cv_nested,'String',{'Custom'})
 set(handles.pop_cv_nested,'Value',1)
 handles.cv.type='custom';
-handles.cv_nested.type='custom';
 handles.cv.mat_file=[];
-handles.cv_nested.mat_file=[];
+handles.cv.nested_mat_file=[];
 handles.cv.k = 0;
-handles.cv_nested.k = 0;
 set(handles.pop_reg,'String',{'Classification','Regression'})
 set(handles.pop_reg,'Value',1)
 handles.type='classification';
@@ -186,6 +184,8 @@ set(handles.flag_opt_param,'Value',0)
 set(handles.edit_param_range,'Enable','off')
 handles.cv.nested = 0;
 handles.cv.nested_param = [];
+handles.cv.k_nested=0;
+handles.cv_nested.type='custom';
 end
 % Update handles structure
 guidata(hObject, handles);

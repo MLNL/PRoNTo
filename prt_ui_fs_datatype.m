@@ -75,7 +75,7 @@ else
     PF= spm_platform('fonts');     %-Font names (for this platform)
     PF=PF.helvetica;
 end
-tmp  = [S0(3)/1600 (S0(4))/900];
+tmp  = [S0(3)/1280 (S0(4))/800];
 ratio=min(tmp)*[1 1 1 1];
 FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
 x=get(handles.figure1,'Position');

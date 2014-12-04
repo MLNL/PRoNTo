@@ -162,27 +162,27 @@ end
 if n_mod==1
     if ~handles.flagMEEG
         try
-            handles.mod=prt_ui_prepare_datamod('UserData',{handles.dat,indimg,handles.indmod});
+            tmp=prt_ui_prepare_datamod('UserData',{handles.dat,indimg,handles.indmod});
             set(handles.num_mod,'Value',1)
             set(handles.num_mod,'String',1)
             set(handles.sel_mod,'String',{handles.dat.masks(indimg).mod_name})
         catch
-            set(handles.edit_prt,'String','');
             return
         end
         set(handles.edit_kname,'ForegroundColor',handles.color.high)
     else
         try
-            handles.mod=prt_ui_prepare_MEEG('UserData',{handles.dat,indmeeg,handles.indmod});
+            tmp=prt_ui_prepare_dataMEEG('UserData',{handles.dat,indmeeg,handles.indmod});
             set(handles.num_mod,'Value',1)
             set(handles.num_mod,'String',1)
             set(handles.sel_mod,'String',{handles.dat.masks(indmeeg).mod_name})
         catch
-            set(handles.edit_prt,'String','');
             return
         end
         set(handles.edit_kname,'ForegroundColor',handles.color.high)
     end
+    ind=find(strcmpi(handles.modnames,tmp.mod_name));
+    handles.mod(ind)=tmp;
 else
     set(handles.text8,'ForegroundColor',handles.color.high)
 end
@@ -264,16 +264,39 @@ end
 %handles.mod=struct();
 list=[];
 %initialize for all modalities
-for i=1:n_mod
-    handles.mod(i)=struct('mod_name',[],'mode',[],'mask',[],'detrend',[], ...
-        'param_dt',[],'normalise',[],'matnorm',[],'multroi',[],'atlasroi',[]);
+if isfield(handles,'mod')
+    handles = rmfield(handles,'mod');
 end
+if ~handles.flagMEEG
+    for i=1:n_mod
+        handles.mod(i)=struct('mod_name',[],'mode',[],'mask',[],'detrend',[], ...
+            'param_dt',[],'normalise',[],'matnorm',[],'multroi',[],...
+            'atlasroi',[]);
+    end
+else
+    for i=1:n_mod
+        handles.mod(i)=struct('mod_name',[],'ich',[],'itp',[],'ifr',[],...
+            'multkernparam',[],'aver',[0 0 0],'multkern',[0 0 0]);
+%         handles.mod(i)=struct('mod_name',[],'ich',[],'itp',[],'ifr',[],...
+%             'multkernparam',[],'aver',[0 0 0],'multkern',[0 0 0],...
+%             'smooth',[],'smoothparam',[]);
+    end
+end
+
 %get information for the selected modalities 
 for i=1:val
-    try
-        tmp=prt_ui_prepare_datamod('UserData',{handles.dat,val,handles.indmod});
-    catch
-        error('prt_ui_prepare_data:NoModSpecified','No modality was specified')
+    if ~handles.flagMEEG
+        try
+            tmp=prt_ui_prepare_datamod('UserData',{handles.dat,val,handles.indmod});
+        catch
+            error('prt_ui_prepare_data:NoModSpecified','No modality was specified')
+        end
+    else
+        try
+            tmp=prt_ui_prepare_dataMEEG('UserData',{handles.dat,val,handles.indmod});
+        catch
+            error('prt_ui_prepare_data:NoModSpecified','No modality was specified')
+        end
     end
     if isempty(tmp)
         error('prt_ui_prepare_data:EmptyModality','No modality was specified')
@@ -359,5 +382,9 @@ if ~isfield(handles,'mod') || isempty(handles.mod)
     return
 end
 input.mod=handles.mod;
-prt_fs(handles.dat,input);
+if ~isfield(handles,'flagMEEG') || ~handles.flagMEEG
+    prt_fs(handles.dat,input);
+else
+    prt_fs_EEG(handles.dat,input);
+end
 delete(handles.figure1)
