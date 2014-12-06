@@ -639,6 +639,13 @@ if strcmpi(handles.type,'classification')
         end
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
+        if ~any(ismember(list, 'Leave One Block per Class Out'))
+            list=[list;{'Leave One Block per Class Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Block per Class'))
+            list=[list;{'k-folds CV on Block per Class'}];
+        end
+        set(handles.pop_cv,'String',list)
         handles.cv.type     = 'lobo';
     end
     handles.loospg=speccl.loospg;
@@ -652,6 +659,13 @@ if strcmpi(handles.type,'classification')
         end
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
+        if ~any(ismember(list, 'Leave One Block per Class Out'))
+            list=[list;{'Leave One Block per Class Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Block per Class'))
+            list=[list;{'k-folds CV on Block per Class'}];
+        end
+        set(handles.pop_cv,'String',list)
         handles.cv.type     = 'loso';
         if ~ng1 || ~ng2
             list=get(handles.pop_cv,'String');
@@ -680,6 +694,13 @@ if strcmpi(handles.type,'classification')
         end
         set(handles.pop_cv_nested,'String',list)
         set(handles.pop_cv_nested,'Value',length(list)-1)
+        if ~any(ismember(list, 'Leave One Block per Class Out'))
+            list=[list;{'Leave One Block per Class Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Block per Class'))
+            list=[list;{'k-folds CV on Block per Class'}];
+        end
+        set(handles.pop_cv_nested,'String',list)
         handles.cv.type_nested     = 'lobo';
     end
     if min(ns)>1
@@ -692,6 +713,13 @@ if strcmpi(handles.type,'classification')
         end
         set(handles.pop_cv_nested,'String',list)
         set(handles.pop_cv_nested,'Value',length(list)-1)
+        if ~any(ismember(list, 'Leave One Block per Class Out'))
+            list=[list;{'Leave One Block per Class Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Block per Class'))
+            list=[list;{'k-folds CV on Block per Class'}];
+        end
+        set(handles.pop_cv_nested,'String',list)
         handles.cv.type_nested     = 'loso';
         if ~ng1 || ~ng2
             list=get(handles.pop_cv_nested,'String');
@@ -731,6 +759,13 @@ else
         end
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
+        if ~any(ismember(list, 'Leave One Block per Class Out'))
+            list=[list;{'Leave One Block per Class Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Block per Class'))
+            list=[list;{'k-folds CV on Block per Class'}];
+        end
+        set(handles.pop_cv,'String',list)
         handles.cv.type     = 'loso';
     end
 end
@@ -883,14 +918,18 @@ if val==0
 end
 if any(strfind(mach{val},'Subject Out'))
     handles.cv.type = 'loso';
-elseif any(strfind(mach{val},'Subject per Group'))
+elseif any(strfind(mach{val},'Subject per Class'))
     if ~handles.loospg
         beep
         disp('Warning: Subjects are not balanced across classes!')
     end
     handles.cv.type = 'losgo';
 elseif any(strfind(mach{val},'Block'))
-    handles.cv.type = 'lobo';
+    if any(strfind(mach{val},'Block per Class'))
+        handles.cv.type_nested = 'locbo';
+    else
+        handles.cv.type_nested = 'lobo';
+    end 
 elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type = 'loro';
 else
@@ -1297,7 +1336,11 @@ elseif any(strfind(mach{val},'Subject per Group'))
     end
     handles.cv.type_nested = 'losgo';
 elseif any(strfind(mach{val},'Block'))
-    handles.cv.type_nested = 'lobo';
+    if any(strfind(mach{val},'Block per Class'))
+        handles.cv.type_nested = 'locbo';
+    else
+        handles.cv.type_nested = 'lobo';
+    end   
 elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type_nested = 'loro';
 else

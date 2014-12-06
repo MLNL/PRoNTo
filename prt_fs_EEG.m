@@ -151,7 +151,11 @@ for ik = 1:nkm
                     if kernt(1) ==1, icht = in.mod(mids(i)).ich(1:dim_m(ik,1)); 
                     else icht = in.mod(mids(i)).ich(ich); end %i
                     if kernt(2) ==1
-                        ifrt = in.mod(mids(i)).ifr(1:dim_m(ik,2)); 
+                        if ~isempty(in.mod(mids(i)).ifr)
+                            ifrt = in.mod(mids(i)).ifr(1:dim_m(ik,2)); 
+                        else
+                            ifrt = 1;
+                        end
                     else
                         ifrt = in.mod(mids(i)).ifr(ifr); 
                     end %i
@@ -255,6 +259,9 @@ for i = 1:n_mods
     ifr = in.mod(mid).ifr; %i
     itp = in.mod(mid).itp; %i
     ndim = PRT.fas(mid).hdr;
+    if isempty(ifr) && ndim(2)==1
+        ifr = 1;
+    end
     dim_m(i,:) = [length(ich), length(ifr), length(itp)];
     d1 = zeros(ndim);
     d2 = zeros(ndim);

@@ -46,10 +46,10 @@ catch
             dm = [dm(1) 1 dm(2) dm(3)];
             flagi = 1;
         end % handling non t-f
-        n_tot = 1:dm(4);
-        nbad = D.badtrials;
-        igt = setdiff(n_tot,nbad); % does not write bad trials
-        n_vol = length(igt);
+        n_vol = dm(4);
+%         nbad = D.badtrials;
+%         igt = setdiff(n_tot,nbad); % does not write bad trials
+%         n_vol = length(igt);
     catch
         error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
     end
@@ -73,9 +73,9 @@ else
         if ~isempty(N)            
             dat_r = N(1).dat(:,:,:,i);            
         elseif ~isempty(D) && flagi
-            dat_r = D(:,:,igt(i));
+            dat_r = D(:,:,i); %igt(i)
         elseif ~isempty(D) && ~flagi
-            dat_r = D(:,:,:,igt(i));
+            dat_r = D(:,:,:,i); %igt(i)
         end
         block(:,i) = dat_r(data_range);
     end

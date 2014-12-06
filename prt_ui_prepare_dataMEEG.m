@@ -264,7 +264,7 @@ else
 %     set(handles.mult_fb_winsize,'Enable','off')
 %     set(handles.mult_fb_winsize,'String','')
     % Set color of all text boxes to the color of disabled buttons
-    cc = get(handles.mult_fb_winsize,'ForegroundColor');
+    cc = get(handles.mult_fb,'ForegroundColor');
     aa=get(handles.uipanel3,'children');
     for i = 1:length(aa)
         if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text'})))

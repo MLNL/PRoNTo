@@ -148,7 +148,8 @@ else
                         'Could not load MEEG file');
                 end                    
                 ndim = size(D);
-                n_vols_s{gid,m}{sid} = ndim(end)-length(D.badtrials); % remove bad trials
+                n_vols_s{gid,m}{sid} = ndim(end); 
+%                 n_vols_s{gid,m}{sid} = ndim(end)-length(D.badtrials); % remove bad trials
                 n = n+n_vols_s{gid,m}{sid};
                 if length(size(D))==4
                     n_vox(m) = ndim(1)*ndim(2)*ndim(3);  %channels*frequency*time

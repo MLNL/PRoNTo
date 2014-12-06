@@ -120,7 +120,8 @@ switch in.cv.type
                     [d,ng]=ismember(in.class(ic).group(ig).gr_name,gnames);
                     for is=1:length(in.class(ic).group(ig).subj)
                         inds=find(ID(:,1)==ng);
-                        indss=find(ID(inds,2)==is);
+                        indss=find(ID(inds,2)==in.class(ic).group(ig).subj(is).num);
+%                         indss=find(ID(inds,2)==is); correction?
                         vcl(inds(indss),1)=ic;
                         vcl(inds(indss),2)=nsg;
                         nsg=nsg+1;
@@ -217,11 +218,29 @@ switch in.cv.type
     case 'lobo'
         % leave-one-block-out - limited to one single subject for the
         % moment
-        % blocks already have a unique ID
+        % give each block a unique id
+        [cids,d1] = unique(ID(:,4), 'last');
+        [cids,d2] = unique(ID(:,4),'first');
+        gc = 0;
+        nb=zeros(length(cids),1);
+        dID = ID;
+        for c = 1:length(cids)
+            nb(c)=length(unique(ID(d2(c):d1(c),5)));
+            cidx = ID(:,4) == cids(c);
+            dID(cidx,5) = dID(cidx,5) + gc;
+            gc = gc + nb(c);
+        end
+        
         if k>1 %k-fold CV
-            nsf=floor(length(unique(ID(:,5)))/k);
-            mns=mod(length(unique(ID(:,5))),k);
-            dk=nsf*ones(1,k);
+            nsb=floor(gc/k);
+            % Check that the number of folds does not exceed the number of
+            % subjects
+            if length(unique(dID(:,5)))<2*nsb
+                error('prt_model:loboSelectedWithTooLargeK',...
+                    'More than 50%% of data in testing set, reduce k');
+            end
+            mns=mod(gc,k);
+            dk=nsb*ones(1,k);
             dk(end)=dk(end)+mns;
             inds=1;
             sk=[];
@@ -229,18 +248,17 @@ switch in.cv.type
                 sk=[sk,inds*ones(1,dk(ii))];
                 inds=inds+1;
             end
-        else %Leave-One-Subject-Out
-            % sk=1:max(ID(:,5));
-            sk=1:length(unique(ID(:,5))); % TODO: Check if this change has not created problems
-            nsf=1;
+        else %Leave-One-Block-Out
+            sk = 1:gc;
+            nsb=1;
         end
-        snums = histc(ID(:,5),unique(ID(:,5)));% how many scans per block
+        snums=[];
+        for g = 1:length(cids)
+            snums = [snums;histc(dID(d2(g):d1(g),5),unique(dID(d2(g):d1(g),5)))];
+        end
         if length(snums) == 1
-            error('prt_model:loboSelectedWithOneSubject',...
-                'LOBO CV selected but only one block is included');
-        elseif max(ID(:,5))< 2*nsf
-            error('prt_model:loboSelectedWithLargeK',...
-                'Leaving more than 50%% of blocks out, decrease k');
+            error('prt_model:logoSelectedWithOneSubject',...
+                'LOGO CV selected but only one block is included');
         end
         G = cell(length(unique(sk)),1);
         for s = 1:length(unique(sk))
@@ -252,8 +270,123 @@ switch in.cv.type
         end
         
     case 'locbo'
-        % leave-one-condition-per-block-out
-        error('leave-one-condition-per-block-out not yet implemented');
+        % leave-one-block-per-class-out
+        %modify the ID to take the structure of the classes into account
+        vcl=zeros(size(ID,1),2);
+        
+        % For each class, identify subjects and conditions selected
+        if isfield(in,'class') 
+            nsb=0;
+            for ic=1:length(in.class)
+                listcond = {in.class(ic).group(1).subj(1).modality(1).conds(:).cond_name}; %only conditions common to all subjects are presented
+                lmod = {in.class(ic).group(1).subj(1).modality(:).mod_name{1}};
+                ids = in.class(ic).group(1).subj(1).num;
+                gnames = {PRT.group(:).gr_name};
+                [d,ng]=ismember(in.class(ic).group(:).gr_name,gnames);
+                lm = {PRT.group(ng(1)).subject(ids).modality(:).mod_name};
+                [d,nm] = ismember(lmod,lm);
+                lc = {PRT.group(ng(1)).subject(ids).modality(nm(1)).design.conds(:).cond_name};
+                [d,nc] = ismember(listcond,lc);
+                nbc = 0;
+                for ig=1:length(ng)
+                    for is=1:length(in.class(ic).group(ng(ig)).subj)
+                        for im = 1:length(nm)
+                            for icond=1:length(nc)
+                                idx=floor(((ID(:,1)==ng(ig)) + ...
+                                    (ID(:,2)==in.class(ic).group(ng(ig)).subj(is).num) + ...
+                                    (ID(:,3)==nm(im)) + ...
+                                    (ID(:,4)==nc(icond)))/4);
+                                vcl(find(idx),1) = ic;
+                                vcl(find(idx),2) = ID(find(idx),5) + nbc;
+                                nbc = nbc + length(unique(ID(find(idx),5)));
+                            end
+                        end
+                    end
+                end
+            end
+            % leave-one-subject-per-group-out
+            [gids,d1] = unique(vcl(:,1), 'last');
+            [gids,d2] = unique(vcl(:,1),'first');
+            %compute the number of subjects per class
+            ns=zeros(length(gids),1);
+            for ig= 1:length(gids)
+                ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
+            end
+        elseif isfield(in,'t')
+            ntar = unique(in.t);
+            ns=zeros(length(ntar),1);
+            for ic = 1:length(ntar)
+                nsb = 1;
+                inds = find(in.t == ic);
+                ns(ic) = length(inds);
+                vcl(inds,1) = ic;
+                ngi = unique(ID(inds,4));
+                for ig = 1:length(ngi)
+                    igi = find(ID(inds,4)==ngi(ig));
+                    indss = unique(ID(inds(igi),5));
+                    for is = 1:length(indss)
+                        inss = find(ID(inds(igi),5) == indss(is));
+                        vcl(inds(igi(inss)),2) = nsb;
+                        nsb = nsb + 1;
+                    end
+                end
+            end
+        end 
+        sids=max(ns);
+        if sids == 1
+            error('prt_model:locboSelectedWithOneBlock',...
+                'LOCBO CV selected but only one block is included');
+        end
+        [nsf]=floor(min(ns/k));
+        if k==0
+            CV = zeros(size(ID,1),sids);
+        else
+            CV = zeros(size(ID,1),k);
+        end
+        if k>1 && nsf==1
+            disp('Performing Leave-One Subject per Group-Out')
+        end
+        snums=[];
+        for g=1:length(ns)
+            is=vcl(:,1)==g;
+            if k>1 && nsf>1 %k-fold CV
+                nsfg=floor(ns(g)/k);
+                if nsfg<1
+                    error('prt_model:losgoSelectedWithTooLargeK',...
+                        ['Number of subjects in group ',num2str(g),' smaller than k']);
+                elseif nsfg*2>ns(g)
+                    error('prt_model:losgoSelectedWithTooLargeK2',...
+                        ['Leaving more than 50%% of subjects in group ',num2str(g),' out']);
+                end
+                mns=mod(ns(g),nsfg);
+                dk=nsfg*ones(1,floor(length(unique(vcl(is,2)))/nsfg));
+                if mns>0
+                    dk(end)=dk(end)+mns;
+                end
+                inds=1;
+                sk=[];
+                for ii=1:length(dk)
+                    sk=[sk,inds*ones(1,dk(ii))];
+                    inds=inds+1;
+                end
+            else %Leave-One-Subject per Group-Out
+                sk=1:ns(g);
+            end
+            snums = histc(vcl(is,2),unique(vcl(is,2)));
+            G = cell(length(unique(sk)),1);
+            for s = 1:length(unique(sk))
+                G{s} = ones(sum(snums(sk==s)),1);
+            end
+            CV(is,1:max(sk)) = blkdiag(G{:}) + 1;
+            if length(unique(sk))<size(CV,2)  %smaller group, fill with 'train'
+                CV(is,length(unique(sk))+1:size(CV,2))= ...
+                    ones(length(find(is)),length(length(unique(sk))+1:size(CV,2)));
+            end
+            if flaghh
+                CV=CV(:,1);
+            end
+        end
+
         
     case 'loro'
         % leave-one-run-out

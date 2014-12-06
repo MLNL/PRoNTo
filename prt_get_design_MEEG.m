@@ -31,7 +31,7 @@ for c=1:ncond
     allscans = [allscans, conds(c).scans];
     conds(c).blocks = 1:length(conds(c).scans);
     conds(c).discardedscans = indtrial(D,cname{c},'bad');
-    alldisc = [alldisc, conds(c).discardedscans];
+    alldisc = [alldisc; conds(c).discardedscans];
     conds(c).hrfdiscardedscans = [];
 end
 stats = struct();
