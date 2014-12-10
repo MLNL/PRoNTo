@@ -218,10 +218,29 @@ switch in.cv.type
         % leave-one-block-out - limited to one single subject for the
         % moment
         % blocks already have a unique ID
+        
+        [cids,d1] = unique(ID(:,4), 'last');
+        [cids,d2] = unique(ID(:,4),'first');
+        gc = 0;
+        nb=zeros(length(cids),1);
+        dID = ID;
+        for c = 1:length(cids)
+            nb(c)=length(unique(ID(d2(c):d1(c),5)));
+            cidx = ID(:,4) == cids(c);
+            dID(cidx,5) = dID(cidx,5) + gc;
+            gc = gc + nb(c);
+        end
+
         if k>1 %k-fold CV
-            nsf=floor(length(unique(ID(:,5)))/k);
-            mns=mod(length(unique(ID(:,5))),k);
-            dk=nsf*ones(1,k);
+            nsb=floor(gc/k);
+            % Check that the number of folds does not exceed the number of
+            % subjects
+            if length(unique(dID(:,5)))<2*nsb
+                error('prt_model:loboSelectedWithTooLargeK',...
+                    'More than 50%% of data in testing set, reduce k');
+            end
+            mns=mod(gc,k);
+            dk=nsb*ones(1,k);
             dk(end)=dk(end)+mns;
             inds=1;
             sk=[];
@@ -229,18 +248,16 @@ switch in.cv.type
                 sk=[sk,inds*ones(1,dk(ii))];
                 inds=inds+1;
             end
-        else %Leave-One-Subject-Out
-            % sk=1:max(ID(:,5));
-            sk=1:length(unique(ID(:,5))); % TODO: Check if this change has not created problems
-            nsf=1;
+        else %Leave-One-Block-Out
+            sk = 1:gc;
         end
-        snums = histc(ID(:,5),unique(ID(:,5)));% how many scans per block
+        snums=[];
+        for g = 1:length(cids)
+            snums = [snums;histc(dID(d2(g):d1(g),5),unique(dID(d2(g):d1(g),5)))];
+        end
         if length(snums) == 1
-            error('prt_model:loboSelectedWithOneSubject',...
-                'LOBO CV selected but only one block is included');
-        elseif max(ID(:,5))< 2*nsf
-            error('prt_model:loboSelectedWithLargeK',...
-                'Leaving more than 50%% of blocks out, decrease k');
+            error('prt_model:logoSelectedWithOneSubject',...
+                'LOGO CV selected but only one block is included');
         end
         G = cell(length(unique(sk)),1);
         for s = 1:length(unique(sk))

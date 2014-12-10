@@ -93,7 +93,16 @@ end
 [CV,ID] = prt_compute_cv_mat(PRT,in, modelid);
 PRT.model(modelid).input.cv_mat     = CV;
 PRT.model(modelid).input.cv_type=in.cv.type;
-
+% Deal with nested CV parameters
+if isfield(in.cv,'type_nested') && ~isempty(in.cv.type_nested)
+    PRT.model(modelid).input.cv_type_nested = in.cv.type_nested;
+end
+if isfield(in.cv,'k_nested') && ~isempty(in.cv.k_nested)
+    PRT.model(modelid).input.cv_k_nested = in.cv.k_nested;
+end
+if isfield(in.cv,'nested_param') && ~isempty(in.cv.nested_param)
+    PRT.model(modelid).input.nested_param = in.cv.nested_param;
+end
 
 PRT.model(modelid).input.operations = in.operations;
 

@@ -146,11 +146,9 @@ set(handles.pop_cv,'Value',1)
 set(handles.pop_cv_nested,'String',{'Custom'})
 set(handles.pop_cv_nested,'Value',1)
 handles.cv.type='custom';
-handles.cv_nested.type='custom';
 handles.cv.mat_file=[];
-handles.cv_nested.mat_file=[];
+handles.cv.nested_mat_file=[];
 handles.cv.k = 0;
-handles.cv_nested.k = 0;
 set(handles.pop_reg,'String',{'Classification','Regression'})
 set(handles.pop_reg,'Value',1)
 handles.type='classification';
@@ -186,6 +184,8 @@ set(handles.flag_opt_param,'Value',0)
 set(handles.edit_param_range,'Enable','off')
 handles.cv.nested = 0;
 handles.cv.nested_param = [];
+handles.cv.k_nested = 0;
+handles.cv.type_nested='custom';
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -1289,7 +1289,7 @@ if val==0
     val=1;
 end
 if any(strfind(mach{val},'Subject Out'))
-    handles.cv_nested.type = 'loso';
+    handles.cv.type_nested = 'loso';
 elseif any(strfind(mach{val},'Subject per Group'))
     if ~handles.loospg
         beep
@@ -1301,7 +1301,7 @@ elseif any(strfind(mach{val},'Block'))
 elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type_nested = 'loro';
 else
-    handles.cv_nested.type     = 'custom';
+    handles.cv.type_nested    = 'custom';
     %fill the input of the 'prt_model' button
     in.fname=get(handles.edit_prt,'String');
     if ~isfield(handles,'model_name')
@@ -1315,7 +1315,8 @@ else
     in.use_kernel=handles.use_kernel;
     in.operations=handles.operations;
     in.fs(1).fs_name=handles.fs(1).fs_name;
-    in.cv_nested=handles.cv_nested;
+    in.cv.k=handles.cv.k_nested;
+    in.cv.type = handles.cv.type_nested;
     %check that classes/subjects/scans were defined
     if strcmpi(in.type,'classification')
         if ~isfield(handles,'class')
