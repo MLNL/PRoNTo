@@ -1021,7 +1021,8 @@ if ~isfield(handles.dat.masks,'mod_name')
 else
     for i=1:size(handles.dat.masks,2)
         if strcmpi(handles.dat.masks(i).mod_name, val)
-            if isfield(handles.dat.masks(i),'fname')
+            if isfield(handles.dat.masks(i),'fname') && ...
+                    ~isempty(handles.dat.masks(i).fname)
                 sel=handles.dat.masks(i).fname;
             else sel='';
             end

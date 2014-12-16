@@ -250,7 +250,6 @@ switch in.cv.type
             end
         else %Leave-One-Block-Out
             sk = 1:gc;
-            nsb=1;
         end
         snums=[];
         for g = 1:length(cids)

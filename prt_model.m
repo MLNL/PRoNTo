@@ -68,9 +68,13 @@ end
 % compute targets and samp_idx
 % -------------------------------------------------------------------------
 if strcmp(in.type,'classification')
-    [targets, samp_idx, t_allscans, samp_allscans] = compute_targets(PRT, in);
+    [targets, samp_idx, t_allscans, samp_allscans] = compute_targets(PRT, in, 0);
 else
-    [targets, samp_idx, t_allscans] = compute_target_reg(PRT, in);
+ % One RT per trial
+    [targets, samp_idx, t_allscans] = compute_targets(PRT, in, 1);
+%     else % One RT per subject
+%         [targets, samp_idx, t_allscans] = compute_target_reg(PRT, in);
+%     end
 end
 %[afm]
 if isfield(in,'include_allscans') && in.include_allscans   
@@ -93,7 +97,15 @@ end
 [CV,ID] = prt_compute_cv_mat(PRT,in, modelid);
 PRT.model(modelid).input.cv_mat     = CV;
 PRT.model(modelid).input.cv_type=in.cv.type;
-
+if isfield (in.cv,'type_nested') && ~isempty(in.cv.type_nested) % Fill for nested CV as well
+    PRT.model(modelid).input.cv_type_nested = in.cv.type_nested;
+end
+if isfield(in.cv,'k_nested') && ~isempty(in.cv.k_nested)
+    PRT.model(modelid).input.cv_k_nested     = in.cv.k_nested;
+end
+if isfield(in.cv,'nested_param') && ~isempty(in.cv.nested_param)
+    PRT.model(modelid).input.nested_param = in.cv.nested_param;
+end
 
 PRT.model(modelid).input.operations = in.operations;
 
@@ -112,7 +124,7 @@ end
 % Private Functions
 % -------------------------------------------------------------------------
 
-function [targets, samp_idx, t_all samp_all] = compute_targets(PRT, in)
+function [targets, samp_idx, t_all, samp_all] = compute_targets(PRT, in, flag)
 % Function to compute the prediction targets. Also does some error checking
 
 % Set the reference feature set
@@ -137,7 +149,14 @@ groups     = {PRT.group(:).gr_name};
 
 t_all    = zeros(n,1);
 samp_all = zeros(n,1);
-for c = 1:length(in.class)
+if ~flag
+    nc = length(in.class);
+else
+    nc = 1; %deal with regression
+    in.class.group = in.group;
+end
+
+for c = 1:nc
     
     % groups
     for g = 1:length(in.class(c).group)
@@ -162,7 +181,64 @@ for c = 1:length(in.class)
                         ['Modality ',mod_name,' not found in PRT.mat']);
                 end
                 
-                if isfield(in.class(c).group(g).subj(s).modality(m), 'all_scans')
+                if isfield(in.class(c).group(g).subj(s).modality(m),'conds')
+                    % Conditions were specified
+                    if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
+                        error('prt_model:conditionsSpecifiedButNoneInDesign',...
+                            ['Conditions selected for subject ',num2str(s),...
+                            ', class ',num2str(c),', group ',num2str(g), ...
+                            ', modality ', num2str(m),' but there are none in the design. ',...
+                            'Please use ''All Scans'' or adjust design.']);
+                    end
+                    conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
+                    for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
+                        cond_name = in.class(c).group(g).subj(s).modality(m).conds(cond).cond_name;
+                        
+                        if any(strcmpi(cond_name,conds))
+                            cid = find(strcmpi(cond_name,conds));
+                        else
+                            error('prt_model:groupNotFoundInPRT',...
+                                ['Condition ',cond_name,' not found in PRT.mat']);
+                        end
+                        
+                        idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
+                        if flag %regression
+                            try
+                                idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+                                t_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).rt_trial(idb);
+                            catch
+                                error('prt_model:WrongTargetNumber',...
+                                    'Bad number of regression targets')
+                            end
+                        else
+                            t_all(idx) = c;
+                        end
+                    end
+                    
+                    s_idx_mod = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
+                    samp_all(s_idx_mod) = 1;
+                    
+                elseif isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
+                    conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
+                    % all conditions
+                    for cid = 1:length(conds)
+                        idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
+                        if flag
+                            try
+                                idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+                                t_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).rt_trial(idb);
+                            catch
+                                error('prt_model:WrongTargetNumber',...
+                                    'Bad number of regression targets')
+                            end
+                        else
+                            t_all(idx) = c;
+                        end
+                    end
+                    s_idx_mod = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
+                    samp_all(s_idx_mod) = 1;
+                    
+                else
                     % check whether this was included in the feature set
                     % using 'all conditions' (which is invalid)
                     if strcmpi(PRT.fs(fid).modality(m).mode,'all_cond')
@@ -177,42 +253,16 @@ for c = 1:length(in.class)
                     % otherwise add all scans for each subject
                     %[afm] idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid;
                     idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
-                    t_all(idx) = c;
-                else % conditions have been specified
-                    %[afm]sid = in.class(c).group(g).subj(s).num;
-                    conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
-                    
-                    % check whether conditions were specified in the design
-                    if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
-                        error('prt_model:conditionsSpecifiedButNoneInDesign',...
-                            ['Conditions selected for subject ',num2str(s),...
-                            ', class ',num2str(c),', group ',num2str(g), ...
-                            ', modality ', num2str(m),' but there are none in the design. ',...
-                            'Please use ''All Scans'' or adjust design.']);
-                    end
-                    if isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
-                        % all conditions
-                        for cid = 1:length(conds)
-                            idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
-                            t_all(idx) = c;
-                        end
-                    else % loop over conditions
-                        for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
-                            cond_name = in.class(c).group(g).subj(s).modality(m).conds(cond).cond_name;
-                            
-                            if any(strcmpi(cond_name,conds))
-                                cid = find(strcmpi(cond_name,conds));
-                            else
-                                error('prt_model:groupNotFoundInPRT',...
-                                    ['Condition ',cond_name,' not found in PRT.mat']);
-                            end
-                            
-                            idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
-                            t_all(idx) = c;
+                    if ~flag
+                        t_all(idx) = c;
+                    else
+                        try
+                            t_all(idx) = PRT.group(gid).subject(sid).modality(mid).rt_subj;
+                        catch
+                            error('prt_model:WrongNumberofTargets',...
+                                'Number of regression targets does not correspond to number of images')
                         end
                     end
-                    s_idx_mod = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
-                    samp_all(s_idx_mod) = 1;
                 end
             end
         end

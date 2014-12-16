@@ -140,13 +140,13 @@ for i=1:length(aa)
     end
 end
 
-
-
+% Fill fields if a design has been specified for this modality
 handles.cond=struct();
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     des=varargin{2}{1};
     szn=length(des.conds);    
     dat=cell(szn,4);
+    handles.cond = des.conds;
     for i=1:szn
         try
             dat{i,1}=des.conds(i).cond_name;
@@ -184,10 +184,11 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             dat{i,4}=temp;
             handles.cond(i).rt_trial=des.conds(i).rt_trial;
         catch
-            dat{i,4}='NaN';
+            dat{i,4}='';
             handles.cond(i).rt_trial=[];
         end
     end
+    handles.des = des;
     set(handles.condtable,'visible','on');
     set(handles.condtable,'Data',dat);
     handles.trval=des.TR;
@@ -210,7 +211,7 @@ end
 set(handles.condtable,'Data',dat);
 set(handles.condtable,'ColumnName',{'Name','Onsets','Duration','Regression targets (trials)'});
 set(handles.condtable,'ColumnEditable',[true,true,true,true]);
-set(handles.condtable,'ColumnWidth',{'auto',130,130,0});
+set(handles.condtable,'ColumnWidth',{'auto',130,130,130});
 set(handles.condtable,'ColumnFormat',{'char','char','char','char'});
 set(handles.pop_unit,'String',{'Seconds','Scans'});
 if des.unit
@@ -238,6 +239,12 @@ else
     handles.hrfdel=def.hrfd;
     handles.hrfover=def.hrfw;
 end
+end
+% Get MEEG flag if one was input
+if ~isempty(varargin) && length(varargin{2})>2
+    handles.MEEG=varargin{2}{3};
+else
+    handles.MEEG = 0;
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -320,12 +327,12 @@ else
         disp('No "onsets" found in the .mat file, please select another file')
         return
     end
-%     try
-%         rt=rt_trial;
-%     catch
-%         disp('No regression target (rt_trial) found in the .mat file')
-%         disp('Only classification techniques will be used')
-%     end
+    try
+        rt=rt_trial;
+    catch
+        disp('No regression target (rt_trial) found in the .mat file')
+        disp('Only classification techniques will be used')
+    end
     szn=length(names);    
     dat=cell(szn,4);
     for i=1:szn
@@ -350,8 +357,8 @@ else
             handles.cond(i).onsets=[];
         end
         try
-            dat{i,4}=num2str(rt_trial{i},3);
-            handles.cond(i).rt_trial=rt_trial{i};
+            dat{i,4}=num2str(rt{i},3);
+            handles.cond(i).rt_trial=rt{i};
         catch
             dat{i,4}='NaN';
             handles.cond(i).rt_trial=[];
@@ -495,7 +502,13 @@ function condtable_CellEditCallback(hObject, eventdata, handles)
 ind=eventdata.Indices;
 if ind(2)>1
     dat=eventdata.EditData;
-    eval(['vect=[',dat,'];']);
+    try
+        eval(['vect=[',dat,'];']);
+    catch
+        warning('prt_data_conditions:EvalError',...
+            'Could not evaluate statement, please correct')
+        return
+    end
     % vect is a vector - need to compute a scalar to be able to use ||
     %if isnan(vect) || vect>10^6 || ~any(size(vect)==1)
     if any(isnan(vect)) || any(vect>10^6) || ~any(size(vect)==1)
@@ -521,13 +534,18 @@ elseif ind(2)==2
 elseif ind(2)==3
     handles.cond(ind(1)).durations=vect;
 elseif ind(2)==4
-     % will never trigger for this version of ProNTo
     handles.cond(ind(1)).rt_trial=vect;
 end
-% TODO - version 2 will have support for rt_trial
-if ~isfield(handles.cond(ind(1)),'rt_trial')
-    handles.cond(ind(1)).rt_trial=[];
+temp=[];
+for j=1:length(vect)
+    temp=[temp, ' ',num2str(vect(j),3)];
 end
+dat = get(handles.condtable,'Data');
+dat{ind(1),ind(2)} = temp;
+set(handles.condtable,'Data',dat);
+% if ~isfield(handles.cond(ind(1)),'rt_trial')
+%     handles.cond(ind(1)).rt_trial=[];
+% end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -554,7 +572,7 @@ ncond=length(handles.cond);
 for i=1:ncond
     szon=length(handles.cond(i).onsets);
     szdur=length(handles.cond(i).durations);
-%     szrt=length(handles.cond(i).rt_trial);
+    szrt=length(handles.cond(i).rt_trial);
     if szdur==1
         handles.cond(i).durations=repmat(handles.cond(i).durations, 1, szon);
         szdur=length(handles.cond(i).durations);
@@ -565,21 +583,25 @@ for i=1:ncond
         disp('Please correct')
         return
     end
-%     if szrt && szdur ~=szrt
-%         beep
-%         disp('The number of regression targets must be the number of trials!')
-%         sprintf('Please correct condition %d',i)
-%         return
-%     end
+    if szrt && szdur ~=szrt
+        beep
+        disp('The number of regression targets must be the number of trials!')
+        sprintf('Please correct condition %d',i)
+        return
+    end
 end
 
 %Check that the conditions do not overlap, either directly or when taking
 %the width of the HRF into account
-conds=prt_check_design(handles.cond,handles.trval,handles.unit,...
-    handles.hrfover,handles.hrfdel);
+if ~handles.MEEG
+    conds=prt_check_design(handles.cond,handles.trval,handles.unit,...
+        handles.hrfover,handles.hrfdel);
+else
+    conds = handles.des;
+    conds.conds = handles.cond;
+end
 conds.covar=handles.covar;
 handles.output=conds;
-
 % Update handles structure
 guidata(hObject, handles);
 

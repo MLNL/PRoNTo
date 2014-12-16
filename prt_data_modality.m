@@ -138,10 +138,6 @@ else
                 'Units','normalized')
         end
     end
-
-
-
-
     handles.mod=[];
     handles.mod.detrend=0;
     handles.mod.design=0;
@@ -155,23 +151,25 @@ else
             'String',{'Load SPM.mat','Specify design','No design'},...
             'Value',3);
 
-
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         %Particular options if you select by 'scans'
         if ~isempty(varargin{2}{2}) && strcmpi(varargin{2}{2}.subj_name,'Scans')
             set(handles.design_menu,'Enable','off')
             set(handles.edit_covar,'Enable','on')
             set(handles.edit_covar,'Visible','on')
-            set(handles.text7,'Visible','on')            
+            set(handles.text7,'Visible','on')  
+            set(handles.text6,'Visible','on')
+            set(handles.edit_regt,'Enable','on')
+            set(handles.edit_regt,'Visible','on')
         else
             set(handles.design_menu,'Enable','on')
             set(handles.edit_covar,'Enable','off')
             set(handles.edit_covar,'Visible','off')
             set(handles.text7,'Visible','off')
+            set(handles.text6,'Visible','off') % allow to edit RT when design specified
+            set(handles.edit_regt,'Enable','off')
+            set(handles.edit_regt,'Visible','off')
         end
-        set(handles.text6,'Visible','on')
-        set(handles.edit_regt,'Enable','on')
-        set(handles.edit_regt,'Visible','on')
 
         if ~isempty(varargin{2}{2}) && isfield(varargin{2}{2},'modality') && ...
                 ~isempty(varargin{2}{2}.modality)
@@ -436,7 +434,7 @@ if ~handles.mod.MEEG && choice==1
     desn.covar = [];
 elseif ~handles.mod.MEEG && choice==2
     if isstruct(handles.mod.design)
-        desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT});
+        desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT,0});
     else
         desn=prt_data_conditions;
     end
@@ -454,14 +452,27 @@ elseif handles.mod.MEEG         %load desing from D object if file was selected
         disp('Select only one file per modality for MEEG')
         return
     end
-    D = spm_eeg_load(handles.mod.scans(1,:));
-    desn = prt_get_design_MEEG(D);
-    desn.covar = [];
+    if ~isstruct(handles.mod.design)
+        D = spm_eeg_load(handles.mod.scans(1,:));
+        desn = prt_get_design_MEEG(D);
+        desn.covar = [];
+        handles.mod.design=desn;
+    end
+    desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT,1});
 end
 handles.mod.design=desn;
 if isfield(desn,'covar') && ~isempty(desn.covar)
     set(handles.edit_covar,'String','Entered');
     set(handles.edit_covar,'Visible','on');
+end
+if isempty(desn)
+    set(handles.text6,'Visible','on') % Allow to enter RT, one per file
+    set(handles.edit_regt,'Enable','on')
+    set(handles.edit_regt,'Visible','on')
+else
+    set(handles.text6,'Visible','off')
+    set(handles.edit_regt,'Enable','off')
+    set(handles.edit_regt,'Visible','off')
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -506,16 +517,17 @@ if val
     if isempty(handles.mod.scans)
         beep
         disp('Select .mat for subject first')
+        set(handles.MEEGflag,'Value',0);
         return
     elseif size(handles.mod.scans,1)>1
         beep
         disp('Select only one file per modality for MEEG')
+        set(handles.MEEGflag,'Value',0);
         return
     end
     set(handles.design_menu,...
         'String',{'Events in file'},...
         'Value',1);
-    set(handles.design_menu,'Enable','off')
     D = spm_eeg_load(handles.mod.scans(1,:));
     desn = prt_get_design_MEEG(D);
     desn.covar = [];
@@ -524,7 +536,6 @@ else
     set(handles.design_menu,...
             'String',{'Load SPM.mat','Specify design','No design'},...
             'Value',3);
-    set(handles.design_menu,'Enable','on')
 end
 handles.mod.MEEG = val;
 % Update handles structure
@@ -654,17 +665,6 @@ if ~isempty(handles.mod.rt_subj)
         if  size(handles.mod.scans,1)~=szrt
             beep
             disp('Number of regression targets must be the same as number of files selected! ')
-            disp('Please correct!')
-            return
-        end
-    else
-        allons = [];
-        for ic=1:length(handles.mod.design.conds)
-            allons = [allons; handles.mod.design.conds(ic).onsets];
-        end
-        if length(allons) ~= szrt
-            beep
-            disp('Number of regression targets must be the same as number of trials in design! ')
             disp('Please correct!')
             return
         end

@@ -2,7 +2,8 @@ function desn = prt_get_design_MEEG(D)
 % Fill the design with the events extracted from the MEEG file. No need to
 % check the design for overlap. We assume that the user has defined his/her
 % epochs correctly/according to his/her needs.
-% Input: loaded SPM MEEG object
+% Input: 
+%           - D:   loaded SPM MEEG object
 % Output: design structure desn with fields:
 %           - conds: with name, onsets (in s), durations (in s), associated
 %           scans/epochs and discarded scans (trials marked as bad).
@@ -35,7 +36,7 @@ for c=1:ncond
     conds(c).hrfdiscardedscans = [];
 end
 stats = struct();
-% Compute overlap between in events in seconds
+% Compute overlap between events in seconds
 % allons = sort(allons,'ascend');
 % stats.overlap = allons(2:end)-(allons(1:end-1)+D.nsamples/D.fsample);
 % stats.overlap(stats.overlap>=0) = 0;

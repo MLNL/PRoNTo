@@ -143,8 +143,8 @@ set(handles.kernel_methods,'Enable','off')
 handles.use_kernel=1;
 set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
-set(handles.pop_cv_nested,'String',{'Custom'})
-set(handles.pop_cv_nested,'Value',1)
+% set(handles.pop_cv_nested,'String',{'Custom'})
+% set(handles.pop_cv_nested,'Value',1)
 handles.cv.type='custom';
 handles.cv.mat_file=[];
 handles.cv.nested_mat_file=[];
@@ -184,8 +184,8 @@ set(handles.flag_opt_param,'Value',0)
 set(handles.edit_param_range,'Enable','off')
 handles.cv.nested = 0;
 handles.cv.nested_param = [];
-handles.cv.k_nested=0;
-handles.cv_nested.type='custom';
+handles.cv_nested.k=0;
+handles.cv_nested.type='';
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -337,7 +337,7 @@ if length(handles.dat.fs(1).modality)>2
     list=[list;{'Leave One Run/Session Out'}];
     set(handles.pop_cv_nested,'String',list)
     set(handles.pop_cv_nested,'Value',length(list))
-    handles.cv.type_nested = 'loro';
+    handles.cv_nested.type = 'loro';
     handles.multimod = 1;
 end
 list=get(handles.pop_featset,'String');
@@ -598,14 +598,14 @@ function butt_defclass_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if strcmpi(handles.type,'classification')
     speccl=prt_ui_select_class('UserData',{handles.dat,handles.fs(1).indfs});
-    handles.design=speccl.design;
-%     handles.listnames=speccl.condm;
-    handles.legs=speccl.legends;
     if isempty(speccl)
         beep
         disp('No class specified')
         return
-    end
+    end        
+    handles.design=speccl.design;
+%     handles.listnames=speccl.condm;
+    handles.legs=speccl.legends;
     handles.class=speccl.class;
     ns=zeros(length(speccl.class),1);
     ng1=1;
@@ -684,67 +684,69 @@ if strcmpi(handles.type,'classification')
     % TODO: This should be checked to see if it's correct
     %       It's practically copy/paste from above (code for the outter CV)
     %       some special restrictions might be applied for the inner CV
-    if (speccl.design) && max(ns)==1
-        list=get(handles.pop_cv_nested,'String');
-        if ~any(ismember(list, 'Leave One Block Out'))
-            list=[list;{'Leave One Block Out'}];
-        end
-        if ~any(ismember(list, 'k-folds CV on Block'))
-            list=[list;{'k-folds CV on Block'}];
-        end
-        set(handles.pop_cv_nested,'String',list)
-        set(handles.pop_cv_nested,'Value',length(list)-1)
-        if ~any(ismember(list, 'Leave One Block per Class Out'))
-            list=[list;{'Leave One Block per Class Out'}];
-        end
-        if ~any(ismember(list, 'k-folds CV on Block per Class'))
-            list=[list;{'k-folds CV on Block per Class'}];
-        end
-        set(handles.pop_cv_nested,'String',list)
-        handles.cv.type_nested     = 'lobo';
-    end
-    if min(ns)>1
-        list=get(handles.pop_cv_nested,'String');
-        if ~any(ismember(list, 'Leave One Subject Out'))
-            list=[list;{'Leave One Subject Out'}];
-        end
-        if ~any(ismember(list, 'k-folds CV on Subject Out'))
-            list=[list;{'k-folds CV on Subject Out'}];
-        end
-        set(handles.pop_cv_nested,'String',list)
-        set(handles.pop_cv_nested,'Value',length(list)-1)
-        if ~any(ismember(list, 'Leave One Block per Class Out'))
-            list=[list;{'Leave One Block per Class Out'}];
-        end
-        if ~any(ismember(list, 'k-folds CV on Block per Class'))
-            list=[list;{'k-folds CV on Block per Class'}];
-        end
-        set(handles.pop_cv_nested,'String',list)
-        handles.cv.type_nested     = 'loso';
-        if ~ng1 || ~ng2
-            list=get(handles.pop_cv_nested,'String');
-            if ~any(ismember(list, 'Leave One Subject per Group Out'))
-                list=[list;{'Leave One Subject per Group Out'}];
-            end
-            if ~any(ismember(list, 'k-folds CV on Subject per Group'))
-                list=[list;{'k-folds CV on Subject per Group'}];
-            end
-            set(handles.pop_cv_nested,'String',list)
-        end
-    end
-    
-    
-    
+    set(handles.pop_cv_nested,'String',list);
+    val = get(handles.pop_cv,'Value');
+    set(handles.pop_cv_nested,'Value',val);
+%     if (speccl.design) && max(ns)==1
+%         list=get(handles.pop_cv_nested,'String');
+%         if ~any(ismember(list, 'Leave One Block Out'))
+%             list=[list;{'Leave One Block Out'}];
+%         end
+%         if ~any(ismember(list, 'k-folds CV on Block'))
+%             list=[list;{'k-folds CV on Block'}];
+%         end
+%         set(handles.pop_cv_nested,'String',list)
+%         set(handles.pop_cv_nested,'Value',length(list)-1)
+%         if ~any(ismember(list, 'Leave One Block per Class Out'))
+%             list=[list;{'Leave One Block per Class Out'}];
+%         end
+%         if ~any(ismember(list, 'k-folds CV on Block per Class'))
+%             list=[list;{'k-folds CV on Block per Class'}];
+%         end
+%         set(handles.pop_cv_nested,'String',list)
+%         handles.cv_nested.type     = 'lobo';
+%     end
+%     if min(ns)>1
+%         list=get(handles.pop_cv_nested,'String');
+%         if ~any(ismember(list, 'Leave One Subject Out'))
+%             list=[list;{'Leave One Subject Out'}];
+%         end
+%         if ~any(ismember(list, 'k-folds CV on Subject Out'))
+%             list=[list;{'k-folds CV on Subject Out'}];
+%         end
+%         set(handles.pop_cv_nested,'String',list)
+%         set(handles.pop_cv_nested,'Value',length(list)-1)
+%         if ~any(ismember(list, 'Leave One Block per Class Out'))
+%             list=[list;{'Leave One Block per Class Out'}];
+%         end
+%         if ~any(ismember(list, 'k-folds CV on Block per Class'))
+%             list=[list;{'k-folds CV on Block per Class'}];
+%         end
+%         set(handles.pop_cv_nested,'String',list)
+%         handles.cv_nested.type     = 'loso';
+%         if ~ng1 || ~ng2
+%             list=get(handles.pop_cv_nested,'String');
+%             if ~any(ismember(list, 'Leave One Subject per Group Out'))
+%                 list=[list;{'Leave One Subject per Group Out'}];
+%             end
+%             if ~any(ismember(list, 'k-folds CV on Subject per Group'))
+%                 list=[list;{'k-folds CV on Subject per Group'}];
+%             end
+%             set(handles.pop_cv_nested,'String',list)
+%         end
+%     end  
 else
-    d1=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
-    sel=d1.group;
-    handles.legs=d1.legends;
-    if isempty(sel)
+    d1=prt_ui_select_reg_new('UserData',{handles.dat,handles.fs(1).indfs});
+    try
+        sel=d1.group;
+    catch
         beep
-        disp('No subject selected for regression')
+        disp('No subjects selected for regression')
         return
     end
-    handles.group=sel;
+    handles.legs=d1.legends;
+    handles.group=d1.group;
+    handles.design = d1.design;
     n=0;
     for i=1:length(sel)
         n=n+length(sel(i).subj);
@@ -759,15 +761,21 @@ else
         end
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
-        if ~any(ismember(list, 'Leave One Block per Class Out'))
-            list=[list;{'Leave One Block per Class Out'}];
+        handles.cv.type     = 'loso';
+    elseif (d1.design) && n==1
+        list=get(handles.pop_cv_nested,'String');
+        if ~any(ismember(list, 'Leave One Block Out'))
+            list=[list;{'Leave One Block Out'}];
         end
-        if ~any(ismember(list, 'k-folds CV on Block per Class'))
-            list=[list;{'k-folds CV on Block per Class'}];
+        if ~any(ismember(list, 'k-folds CV on Block'))
+            list=[list;{'k-folds CV on Block'}];
         end
         set(handles.pop_cv,'String',list)
-        handles.cv.type     = 'loso';
+        set(handles.pop_cv,'Value',length(list)-1)
     end
+    set(handles.pop_cv_nested,'String',list);
+    val = get(handles.pop_cv,'Value');
+    set(handles.pop_cv_nested,'Value',val);
 end
 set(handles.butt_defclass,'ForegroundColor',[0 0 0])
 % Update handles structure
@@ -926,9 +934,9 @@ elseif any(strfind(mach{val},'Subject per Class'))
     handles.cv.type = 'losgo';
 elseif any(strfind(mach{val},'Block'))
     if any(strfind(mach{val},'Block per Class'))
-        handles.cv.type_nested = 'locbo';
+        handles.cv.type = 'locbo';
     else
-        handles.cv.type_nested = 'lobo';
+        handles.cv.type = 'lobo';
     end 
 elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type = 'loro';
@@ -1169,12 +1177,12 @@ end
 
 %checks on the CV framework compared to the model entered
 if strcmpi(in.cv.type,'lobo')
-    if ~isfield(in,'class')
-        beep
-        disp('Leave One Block Out cross-validation only allowed for classification')
-        disp('Please correct')
-        return
-    else
+    if isfield(in,'class')
+%         beep
+%         disp('Leave One Block Out cross-validation only allowed for classification')
+%         disp('Please correct')
+%         return
+%     else
         for c=1:length(in.class)
             for i=1:length(in.class(c).group)
                 if length(in.class(c).group(i).subj)>1
@@ -1187,13 +1195,13 @@ if strcmpi(in.cv.type,'lobo')
         end
     end
 end
-if ~isfield(in,'class')
-    if ~strcmpi(in.cv.type,'loso')
-        beep
-        disp('Regression only allows a Leave (One) Subject Out cross-validation')
-        disp('Please correct')
-    end
-end
+% if ~isfield(in,'class')
+%     if ~strcmpi(in.cv.type,'loso')
+%         beep
+%         disp('Regression only allows a Leave (One) Subject Out cross-validation')
+%         disp('Please correct')
+%     end
+% end
 PRT=prt_model(handles.dat,in);
 clear in
 in.fname      = get(handles.edit_prt,'String');
@@ -1278,12 +1286,12 @@ end
 
 %checks on the CV framework compared to the model entered
 if strcmpi(in.cv.type,'lobo')
-    if ~isfield(in,'class')
-        beep
-        disp('Leave One Block Out cross-validation only allowed for classification')
-        disp('Please correct')
-        return
-    else
+    if isfield(in,'class')
+%         beep
+%         disp('Leave One Block Out cross-validation only allowed for classification')
+%         disp('Please correct')
+%         return
+%     else
         for c=1:length(in.class)
             for i=1:length(in.class(c).group)
                 if length(in.class(c).group(i).subj)>1
@@ -1296,13 +1304,13 @@ if strcmpi(in.cv.type,'lobo')
         end
     end
 end
-if ~isfield(in,'class')
-    if ~strcmpi(in.cv.type,'loso')
-        beep
-        disp('Regression only allows a Leave One Subject Out cross-validation')
-        disp('Please correct')
-    end
-end
+% if ~isfield(in,'class')
+%     if ~strcmpi(in.cv.type,'loso')
+%         beep
+%         disp('Regression only allows a Leave One Subject Out cross-validation')
+%         disp('Please correct')
+%     end
+% end
 
 prt_model(handles.dat,in);
 
@@ -1328,7 +1336,7 @@ if val==0
     val=1;
 end
 if any(strfind(mach{val},'Subject Out'))
-    handles.cv_nested.type = 'loso';
+    handles.cv.type_nested = 'loso';
 elseif any(strfind(mach{val},'Subject per Group'))
     if ~handles.loospg
         beep
@@ -1343,61 +1351,62 @@ elseif any(strfind(mach{val},'Block'))
     end   
 elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type_nested = 'loro';
-else
-    handles.cv_nested.type     = 'custom';
-    %fill the input of the 'prt_model' button
-    in.fname=get(handles.edit_prt,'String');
-    if ~isfield(handles,'model_name')
-        beep
-        disp('Please enter a valid model name')
-        return
-    end
-    in.model_name=handles.model_name;
-    in.type=handles.type;
-    in.machine=handles.machine;
-    in.use_kernel=handles.use_kernel;
-    in.operations=handles.operations;
-    in.fs(1).fs_name=handles.fs(1).fs_name;
-    in.cv_nested=handles.cv_nested;
-    %check that classes/subjects/scans were defined
-    if strcmpi(in.type,'classification')
-        if ~isfield(handles,'class')
-            beep
-            disp('No class selected for classification')
-            disp('Please, define classes')
-            return
-        else
-            for i=1:length(handles.class)
-                ind=[];
-                for g=1:length(handles.class(i).group)
-                    if ~isempty(handles.class(i).group(g).gr_name)
-                        ind=[ind,g];
-                    end
-                end
-                handles.class(i).group=handles.class(i).group(ind);
-            end
-            in.class=handles.class;
-        end
-    else
-        if ~isfield(handles,'group')
-            beep
-            disp('No subjects/scans selected for classification')
-            disp('Please, select subjects/scans')
-            return
-        else
-            ind=[];
-            for g=1:length(handles.group)
-                if ~isempty(handles.group(g).gr_name)
-                    ind=[ind,g];
-                end
-            end
-            handles.group=handles.group(ind);
-            in.group=handles.group;
-        end
-    end
-    handles.in=in;
-    prt_ui_specify_CV_basis(handles);
-    handles.flagguicv=1;
+% else
+%     handles.cv.type_nested     = 'custom';
+%     %fill the input of the 'prt_model' button
+%     in.fname=get(handles.edit_prt,'String');
+%     if ~isfield(handles,'model_name')
+%         beep
+%         disp('Please enter a valid model name')
+%         return
+%     end
+%     in.model_name=handles.model_name;
+%     in.type=handles.type;
+%     in.machine=handles.machine;
+%     in.use_kernel=handles.use_kernel;
+%     in.operations=handles.operations;
+%     in.fs(1).fs_name=handles.fs(1).fs_name;
+%     in.cv.k=handles.cv.k_nested;
+%     in.cv.type = handles.cv.type_nested;
+%     %check that classes/subjects/scans were defined
+%     if strcmpi(in.type,'classification')
+%         if ~isfield(handles,'class')
+%             beep
+%             disp('No class selected for classification')
+%             disp('Please, define classes')
+%             return
+%         else
+%             for i=1:length(handles.class)
+%                 ind=[];
+%                 for g=1:length(handles.class(i).group)
+%                     if ~isempty(handles.class(i).group(g).gr_name)
+%                         ind=[ind,g];
+%                     end
+%                 end
+%                 handles.class(i).group=handles.class(i).group(ind);
+%             end
+%             in.class=handles.class;
+%         end
+%     else
+%         if ~isfield(handles,'group')
+%             beep
+%             disp('No subjects/scans selected for classification')
+%             disp('Please, select subjects/scans')
+%             return
+%         else
+%             ind=[];
+%             for g=1:length(handles.group)
+%                 if ~isempty(handles.group(g).gr_name)
+%                     ind=[ind,g];
+%                 end
+%             end
+%             handles.group=handles.group(ind);
+%             in.group=handles.group;
+%         end
+%     end
+%     handles.in=in;
+%     prt_ui_specify_CV_basis(handles);
+%     handles.flagguicv=1;
 end
 if any(strfind(mach{val},'k-fold'))
     kt=prt_text_input('Title','Specify k, the number of folds');
