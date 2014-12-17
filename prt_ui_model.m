@@ -182,6 +182,7 @@ handles.flagguicv=0;
 handles.flagguicv_nested=0;
 set(handles.flag_opt_param,'Value',0)
 set(handles.edit_param_range,'Enable','off')
+set(handles.pop_cv_nested,'Enable','off')
 handles.cv.nested = 0;
 handles.cv.nested_param = [];
 handles.cv_nested.k=0;
@@ -763,7 +764,7 @@ else
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
     elseif (d1.design) && n==1
-        list=get(handles.pop_cv_nested,'String');
+        list=get(handles.pop_cv,'String');
         if ~any(ismember(list, 'Leave One Block Out'))
             list=[list;{'Leave One Block Out'}];
         end
@@ -853,9 +854,11 @@ if v
     switch handles.machine.function
         case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr','prt_machine_sMKL_reg'}
             set(handles.edit_param_range,'Enable','on')
+            set(handles.pop_cv_nested,'Enable','on')
             handles.cv.nested = 1;
         otherwise
             set(handles.edit_param_range,'Enable','off')
+            set(handles.pop_cv_nested,'Enable','off')
             handles.cv.nested = 0;
             handles.cv.nested_param = [];
             beep
@@ -865,6 +868,7 @@ else
     handles.cv.nested = 0;
     handles.cv.nested_param = [];
     set(handles.edit_param_range,'Enable','off')
+    set(handles.pop_cv_nested,'Enable','off')
 end
 
 % Update handles structure
