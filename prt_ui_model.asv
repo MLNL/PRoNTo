@@ -704,9 +704,6 @@ else %Regression
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
         list = setdiff(list,'Custom'); %No custom for inner CV
-        if isempty(list)
-            list={''};
-        end
         set(handles.pop_cv_nested,'String',list);
         val = get(handles.pop_cv,'Value');
         set(handles.pop_cv_nested,'Value',max(1,val-1)); 

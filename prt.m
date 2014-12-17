@@ -187,17 +187,17 @@ ok = true;
 if exist('spm.m','file')
     [SPMver, SPMrel] = spm('Ver');
     if (~(strcmpi(SPMver,'spm8') && str2double(SPMrel)>8.5)) && ...
-            ~strcmpi(SPMver,'spm12b')
+            isempty(regexpi(SPMver,'spm12'))
         beep
         fprintf('\nERROR:\n')
-        fprintf('\tThe *latest* version of SPM8 or SPM12b should be installed on your computer,\n')
+        fprintf('\tThe *latest* version of SPM8 or SPM12(b) should be installed on your computer,\n')
         fprintf('\tand be available on MATLABPATH!\n\n')
         ok = false;
     end
 else
     beep
     fprintf('\nERROR:\n')
-    fprintf('\tThe *latest* version of SPM8 should be installed on your computer,\n')
+    fprintf('\tThe *latest* version of SPM8 or SPM12(b) should be installed on your computer,\n')
     fprintf('\tand be available on MATLABPATH!\n\n')
     ok = false;
 end
