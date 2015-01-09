@@ -1332,8 +1332,8 @@ for i=1:ng
             if isstruct(handles.dat.group(i).subject(j).modality(m2).design)
                 des=handles.dat.group(i).subject(j).modality(m2).design;
                 maxcond=max([des.conds(:).scans]);
-                if matdat(j,k)<maxcond && ...
-                        ~handles.dat.group(i).subject(j).modality(m2).MEEG
+                if matdat(j,k)>1 && matdat(j,k)<maxcond 
+%                        &&  ~handles.dat.group(i).subject(j).modality(m2).MEEG
                     beep
                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',j,i,k)
                     disp('Corresponding events were discarded')

@@ -73,7 +73,7 @@ for i = 1:n_mods
                 dim(i,j) = newdim;
             end
         end            
-        kernt = dim .* in.mod(mids(i)).multkern;
+        kernt = dim(i,:) .* in.mod(mids(i)).multkern;
         kernt(kernt==0) = 1;
         n_kern(i) = prod(kernt);
     else
@@ -114,6 +114,7 @@ for ik = 1:nkm
     end
     addin.dim_m = dim_m;
     if n_kern(ik) ==1
+        addin.buildkern = 1;
         [PRT,Phik] = prt_fs_modality(PRT,in,1,addin);        
         [d1,idmax] = max(Phik);
         [d1,idmin] = min(Phik);
@@ -129,6 +130,7 @@ for ik = 1:nkm
     else
         %Initialize all fields and compute the feature sets if needed
         if any(tocomp)
+            addin.buildkern = 0;
             [PRT] = prt_fs_modality(PRT,in,1,addin);
         end
         Phim=cell(n_kern(ik),1);
@@ -140,8 +142,9 @@ for ik = 1:nkm
 %         dim = dim_m(ik,:).*in.multkern;
 %         dim(dim==0) = 1;
         nroi = 1;
-        itpstart = 1;
+        addin.buildkern = 1;
         for ich = 1:kernt(1)
+            itpstart = 1;
             for ifr = 1:kernt(2)
                 for itp = 1:kernt(3)
                     disp ([' > Computing kernel: ', ...

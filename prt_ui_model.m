@@ -30,7 +30,7 @@ function varargout = prt_ui_model(varargin)
 
 % Edit the above text to modify the response to help prt_ui_kernel_construction
 
-% Last Modified by GUIDE v2.5 05-Nov-2014 15:07:40
+% Last Modified by GUIDE v2.5 05-Jan-2015 10:43:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -244,39 +244,19 @@ for i=1:length(PRT.fs)
         list=[list; {PRT.fs(i).fs_name}];
     end
 end
-set(handles.pop_featset,'String',list)
-set(handles.pop_featset,'Value',1)
-if length(handles.dat.fs(1).modality)>1
-    list=get(handles.pop_cv,'String');
-    list=[list;{'Leave One Run/Session Out'}];
-    set(handles.pop_cv,'String',list)
-    set(handles.pop_cv,'Value',length(list))
-    handles.cv.type = 'loro';
-    handles.multimod = 1;
-end
-list=get(handles.pop_featset,'String');
-handles.fs(1).fs_name=list{1};
-handles.fs(1).indfs=1;
-if isfield(handles.dat.fs(1),'multkernel') && handles.dat.fs(1).multkernel %allowing for multi-kernel learning (
-    handles.multimod = 1;
-else
-    handles.multimod = 0;
-end
-if isfield(handles.dat.fs(1),'multkernelROI') && handles.dat.fs(1).multkernelROI %allowing for multi-kernel learning
-    handles.multiroi = 1;
-else
-    handles.multiroi = 0;
-end
-
+handles.fslist = list;
+set(handles.fs_uns,'String',list)
+set(handles.fs_uns,'Value',1)
+set(handles.fs_sel,'String',{})
+set(handles.fs_sel,'Value',1)
+handles.fsidx = {[1:length(list)],[]};
+handles.fs = [];
 handles.use_kernel=get(handles.kernel_methods,'Value');
 if get(handles.pop_reg,'Value')==1 %for classification
     if handles.use_kernel
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod || handles.multiroi
-            list = [list,{'L1- Multi-Kernel Learning'}];
-        end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
         handles.machine.function='prt_machine_svm_bin';
@@ -323,46 +303,19 @@ for i=1:length(PRT.fs)
         list=[list; {PRT.fs(i).fs_name}];
     end
 end
-set(handles.pop_featset,'String',list)
-set(handles.pop_featset,'Value',1)
-if length(handles.dat.fs(1).modality)>1
-    list=get(handles.pop_cv,'String');
-    list=[list;{'Leave One Run/Session Out'}];
-    set(handles.pop_cv,'String',list)
-    set(handles.pop_cv,'Value',length(list))
-    handles.cv.type = 'loro';
-    handles.multimod = 1;
-end
-if length(handles.dat.fs(1).modality)>2
-    list=get(handles.pop_cv_nested,'String');
-    list=[list;{'Leave One Run/Session Out'}];
-    set(handles.pop_cv_nested,'String',list)
-    set(handles.pop_cv_nested,'Value',length(list))
-    handles.cv_nested.type = 'loro';
-    handles.multimod = 1;
-end
-list=get(handles.pop_featset,'String');
-handles.fs(1).fs_name=list{1};
-handles.fs(1).indfs=1;
-if handles.dat.fs(1).multkernel %allowing for multi-kernel learning
-    handles.multimod = 1;
-else
-    handles.multimod = 0;
-end
-if handles.dat.fs(1).multkernelROI %allowing for multi-kernel learning
-    handles.multiroi = 1;
-else
-    handles.multiroi = 0;
-end
+handles.fslist = list;
+set(handles.fs_uns,'String',list)
+set(handles.fs_uns,'Value',1)
+set(handles.fs_sel,'String',{})
+set(handles.fs_sel,'Value',1)
+handles.fsidx = {[1:length(list)],[]};
+handles.fs = [];
 handles.use_kernel=get(handles.kernel_methods,'Value');
 if get(handles.pop_reg,'Value')==1 %for classification
     if handles.use_kernel
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod || handles.multiroi
-            list = [list,{'L1- Multi-Kernel Learning'}];
-        end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
         handles.machine.function='prt_machine_svm_bin';
@@ -483,6 +436,229 @@ if get(handles.pop_reg,'Value')==1 %for classification
 end
 % Update handles structure
 guidata(hObject, handles);
+
+% --- Executes on selection change in fs_uns.
+function fs_uns_Callback(hObject, eventdata, handles)
+% hObject    handle to fs_uns (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns fs_uns contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from fs_uns
+list = get(handles.fs_uns,'String');
+val = get(handles.fs_uns,'Value');
+fsname = list{val};
+fsidx = find(strcmpi(fsname,handles.fslist));
+if ~isfield(handles,'fs') || ~isfield(handles.fs,'fs_name')
+    id = 1;
+else
+    id = length(handles.fs)+1;
+end
+% Update lists
+idu = setdiff(handles.fsidx{1},fsidx);
+handles.fsidx{1} = idu;
+if isempty(idu)
+    set(handles.fs_uns,'String',{});
+else
+    set(handles.fs_uns,'String',handles.fslist(idu));
+end
+set(handles.fs_uns,'Value',1);
+sdu = [handles.fsidx{2},fsidx];
+handles.fsidx{2} = sdu;
+set(handles.fs_sel,'String',handles.fslist(sdu));
+set(handles.fs_sel,'Value',length(sdu));
+handles.fs(id).fs_name=fsname;
+handles.fs(id).indfs=fsidx;
+% Set CV and machine options
+list=get(handles.pop_cv,'String');
+if length(handles.dat.fs(fsidx).modality)>1 %LOO Run if not in list
+    if ~any(strcmpi(list,'Leave One Run/Session Out'))
+        list=[list;{'Leave One Run/Session Out'}];
+        set(handles.pop_cv,'String',list)
+        set(handles.pop_cv,'Value',length(list))
+        handles.cv.type = 'loro';
+        handles.multimod = 1;
+    end
+else                                    %delete LOO Run if not available for the selected feature set
+    if any(strcmpi(list,'Leave One Run/Session Out'))
+        idlist = find(strcmpi(list,'Leave One Run/Session Out'));
+        tidl = 1:length(list);
+        idtk = setdiff(tidl,idlist);
+        set(handles.pop_cv,'String',list(idtk))
+        set(handles.pop_cv,'Value',1)
+        handles.cv.type = 'custom';
+        handles.multimod = 0;
+    end
+end
+% Add multi-kernel learning if flag to 1
+if isfield(handles.dat.fs(fsidx),'multkernel')&& handles.dat.fs(fsidx).multkernel %allowing for multi-kernel learning
+    handles.multimod = 1;
+else
+    handles.multimod = 0;
+end
+if isfield(handles.dat.fs(fsidx),'multkernelROI')&& handles.dat.fs(fsidx).multkernelROI %allowing for multi-kernel learning
+    handles.multiroi = 1;
+else
+    handles.multiroi = 0;
+end
+handles.use_kernel=get(handles.kernel_methods,'Value');
+if get(handles.pop_reg,'Value')==1 %for classification
+    if handles.use_kernel
+        list = {'Binary support vector machine',...
+            'Binary Gaussian Process Classification',...
+            'Multiclass GPC'};
+        if handles.multimod || handles.multiroi || length(handles.fs)>1
+            list = [list,{'L1- Multi-Kernel Learning'}];
+        end
+        set(handles.pop_machine,'String',list)
+        set(handles.pop_machine,'Value',1)
+        handles.machine.function='prt_machine_svm_bin';
+        handles.machine.args=handles.def.svmargs;
+    end
+end
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function fs_uns_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fs_uns (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in fs_sel.
+function fs_sel_Callback(hObject, eventdata, handles)
+% hObject    handle to fs_sel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns fs_sel contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from fs_sel
+list = get(handles.fs_sel,'String');
+val = get(handles.fs_sel,'Value');
+fsname = list{val};
+fsidx = find(strcmpi(fsname,handles.fslist));
+if ~isfield(handles,'fs') || ~isfield(handles.fs,'fs_name')
+    return
+else
+    for i = 1:length(handles.fs)
+        if strcmpi(fsname,handles.fs(i).fs_name)
+            id = i;
+        end
+    end
+end
+idtc = setdiff([1:length(handles.fs)],id);
+if isempty(idtc)
+    handles.fs = [];
+else
+    handles.fs = handles.fs(idtc);
+end
+% Update lists
+sdu = setdiff(handles.fsidx{2},fsidx);
+handles.fsidx{2} = sdu;
+if isempty(sdu)
+    set(handles.fs_sel,'String',{});
+else
+    set(handles.fs_sel,'String',handles.fslist(sdu));
+end
+set(handles.fs_sel,'Value',1);
+idu = [handles.fsidx{1},fsidx];
+handles.fsidx{1} = idu;
+set(handles.fs_uns,'String',handles.fslist(idu));
+set(handles.fs_uns,'Value',length(idu));
+% Update CV and machine options
+list=get(handles.pop_cv,'String');
+if ~isempty(handles.fs)
+    fsidx = handles.fs(1).indfs;
+    if length(handles.dat.fs(fsidx).modality)>1 %LOO Run if not in list
+        if ~any(strcmpi(list,'Leave One Run/Session Out'))
+            list=[list;{'Leave One Run/Session Out'}];
+            set(handles.pop_cv,'String',list)
+            set(handles.pop_cv,'Value',length(list))
+            handles.cv.type = 'loro';
+            handles.multimod = 1;
+        end
+    else                                    %delete LOO Run if not available for the selected feature set
+        if any(strcmpi(list,'Leave One Run/Session Out'))
+            idlist = find(strcmpi(list,'Leave One Run/Session Out'));
+            tidl = 1:length(list);
+            idtk = setdiff(tidl,idlist);
+            set(handles.pop_cv,'String',list(idtk))
+            set(handles.pop_cv,'Value',1)
+            handles.cv.type = 'custom';
+            handles.multimod = 0;
+        end
+    end
+    % Add multi-kernel learning if flag to 1
+    if isfield(handles.dat.fs(fsidx),'multkernel')&& handles.dat.fs(fsidx).multkernel %allowing for multi-kernel learning
+        handles.multimod = 1;
+    else
+        handles.multimod = 0;
+    end
+    if isfield(handles.dat.fs(fsidx),'multkernelROI')&& handles.dat.fs(fsidx).multkernelROI %allowing for multi-kernel learning
+        handles.multiroi = 1;
+    else
+        handles.multiroi = 0;
+    end
+    handles.use_kernel=get(handles.kernel_methods,'Value');
+    if get(handles.pop_reg,'Value')==1 %for classification
+        if handles.use_kernel
+            list = {'Binary support vector machine',...
+                'Binary Gaussian Process Classification',...
+                'Multiclass GPC'};
+            if handles.multimod || handles.multiroi || length(handles.fs)>1
+                list = [list,{'L1- Multi-Kernel Learning'}];
+            end
+            set(handles.pop_machine,'String',list)
+            set(handles.pop_machine,'Value',1)
+            handles.machine.function='prt_machine_svm_bin';
+            handles.machine.args=handles.def.svmargs;
+        end
+    end
+else
+    if get(handles.pop_reg,'Value')==1 %for classification
+        if handles.use_kernel
+            list = {'Binary support vector machine',...
+                'Binary Gaussian Process Classification',...
+                'Multiclass GPC'};
+            set(handles.pop_machine,'String',list)
+            set(handles.pop_machine,'Value',1)
+            handles.machine.function='prt_machine_svm_bin';
+            handles.machine.args=handles.def.svmargs;
+        end
+    end
+    if any(strcmpi(list,'Leave One Run/Session Out'))
+        idlist = find(strcmpi(list,'Leave One Run/Session Out'));
+        tidl = 1:length(list);
+        idtk = setdiff(tidl,idlist);
+        set(handles.pop_cv,'String',list(idtk))
+        set(handles.pop_cv,'Value',1)
+        handles.cv.type = 'custom';
+        handles.multimod = 0;
+    end
+end
+    
+
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function fs_sel_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to fs_sel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
 % --- Executes during object creation, after setting all properties.
 function pop_featset_CreateFcn(hObject, eventdata, handles)
@@ -1013,6 +1189,7 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
+
 % --- Executes during object creation, after setting all properties.
 function pop_cv_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to pop_cv (see GCBO)
@@ -1146,7 +1323,8 @@ in.type=handles.type;
 in.machine=handles.machine;
 in.use_kernel=handles.use_kernel;
 in.operations=handles.operations;
-in.fs(1).fs_name=handles.fs(1).fs_name;
+in.fs=handles.fs;
+in.fs = rmfield(in.fs,'indfs');
 in.cv=handles.cv;
 %check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')
@@ -1255,7 +1433,8 @@ in.type=handles.type;
 in.machine=handles.machine;
 in.use_kernel=handles.use_kernel;
 in.operations=handles.operations;
-in.fs(1).fs_name=handles.fs(1).fs_name;
+in.fs=handles.fs;
+in.fs = rmfield(in.fs,'indfs');
 in.cv=handles.cv;
 %check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')

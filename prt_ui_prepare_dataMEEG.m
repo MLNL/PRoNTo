@@ -1014,7 +1014,7 @@ function donebutt_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Check everything was filled before passing it to prt_ui_prepare_data
-handles.mod.ich = handles.selindx;
+handles.mod.ich = sort(unique(handles.selindx));
 if isempty(handles.mod.ich)
     beep
     disp('No channels selected, Please correct')

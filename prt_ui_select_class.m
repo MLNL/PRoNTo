@@ -151,7 +151,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         for j=1:ng
             handles.condm{1,3}{j}={handles.dat.group(j).subject(:).subj_name};
             for k=1:length(handles.dat.group(j).subject)
-                m2= strcmpi(handles.dat.fs(indfs).modality(nm).mod_name,modnam);
+                m2= strcmpi(handles.dat.fs(indfs).modality(i).mod_name,modnam);
                 des=handles.dat.group(j).subject(k).modality(m2).design;
                 if isstruct(des) && flag
                     if k==1 && j == 1 % [afm] && nm==1
