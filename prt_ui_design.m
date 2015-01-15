@@ -975,14 +975,29 @@ catch
 end
 if isfield(handles.dat.group(cgr).subject(cs).modality(cm),'MEEG') && ...
         handles.dat.group(cgr).subject(cs).modality(cm).MEEG
-    fnames=spm_select([1 Inf],'mat','Select files for the modality',prevlist);
+    fnames=spm_select([1 1],'mat','Select files for the modality',prevlist);
+    % update the design automatically loaded from the file
+    if size(fnames,1)>1
+        error('prt_ui_design:OnlyOneMEEGFile',...
+            'Cannot select more than one MEEG file per modality');
+    end
+    try
+        D = spm_eeg_load(fnames(1,:));
+    catch
+        error('prt_ui_design:CouldNotLoadFile',...
+            'Could not load selected file');
+    end
+    desn = prt_get_design_MEEG(D);
+    desn.covar = [];
+    handles.dat.group(cgr).subject(cs).modality(cm).design=desn;
 else
     fnames=spm_select([1 Inf],'image','Select files for the modality',prevlist);
 end
 handles.dat.group(cgr).subject(cs).modality(cm).scans=fnames;
-handles.ds{cgr}{cs}{cm}=length(fnames);
+handles.ds{cgr}{cs}{cm}=size(fnames,1);
 handles.cf=1;
 set(handles.file_list,'String',cellstr(fnames));
+
 % Update handles structure
 guidata(hObject, handles);
 

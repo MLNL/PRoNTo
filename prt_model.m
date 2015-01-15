@@ -197,23 +197,25 @@ for c = 1:nc
                         
                         if any(strcmpi(cond_name,conds))
                             cid = find(strcmpi(cond_name,conds));
-                        else
-                            error('prt_model:groupNotFoundInPRT',...
-                                ['Condition ',cond_name,' not found in PRT.mat']);
-                        end
-                        
-                        idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
-                        if flag %regression
-                            try
-                                idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
-                                t_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).rt_trial(idb);
-                            catch
-                                error('prt_model:WrongTargetNumber',...
-                                    'Bad number of regression targets')
+                            idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
+                            if flag %regression
+                                try
+                                    idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+                                    t_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).rt_trial(idb);
+                                catch
+                                    error('prt_model:WrongTargetNumber',...
+                                        'Bad number of regression targets')
+                                end
+                            else
+                                t_all(idx) = c;
                             end
                         else
-                            t_all(idx) = c;
+                            continue
+                            %                             error('prt_model:groupNotFoundInPRT',...
+                            %                                 ['Condition ',cond_name,' not found in PRT.mat']);
                         end
+                        
+                        
                     end
                     
                     s_idx_mod = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
