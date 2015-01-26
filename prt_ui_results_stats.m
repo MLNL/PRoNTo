@@ -28,7 +28,7 @@ function varargout = prt_ui_results_stats(varargin)
 
 % Edit the above text to modify the response to help prt_ui_results_stats
 
-% Last Modified by GUIDE v2.5 02-Jan-2014 17:05:27
+% Last Modified by GUIDE v2.5 26-Jan-2015 17:01:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -920,3 +920,26 @@ function showweights_Callback(hObject, eventdata, handles)
 % hObject    handle to showweights (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in editPlotButton.
+function editPlotButton_Callback(hObject, eventdata, handles)
+% hObject    handle to editPlotButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get stuff from the displayed figure
+old_fig = gcf;
+figure_children = get(old_fig,'Children');
+children_axes = findall(figure_children,'Type','axes'); %inportant to get the legends too
+
+% Create a new figure
+fig_out = figure;
+if length(children_axes) > 1 % There are legends in the figure
+    axes_out = copyobj([children_axes(1); children_axes(2)], fig_out);
+else % There are no legends in the figure
+    axes_out = copyobj(children_axes, fig_out);
+end
+
+
+guidata(hObject, handles);
