@@ -221,12 +221,12 @@ fname=spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
 prtdir=fileparts(fname);
 try
     load(fname)
-    prt_ui_reviewmodel('UserData',{PRT,prtdir});
 catch
     beep
     disp('Could not load file')
     return
 end
+prt_ui_reviewmodel('UserData',{PRT,prtdir});
 
 % --- Executes on button press in resrev.
 function resrev_Callback(hObject, eventdata, handles)

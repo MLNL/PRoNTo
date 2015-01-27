@@ -147,6 +147,7 @@ if ~isfield(handles.PRT,'model')
     disp('No model found in this PRT.mat')
     disp('No reviewing can be performed')
     delete(handles.figure1)
+    return
 end
 
 listmod={handles.PRT.model(:).model_name};  
@@ -167,6 +168,7 @@ end
 guidata(hObject, handles);
 
 
+
 % UIWAIT makes prt_ui_reviewmodel wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -179,7 +181,10 @@ function varargout = prt_ui_reviewmodel_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+if ~isempty(handles)
+    varargout{1} = handles.output;
+end
+
 
 
 % --- Executes on selection change in pop_model.
@@ -208,6 +213,7 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
+
 % --- Executes during object creation, after setting all properties.
 function pop_model_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to pop_model (see GCBO)
@@ -220,6 +226,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+
 % --- Executes on button press in modelbutt.
 function modelbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to modelbutt (see GCBO)
@@ -230,6 +237,7 @@ if isfield(handles.PRT.model(handles.indm).input,'class')
     prt_ui_select_class('UserData',{handles.PRT,handles.indf,handles.indm})
 end
 
+
 function cvbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to cvbutt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -237,14 +245,12 @@ function cvbutt_Callback(hObject, eventdata, handles)
 prt_ui_reviewCV('UserData',{handles.PRT,handles.indm,...
     handles.indf,handles.prtdir})
 
+
 % --- Executes on button press in kernbutt.
 function kernbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to kernbutt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-hf=figure;
-set(hf,'NumberTitle','off')
-set(hf,'Name','PRoNTo :: Review kernel')
 kername=handles.PRT.fs(handles.indf).k_file;
 try
     load([handles.prtdir,filesep,kername])
@@ -253,6 +259,34 @@ catch
     disp('Could not load kernel file')
     return
 end
+list = {};
+for i=1:length(Phi)
+    list = [list;{['Kernel ',num2str(i)]}];
+end
+hf=figure;
+set(hf,'NumberTitle','off')
+set(hf,'Name','PRoNTo :: Review kernel')
+color=prt_get_defaults('color');
+set(hf,'Color',color.bg1)
+S0= spm('WinSize','0',1);
+tmp  = [S0(3)/1280 (S0(4))/800];
+ratio=min(tmp)*[1 1 1 1];
+set(hf,'Resize','on')
+set(hf,'Position',ratio.*[360 278 560 420])
+set(hf,'Units','normalized')
+c = uicontrol(hf,'Style','popupmenu',...
+    'String',list,...
+    'Position', [170 365 200 50],...
+    'Callback',@dispkern);
+set(c,'Units','normalized')
+set(c,'UserData',Phi)
 imagesc(Phi{1})
+colormap(jet)
+colorbar
+
+function dispkern(source,callbackdata)
+ind = get(source,'Value');
+Phi = get(source,'UserData');
+imagesc(Phi{ind})
 colormap(jet)
 colorbar
