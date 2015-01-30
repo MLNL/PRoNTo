@@ -162,8 +162,8 @@ else
             set(handles.edit_regt,'Visible','on')
             set(handles.edit_covar,'Enable','on')
             set(handles.edit_covar,'Visible','on')
-            set(handles.text7,'Visible','on')
-            set(handles.text6,'Visible','on')
+            set(handles.text7,'Visible','on') % Covariates
+            set(handles.text6,'Visible','on') %Regression targets
         else
             set(handles.design_menu,'Enable','on')
             set(handles.edit_regt,'Enable','off')
@@ -196,7 +196,19 @@ else
                 handles.mod.scans=modsel.scans;
                 handles.mod.name=modsel.mod_name;
                 handles.mod.covar=modsel.covar;
+                if ~isempty(modsel.covar)
+                    set(handles.edit_covar,'Enable','on')
+                    set(handles.edit_covar,'Visible','on')
+                    set(handles.text7,'Visible','on')
+                    set(handles.edit_covar,'String',num2str(modsel.covar))
+                end
                 handles.mod.rt_subj=modsel.rt_subj;
+                if ~isempty(modsel.rt_subj)
+                    set(handles.edit_regt,'Enable','on')
+                    set(handles.edit_regt,'Visible','on')
+                    set(handles.text6,'Visible','on')
+                    set(handles.edit_regt,'String',num2str(modsel.rt_subj))
+                end
             else
                 nlist=[varargin{2}{1}, {'Enter new'}];
                 set(handles.modname,'String',nlist,'Value',length(nlist));  
@@ -441,6 +453,7 @@ handles.mod.design=desn;
 if isfield(desn,'covar') && ~isempty(desn.covar)
     set(handles.edit_covar,'String','Entered');
     set(handles.edit_covar,'Visible','on');
+    set(handles.text7, 'Visible','on')
 end
 % Update handles structure
 guidata(hObject, handles);

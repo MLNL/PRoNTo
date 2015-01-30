@@ -193,13 +193,6 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     handles.trval=des.TR;
     set(handles.tredit,'String',num2str(des.TR));
     handles.unit=des.unit;
-    if isfield(des,'covar') && ~isempty(des.covar)
-        set(handles.covedit,'String',num2str((des.covar(:))',3));
-        handles.covar=des.covar;
-    else
-        handles.covar=[];
-        set(handles.covedit,'String','');
-    end
 else
     dat={'cond1','0','0','[]'};
     set(handles.condtable,'visible','off');
