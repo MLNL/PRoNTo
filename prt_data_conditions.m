@@ -30,7 +30,7 @@ function varargout = prt_data_conditions(varargin)
 
 % Edit the above text to modify the response to help prt_data_conditions
 
-% Last Modified by GUIDE v2.5 26-Oct-2011 15:47:56
+% Last Modified by GUIDE v2.5 30-Jan-2015 10:13:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -434,52 +434,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-function covedit_Callback(hObject, eventdata, handles)
-% hObject    handle to covedit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of covedit as text
-%        str2double(get(hObject,'String')) returns contents of covedit as a double
-dat=get(handles.covedit,'String');
-eval(['vect=[',dat,'];']);
-%second option of loading: enter the name of a .mat file containing a
-%'rt_subj' variable
-if isnan(vect)
-    try
-        load(char(vect));
-    catch
-        beep
-        disp('Could not load file or read the covariate values')
-        disp('Please enter either a .mat file name or enter the values')
-        return
-    end
-    if ~exist('R','var')
-        beep
-        sprintf('Covariates file must contain ''R'' variable! ')
-        disp('Please correct!')
-        return
-    else
-        vect=R;
-    end
-end
-handles.covar=vect;
-% Update handles structure
-guidata(hObject, handles);
-
-
-% --- Executes during object creation, after setting all properties.
-function covedit_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to covedit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 
 % --- Executes when entered data in editable cell(s) in condtable.
 function condtable_CellEditCallback(hObject, eventdata, handles)
@@ -591,4 +545,30 @@ function cancelbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 uiresume(handles.figure1);
+
+
+%Deal with covariates at the events level - old code
+% dat=get(handles.covedit,'String');
+% eval(['vect=[',dat,'];']);
+% %second option of loading: enter the name of a .mat file containing a
+% %'R' variable
+% if isnan(vect)
+%     try
+%         load(char(vect));
+%     catch
+%         beep
+%         disp('Could not load file or read the covariate values')
+%         disp('Please enter either a .mat file name or enter the values')
+%         return
+%     end
+%     if ~exist('R','var')
+%         beep
+%         sprintf('Covariates file must contain ''R'' variable! ')
+%         disp('Please correct!')
+%         return
+%     else
+%         vect=R;
+%     end
+% end
+% handles.covar=vect;
 

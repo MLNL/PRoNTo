@@ -17,7 +17,7 @@ covar.help    = {['Select a .mat file containing '...
     'your covariates (i.e. any other data/information '...
     'you would like to include in your design). This file '...
     'should contain a variable ''R'' with a matrix of '...
-    'covariates.']};
+    'covariates. On covariate per image is expected.']};
 covar.val{1}  = {''};
 covar.filter  = 'mat';
 covar.ufilter = '.*';
@@ -349,7 +349,7 @@ new_design         = cfg_branch;
 new_design.tag     = 'new_design';
 new_design.name    = 'Specify design';
 new_design.help    = {'Specify design: scans (data), onsets and durations.'};
-new_design.val     = {unit conditions multi_conds covar};
+new_design.val     = {unit conditions multi_conds}; %covar for covar per trial (v3)
 
 % ---------------------------------------------------------------------
 % no_design No design

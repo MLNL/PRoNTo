@@ -265,7 +265,7 @@ if isfield(job.sel_ops.use_other_ops,'data_op')
 elseif isfield(job.sel_ops.use_other_ops,'no_op')
     ops = [];
 end
-if job.sel_ops.data_op_mc == 0
+if job.sel_ops.data_op_mc == 1
     model.operations = [3 ops];
 else
     model.operations = ops;

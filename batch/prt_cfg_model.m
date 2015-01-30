@@ -464,7 +464,7 @@ svm_cv_type_nested        = cfg_choice;
 svm_cv_type_nested.tag    = 'cv_type_nested';
 svm_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
 svm_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
-    cv_lkbo, cv_loro,cv_custom};
+    cv_lkbo, cv_loro};
 svm_cv_type_nested.val    = {cv_loso};
 svm_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
 
@@ -738,10 +738,12 @@ rt.val     = {rt_args};
 machine_cl       = cfg_choice;
 machine_cl.tag    = 'machine_cl';
 machine_cl.name   = 'Machine';
-machine_cl.values = {svm,gpc,gpclap,rt,sMKL_cla,custom_machine};
+machine_cl.values = {svm,gpc,gpclap,sMKL_cla,custom_machine}; 
 machine_cl.val    =  {svm};
 machine_cl.help   = {...
     ['Choose a prediction machine for this model']};
+% Random Trees out since only kernel methods
+%machine_cl.values = {svm,gpc,gpclap,rt,sMKL_cla,custom_machine};
 
 % ---------------------------------------------------------------------
 % machine_rg Select Machine
@@ -849,7 +851,7 @@ data_op.labels  = {
     'Sample averaging (within subject/condition)'
     'Mean centre features using training data'
     'Normalize samples'
-    'Perform a GLM (fMRI only)'
+    'Perform a GLM (for covariates only)'
 }';
 data_op.values  = {0 1 2 3 4 5};
 data_op.val     = {0};
@@ -865,8 +867,8 @@ data_op_mc.labels  = {
     'Yes'
     'No'
 }';
-data_op_mc.values  = {0 1};
-data_op_mc.val     = {0};
+data_op_mc.values  = {1 0};
+data_op_mc.val     = {1};
 
 % ---------------------------------------------------------------------
 % other_ops Other Operations
