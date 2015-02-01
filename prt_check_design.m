@@ -122,7 +122,7 @@ for i=1:length(chan)
         togap=thresh-intvl;
         disc_c=allgood(chan(i)+1):allgood(chan(i)+1)+togap-1;
         interall=intersect(allgood,disc_c);
-        alldisc=[alldisc,interall];
+        alldisc=[alldisc;interall];
     end
 end
 if ~isempty(alldisc)

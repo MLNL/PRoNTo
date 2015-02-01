@@ -9,7 +9,7 @@
 
 \section{Introduction}
 
-The specification of a model is the core step of the pattern recognition pipeline and  entails setting up the combination of the different components making up the analysis. For example, model specification is where you select which data features to use as input (i.e. a feature set), the type of prediction to perform (e.g. classification or regression), which machine learning algorithm to employ (e.g. support vector machines, Gaussian processes, ...), which cross-validation strategy to employ (e.g. leave one subject out, leave one run out, ...) and which operations or manipulations to apply to the data before the algorithm is trained. The framework provided by PRoNTo is highly flexible and supports most types of pattern recognition analysis typically performed in neuroimaging. This chapter provides an overview of each of the components making up a model in PRoNTo. The presentation will focus on the user interface although it is important to note that the batch system provides several advanced options not available in the user interface (described below).
+The specification of a model is the core step of the pattern recognition pipeline and  entails setting up the combination of the different components making up the analysis. For example, model specification is where you select which data features to use as input (i.e. a feature set), the type of prediction to perform (e.g. classification or regression), which machine learning algorithm to employ (e.g. support vector machines, Gaussian processes, ...), which cross-validation strategy to employ (e.g. leave one subject out, leave one run out, ...) and which operations or manipulations to apply to the data before the algorithm is trained. The framework provided by PRoNTo is highly flexible and supports most types of pattern recognition analysis typically performed in neuroimaging. This chapter provides an overview of each of the components making up a model in PRoNTo. The presentation will focus on the user interface although it is important to note that the batch system provides several advanced options not available in the user interface (described further).
 
 \section{Beginning a model specification}
 
@@ -17,7 +17,7 @@ To begin a model specification with the PRoNTo user interface, select ``Specify 
 
 \begin{figure}
 \begin{center}
-\includegraphics[height=3.5in]{images/prt_ui_specify_model.PNG}
+\includegraphics[height=3.5in]{images/prt_ui_specify_model.png}
 \caption{Model specification graphical user interface}
  \label{fig_specify_model}
 \end{center}
@@ -28,14 +28,13 @@ Next, select the \texttt{PRT.mat} containing your experimental parameters. Note 
 Enter a unique name to identify the model, which is used internally in PRoNTo, by the batch system and for display purposes. It is a good idea to select a meaningful but short name (without spaces). \textbf{Note:} the \texttt{PRT.mat} data structure retains a permanent record of all models created but if a model with the specified name already exists in the \texttt{PRT.mat} data structure, it will be automatically overwritten.
 
 \section{Feature set}
-The drop-down list entited `Feature set' will be populated once a \texttt{PRT.mat} containing one or more feature sets is selected. Select the appropriate feature set from the drop-down list. Note that a single feature set may contain more than one data modality (see chapter \ref{chap:PrepFeat}). This might be useful if more than one run is available for each subject, in which case each run could be coded as an independent modality and a single-subject classifier might be specified using leave-one-run-out cross-validation. 
+The drop-down list entitled `Feature set' will be populated once a \texttt{PRT.mat} containing one or more feature sets is selected. Select the appropriate feature set from the drop-down list. Note that a single feature set may contain more than one data modality (see chapter \ref{chap:PrepFeat}). This might be useful if more than one run is available for each subject, in which case each run could be coded as an independent modality and a single-subject classifier might be specified using leave-one-run-out cross-validation. 
 
 In the current release of PRoNTo, only kernel classifiers are supported via the user interface. The capability to support non-kernel classifiers will be added in a future release. Thus, the ``Use kernel" radio button should always be set to true.
 
 \section{Model type / pattern recognition algorithm}
-In this part of the model specification input form, select the pattern recognition algorithm to employ (referred to in PRoNTo as a ``machine"). In the current release, three classification algorithms are supported (binary support vector machines, Gaussian processes (binary and multiclass) and random forests) and three multivariate regression methods (Gaussian process regression, kernel ridge regression 
-\footnote{Kernel ridge regression is equivalent to a \emph{maximum a posteriori} approach to Gaussian process regression with fixed prior variance and no explicit noise term} 
-and relevance vector regression). 
+In this part of the model specification input form, select the pattern recognition algorithm to employ (referred to in PRoNTo as a ``machine"). In the current release, three classification algorithms are supported (binary support vector machines, Gaussian processes (binary and multiclass) and L1-Multiple Kernel Learning) and four multivariate regression methods (Gaussian process regression, kernel ridge regression 
+\footnote{Kernel ridge regression is equivalent to a \emph{maximum a posteriori} approach to Gaussian process regression with fixed prior variance and no explicit noise term} , relevance vector regression and L1-Multiple Kernel Learning). 
 
 The PRoNTo user interface provides a mechanism for flexible definition of which components of the experimental design should be used for each classification or regression model. Note that this will not necessarily be the whole experiment; for example, in a complex fMRI experiment there may be several groups, each containing multiple subjects, each in turn having multiple experimental conditions (e.g. corresponding to different subprocesses of a cognitive task). In such cases, it is usually desirable to ask several different questions of the data, such as discriminating between groups for a given experimental condition (``between group comparison"), discriminating between experimental conditions for a fixed group (``between-task comparison") or training independent pattern recognition models for different subsets of subjects. All of these can be easily defined via the user interface by clicking the ``Define classes" button (for classification) or ``Select subjects/scans" (for regression).
 
@@ -47,7 +46,7 @@ For each class, select the subjects and conditions (if any) that collectively de
 
 \begin{figure}
 \begin{center}
-\includegraphics[height=3.5in]{images/prt_ui_model_classes.PNG}
+\includegraphics[height=3.5in]{images/prt_ui_model_classes.png}
 \caption{Subject / condition selection panel for classification models}
  \label{fig_specify_classesC}
 \end{center}
@@ -55,9 +54,9 @@ For each class, select the subjects and conditions (if any) that collectively de
 
 \subsection{Regression}
 
-Regression is a generic term for all methods attempting to fit a model to observed data in order to quantify the relationship between two groups of variables. Traditionally in neuroimaging massively univariate strategies (e.g. GLM) have been largely used, where data for each voxel are independently fit with the same model. Statistics test are used to make inferences on the presence of an effect at each voxel (e.g. \emph{t-test}).  Multivariate regression, on the other hand, takes into account several input variables (voxels) simultaneously, thus modeling the property of interest considering existing relations among the voxels.
+Regression is a generic term for all methods attempting to fit a model to observed data in order to quantify the relationship between two groups of variables. Traditionally in neuroimaging massively univariate strategies (e.g. GLM) have been largely used, where data for each voxel are independently fitted with the same model. Statistics test are used to make inferences on the presence of an effect at each voxel (e.g. \emph{t-test}).  Multivariate regression, on the other hand, takes into account several input variables (voxels) simultaneously, thus modelling the property of interest considering existing relations among the voxels.
 
-Although most studies exploring predictive analyses in neuroimaging have been related to classification, regression analysis has aroused interest in neuroscience community for its ability to decode continuous characteristics from neuroimaging data. This approach has potential to be used when the examples (patterns) can be associated to a range of real values. The objective is to predict a continuous value instead of predicting a class to which the example belongs. These values usually refer to demographic, clinical or behavioral data (as age, blood pressure or scores resulting from a test, for example). For validation, predicted values can be correlated to the actual ones. Also, MSE (Mean Square Error) can be calculated, referring to the mean value of the squared deviations of the predictions from the true values over the cross-validation.
+Although most studies exploring predictive analyses in neuroimaging have been related to classification, regression analysis has aroused interest in neuroscience community for its ability to decode continuous characteristics from neuroimaging data. This approach has potential to be used when the examples (patterns) can be associated to a range of real values. The objective is to predict a continuous value instead of predicting a class to which the example belongs. These values usually refer to demographic, clinical or behavioural data (as age, blood pressure or scores resulting from a test, for example). For validation, predicted values can be correlated to the actual ones. Also, MSE (Mean Square Error) can be calculated, referring to the mean value of the squared deviations of the predictions from the true values over the cross-validation.
 
 The specification of which subjects and scans to include in regression models is similar to that for classification, see Figure  \ref{fig_specify_classesR} and for the purposes of model specification in PRoNTo, regression can be thought of as a classification problem with a single class. In the current release, regression is only supported if there is a single scan per subject (e.g. structural images or parameter estimate images from a GLM analysis). In a future release it will be possible to perform regression where an independent regression target is supplied for each trial, block or condition. To perform a regression, the regression targets are specified during the design stage. It is important to emphasize that in the current implementation, regression is only supported using the "select by scans" option (see chapter \ref{chap:DataDesign}).  
 
@@ -68,6 +67,14 @@ The specification of which subjects and scans to include in regression models is
  \label{fig_specify_classesR}
 \end{center}
 \end{figure}
+
+\subsection{Hyper-parameter optimization}
+
+From PRoNTo version 2.0, it is possible to optimize hyper-parameters of the machine. For example, the soft-margin (a.k.a. C) hyper-parameter in SVM can be optimized, using a nested cross-validation scheme. In this case, the training data (as specified by the `outer' cross-validation) is divided in training and testing set. For each value of the hyper-parameter specified by the user, the model is then trained and tested in each sub-fold. The value of the hyper-parameter leading to the highest performance (balanced accuracy for classification and coefficient of determination for regression) is then returned to the `outer' fold. For this fold, the model is trained using the `optimal' value of the hyper-parameter and tested on the data that was left out (and which was not used at any point of the modelling step). This nested CV procedure can lead to different values of the hyper-parameter to be selected in each fold. These are stored in the outputs of the model and can be reviewed in the `Display Results' panel.
+
+Optimizing the hyper-parameter might lead to improved results compared to fixed values. This will usually depend on the number of features selected to model the data: for a whole brain model, with many more features than images/trials, it is reasonable to assume that changing the hyper-parameter won't affect the decision function, due to the high-dimensionality of the feature space. However, when using (e.g.) regions of interest (in a second-level mask or in a MKL model), the number of features might compare to the number of examples. In this case, different values of the hyper-parameter might lead to different decision functions and optimizing the hyper-parameter is desirable.
+
+Performing a nested cross-validation can be computationally expensive. For computational efficiency, PRoNTo allows to specify different cross-validation schemes for the `outer' and the `nested' CV. Typically, the outer CV should have more folds, to use as much data as possible in each fold for prediction (e.g. leave-one-out), while the nested CV does not need as many folds to select the `optimal' value of the hyper-parameter (e.g. k-folds CV).
 
 \section{Cross-validation}
 
@@ -93,7 +100,7 @@ During this part of the model specification, it is also possible to select one o
 \item \textbf{Sample averaging (within subjects):} constructs samples by computing the average of all scans within all blocks for each subject and condition
 \item \textbf{Mean centre features using training data:} subtract the voxel-wise mean from each data vector
 \item \textbf{Divide data vectors by their norm:} scales each data vector to lie on the unit hypersphere by dividing it by its Euclidean norm
-\item \textbf{Perform a GLM:} currently not supported
+\item \textbf{Perform a GLM:} regresses out the covariates entered for each subject/image (entered `by scans') from the kernel. \textbf{Note:} This operation is actually performed without taking into account the separation between training and test sets. A new formulation of this operation, taking into account the division of train and test, is currently in development and will be implemented as soon as possible.
 \end{itemize}
 
 A crucial point to note is that all operations are embedded within the cross-validation structure such that they are applied independently to training and test sets. This prevents a very common mistake in pattern recognition from occurring, whereby parameters are computed using the whole data set prior to cross-validation. Observing a complete split between training and test sets during all phases of analysis ensures that accuracy measures are an appropriate reflection of the true generalisation ability of the machine and are not biased because of improper applications of preprocessing operations to the entire dataset.
