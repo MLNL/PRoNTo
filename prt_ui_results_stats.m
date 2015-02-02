@@ -931,7 +931,7 @@ function editPlotButton_Callback(hObject, eventdata, handles)
 % Get stuff from the displayed figure
 old_fig = gcf;
 figure_children = get(old_fig,'Children');
-children_axes = findall(figure_children,'Type','axes'); %inportant to get the legends too
+children_axes = findall(figure_children,'Type','axes'); %important to get the legends too
 
 % Create a new figure
 fig_out = figure;
@@ -940,6 +940,3 @@ if length(children_axes) > 1 % There are legends in the figure
 else % There are no legends in the figure
     axes_out = copyobj(children_axes, fig_out);
 end
-
-
-guidata(hObject, handles);
