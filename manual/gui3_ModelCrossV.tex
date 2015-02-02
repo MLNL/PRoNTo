@@ -3,7 +3,7 @@
 % Written by A Marquand
 %_______________________________________________
 
-\chapter{Model Specification}
+\chapter{Model Specification and Estimation}
 \label{chap:ModelCrossV}
 \minitoc
 
@@ -15,9 +15,9 @@ The specification of a model is the core step of the pattern recognition pipelin
 
 To begin a model specification with the PRoNTo user interface, select ``Specify model" from the main PRoNTo window. This will launch the model specification window (Figure \ref{fig_specify_model})
 
-\begin{figure}
+\begin{figure}[!h]
 \begin{center}
-\includegraphics[height=3.5in]{images/prt_ui_specify_model.png}
+\includegraphics[height=3.5in]{images/prt_ui_model.PNG}
 \caption{Model specification graphical user interface}
  \label{fig_specify_model}
 \end{center}
@@ -44,7 +44,7 @@ The class selection panel is displayed in figure \ref{fig_specify_classesC}. Fir
 
 For each class, select the subjects and conditions (if any) that collectively define that class. It is possible to select multiple experimental conditions in the same class, but this complicates model interpretability and potentially also model performance (since by definition conditions are not identically distributed). If a condition or subject is erroneously selected, click on it in the ``selected subject(s)" or ``selected condition(s)" panel and it will be removed from the list. 
 
-\begin{figure}
+\begin{figure}[!h]
 \begin{center}
 \includegraphics[height=3.5in]{images/prt_ui_model_classes.png}
 \caption{Subject / condition selection panel for classification models}
@@ -60,7 +60,7 @@ Although most studies exploring predictive analyses in neuroimaging have been re
 
 The specification of which subjects and scans to include in regression models is similar to that for classification, see Figure  \ref{fig_specify_classesR} and for the purposes of model specification in PRoNTo, regression can be thought of as a classification problem with a single class. In the current release, regression is only supported if there is a single scan per subject (e.g. structural images or parameter estimate images from a GLM analysis). In a future release it will be possible to perform regression where an independent regression target is supplied for each trial, block or condition. To perform a regression, the regression targets are specified during the design stage. It is important to emphasize that in the current implementation, regression is only supported using the "select by scans" option (see chapter \ref{chap:DataDesign}).  
 
-\begin{figure}
+\begin{figure}[!h]
 \begin{center}
 \includegraphics[height=3.5in]{images/prt_ui_model_regression.PNG}
 \caption{Subject / condition selection panel for regression models}
@@ -80,10 +80,41 @@ Performing a nested cross-validation can be computationally expensive. For compu
 
 In the final part of the specify model input form, select the type of cross-validation to employ. Cross-validation is a crucial part of the design and is used to assess the generalizability of the model and to ensure the model has not overfitted the data. Typically this is done by partitioning the data into one or more partitions: a "training set", used to train the model (e.g. fit parameters) and a "test set" used to assess performance on unseen data. By repeatedly repartitioning the data in this way, it is possible to derive an approximately unbiased estimate of the true generalisation error of the model. 
 
-The most common forms in neuroimaging applications are leave-one-subject out (LOSO; exclude one subject for testing, train with the remaining), leave-one-run-out (LORO; leave one fMRI run out for testing, train with the remainder) and leave-one-block-out (LOBO; leave out a single block or event and train with the remainder). LOSO is suitable for multi-subject designs, while LORO and LOBO are suitable for single subject designs, where the former is better suited to designs having multiple experimental runs and the latter is appropriate if there is only a single run. The current release of PRoNTo supports each of these, and also supports leave-one-subject-per-group-out (LOSGO), which is appropriate if the subjects in each group are paired or for repeated measures experimental designs. The functionality to provide arbitrary cross-validation resampling approaches will be added in a future release. Information concerning the cross-validation structure is stored internally in matrix format, and can be visualised by clicking "Review Kernel and CV" from the main ProNTo window (see \ref{fig_reviewCV} for an example). In the left panel, this figure indicates which group, subject, modality and condition each scan in the feature set belongs to. On the right, each cross-validation fold (partition) is displayed as a separate column and each scan is colour coded according to whether it is in the training or test set (or if it is unused).
+The most common forms in neuroimaging applications are leave-one-subject out (LOSO; exclude one subject for testing, train with the remaining), leave-one-run-out (LORO; leave one fMRI run out for testing, train with the remainder) and leave-one-block-out (LOBO; leave out a single block or event and train with the remainder). LOSO is suitable for multi-subject designs, while LORO and LOBO are suitable for single subject designs, where the former is better suited to designs having multiple experimental runs and the latter is appropriate if there is only a single run. The current release of PRoNTo supports each of these, and also supports leave-one-subject-per-group-out (LOSGO), which is appropriate if the subjects in each group are paired or for repeated measures experimental designs. Versions 1.1 and later allows k-fold cross-validation for each of the available schemes. This means that the user specifies the number of folds (`k') and that the data is partitioned according to that number. For example, specifying $k=4$ will use 25\% of the data to test the model, and 75\% to train it. Note: $k=1$ splits the data in half, training the model on the first half and testing on the second, i.e. there is no circular partitioning.
+
+In version 2.0, a GUI allows the user to fully specify his/her cross-validation scheme. First, a `basis' needs to be specified (Figure \ref{fig_customCV_basis}). Three options are available: 
+
+\begin{itemize}
+\item Load a .mat containing a previously computed CV matrix (needs to contain the variable `CV').
+\item Select a basis from the pop-down list (contains the same options as for the outer CV).
+\item Specify the number of folds.
+\end{itemize}
 
 
-\begin{figure}
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[height=4cm]{images/prt_customCV_basis.PNG}
+\caption{Specify basis to build custom cross-validation}
+ \label{fig_customCV_basis}
+\end{center}
+\end{figure}
+
+When an option has been selected, a new window will appear (Figure \ref{fig_customCV}). The top panel of this window is a table that can be edited. Each row refers to a trial/image selected in the definition of the classes (or to perform regression on). Each column represents a fold. For each column, the different trials can have a value of 2 (test set), 1 (train set) or 0 (unused in this fold). Setting a whole fold to 0 takes it out of the CV matrix. Note: it is possible to change the value of multiple trials by changing the value of the last trial to modify, then shift-select the first one to modify. This also works across folds. The bottom panel displays the structure of the data selected for further classification or regression, along with a preview of the built CV matrix.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[height=9cm]{images/prt_customCV.PNG}
+\caption{For each fold, specify which images/trials are part of the training and test set, or are unused}
+ \label{fig_customCV}
+\end{center}
+\end{figure}
+
+The resulting CV matrix can be saved in a .mat, alongside the PRT (name: \textit{model name\_ CV.mat}). This matrix can loaded as a custom CV in the batch, if exactly the same trials were selected for modelling. \textbf{Note:} The custom CV is not available as a `nested' cross-validation scheme. We hypothesized that the train and test sets are defined by the outer CV such that optimizing a hyper-parameter can be performed using a structure in each fold. For example, the outer CV could train on some runs and test on others. However, in each fold, it is still possible to train on a subset of the selected runs or to train on blocks. 
+
+Information concerning the cross-validation structure is stored internally in matrix format, and can be visualised by clicking "Review Kernel and CV" from the main ProNTo window (see \ref{fig_reviewCV} for an example). In the left panel, this figure indicates which group, subject, modality and condition each scan in the feature set belongs to. On the right, each cross-validation fold (partition) is displayed as a separate column and each scan is colour coded according to whether it is in the training or test set (or if it is unused).
+
+
+\begin{figure}[!h]
 \begin{center}
 \includegraphics[height=2in]{images/prt_ui_reviewCV.PNG}
 \caption{Review cross-validation matrix}
@@ -91,7 +122,7 @@ The most common forms in neuroimaging applications are leave-one-subject out (LO
 \end{center}
 \end{figure}
 
-It should be emphasised that the type of cross-validation selected should be appropriate for the experimental design. For example, it is nonsensical to select a leave-one-subject-out cross-validation approach for single subject designs. It is also important to ensure that the training and test sets are completely independent to avoid the cross-validation statistics becoming biased. This is particularly important for fMRI, where successive scans in time are highly autocorrelated. For example, if a leave-one-block-out approach is employed and the blocks are too close together then the independence of the training and test set will be violated, and the cross-validation statistics will be biased (techically this is governed by the autocorrelation length of the fMRI timeseries and the temporal blurring induced by the haemodynamic response function). This can be avoided if care is taken to ensure that overlapping scans are discarded from the design (see chapter \ref{chap:DataDesign}), but it is a very important issue, and the user should still take care to ensure that cross-validation folds are sufficiently far apart in time (especially for LOBO cross-validation).
+It should be emphasised that the type of cross-validation selected should be appropriate for the experimental design. For example, it is nonsensical to select a leave-one-subject-out cross-validation approach for single subject designs. It is also important to ensure that the training and test sets are completely independent to avoid the cross-validation statistics becoming biased. This is particularly important for fMRI, where successive scans in time are highly autocorrelated. For example, if a leave-one-block-out approach is employed and the blocks are too close together then the independence of the training and test set will be violated, and the cross-validation statistics will be biased (technically this is governed by the autocorrelation length of the fMRI timeseries and the temporal blurring induced by the haemodynamic response function). This can be avoided if care is taken to ensure that overlapping scans are discarded from the design (see chapter \ref{chap:DataDesign}), but it is a very important issue, and the user should still take care to ensure that cross-validation folds are sufficiently far apart in time (especially for LOBO cross-validation).
 
 During this part of the model specification, it is also possible to select one or more operations to apply to the data. Each of these operations is defined below:
 
@@ -103,15 +134,48 @@ During this part of the model specification, it is also possible to select one o
 \item \textbf{Perform a GLM:} regresses out the covariates entered for each subject/image (entered `by scans') from the kernel. \textbf{Note:} This operation is actually performed without taking into account the separation between training and test sets. A new formulation of this operation, taking into account the division of train and test, is currently in development and will be implemented as soon as possible.
 \end{itemize}
 
-A crucial point to note is that all operations are embedded within the cross-validation structure such that they are applied independently to training and test sets. This prevents a very common mistake in pattern recognition from occurring, whereby parameters are computed using the whole data set prior to cross-validation. Observing a complete split between training and test sets during all phases of analysis ensures that accuracy measures are an appropriate reflection of the true generalisation ability of the machine and are not biased because of improper applications of preprocessing operations to the entire dataset.
+A crucial point to note is that all operations are embedded within the cross-validation structure such that they are applied independently to training and test sets (except for the GLM). This prevents a very common mistake in pattern recognition from occurring, whereby parameters are computed using the whole data set prior to cross-validation. Observing a complete split between training and test sets during all phases of analysis ensures that accuracy measures are an appropriate reflection of the true generalisation ability of the machine and are not biased because of improper applications of preprocessing operations to the entire dataset.
 
 Other points to note include: (i) the order of operations is potentially important. For example, subtracting the mean then dividing each data vector by its norm is not the same as performing the operations the other way around. (ii) operations (1) and (2) have no effect if no design is specified or for events with a length of one TR.
 
 At a minimum, we recommend that features should be mean centered over scans during cross-validation.
 
+\section{Specify / Run model}
+
+Using the GUI, it is possible to either `Specify' the model, or `Specify and Run' the model. The first option saves all the parameters of the model in the PRT structure (\texttt{PRT.model.input}). The second saves all the parameters of the model and then runs the model. The results of the analysis are then saved in the PRT structure under \texttt{PRT.model.output}.
+
+In some cases (e.g. multiple models to run or models with nested CV and/or slower machines), it would be desirable to estimate models later on (e.g. just before lunch break or at the end of the day). The `Run model' option allows to select multiple models and run them one at a time automatically (Figure \ref{fig_run_model}).
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[height=5cm]{images/prt_run_model.PNG}
+\caption{Choose models to be estimated}
+ \label{fig_run_model}
+\end{center}
+\end{figure}
+
+
 \section{Batch interface}
 
-The batch module provides all the functionality provided in the user interface and allows complex analyses to be scripted in advance. As noted, the batch module also provides functionality not available in the user interface. The most important difference is that the batch module allows customised \matlab \ functions to be used as prediction machines. This functionality allows PRoNTo to be easily extended to allow many types of classification and regression algorithms not provided under the current framework. This can be achieved by selecting ``Custom machine" under the ``Model Type" heading. This allows a function name to be specified (i.e. any \texttt{*.m} function in the \matlab \ search path). The behaviour of this custom machine can then be controlled by a free-format argument string. See the developer documentation and the examples in the \texttt{machines/} subdirectory of the PRoNTo distribution for more information. Another important difference between the batch and user interfaces is that mean centering data vectors across scans is enabled by default in the batch. 
+The batch module provides all the functionality provided in the user interface and allows complex analyses to be scripted in advance. As noted, the batch module also provides functionality not available in the user interface. The most important difference is that the batch module allows customised \matlab \ functions to be used as prediction machines. This functionality allows PRoNTo to be easily extended to allow many types of classification and regression algorithms not provided under the current framework. This can be achieved by selecting ``Custom machine" under the ``Model Type" heading. This allows a function name to be specified (i.e. any \texttt{*.m} function in the \matlab \ search path). The behaviour of this custom machine can then be controlled by a free-format argument string. See the developer documentation and the examples in the \texttt{machines/} subdirectory of the PRoNTo distribution for more information. Another important difference between the batch and user interfaces is that mean centering data vectors across scans is enabled by default in the batch. Also, flexible CV is available in the batch only in the form of `load a .mat'. This .mat must contain a variable called `CV', specifying the CV matrix for the selected trials/images.
 
-%An example of the batch window for model specification is provided in figure XXX
+An example of the batch window for model specification is provided in figure \ref{fig_batch_model}.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[height=3.5in]{images/prt_batch_model.PNG}
+\caption{Batch interface to specify a model}
+ \label{fig_batch_model}
+\end{center}
+\end{figure}
+
+As displayed in Figure \ref{fig_batch_model}, the batch does not allow to specify and run the model directly. Instead, the user had to add a `Run model' module. The batch has the advantage of allowing to perform permutations along model estimation (option available in the `Display results' window in the GUI). Furthermore, it is possible to save the predictions and the balanced accuracy (for classification) for each permutation, to perform further statistical tests if needed. The `Run model' batch module is presented in Figure \ref{fig_batch_runmodel}. \textbf{Note:} Dependencies on the model name are available when performing a `Model specification' followed by a `Run model' module.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[height=3.5in]{images/prt_batch_runmodel.PNG}
+\caption{Batch interface to run a model}
+ \label{fig_batch_runmodel}
+\end{center}
+\end{figure}
 

@@ -20,9 +20,9 @@ Multiple runs entered as different modalities (e.g. modality 1 is 'fMRI\_run1', 
 %========================
 
 After the selection of the dataset and of which modality to include in the FS, the toolbox accesses each image, i.e. it gets the value of the voxels which are comprised in the first level mask selected for that modality (mask specified at the data and design step, see chapter "Data and Design"). This access is performed by 'blocks' of features, not to overload the RAM memory. In the case of time-series, the user can specify detrending methods and parameters to apply to the time course of each feature. Methods comprise a polynomial detrending (parameter: order of the polynomial) or a Discrete Cosine Transform high-pass filter (SPM, parameter: frequency cutoff in seconds). An example of a linear detrending (polynomial detrending of order 1) was represented in Fig. \ref{fig:lindetrend}.
-\begin{figure}[!htbp]
+\begin{figure}[!h]
   \begin{center}
-      \includegraphics[height=7cm]{images/fig1_lindetrend.png}
+      \includegraphics[height=6cm]{images/fig1_lindetrend.png}
    \caption{Example of detrending: the original signal over time of one feature (in blue) was approximated by a polynomial of order 1 (red line), which was then substracted from the original signal to give the detrended signal (in green).}
     \label{fig:lindetrend}
   \end{center}
@@ -50,7 +50,7 @@ The {\tt PRT.mat} structure saves all information linked to the file arrays in a
 %==========================
 
 After clicking on the ``Prepare Feature Set'' button in the main interface (see Fig. \ref{fig:mainprep}), a second window will appear (Fig. \ref{fig:FSmainl}), allowing the user to select a saved PRT.mat , to name the FS and to define the number of modalities which should be included in the FS. 
-\begin{figure}[!htbp]
+\begin{figure}[!h]
   \begin{center}
       \includegraphics[height=7cm]{images/fig2_main_prt.png}
    \caption{Main interface: button to launch the 'Prepare Feature Set' step.}
@@ -58,16 +58,16 @@ After clicking on the ``Prepare Feature Set'' button in the main interface (see 
   \end{center}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[!h]
   \begin{center}
-      \includegraphics[height=7cm]{images/prt_ui_feature_set.png}
+      \includegraphics[height=9cm]{images/prt_ui_feature_set.png}
    \caption{Interface of the 'Prepare Feature Set' step. Top: Dataset selection: type the full name (with path) or browse to select the dataset to prepare. Feature set name: Type the FS name, which will be used to save the kernel as a .mat on the hard drive. Modalities: Number of modalities to select with the list containing the names of the modalities included in the FS (no user interaction possible). A checkbox allows to build one kernel per modality if multiple modalities are present/have been selected in the FS. Build kernel/data matrix: builds the feature set and kernel(s).}
     \label{fig:FSmainl}
   \end{center}
 \end{figure}
 
 To define the number of modalities to include, the user should click in the appropriate edit box, type the number and then 'return'. This will launch a third window (Fig. \ref{fig:modFS}), allowing the specification of the different options and parameters for each modality. When the dataset contains only one modality, this window is launched directly and (Fig. \ref{fig:FSmainl}) is filled automatically expect for the feature set name.
-\begin{figure}[!htbp]
+\begin{figure}[!h]
   \begin{center}
       \includegraphics[height=7cm]{images/prt_ui_feature_set_modality.png}
    \caption{Specification of options and parameters for each modality. Modality: Select the modality name from a pull-down menu. Conditions: choose to build All scans or All conditions. Parameters: Detrend to perform with its parameter, as well as Scaling of the scans or not. Features: Selection of a second-level mask and/or of an atlas to build one kernel per region.}
@@ -96,10 +96,10 @@ When working with Graphical User Interfaces (GUIs), some messages might appear i
 
 The {\tt matlabbatch} system allows the input/selection of all parameters and options aforementioned. Just note that the batch is based on the names of the modalities and/or conditions. Therefore, for the batch to work properly, names should be consistent across all steps, starting from data and design to the model specification and running. The hierarchy for the case of a feature set containing one fMRI modality is displayed in (Fig. \ref{fig:batchFS}). For this feature set, we chose to load an atlas, and build multiple kernels based on the regions it defines.
 
-\begin{figure}[!htbp]
+\begin{figure}[!h]
   \begin{center}
-      \includegraphics[height=9cm]{images/fig5_batchFS.png}
-   \caption{Matlabbatch GUI.}
+      \includegraphics[height=10cm]{images/fig5_batchFS.png}
+   \caption{{\tt matlabbatch} GUI for feature set building.}
     \label{fig:batchFS}
   \end{center}
 \end{figure}
