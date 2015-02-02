@@ -348,8 +348,14 @@ function plotmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns plotmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from plotmenu
 
+nplot         = get(handles.plotmenu,'String');
 plotm         = get(handles.plotmenu,'Value');
 plotchosen    = num2str(plotm);
+if plotm>length(nplot)  % reset to 1 if list of available plot smaller than chosen plot
+    set(handles.plotmenu,'Value',1);
+    plotm = 1;
+    plotchosen    = num2str(plotm);
+end
 fold          = get(handles.foldmenu,'Value');
 model         = get(handles.classmenu,'Value');
 mi            = handles.mi;
