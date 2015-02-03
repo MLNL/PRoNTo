@@ -1,6 +1,6 @@
 % $Id: gui_amodel.tex 395 2011-11-17 22:34:59Z cphillip $
 %
-% Written by A Marquand
+% Written by A Marquand, updated by J. Schrouff for v2.0
 %_______________________________________________
 
 \chapter{Model Specification and Estimation}
@@ -76,6 +76,8 @@ Optimizing the hyper-parameter might lead to improved results compared to fixed 
 
 Performing a nested cross-validation can be computationally expensive. For computational efficiency, PRoNTo allows to specify different cross-validation schemes for the `outer' and the `nested' CV. Typically, the outer CV should have more folds, to use as much data as possible in each fold for prediction (e.g. leave-one-out), while the nested CV does not need as many folds to select the `optimal' value of the hyper-parameter (e.g. k-folds CV).
 
+In the current version of PRoNTo, the soft-margin parameter can be optimized for SVM and for MKL (classification and regression). In the same way, it is possible to optimize the $\lambda$ ridge parameter for KRR. If no value is provided, those parameters will take the values $0.01, 0.1, 1, 10, 100$ and $1000$, i.e. $10.^{[-2:3]}$.
+
 \section{Cross-validation}
 
 In the final part of the specify model input form, select the type of cross-validation to employ. Cross-validation is a crucial part of the design and is used to assess the generalizability of the model and to ensure the model has not overfitted the data. Typically this is done by partitioning the data into one or more partitions: a "training set", used to train the model (e.g. fit parameters) and a "test set" used to assess performance on unseen data. By repeatedly repartitioning the data in this way, it is possible to derive an approximately unbiased estimate of the true generalisation error of the model. 
@@ -138,13 +140,13 @@ A crucial point to note is that all operations are embedded within the cross-val
 
 Other points to note include: (i) the order of operations is potentially important. For example, subtracting the mean then dividing each data vector by its norm is not the same as performing the operations the other way around. (ii) operations (1) and (2) have no effect if no design is specified or for events with a length of one TR.
 
-At a minimum, we recommend that features should be mean centered over scans during cross-validation.
+At a minimum, we recommend that features should be mean centered over scans during cross-validation. In addition, for multiple kernel learning, we advise the user to normalize each kernel. This will avoid any size effect to be taken into account during the modelling (e.g. different regions contain different numbers of voxels).
 
 \section{Specify / Run model}
 
-Using the GUI, it is possible to either `Specify' the model, or `Specify and Run' the model. The first option saves all the parameters of the model in the PRT structure (\texttt{PRT.model.input}). The second saves all the parameters of the model and then runs the model. The results of the analysis are then saved in the PRT structure under \texttt{PRT.model.output}.
+Using the GUI, it is possible to either `Specify' the model, or `Specify and Run' the model. The first option saves all the parameters of the model in the PRT structure. This information can be found in \texttt{PRT.model(\textit{m}).input}, where \textit{m} is the index of the model. The second saves all the parameters of the model and then runs the model. In this case, the inputs, which include the cross-validation matrix, the target values or labels, and the machine (e.g. binary SVM, Random Forests, etc.), are fed to the estimation routines, which will then add to the PRT an output field (\texttt{PRT.model(\textit{m}).output}) containing the estimated parameters, statistics, and other information from the learning process.
 
-In some cases (e.g. multiple models to run or models with nested CV and/or slower machines), it would be desirable to estimate models later on (e.g. just before lunch break or at the end of the day). The `Run model' option allows to select multiple models and run them one at a time automatically (Figure \ref{fig_run_model}).
+In some cases (e.g. multiple models to run or models with nested CV and/or slower machines), it would be desirable to estimate models later on (e.g. just before lunch break or at the end of the day). The `Run model' option allows to select multiple models and run them one at a time automatically (Figure \ref{fig_run_model}). The first thing that needs to be done using this window is to specify which PRT we would like to work with. PRoNTo will then read the available models from this structure and display the list of models on the left panel. These models can be selected (the selected models will show on the right panel) by clicking each model individually or by clicking the `Select all' button in the middle of the panels. Finally, to estimate the model(s), one needs only to click the bottom button `Run model(s)'.
 
 \begin{figure}[!h]
 \begin{center}
@@ -154,6 +156,17 @@ In some cases (e.g. multiple models to run or models with nested CV and/or slowe
 \end{center}
 \end{figure}
 
+It is useful to have a look at what is displayed in the \matlab command space when the model is being estimated. Information such as the number of folds can help double-check that everything is going as expected. Furthermore, if some options were specified (e.g. using a feature set with multiple kernels) that are not available at the modelling step (e.g. to be modelled with SVM), warnings will be displayed, as in Figure \ref{fig_ws_matlab}.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[height=8cm]{images/matlab_workspace_model.PNG}
+\caption{\matlab workspace displaying warnings when kernels are added}
+ \label{fig_ws_matlab}
+\end{center}
+\end{figure}
+
+\textbf{Important note:} multiple kernel feature sets can be modelled using any machine. For machines not supporting multiple kernels, these will first be added before the model is estimated. It is important to note that the kernels will be added AFTER the selected operations (e.g. mean centering, normalization) have been applied to each kernel separately. This differs from obtaining a whole brain model when using regions of interest as defined by an atlas. Therefore, we encourage users to build a whole brain feature set before performing multiple kernel analyses.
 
 \section{Batch interface}
 

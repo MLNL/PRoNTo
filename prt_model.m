@@ -282,7 +282,11 @@ for g = 1:length(in.group)
             end
             if m==1 %only one regression target per subject, whatever the number of modalities
                 idx = in.group(g).subj(s).num;
-                targets(m,s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
+                if ~isempty(PRT.group(gid).subject(idx).modality(mid).rt_subj)
+                    targets(m,s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
+                else
+                    error('prt_model:NoRegressionTarget','No regression target found, correct');
+                end
                 samp_idx=[samp_idx; find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)];
                 if any(ismember(in.operations, 5)) %Get covariates
                     cov(m,s) = PRT.group(gid).subject(idx).modality(mid).covar;

@@ -200,14 +200,14 @@ else
                     set(handles.edit_covar,'Enable','on')
                     set(handles.edit_covar,'Visible','on')
                     set(handles.text7,'Visible','on')
-                    set(handles.edit_covar,'String',num2str(modsel.covar))
+                    set(handles.edit_covar,'String',num2str(modsel.covar(:)))
                 end
                 handles.mod.rt_subj=modsel.rt_subj;
                 if ~isempty(modsel.rt_subj)
                     set(handles.edit_regt,'Enable','on')
                     set(handles.edit_regt,'Visible','on')
                     set(handles.text6,'Visible','on')
-                    set(handles.edit_regt,'String',num2str(modsel.rt_subj))
+                    set(handles.edit_regt,'String',num2str(modsel.rt_subj(:)))
                 end
             else
                 nlist=[varargin{2}{1}, {'Enter new'}];
