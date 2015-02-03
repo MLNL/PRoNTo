@@ -251,6 +251,7 @@ else % It's a 1 parameter optimisation problem
         
         % Plot
         hold on
+        bar(x, x_opt*100, 0.1, 'c')
         errorbar(axes_handle, x, f_mean, f_std, 'xk', 'markersize', markersize, 'linewidth', 2);
         plot(axes_handle, x, mean(f), '-k', 'linewidth', 1);
         for i = 1:length(x_opt)
@@ -264,7 +265,12 @@ else % It's a 1 parameter optimisation problem
         % Properties
         xlabel(axes_handle, x_label,'FontWeight','bold');
         ylabel(axes_handle, y_label,'FontWeight','bold');
-        axis(axes_handle, [min(x) max(x) f_min f_max]);
+        
+        if strcmp(get(axes_handle, 'XScale'), 'log')
+            axis(axes_handle, [min(x)-min(x) max(x)+max(x) f_min f_max]);
+        else
+            axis(axes_handle, [min(x)-min(x) max(x)+min(x) f_min f_max]);
+        end
         
     else
         
