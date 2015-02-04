@@ -1,25 +1,17 @@
 % $Id: gui_disres.tex 395 2011-11-17 22:34:59Z cphillip $
 %
-% Written by Jonas Richiardi
+% Written by Jonas Richiardi, updatted by J. Schrouff for v2.0
 %_______________________________________________
 
 
-\chapter{Results display}
-\label{chap:DisRes}
+\chapter{Display voxel and region contribution}
+\label{chap:DisWeights}
 \minitoc
 
 \section{Introduction}
 
-Once a machine (e.g. a classifier or a regression function) has been specified, 
-its parameters have been estimated over training data, and its performance has been
-evaluated over a test set in cross-validation, it is necessary to examine the outcome
-of the whole procedure in details. The results windows helps make various useful
-statistical statements about the predictive power of a machine, which (if any) subjects
-or conditions are modelled best, and which machine has the lowest error rate on a given
-dataset.
-
-Another important aspect is to see what the machine has learned - some brain 
-areas are probably more informative about class membership than others. For example, in a visual
+Another important aspect of pattern recognition modelling is to see what the machine has learned - some brain 
+areas are probably more informative about class membership/regression targets than others. For example, in a visual
 task, we would expect discriminative information in the occipital lobe. This is 
 called \textit{information mapping}, and it is of particular import to be critical at this stage - if
 the discriminative weight of a machine is concentrated in the eyes, for example, it is important
@@ -35,15 +27,12 @@ based on the whole brain pattern, rather than on individual regions or voxels, a
 contribute to the classification or regression and no conclusions should be drawn about a particular
 subset of voxels in isolation.
 
-Finally, examining model output and parameters is helpful in diagnosing the potentially
-bad performance of a particular mode - for example, if the machine cannot perform above
-chance, it could be due to an inappropriate experimental paradigm, noisy data, insufficient
-amount of data, wrong choice of features, wrong choice of machine. It is important to
-recognise that any of these factors could cause the modelling to fail. The results window
-can help pinpointing the source of error.
+Starting from PRoNTo v2.0, it is possible to derive weights at the region level (as anatomically defined by an atlas, from MKL or from summarizing the weights). This window allows to display maps of voxel and of region contribution. Furthermore, the region contributions can be ranked in descending order, yielding a sorted of regions according to their contribution to the classification/regression model. We hope this will help the interpretation of model parameters in terms of cognitive neuroscience.
+
+\textbf{Important note:} The implemented version of MKL (\cite{Rakotomamonjy2008}) is sparse in the kernel space. This means that only a few regions/modalities will contribute to the model. In the same way, voxel weights derived from MKL models can have perfectly null values, hence not contributing to the model. This therefore eases the interpretation of the weight map, as not all voxels contribute to the decision. However, this selection of regions/modalities might depend on the dataset, and small variations in the dataset (as induced by cross-validation) might lead to different subsets of regions/modalities begin selected. Therefore, care should be taken when reporting selected regions/modalities and each fold should be looked at separately. We also provide a quantification of the variability across folds of the ranking of the regions/modalities (`Expected Ranking') to provide some insights on this issue.
 
 
-\section{Launching results display}
+\section{Launching weights display}
 
 Make sure all previous steps have been performed (Data and Design, Chapter~\ref{chap:DataDesign};
 Prepare feature set, Chapter~\ref{chap:PrepFeat}; Specify Model and Run Model, Chapter~\ref{chap:ModelCrossV} ).

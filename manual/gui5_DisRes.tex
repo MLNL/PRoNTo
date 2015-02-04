@@ -58,6 +58,8 @@ To populate the Plot panel, first click on a model in the {\tt Model} selector, 
 'all folds' (or a particular fold) in the {\tt Fold} selector, and finally on a plot
 in the {\tt Plot} selector. The next section details the plots available.
 
+The window also comprises 'Edit plot', 'Help' and 'Quit' buttons. The 'Edit plot' button exports the displayed plot in an extra window, such that it can be edited and easily saved. The 'Help' button provides information on each panel of the window (not as detailed as in this manual) and the 'Quit' button closes the results window. In addition, the GUI menu comports a 'Save figure' option (on the top left) that acts as a 'printscreen' of this window (with white background), which can be saved for records/publications.
+
 \section{Analysing a machine's performance graphically}
 
 Looking at a machine output's graphically can often yield insights into the performance
@@ -67,11 +69,11 @@ of the machine, and where modelling assumptions may prove false. In PRoNTo, plot
 
 \subsubsection{Predictions plot}
 
-A prediction plot displays, for a particular fold, the output value of the machine's
-decision function for each test sample (e.g., for a linear SVM, this could be $\mathbf{w}^T\mathbf{x}_i + b$,
-for a probabilistic classifier this could be a posterior probability $P(\Omega=\omega | \mathbf{x}_i)$).
+A prediction plot displays, for a particular fold (y-axis), the output value of the machine's
+decision function for each test sample (x-axis, e.g., for a linear SVM, this could be $\mathbf{w}^T\mathbf{x}_i + b$,
+for a probabilistic classifier this could be a posterior probability $P(\Omega=\omega | \mathbf{x}_i)$). The decision threshold is displayed by a vertical line at the centre of the plot.
 A well-performing classifier will yield very different function values for samples of different
-classes. By observing which fold have more or less overlapping function values, it is possible
+classes, i.e. samples from different classes will fall on different sides of the decision threshold. By observing which fold have more or less overlapping function values, it is possible
 to understand which block / subject / condition might have a test distribution of features that
 departs from the training set. This plot is available for binary classification.
 
