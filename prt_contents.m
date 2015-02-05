@@ -1,5 +1,5 @@
 % Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
-% Verion 2.0 (PRoNTo) February-2015
+% Verion 2.0 (PRoNTo2) February-2015
 %__________________________________________________________________________
 %    ____  ____        _   ________              ___    ____ 
 %   / __ \/ __ \____  / | / /_  __/___     _   _|__ \  / __ \
@@ -21,9 +21,17 @@
 % Computer Science department, University College London, UK.
 % http://www.mlnl.cs.ucl.ac.uk and associated researchers.
 % 
-% Main contributors, in alphabetical order: J. Ashburner, C. Chu, 
-% A. Marquand, J.M. Monteiro, J. Mourao-Miranda, C. Phillips, J. Richiardi, 
-% J. Rondina, M.J. Rosa, J. Schrouff.
+% The main contributors, in alphabetical order, are:
+% - John Ashburner, 
+% - Carlton Chu, 
+% - Andre Marquand,
+% - Joao M. Monteiro, 
+% - Janaina Mourao-Miranda, 
+% - Christophe Phillips, 
+% - Jonas Richiardi,
+% - Jane Rondina,
+% - Maria J. Rosa,
+% - Jessica Schrouff.
 % 
 % The development of PRoNTo was possible with the financial and logistic 
 % support of 
@@ -45,6 +53,10 @@
 % PRoNTo is designed to work from MATLAB versions 7.5 (R2007b) to 
 % 8.3 (R2014a), and will not work with earlier versions.
 % Some routine may need to be compiled for your specific OS.
+% 
+% Moreover the latest version of the SPM software is also required! You can
+% get SPM (and all required information) from:
+%   http://www.fil.ion.ucl.ac.uk/spm/
 %
 %__________________________________________________________________________
 %
@@ -60,6 +72,7 @@
 % with PRoNTo, in prt_LICENCE.man. If not, see 
 % <http://www.gnu.org/licenses/>.
 %
+% See prt_licence.man
 %__________________________________________________________________________
   
 
