@@ -158,7 +158,7 @@ if isfield(job.model_type,'classification')
                 model.cv.nested_param = job.model_type.classification.machine_cl.svm.svm_args;
             end
         end
-         if isfield(job.model_type.classification.machine_cl.svm, 'cv_type_nested')
+        if isfield(job.model_type.classification.machine_cl.svm, 'cv_type_nested')
            [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.svm.cv_type_nested);
            model.cv.type_nested = cv_type;
            model.cv.k_nested = k;

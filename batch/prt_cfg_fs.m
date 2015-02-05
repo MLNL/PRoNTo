@@ -28,22 +28,22 @@ k_file.help    = {['Target name for kernel matrix. This should contain' ...
 k_file.strtype = 's';
 k_file.num     = [1 Inf];
 
-% ---------------------------------------------------------------------
-% use_mkl Use MKL?
-% ---------------------------------------------------------------------
-use_mkl         = cfg_menu;
-use_mkl.tag     = 'use_mkl';
-use_mkl.name    = 'Generate Multiple Kernels?';
-use_mkl.labels  = {
-               'Yes'
-               'No'
-}';
-use_mkl.values  = {1 0};
-use_mkl.val     = {0};
-use_mkl.help    = {'Do you wish to generate Multiple Kernels?'};
+% % ---------------------------------------------------------------------
+% % use_mkl Use MKL?
+% % ---------------------------------------------------------------------
+% use_mkl         = cfg_menu;
+% use_mkl.tag     = 'use_mkl';
+% use_mkl.name    = 'Generate Multiple Kernels?';
+% use_mkl.labels  = {
+%                'Yes'
+%                'No'
+% }';
+% use_mkl.values  = {1 0};
+% use_mkl.val     = {0};
+% use_mkl.help    = {'Do you wish to generate Multiple Kernels?'};
 
 % ---------------------------------------------------------------------
-% multkernflag Use multiple Kernels
+% multkernflag Use multiple modality kernels
 % ---------------------------------------------------------------------
 flag_mm         = cfg_menu;
 flag_mm.tag     = 'flag_mm';
@@ -61,13 +61,14 @@ flag_mm.val     = {0};
 % ---------------------------------------------------------------------
 atlasroi         = cfg_files;
 atlasroi.tag     = 'atlasroi';
-atlasroi.name    = 'Load Atlas';
+atlasroi.name    = 'Use atlas to build ROI specific kernels';
 atlasroi.ufilter = '.*';
 atlasroi.filter  = 'image';
 atlasroi.num     = [0 1];
 atlasroi.val     = {{''}};
 % atlasroi.def     = @(val)prt_get_defaults('fs.atlasroi', val{:});
-atlasroi.help    = {'Select atlas file to build one kernel per ROI.'};
+atlasroi.help    = {['Select an atlas file to build one kernel per ROI. ', ...
+    'The AAL atlas (named ''aal_79x91x69.img'') is available in the ''atlas'' subdirectory of PRoNTo']};
            
 % ---------------------------------------------------------------------
 % cond_name Name
@@ -292,7 +293,8 @@ modalities.values  = {modality};
 fs        = cfg_exbranch;
 fs.tag    = 'fs';
 fs.name   = 'Feature set/Kernel';
-fs.val    = {infile, k_file, modalities, use_mkl, flag_mm};
+% fs.val    = {infile, k_file, modalities, use_mkl, flag_mm};
+fs.val    = {infile, k_file, modalities, flag_mm};
 fs.help   = {'Compute feature set according to the design specified'};
 fs.prog   = @prt_run_fs;
 fs.vout   = @vout_data;

@@ -20,6 +20,13 @@ function out = prt_run_design(varargin)
 % -------------------------------------------------------------------------
 job   = varargin{1};
 
+% Back compatibility (at least trying to...)
+% -------------------------------------------------------------------------
+if ~isfield(job,'hrfover')
+    job.fmri_des.hrfover = job.hrfover;
+    job.fmri_des.hrfdel  = job.hrfdel;
+end
+
 % Directory
 % -------------------------------------------------------------------------
 fname   = 'PRT.mat';
@@ -156,8 +163,8 @@ if isfield(job.group(1).select,'modality')
                 end
             end
         end
-        PRT.group(g).hrfoverlap = job.hrfover;
-        PRT.group(g).hrfdelay = job.hrfdel;
+        PRT.group(g).hrfoverlap = job.fmri_des.hrfover;
+        PRT.group(g).hrfdelay   = job.fmri_des.hrfdel;
     end
 else
     % selection by subject
@@ -226,7 +233,7 @@ else
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
                             end                        
-                            checked_conds = prt_check_design(conds,TR,unit,job.hrfover,job.hrfdel);
+                            checked_conds = prt_check_design(conds,TR,unit,job.fmri_des.hrfover,job.fmri_des.hrfdel);
                             design.conds  = checked_conds.conds;
                             design.stats  = checked_conds.stats;
                             design.TR     = TR;
@@ -342,7 +349,7 @@ else
                                         design.conds(c).rt_trial=[];
                                     end
                                 end
-                                checked_conds = prt_check_design(design.conds,TR,unit,job.hrfover,job.hrfdel);
+                                checked_conds = prt_check_design(design.conds,TR,unit,job.fmri_des.hrfover,job.fmri_des.hrfdel);
                                 design.conds  = checked_conds.conds;
                                 design.stats  = checked_conds.stats;
                                 design.TR     = checked_conds.TR;
@@ -380,8 +387,8 @@ else
                 return
             end
         end
-        PRT.group(g).hrfoverlap = job.hrfover;
-        PRT.group(g).hrfdelay   = job.hrfdel;
+        PRT.group(g).hrfoverlap = job.fmri_des.hrfover;
+        PRT.group(g).hrfdelay   = job.fmri_des.hrfdel;
     end
 end
 
