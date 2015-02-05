@@ -1,6 +1,6 @@
 % $Id: gui_disres.tex 395 2011-11-17 22:34:59Z cphillip $
 %
-% Written by Jonas Richiardi, updatted by J. Schrouff for v2.0
+% Written by J. Schrouff for v2.0
 %_______________________________________________
 
 
@@ -27,258 +27,79 @@ based on the whole brain pattern, rather than on individual regions or voxels, a
 contribute to the classification or regression and no conclusions should be drawn about a particular
 subset of voxels in isolation.
 
-Starting from PRoNTo v2.0, it is possible to derive weights at the region level (as anatomically defined by an atlas, from MKL or from summarizing the weights). This window allows to display maps of voxel and of region contribution. Furthermore, the region contributions can be ranked in descending order, yielding a sorted of regions according to their contribution to the classification/regression model. We hope this will help the interpretation of model parameters in terms of cognitive neuroscience.
+Starting from PRoNTo v2.0, it is possible to derive weights at the region level (as anatomically defined by an atlas, from MKL or from summarizing the weights). This window allows to display maps of voxel and of region contribution. Furthermore, the region contributions can be ranked in descending order, yielding a sorted list of regions according to their contribution to the classification/regression model. We hope this will help the interpretation of model parameters in terms of cognitive neuroscience.
 
 \textbf{Important note:} The implemented version of MKL (\cite{Rakotomamonjy2008}) is sparse in the kernel space. This means that only a few regions/modalities will contribute to the model. In the same way, voxel weights derived from MKL models can have perfectly null values, hence not contributing to the model. This therefore eases the interpretation of the weight map, as not all voxels contribute to the decision. However, this selection of regions/modalities might depend on the dataset, and small variations in the dataset (as induced by cross-validation) might lead to different subsets of regions/modalities begin selected. Therefore, care should be taken when reporting selected regions/modalities and each fold should be looked at separately. We also provide a quantification of the variability across folds of the ranking of the regions/modalities (`Expected Ranking') to provide some insights on this issue.
 
 
-\section{Launching weights display}
+\section{Displaying weights}
 
-Make sure all previous steps have been performed (Data and Design, Chapter~\ref{chap:DataDesign};
-Prepare feature set, Chapter~\ref{chap:PrepFeat}; Specify Model and Run Model, Chapter~\ref{chap:ModelCrossV} ).
-Optionally, you may want to generate a weight map for your machine (Compute Weights, Chapter~\ref{chap:ComputeWeights}), 
-but this is not mandatory.
+To launch the 'Display weights' window, make sure that weight maps have been computed for at least one model (Compute Weights, Chapter~\ref{chap:ComputeWeights}).
 
-In the {\tt Review Options} panel, press {\tt Display Results}. At the ``Select PRT.mat'' window,
+In the {\tt Review Options} panel, press {\tt Display weights}. At the ``Select PRT.mat'' window,
 navigate to where your {\tt PRT.mat} file is stored (using the left column), and select it in the
-right column. The window should then look something like Figure~\ref{fig_prt_ui_results_selectPRT}.
+right column. The display window then opens (Figure \ref{fig_prt_ui_weights_empty}).
 
-\begin{figure}[htbp]
+\begin{figure}[h!]
 \begin{center}
-\includegraphics[height=7cm]{images/prt_ui_results_selectPRT.png}
-\caption{Selecting a PRT.mat for results display.}
-\label{fig_prt_ui_results_selectPRT}
+\includegraphics[height=7cm]{images/prt_ui_weights_empty.png}
+\caption{Display weights main window after selection of PRT.mat.}
+\label{fig_prt_ui_weights_empty}
 \end{center}
 \end{figure}
 
-Click on {\tt Done}, and the main results window opens (see an example initial state in
-Figure~\ref{fig_prt_ui_results_emptyWin}). In the {\tt Model} pane in the top-right
-corner, you can check that you have loaded the correct  {\tt PRT.mat} by checking
-the list of model names appearing in the {\tt Model} selector. For example, in Figure~\ref{fig_prt_ui_results_emptyWin},
-we have one single model called {\tt mySVM\_AudRest}, with several cross-validation folds.
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=10cm]{images/prt_ui_results_emptyWin.png}
-\caption{Initial state of the results display main window.}
-\label{fig_prt_ui_results_emptyWin} 
-\end{center}
-\end{figure}
-
-\section{The main results display window}
-
-The window is divided into four panes; going clockwise from top left to bottom left, they
+The window is divided into four panels; going from top left to bottom left, they
 are:
 \begin{description}
-\item[Plot]: this pane displays the plots for the various analyses that can be performed on
-test results. With the exception of the confusion matrix plot, these cannot be interacted with.
-\item[Model]: this pane allows the user to select the model to analyse, whether to analyse a
-particular fold or all folds at once, and which plot to produce. The {\tt stats} sub-pane allows
-the user to generate a variety of statistics on the test, including accuracy statistics for classifiers,
-and p-values on these parameters via permutation testing.
-\item[Weight map]: if a weight map has been computed (see Chapter~\ref{chap:ComputeWeights}) and
-loaded, this displays three projections of the map and allows to navigate it. If \textrm{Fold: All folds / Average}
-is selected, then this displays an average weight map across folds rather than the weight map of a single fold.
+\item[Display]: this panel allows the user to choose which model and image to display, as well as whether to display the voxel weights or the region contributions.
+\item[Weights map]: this displays three projections of the selected weight map and allows to navigate it.
 \item[Anatomical img]: if an anatomical image has been loaded, this will display three projections,
 and the cross-hair will be synchronised with the weight map.
+\item[Additional plots]: this area will display extra information on the model parameters, such as a sorted list of the regions according to their contribution (if weights per region were computed, in the form of a table) and a bar plot of the relative region contribution. If MKL modelling was performed based on multiple modalities, the same table and bar plot will display the relative contributions of each modality to the decision function. 
 \end{description}
 
-To populate the Plot pane, first click on a model in the {\tt Model} selector, then on
-'all folds' (or a particular fold) in the {\tt Fold} selector, and finally on a plot
-in the {\tt Plot} selector. The next section details the plots available.
+\subsection{Select image to display}
 
-\section{Analysing a machine's performance graphically}
+The \texttt{Display} panel shows the models for which weights were computed and weight images were found in the same folder as the PRT. For each model, the list of images available is displayed in the \texttt{Weights} pop-down list. Typically, one image will be created for a binary comparison or regression with only one modality or multiple modalities concatenated in samples (e.g. multiple runs). On the other hand, multiclass classification models will return one image per class (with the index of the class appended to the name of the image). In the same way, multiple modalities used in multiple kernels will lead to the building of \textit{number of modalities} images. \textbf{Note:} MKL performed on regions of interest as defined by an atlas leads to a whole brain image being created (i.e. a signal image). For each image, the weight map can be displayed for each fold or for their average. In PRoNTo v2.0, it is possible to display the contributions of each voxel (\texttt{weights per voxel}) or of each region (\texttt{weights per region}, if previously computed).
 
-Looking at a machine output's graphically can often yield insights into the performance
-of the machine, and where modelling assumptions may prove false.
+\textbf{Note:} the weight images (per voxel and per region) are automatically detected in the list of files in the PRT folder according to the name specified in the 'Compute weights' step (Chapter \ref{chap:ComputeWeights}). Modifying the image name afterwards or moving the images might lead to warning messages and the images will not be listed in the GUI.
 
-\subsection{Predictions plot}
+To display a weight image, select a model, an image and a fold. If only weights per voxel were estimated, the window will look similar to Figure \ref{fig_prt_ui_weights_img}.
 
-A predictions plot displays, for a particular fold, the output value of the machine's
-decision function for each test sample (e.g., for a linear SVM, this could be $\mathbf{w}^T\mathbf{x}_i + b$,
-for a probabilistic classifier this could be a posterior probability $P(\Omega=\omega | \mathbf{x}_i)$).
-A well-performing classifier will yield very different function values for samples of different
-classes. By observing which fold have more or less overlapping function values, it is possible
-to understand which block / subject / condition might have a test distribution of features that
-departs from the training set.
-
-On the plot, each class is represented by a different marker, and indicated in the legend.
-Figure~\ref{fig_prt_ui_results_plots_pred} shows an example predictions plot. Here fold 1
-is particularly well-behaved.
-
-\begin{figure}[htbp]
+\begin{figure}[h!]
 \begin{center}
-\includegraphics[width=8cm]{images/prt_ui_results_plots_pred.png}
-\caption{Example predictions plot for a two-class problem modelled by an SVM.}
-\label{fig_prt_ui_results_plots_pred}
+\includegraphics[height=7cm]{images/prt_ui_weights_img.png}
+\caption{Displaying weight image for class 1 of a three-class GP model (Haxby dataset).}
+\label{fig_prt_ui_weights_img}
 \end{center}
 \end{figure}
 
-\subsection{Receiver Operating Characteristic (ROC) plot}
+\subsection{Weights map}
 
-In two-class classification, there is always a trade-off between class 1
-and class 2 errors. Indeed, a classifier predicting class 1 regardless of input
-would have excellent accuracy on class 1, but bad accuracy on class2. This is also
-known as the sensitivity / specificity trade-off. The 
-ROC curve is a graphical depiction of this trade-off, showing how one error rate
-varies as a function of the other. An ideal classifier would have an ROC passing
-through the top-left corner. The area under curve (AUC) is a summary measure of 
-classifier performance, where higher is better (1 represents perfect performance,
-0.5 represents random performance). As with all summary measures,
-the AUC is but one way of comparing performance of machines, and cannot be used alone
-to declare a machine statistically significantly superior to another on a given dataset.
-
-Figure~\ref{fig_prt_ui_results_plots_ROC} shows an example of such a plot.
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{images/prt_ui_results_plots_ROC.png}
-\caption{Example ROC curve for a two-class problem modelled by an SVM.}
-\label{fig_prt_ui_results_plots_ROC}
-\end{center}
-\end{figure}
-
-\subsection{Histogram plot}
-
-The histogram plot is a smoothed density version of the predictions
-plot, showing how function values are distributed. A good classifier
-would have minute overlap between the densities. The error rate of the
-classifier is proportional to the area of the overlap. The ROC curve can 
-be thought of as the result of sweeping a decision threshold over the range
-of functional values, and recording the joint sensitivity/specificity values
-for each decision threshold setting. A typical linear SVM would have a decision
-threshold at 0.
-
-Figure~\ref{fig_prt_ui_results_plots_hist} shows an example of such a plot.
+The weight map is displayed with a cross-hair and a colorbar. The colorbar indicates the
+relative importance of the voxel in the decision function of the machine. This value is also
+indicated in the {\tt intensity} field of the {\tt Anatomical img} panel. Note that all voxels
+in the mask contribute to the decision function, since the analysis is multivariate. Contrary
+to common practice in Statistical Parametric Mapping, which is a mass-univariate approach, {\em it does
+not make sense to isolate part of the pattern and report only on the peaks of the distribution
+of the decision function's weight map}. 
 
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{images/prt_ui_results_plots_hist.png}
-\caption{Example function values histogram curve for a two-class problem modelled by an SVM.}
-\label{fig_prt_ui_results_plots_hist}
-\end{center}
-\end{figure}
-
-
-\section{Statistical analysis of a machine's performance}
-\label{s:DisRes_stats}
-
-One of the main questions to ask of a model is how precise its predictions are.
-In regression, goodness-of-fit is often assesed via mean squared error. In classification, a common practice
-is to compute prediction accuracy, both for each class and for all test data. Once an accuracy
-value has been obtained, it is also possible to obtain a p-value for the accuracy, reflecting
-how certain we are that the result is not due to chance.
-
-\subsection{Confusion matrix plot}
-
-The confusion matrix shows counts of predicted class labels $\hat{\omega}_n = f(\mathbf{x}_n)$ (in rows) versus true class labels
-$\omega_n$ (in columns). An ideal confusion matrix is diagonal: all predicted class labels correspond to the truth.
-Off-diagonal elements represent errors. It is important to check that none of the classes is
-``sacrificed'' to gain accuracy in other classes - in other words, if all classes are equally
-important to classify, no class should have more off-diagonal than on-diagonal entries. Many
-summary statistics, including class accuracy, total accuracy, sensitivity, and specificity,
-can be computed from the confusion matrix.
-
-Figure~\ref{fig_prt_ui_results_plots_hist} shows an example of a confusion matrix.
-
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{images/prt_ui_results_plots_confMat.png}
-\caption{Example confusion matrix for all folds of a two-class problem modelled by an SVM.}
-\label{fig_prt_ui_results_plots_confMat}
-\end{center}
-\end{figure}
-
-\subsection{The statistics table}
-
-The statistics table (see Figure~\ref{fig_prt_ui_results_statsTable} for an example in a classification
-setting) gives a summary of the model's performance. The accuracy $p$ is the total number of correctly classified
-test samples divided by the total number of test samples $N$, irrespective of class. The accuracy is exactly equivalent to 
-
-\begin{equation}
-\label{eq:acc_as_01loss}
-p = 1- \frac{1}{N} \sum_n l_{01}(\omega_n,f(\mathbf{x}_n)),
-\end{equation}
-
-where $l_{01}(\omega_n,f(\mathbf{x}_n))$ is a 0-1 loss function that 
-counts each classification error as costing 1 and each classification success as costing 0:
-
-\begin{equation}
-l_{01}(\omega_n,f(\mathbf{x}_n)) = \left\{
-\begin{array}{ll}
-0 & \omega_n = f(\mathbf{x}_n)\\
-1 & \omega_n \neq f(\mathbf{x}_n)
-\end{array} \right.
-\end{equation}
-
-
-Balanced accuracy takes the number of samples in each class into account, and gives equal weight
-to the accuracies obtained on test samples of each class. In other words, the class-specific accuracy is computed by restricting 
-the sum of equation \ref{eq:acc_as_01loss} to be taken over $C$ disjoint subsets of the whole testing data,
-where each subset contains only test samples from one class. This produces a set of class-specific
-accuracies $\{p_1, \ldots, p_C\}$, from which the balanced accuracy can be computed as 
-
-\begin{equation}
-p^{bal}=\frac{1}{C} \sum p_c .
-\end{equation}
-
-Balanced accuracy is the measure of choice when there is class imbalance (one
-class, called the \textit{majority class}, has much more data than others).
-
-The table also gives the class accuracies $\{p_1, \ldots, p_C\}$, useful
-to check whether the model favours some classes over others. If class 1 represents control subjects, 
-and class 2 represents patients, then class 1 accuracy is equivalent to specificity, and class 2 accuracy is 
-equivalent to sensitivity.
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{images/prt_ui_results_statsTable.png}
-\caption{Example statistics tables for all folds of a two-class problem modelled by an SVM.}
-\label{fig_prt_ui_results_statsTable}
-\end{center}
-\end{figure}
-
-\subsection{Permutation testing}
-
-Much of statistical theory and machine learning theory rests on the assumption that the data is
-IID (independently and identically distributed). However, in functional neuroimaging this assumption
-is often not met, due to e.g. within-run correlations and haemodynamic effects. Therefore, classical estimates of
-confidence intervals (such as the binomial confidence interval) may not always
-be appropriate. Permutation testing is a non-parametric procedure that allows to obtain meaningful 
-confidence intervals and p-values in this case. Because it requires retraining the model a number of times, 
-which can be costly in computation time, this is not done by default. After filling in the {\tt repetitions}
-field with a number of repetitions $R$, pressing the {\tt Permutation test} button will run for the specified number of times, and produce a 
-p-value for accuracy statistics (see Figure~\ref{fig_prt_ui_results_statsTable}). The smallest increment in p-value
-is proportional to $1/R$ (e.g. 20 repetitions gives you increments of 0.05). %At least several hundreds of permutations should be performed XXXREF for this?.
-
-% XXX Maybe ref Golland TR
-
-
-\section{Visualising a weight map}
-
+\subsection{Anatomical image}
 By clicking on the $[${\tt ...}$]$ button next to the {\tt Load weight map} field, 
 a dialogue opens that allows you to select the weight map {\tt .img} file that 
 was computed previously (see Chapter~\ref{chap:ComputeWeights} for the procedure).
 Similarly, a co-registered anatomical image can be loaded in the {\tt Anatomical img}
 pane of the window. See Figure~\ref{fig_prt_ui_results_WM_anatomical} for an example.
 
-The weight map is then displayed with a cross-hair and a colorbar. The colorbar indicates the
-relative importance of the voxel in the decision function of the machine. This value is also
-indicated in the {\tt intensity} field of the {\tt Anatomical img} pane. Note that all voxels
-in the mask contribute to the decision function, since the analysis is multivariate. Contrary
-to common practice in Statistical Parametric Mapping, which is a mass-univariate approach, {\em it does
-not make sense to isolate part of the pattern and report only on the peaks of the distribution
-of the decision function's weight map}. 
+\subsection{Additional plots}
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{images/prt_ui_results_WM_anatomical.png}
-\caption{Example weight map over all folds for a two-class problem modelled by an SVM.
-In this rest versus auditory condition example, the voxels with the highest relative weight are located
-around auditory areas (notably Heschl's gyrus), bilaterally.}
-\label{fig_prt_ui_results_WM_anatomical}
-\end{center}
-\end{figure}
+\subsubsection{Sorted table of region/modality contributions}
+
+\subsubsection{Bar plot of contributions}
+
+
+
+
 
