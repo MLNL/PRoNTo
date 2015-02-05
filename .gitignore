@@ -9,7 +9,7 @@ machines/libsvm-3.17/matlab/svmtrain.mexa64
 *.log
 *.maf
 *.mtc
-*.mtc0
+*.mtc*
 *.mtc1
 *.mtc10
 *.mtc11
