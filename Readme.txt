@@ -37,4 +37,9 @@
 % hand, the toolbox provides a variety of tools for the neuroscience and 
 % clinical neuroscience communities, enabling them to ask new questions that 
 % cannot be easily investigated using existing software and analysis tools.
+%
+%                               ----------------
+% 
+% Please refer to this version as "PRoNTo2" in papers and communications.
+% 
 %__________________________________________________________________________
