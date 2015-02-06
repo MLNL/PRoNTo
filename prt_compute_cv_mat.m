@@ -284,7 +284,7 @@ switch in.cv.type
         end
         
     case 'custom'
-        %load matrix and check that each fold contains test and train data.
+        % load matrix and check that each fold contains test and train data.
         if isfield(in.cv,'mat_file') && ~isempty(in.cv.mat_file)
             load(in.cv.mat_file)
             if ~exist('CV')
@@ -312,12 +312,12 @@ switch in.cv.type
                 end
             end
         elseif isfield(PRT.model(modelid).input,'cv_mat') && ...
-                ~isempty(PRT.model(modelid).input.cv_mat) %custom CV specified by GUI
-            CV=PRT.model(modelid).input.cv_mat;
+                ~isempty(PRT.model(modelid).input.cv_mat) % custom CV specified by GUI
+            CV = PRT.model(modelid).input.cv_mat;
         else
-            %custom CV with only number of folds specified
+            % custom CV with only number of folds specified
             if isfield(in.cv,'k')
-                CV = ones (size(ID,1),in.cv.k);
+                CV = ones(size(ID,1),in.cv.k);
             end
             
         end

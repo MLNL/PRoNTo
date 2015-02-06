@@ -251,7 +251,7 @@ else
 end
 
 % assemble structure for performing cross-validation
-[model.cv.type, model.cv.k] = get_cv_type(job.cv_type);
+model.cv = get_cv_type(job.cv_type);
 model.include_allscans = job.include_allscans;
 
 % specify operations to apply to the data prior to prediction
@@ -284,32 +284,28 @@ end
 %--------------------------------------------------------------------------
 % Private functions
 %--------------------------------------------------------------------------
-function [cv_type, k] = get_cv_type(cv_struct)
+% function [cv_type, k] = get_cv_type(cv_struct)
+function cv = get_cv_type(cv_struct)
 
 % assemble structure for performing cross-validation
 if isfield(cv_struct,'cv_loso')
-    cv_type = 'loso';
-    k = 0;
+    cv = struct('type','loso','k',0);
 elseif isfield(cv_struct,'cv_lkso')
-    cv_type = 'loso';
-    k = cv_struct.cv_lkso.k_args;
+    cv = struct('type','loso','k',cv_struct.cv_lkso.k_args);
 elseif isfield(cv_struct,'cv_losgo')
-    cv_type = 'losgo';
-    k = 0;
+    cv = struct('type','losgo','k',0);
 elseif isfield(cv_struct,'cv_lksgo')
-    cv_type = 'losgo';
-    k = cv_struct.cv_lksgo.k_args;
+    cv = struct('type','losgo','k',cv_struct.cv_lksgo.k_args);
 elseif isfield(cv_struct,'cv_lobo')
-    cv_type = 'lobo';
-    k = 0;
+    cv = struct('type','lobo','k',0);
 elseif isfield(cv_struct,'cv_lkbo')
-    cv_type = 'lobo';
-    k = cv_struct.cv_lkbo.k_args;
-elseif isfield(cv_struct,'cv_loro') %currently implemented for MCKR only
-    cv_type = 'loro';
+    cv = struct('type','lobo','k',cv_struct.cv_lkbo.k_args);
+elseif isfield(cv_struct,'cv_loro') % currently implemented for MCKR only
+    cv = struct('type','loro');
 else
-    cv_type     = 'custom';
-    k = cv_struct.cv_custom{1};
+    cv = struct('type','custom','k',cv_struct.cv_custom{1},...
+        'mat_file',cv_struct.cv_custom{1});
+    % Not sure if I should keep the field 'k' here...
 end
 
 end

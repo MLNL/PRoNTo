@@ -135,7 +135,7 @@ a_dir = fullfile(prt('dir'),'atlas');
 % get batch file
 job = fullfile(prt('dir'),'_unitTests','batch_test_HaxbyData.mat');
 
-inputs = cell(6);
+inputs = cell(6,1);
 inputs{1} = cellstr(img_files);     % fMRI data
 inputs{2} = cellstr(spm_file);      % SPM.mat file
 inputs{3} = cellstr(msk_file(2,:)); % 1st level mask
@@ -228,7 +228,7 @@ a_dir = fullfile(prt('dir'),'atlas');
 % get batch file
 job = fullfile(prt('dir'),'_unitTests','batch_test_IXIdata.mat');
 
-inputs = cell(13);
+inputs = cell(13,1);
 % set files: regression target variables
 inputs{1} = cellstr(fullfile(rdata_dir,'reg_targets','rt_Guys.mat'));
 inputs{2} = cellstr(fullfile(rdata_dir,'reg_targets','rt_HammerH.mat'));
@@ -282,7 +282,7 @@ function ok = check_FvsNF(rdata_dir)
 % batch_test_FacesData.mat file:
 % - 'File selector' for 
 %       (1/2) the 2 sets of images: 'Famous' and 'NonFamous' beta's
-%       (3) the whole brain mask
+%       (3) the whole brain mask, and (4) the customCV.mat file
 % - 'Directory selector' for the root of the data directory
 % - 'Make directory', create 'test_results' directory at the root of the 
 %   data directory
@@ -292,7 +292,8 @@ function ok = check_FvsNF(rdata_dir)
 %   estimation in nested CV
 % - 'Run model' without permutations
 % - 'Compute weights' -> create 'svm_FvsNF' image
-% - 'Specify model', gpc F-vs-NF, leave-1s/gr-out CV
+% - 'Specify model', gpc F-vs-NF, custom CV (training on 1st 20 images from
+%   each group and testing last 6)
 % - 'Run model' without permutations
 % - 'Compute weights' -> create 'gpc_FvsNF' image
 
@@ -303,16 +304,18 @@ d_dir = fullfile(rdata_dir,'NonFamous');
 [imgNF_files] = spm_select('FPList',d_dir,'^beta.*\.img$');
 m_dir = fullfile(prt('dir'),'masks');
 [msk_file] = spm_select('FPList',m_dir,'^.*\.img$');
+CV_file = spm_select('FPList',rdata_dir,'^customCV\.mat$');
 
 % get batch file
 job = fullfile(prt('dir'),'_unitTests','batch_test_FacesData.mat');
 
-inputs = cell(4);
+inputs = cell(5,1);
 inputs{1} = cellstr(imgF_files);
 inputs{2} = cellstr(imgNF_files); 
 inputs{3} = cellstr(msk_file); 
+inputs{4} = cellstr(CV_file); 
 % set directory where result directory is created = "root data directory"
-inputs{4} = {rdata_dir}; 
+inputs{5} = {rdata_dir}; 
 
 ok = 1;
 try
