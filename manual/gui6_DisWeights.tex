@@ -29,7 +29,7 @@ subset of voxels in isolation.
 
 Starting from PRoNTo v2.0, it is possible to derive weights at the region level (as anatomically defined by an atlas, from MKL or from summarizing the weights). This window allows to display maps of voxel and of region contribution. Furthermore, the region contributions can be ranked in descending order, yielding a sorted list of regions according to their contribution to the classification/regression model. We hope this will help the interpretation of model parameters in terms of cognitive neuroscience.
 
-\textbf{Important note:} The implemented version of MKL (\cite{Rakotomamonjy2008}) is sparse in the kernel space. This means that only a few regions/modalities will contribute to the model. In the same way, voxel weights derived from MKL models can have perfectly null values, hence not contributing to the model. This therefore eases the interpretation of the weight map, as not all voxels contribute to the decision. However, this selection of regions/modalities might depend on the dataset, and small variations in the dataset (as induced by cross-validation) might lead to different subsets of regions/modalities begin selected. Therefore, care should be taken when reporting selected regions/modalities and each fold should be looked at separately. We also provide a quantification of the variability across folds of the ranking of the regions/modalities (`Expected Ranking') to provide some insights on this issue.
+\textbf{Important note:} The implemented version of MKL (\cite{Rakotomamonjy2008}) is sparse in the kernel space. This means that only a few regions/modalities will contribute to the model. In the same way, voxel weights derived from MKL models can have perfectly null values, hence not contributing to the model. This therefore eases the interpretation of the weight map, as not all voxels contribute to the decision. However, this selection of regions/modalities might depend on the dataset, and small variations in the dataset (as induced by cross-validation) might lead to different subsets of regions/modalities begin selected. Therefore, care should be taken when reporting selected regions/modalities and each fold should be looked at separately. We also provide a quantification of the variability across folds of the ranking of the regions/modalities (`Expected Ranking', see further) to provide some insights on this issue.
 
 
 \section{Displaying weights}
@@ -42,7 +42,7 @@ right column. The display window then opens (Figure \ref{fig_prt_ui_weights_empt
 
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[height=7cm]{images/prt_ui_weights_empty.png}
+\includegraphics[height=9cm]{images/prt_ui_weights_empty.png}
 \caption{Display weights main window after selection of PRT.mat.}
 \label{fig_prt_ui_weights_empty}
 \end{center}
@@ -56,7 +56,7 @@ are:
 \item[Weights map]: this displays three projections of the selected weight map and allows to navigate it.
 \item[Anatomical img]: if an anatomical image has been loaded, this will display three projections,
 and the cross-hair will be synchronised with the weight map.
-\item[Additional plots]: this area will display extra information on the model parameters, such as a sorted list of the regions according to their contribution (if weights per region were computed, in the form of a table) and a bar plot of the relative region contribution. If MKL modelling was performed based on multiple modalities, the same table and bar plot will display the relative contributions of each modality to the decision function. 
+\item[Additional plots]: the blank area at the bottom of the window will display additional information on the model parameters, such as a sorted list of the regions according to their contribution (if weights per region were computed, in the form of a table) and a bar plot of the relative region contribution. If MKL modelling was performed based on multiple modalities, the same table and bar plot will display the relative contributions of each modality to the decision function. 
 \end{description}
 
 \subsection{Select image to display}
@@ -69,7 +69,7 @@ To display a weight image, select a model, an image and a fold. If only weights 
 
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[height=7cm]{images/prt_ui_weights_img.png}
+\includegraphics[height=9cm]{images/prt_ui_weights_img.png}
 \caption{Displaying weight image for class 1 of a three-class GP model (Haxby dataset).}
 \label{fig_prt_ui_weights_img}
 \end{center}
@@ -83,22 +83,65 @@ indicated in the {\tt intensity} field of the {\tt Anatomical img} panel. Note t
 in the mask contribute to the decision function, since the analysis is multivariate. Contrary
 to common practice in Statistical Parametric Mapping, which is a mass-univariate approach, {\em it does
 not make sense to isolate part of the pattern and report only on the peaks of the distribution
-of the decision function's weight map}. 
+of the decision function's weight map, unless they have perfectly null contribution (as might happen from L1-MKL modelling}. 
 
+Below the displayed image, an edit box and a 'browse' ($[${\tt ...}$]$) button also allow to load a weight image (.img) that is not linked to a model (e.g. from a previous PRoNTo version).
 
 \subsection{Anatomical image}
-By clicking on the $[${\tt ...}$]$ button next to the {\tt Load weight map} field, 
-a dialogue opens that allows you to select the weight map {\tt .img} file that 
-was computed previously (see Chapter~\ref{chap:ComputeWeights} for the procedure).
-Similarly, a co-registered anatomical image can be loaded in the {\tt Anatomical img}
-pane of the window. See Figure~\ref{fig_prt_ui_results_WM_anatomical} for an example.
+
+By clicking on the $[${\tt ...}$]$ button next to the {\tt Load anatomical img} field, 
+a dialogue opens that allows you to select an anatomical images {\tt .img} file that.
+was co-registered with the data images.
+
+In this panel, the cross-hair position is displayed in voxels and in mm. It can also be reset to the origin of the image. For each position, the corresponding voxel weight is displayed in the `intensity' field.
 
 \subsection{Additional plots}
 
+Additional information will be displayed in two main cases:
+\begin{itemize}
+\item \textbf{Multiple Kernel Learning modelling:} MKL modelling, based on modalities or on regions as defined by an atlas, will provide weights at two levels: the kernel level and the voxel level. The kernel contributions, which sum to 1, can then be ranked in descending order. 
+\item \textbf{Summarizing weights per region:} in PRoNTo v2.0, weights can be summarized within regions of interest as defined by an atlas (user-specified). For each region, a normalized contribution can be defined, and those contributions can then be ranked in descending order. 
+\end{itemize}
+
+In both cases, the region/modality contributions will be displayed in a table as well as in a bar plot, for each fold and for their average (according to the selected fold in the \texttt{Display} panel). An example is displayed in Figure \ref{fig_prt_ui_weights_ROI}, for weight summarization after GP modelling.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[height=9cm]{images/prt_ui_weights_ROI.png}
+\caption{Displaying ROI contributions for class 1 of a three-class GP model (Haxby dataset).}
+\label{fig_prt_ui_weights_ROI}
+\end{center}
+\end{figure}
+
+In the case where kernels were built both at the modality and at the region level (i.e. multiple modalities with each multiple regions as defined by an atlas), two tables will be displayed (one for regions, one for modalities). The table for modalities will sum the contributions of each region within that modality.
+
 \subsubsection{Sorted table of region/modality contributions}
 
-\subsubsection{Bar plot of contributions}
+The displayed table comprises one row per region and 5 columns (for an example on ROIs, as displayed in Figure \ref{fig_prt_ui_weights_ROI}):
 
+\begin{itemize}
+\item \textbf{Index of the ROI:} The first column displays the ranking of the region of interest in the selected fold, according to its contribution.
+\item \textbf{ROI Label:} When using the atlas provided in \textit{your PRoNTo folder/atlas}, the labels of each region will be loaded automatically from a .mat, stored alongside the atlas. If using another atlas, the labels can be loaded through the `Load Labels' button. In this case, the user should select a .mat comprising a cell array of size \textit(number of regions,1), with the label for each region in the corresponding cell (in characters). The cell array should be saved under the variable name `ROI\_ names'. Otherwise, generic names will be used (e.g. ROI\_ 1).
+\item \textbf{ROI weight:} The (normalized) contribution of each region is displayed in the third column (in \%). The rows of the table are sorted in descending order according to this value. 
+\item \textbf{ROI size:} This column displays the size of the ROI in voxels. This gives indications on the overlap between the atlas and the data. It can also pinpoint modellings based on noise: regions with only a few voxels, ranked as most contributing to the model, probably reflect noisy (e.g. boundary of what is brain from normalization step, movement effects).
+\item \textbf{Expected Ranking}: This measure reflects how stable the ranking of the region is across folds. It is computed from the ranking in each fold (see \cite{Schrouff2013a} for details), and is therefore the same, whether the user is displaying fold 1, or the average of all folds. If the Expected Ranking (ER) is close to the ranking in the selected fold, then it reflects that this region has a similar ranking across folds. On the contrary, if the ER is quite different from the ranking shown for the selected fold, this means that the ranking might be variable across folds. This variability can come from the fact that the region did not have the same contribution to slightly different datasets. It might also happen that it is not selected at all in some folds (as can happen with L1-MKL since it will not select correlated kernels).
+\end{itemize}
+
+When selecting a specific region label in the table, the weight map will only display voxel or region weights (according to which plot was selected) for this region, the rest of the image being in grey scale. This allows e.g. to look closely at the voxel weights within a region that highly contributes to the selected model and fold (Figure \ref{fig_prt_ui_weights_specROI}).
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[height=9cm]{images/prt_ui_weights_specROI.png}
+\caption{Displaying fusiform weights for binary MKL model (Haxby data).}
+\label{fig_prt_ui_weights_specROI}
+\end{center}
+\end{figure}
+
+
+Finally, the table can be exported as a text file using the `Export Table' button.
+
+\subsubsection{Bar plot of contributions}
+The bar plot displays the third column of the table, i.e. the contribution of each ROI or modality to the decision function. The x-axis represents the index of the ROI in the table (i.e. first column of the table), in the selected fold, while the y-axis displays the contribution of each region/modality. The bar graph provides insights on how sparse the region/modality contributions are.
 
 
 
