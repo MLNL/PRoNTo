@@ -159,9 +159,9 @@ if isfield(job.model_type,'classification')
             end
         end
         if isfield(job.model_type.classification.machine_cl.svm, 'cv_type_nested')
-           [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.svm.cv_type_nested);
-           model.cv.type_nested = cv_type;
-           model.cv.k_nested = k;
+           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.svm.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
         end
     elseif isfield(job.model_type.classification.machine_cl,'gpc')
         model.machine.function='prt_machine_gpml';
@@ -182,9 +182,9 @@ if isfield(job.model_type,'classification')
             end
         end
         if isfield(job.model_type.classification.machine_cl.sMKL_cla, 'cv_type_nested')
-           [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.sMKL_cla.cv_type_nested);
-           model.cv.type_nested = cv_type;
-           model.cv.k_nested = k;
+           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.sMKL_cla.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
         end
         
     else
@@ -216,9 +216,9 @@ elseif isfield(job.model_type,'regression')
             end
         end
          if isfield(job.model_type.regression.machine_rg.krr, 'cv_type_nested')
-           [cv_type, k] = get_cv_type(job.model_type.regression.machine_rg.krr.cv_type_nested);
-           model.cv.type_nested = cv_type;
-           model.cv.k_nested = k;
+           [cv_tmp] = get_cv_type(job.model_type.regression.machine_rg.krr.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
         end
     elseif isfield(job.model_type.regression.machine_rg,'rvr')
         model.machine.function='prt_machine_rvr';
@@ -236,9 +236,12 @@ elseif isfield(job.model_type,'regression')
             end
         end
         if isfield(job.model_type.regression.machine_rg.sMKL_reg, 'cv_type_nested')
-           [cv_type, k] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
-           model.cv.type_nested = cv_type;
-           model.cv.k_nested = k;
+%            [cv_type, k] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
+%            model.cv.type_nested = cv_type;
+%            model.cv.k_nested = k;
+           [cv_tmp] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
         end        
         
     else
@@ -284,7 +287,6 @@ end
 %--------------------------------------------------------------------------
 % Private functions
 %--------------------------------------------------------------------------
-% function [cv_type, k] = get_cv_type(cv_struct)
 function cv = get_cv_type(cv_struct)
 
 % assemble structure for performing cross-validation
