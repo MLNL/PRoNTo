@@ -30,11 +30,10 @@ function ok = prt_check(list_check,dir_root)
 %   directory on your system.
 % - This will close all Matlab windows before relaunching PRoNTo and the
 %   matlabbatch system.
+% 
+% WARNING:
+% This version was developped for and is running on **SPM12** 
 %
-% TODO:
-% - Need to include the RandomForest classification for a more complete 
-%   check, when available and working. Simple case could be to use RF on 
-%   the Faces data set.
 %_______________________________________________________________________
 % Copyright (C) 2012 Machine Learning & Neuroimaging Laboratory
 
@@ -107,17 +106,17 @@ function ok = check_Haxby(rdata_dir)
 %
 % This batch will go through the following modules, as saved in the
 % batch_test_HaxbyData.mat file:
-% - 'File selector' for (1) images, (2) SPM.mat, (3) mask 1st level, and
-%   (4) mask 2nd level
+% - 'File selector' for (1) images, (2) SPM.mat, (3) mask 1st level,
+%   (4) mask 2nd level, and (5) atlas for ROI
 % - 'Directory selector' for the root of the data directory
 % - 'Make directory', create 'test_results' directory at the root of the 
 %   data directory
 % - 'Data & design' as in manual example with whole brain mask
 % - 'Feature set', as in manual example, no 2nd level mask
-% - 'Specify model', as in manual example, svm Faces vs Houses but with a
-%   k-folds CV on blocks (k=4)
+% - 'Specify model', use MKL with separate kernel for each ROI, as defined
+%   in the AAL atlas. And a k-folds CV on blocks (k=4)
 % - 'Run model' with 1000 permutations
-% - 'Compute weights' -> create 'svm_weights' image
+% - 'Compute weights' -> create 'mkl_weights' image
 % - 'Feature set', DCT detrending and a 2nd level mask (fusiform gyrus)
 % - 'Specify model', multi-GPC Faces vs Houses vs Shoes, LOBO CV
 % - 'Run model' without any permutation
@@ -130,24 +129,34 @@ s_dir = fullfile(rdata_dir,'design');
 [spm_file] = spm_select('FPList',s_dir,'^SPM\.mat$');
 m_dir = fullfile(rdata_dir,'masks');
 [msk_file] = spm_select('FPList',m_dir,'^.*\.img$');
+a_dir = fullfile(prt('dir'),'atlas');
+[atlas_file] = spm_select('FPList',a_dir,'^aal.*\.img$');
 
-% load batch file
-b_file = fullfile(prt('dir'),'_unitTests','batch_test_HaxbyData.mat');
-load(b_file)
+% get batch file
+job = fullfile(prt('dir'),'_unitTests','batch_test_HaxbyData.mat');
 
-% set files: (1) images, (2) SPM.mat, (3) mask 1st level, (4) mask 2nd level
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{1} = cellstr(img_files);
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{2} = cellstr(spm_file);      
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{3} = cellstr(msk_file(2,:)); 
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{4} = cellstr(msk_file(1,:)); 
-% set directory where result directory is created = "root data directory"
-matlabbatch{2}.cfg_basicio.cfg_named_dir.dirs{1} = {rdata_dir};
+inputs = cell(6);
+inputs{1} = cellstr(img_files);     % fMRI data
+inputs{2} = cellstr(spm_file);      % SPM.mat file
+inputs{3} = cellstr(msk_file(2,:)); % 1st level mask
+inputs{4} = cellstr(msk_file(1,:)); % 2nd level mask
+inputs{5} = cellstr(atlas_file);    % ROI atlas
+inputs{6} = {rdata_dir};            % root directory
 
-% run the job and catch the error if any.
 ok = 1;
+
 try
-    cfg_util('run',matlabbatch)
+    job_id = cfg_util('initjob', job);
+    sts    = cfg_util('filljob', job_id, inputs{:});
+    if sts
+        cfg_util('run', job_id);
+    else
+        disp('Job status problem.')
+        ok = 0;
+    end
+    cfg_util('deljob', job_id);
 catch ME
+    cfg_util('deljob', job_id);
     disp(ME.message)
     ok = 0;
     return;
@@ -158,9 +167,14 @@ end
 %==========================================================================
 %% IXI data set
 function ok = check_IXI(rdata_dir)
+% 
+% NOTE: 
+% The data set only includes 5 subjects!
 %
 % This batch will go through the following modules, as saved in the
 % batch_test_IXIdata.mat file:
+% - 'Load Variables from .mat File' 3 times the regression targets for the
+%   Guys/Hammers/IOP data
 % - 'File selector' for the 6 sets of images: 
 %       Guys-divergence (g1m1), Guys-momentum (g1m2), 
 %       HammersH-divergence (g2m1), HammersH-momentum (g2m2)
@@ -171,8 +185,7 @@ function ok = check_IXI(rdata_dir)
 % - 'Make directory', create 'test_results' directory at the root of the 
 %   data directory
 % - 'Data & design' with 3 groups (Guys/HammersH/IOP) and 2 modalities each
-%   ('momentum'/'divergence'). No regression target defined here! They'll
-%   be defined in the check function.
+%   ('momentum'/'divergence') + regression target (age).
 % - 'Feature set', only the 'divergence' data
 % - 'Specify model', svm Guys-vs-(HammersH+IOP), on divergence data, 
 %   leave-1s/gr-out CV
@@ -191,53 +204,69 @@ function ok = check_IXI(rdata_dir)
 % - 'Specify model', GPR for age of all 3 groups of scans (using momentum
 %   feature set)
 % - 'Run model' without permutation
-%
-% Note that the data only includes 5 subjects!
+% - 'Feature set', both 'divergence' and 'momentum', one kernel modality
+% - 'Feature set', both 'divergence' and 'momentum', one kernel modality +
+%   one kenel per ROI
+% - 'Specify model', MKL with 1 kernel/modality, Guys-vs-(HammersH+IOP), 
+%   leave-1s/gr-out CV
+% - 'Run model' without permutation
+% - 'Compute weights' -> create 'MKLmm_weights' image
+% - 'Specify model', MKL with 1 kernel/modality and /ROI, 
+%   Guys-vs-(HammersH+IOP), leave-1s/gr-out CV
+% - 'Run model' without permutation
+% - 'Compute weights' -> create 'MKLmmroi_weights' image, with ROI specific
+%   weights
 
 % set images directories and select mask(s)
 d_dir{1} = fullfile(rdata_dir,'divergences');
 d_dir{2} = fullfile(rdata_dir,'momentum');
 m_dir = fullfile(prt('dir'),'masks');
 [msk_file] = spm_select('FPList',m_dir,'^.*\.img$');
+a_dir = fullfile(prt('dir'),'atlas');
+[atlas_file] = spm_select('FPList',a_dir,'^aal.*\.img$');
 
-% load batch file
-b_file = fullfile(prt('dir'),'_unitTests','batch_test_IXIdata.mat');
-load(b_file)
+% get batch file
+job = fullfile(prt('dir'),'_unitTests','batch_test_IXIdata.mat');
 
+inputs = cell(13);
+% set files: regression target variables
+inputs{1} = cellstr(fullfile(rdata_dir,'reg_targets','rt_Guys.mat'));
+inputs{2} = cellstr(fullfile(rdata_dir,'reg_targets','rt_HammerH.mat'));
+inputs{3} = cellstr(fullfile(rdata_dir,'reg_targets','rt_IOP.mat'));
 % set files: images into 6 sets (g1m1-g1m2-g2m1-g2m2-g3m1-g3m2)
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{1} = cellstr(...
+inputs{4} = cellstr(...
     spm_select('FPList',fullfile(d_dir{1},'Guys'),'^sdv.*\.nii$'));
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{2} = cellstr(...
-    spm_select('FPList',fullfile(d_dir{2},'Guys'),'^sa.*\.nii$'));      
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{3} = cellstr(...
+inputs{5} = cellstr(...
+    spm_select('FPList',fullfile(d_dir{2},'Guys'),'^sa.*\.nii$'));
+inputs{6} = cellstr(...
     spm_select('FPList',fullfile(d_dir{1},'HammerH'),'^sdv.*\.nii$')); 
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{4} = cellstr(...
+inputs{7} = cellstr(...
     spm_select('FPList',fullfile(d_dir{2},'HammerH'),'^sa.*\.nii$')); 
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{5} = cellstr(...
+inputs{8} = cellstr(...
     spm_select('FPList',fullfile(d_dir{1},'IOP'),'^sdv.*\.nii$')); 
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{6} = cellstr(...
+inputs{9} = cellstr(...
     spm_select('FPList',fullfile(d_dir{2},'IOP'),'^sa.*\.nii$')); 
-
 % set files: mask (1st level) for both modalities
-matlabbatch{2}.cfg_basicio.cfg_named_file.files{1} = cellstr(msk_file);
-matlabbatch{2}.cfg_basicio.cfg_named_file.files{2} = cellstr(msk_file);      
+inputs{10} = cellstr(msk_file);
+inputs{11} = cellstr(msk_file);
+% set files: atlas for ROI
+inputs{12} = cellstr(atlas_file);
+% set directory: where result directory is created = "root data directory"
+inputs{13} = {rdata_dir};
 
-% set directory where result directory is created = "root data directory"
-matlabbatch{3}.cfg_basicio.cfg_named_dir.dirs{1} = {rdata_dir};
-
-% set regression target for momentum data (modality#2)
-load(fullfile(rdata_dir,'reg_targets','rt_Guys.mat'))
-matlabbatch{5}.prt.data.group(1).select.modality(2).rt_subj = rt;
-load(fullfile(rdata_dir,'reg_targets','rt_HammerH.mat'))
-matlabbatch{5}.prt.data.group(2).select.modality(2).rt_subj = rt;
-load(fullfile(rdata_dir,'reg_targets','rt_IOP.mat'))
-matlabbatch{5}.prt.data.group(3).select.modality(2).rt_subj = rt;
-
-% run the job and catch the error if any.
 ok = 1;
 try
-    cfg_util('run',matlabbatch)
+    job_id = cfg_util('initjob', job);
+    sts    = cfg_util('filljob', job_id, inputs{:});
+    if sts
+        cfg_util('run', job_id);
+    else
+        disp('Job status problem.')
+        ok = 0;
+    end
+    cfg_util('deljob', job_id);
 catch ME
+    cfg_util('deljob', job_id);
     disp(ME.message)
     ok = 0;
     return;
@@ -259,8 +288,9 @@ function ok = check_FvsNF(rdata_dir)
 %   data directory
 % - 'Data & design', defining the 2 groups Famous/NonFamous and data
 % - 'Feature set', using the beta images
-% - 'Specify model', svm F-vs-NF, leave-1s-out CV
-% - 'Run model' with 1000 permutations
+% - 'Specify model', svm F-vs-NF, leave-1s-out CV with hyper-parameter
+%   estimation in nested CV
+% - 'Run model' without permutations
 % - 'Compute weights' -> create 'svm_FvsNF' image
 % - 'Specify model', gpc F-vs-NF, leave-1s/gr-out CV
 % - 'Run model' without permutations
@@ -274,21 +304,29 @@ d_dir = fullfile(rdata_dir,'NonFamous');
 m_dir = fullfile(prt('dir'),'masks');
 [msk_file] = spm_select('FPList',m_dir,'^.*\.img$');
 
-% load batch file
-b_file = fullfile(prt('dir'),'_unitTests','batch_test_FacesData.mat');
-load(b_file)
+% get batch file
+job = fullfile(prt('dir'),'_unitTests','batch_test_FacesData.mat');
 
-% set files: (1) images, (2) SPM.mat, (3) mask 1st level, (4) mask 2nd level
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{1} = cellstr(imgF_files);
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{2} = cellstr(imgNF_files);      
-matlabbatch{1}.cfg_basicio.cfg_named_file.files{3} = cellstr(msk_file); 
+inputs = cell(4);
+inputs{1} = cellstr(imgF_files);
+inputs{2} = cellstr(imgNF_files); 
+inputs{3} = cellstr(msk_file); 
 % set directory where result directory is created = "root data directory"
-matlabbatch{2}.cfg_basicio.cfg_named_dir.dirs{1} = {rdata_dir};
+inputs{4} = {rdata_dir}; 
 
 ok = 1;
 try
-    cfg_util('run',matlabbatch)
+    job_id = cfg_util('initjob', job);
+    sts    = cfg_util('filljob', job_id, inputs{:});
+    if sts
+        cfg_util('run', job_id);
+    else
+        disp('Job status problem.')
+        ok = 0;
+    end
+    cfg_util('deljob', job_id);
 catch ME
+    cfg_util('deljob', job_id);
     disp(ME.message)
     ok = 0;
     return;

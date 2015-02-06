@@ -22,7 +22,7 @@ job   = varargin{1};
 
 % Back compatibility (at least trying to...)
 % -------------------------------------------------------------------------
-if ~isfield(job,'hrfover')
+if isfield(job,'hrfover') % old setup
     job.fmri_des.hrfover = job.hrfover;
     job.fmri_des.hrfdel  = job.hrfdel;
 end
