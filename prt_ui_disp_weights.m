@@ -433,6 +433,13 @@ if ~isfield(handles,'wmap') || ~handles.noloadw
 end
 
 spm_orthviews('Reset');
+gcfchil = get(gcf,'Children');
+for i=1:length(gcfchil)
+    if strcmpi(get(gcfchil(i),'Type'),'axes')
+        delete(gcfchil(i)) % Delete any left-over colorbar
+    end
+end
+
 % Image dimensions
 % -------------------------------------------------------------------------
 fold          = get(handles.foldmenu,'Value')-1;

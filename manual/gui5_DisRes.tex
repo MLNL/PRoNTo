@@ -193,12 +193,12 @@ This plot displays, for each fold, the target and the prediction, each in line p
 
 \subsection{Influence of the hyper-parameter on performance}
 
-This plot will be present in the list if hyper-parameter optimization was performed. For each value of the hyper-parameter, it displays the average model performance (balanced accuracy for classification and MSE for regression) across nested folds, with an error bar representing the standard deviation of model performance. The frequency of selection of a hyper-parameter value (i.e. the number of times this value was returned as `optimal' to the outer CV fold) is represented using a colorscale. An example of such a plot is displayed in Figure \ref{fig_prt_ui_results_plots_hyper} for the optimization of the soft-margin parameter in L1-MKL (Haxby dataset, Faces versus Houses, 4-folds nested CV, LOBO outer CV). 
+This plot will be present in the list if hyper-parameter optimization was performed. When displaying the average across folds, for each value of the hyper-parameter, it displays the average model performance (balanced accuracy for classification and MSE for regression, line on the plot) across nested folds, with an error bar representing the standard deviation of model performance. The frequency of selection of a hyper-parameter value (i.e. the number of times this value was returned as `optimal' to the outer CV fold) is represented with a gray bar plot on the right-side y-axis. An example of such a plot is displayed in Figure \ref{fig_prt_ui_results_plots_hyper} for the optimization of the soft-margin parameter in L1-MKL (Haxby dataset, Faces versus Houses, 4-folds nested CV, LOBO outer CV). When selecting a specific fold, this plot displays the model performance for each value of the hyper-parameter, and represents the optimal value (i.e. the one leading to highest performance) in red. 
 
 \begin{figure}[h!]
 \begin{center}
 \includegraphics[height=6cm]{images/prt_ui_results_plots_hyper.png}
-\caption{Example performance curve depending on the hyper-parameter value.}
+\caption{Example performance curve depending on the hyper-parameter value with frequency of selection of each hyper-parameter.}
 \label{fig_prt_ui_results_plots_hyper}
 \end{center}
 \end{figure}

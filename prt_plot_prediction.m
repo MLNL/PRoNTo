@@ -21,28 +21,36 @@ function prt_plot_prediction(PRT, model, fold, marker_size, axes_handle)
 
 
 nfold = length(PRT.model(model).output.fold);
+bcl = 0;
 
-if fold == 1
-    fVals   = [];
-    targets = [];
-    
-    for f = 1:nfold,
-        targets = [targets;PRT.model(model).output.fold(f).targets];
-        if isfield(PRT.model(model).output.fold(f),'func_val')
-            fVvals_exist = 1;
-            fVals  = [fVals;PRT.model(model).output.fold(f).func_val];
-        else
-            fVvals_exist = 0;
-            fVals  = [fVals;...
-                PRT.model(model).output.fold(f).predictions];
-        end
+
+fVals   = [];
+targets = [];
+
+for f = 1:nfold,
+    targets = [targets;PRT.model(model).output.fold(f).targets];
+    if isfield(PRT.model(model).output.fold(f),'func_val')
+        fVvals_exist = 1;
+        fVals  = [fVals;PRT.model(model).output.fold(f).func_val];
+    else
+        fVvals_exist = 0;
+        fVals  = [fVals;...
+            PRT.model(model).output.fold(f).predictions];
     end
+end
+tarmax = max(targets);
+if fold==1
     targpos = targets == 1;
+    if length(find(targpos))~=length(targets) && ~isempty(find(targpos))
+        %both classes are present across all folds (for class labels)
+        bcl = 1;
+    end
+end
     
-else
+if fold>1
     % if folds wise
     targets = PRT.model(model).output.fold(fold-1).targets;
-    targpos = targets == 1;
+    targpos = targets == tarmax;
     if isfield(PRT.model(model).output.fold(fold-1),'func_val')
         fVals  = PRT.model(model).output.fold(fold-1).func_val;
         fVvals_exist = 1;
@@ -75,7 +83,7 @@ if fVvals_exist
         foldlabels = 1:nfold;
         for f = 2:nfold+1
             targets = PRT.model(model).output.fold(f-1).targets;
-            targpos = targets == max(targets);
+            targpos = targets == tarmax; %both for SVM and GP, linear
             fVals   = PRT.model(model).output.fold(f-1).func_val;
             func_valsc1 = fVals(targpos);
             func_valsc2 = fVals(~targpos);
@@ -133,7 +141,7 @@ if fVvals_exist
     classNames{2} = PRT.model(model).input.class(1).class_name;
     
     
-    if isyc1 && isyc2
+    if (isyc1 && isyc2) || bcl
         legend([plot1,plot2],classNames,'Color',[1,1,1]);
     else
         if isyc1
