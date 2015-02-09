@@ -185,7 +185,7 @@ set(handles.pop_cv_nested,'Enable','off')
 handles.cv.nested = 0;
 handles.cv.nested_param = [];
 handles.cv.k_nested = 0;
-handles.cv.type_nested='custom';
+handles.cv.type_nested='';
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -252,6 +252,13 @@ if length(handles.dat.fs(1).modality)>1
     set(handles.pop_cv,'Value',length(list))
     handles.cv.type = 'loro';
     handles.multimod = 1;
+end
+if length(handles.dat.fs(1).modality)>2
+    list=get(handles.pop_cv_nested,'String');
+    list=[list;{'Leave One Run/Session Out'}];
+    set(handles.pop_cv_nested,'String',list)
+    set(handles.pop_cv_nested,'Value',length(list))
+    handles.cv.type_nested='loro';
 end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
@@ -338,7 +345,6 @@ if length(handles.dat.fs(1).modality)>2
     set(handles.pop_cv_nested,'String',list)
     set(handles.pop_cv_nested,'Value',length(list))
     handles.cv.type_nested = 'loro';
-    handles.multimod = 1;
 end
 list=get(handles.pop_featset,'String');
 handles.fs(1).fs_name=list{1};
@@ -452,6 +458,15 @@ else                                    %delete LOO Run if not available for the
         set(handles.pop_cv,'Value',1)
         handles.cv.type = 'custom';
         handles.multimod = 0;
+    end
+end
+if length(handles.dat.fs(val).modality)>2
+    list=get(handles.pop_cv_nested,'String');
+    if ~any(strcmpi(list,'Leave One Run/Session Out'))
+        list=[list;{'Leave One Run/Session Out'}];
+        set(handles.pop_cv_nested,'String',list)
+        set(handles.pop_cv_nested,'Value',length(list))
+        handles.cv.type_nested='loro';
     end
 end
 % Add multi-kernel learning if flag to 1
@@ -640,6 +655,7 @@ if strcmpi(handles.type,'classification')
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'lobo';
+        handles.cv.type_nested='lobo';
     end
     handles.loospg=speccl.loospg;
     if min(ns)>1
@@ -652,6 +668,7 @@ if strcmpi(handles.type,'classification')
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
+        handles.cv.type_nested='loso';
         if ~ng1 || ~ng2
             list=get(handles.pop_cv,'String');
             if ~any(ismember(list, 'Leave One Subject per Group Out'))
@@ -675,7 +692,8 @@ if strcmpi(handles.type,'classification')
     end
     set(handles.pop_cv_nested,'String',list);
     val = get(handles.pop_cv,'Value');
-    set(handles.pop_cv_nested,'Value',max(1,val-1));    
+    set(handles.pop_cv_nested,'Value',max(1,val-1)); 
+    
   
 else %Regression
     d1=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
@@ -702,6 +720,7 @@ else %Regression
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
+        handles.cv.type_nested='loso';
         list = setdiff(list,'Custom'); %No custom for inner CV
         if isempty(list)
             list={''};
