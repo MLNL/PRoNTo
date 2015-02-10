@@ -94,15 +94,15 @@ This function is called by:
 0025 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0026 
 0027 <span class="comment">% Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi</span>
-0028 <span class="comment">% $Id: prt_machine_svm_bin.m 557 2012-06-12 09:07:53Z mjrosa $</span>
+0028 <span class="comment">% $Id$</span>
 0029 
-0030 
-0031 <span class="comment">% TODO: make sure the svmtrain we reach is the libsvm one, not the one</span>
-0032 <span class="comment">% with the same name from the bioinformatics toolbox!</span>
-0033 <span class="comment">% toolbox/bioinfo/biolearning/</span>
-0034 
-0035 
-0036 SANITYCHECK=true; <span class="comment">% can turn off for &quot;speed&quot;. Expert only.</span>
+0030 SANITYCHECK=true; <span class="comment">% can turn off for &quot;speed&quot;. Expert only.</span>
+0031 
+0032 <span class="comment">%Turn the value of the C hyper-parameter into the arguments format for LIBSVM</span>
+0033 <span class="keyword">if</span> ~ischar(args)
+0034     def = prt_get_defaults(<span class="string">'model'</span>);
+0035     args = [def.libsvmargs, num2str(args)];
+0036 <span class="keyword">end</span>
 0037 
 0038 <span class="keyword">if</span> SANITYCHECK==true
 0039     <span class="comment">% args should be a string (empty or otherwise)</span>
@@ -230,6 +230,6 @@ This function is called by:
 0161 
 0162 <span class="keyword">end</span>
 0163</pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -67,7 +67,7 @@ This function is called by:
 0013 
 0014 <span class="comment">%--------------------------------------------------------------------------</span>
 0015 <span class="comment">% Written by J.Richiardi</span>
-0016 <span class="comment">% $Id: prt_checkAlphaNumUnder.m 247 2011-11-01 15:49:23Z jrichiar $</span>
+0016 <span class="comment">% $Id$</span>
 0017 
 0018 <span class="comment">% sanity check</span>
 0019 <span class="keyword">if</span> ~ischar(s)
@@ -75,11 +75,11 @@ This function is called by:
 0021 <span class="keyword">end</span>
 0022 
 0023 <span class="keyword">for</span> i=1:length(s)
-0024     out=~isempty(findstr(upper(s(i)), <span class="string">'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'</span>));
+0024     out=~isempty(strfind(<span class="string">'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'</span>,upper(s(i))));
 0025     <span class="keyword">if</span> out==false
 0026         <span class="keyword">break</span>;
 0027     <span class="keyword">end</span>
 0028 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

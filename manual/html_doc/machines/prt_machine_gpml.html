@@ -90,7 +90,7 @@ This function calls:
 <li><a href="prt_machine_gpclap.html" class="code" title="function output = prt_machine_gpclap(d,args)">prt_machine_gpclap</a>	Run multiclass Gaussian process classification (Laplace approximation)</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_machine_gpr.html" class="code" title="function output = prt_machine_gpr(d,args)">prt_machine_gpr</a>	Run Gaussian process regression - meta-wrapper for regression with gpml  FORMAT output = prt_machine_gpml(d,args)</li></ul>
+<li><a href="prt_machine_gpr.html" class="code" title="function output = prt_machine_gpr(d,args)">prt_machine_gpr</a>	Run Gaussian process regression - meta-wrapper for regression with gpml</li></ul>
 <!-- crossreference -->
 
 
@@ -154,7 +154,7 @@ This function is called by:
 0056 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0057 
 0058 <span class="comment">% Written by A Marquand</span>
-0059 <span class="comment">% $Id: prt_machine_gpml.m 572 2012-08-15 10:51:27Z amarquan $</span>
+0059 <span class="comment">% $Id$</span>
 0060 
 0061 <span class="comment">% configure default parameters for GP optimisation</span>
 0062 meanfunc  = @meanConstcell;
@@ -168,177 +168,178 @@ This function is called by:
 0070     mode = <span class="string">'regression'</span>;
 0071     likfunc   = @likGauss;
 0072     inffunc   = @prt_infExact;
-0073 <span class="keyword">end</span>
-0074 
-0075 <span class="comment">% Error checks</span>
-0076 <span class="comment">% -------------------------------------------------------------------------</span>
-0077 SANITYCHECK=true; <span class="comment">% can turn off for &quot;speed&quot;. Expert only.</span>
-0078 
-0079 <span class="keyword">if</span> SANITYCHECK==true
-0080     <span class="comment">% args should be a string (empty or otherwise)</span>
-0081     <span class="keyword">if</span> ~ischar(args)
-0082         error(<span class="string">'prt_machine_gpml:argsNotString'</span>,[<span class="string">'Error: gpml'</span><span class="keyword">...</span>
-0083             <span class="string">' args should be a string. '</span> <span class="keyword">...</span>
-0084             <span class="string">' SOLUTION: Please do XXX'</span>]);
-0085     <span class="keyword">end</span>
-0086     
-0087     <span class="comment">% check we can reach the binary library</span>
-0088     <span class="keyword">if</span> ~exist(<span class="string">'prt_gp'</span>,<span class="string">'file'</span>)
-0089         error(<span class="string">'prt_machine_gpml:libNotFound'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
-0090             <span class="string">' ''prt_gp'' function could not be found !'</span> <span class="keyword">...</span>
-0091             <span class="string">' SOLUTION: Please check your path.'</span>]);
-0092     <span class="keyword">end</span>
-0093     <span class="comment">% check whether it is a two-class classification problem</span>
-0094     uTL=unique(d.tr_targets(:));
-0095     k=numel(uTL); <span class="comment">% number of classes</span>
-0096     <span class="keyword">if</span> strcmp(mode,<span class="string">'classifier'</span>) &amp;&amp; k &gt; 2
-0097         warning(<span class="string">'prt_machine_gpml:classificationWithMoreThanTwoClasses'</span>,<span class="keyword">...</span>
-0098                [<span class="string">'Classification specified with &gt; 2 classes. '</span>,<span class="keyword">...</span>
-0099                 <span class="string">'Defaulting to multiclass Laplace approximation.'</span>]);
-0100         output = <a href="prt_machine_gpclap.html" class="code" title="function output = prt_machine_gpclap(d,args)">prt_machine_gpclap</a>(d,args);
-0101         <span class="keyword">return</span>;
-0102     <span class="keyword">end</span>
-0103     <span class="comment">% are we using a kernel ?</span>
-0104     <span class="keyword">if</span> ~d.use_kernel
-0105         error(<span class="string">'prt_machine_gpml:useKernelIsFalse'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
-0106             <span class="string">' This machine is currently only implemented for kernel data '</span> <span class="keyword">...</span>
-0107             <span class="string">'SOLUTION: Please set use_kernel to true'</span>]);
-0108     <span class="keyword">end</span>
-0109 <span class="keyword">end</span>
-0110 
-0111 <span class="comment">% parse input arguments</span>
-0112 <span class="comment">% -------------------------------------------------------------------------</span>
-0113 <span class="comment">% hyperparameters</span>
-0114 <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-h'</span>,<span class="string">'once'</span>))
-0115     optimise_theta = true;
-0116     eargs = regexp(args,<span class="string">'-f\s+[0-9]*'</span>,<span class="string">'match'</span>);
-0117     <span class="keyword">if</span> ~isempty(eargs)
-0118         eargs = regexp(cell2mat(eargs),<span class="string">'-f\s+'</span>,<span class="string">'split'</span>);
-0119         maxeval  = str2num([<span class="string">'-'</span>,cell2mat(eargs(2))]);
-0120     <span class="keyword">end</span>
-0121 <span class="keyword">else</span>
-0122     optimise_theta = false;
-0123 <span class="keyword">end</span>
-0124 <span class="comment">% likelihood function</span>
-0125 largs = regexp(args,<span class="string">'-l\s+[a-zA-Z0-9_]*'</span>,<span class="string">'match'</span>);
-0126 <span class="keyword">if</span> ~isempty(largs)
-0127     largs = regexp(cell2mat(largs),<span class="string">'-l\s+'</span>,<span class="string">'split'</span>);
-0128     likfunc = str2func(cell2mat(largs(2)));
-0129     <span class="keyword">if</span> strcmpi(cell2mat(largs(2)),<span class="string">'Erf'</span>)
-0130         likfunc   = @likErf;
-0131     <span class="keyword">end</span>
-0132 <span class="keyword">end</span>
-0133 <span class="comment">% covariance function</span>
-0134 cargs = regexp(args,<span class="string">'-c\s+[a-zA-Z0-9_]*'</span>,<span class="string">'match'</span>);
-0135 <span class="keyword">if</span> ~isempty(cargs)
-0136     cargs = regexp(cell2mat(cargs),<span class="string">'-c\s+'</span>,<span class="string">'split'</span>);
-0137     covfunc = str2func(cell2mat(cargs(2)));
-0138 <span class="keyword">end</span>
-0139 <span class="comment">% mean function</span>
-0140 margs = regexp(args,<span class="string">'-m\s+[a-zA-Z0-9_]*'</span>,<span class="string">'match'</span>);
-0141 <span class="keyword">if</span> ~isempty(margs)
-0142     margs = regexp(cell2mat(margs),<span class="string">'-m\s+'</span>,<span class="string">'split'</span>);
-0143     meanfunc = str2func(cell2mat(margs(2)));
-0144 <span class="keyword">end</span>
-0145 <span class="comment">% inference function</span>
-0146 iargs = regexp(args,<span class="string">'-i\s+[a-zA-Z0-9_]*'</span>,<span class="string">'match'</span>);
-0147 <span class="keyword">if</span> ~isempty(iargs)
-0148     iargs = regexp(cell2mat(iargs),<span class="string">'-i\s+'</span>,<span class="string">'split'</span>);
-0149     inffunc = str2func(cell2mat(iargs(2)));
-0150 <span class="keyword">end</span>
-0151 <span class="comment">% priors</span>
-0152 <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-p'</span>,<span class="string">'once'</span>))
-0153     disp(<span class="string">'Empirical priors specified. Using MAP for hyperparameters'</span>)
-0154     priors = prt_gp_priors(func2str(covfunc));
-0155     map = true;
-0156 <span class="keyword">else</span>
-0157     map = false;
-0158 <span class="keyword">end</span>
-0159 
-0160 <span class="comment">% Set default hyperparameters</span>
-0161 <span class="comment">% -------------------------------------------------------------------------</span>
-0162 nhyp = str2num([feval(covfunc); feval(likfunc); feval(meanfunc)]);
-0163 <span class="keyword">if</span> nhyp(1) &gt; 0
-0164     hyp.cov = zeros(nhyp(1),1);
-0165 <span class="keyword">end</span>
-0166 <span class="keyword">if</span> nhyp(2) &gt; 0
-0167     hyp.lik = zeros(nhyp(2),1);
-0168 <span class="keyword">end</span>
-0169 <span class="keyword">if</span> nhyp(3) &gt; 0 
-0170     hyp.mean = zeros(nhyp(3),1);
-0171 <span class="keyword">end</span>
-0172 
-0173 <span class="comment">% Assemble data matrices</span>
-0174 <span class="comment">% -------------------------------------------------------------------------</span>
-0175 <span class="comment">% handle the glm as a special case (for now)</span>
-0176 <span class="keyword">if</span> strcmpi(func2str(covfunc),<span class="string">'covLINglm'</span>) || strcmpi(func2str(covfunc),<span class="string">'covLINglm_2class'</span>)
-0177     <span class="comment">% configure covariances</span>
-0178     K   = [d.train(:)'   {d.tr_param}];
-0179     Ks  = [d.test(:)'    {d.te_param}];
-0180     Kss = [d.testcov(:)' {d.te_param}];
-0181     
-0182     <span class="comment">% get default hyperparamter values</span>
-0183     hyp.cov = log(prt_glm_design);
-0184     
-0185     [tmp1 tmp2 tmp3 tr_lbs] = prt_glm_design(hyp.cov, d.tr_param);
-0186     [tmp1 tmp2 tmp3 te_lbs] = prt_glm_design(hyp.cov, d.te_param);   
-0187 <span class="keyword">else</span>
-0188     <span class="comment">% configure covariances</span>
-0189     K   = d.train;
-0190     Ks  = d.test;
-0191     Kss = d.testcov;
-0192         
-0193     tr_lbs = d.tr_targets;
-0194     te_lbs = d.te_targets;
-0195 <span class="keyword">end</span>
-0196 
-0197 <span class="comment">% configure targets</span>
-0198 <span class="keyword">if</span> strcmp(mode,<span class="string">'classifier'</span>)
-0199     <span class="comment">% convert targets to +1/-1</span>
-0200     y = -1*(2 * tr_lbs - 3);
-0201 <span class="keyword">else</span>
-0202     y = tr_lbs;
-0203 <span class="keyword">end</span>
-0204     
-0205 <span class="comment">% Train and test GP model</span>
-0206 <span class="comment">% -------------------------------------------------------------------------</span>
-0207 <span class="comment">% train</span>
-0208 <span class="keyword">if</span> optimise_theta
-0209     <span class="keyword">if</span> map
-0210         [hyp,nlmls] = minimize(hyp, @prt_gp_map, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y, priors);
-0211     <span class="keyword">else</span>
-0212         [hyp nlmls] = minimize(hyp, @prt_gp, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y);
-0213     <span class="keyword">end</span>
-0214 <span class="keyword">else</span>
-0215     nlmls = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc, K, y);
-0216 <span class="keyword">end</span>
-0217 
-0218 <span class="comment">% make predictions</span>
-0219 [ymu ys2 fmu fs2 lp post] = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc,K, y, Ks, zeros(size(Ks{1},1),1), Kss);
-0220 
-0221 <span class="comment">% Outputs</span>
-0222 <span class="comment">% -------------------------------------------------------------------------</span>
-0223 <span class="keyword">if</span> strcmp(mode,<span class="string">'classifier'</span>)
-0224     p = exp(lp);
-0225     output.predictions = (1-real(p &gt; 0.5)) + 1;
-0226     output.func_val    = p;
-0227 <span class="keyword">else</span> <span class="comment">% regression</span>
-0228     output.predictions = ymu;
-0229     output.func_val    = output.predictions;
-0230 <span class="keyword">end</span>
-0231 output.type        = mode;
-0232 output.loghyper    = hyp;
-0233 output.mu          = ymu;
-0234 output.s2          = ys2;
-0235 output.nlml        = min(nlmls);
-0236 output.tr_targets  = tr_lbs;
-0237 output.te_targets  = te_lbs;
-0238 output.alpha       = post.alpha;
-0239 <span class="comment">%output.sW          = post.sW;</span>
-0240 <span class="comment">%output.L           = post.L;</span>
-0241 
-0242 <span class="keyword">end</span>
-0243</pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0073     mtr       = mean(d.tr_targets);      <span class="comment">% mean of the training data</span>
+0074 <span class="keyword">end</span>
+0075 
+0076 <span class="comment">% Error checks</span>
+0077 <span class="comment">% -------------------------------------------------------------------------</span>
+0078 SANITYCHECK=true; <span class="comment">% can turn off for &quot;speed&quot;. Expert only.</span>
+0079 
+0080 <span class="keyword">if</span> SANITYCHECK==true
+0081     <span class="comment">% args should be a string (empty or otherwise)</span>
+0082     <span class="keyword">if</span> ~ischar(args)
+0083         error(<span class="string">'prt_machine_gpml:argsNotString'</span>,[<span class="string">'Error: gpml'</span><span class="keyword">...</span>
+0084             <span class="string">' args should be a string. '</span> <span class="keyword">...</span>
+0085             <span class="string">' SOLUTION: Please do XXX'</span>]);
+0086     <span class="keyword">end</span>
+0087     
+0088     <span class="comment">% check we can reach the binary library</span>
+0089     <span class="keyword">if</span> ~exist(<span class="string">'prt_gp'</span>,<span class="string">'file'</span>)
+0090         error(<span class="string">'prt_machine_gpml:libNotFound'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0091             <span class="string">' ''prt_gp'' function could not be found !'</span> <span class="keyword">...</span>
+0092             <span class="string">' SOLUTION: Please check your path.'</span>]);
+0093     <span class="keyword">end</span>
+0094     <span class="comment">% check whether it is a two-class classification problem</span>
+0095     uTL=unique(d.tr_targets(:));
+0096     k=numel(uTL); <span class="comment">% number of classes</span>
+0097     <span class="keyword">if</span> strcmp(mode,<span class="string">'classifier'</span>) &amp;&amp; k &gt; 2
+0098         warning(<span class="string">'prt_machine_gpml:classificationWithMoreThanTwoClasses'</span>,<span class="keyword">...</span>
+0099                [<span class="string">'Classification specified with &gt; 2 classes. '</span>,<span class="keyword">...</span>
+0100                 <span class="string">'Defaulting to multiclass Laplace approximation.'</span>]);
+0101         output = <a href="prt_machine_gpclap.html" class="code" title="function output = prt_machine_gpclap(d,args)">prt_machine_gpclap</a>(d,args);
+0102         <span class="keyword">return</span>;
+0103     <span class="keyword">end</span>
+0104     <span class="comment">% are we using a kernel ?</span>
+0105     <span class="keyword">if</span> ~d.use_kernel
+0106         error(<span class="string">'prt_machine_gpml:useKernelIsFalse'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0107             <span class="string">' This machine is currently only implemented for kernel data '</span> <span class="keyword">...</span>
+0108             <span class="string">'SOLUTION: Please set use_kernel to true'</span>]);
+0109     <span class="keyword">end</span>
+0110 <span class="keyword">end</span>
+0111 
+0112 <span class="comment">% parse input arguments</span>
+0113 <span class="comment">% -------------------------------------------------------------------------</span>
+0114 <span class="comment">% hyperparameters</span>
+0115 <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-h'</span>,<span class="string">'once'</span>))
+0116     optimise_theta = true;
+0117     eargs = regexp(args,<span class="string">'-f\s+[0-9]*'</span>,<span class="string">'match'</span>);
+0118     <span class="keyword">if</span> ~isempty(eargs)
+0119         eargs = regexp(cell2mat(eargs),<span class="string">'-f\s+'</span>,<span class="string">'split'</span>);
+0120         maxeval  = str2num([<span class="string">'-'</span>,cell2mat(eargs(2))]);
+0121     <span class="keyword">end</span>
+0122 <span class="keyword">else</span>
+0123     optimise_theta = false;
+0124 <span class="keyword">end</span>
+0125 <span class="comment">% likelihood function</span>
+0126 largs = regexp(args,<span class="string">'-l\s+[a-zA-Z0-9_]*'</span>,<span class="string">'match'</span>);
+0127 <span class="keyword">if</span> ~isempty(largs)
+0128     largs = regexp(cell2mat(largs),<span class="string">'-l\s+'</span>,<span class="string">'split'</span>);
+0129     likfunc = str2func(cell2mat(largs(2)));
+0130     <span class="keyword">if</span> strcmpi(cell2mat(largs(2)),<span class="string">'Erf'</span>)
+0131         likfunc   = @likErf;
+0132     <span class="keyword">end</span>
+0133 <span class="keyword">end</span>
+0134 <span class="comment">% covariance function</span>
+0135 cargs = regexp(args,<span class="string">'-c\s+[a-zA-Z0-9_]*'</span>,<span class="string">'match'</span>);
+0136 <span class="keyword">if</span> ~isempty(cargs)
+0137     cargs = regexp(cell2mat(cargs),<span class="string">'-c\s+'</span>,<span class="string">'split'</span>);
+0138     covfunc = str2func(cell2mat(cargs(2)));
+0139 <span class="keyword">end</span>
+0140 <span class="comment">% mean function</span>
+0141 margs = regexp(args,<span class="string">'-m\s+[a-zA-Z0-9_]*'</span>,<span class="string">'match'</span>);
+0142 <span class="keyword">if</span> ~isempty(margs)
+0143     margs = regexp(cell2mat(margs),<span class="string">'-m\s+'</span>,<span class="string">'split'</span>);
+0144     meanfunc = str2func(cell2mat(margs(2)));
+0145 <span class="keyword">end</span>
+0146 <span class="comment">% inference function</span>
+0147 iargs = regexp(args,<span class="string">'-i\s+[a-zA-Z0-9_]*'</span>,<span class="string">'match'</span>);
+0148 <span class="keyword">if</span> ~isempty(iargs)
+0149     iargs = regexp(cell2mat(iargs),<span class="string">'-i\s+'</span>,<span class="string">'split'</span>);
+0150     inffunc = str2func(cell2mat(iargs(2)));
+0151 <span class="keyword">end</span>
+0152 <span class="comment">% priors</span>
+0153 <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-p'</span>,<span class="string">'once'</span>))
+0154     disp(<span class="string">'Empirical priors specified. Using MAP for hyperparameters'</span>)
+0155     priors = prt_gp_priors(func2str(covfunc));
+0156     map = true;
+0157 <span class="keyword">else</span>
+0158     map = false;
+0159 <span class="keyword">end</span>
+0160 
+0161 <span class="comment">% Set default hyperparameters</span>
+0162 <span class="comment">% -------------------------------------------------------------------------</span>
+0163 nhyp = str2num([feval(covfunc); feval(likfunc); feval(meanfunc)]);
+0164 <span class="keyword">if</span> nhyp(1) &gt; 0
+0165     hyp.cov = zeros(nhyp(1),1);
+0166 <span class="keyword">end</span>
+0167 <span class="keyword">if</span> nhyp(2) &gt; 0
+0168     hyp.lik = zeros(nhyp(2),1);
+0169 <span class="keyword">end</span>
+0170 <span class="keyword">if</span> nhyp(3) &gt; 0 
+0171     hyp.mean = zeros(nhyp(3),1);
+0172 <span class="keyword">end</span>
+0173 
+0174 <span class="comment">% Assemble data matrices</span>
+0175 <span class="comment">% -------------------------------------------------------------------------</span>
+0176 <span class="comment">% handle the glm as a special case (for now)</span>
+0177 <span class="keyword">if</span> strcmpi(func2str(covfunc),<span class="string">'covLINglm'</span>) || strcmpi(func2str(covfunc),<span class="string">'covLINglm_2class'</span>)
+0178     <span class="comment">% configure covariances</span>
+0179     K   = [d.train(:)'   {d.tr_param}];
+0180     Ks  = [d.test(:)'    {d.te_param}];
+0181     Kss = [d.testcov(:)' {d.te_param}];
+0182     
+0183     <span class="comment">% get default hyperparamter values</span>
+0184     hyp.cov = log(prt_glm_design);
+0185     
+0186     [tmp1 tmp2 tmp3 tr_lbs] = prt_glm_design(hyp.cov, d.tr_param);
+0187     [tmp1 tmp2 tmp3 te_lbs] = prt_glm_design(hyp.cov, d.te_param);   
+0188 <span class="keyword">else</span>
+0189     <span class="comment">% configure covariances</span>
+0190     K   = d.train;
+0191     Ks  = d.test;
+0192     Kss = d.testcov;
+0193         
+0194     tr_lbs = d.tr_targets;
+0195     te_lbs = d.te_targets;
+0196 <span class="keyword">end</span>
+0197 
+0198 <span class="comment">% configure targets</span>
+0199 <span class="keyword">if</span> strcmp(mode,<span class="string">'classifier'</span>)
+0200     <span class="comment">% convert targets to +1/-1</span>
+0201     y = -1*(2 * tr_lbs - 3);
+0202 <span class="keyword">else</span>
+0203     y = tr_lbs - mtr;
+0204 <span class="keyword">end</span>
+0205     
+0206 <span class="comment">% Train and test GP model</span>
+0207 <span class="comment">% -------------------------------------------------------------------------</span>
+0208 <span class="comment">% train</span>
+0209 <span class="keyword">if</span> optimise_theta
+0210     <span class="keyword">if</span> map
+0211         [hyp,nlmls] = minimize(hyp, @prt_gp_map, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y, priors);
+0212     <span class="keyword">else</span>
+0213         [hyp nlmls] = minimize(hyp, @prt_gp, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y);
+0214     <span class="keyword">end</span>
+0215 <span class="keyword">else</span>
+0216     nlmls = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc, K, y);
+0217 <span class="keyword">end</span>
+0218 
+0219 <span class="comment">% make predictions</span>
+0220 [ymu ys2 fmu fs2 lp post] = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc,K, y, Ks, zeros(size(Ks{1},1),1), Kss);
+0221 
+0222 <span class="comment">% Outputs</span>
+0223 <span class="comment">% -------------------------------------------------------------------------</span>
+0224 <span class="keyword">if</span> strcmp(mode,<span class="string">'classifier'</span>)
+0225     p = exp(lp);
+0226     output.predictions = (1-real(p &gt; 0.5)) + 1;
+0227     output.func_val    = p;
+0228 <span class="keyword">else</span> <span class="comment">% regression</span>
+0229     output.predictions = ymu + mtr;
+0230     output.func_val    = output.predictions;
+0231 <span class="keyword">end</span>
+0232 output.type        = mode;
+0233 output.loghyper    = hyp;
+0234 output.mu          = ymu;
+0235 output.s2          = ys2;
+0236 output.nlml        = min(nlmls);
+0237 output.tr_targets  = tr_lbs;
+0238 output.te_targets  = te_lbs;
+0239 output.alpha       = post.alpha;
+0240 <span class="comment">%output.sW          = post.sW;</span>
+0241 <span class="comment">%output.L           = post.L;</span>
+0242 
+0243 <span class="keyword">end</span>
+0244</pre></div>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

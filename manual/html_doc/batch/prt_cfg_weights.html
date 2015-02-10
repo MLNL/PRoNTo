@@ -52,7 +52,7 @@ This function is called by:
 0004 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0005 
 0006 <span class="comment">% Written by M.J.Rosa</span>
-0007 <span class="comment">% $Id: prt_cfg_weights.m 502 2012-04-06 16:09:37Z cphillip $</span>
+0007 <span class="comment">% $Id$</span>
 0008 
 0009 <span class="comment">% ---------------------------------------------------------------------</span>
 0010 <span class="comment">% filename Filename(s) of data</span>
@@ -90,29 +90,103 @@ This function is called by:
 0042 img_name.val     = {<span class="string">''</span>};
 0043 
 0044 <span class="comment">% ---------------------------------------------------------------------</span>
-0045 <span class="comment">% cv_model Preprocessing</span>
+0045 <span class="comment">% flag_cwi Build the weight images for each permutation (optional)</span>
 0046 <span class="comment">% ---------------------------------------------------------------------</span>
-0047 weights        = cfg_exbranch;
-0048 weights.tag    = <span class="string">'weights'</span>;
-0049 weights.name   = <span class="string">'Compute weights'</span>;
-0050 weights.val    = {infile model_name img_name};
-0051 weights.help   = {[
-0052     <span class="string">'Compute weights. This module computes the linear weights of a classifier '</span>,<span class="keyword">...</span>
-0053     <span class="string">'and saves them as a 4D image. 3 dimensions correspond to the image dimensions specified in '</span>,<span class="keyword">...</span>
-0054     <span class="string">'the second-level mask, while the extra dimension corresponds to the number of folds. '</span>,<span class="keyword">...</span>
-0055     <span class="string">'There is one 3D weights image per fold.'</span>]};
-0056 weights.prog   = @<a href="prt_run_weights.html" class="code" title="function out = prt_run_weights(varargin)">prt_run_weights</a>;
-0057 weights.vout   = @<a href="#_sub1" class="code" title="subfunction cdep = vout_data(job)">vout_data</a>;
-0058 
-0059 <span class="comment">%------------------------------------------------------------------------</span>
-0060 <a name="_sub1" href="#_subfunctions" class="code">function cdep = vout_data(job)</a>
-0061 <span class="comment">% Specifies the output from this modules, i.e. the filename of the mat file</span>
-0062 
-0063 cdep(1)            = cfg_dep;
-0064 cdep(1).sname      = <span class="string">'PRT.mat file'</span>;
-0065 cdep(1).src_output = substruct(<span class="string">'.'</span>,<span class="string">'files'</span>);
-0066 cdep(1).tgt_spec   = cfg_findspec({{<span class="string">'filter'</span>,<span class="string">'mat'</span>,<span class="string">'strtype'</span>,<span class="string">'e'</span>}});
-0067 <span class="comment">%------------------------------------------------------------------------</span></pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0047 flag_cwi         = cfg_menu;
+0048 flag_cwi.tag     = <span class="string">'flag_cwi'</span>;
+0049 flag_cwi.name    = <span class="string">'Build weight images for permutations'</span>;
+0050 flag_cwi.help    = {[<span class="string">'Set to Yes to compute the weight images obtained '</span> <span class="keyword">...</span>
+0051     <span class="string">'from each permutation. This is to further assess the significance '</span> <span class="keyword">...</span>
+0052     <span class="string">'of the ranking distance between two models.'</span>]};
+0053 flag_cwi.labels  = {
+0054                <span class="string">'Yes'</span>
+0055                <span class="string">'No'</span>
+0056 }';
+0057 flag_cwi.values  = {1 0};
+0058 flag_cwi.val     = {0};
+0059 
+0060 <span class="comment">% ---------------------------------------------------------------------</span>
+0061 <span class="comment">% atl_name Filename for the atlas to compute the weights per ROI</span>
+0062 <span class="comment">% ---------------------------------------------------------------------</span>
+0063 atl_name         = cfg_files;
+0064 atl_name.tag     = <span class="string">'atl_name'</span>;
+0065 atl_name.name    = <span class="string">'Load Atlas'</span>;
+0066 atl_name.ufilter = <span class="string">'.*'</span>;
+0067 atl_name.filter  = <span class="string">'image'</span>;
+0068 atl_name.num     = [0 1];
+0069 atl_name.val     = {{<span class="string">''</span>}};
+0070 atl_name.def     = @(val)prt_get_defaults(<span class="string">'fs.atlasroi'</span>, val{:});
+0071 atl_name.help    = {<span class="string">'Select atlas file to build weights per ROI.'</span>};
+0072 
+0073 <span class="comment">% ---------------------------------------------------------------------</span>
+0074 <span class="comment">% no_atl No weight per ROI</span>
+0075 <span class="comment">% ---------------------------------------------------------------------</span>
+0076 no_atl         = cfg_const;
+0077 no_atl.tag     = <span class="string">'no_atl'</span>;
+0078 no_atl.name    = <span class="string">'No weight per ROI'</span>;
+0079 no_atl.val     = {0};
+0080 no_atl.help    = {<span class="string">'Not computing weight per ROI.'</span>};
+0081 
+0082 <span class="comment">% ---------------------------------------------------------------------</span>
+0083 <span class="comment">% build_wpr Build the weight images per ROI</span>
+0084 <span class="comment">% ---------------------------------------------------------------------</span>
+0085 build_wpr         = cfg_choice;
+0086 build_wpr.tag     = <span class="string">'build_wpr'</span>;
+0087 build_wpr.name    = <span class="string">'Build weight images per ROI'</span>;
+0088 build_wpr.help    = {[<span class="string">'Set to Yes to compute the weight images per ROI '</span> <span class="keyword">...</span>
+0089     <span class="string">'You need then to select the atlas image.'</span>]};
+0090 <span class="comment">% build_wpr.labels  = {</span>
+0091 <span class="comment">%                'Yes'</span>
+0092 <span class="comment">%                'No'</span>
+0093 <span class="comment">% }';</span>
+0094 build_wpr.values  = {no_atl atl_name};
+0095 build_wpr.val     = {no_atl};
+0096 
+0097 <span class="comment">% ---------------------------------------------------------------------</span>
+0098 <span class="comment">% flag_wroi Build the weight images for each ROI (optional)</span>
+0099 <span class="comment">% ---------------------------------------------------------------------</span>
+0100 flag_wroi         = cfg_menu;
+0101 flag_wroi.tag     = <span class="string">'flag_cwi'</span>;
+0102 flag_wroi.name    = <span class="string">'Build weight images per ROI'</span>;
+0103 flag_wroi.help    = {[<span class="string">'Set to Yes to compute the weight images obtained '</span> <span class="keyword">...</span>
+0104     <span class="string">'from each ROI.'</span>]};
+0105 flag_wroi.labels  = {
+0106                <span class="string">'Yes'</span>
+0107                <span class="string">'No'</span>
+0108 }';
+0109 flag_wroi.values  = {1 0};
+0110 flag_wroi.val     = {0};
+0111 
+0112 <span class="comment">% ---------------------------------------------------------------------</span>
+0113 <span class="comment">% cv_model Preprocessing</span>
+0114 <span class="comment">% ---------------------------------------------------------------------</span>
+0115 weights        = cfg_exbranch;
+0116 weights.tag    = <span class="string">'weights'</span>;
+0117 weights.name   = <span class="string">'Compute weights'</span>;
+0118 weights.val    = {infile model_name img_name build_wpr flag_cwi};
+0119 weights.help   = {[
+0120     <span class="string">'Compute weights. This module computes the linear weights of a classifier '</span>,<span class="keyword">...</span>
+0121     <span class="string">'and saves them as a 4D image. 3 dimensions correspond to the image dimensions specified in '</span>,<span class="keyword">...</span>
+0122     <span class="string">'the second-level mask, while the extra dimension corresponds to the number of folds. '</span>,<span class="keyword">...</span>
+0123     <span class="string">'There is one 3D weights image per fold.'</span>]};
+0124 weights.prog   = @<a href="prt_run_weights.html" class="code" title="function out = prt_run_weights(varargin)">prt_run_weights</a>;
+0125 weights.vout   = @<a href="#_sub1" class="code" title="subfunction cdep = vout_data(job)">vout_data</a>;
+0126 
+0127 <span class="comment">%------------------------------------------------------------------------</span>
+0128 <span class="comment">%% Output function</span>
+0129 <span class="comment">%------------------------------------------------------------------------</span>
+0130 <a name="_sub1" href="#_subfunctions" class="code">function cdep = vout_data(job)</a>
+0131 <span class="comment">% Specifies the output from this modules, i.e. the filename of the mat file</span>
+0132 
+0133 cdep(1)            = cfg_dep;
+0134 cdep(1).sname      = <span class="string">'PRT.mat file'</span>;
+0135 cdep(1).src_output = substruct(<span class="string">'.'</span>,<span class="string">'files'</span>);
+0136 cdep(1).tgt_spec   = cfg_findspec({{<span class="string">'filter'</span>,<span class="string">'mat'</span>,<span class="string">'strtype'</span>,<span class="string">'e'</span>}});
+0137 cdep(2)            = cfg_dep;
+0138 cdep(2).sname      = <span class="string">'Weight image file'</span>;
+0139 cdep(2).src_output = substruct(<span class="string">'.'</span>,<span class="string">'files'</span>);
+0140 cdep(2).tgt_spec   = cfg_findspec({{<span class="string">'filter'</span>,<span class="string">'img'</span>,<span class="string">'strtype'</span>,<span class="string">'e'</span>}});
+0141 <span class="comment">%------------------------------------------------------------------------</span></pre></div>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

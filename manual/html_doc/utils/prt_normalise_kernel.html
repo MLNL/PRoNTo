@@ -4,7 +4,7 @@
 <head>
   <title>Description of prt_normalise_kernel</title>
   <meta name="keywords" content="prt_normalise_kernel">
-  <meta name="description" content="This function normalises the kernel matrix such that each entry is">
+  <meta name="description" content="FORMAT K_normalised = prt_normalise_kernel(K)">
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
   <meta name="robots" content="index, follow">
@@ -21,13 +21,15 @@
 </h1>
 
 <h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>This function normalises the kernel matrix such that each entry is</strong></div>
+<div class="box"><strong>FORMAT K_normalised = prt_normalise_kernel(K)</strong></div>
 
 <h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="box"><strong>function C = prt_normalise_kernel(K) </strong></div>
+<div class="box"><strong>function K_normalised = prt_normalise_kernel(K) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> This function normalises the kernel matrix such that each entry is 
+<div class="fragment"><pre class="comment"> FORMAT K_normalised = prt_normalise_kernel(K)
+
+ This function normalises the kernel matrix such that each entry is 
  divided by the product of the std deviations, i.e.
  K_new(x,y) = K(x,y) / sqrt(var(x)*var(y)) 
 __________________________________________________________________________
@@ -46,22 +48,24 @@ This function is called by:
 
 
 <h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function C = prt_normalise_kernel(K)</a>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function K_normalised = prt_normalise_kernel(K)</a>
 0002 
-0003 <span class="comment">% This function normalises the kernel matrix such that each entry is</span>
-0004 <span class="comment">% divided by the product of the std deviations, i.e.</span>
-0005 <span class="comment">% K_new(x,y) = K(x,y) / sqrt(var(x)*var(y))</span>
-0006 <span class="comment">%__________________________________________________________________________</span>
-0007 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
-0008 
-0009 <span class="comment">% Written by A. Marquand</span>
-0010 <span class="comment">% Id: $</span>
-0011 
-0012 d  = diag(K);
-0013 K0 = sqrt(repmat(d,[1,size(K,1)]).* repmat(d',[size(K,1),1]));
-0014 C  = K./K0;
-0015 
-0016 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0003 <span class="comment">% FORMAT K_normalised = prt_normalise_kernel(K)</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% This function normalises the kernel matrix such that each entry is</span>
+0006 <span class="comment">% divided by the product of the std deviations, i.e.</span>
+0007 <span class="comment">% K_new(x,y) = K(x,y) / sqrt(var(x)*var(y))</span>
+0008 <span class="comment">%__________________________________________________________________________</span>
+0009 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0010 
+0011 <span class="comment">% Written by A. Marquand</span>
+0012 <span class="comment">% Id: $</span>
+0013 
+0014 d  = diag(K);
+0015 K0 = sqrt(repmat(d,[1,size(K,1)]).* repmat(d',[size(K,1),1]));
+0016 K_normalised  = K./K0;
+0017 
+0018 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

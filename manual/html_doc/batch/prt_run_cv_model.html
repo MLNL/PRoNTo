@@ -66,7 +66,7 @@ This function is called by:
 0012 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0013 
 0014 <span class="comment">% Written by A Marquand</span>
-0015 <span class="comment">% $Id: prt_run_cv_model.m 298 2011-11-03 17:51:07Z schrouff $</span>
+0015 <span class="comment">% $Id$</span>
 0016 
 0017 job   = varargin{1};
 0018 
@@ -88,21 +88,34 @@ This function is called by:
 0034 
 0035 <span class="comment">% Special cross-validation for MCKR</span>
 0036 <span class="keyword">if</span> strcmp(PRT.model(mid).input.machine.function,<span class="string">'prt_machine_mckr'</span>)
-0037     out=prt_cv_mckr(PRT,in);
+0037     fname = prt_cv_mckr(PRT,in);
 0038 <span class="keyword">else</span>
-0039     out=prt_cv_model(PRT, in);
+0039     fname = prt_cv_model(PRT, in);
 0040 <span class="keyword">end</span>
 0041 
-0042 
-0043 <span class="comment">% -------------------------------------------------------------------------</span>
-0044 <span class="comment">% Function output</span>
-0045 <span class="comment">% -------------------------------------------------------------------------</span>
-0046 out=[]; <span class="comment">%prevent warning of overwriting 'char' class</span>
-0047 disp(<span class="string">'Model execution complete.'</span>)
-0048 out.files{1} = in.fname{1};
-0049 disp(<span class="string">'Done'</span>)
-0050 
-0051  <span class="keyword">return</span></pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0042 <span class="comment">% Permutation test, required.</span>
+0043 load(fname) <span class="comment">% reload updated PRT!</span>
+0044 <span class="keyword">if</span> isfield(job,<span class="string">'perm_test'</span>) <span class="comment">% to ensure back compatibility with older batch</span>
+0045     <span class="keyword">if</span> isfield(job.perm_test,<span class="string">'perm_t'</span>)
+0046         <span class="keyword">if</span> isfield(job.perm_test.perm_t,<span class="string">'flag_sw'</span>) <span class="comment">%keep compatibility</span>
+0047             flag = job.perm_test.perm_t.flag_sw;
+0048         <span class="keyword">else</span>
+0049             flag = 0;
+0050         <span class="keyword">end</span>
+0051         prt_permutation(PRT, job.perm_test.perm_t.N_perm, mid, <span class="keyword">...</span>
+0052             spm_str_manip(fname,<span class="string">'h'</span>),flag);
+0053     <span class="keyword">end</span>
+0054 <span class="keyword">end</span>
+0055 
+0056 <span class="comment">% -------------------------------------------------------------------------</span>
+0057 <span class="comment">% Function output</span>
+0058 <span class="comment">% -------------------------------------------------------------------------</span>
+0059 out = []; <span class="comment">%prevent warning of overwriting 'char' class</span>
+0060 disp(<span class="string">'Model execution complete.'</span>)
+0061 out.files{1} = in.fname{1};
+0062 disp(<span class="string">'Done'</span>)
+0063 
+0064  <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

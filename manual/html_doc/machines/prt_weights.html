@@ -68,7 +68,7 @@ This function is called by:
 0013 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0014 
 0015 <span class="comment">% Written by M.J.Rosa and J.Mourao-Miranda</span>
-0016 <span class="comment">% $Id: prt_weights.m 425 2012-01-26 13:08:43Z mjrosa $</span>
+0016 <span class="comment">% $Id$</span>
 0017 
 0018 SANITYCHECK = true; <span class="comment">% turn off for speed</span>
 0019 
@@ -121,11 +121,16 @@ This function is called by:
 0066 <span class="comment">% final checks</span>
 0067 <span class="comment">%--------------------------------------------------------------------------</span>
 0068 <span class="keyword">if</span> SANITYCHECK == true
-0069     <span class="keyword">if</span> ~isvector(weights)
+0069     <span class="keyword">if</span> ~iscell(weights)
 0070         error(<span class="string">'prt_weights:weightsNotVector'</span>,<span class="keyword">...</span>
-0071             <span class="string">'Error: weights should be a vector!'</span>);
-0072     <span class="keyword">end</span>
-0073 <span class="keyword">end</span></pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0071             <span class="string">'Error: weights should be a cell!'</span>);
+0072     <span class="keyword">else</span>
+0073         <span class="keyword">if</span> ~isvector(weights{1})
+0074             error(<span class="string">'prt_weights:weightsNotVector'</span>,<span class="keyword">...</span>
+0075                 <span class="string">'Error: weights cell should contain vectors!'</span>);
+0076         <span class="keyword">end</span>
+0077     <span class="keyword">end</span>
+0078 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>
