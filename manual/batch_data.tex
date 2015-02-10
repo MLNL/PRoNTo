@@ -145,10 +145,6 @@ Specify 2 parametric regressors for the second condition:
 The parametric modulator should be mean corrected if appropriate. Unused structure entries should have all fields left empty.
 
 
-\textit{Covariates}
-Select a .mat file containing your covariates (i.e. any other data/information you would like to include in your design). This file should contain a variable 'R' with a matrix of covariates.
-
-
 \textsl{No design}
 Do not specify design. This option can be used for modalities (e.g. structural scans) that do not have an experimental design.
 
@@ -174,7 +170,7 @@ Enter one regression target per scan. or enter the name of a variable.  This var
 
 
 \textbf{Covariates}
-Select a .mat file containing your covariates (i.e. any other data/information you would like to include in your design). This file should contain a variable 'R' with a matrix of covariates.
+Select a .mat file containing your covariates (i.e. any other data/information you would like to include in your design). This file should contain a variable 'R' with a matrix of covariates. On covariate per image is expected.
 
 
 \section{Masks}
@@ -193,11 +189,15 @@ Name of modality. Example: 'BOLD'. The names should be consistent accross subjec
 Select one first-level mask (image) for each modality. This mask is used to optimise the prepare data step. In 'specify model' there is an option to enter a second-level mask, which might be used to select only a few areas of the brain for subsequent analyses.
 
 
-\section{HRF overlap}
+\section{fMRI\_Des}
+fMRI design specific parameters, HRF overlap and delay.
+
+
+\subsection{HRF overlap}
 If using fMRI data please specify the width of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities (other than fMRI).
 
 
-\section{HRF delay}
+\subsection{HRF delay}
 If using fMRI data please specify the delay of the hemodynamic response function (HRF). This will be used to calculate the overlap between events. Leave as 0 for other modalities (other than fMRI).
 
 
