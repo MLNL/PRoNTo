@@ -1,5 +1,11 @@
 function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)
-% Function to compute the cross-validation matrix. Also does error checking
+% Function to compute the cross-validation matrix. 
+% Also does error checking
+%__________________________________________________________________________
+% Copyright (C) 2015 Machine Learning & Neuroimaging Laboratory
+
+% Written by J. Schrouff
+% $Id$
 
 % Check if the use_nested_cv varible has been inputed
 if ~exist('use_nested_cv', 'var')
@@ -30,7 +36,6 @@ if ~use_nested_cv
 else
     k = in.cv.k;    
 end
-
 
 if k==1 %half-half
     k=2;
@@ -321,7 +326,6 @@ switch in.cv.type
             end
             
         end
-        
         
     otherwise
         error('prt_cv:unknownTypeSpecified',...
