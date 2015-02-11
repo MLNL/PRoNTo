@@ -500,9 +500,9 @@ if isempty(rt)
     return
 end
 if strcmp(rt(1),'-'), nrt = 2; else nrt = 1; end
-if ~isnan(str2double(rt(nrt)))
+try
     eval(['rte=[',rt,'];'])
-else
+catch
     try
         load(char(rt));
     catch
@@ -548,9 +548,9 @@ rt=get(handles.edit_covar,'String');
 if isempty(rt)
     return
 end
-if ~isnan(str2double(rt(1)))
+try
     eval(['rte=[',rt,'];'])
-else
+catch
    try
         load(char(rt));
     catch
@@ -614,11 +614,17 @@ end
 %number of scans
 if ~isempty(handles.mod.covar)
     szrt=size(handles.mod.covar);
-    if  ~any(size(handles.mod.scans,1)==szrt)
+    nsc = size(handles.mod.scans,1);
+    ins = find(szrt == nsc);
+    if  isempty(ins)
         beep
         disp('Number of covariates must be the number of files selected! ')
         disp('Please correct!')
         return
+    else
+        if ins~=1 %not the first dimension
+            handles.mod.covar = handles.mod.covar';
+        end
     end
 end
         
