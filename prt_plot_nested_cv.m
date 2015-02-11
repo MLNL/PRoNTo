@@ -267,21 +267,22 @@ else % It's a 1 parameter optimisation problem
         hold on
         [hax,hbar,hline] = plotyy(x,x_opt*100,x,mean(f),'bar','plot');
         errorbar(axes_handle, x, f_mean, f_std, '.k', 'linewidth', 2);
-        set(hbar,'BarWidth',0.5,'FaceColor',[0.5 0.5 0.5])
+        set(hbar,'BarWidth',0.5,'FaceColor',[0.5 0.8 0.5])
         set(hline,'Color','k','Linewidth',1)
-        set(hax(2),'YColor',[0.2,0.2,0.2])
-        for i = 1:length(x_opt)
-            R = x_opt(i);
-            B = 1-R;
-            plot(x(i), f_mean(i), 'o', 'markersize', 4, ...
-                'linewidth', 0.01,'MarkerFaceColor', [R 0 B]);
-        end
+        set(hax(1),'YColor',[0.1,0.6,0.1])
+        set(hax(2),'YColor',[0,0,0])
+%         for i = 1:length(x_opt)
+%             R = x_opt(i);
+%             B = 1-R;
+%             plot(x(i), f_mean(i), 'o', 'markersize', 4, ...
+%                 'linewidth', 0.01,'MarkerFaceColor', [R 0 B]);
+%         end
         hold off
         
         % Properties
        
-        ylabel(hax(1), y_label,'FontWeight','bold');
-        ylabel(hax(2),'Frequency of selection (%)','FontWeight','bold');
+        ylabel(hax(2), y_label,'FontWeight','bold');
+        ylabel(hax(1),'Frequency of selection (%)','FontWeight','bold');
         if logscale 
              xlabel(axes_handle, [x_label, ' (log 10)'],'FontWeight','bold');
         else
@@ -290,6 +291,12 @@ else % It's a 1 parameter optimisation problem
         axis(hax(1), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
         axis(hax(2), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
         set(hax(2),'XTickLabel',{})
+        set(hax(2),'YTickLabel',{})
+        a=get(hax(1),'YTick');
+        b=get(hax(1),'YTickLabel');
+        set(hax(2),'YTick',a);
+        set(hax(2),'YTickLabel',b);
+        
         
     else
         
