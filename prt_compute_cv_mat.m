@@ -229,7 +229,7 @@ switch in.cv.type
         gc = 0;
         nb=zeros(length(cids),1);
         dID = ID;
-        cidx = cell(nb,1);
+        cidx = cell(length(cids),1);
         for c = 1:length(cids)
             cidx{c} = ID(:,4) == cids(c);
             nb(c)=length(unique(ID(cidx{c},5)));            
