@@ -13,13 +13,13 @@
 Once a machine (e.g. a classifier or a regression function) has been specified, 
 its parameters have been estimated over training data, and its performance has been
 evaluated over a test set in cross-validation, it is necessary to examine the outcome
-of the whole procedure in details. The results windows helps make various useful
+of the whole procedure in detail. The results windows helps make various useful
 statistical statements about the predictive power of a machine, which (if any) subjects
 or conditions are modelled best, and which machine has the lowest error rate on a given
 dataset.
 
 Examining model output and parameters is helpful in diagnosing the potentially
-bad performance of a particular mode - for example, if the machine cannot perform above
+bad performance of a particular model - for example, if the machine cannot perform above
 chance, it could be due to an inappropriate experimental paradigm, noisy data, insufficient
 amount of data, wrong choice of features, wrong choice of machine. It is important to
 recognise that any of these factors could cause the modelling to fail. The results window
@@ -32,7 +32,7 @@ Model performance can be reviewed using the `Display Results' GUI. Alternatively
 Make sure all previous steps have been performed (Data and Design, Chapter~\ref{chap:DataDesign};
 Prepare feature set, Chapter~\ref{chap:PrepFeat}; Specify Model and Run Model, Chapter~\ref{chap:ModelCrossV} ).
 
-In the {\tt Review Options} panel of the main PRoNTo window, press {\tt Display Results}. At the ``Select PRT.mat'' window, navigate to where your {\tt PRT.mat} file is stored (using the left column), and select it. The main results window will open and look as represented in Figure \ref{fig_prt_ui_results_emptyWin}. In the {\tt Model} panel in the top-right corner, the list of models that have been successfully estimated will appear. Note: there will be a `beep' if one or more models were specified but not estimated (`Run model') and their name will appear in the command window.
+In the {\tt Review Options} panel of the main PRoNTo window, press {\tt Display Results}. At the `Select PRT.mat' window, navigate to where your {\tt PRT.mat} file is stored (using the left column), and select it. The main results window will open and look as represented in Figure \ref{fig_prt_ui_results_emptyWin}. In the {\tt Model} panel in the top-right corner, the list of models that have been successfully estimated will appear. Note: there will be a `beep' if one or more models were specified but not estimated (`Run model') and their name will appear in the command window.
 
 \begin{figure}[h!]
 \begin{center}
@@ -47,18 +47,21 @@ In the {\tt Review Options} panel of the main PRoNTo window, press {\tt Display 
 The window is divided into three panels; going clockwise from top left to bottom left, they
 are:
 \begin{description}
-\item[Plot]: this panel displays the plots for the various analyses that can be performed on
+\item[Plot]: This panel displays the plots for the various analyses that can be performed on
 test results. With the exception of the confusion matrix plot, these cannot be interacted with.
-\item[Model]: this panel allows the user to select the model to analyse, whether to analyse a
+\item[Model]: This panel allows the user to select the model to analyse, whether to analyse a
 particular fold or all folds at once, and which plot to produce.
 \item[Stats]: The {\tt stats} panel allows the user to generate a variety of statistics on the test (based on the selected fold), including accuracy statistics for classifiers and p-values on these parameters via permutation testing.
 \end{description}
 
-To populate the Plot panel, first click on a model in the {\tt Model} selector, then on
-'all folds' (or a particular fold) in the {\tt Fold} selector, and finally on a plot
+To populate the `Plot' panel, first click on a model in the {\tt Model} selector, then on
+`all folds' (or a particular fold) in the {\tt Fold} selector, and finally on a plot
 in the {\tt Plot} selector. The next section details the plots available.
 
-The window also comprises 'Edit plot', 'Help' and 'Quit' buttons. The 'Edit plot' button exports the displayed plot in an extra window, such that it can be edited and easily saved. The 'Help' button provides information on each panel of the window (not as detailed as in this manual) and the 'Quit' button closes the results window. In addition, the GUI menu comports a 'Save figure' option (on the top left) that acts as a 'printscreen' of this window (with white background), which can be saved for records/publications.
+The window also comprises `Edit plot', `Help' and `Quit' buttons. The `Edit plot' button exports the displayed plot in an extra window, such
+that it can be edited and easily saved. The `Help' button provides information on each panel of the window (not as detailed as in this
+manual) and the `Quit' button closes the results window. In addition, the GUI menu comports a `Save figure' option (on the top left) that
+acts as a `printscreen' of this window (with white background), which can be saved for records/publications.
 
 \section{Analysing a machine's performance graphically}
 

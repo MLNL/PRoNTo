@@ -11,7 +11,10 @@ The previous module allowed the user to specify one or more models. These includ
 
 In addition, for linear models, PRoNTo provides the option of recovering the model weights in the original feature (voxel) space, and transforming the weights vector into an image, or map. These maps contain at each voxel the corresponding weight of the linear model (together defining the optimal hyperplane), and which related to how much this particular voxel contributed to the classification/regression task in question. The weights can later be displayed using the `Display results' module (described below).
 
-Furthermore, the MKL machine estimates contribution of each kernel to the final decision function. This means that there will be one value per region of interest as defined by an atlas and/or per modality (depending on how multiple kernels were built). Therefore, it is possible to build maps at the region level, in addition to the maps at the voxel level. Regions/modalities can then be ranked according to their contribution. L1-MKL being a sparse algorithm (i.e. only some kernels will have a non-null contribution to the model), this eases model interpretation.
+Furthermore, the MKL machine estimates contribution of each kernel to the final decision function. This means that there will
+be one value per region of interest as defined by an atlas and/or per modality (depending on how multiple kernels were built).
+Therefore, it is possible to build maps at the region level, in addition to the maps at the voxel level. Regions/modalities
+can then be ranked according to their contribution. Since L1-MKL is a sparse algorithm (i.e. only some kernels will have a non-null contribution to the model), this eases model interpretation.
 
 \section{Methods}
 
@@ -26,11 +29,18 @@ In addition, it is possible to build an image containing the contributions of ea
 
 In both cases, the contribution of each region is divided by the total contribution of all regions. The derived values can then be seen as percentages of contribution in each region. The contributions can be ranked, leading to a list of regions sorted by descending contribution to the model. This list can also be computed if multiple modalities were built and used in an MKL model. In this case, each modality has a contribution to the model, that can be normalized and the list can be derived.
 
-Furthermore, for MKL models -which are sparse in the number of kernels contributing to the model- a bar graph can be built, representing the number of kernels with a non-null contribution to the model.
+Furthermore, for MKL models - which are sparse in the number of kernels contributing to the model - a bar graph can be built, representing the number of kernels with a non-null contribution to the model.
 
 \section{Graphical user interface}
 
-If the user wants to create images of the weights, using the GUI, the user first needs to click the `Compute weights' button on the main PRoNTo window. This will launch the window shown in Fig \ref{CompWeights}. To estimate the weights and create the weight maps the user needs to select a {\tt PRT.mat} file. The window is then divided in two panels: a `Feature weights' panel and a `Atlas-based weights' panel. In the first panel, PRoNTo will show the list of available models, and the user can choose one model for which to estimate the weights. If the selected model is the MKL modelling of ROI-based kernels, the `Atlas-based weights' panel will be automatically updated, and the name of the selected atlas at the feature set step will appear. Otherwise, those fields will stay blank. In the `Feature weights' panel, it is also possible to define the name of the created image file, which is saved in the same directory as PRT.mat. Alternatively, if left empty PRoNTo will name the file according to the model name, class (if multi-class machine) and/or modality (if MKL on modalities). The `Atlas-based weights' allows to estimate the contribution of each anatomically defined region to the model. If the model refers to an MKL machine estimated on kernels per region, the `Atlas name' field will be filled automatically and the contribution of each region is derived from the contribution of each kernel. If this is not the case (single kernel machine or feature set), an atlas should be loaded (using the browse option). The weights will then be summarized for each region a posteriori.
+If the user wants to create images of the weights, using the GUI, the user first needs to click the `Compute weights' button
+on the main PRoNTo window. This will launch the window shown in Fig \ref{CompWeights}. To estimate the weights and create the
+weight maps the user needs to select a {\tt PRT.mat} file. The window is then divided in two panels: a `Feature weights' panel
+and a `Atlas-based weights' panel. In the first panel, PRoNTo will show the list of available models, and the user can choose
+one model for which to estimate the weights. If the selected model is the MKL modelling of ROI-based kernels, the `Atlas-based
+weights' panel will be automatically updated, and the name of the selected atlas at the feature set step will appear.
+Otherwise, those fields will stay blank. In the `Feature weights' panel, it is also possible to define the name of the created
+image file, which is saved in the same directory as PRT.mat. Alternatively, if left empty, PRoNTo will name the file according to the model name, class (if multi-class machine) and/or modality (if MKL on modalities). The `Atlas-based weights' allows to estimate the contribution of each anatomically defined region to the model. If the model refers to an MKL machine estimated on kernels per region, the `Atlas name' field will be filled automatically and the contribution of each region is derived from the contribution of each kernel. If this is not the case (single kernel machine or feature set), an atlas should be loaded (using the browse option). The weights will then be summarized for each region a posteriori.
 
 \begin{figure}[h!]
 \begin{center}

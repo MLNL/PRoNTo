@@ -13,7 +13,7 @@ The specification of a model is the core step of the pattern recognition pipelin
 
 \section{Beginning a model specification}
 
-To begin a model specification with the PRoNTo user interface, select ``Specify model" from the main PRoNTo window. This will launch the model specification window (Figure \ref{fig_specify_model})
+To begin a model specification with the PRoNTo user interface, select `Specify model' from the main PRoNTo window. This will launch the model specification window (Figure \ref{fig_specify_model})
 
 \begin{figure}[!h]
 \begin{center}
@@ -30,19 +30,29 @@ Enter a unique name to identify the model, which is used internally in PRoNTo, b
 \section{Feature set}
 The drop-down list entitled `Feature set' will be populated once a \texttt{PRT.mat} containing one or more feature sets is selected. Select the appropriate feature set from the drop-down list. Note that a single feature set may contain more than one data modality (see chapter \ref{chap:PrepFeat}). This might be useful if more than one run is available for each subject, in which case each run could be coded as an independent modality and a single-subject classifier might be specified using leave-one-run-out cross-validation. 
 
-In the current release of PRoNTo, only kernel classifiers are supported via the user interface. The capability to support non-kernel classifiers will be added in a future release. Thus, the ``Use kernel" radio button should always be set to true.
+In the current release of PRoNTo, only kernel classifiers are supported via the user interface. The capability to support non-kernel
+classifiers will be added in a future release. Thus, the `Use kernel' radio button should always be set to true.
 
 \section{Model type / pattern recognition algorithm}
-In this part of the model specification input form, select the pattern recognition algorithm to employ (referred to in PRoNTo as a ``machine"). In the current release, three classification algorithms are supported (binary support vector machines, Gaussian processes (binary and multiclass) and L1-Multiple Kernel Learning) and four multivariate regression methods (Gaussian process regression, kernel ridge regression 
+In this part of the model specification input form, select the pattern recognition algorithm to employ (referred to in PRoNTo as a `machine'). In the current release, three classification algorithms are supported (binary support vector machines, Gaussian processes (binary and multiclass) and L1-Multiple Kernel Learning) and four multivariate regression methods (Gaussian process regression, kernel ridge regression 
 \footnote{Kernel ridge regression is equivalent to a \emph{maximum a posteriori} approach to Gaussian process regression with fixed prior variance and no explicit noise term} , relevance vector regression and L1-Multiple Kernel Learning). 
 
-The PRoNTo user interface provides a mechanism for flexible definition of which components of the experimental design should be used for each classification or regression model. Note that this will not necessarily be the whole experiment; for example, in a complex fMRI experiment there may be several groups, each containing multiple subjects, each in turn having multiple experimental conditions (e.g. corresponding to different subprocesses of a cognitive task). In such cases, it is usually desirable to ask several different questions of the data, such as discriminating between groups for a given experimental condition (``between group comparison"), discriminating between experimental conditions for a fixed group (``between-task comparison") or training independent pattern recognition models for different subsets of subjects. All of these can be easily defined via the user interface by clicking the ``Define classes" button (for classification) or ``Select subjects/scans" (for regression).
+The PRoNTo user interface provides a mechanism for flexible definition of which components of the experimental design should be used for each
+classification or regression model. Note that this will not necessarily be the whole experiment; for example, in a complex fMRI experiment
+there may be several groups, each containing multiple subjects, each in turn having multiple experimental conditions (e.g. corresponding to
+different subprocesses of a cognitive task). In such cases, it is usually desirable to ask several different questions of the data, such as
+discriminating between groups for a given experimental condition (``between group comparison"), discriminating between experimental conditions
+for a fixed group (`between-task comparison') or training independent pattern recognition models for different subsets of subjects. All of
+these can be easily defined via the user interface by clicking the `Define classes' button (for classification) or `Select subjects/scan' (for regression).
 
 \subsection{Classification}
 
 The class selection panel is displayed in figure \ref{fig_specify_classesC}. First, define the number of classes, noting that that some classification algorithms (e.g. support vector machines) are limited to binary classification, while other classification algorithms (e.g. Gaussian processes) support more than two classes. Enter a name for each class - again, it is a good idea to make these names informative but short. Notice that immediately after the number of classes has been specified, the group-, subject- and condition selection panels are greyed out. To enable them, simply select one of the classes from the drop-down menu.
 
-For each class, select the subjects and conditions (if any) that collectively define that class. It is possible to select multiple experimental conditions in the same class, but this complicates model interpretability and potentially also model performance (since by definition conditions are not identically distributed). If a condition or subject is erroneously selected, click on it in the ``selected subject(s)" or ``selected condition(s)" panel and it will be removed from the list. 
+For each class, select the subjects and conditions (if any) that collectively define that class. It is possible to select multiple experimental
+conditions in the same class, but this complicates model interpretability and potentially also model performance (since by definition
+conditions are not identically distributed). If a condition or subject is erroneously selected, click on it in the `selected subject(s)' or
+`selected condition(s)' panel and it will be removed from the list. 
 
 \begin{figure}[!h]
 \begin{center}
@@ -70,7 +80,10 @@ The specification of which subjects and scans to include in regression models is
 
 \subsection{Hyper-parameter optimization}
 
-From PRoNTo version 2.0, it is possible to optimize hyper-parameters of the machine. For example, the soft-margin (a.k.a. C) hyper-parameter in SVM can be optimized, using a nested cross-validation scheme. In this case, the training data (as specified by the `outer' cross-validation) is divided in training and testing set. For each value of the hyper-parameter specified by the user, the model is then trained and tested in each sub-fold. The value of the hyper-parameter leading to the highest performance (balanced accuracy for classification and coefficient of determination for regression) is then returned to the `outer' fold. For this fold, the model is trained using the `optimal' value of the hyper-parameter and tested on the data that was left out (and which was not used at any point of the modelling step). This nested CV procedure can lead to different values of the hyper-parameter to be selected in each fold. These are stored in the outputs of the model and can be reviewed in the `Display Results' panel.
+From PRoNTo version 2.0, it is possible to optimize hyper-parameters of the machine. For example, the soft-margin (a.k.a. C) hyper-parameter in
+SVM can be optimized, using a nested cross-validation scheme. In this case, the training data (as specified by the `outer' cross-validation) is
+itself
+divided into training and testing sets. For each value of the hyper-parameter specified by the user, the model is then trained and tested in each sub-fold. The value of the hyper-parameter leading to the highest performance (balanced accuracy for classification and coefficient of determination for regression) is then returned to the `outer' fold. For this fold, the model is trained using the `optimal' value of the hyper-parameter and tested on the data that was left out (and which was not used at any point of the modelling step). This nested CV procedure can lead to different values of the hyper-parameter to be selected in each fold. These are stored in the outputs of the model and can be reviewed in the `Display Results' panel.
 
 Optimizing the hyper-parameter might lead to improved results compared to fixed values. This will usually depend on the number of features selected to model the data: for a whole brain model, with many more features than images/trials, it is reasonable to assume that changing the hyper-parameter won't affect the decision function, due to the high-dimensionality of the feature space. However, when using (e.g.) regions of interest (in a second-level mask or in a MKL model), the number of features might compare to the number of examples. In this case, different values of the hyper-parameter might lead to different decision functions and optimizing the hyper-parameter is desirable.
 
@@ -80,7 +93,9 @@ In the current version of PRoNTo, the soft-margin parameter can be optimized for
 
 \section{Cross-validation}
 
-In the final part of the specify model input form, select the type of cross-validation to employ. Cross-validation is a crucial part of the design and is used to assess the generalizability of the model and to ensure the model has not overfitted the data. Typically this is done by partitioning the data into one or more partitions: a "training set", used to train the model (e.g. fit parameters) and a "test set" used to assess performance on unseen data. By repeatedly repartitioning the data in this way, it is possible to derive an approximately unbiased estimate of the true generalisation error of the model. 
+In the final part of the specify model input form, select the type of cross-validation to employ. Cross-validation is a crucial part of the
+design and is used to assess the generalizability of the model and to ensure the model has not overfit to the data. Typically this is done by
+partitioning the data into one or more partitions: a `training set', used to train the model (e.g. fit parameters) and a `test set' used to assess performance on unseen data. By repeatedly repartitioning the data in this way, it is possible to derive an approximately unbiased estimate of the true generalisation error of the model. 
 
 The most common forms in neuroimaging applications are leave-one-subject out (LOSO; exclude one subject for testing, train with the remaining), leave-one-run-out (LORO; leave one fMRI run out for testing, train with the remainder) and leave-one-block-out (LOBO; leave out a single block or event and train with the remainder). LOSO is suitable for multi-subject designs, while LORO and LOBO are suitable for single subject designs, where the former is better suited to designs having multiple experimental runs and the latter is appropriate if there is only a single run. The current release of PRoNTo supports each of these, and also supports leave-one-subject-per-group-out (LOSGO), which is appropriate if the subjects in each group are paired or for repeated measures experimental designs. Versions 1.1 and later allows k-fold cross-validation for each of the available schemes. This means that the user specifies the number of folds (`k') and that the data is partitioned according to that number. For example, specifying $k=4$ will use 25\% of the data to test the model, and 75\% to train it. Note: $k=1$ splits the data in half, training the model on the first half and testing on the second, i.e. there is no circular partitioning.
 
@@ -113,7 +128,8 @@ When an option has been selected, a new window will appear (Figure \ref{fig_cust
 
 The resulting CV matrix can be saved in a .mat, alongside the PRT (name: \textit{model name\_ CV.mat}). This matrix can loaded as a custom CV in the batch, if exactly the same trials were selected for modelling. \textbf{Note:} The custom CV is not available as a `nested' cross-validation scheme. We hypothesized that the train and test sets are defined by the outer CV such that optimizing a hyper-parameter can be performed using a structure in each fold. For example, the outer CV could train on some runs and test on others. However, in each fold, it is still possible to train on a subset of the selected runs or to train on blocks. 
 
-Information concerning the cross-validation structure is stored internally in matrix format, and can be visualised by clicking "Review Kernel and CV" from the main ProNTo window (see \ref{fig_reviewCV} for an example). In the left panel, this figure indicates which group, subject, modality and condition each scan in the feature set belongs to. On the right, each cross-validation fold (partition) is displayed as a separate column and each scan is colour coded according to whether it is in the training or test set (or if it is unused).
+Information concerning the cross-validation structure is stored internally in matrix format, and can be visualised by clicking `Review Kernel
+and CV' from the main ProNTo window (see \ref{fig_reviewCV} for an example). In the left panel, this figure indicates which group, subject, modality and condition each scan in the feature set belongs to. On the right, each cross-validation fold (partition) is displayed as a separate column and each scan is colour coded according to whether it is in the training or test set (or if it is unused).
 
 
 \begin{figure}[!h]
@@ -170,7 +186,11 @@ It is useful to have a look at what is displayed in the \matlab command space wh
 
 \section{Batch interface}
 
-The batch module provides all the functionality provided in the user interface and allows complex analyses to be scripted in advance. As noted, the batch module also provides functionality not available in the user interface. The most important difference is that the batch module allows customised \matlab \ functions to be used as prediction machines. This functionality allows PRoNTo to be easily extended to allow many types of classification and regression algorithms not provided under the current framework. This can be achieved by selecting ``Custom machine" under the ``Model Type" heading. This allows a function name to be specified (i.e. any \texttt{*.m} function in the \matlab \ search path). The behaviour of this custom machine can then be controlled by a free-format argument string. See the developer documentation and the examples in the \texttt{machines/} subdirectory of the PRoNTo distribution for more information. Another important difference between the batch and user interfaces is that mean centering data vectors across scans is enabled by default in the batch. Also, flexible CV is available in the batch only in the form of `load a .mat'. This .mat must contain a variable called `CV', specifying the CV matrix for the selected trials/images.
+The batch module provides all the functionality provided in the user interface and allows complex analyses to be scripted in advance. As noted,
+the batch module also provides functionality not available in the user interface. The most important difference is that the batch module allows
+customised \matlab \ functions to be used as prediction machines. This functionality allows PRoNTo to be easily extended to allow many types of
+classification and regression algorithms not provided under the current framework. This can be achieved by selecting `Custom machine' under the
+`Model Type' heading. This allows a function name to be specified (i.e. any \texttt{*.m} function in the \matlab \ search path). The behaviour of this custom machine can then be controlled by a free-format argument string. See the developer documentation and the examples in the \texttt{machines/} subdirectory of the PRoNTo distribution for more information. Another important difference between the batch and user interfaces is that mean centering data vectors across scans is enabled by default in the batch. Also, flexible CV is available in the batch only in the form of `load a .mat'. This .mat must contain a variable called `CV', specifying the CV matrix for the selected trials/images.
 
 An example of the batch window for model specification is provided in figure \ref{fig_batch_model}.
 
