@@ -87,6 +87,10 @@ for f = 1:n_folds
     % Nested CV for hyper-parameter optimisation or feature selection
     if isfield(PRT.model(mid).input,'use_nested_cv')
         if PRT.model(mid).input.use_nested_cv
+            if f==1 && isempty(PRT.model(mid).input.nested_param)
+                beep
+                warning('No parameter range specified for optimization, using defaults.')
+            end
             [out] = prt_nested_cv(PRT, fdata);
             PRT.model(mid).output.fold(f).param_effect = out;
             PRT.model(mid).input.machine.args = out.opt_param;

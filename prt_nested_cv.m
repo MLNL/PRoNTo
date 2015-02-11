@@ -53,8 +53,6 @@ switch PRT.model(in.mid).input.machine.function
         else
             d1 = -2 : 3;
             par = 10 .^(d1);
-            beep
-            warning('No parameter range specified for optimization, using 10^-2 to 10^3')
         end
     case 'prt_machine_ENMKL'
         if ~isempty(PRT.model(in.mid).input.nested_param)
@@ -70,8 +68,6 @@ switch PRT.model(in.mid).input.machine.function
             mu = 0:0.1:1;
             [c_mesh,mu_mesh] = meshgrid(c, mu);
             par = [c_mesh(:), mu_mesh(:)]';
-            beep
-            warning('No parameter range specified for C and mu, using 10^-2 to 10^3 and 0 to 1')
         end
         
     otherwise
