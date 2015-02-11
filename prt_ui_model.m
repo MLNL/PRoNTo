@@ -613,7 +613,8 @@ if ~isempty(handles.fs)
                 'Binary Gaussian Process Classification',...
                 'Multiclass GPC'};
             if handles.multimod || handles.multiroi || length(handles.fs)>1
-                list = [list,{'L1- Multi-Kernel Learning'}];
+                list = [list,{'L1- Multi-Kernel Learning',...
+                    'Work in progress'}];
             end
             set(handles.pop_machine,'String',list)
             set(handles.pop_machine,'Value',1)
@@ -691,7 +692,8 @@ if get(handles.pop_reg,'Value')==1 %for classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
-            list = [list,{'L1- Multi-Kernel Learning'}];
+            list = [list,{'L1- Multi-Kernel Learning',...
+                    'Work in progress'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -726,7 +728,8 @@ if val==1 %Classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
-            list = [list,{'L1- Multi-Kernel Learning'}];
+            list = [list,{'L1- Multi-Kernel Learning',...
+                    'Work in progress'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -1004,6 +1007,9 @@ elseif any(strfind(mach{val},'Random'))
 elseif any(strfind(mach{val},'L1- Multi-Kernel'))
     handles.machine.function='prt_machine_sMKL_cla';
     handles.machine.args=handles.def.l1MKLargs;
+elseif any(strfind(mach{val},'Work in progress'))
+    handles.machine.function='prt_machine_wip_cla';
+    handles.machine.args=handles.def.wipargs;
 elseif any(strfind(mach{val},'Multi-Kernel Regression'))
     handles.machine.function='prt_machine_sMKL_reg';
     handles.machine.args=handles.def.l1MKLargs; %TODO: Check if this is correct
@@ -1034,7 +1040,9 @@ function flag_opt_param_Callback(hObject, eventdata, handles)
 v = get(handles.flag_opt_param,'Value');
 if v
     switch handles.machine.function
-        case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr','prt_machine_sMKL_reg'}
+        case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
+                'prt_machine_ENMKL_cl','prt_machine_krr',...
+                'prt_machine_sMKL_reg'}
             set(handles.edit_param_range,'Enable','on')
             set(handles.pop_cv_nested,'Enable','on')
             handles.cv.nested = 1;
