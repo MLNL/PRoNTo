@@ -64,15 +64,16 @@ switch in.cv.type
     case 'loso'
         % leave-one-subject-out
         % give each subject a unique id
-        [gids,d1] = unique(ID(:,1), 'last');
-        [gids,d2] = unique(ID(:,1),'first');
+
+        gids = unique(ID(:,1));
         gc = 0;
         ns=zeros(length(gids),1);
         dID = ID;
+        gidx = cell(ns,1);
         for g = 1:length(gids)
-            ns(g)=length(unique(ID(d2(g):d1(g),2)));
-            gidx = ID(:,1) == gids(g);
-            dID(gidx,2) = dID(gidx,2) + gc;
+            gidx{g} = ID(:,1) == gids(g);
+            ns(g)=length(unique(ID(gidx{g},2)));
+            dID(gidx{g},2) = dID(gidx{g},2) + gc;
             gc = gc + ns(g);
         end
         % Compute CV matrix
@@ -98,7 +99,7 @@ switch in.cv.type
         end
         snums=[];
         for g = 1:length(gids)
-            snums = [snums;histc(dID(d2(g):d1(g),2),unique(dID(d2(g):d1(g),2)))];
+            snums = [snums;histc(dID(gidx{g},2),unique(dID(gidx{g},2)))];
         end
         if length(snums) == 1
             error('prt_model:losoSelectedWithOneSubject',...
@@ -224,15 +225,15 @@ switch in.cv.type
         % moment
         % blocks already have a unique ID
         
-        [cids,d1] = unique(ID(:,4), 'last');
-        [cids,d2] = unique(ID(:,4),'first');
+        cids = unique(ID(:,4));        
         gc = 0;
         nb=zeros(length(cids),1);
         dID = ID;
+        cidx = cell(nb,1);
         for c = 1:length(cids)
-            nb(c)=length(unique(ID(d2(c):d1(c),5)));
-            cidx = ID(:,4) == cids(c);
-            dID(cidx,5) = dID(cidx,5) + gc;
+            cidx{c} = ID(:,4) == cids(c);
+            nb(c)=length(unique(ID(cidx{c},5)));            
+            dID(cidx{c},5) = dID(cidx{c},5) + gc;
             gc = gc + nb(c);
         end
 
@@ -258,7 +259,7 @@ switch in.cv.type
         end
         snums=[];
         for g = 1:length(cids)
-            snums = [snums;histc(dID(d2(g):d1(g),5),unique(dID(d2(g):d1(g),5)))];
+            snums = [snums;histc(dID(cidx{g},5),unique(dID(cidx{g},5)))];
         end
         if length(snums) == 1
             error('prt_model:logoSelectedWithOneSubject',...
