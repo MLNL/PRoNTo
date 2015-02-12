@@ -56,11 +56,17 @@ cvdata.te_param = prt_cv_opt_param(PRT, in.ID(te_idx,:), in.mid);
 
 % Apply any operations specified
 ops = PRT.model(in.mid).input.operations(PRT.model(in.mid).input.operations ~=0 );
-for o = 1:length(ops)
-    if any(ismember(ops,5))
-        cvdata.tr_cov = in.cov(tr_idx,:);
-        cvdata.te_cov = in.cov(te_idx,:);
+if any(ismember(ops,5))
+    cvdata.tr_cov = in.cov(tr_idx,:);
+    cvdata.te_cov = in.cov(te_idx,:);
+    posglm = find(ops==5);
+    if posglm~=1 % GLM should be first
+        idxops = 1:length(ops);
+        newidx = setdiff(idxops,posglm);
+        ops=[5,ops(newidx)];
     end
+end
+for o = 1:length(ops)    
     cvdata = prt_apply_operation(PRT, cvdata, ops(o));
 end
 
