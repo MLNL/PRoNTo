@@ -19,11 +19,11 @@ or conditions are modelled best, and which machine has the lowest error rate on 
 dataset.
 
 Examining model output and parameters is helpful in diagnosing the potentially
-bad performance of a particular model - for example, if the machine cannot perform above
+bad performance of a particular model. For example, if the machine cannot perform above
 chance, it could be due to an inappropriate experimental paradigm, noisy data, insufficient
-amount of data, wrong choice of features, wrong choice of machine. It is important to
+amount of data, wrong choice of features,  or the wrong choice of machine. It is important to
 recognise that any of these factors could cause the modelling to fail. The results window
-can help pinpointing the source of error.
+can help to pinpoint the source of error.
 
 Model performance can be reviewed using the `Display Results' GUI. Alternatively, all computed statistics are saved within the PRT structure, in the \texttt{PRT.model(m).output.stats} field, with \texttt{m}, being the index of the model to review.
 
@@ -76,9 +76,13 @@ A prediction plot displays, for a particular fold (y-axis), the output value of 
 decision function for each test sample (x-axis, e.g., for a linear SVM, this could be $\mathbf{w}^T\mathbf{x}_i + b$,
 for a probabilistic classifier this could be a posterior probability $P(\Omega=\omega | \mathbf{x}_i)$). The decision threshold is displayed by a vertical line at the centre of the plot.
 A well-performing classifier will yield very different function values for samples of different
-classes, i.e. samples from different classes will fall on different sides of the decision threshold. By observing which fold have more or less overlapping function values, it is possible
-to understand which block / subject / condition might have a test distribution of features that
-departs from the training set. This plot is available for binary classification.
+classes, i.e. samples from different classes will fall on different sides of the decision threshold. 
+%By observing which fold have more or less overlapping function values, it is possible
+%to understand which block / subject / condition might have a test distribution of features that
+%departs from the training set. 
+The inspection, in each fold, of the overlap of function values between classes, can help to identify which of the test blocks/subjects/conditions is atypical with respect to the training set.  
+This plot is available for binary classification.
+
 
 On the plot, each class is represented by a different marker and color, and indicated in the legend.
 Figure \ref{fig_prt_ui_results_plots_pred} shows an example predictions plot. 
@@ -274,6 +278,44 @@ As previously mentioned, model performance for regression is assessed by the cor
 \end{center}
 \end{figure}
 
+% We have the following fields in stats, stats.r2 'Coefficient of Determination', stats.mse 'Mean Squared Error', stats.nmse 'Normalised Mean Squared Error', all calculated in prt_stats.m
+The mean-squared error is calculated as:
+\begin{equation}
+\begin{aligned}
+MSE=\frac{1}{N}\sum_{n} (y_n-f(\mathbf{x}_n))^2
+\end{aligned}
+\end{equation}
+This is the standard measure when assessing goodness-of-fit for regression models. 
+%There are two important things to remember when using this measure. Firstly, its value is disproportionately affected by bad predictions, because of the 'squared' term. Secondly, its value will be affected by the range of y ie. ....
+%Note that the value of this measure is affected by the scale of y. 
+%We therefore also calculate 
+%the Normalised Mean Square Error, `NMSE':
+Since the magnitude of the MSE depends on the scale of $y$, we also calculate the Normalised Mean Square Error, `Norm. MSE':
+\begin{equation}
+\begin{aligned}
+Norm. MSE=\frac{MSE}{(y_{max}-y_{min})}
+\end{aligned}
+\end{equation}
+where we divide the MSE by the range of the targets over the 
+%ie., training and test, 
+data. This gives a scale invariant measure of prediction accuracy.
+In addition, the correlation coefficient of the targets and predictions are determined:
+\begin{equation}
+\begin{aligned}
+CORR=\frac{\sum_{n} (y_n-\mu_y) (f(\boldsymbol{x}_n)-\mu_f)}{\left\{\sum_{n} (y_n-\mu_y)^2 \sum_{n} (f(\boldsymbol{x}_n)-\mu_f)^2\right\}^\frac{1}{2}}
+\end{aligned}
+\end{equation}
+in which $\mu_y$ and $\mu_f$ are the sample means of the targets and predictions respectively. The resulting measure $-1<CORR<1$ provides a measure of the strength of the linear dependence between the targets and the predicted targets, with values close to zero indicating no relationship, values close to 1 indicating a positive relationship, and values close to -1 indicating a negative relationship. Values of $CORR$ less than zero would imply that the model has performed poorly, as this would mean that targets with large values tend to be given smaller predicted values than targets with small values. However, it should be remembered that a large positive value of $CORR$ does not \emph{necessarily} mean that the model is giving accurate predictions, since 
+%multiplying all the predictions by a constant scaling factor gives the same value for $CORR$. 
+a global scaling and shifting of the predictions gives the same value for $CORR$. 
+We would therefore recommend examining both $CORR$ and $MSE$, as well as the scatterplots, to verify that the model is performing well.  For completeness, the statistics table also include the `coefficient of determination' $R^2$, which is given by
+\begin{equation}
+\begin{aligned}
+R^2=CORR^2
+\end{aligned}
+\end{equation}
+
+
 \subsection{Permutation testing}
 
 Much of statistical theory and machine learning theory rests on the assumption that the data is
@@ -283,7 +325,7 @@ confidence intervals (such as the binomial confidence interval) may not always
 be appropriate. Permutation testing is a non-parametric procedure that allows to obtain meaningful 
 confidence intervals and p-values in this case. Because it requires retraining the model a number of times, 
 which can be costly in computation time, this is not done by default. After filling in the {\tt repetitions}
-field with a number of repetitions $R$, pressing the {\tt Permutation test} button will run for the specified number of times, and produce a  p-value for performance statistics (see Figure~\ref{fig_prt_ui_results_statsTable}). The smallest increment in p-value is proportional to $1/R$ (e.g. 20 permutations gives you increments of 0.05), with a minimum value of $1/R$ (i.e. running 10 permutations will never lead to statistically significant result at the commonly used threshold of $p<0.05$). Usually, we would recommend computing several hundreds to a thousand permutations.
+field with a number of repetitions $R$, pressing the {\tt Permutation test} button will run for the specified number of times, and produce a  p-value for performance statistics (see Figure~\ref{fig_prt_ui_results_statsTable}). The smallest increment in p-value is equal to $1/R$ (e.g. 20 permutations gives you increments of 0.05), with a minimum value of $1/R$ (i.e. running 10 permutations will never lead to statistically significant result at the commonly used threshold of $p<0.05$). Usually, we would recommend computing several hundreds to a thousand permutations.
 
 For both classification and regression models, the p-value associated with each performance measure can be estimated using permutations. Until they have been estimated, `N.A.' will be displayed (standing for `not available').
 
