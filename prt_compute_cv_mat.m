@@ -69,7 +69,7 @@ switch in.cv.type
         gc = 0;
         ns=zeros(length(gids),1);
         dID = ID;
-        gidx = cell(ns,1);
+        gidx = cell(length(ns),1);
         for g = 1:length(gids)
             gidx{g} = ID(:,1) == gids(g);
             ns(g)=length(unique(ID(gidx{g},2)));
