@@ -236,9 +236,6 @@ elseif isfield(job.model_type,'regression')
             end
         end
         if isfield(job.model_type.regression.machine_rg.sMKL_reg, 'cv_type_nested')
-%            [cv_type, k] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
-%            model.cv.type_nested = cv_type;
-%            model.cv.k_nested = k;
            [cv_tmp] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
            model.cv.type_nested = cv_tmp.type;
            model.cv.k_nested = cv_tmp.k;
