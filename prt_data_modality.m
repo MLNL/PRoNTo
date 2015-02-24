@@ -28,7 +28,7 @@ function varargout = prt_data_modality(varargin)
 
 % Edit the above text to modify the response to help prt_data_modality
 
-% Last Modified by GUIDE v2.5 25-Oct-2011 18:14:12
+% Last Modified by GUIDE v2.5 23-Feb-2015 14:52:39
 
 % Begin initialization code - DO NOT EDIT
 
@@ -161,8 +161,8 @@ else
             set(handles.edit_regt,'Enable','on')
             set(handles.edit_regt,'Visible','on')
             set(handles.edit_covar,'Enable','on')
-            set(handles.edit_covar,'Visible','on')
-            set(handles.text7,'Visible','on') % Covariates
+            set(handles.edit_covar,'Visible','off')
+            set(handles.text7,'Visible','off') % Covariates
             set(handles.text6,'Visible','on') %Regression targets
         else
             set(handles.design_menu,'Enable','on')
@@ -585,6 +585,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+set(hObject, 'Visible', 'Off');
+
 
 % --- Executes on button press in okbutton.
 function okbutton_Callback(hObject, eventdata, handles)
@@ -641,3 +643,10 @@ function cancelbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 uiresume(handles.figure1);
+
+
+% --- Executes during object creation, after setting all properties.
+function text7_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
