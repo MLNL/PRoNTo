@@ -585,8 +585,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-set(hObject, 'Visible', 'Off');
-
 
 % --- Executes on button press in okbutton.
 function okbutton_Callback(hObject, eventdata, handles)
