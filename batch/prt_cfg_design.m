@@ -10,18 +10,18 @@ function data = prt_cfg_design
 % ---------------------------------------------------------------------
 % covar Covariates
 % ---------------------------------------------------------------------
-covar         = cfg_files;
-covar.tag     = 'covar';
-covar.name    = 'Covariates';
-covar.help    = {['Select a .mat file containing '...
-    'your covariates (i.e. any other data/information '...
-    'you would like to include in your design). This file '...
-    'should contain a variable ''R'' with a matrix of '...
-    'covariates. On covariate per image is expected.']};
-covar.val{1}  = {''};
-covar.filter  = 'mat';
-covar.ufilter = '.*';
-covar.num     = [0 1];
+% covar         = cfg_files;
+% covar.tag     = 'covar';
+% covar.name    = 'Covariates';
+% covar.help    = {['Select a .mat file containing '...
+%     'your covariates (i.e. any other data/information '...
+%     'you would like to include in your design). This file '...
+%     'should contain a variable ''R'' with a matrix of '...
+%     'covariates. On covariate per image is expected.']};
+% covar.val{1}  = {''};
+% covar.filter  = 'mat';
+% covar.ufilter = '.*';
+% covar.num     = [0 1];
 
 % ---------------------------------------------------------------------
 % rt_subj One per subject/scans
@@ -172,7 +172,8 @@ subjects.num     = [0 Inf];
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name, subjects, rt_subj, covar };
+% modality.val  = {mod_name, subjects, rt_subj, covar };
+modality.val  = {mod_name, subjects, rt_subj};
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
