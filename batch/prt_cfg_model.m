@@ -835,15 +835,23 @@ data_op         = cfg_menu;
 data_op.tag     = 'data_op';
 data_op.name    = 'Operation';
 data_op.help    = {'Select an operation to apply.'};
+% data_op.labels  = {
+%     'Done'
+%     'Sample averaging (within block)'
+%     'Sample averaging (within subject/condition)'
+%     'Mean centre features using training data'
+%     'Normalize samples'
+%     'Regress out covariates (subjects only)'
+% }';
+% data_op.values  = {0 1 2 3 4 5};
 data_op.labels  = {
     'Done'
     'Sample averaging (within block)'
     'Sample averaging (within subject/condition)'
     'Mean centre features using training data'
     'Normalize samples'
-    'Perform a GLM (for covariates only)'
-}';
-data_op.values  = {0 1 2 3 4 5};
+    }';
+data_op.values  = {0 1 2 3 4};
 data_op.val     = {0};
 
 % ---------------------------------------------------------------------

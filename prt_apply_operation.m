@@ -214,7 +214,8 @@ for d = 1:length(in.train)
             if ~isfield(in,'test') 
                 % No test data
                 if in.use_kernel
-                    out.train{d} = prt_remove_confounds(in.train{d},in.tr_cov);
+                    out.train{d} = prt_remove_confounds(in.train{d},...
+                        [in.tr_cov,ones(size(in.tr_cov,1),1)]);
                 else
                     error('prt_apply_operation:GLMnonKernel',...
                 'GLM not implemented for non-kernel methods');
@@ -222,7 +223,9 @@ for d = 1:length(in.train)
             else % Test data: for now does NOT take train/test division
                 Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
                  if in.use_kernel
-                    [Phi] = prt_remove_confounds(Phi,[in.tr_cov;in.te_cov]);
+                    C = [in.tr_cov;in.te_cov];
+                    C = [C, ones(size(C,1),1)];
+                    [Phi] = prt_remove_confounds(Phi,C);
                     tr = 1:size(in.train{d},1);
                     te = (1:size(in.test{d},1))+max(tr);
                     out.train{d}    = Phi(tr,tr);

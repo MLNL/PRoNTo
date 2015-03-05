@@ -161,8 +161,8 @@ else
             set(handles.edit_regt,'Enable','on')
             set(handles.edit_regt,'Visible','on')
             set(handles.edit_covar,'Enable','on')
-            set(handles.edit_covar,'Visible','off')
-            set(handles.text7,'Visible','off') % Covariates
+            set(handles.edit_covar,'Visible','on')
+            set(handles.text7,'Visible','on') % Covariates
             set(handles.text6,'Visible','on') %Regression targets
         else
             set(handles.design_menu,'Enable','on')
