@@ -238,7 +238,11 @@ if any(strfind(mach{val},'Subject Out'))
 elseif any(strfind(mach{val},'Subject per Group'))
     handles.cv.type = 'losgo';
 elseif any(strfind(mach{val},'Block'))
-    handles.cv.type = 'lobo';
+    if any(strfind(mach{val},'per Class'))
+        handles.cv.type = 'locbo';
+    else
+        handles.cv.type = 'lobo';
+    end
 elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type = 'loro';
 end

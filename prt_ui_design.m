@@ -975,7 +975,21 @@ catch
 end
 if isfield(handles.dat.group(cgr).subject(cs).modality(cm),'MEEG') && ...
         handles.dat.group(cgr).subject(cs).modality(cm).MEEG
-    fnames=spm_select([1 Inf],'mat','Select files for the modality',prevlist);
+    fnames=spm_select([1 1],'mat','Select files for the modality',prevlist);
+    % update the design automatically loaded from the file
+    if size(fnames,1)>1
+        error('prt_ui_design:OnlyOneMEEGFile',...
+            'Cannot select more than one MEEG file per modality');
+    end
+    try
+        D = spm_eeg_load(fnames(1,:));
+    catch
+        error('prt_ui_design:CouldNotLoadFile',...
+            'Could not load selected file');
+    end
+    desn = prt_get_design_MEEG(D);
+    desn.covar = [];
+    handles.dat.group(cgr).subject(cs).modality(cm).design=desn;
 else
     fnames=spm_select([1 Inf],'image','Select files for the modality',prevlist);
 end
@@ -983,6 +997,7 @@ handles.dat.group(cgr).subject(cs).modality(cm).scans=fnames;
 handles.ds{cgr}{cs}{cm}=size(fnames,1);
 handles.cf=1;
 set(handles.file_list,'String',cellstr(fnames));
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -1021,7 +1036,8 @@ if ~isfield(handles.dat.masks,'mod_name')
 else
     for i=1:size(handles.dat.masks,2)
         if strcmpi(handles.dat.masks(i).mod_name, val)
-            if isfield(handles.dat.masks(i),'fname')
+            if isfield(handles.dat.masks(i),'fname') && ...
+                    ~isempty(handles.dat.masks(i).fname)
                 sel=handles.dat.masks(i).fname;
             else sel='';
             end
@@ -1331,7 +1347,12 @@ for i=1:ng
             if isstruct(handles.dat.group(i).subject(j).modality(m2).design)
                 des=handles.dat.group(i).subject(j).modality(m2).design;
                 maxcond=max([des.conds(:).scans]);
+<<<<<<< HEAD
                 if matdat(j,k)>1 && matdat(j,k)<maxcond
+=======
+                if matdat(j,k)>1 && matdat(j,k)<maxcond 
+%                        &&  ~handles.dat.group(i).subject(j).modality(m2).MEEG
+>>>>>>> dc706931012b84a2e02c13052d60bedb628da5ba
                     beep
                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',j,i,k)
                     disp('Corresponding events were discarded')

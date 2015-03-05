@@ -75,6 +75,8 @@ prt_def.model.krrargs     = 1;
 prt_def.model.rtargs      = 601;
 prt_def.model.l1MKLargs   = 1;
 prt_def.model.l1MKLmaxitr = 250;
+prt_def.model.wipargs   = [1 0.5];
+
 
 % Parralelization of the code
 %--------------------------------------------------

@@ -73,7 +73,7 @@ for i = 1:n_mods
                 dim(i,j) = newdim;
             end
         end            
-        kernt = dim .* in.mod(mids(i)).multkern;
+        kernt = dim(i,:) .* in.mod(mids(i)).multkern;
         kernt(kernt==0) = 1;
         n_kern(i) = prod(kernt);
     else
@@ -102,8 +102,8 @@ PRT.fs(fid).multkernel = 0;
 addin.n_vols_s = n_vols_s;
 for ik = 1:nkm
     if in.flag_mm
-        idtk = PRT.fs(fid).id_mat(:,3) == mids(i);
-        nimm = length(find(PRT.fs(fid).id_mat(:,3) == mids(i)));
+        idtk = PRT.fs(fid).id_mat(:,3) == mids(ik);
+        nimm = length(find(PRT.fs(fid).id_mat(:,3) == mids(ik)));
         if nimm~= nim1 %check that modalities have the same dimensions in terms of samples
             error('prt_fs:MultKernMod_DifIm',...
                 'Modalities should have the same number of samples to be considered for MKL')
@@ -112,9 +112,9 @@ for ik = 1:nkm
     else
         addin.ID = PRT.fs(fid).id_mat;
     end
-    
+    addin.dim_m = dim_m;
     if n_kern(ik) ==1
-        addin.dim_m = dim_m;
+        addin.buildkern = 1;
         [PRT,Phik] = prt_fs_modality(PRT,in,1,addin);        
         [d1,idmax] = max(Phik);
         [d1,idmin] = min(Phik);
@@ -130,6 +130,7 @@ for ik = 1:nkm
     else
         %Initialize all fields and compute the feature sets if needed
         if any(tocomp)
+            addin.buildkern = 0;
             [PRT] = prt_fs_modality(PRT,in,1,addin);
         end
         Phim=cell(n_kern(ik),1);
@@ -141,31 +142,32 @@ for ik = 1:nkm
 %         dim = dim_m(ik,:).*in.multkern;
 %         dim(dim==0) = 1;
         nroi = 1;
-        itpstart = 1;
+        addin.buildkern = 1;
         for ich = 1:kernt(1)
+            itpstart = 1;
             for ifr = 1:kernt(2)
                 for itp = 1:kernt(3)
                     disp ([' > Computing kernel: ', ...
                         num2str(nroi),' of ',num2str(n_kern(ik)),' ...'])
                     % Build mask corresponding to which kernel to build
-                    if kernt(1) ==1, icht = in.mod(mids(i)).ich(1:dim_m(ik,1)); 
-                    else icht = in.mod(mids(i)).ich(ich); end %i
+                    if kernt(1) ==1, icht = in.mod(mids(ik)).ich(1:dim_m(ik,1)); 
+                    else icht = in.mod(mids(ik)).ich(ich); end %i
                     if kernt(2) ==1
-                        if ~isempty(in.mod(mids(i)).ifr)
-                            ifrt = in.mod(mids(i)).ifr(1:dim_m(ik,2)); 
+                        if ~isempty(in.mod(mids(ik)).ifr)
+                            ifrt = in.mod(mids(ik)).ifr(1:dim_m(ik,2)); 
                         else
                             ifrt = 1;
                         end
                     else
-                        ifrt = in.mod(mids(i)).ifr(ifr); 
+                        ifrt = in.mod(mids(ik)).ifr(ifr); 
                     end %i
                     if kernt(3) ==1                 %consider all frequencies selected
-                        itpt = in.mod(mids(i)).itp(1:dim_m(ik,3)); 
+                        itpt = in.mod(mids(ik)).itp(1:dim_m(ik,3)); 
                     elseif kernt(3)== dim_m(ik,3)   %one kernel per tp
-                        itpt = in.mod(mids(i)).itp(itp); 
+                        itpt = in.mod(mids(ik)).itp(itp); 
                     else                            %one kernel per time window
-                        itpstop = min(itpstart+winsize-1,length(in.mod(mids(i)).itp));
-                        itpt = in.mod(mids(i)).itp(round(itpstart):round(itpstop));
+                        itpstop = min(itpstart+winsize-1,length(in.mod(mids(ik)).itp));
+                        itpt = in.mod(mids(ik)).itp(round(itpstart):round(itpstop));
                         itpstart = itpstart+winsize;
                     end %i
                     tot_vox = 1:numel(mask{ik});

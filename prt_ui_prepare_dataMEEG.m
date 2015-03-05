@@ -509,7 +509,7 @@ if isempty(isamp)
     disp('Specified time of start is outside epoch window, correct')
     return
 end
-if maxsamp<=isamp
+if maxsamp<isamp
     beep
     disp('Specified time of start is posterior to specified end, correct')
     return
@@ -551,7 +551,7 @@ if abs(handles.time(isamp)*1000-val)>handles.int_tp*999
     disp('Getting closest sample taking the sampling rate into account')
     set(handles.tp_stop,'String',num2str(handles.time(isamp)*1000));
 end
-if isamp<=minsamp
+if isamp<minsamp
     beep
     disp('Specified time of end is anterior to specified start, correct')
     return
@@ -823,9 +823,9 @@ if isempty(isamp)
     disp('Specified frequency is outside frequency range of signal, correct')
     return
 end
-if maxsamp<=isamp
+if maxsamp<isamp
     beep
-    disp('Bandwidth is 0 or negative, correct')
+    disp('Bandwidth is negative, correct')
     return
 end
 handles.mod.ifr = isamp:maxsamp;
@@ -865,9 +865,9 @@ if handles.freq(isamp) ~= val
     disp('Getting closest frequency band taking the TF-resolution into account')
     set(handles.fb_stop,'String',num2str(handles.freq(isamp)));
 end
-if isamp<=minsamp
+if isamp<minsamp
     beep
-    disp('Specified time of end is anterior to specified start, correct')
+    disp('Bandwidth is negative, correct')
     return
 end
 handles.mod.ifr = minsamp:isamp;
@@ -1014,7 +1014,7 @@ function donebutt_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Check everything was filled before passing it to prt_ui_prepare_data
-handles.mod.ich = handles.selindx;
+handles.mod.ich = sort(unique(handles.selindx));
 if isempty(handles.mod.ich)
     beep
     disp('No channels selected, Please correct')

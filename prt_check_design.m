@@ -97,6 +97,9 @@ if flag
         cond(i).blocks=cond(i).blocks(indd);
         cond(i).discardedscans=intersect(cond(i).scans,intervect);
         cond(i).scans=dumb;
+        if ~isempty(cond(i).rt_trial)
+            cond(i).rt_trial = cond(i).rt_trial(indd);
+        end
     end
     disp('The same scans are implied in different conditions')
     disp('They will be discarded')
@@ -131,6 +134,9 @@ if ~isempty(alldisc)
         cond(i).blocks=cond(i).blocks(indd);
         cond(i).hrfdiscardedscans=intersect(cond(i).scans,alldisc);
         cond(i).scans=dumb;
+        if ~isempty(cond(i).rt_trial)
+            cond(i).rt_trial = cond(i).rt_trial(indd);
+        end
     end
 else
     for i=1:ncond

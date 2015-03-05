@@ -74,6 +74,11 @@ if nargin>=3 && flag
     for m = 1:n_mods
         nfa(m)  = PRT.fas(mids(m)).dat.dim(1);
     end
+    if isfield(addin,'buildkern')
+        buildkern = addin.buildkern;
+    else
+        buildkern = 1;
+    end
 else
     % get the index of the modalities for which the user wants a kernel/data
     n_mods=length(in.mod);
@@ -99,6 +104,7 @@ else
             n_vox = numel(idvox);
         end
     end
+    buildkern = 1;
 end
 
 
@@ -110,11 +116,11 @@ n   = size(ID,1);
 Phi = zeros(n);
 % set memory limit
 mem         = def.mem_limit;
-block_size  = floor(mem/(8*3)/max([nfa, n])); % Block size (double = 8 bytes)
+block_size  = floor(mem/(8*3)/max([sum(nfa), n])); % Block size (double = 8 bytes)
 n_block     = ceil(n_vox/block_size);
 
 bstart = 1; bend = min(block_size,n_vox);
-if nargin<3 || ~flag
+if any(in.tocomp)
     h = waitbar(0,'Please wait while preparing feature set');
     step=1;
 end
@@ -237,7 +243,7 @@ for b = 1:n_block
             end
             clear datapr
         else
-            if ~any(flagav(m,:))
+            if ~any(flagav(m,:)) && buildkern
                 kern_vols(:,indm) = (PRT.fas(mid).dat(ifa,idvox(vox_range)))';
                 % if a scaling was entered, apply it now
                 if isfield(PRT.fs(fid).modality(m),'normalize') && ...
@@ -247,25 +253,27 @@ for b = 1:n_block
                 end
             end
         end
-        if nargin<3 || ~flag
+        if any(in.tocomp)
             waitbar(step/ (n_block*n_mods),h);
             step=step+1;
         end
     end
-    if ~any(flagav(m,:)) && size(kern_vols,2)>6e3
-        % Slower way of estimating kernel but using less memory.
-        % size limit setup such that no more than ~1Gb of mem is required:
-        % 1Gb/3(nr of matrices)/8(double)= ~40e6 -> sqrt -> 6e3 element
-        for ic=1:size(kern_vols,2)
-            Phi(:,ic) = Phi(:,ic) + kern_vols' * kern_vols(:,ic);
+    if ~any(flagav(m,:)) && buildkern
+        if size(kern_vols,2)>6e3
+            % Slower way of estimating kernel but using less memory.
+            % size limit setup such that no more than ~1Gb of mem is required:
+            % 1Gb/3(nr of matrices)/8(double)= ~40e6 -> sqrt -> 6e3 element
+            for ic=1:size(kern_vols,2)
+                Phi(:,ic) = Phi(:,ic) + kern_vols' * kern_vols(:,ic);
+            end
+        else
+            Phi = Phi + (kern_vols' * kern_vols);
         end
-    else
-        Phi = Phi + (kern_vols' * kern_vols);
     end
     bstart = bend+1; bend = min(bstart+block_size-1,n_vox);
     clear block_mask kern_vols
 end
-if nargin<3 || ~flag
+if any(in.tocomp)
     close(h)
 end
 
@@ -280,8 +288,7 @@ end
 
 % Average the features across one or various dimensions: Need to rebuild the
 % kernel
-if any(flagav) && exist('addin','var')
-    disp('Building Kernel....')
+if any(any(flagav)) && exist('addin','var') && buildkern
     for m=1:n_mods
         mid=mids(m);
         if isfield(addin,'idvox_fas')

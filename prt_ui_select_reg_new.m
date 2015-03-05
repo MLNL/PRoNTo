@@ -1,21 +1,21 @@
-function varargout = prt_ui_select_class(varargin)
-% PRT_UI_SELECT_CLASS M-file for prt_ui_select_class.fig
+function varargout = prt_ui_select_reg_new(varargin)
+% PRT_UI_SELECT_REG_NEW M-file for prt_ui_select_reg_new.fig
 % 
-% PRT_UI_SELECT_CLASS, by itself, creates a new PRT_UI_SELECT_CLASS or 
+% PRT_UI_SELECT_REG_NEW, by itself, creates a new PRT_UI_SELECT_REG_NEW or 
 % raises the existing singleton*.
 %
-% H = PRT_UI_SELECT_CLASS returns the handle to a new PRT_UI_SELECT_CLASS 
+% H = PRT_UI_SELECT_REG_NEW returns the handle to a new PRT_UI_SELECT_REG_NEW 
 % or the handle to the existing singleton*.
 %
-% PRT_UI_SELECT_CLASS('CALLBACK',hObject,eventData,handles,...) calls the 
-% local function named CALLBACK in PRT_UI_SELECT_CLASS.M with the given 
+% PRT_UI_SELECT_REG_NEW('CALLBACK',hObject,eventData,handles,...) calls the 
+% local function named CALLBACK in PRT_UI_SELECT_REG_NEW.M with the given 
 % input arguments.
 %
-% PRT_UI_SELECT_CLASS('Property','Value',...) creates a new PRT_UI_SELECT_CLASS
+% PRT_UI_SELECT_REG_NEW('Property','Value',...) creates a new PRT_UI_SELECT_REG_NEW
 % or raises the existing singleton*.  Starting from the left, property 
-% value pairs are applied to the GUI before prt_ui_select_class_OpeningFcn 
+% value pairs are applied to the GUI before prt_ui_select_reg_new_OpeningFcn 
 % gets called.  An unrecognized property name or invalid value makes 
-% property application stop.  All inputs are passed to prt_ui_select_class_OpeningFcn
+% property application stop.  All inputs are passed to prt_ui_select_reg_new_OpeningFcn
 % via varargin.
 %
 % *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
@@ -28,16 +28,16 @@ function varargout = prt_ui_select_class(varargin)
 % Written by J. Schrouff
 % $Id$
 
-% Edit the above text to modify the response to help prt_ui_select_class
+% Edit the above text to modify the response to help prt_ui_select_reg_new
 
-% Last Modified by GUIDE v2.5 01-Nov-2011 16:35:44
+% Last Modified by GUIDE v2.5 12-Dec-2014 15:52:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @prt_ui_select_class_OpeningFcn, ...
-                   'gui_OutputFcn',  @prt_ui_select_class_OutputFcn, ...
+                   'gui_OpeningFcn', @prt_ui_select_reg_new_OpeningFcn, ...
+                   'gui_OutputFcn',  @prt_ui_select_reg_new_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -52,13 +52,13 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before prt_ui_select_class is made visible.
-function prt_ui_select_class_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before prt_ui_select_reg_new is made visible.
+function prt_ui_select_reg_new_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to prt_ui_select_class (see VARARGIN)
+% varargin   command line arguments to prt_ui_select_reg_new (see VARARGIN)
 
 set(handles.figure1,'Name','PRoNTo :: Specify classes')
 %set size of the window, taking screen resolution and platform into account
@@ -116,15 +116,14 @@ for i=1:length(aa)
         'Units','normalized')
 end
 
-%set the different fields to disable (will be enabled when choosing the
-%number of classes)
-set(handles.group_list,'Enable','off')
-set(handles.uns_list,'Enable','off')
-set(handles.sel_list,'Enable','off')
-set(handles.uns_cond_list,'Enable','off')
-set(handles.sel_cond_list,'Enable','off')
-set(handles.sel_all,'Enable','off')
-set(handles.sel_cond_all,'Enable','off');
+
+set(handles.group_list,'Enable','on')
+set(handles.uns_list,'Enable','on')
+set(handles.sel_list,'Enable','on')
+set(handles.uns_cond_list,'Enable','on')
+set(handles.sel_cond_list,'Enable','on')
+set(handles.sel_all,'Enable','on')
+set(handles.sel_cond_all,'Enable','on');
 
 %get information from the PRT.mat
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
@@ -133,7 +132,6 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     list={handles.dat.group(:).gr_name};
     ng=length(list);
     set(handles.group_list,'String',list)
-    
     
     %get the conditions which are common to all groups and subjects for the
     %different modalities comprised in the selected feature set
@@ -151,15 +149,14 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         for j=1:ng
             handles.condm{1,3}{j}={handles.dat.group(j).subject(:).subj_name};
             for k=1:length(handles.dat.group(j).subject)
-                m2= strcmpi(handles.dat.fs(indfs).modality(i).mod_name,modnam);
+                m2= strcmpi(handles.dat.fs(indfs).modality(nm).mod_name,modnam);
                 des=handles.dat.group(j).subject(k).modality(m2).design;
                 if isstruct(des) && flag
-                    if i==1 && k==1 && j == 1 % [afm] && nm==1
+                    if k==1 && j == 1 % [afm] && nm==1
                         lcond={des.conds(:).cond_name};
                     else
                         tocmp={des.conds(:).cond_name};
-                        lcond=union(lower(lcond),lower(tocmp));
-%                         lcond=intersect(lower(lcond),lower(tocmp));
+                        lcond=intersect(lower(lcond),lower(tocmp));
                     end
                 else
                     flag=0;
@@ -171,8 +168,22 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     handles.condm{1,2}=lcond;
     if isempty(handles.condm{1,2})
         disp('No conditions were common to all subjects, all groups, all modalities within the feature set')
-        disp('Classifying subjects only')
+        disp('Regression on subjects only')
         handles.flagcond=0;
+        set(handles.uns_cond_list,'Enable','off')
+        set(handles.sel_cond_list,'Enable','off')
+        set(handles.sel_cond_all,'Enable','off');
+    end
+    % Initialize the output structure
+    handles.clas{1,1}=1:length(handles.condm{1,1});
+    handles.clas{1,2}=cell(length(handles.condm{1,1}),2);
+    for j=1:length(get(handles.group_list,'String'))
+        handles.clas{1,2}{j,1}=1:length(handles.condm{1,3}{j});
+        handles.clas{1,2}{j,2}=0;
+    end
+    if handles.flagcond
+        handles.clas{1,3}=1:length(handles.condm{1,2});
+        handles.clas{1,4}=0;
     end
     if length(varargin{2})==2
         handles.flagrev=0;
@@ -180,75 +191,86 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         list={handles.dat.group(1).subject(:).subj_name};
         set(handles.uns_list,'String',list);
         set(handles.sel_list,'String',{});
+        %set conditions lists
+        clist=handles.condm{1,2};
+        if handles.flagcond
+            if handles.clas{1,3}~=0
+                set(handles.uns_cond_list,'Value',1);
+                set(handles.uns_cond_list,'String',clist(handles.clas{1,3}));
+            else
+                set(handles.uns_cond_list,'Value',0);
+                set(handles.uns_cond_list,'String',{});
+            end
+            if handles.clas{1,4}~=0
+                set(handles.sel_cond_list,'Value',1);
+                set(handles.sel_cond_list,'String',clist(handles.clas{1,4}));
+            else
+                set(handles.sel_cond_list,'Value',0);
+                set(handles.sel_cond_list,'String',{});
+            end
+            if ~handles.flagrev
+                set(handles.uns_cond_list,'Enable','on');
+                set(handles.sel_cond_list,'Enable','on');
+                set(handles.sel_cond_all,'Enable','on');
+            end
+        end
+        set(handles.uns_list,'Enable','on');
+        set(handles.sel_list,'Enable','on');
+        set(handles.sel_all,'Enable','on');
+        set(handles.group_list,'Enable','on');
         % Update handles structure
         guidata(hObject, handles);
-        % UIWAIT makes prt_ui_select_class wait for user response (see UIRESUME)
+        % UIWAIT makes prt_ui_select_reg_new wait for user response (see UIRESUME)
         uiwait(handles.figure1);
     else
         %review the model
         handles.flagrev=1;
         indm=varargin{2}{3};
         mod=handles.dat.model(indm).input;
-        %classification case
-        nc=length(mod.class);
-        set(handles.num_class,'String',num2str(nc))
-        set(handles.num_class,'Enable','off')
-        set(handles.edit2,'Enable','off')
-        handles.clas=cell(nc,4);
-        %set the names of the classes in the pop_class
-        cl={};
-        for i=1:nc
-            cl=[cl,{['Class ',num2str(i)]}];
-        end
-        set(handles.pop_class,'String',cl);
-        set(handles.pop_class,'Value',1);
-        for i=1:nc
-            handles.class(i).class_name=mod.class(i).class_name;
-            handles.clas{i,1}=1:length(handles.condm{1,1});
-            handles.clas{i,2}=cell(length(handles.condm{1,1}),2);
-            list=get(handles.group_list,'String');
-            for j=1:length(list)
-                indg=find(strcmpi(list{j},{mod.class(i).group(:).gr_name}));
-                if~isempty(indg)
-                    sel=[mod.class(i).group(indg).subj(:).num];
-                    all=1:length(handles.condm{1,3}{j});
-                    handles.clas{i,2}{j,1}=setdiff(all,sel);
-                    handles.clas{i,2}{j,2}=sel;
-                else
-                    handles.clas{i,2}{j,1}=1:length(handles.condm{1,3}{j});
-                    handles.clas{i,2}{j,2}=0;
-                end
-                if isempty(handles.clas{i,2}{j,1})
-                    handles.clas{i,2}{j,1}=0;
-                end
-                if isempty(handles.clas{i,2}{j,2})
-                    handles.clas{i,2}{j,2}=0;
-                end
+        handles.clas=cell(1,4);
+        handles.clas{1,1}=1:length(handles.condm{1,1});
+        handles.clas{1,2}=cell(length(handles.condm{1,1}),2);
+        list=get(handles.group_list,'String');
+        for j=1:length(list)
+            indg=find(strcmpi(list{j},{mod.group(:).gr_name}));
+            if~isempty(indg)
+                sel=[mod.group(indg).subj(:).num];
+                all=1:length(handles.condm{1,3}{j});
+                handles.clas{1,2}{j,1}=setdiff(all,sel);
+                handles.clas{1,2}{j,2}=sel;
+            else
+                handles.clas{1,2}{j,1}=1:length(handles.condm{1,3}{j});
+                handles.clas{1,2}{j,2}=0;
             end
-            if handles.flagcond
-                listc=handles.condm{1,2};
-                selc=[];
-                if isfield(mod.class(i).group(1).subj(1).modality(1),'all_cond')
-                    selc=1:length(listc);
-                elseif isfield(mod.class(i).group(1).subj(1).modality(1),'conds')
-                    for icc=1:length(listc)
-                        indcc=strcmpi(listc{icc},{mod.class(i).group(1).subj(1).modality(1).conds(:).cond_name});
-                        if any(indcc)
-                            selc=[selc,icc];
-                        end
+            if isempty(handles.clas{1,2}{j,1})
+                handles.clas{1,2}{j,1}=0;
+            end
+            if isempty(handles.clas{1,2}{j,2})
+                handles.clas{1,2}{j,2}=0;
+            end
+        end
+        if handles.flagcond
+            listc=handles.condm{1,2};
+            selc=[];
+            if isfield(mod.group(1).subj(1).modality(1),'all_cond')
+                selc=1:length(listc);
+            elseif isfield(mod.group(1).subj(1).modality(1),'conds')
+                for icc=1:length(listc)
+                    indcc=strcmpi(listc{icc},{mod.group(1).subj(1).modality(1).conds(:).cond_name});
+                    if any(indcc)
+                        selc=[selc,icc];
                     end
                 end
-                allc=1:length(handles.condm{1,2});
-                handles.clas{i,3}=setdiff(allc,selc);
-                handles.clas{i,4}=selc;
-                if isempty(handles.clas{i,3})
-                    handles.clas{i,3}=0;
-                end
-                if isempty(handles.clas{i,4})
-                    handles.clas{i,3}=0;
-                end
             end
-            handles.class(i).class_name=mod.class(i).class_name;            
+            allc=1:length(handles.condm{1,2});
+            handles.clas{1,3}=setdiff(allc,selc);
+            handles.clas{1,4}=selc;
+            if isempty(handles.clas{1,3})
+                handles.clas{1,3}=0;
+            end
+            if isempty(handles.clas{1,4})
+                handles.clas{1,3}=0;
+            end
         end
         set(handles.group_list,'Enable','on');
         % Update handles structure
@@ -257,12 +279,8 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
 end
 
 
-
-
-
-
 % --- Outputs from this function are returned to the command line.
-function varargout = prt_ui_select_class_OutputFcn(hObject, eventdata, handles) 
+function varargout = prt_ui_select_reg_new_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -374,7 +392,7 @@ if vc==0
 end
 cg=get(handles.group_list,'Value');
 list=handles.condm{1,3}{cg};
-clist=handles.condm{1,2};
+
 set(handles.edit2,'String',handles.class(vc).class_name)
 %set subjects lists
 if handles.clas{vc,2}{cg,1}~=0
@@ -391,34 +409,7 @@ else
     set(handles.sel_list,'Value',0);
     set(handles.sel_list,'String',{});
 end
-%set conditions lists
-if handles.flagcond
-    if handles.clas{vc,3}~=0
-        set(handles.uns_cond_list,'Value',1);
-        set(handles.uns_cond_list,'String',clist(handles.clas{vc,3}));
-    else
-        set(handles.uns_cond_list,'Value',0);
-        set(handles.uns_cond_list,'String',{});
-    end
-    if handles.clas{vc,4}~=0
-        set(handles.sel_cond_list,'Value',1);
-        set(handles.sel_cond_list,'String',clist(handles.clas{vc,4}));
-    else
-        set(handles.sel_cond_list,'Value',0);
-        set(handles.sel_cond_list,'String',{});
-    end
-    if ~handles.flagrev
-        set(handles.uns_cond_list,'Enable','on');
-        set(handles.sel_cond_list,'Enable','on');
-        set(handles.sel_cond_all,'Enable','on');
-    end
-end
-if ~handles.flagrev
-    set(handles.uns_list,'Enable','on');
-    set(handles.sel_list,'Enable','on');
-    set(handles.sel_all,'Enable','on');
-end
-set(handles.group_list,'Enable','on');
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -442,12 +433,7 @@ function group_list_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns group_list contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from group_list
-cl=get(handles.pop_class,'Value');
-if cl==0
-    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_classes,'Value',1)
-end
-cl=get(handles.pop_class,'Value');
+cl=1;
 cg=get(handles.group_list,'Value');
 list=handles.condm{1,3}{cg};
 %set subjects lists
@@ -491,12 +477,7 @@ function uns_list_Callback(hObject, eventdata, handles)
 val=get(handles.uns_list,'Value');
 induns=1:length(get(handles.uns_list,'String'));
 indok=setdiff(induns,val);
-cl=get(handles.pop_class,'Value');
-if cl==0
-    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_classes,'Value',1)
-end
-cl=get(handles.pop_class,'Value');
+cl=1;
 cg=get(handles.group_list,'Value');
 if handles.clas{cl,2}{cg,2}==0
     handles.clas{cl,2}{cg,2}=handles.clas{cl,2}{cg,1}(val);
@@ -551,12 +532,7 @@ function sel_list_Callback(hObject, eventdata, handles)
 val=get(handles.sel_list,'Value');
 indsel=1:length(get(handles.sel_list,'String'));
 indok=setdiff(indsel,val);
-cl=get(handles.pop_class,'Value');
-if cl==0
-    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_classes,'Value',1)
-end
-cl=get(handles.pop_class,'Value');
+cl=1;
 cg=get(handles.group_list,'Value');
 if handles.clas{cl,2}{cg,1}==0
     handles.clas{cl,2}{cg,1}=handles.clas{cl,2}{cg,2}(val);
@@ -605,12 +581,7 @@ function sel_all_Callback(hObject, eventdata, handles)
 % hObject    handle to sel_all (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-cl=get(handles.pop_class,'Value');
-if cl==0
-    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_classes,'Value',1)
-end
-cl=get(handles.pop_class,'Value');
+cl=1;
 cg=get(handles.group_list,'Value');
 list=handles.condm{1,3}{cg,1};
 indsel=1:length(list);
@@ -635,12 +606,7 @@ function uns_cond_list_Callback(hObject, eventdata, handles)
 val=get(handles.uns_cond_list,'Value');
 induns=1:length(get(handles.uns_cond_list,'String'));
 indok=setdiff(induns,val);
-cl=get(handles.pop_class,'Value');
-if cl==0
-    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_classes,'Value',1)
-end
-cl=get(handles.pop_class,'Value');
+cl=1;
 if handles.clas{cl,4}==0
     handles.clas{cl,4}=handles.clas{cl,3}(val);
 else
@@ -693,12 +659,7 @@ function sel_cond_list_Callback(hObject, eventdata, handles)
 val=get(handles.sel_cond_list,'Value');
 induns=1:length(get(handles.sel_cond_list,'String'));
 indok=setdiff(induns,val);
-cl=get(handles.pop_class,'Value');
-if cl==0
-    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_classes,'Value',1)
-end
-cl=get(handles.pop_class,'Value');
+cl=1;
 if handles.clas{cl,3}==0
     handles.clas{cl,3}=handles.clas{cl,4}(val);
 else
@@ -746,12 +707,7 @@ function sel_cond_all_Callback(hObject, eventdata, handles)
 % hObject    handle to sel_cond_all (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-cl=get(handles.pop_class,'Value');
-if cl==0
-    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_classes,'Value',1)
-end
-cl=get(handles.pop_class,'Value');
+cl=1;
 list=handles.condm{1,2};
 indsel=1:length(list);
 handles.clas{cl,4}=indsel;
@@ -776,62 +732,45 @@ if handles.flagrev
 end
 ncc=[];
 scc=zeros(size(handles.clas,1),1);
-for i=1:size(handles.clas,1)
-    list=get(handles.group_list,'String');
-    flag=0;
-    ncs=[];
-    for g=1:length(list)
-        scount=1;
-        g2=find(strcmpi(list{g},{handles.dat.group(:).gr_name}));
-        sids=handles.clas{i,2}{g,2};
-        if ~isempty(sids) && any(sids)
-            handles.class(i).group(g2).gr_name=list{g};
-            flag=1;
-            for s=1:length(sids)
-                handles.class(i).group(g2).subj(scount).num=sids(s);
-                listm={handles.dat.fs(handles.indfs).modality(:).mod_name};
-                for m=1:length(listm)
-                    handles.class(i).group(g2).subj(scount).modality(m).mod_name=listm{m};
-                    if isempty(handles.condm{1,2})
-                        handles.class(i).group(g2).subj(scount).modality(m).all_scans=true;
-                        ncs=[ncs;0];
-                    else %design and conditions selected
-                        if isempty(handles.clas{i,3}) || any(handles.clas{i,3}==0) %all conditions were selected
-                            handles.class(i).group(g2).subj(scount).modality(m).all_cond=true;
-                        else
-                            for ic=1:length(handles.clas{i,4})
-                                handles.class(i).group(g2).subj(scount).modality(m).conds(ic).cond_name= ...
-                                    handles.condm{1,2}{handles.clas{i,4}(ic)};
-                            end
+list=get(handles.group_list,'String');
+flag=0;
+for g=1:length(list)
+    scount=1;
+    g2=find(strcmpi(list{g},{handles.dat.group(:).gr_name}));
+    sids=handles.clas{1,2}{g,2};
+    if ~isempty(sids) && any(sids)
+        handles.group(g2).gr_name=list{g};
+        flag=1;
+        for s=1:length(sids)
+            handles.group(g2).subj(scount).num=sids(s);
+            listm={handles.dat.fs(handles.indfs).modality(:).mod_name};
+            for m=1:length(listm)
+                handles.group(g2).subj(scount).modality(m).mod_name=listm{m};
+                if isempty(handles.condm{1,2})
+                    handles.group(g2).subj(scount).modality(m).all_scans=true;
+                    ncc=[ncc;0];
+                else %design and conditions selected
+                    if isempty(handles.clas{1,3}) || any(handles.clas{1,3}==0) %all conditions were selected
+                        handles.group(g2).subj(scount).modality(m).all_cond=true;
+                    else
+                        for ic=1:length(handles.clas{1,4})
+                            handles.group(g2).subj(scount).modality(m).conds(ic).cond_name= ...
+                                handles.condm{1,2}{handles.clas{1,4}(ic)};
                         end
-                        ncs=[ncs;length(handles.clas{i,4})];
                     end
+                    ncc=[ncc;length(handles.clas{1,4})];
                 end
-                scount=scount+1;
             end
-            scc(i)=scc(i)+scount;
+            scount=scount+1;
         end
+        scc=scc+scount;
     end
-    if ~flag
-        beep
-        sprintf('No subjects found in the definition of class %d',i)
-        disp('Please select subjects (and conditions) for that class')
-        return
-    end
-    if length(unique(ncs))~=1
-        beep
-        sprintf('Different numbers of conditions found in the definition of class %d',i)
-        disp('Please select the same conditions for each subject/group of that class')
-        return
-    else
-        ncc=[ncc;unique(ncs)];
-    end
-    if ~isempty(find(ncc==0)) && length(find(ncc==0))~=length(ncc)
-        beep
-        sprintf('Class %d does not have the same number of conditions as class 1',i)
-        disp('Please select either at least one condition for each class or none')
-        return
-    end
+end
+if ~flag  %for this class, no subjects were selected
+    beep
+    sprintf('No subjects found in the definition of the regression problem')
+    disp('Please select subjects/scans')
+    return
 end
 
 if ~any(ncc) %no conditions specified
@@ -846,26 +785,25 @@ else
 end
 
 aa=struct();
-aa.class=handles.class;
+aa.group=handles.group;
 aa.design=handles.design;
 aa.loospg=handles.loospg;
 %get names of selected groups and conditions for custom CV GUI
 lgi=[];
 lci=[];
-for i=1:size(handles.clas,1)
-    %get which groups
-    d=handles.clas{i,2};
-    for j=1:size(d,1)
-        if ~isempty(d{j,2}) && any(d{j,2}~=0)
-            lgi=[lgi,j]; %d{j,2}
-        end
-    end
-    %get which conditions
-    d=handles.clas{i,4};
-    if ~isempty(d) && any(d~=0)
-        lci=[lci,d];
+%get which groups
+d=handles.clas{1,2};
+for j=1:size(d,1)
+    if ~isempty(d{j,2}) && any(d{j,2}~=0)
+        lgi=[lgi,j]; %d{j,2}
     end
 end
+%get which conditions
+d=handles.clas{1,4};
+if ~isempty(d) && any(d~=0)
+    lci=[lci,d];
+end
+
 lg=handles.condm{1}(lgi);
 lc=handles.condm{2}(lci);
 legends=struct();
