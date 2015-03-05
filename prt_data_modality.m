@@ -27,8 +27,8 @@ function varargout = prt_data_modality(varargin)
 % $Id$
 
 % Edit the above text to modify the response to help prt_data_modality
+% Last Modified by GUIDE v2.5 23-Feb-2015 14:52:39
 
-% Last Modified by GUIDE v2.5 11-Nov-2014 15:51:02
 
 % Begin initialization code - DO NOT EDIT
 
@@ -195,6 +195,12 @@ else
                 handles.mod.scans=modsel.scans;
                 handles.mod.name=modsel.mod_name;
                 handles.mod.covar=modsel.covar;
+                if ~isempty(modsel.covar)
+                    set(handles.edit_covar,'Enable','on')
+                    set(handles.edit_covar,'Visible','on')
+                    set(handles.text7,'Visible','on')
+                    set(handles.edit_covar,'String',num2str(modsel.covar(:)))
+                end
                 handles.mod.rt_subj=modsel.rt_subj;
                 if ~isempty(modsel.rt_subj)
                     set(handles.edit_regt,'String',num2str(modsel.rt_subj'))
@@ -462,6 +468,7 @@ handles.mod.design=desn;
 if isfield(desn,'covar') && ~isempty(desn.covar)
     set(handles.edit_covar,'String','Entered');
     set(handles.edit_covar,'Visible','on');
+    set(handles.text7, 'Visible','on')
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -547,9 +554,9 @@ if isempty(rt)
     return
 end
 if strcmp(rt(1),'-'), nrt = 2; else nrt = 1; end
-if ~isnan(str2double(rt(nrt)))
+try
     eval(['rte=[',rt,'];'])
-else
+catch
     try
         load(char(rt));
     catch
@@ -595,9 +602,9 @@ rt=get(handles.edit_covar,'String');
 if isempty(rt)
     return
 end
-if ~isnan(str2double(rt(1)))
+try
     eval(['rte=[',rt,'];'])
-else
+catch
    try
         load(char(rt));
     catch
@@ -674,11 +681,17 @@ end
 %number of scans
 if ~isempty(handles.mod.covar)
     szrt=size(handles.mod.covar);
-    if  ~any(size(handles.mod.scans,1)==szrt)
+    nsc = size(handles.mod.scans,1);
+    ins = find(szrt == nsc);
+    if  isempty(ins)
         beep
         disp('Number of covariates must be the number of files selected! ')
         disp('Please correct!')
         return
+    else
+        if ins~=1 %not the first dimension
+            handles.mod.covar = handles.mod.covar';
+        end
     end
 end
         
@@ -695,3 +708,10 @@ function cancelbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 uiresume(handles.figure1);
+
+
+% --- Executes during object creation, after setting all properties.
+function text7_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called

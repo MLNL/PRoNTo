@@ -1,80 +1,103 @@
-function prt_latex(c)
+function prt_latex(opt)
+%
 % Extract information from the toolbox m-files and output them as usable
 % .tex files which can be directly included in the manual.
 %
 % There are 2 types of m2tex operations:
 % 1. converting the job configuration tree, i.e. *_cfg_* files defining the
-%    batching interface into a series of .tex files. 
-%    NOTE: Only generate .tex files for each exec_branch of prt_batch. 
+%    batching interface into a series of .tex files.
+%    NOTE: Only generate .tex files for each exec_branch of prt_batch.
 % 2. converting the help header of the functions into .tex files.
 %
-% These files are then included in a manually written prt_manual.tex file, 
+% These files are then included in a manually written prt_manual.tex file,
 % which also includes chapter/sections written manually.
 %
+% FORMAT prt_latex(opt)
+%
+% INPUT
+%   opt:  option structure
+%     .tex_cfg : turn the config files help into a tex file (1), or not (0)
+%     .tex_fct : turn the functions help into a tex file (1), or not (0)
+%
+% NOTE:
 % File derived from that of the SPM8 distribution.
-% http://www.fil.ion.ucl.ac.uk/spm
+%   http://www.fil.ion.ucl.ac.uk/spm
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by John Ashburner & Christophe Phillips
 % $Id$
 
+opt_def = struct(...
+    'tex_cfg', true,...
+    'tex_fct', true);
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+if ~nargin
+    opt = opt_def;
+else
+    opt = prt_check_flag(opt_def,opt)
+end
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. Turning the cfg files into a .tex file
-if ~nargin,
+if opt.tex_cfg
     if ~exist('prt_cfg_batch.m','file'), prt; end
     c = prt_cfg_batch;
+    % if nargin && ischar(c),
+    %     clean_latex_compile;
+    %     return;
+    % end
+    
+    for i=1:numel(c.values),
+        bn = c.values{i}.tag;
+        fp = fopen(fullfile(prt('dir'),'manual',['batch_',bn,'.tex']),'w');
+        if fp==-1, sts = false; return; end;
+        chapter(c.values{i},fp);
+    end;
 end
-% if nargin && ischar(c),
-%     clean_latex_compile;
-%     return;
-% end
-
-for i=1:numel(c.values),
-    bn = c.values{i}.tag;
-    fp = fopen(fullfile(prt('dir'),'manual',['batch_',bn,'.tex']),'w');
-    if fp==-1, sts = false; return; end;
-    chapter(c.values{i},fp);
-end;
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2. picking all the functions help files and put them into functions.tex
-fp = fopen(fullfile(prt('dir'),'manual','adv_functions.tex'),'w');
-if fp==-1, sts = false; return; end;
-% l_subdirs = {'machines','batch'};
-l_subdirs = {'machines','utils'};
-excl_files = {'Contents.m'};
-PRTdir = prt('dir');
-
-% Heading part
-fprintf(fp,'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n',...
-    texify('List of PRoNTo functions'),'sec:functions');
-fprintf(fp,'This is the list of PRoNTo functions, including the subdirectories: ');
-for ii=1:numel(l_subdirs)
-    fprintf(fp,'%s',texify(['{\tt ',l_subdirs{ii},'}']));
-    if ii<numel(l_subdirs)-1
-        fprintf(fp,', ');
-    elseif ii==numel(l_subdirs)-1
-        fprintf(fp,' and ');
-    else
-        fprintf(fp,'.\n\n');
+if opt.tex_fct
+    
+    fp = fopen(fullfile(prt('dir'),'manual','adv_functions.tex'),'w');
+    if fp==-1, sts = false; return; end;
+    % l_subdirs = {'machines','batch'};
+    l_subdirs = {'machines','utils'};
+    excl_files = {'prt_contents.m','prt_LICENCE.man','Readme.txt'};
+    PRTdir = prt('dir');
+    
+    % Heading part
+    fprintf(fp,'\\chapter{%s  \\label{Chap:%s}}\n\\minitoc\n\n\\vskip 1.5cm\n\n',...
+        texify('List of PRoNTo functions'),'sec:functions');
+    fprintf(fp,'This is the list of PRoNTo functions, including the subdirectories: ');
+    for ii=1:numel(l_subdirs)
+        fprintf(fp,'%s',texify(['{\tt ',l_subdirs{ii},'}']));
+        if ii<numel(l_subdirs)-1
+            fprintf(fp,', ');
+        elseif ii==numel(l_subdirs)-1
+            fprintf(fp,' and ');
+        else
+            fprintf(fp,'.\n\n');
+        end
     end
-end
-
-% Deal with main directoy 1st
-f = spm_select('List',PRTdir,'.*\.m$');
-for ii=1:numel(excl_files)
-    f(strcmp(cellstr(f),excl_files{ii}),:) = [];
-end
-write_mfiles_help(f,fp);
-
-% Deal with subdirectories
-for ii = 1:numel(l_subdirs)
-    p = fullfile(PRTdir,l_subdirs{ii});
-    fprintf(fp,'\n\\%s{%s}\n','section',texify(l_subdirs{ii}));
-    f = spm_select('List',p,'.*\.m$');
-    write_mfiles_help(f,fp,l_subdirs(ii));
+    
+    % Deal with main directoy 1st
+    f = spm_select('List',PRTdir,'.*\.m$');
+    for ii=1:numel(excl_files)
+        f(strcmp(cellstr(f),excl_files{ii}),:) = [];
+    end
+    write_mfiles_help(f,fp);
+    
+    % Deal with subdirectories
+    for ii = 1:numel(l_subdirs)
+        p = fullfile(PRTdir,l_subdirs{ii});
+        fprintf(fp,'\n\\%s{%s}\n','section',texify(l_subdirs{ii}));
+        f = spm_select('List',p,'.*\.m$');
+        write_mfiles_help(f,fp,l_subdirs(ii));
+    end
 end
 
 return;
@@ -98,7 +121,7 @@ else
 end
 
 sec = {'section','subsection','subsubsection','paragraph','subparagraph', ...
-            'textbf','textsc','textsl','textit'};
+    'textbf','textsc','textsl','textit'};
 
 for ii=1:size(f,1)
     % section
@@ -162,20 +185,20 @@ return;
 function section(c,fp,lev)
 if nargin<3, lev = 1; end;
 sec = {'section','subsection','subsubsection','paragraph','subparagraph', ...
-            'textbf','textsc','textsl','textit'};
+    'textbf','textsc','textsl','textit'};
 % if lev<=length(sec),
-    fprintf(fp,'\n\\%s{%s}\n',sec{min(lev,length(sec))},texify(c.name));
-    write_help(c,fp);
-    switch class(c),
-        case {'cfg_branch','cfg_exbranch'},
-            for i=1:numel(c.val),
-                section(c.val{i},fp,lev+1);
-            end;
-        case {'cfg_repeat','cfg_choice'},
-            for i=1:numel(c.values),
-                section(c.values{i},fp,lev+1);
-            end;
-    end;
+fprintf(fp,'\n\\%s{%s}\n',sec{min(lev,length(sec))},texify(c.name));
+write_help(c,fp);
+switch class(c),
+    case {'cfg_branch','cfg_exbranch'},
+        for i=1:numel(c.val),
+            section(c.val{i},fp,lev+1);
+        end;
+    case {'cfg_repeat','cfg_choice'},
+        for i=1:numel(c.values),
+            section(c.values{i},fp,lev+1);
+        end;
+end;
 % else
 if lev>length(sec),
     warning(['Too many nested levels... ',c.name]); %#ok<WNTAG>
@@ -252,12 +275,12 @@ function clean_latex_compile
 PRTdir = prt('dir');
 p = fullfile(PRTdir,'manual');
 [f, d] = spm_select('FPlist',p,'.*\.aux$');
-f = strvcat(f, spm_select('FPlist',p,'.*\.tex$'));
-f = strvcat(f, spm_select('FPlist',p,'^manual\..*$'));
+f = char(f, spm_select('FPlist',p,'.*\.tex$'));
+f = char(f, spm_select('FPlist',p,'^manual\..*$'));
 f(strcmp(cellstr(f),fullfile(PRTdir,'manual','prt_manual.tex')),:) = [];
 f(strcmp(cellstr(f),fullfile(PRTdir,'manual','prt_manual.pdf')),:) = [];
 for i=1:size(d,1)
-    f = strvcat(f, spm_select('FPlist',deblank(d(i,:)),'.*\.aux$'));
+    f = char(f, spm_select('FPlist',deblank(d(i,:)),'.*\.aux$'));
 end
 f(strcmp(cellstr(f),filesep),:) = [];
 disp(f); pause

@@ -91,8 +91,56 @@ Choose a prediction machine for this model
 Binary support vector machine.
 
 
-\subparagraph{Arguments}
-Arguments for prt\_machine\_svm\_bin. You should use -t 4 if you selected 'use kernels' option, and -t 0 otherwise. See libSVM documentation for details.
+\subparagraph{Optimize hyper-parameter}
+Whether to optimize C, the SVM hyper-parameter, or not. If Yes, than provide a range of possible values for C, in the form min:step:max. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. If not, a default value will be used (C=1).
+
+
+\subparagraph{Soft-margin hyper-parameter}
+Value(s) for prt\_machine\_svm\_bin: soft-margin C. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\subparagraph{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textbf{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textbf{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textbf{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textbf{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
 
 
 \paragraph{Gaussian Process Classification}
@@ -111,18 +159,68 @@ Multiclass GPC
 Arguments for prt\_machine\_gpclap
 
 
-\paragraph{Random Forest}
-Random Forest. Breiman, Leo (2001)."Random Forests". 
+\paragraph{L1 Multi-Kernel Learning}
+Multi-Kernel Learning. Choose only if multiple kernels 
 
-Machine Learning 45:5-32. This is a wrapper around 
+were built during the feature set construction (either multiple modalities or ROIs). 
 
-Peter Geurt's implementation in his Regression Tree 
-
- package.
+It is strongly advised to "normalize" the kernels (in "operations").
 
 
-\subparagraph{Ntrees}
-Number of trees in the forest.
+\subparagraph{Optimize hyper-parameter}
+Whether to optimize C, the SVM hyper-parameter, or not. If Yes, than provide a range of possible values for C, in the form min:step:max. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. If not, a default value will be used (C=1).
+
+
+\subparagraph{Arguments}
+Arguments for prt\_machine\_sMKL\_cla (same as for SVM)Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\subparagraph{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textbf{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textbf{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textbf{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textbf{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Custom}
+Load a cross-validation matrix comprising a CV variable
 
 
 \paragraph{Custom machine}
@@ -157,12 +255,6 @@ Name of the group to include. Must exist in PRT.mat
 Subject numbers to be included in this class. Note that individual numbers (e.g. 1), or a range of numbers (e.g. 3:5) can be entered
 
 
-\subparagraph{Modality name}
-Name of modality. We only allow one modality for regression model per group at this moment
-
-Example: 'BOLD'. Must match design specification
-
-
 \subsubsection{Machine}
 Choose a prediction machine for this model
 
@@ -171,8 +263,60 @@ Choose a prediction machine for this model
 Kernel Ridge Regression.
 
 
+\subparagraph{Optimize hyper-parameter}
+Whether to optimize K, the KRR hyper-parameter, or not. If Yes, than provide a range of possible values for K, in the form min:step:max. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. If not, a default value will be used.
+
+
 \subparagraph{Regularization}
-Regularization for prt\_machine\_krr.
+Regularization for prt\_machine\_krr. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\subparagraph{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textbf{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textbf{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textbf{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textbf{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Custom}
+Load a cross-validation matrix comprising a CV variable
 
 
 \paragraph{Relevance Vector Regression}
@@ -187,6 +331,66 @@ Gaussian Process Regression
 
 \subparagraph{Arguments}
 Arguments for prt\_machine\_gpr
+
+
+\paragraph{Multi-Kernel Regression}
+Multi-Kernel Regression
+
+
+\subparagraph{Optimize hyper-parameter}
+Whether to optimize C, the MKL hyper-parameter, or not. If Yes, than provide a range of possible values for C, in the form min:step:max. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. If not, a default value will be used (C=1).
+
+
+\subparagraph{Arguments}
+Arguments for prt\_machine\_sMKL\_reg
+
+
+\subparagraph{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textbf{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textbf{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textbf{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textbf{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textsc{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textbf{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Custom}
+Load a cross-validation matrix comprising a CV variable
 
 
 \paragraph{Custom machine}
@@ -209,12 +413,36 @@ Choose the type of cross-validation to be used
 Leave a single subject out each cross-validation iteration
 
 
+\subsection{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\subsubsection{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
 \subsection{Leave one subject per group out}
 Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
 
 
+\subsection{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\subsubsection{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
 \subsection{Leave one block out}
 Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\subsection{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\subsubsection{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
 
 
 \subsection{Leave one run/session out}
@@ -222,7 +450,7 @@ Leave out a single run (modality) from each subject each iteration. Appropriate 
 
 
 \subsection{Custom}
-Load a cross-validation matrix. Note that an interface will be provided for this functionality in a later release
+Load a cross-validation matrix comprising a CV variable
 
 
 \section{Include all scans}

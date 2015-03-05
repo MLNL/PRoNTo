@@ -180,6 +180,8 @@ for b = 1:n_block
                     %check for NaNs, in case of beta maps                  
                     [inan,jnan] = find(isnan(datapr(:,sample_range)));
                     if ~isempty(inan)
+                        disp('Warning: NaNs found in loaded data')
+                        disp('Consider updating 1st level mask for better performance')
                         for inn=1:length(inan)
                             datapr(inan(inn),sample_range(jnan(inn))) = 0;
                         end

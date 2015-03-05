@@ -136,7 +136,7 @@ This function is called by:
 0046 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0047 
 0048 <span class="comment">% Written by J Ashburner and A Marquand</span>
-0049 <span class="comment">% $Id: prt_machine_gpclap.m 498 2012-04-05 13:26:23Z amarquan $</span>
+0049 <span class="comment">% $Id$</span>
 0050 
 0051 <span class="comment">% Error checks</span>
 0052 <span class="comment">% -------------------------------------------------------------------------</span>
@@ -413,42 +413,54 @@ This function is called by:
 0323     E(:,:,c1) = diag(sD)*(L\(L'\diag(sD) ));
 0324 <span class="keyword">end</span> 
 0325 M   = chol(sum(E,3));
-0326 os  = RandStream.getDefaultStream;
-0327 p   = zeros(size(Ks,2),C);
-0328 j   = 0;
-0329 Mu = zeros(size(Ks,2),C); SS = zeros(C,C,size(Ks,2));
-0330 <span class="keyword">for</span> i=1:size(Ks,2),
-0331     j = j + 1;
-0332 
-0333     mu = zeros(C,1);
-0334     S  = zeros(C,C);
-0335     <span class="keyword">for</span> c1=1:C,
-0336         mu(c1) = (t(:,c1)-sig(:,c1))'*Ks(:,i);
-0337         b      = E(:,:,c1)*Ks(:,i);
-0338         c      = (M\(M'\b));
-0339         <span class="keyword">for</span> c2=1:C,
-0340             S(c1,c2) = Ks(:,i)'*E(:,:,c2)*c;
-0341         <span class="keyword">end</span>
-0342         S(c1,c1) = S(c1,c1) - b'*Ks(:,i) + kss(i);
-0343     <span class="keyword">end</span>
-0344     
-0345     <span class="comment">% collect latent means and variances</span>
-0346     Mu(i,:)   = mu';
-0347     SS(:,:,i) = S;
+0326 <span class="keyword">try</span>
+0327     os  = RandStream.getGlobalStream;
+0328 <span class="keyword">catch</span>
+0329     os  = RandStream.getDefaultStream;
+0330 <span class="keyword">end</span>
+0331 p   = zeros(size(Ks,2),C);
+0332 j   = 0;
+0333 Mu = zeros(size(Ks,2),C); SS = zeros(C,C,size(Ks,2));
+0334 <span class="keyword">for</span> i=1:size(Ks,2),
+0335     j = j + 1;
+0336 
+0337     mu = zeros(C,1);
+0338     S  = zeros(C,C);
+0339     <span class="keyword">for</span> c1=1:C,
+0340         mu(c1) = (t(:,c1)-sig(:,c1))'*Ks(:,i);
+0341         b      = E(:,:,c1)*Ks(:,i);
+0342         c      = (M\(M'\b));
+0343         <span class="keyword">for</span> c2=1:C,
+0344             S(c1,c2) = Ks(:,i)'*E(:,:,c2)*c;
+0345         <span class="keyword">end</span>
+0346         S(c1,c1) = S(c1,c1) - b'*Ks(:,i) + kss(i);
+0347     <span class="keyword">end</span>
 0348     
-0349     s = RandStream.create(<span class="string">'mt19937ar'</span>,<span class="string">'seed'</span>,0);
-0350     RandStream.setDefaultStream(s);
-0351     nsamp  = 10000;
-0352     r      = sqrtm(S)*randn(C,nsamp) + repmat(mu,1,nsamp);
-0353     <span class="comment">%r      = chol(S)'*randn(C,nsamp) + repmat(mu,1,nsamp);</span>
-0354     <span class="comment">% subtract a constant to avoid numerical overflow</span>
-0355     r      = bsxfun(@minus, r, max(r, [], 1));
-0356     r      = exp(r);
-0357     p(j,:) = mean(r./repmat(sum(r,1),C,1),2)';
-0358 <span class="keyword">end</span>
-0359 RandStream.setDefaultStream(os);
-0360 <span class="keyword">end</span>
-0361</pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0349     <span class="comment">% collect latent means and variances</span>
+0350     Mu(i,:)   = mu';
+0351     SS(:,:,i) = S;
+0352     
+0353     s = RandStream.create(<span class="string">'mt19937ar'</span>,<span class="string">'seed'</span>,0);
+0354     <span class="keyword">try</span>
+0355         RandStream.setGlobalStream(s);
+0356     <span class="keyword">catch</span>
+0357         RandStream.setDefaultStream(s);
+0358     <span class="keyword">end</span>
+0359     nsamp  = 10000;
+0360     r      = sqrtm(S)*randn(C,nsamp) + repmat(mu,1,nsamp);
+0361     <span class="comment">%r      = chol(S)'*randn(C,nsamp) + repmat(mu,1,nsamp);</span>
+0362     <span class="comment">% subtract a constant to avoid numerical overflow</span>
+0363     r      = bsxfun(@minus, r, max(r, [], 1));
+0364     r      = exp(r);
+0365     p(j,:) = mean(r./repmat(sum(r,1),C,1),2)';
+0366 <span class="keyword">end</span>
+0367 <span class="keyword">try</span>
+0368     RandStream.setGlobalStream(os);
+0369 <span class="keyword">catch</span>
+0370     RandStream.setDefaultStream(os);
+0371 <span class="keyword">end</span>
+0372 <span class="keyword">end</span>
+0373</pre></div>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

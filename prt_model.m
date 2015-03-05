@@ -68,9 +68,9 @@ end
 % compute targets and samp_idx
 % -------------------------------------------------------------------------
 if strcmp(in.type,'classification')
-    [targets, samp_idx, t_allscans, samp_allscans] = compute_targets(PRT, in);
+    [targets, samp_idx, t_allscans, samp_allscans,covar,cov_all] = compute_targets(PRT, in);
 else
-    [targets, samp_idx, t_allscans] = compute_target_reg(PRT, in);
+    [targets, samp_idx, t_allscans,covar,cov_all] = compute_target_reg(PRT, in);
 end
 %[afm]
 if isfield(in,'include_allscans') && in.include_allscans   
@@ -82,6 +82,8 @@ else
 end
 PRT.model(modelid).input.targets          = targets;
 PRT.model(modelid).input.targ_allscans    = t_allscans;
+PRT.model(modelid).input.covar            = covar;
+PRT.model(modelid).input.cov_allscans     = cov_all;
 
 % compute cross-validation matrix and specify operations to apply
 % -------------------------------------------------------------------------
@@ -93,7 +95,16 @@ end
 [CV,ID] = prt_compute_cv_mat(PRT,in, modelid);
 PRT.model(modelid).input.cv_mat     = CV;
 PRT.model(modelid).input.cv_type=in.cv.type;
-
+% Deal with nested CV parameters
+if isfield(in.cv,'type_nested') && ~isempty(in.cv.type_nested)
+    PRT.model(modelid).input.cv_type_nested = in.cv.type_nested;
+end
+if isfield(in.cv,'k_nested') && ~isempty(in.cv.k_nested)
+    PRT.model(modelid).input.cv_k_nested = in.cv.k_nested;
+end
+if isfield(in.cv,'nested_param') && ~isempty(in.cv.nested_param)
+    PRT.model(modelid).input.nested_param = in.cv.nested_param;
+end
 
 PRT.model(modelid).input.operations = in.operations;
 
@@ -112,7 +123,7 @@ end
 % Private Functions
 % -------------------------------------------------------------------------
 
-function [targets, samp_idx, t_all samp_all] = compute_targets(PRT, in)
+function [targets, samp_idx, t_all samp_all,covar,cov_all] = compute_targets(PRT, in)
 % Function to compute the prediction targets. Also does some error checking
 
 % Set the reference feature set
@@ -137,6 +148,7 @@ groups     = {PRT.group(:).gr_name};
 
 t_all    = zeros(n,1);
 samp_all = zeros(n,1);
+cov_all = zeros(n,1);
 for c = 1:length(in.class)
     
     % groups
@@ -178,10 +190,10 @@ for c = 1:length(in.class)
                     %[afm] idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid;
                     idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
                     t_all(idx) = c;
+                    if any(ismember(in.operations, 5)) %Get covariates
+                        cov_all(idx) = PRT.group(gid).subject(sid).modality(mid).covar;
+                    end
                 else % conditions have been specified
-                    %[afm]sid = in.class(c).group(g).subj(s).num;
-                    conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
-                    
                     % check whether conditions were specified in the design
                     if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
                         error('prt_model:conditionsSpecifiedButNoneInDesign',...
@@ -190,6 +202,10 @@ for c = 1:length(in.class)
                             ', modality ', num2str(m),' but there are none in the design. ',...
                             'Please use ''All Scans'' or adjust design.']);
                     end
+                    %[afm]sid = in.class(c).group(g).subj(s).num;
+                    conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
+                    
+                    
                     if isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
                         % all conditions
                         for cid = 1:length(conds)
@@ -222,11 +238,11 @@ end
 samp_idx = find(t_all);
 samp_all = find(samp_all);
 targets  = t_all(samp_idx);
-
+covar = cov_all(samp_idx);
 end
 
 
-function [targets, samp_idx, targ_allscans]=compute_target_reg(PRT, in)
+function [targets, samp_idx, targ_allscans,covar,cov_all]=compute_target_reg(PRT, in)
 % Function to compute the prediction targets. Not much error checking yet
 
 % Set the reference feature set
@@ -238,8 +254,10 @@ modalities = {PRT.masks(:).mod_name};
 groups     = {PRT.group(:).gr_name};
 %t_all = zeros(n,1);
 targ_allscans=zeros(n,1);
+cov_all = zeros(n,1);
 samp_idx=[];
 targ_g=[];
+covar = [];
 for g = 1:length(in.group)
     gr_name = in.group(g).gr_name;
     if any(strcmpi(gr_name,groups))
@@ -250,6 +268,7 @@ for g = 1:length(in.group)
     end
 %     nmod=length(in.group(g).subj(1).modality);
     targets=zeros(1,length(in.group(g).subj)); %replace by nmod for multiple targets per subject
+    cov=zeros(1,length(in.group(g).subj));
     % subjects
     for s = 1:length(in.group(g).subj)
         %modalities
@@ -263,13 +282,22 @@ for g = 1:length(in.group)
             end
             if m==1 %only one regression target per subject, whatever the number of modalities
                 idx = in.group(g).subj(s).num;
-                targets(m,s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
+                if ~isempty(PRT.group(gid).subject(idx).modality(mid).rt_subj)
+                    targets(m,s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
+                else
+                    error('prt_model:NoRegressionTarget','No regression target found, correct');
+                end
                 samp_idx=[samp_idx; find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)];
+                if any(ismember(in.operations, 5)) %Get covariates
+                    cov(m,s) = PRT.group(gid).subject(idx).modality(mid).covar;
+                end
             end
         end        
     end
     targ_g=[targ_g;targets(:)];
+    covar = [covar;cov(:)];
 end
 targ_allscans(samp_idx)=targ_g;
 targets=targ_g;
+cov_all(samp_idx)=covar;
 end

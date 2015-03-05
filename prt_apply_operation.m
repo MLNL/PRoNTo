@@ -207,7 +207,44 @@ for d = 1:length(in.train)
         case 5 
             % perform a GLM
             % -------------
-            error ('GLM not implemented yet');
+            if ~isfield(in,'tr_cov')
+                error('prt_apply_operation:NoCovariates',...
+                'No covariates found to perform requested GLM');
+            end
+            if ~isfield(in,'test') 
+                % No test data
+                if in.use_kernel
+                    out.train{d} = prt_remove_confounds(in.train{d},...
+                        [in.tr_cov,ones(size(in.tr_cov,1),1)]);
+                else
+                    error('prt_apply_operation:GLMnonKernel',...
+                'GLM not implemented for non-kernel methods');
+                end
+            else % Test data: for now does NOT take train/test division
+                Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
+                 if in.use_kernel
+                    C = [in.tr_cov;in.te_cov];
+                    C = [C, ones(size(C,1),1)];
+                    [Phi] = prt_remove_confounds(Phi,C);
+                    tr = 1:size(in.train{d},1);
+                    te = (1:size(in.test{d},1))+max(tr);
+                    out.train{d}    = Phi(tr,tr);
+                    out.test{d}     = Phi(te,tr);
+                    out.testcov{d}  = Phi(te,te);
+                else
+                    error('prt_apply_operation:GLMnonKernel',...
+                     'GLM not implemented for non-kernel methods');
+                end
+                out.te_id = in.te_id;
+            end
+            out.tr_id = in.tr_id;
+            if isfield(in,'tr_targets')
+                out.tr_targets = in.tr_targets;
+            end
+            if isfield(in,'te_targets')
+                out.te_targets = in.te_targets;
+            end
+            
                         
         otherwise
             error('prt_apply_operation:UnknownOperationSpecified',...

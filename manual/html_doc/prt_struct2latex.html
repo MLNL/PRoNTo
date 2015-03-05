@@ -32,7 +32,7 @@
  The routine specifically generates the 'adv_PRTstruct.tex' file that is
  included, in the prt_manual.
 
- Bits of the code and copied/inspired by spm_latex.m from the SPM8
+ Bits of the code are copied/inspired by spm_latex.m from the SPM8
  distribution: http://www.fil.ion.ucl.ac.uk/spm
 _______________________________________________________________________
  Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
@@ -58,13 +58,13 @@ This function is called by:
 0004 <span class="comment">% The routine specifically generates the 'adv_PRTstruct.tex' file that is</span>
 0005 <span class="comment">% included, in the prt_manual.</span>
 0006 <span class="comment">%</span>
-0007 <span class="comment">% Bits of the code and copied/inspired by spm_latex.m from the SPM8</span>
+0007 <span class="comment">% Bits of the code are copied/inspired by spm_latex.m from the SPM8</span>
 0008 <span class="comment">% distribution: http://www.fil.ion.ucl.ac.uk/spm</span>
 0009 <span class="comment">%_______________________________________________________________________</span>
 0010 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0011 
 0012 <span class="comment">% Written by Christophe Phillips</span>
-0013 <span class="comment">% $Id: prt_struct2latex.m 395 2011-11-17 22:34:59Z cphillip $</span>
+0013 <span class="comment">% $Id$</span>
 0014 
 0015 <span class="keyword">if</span> nargin&lt;1,
 0016     f = spm_select(1,<span class="string">'^PRT\.mat'</span>,<span class="string">'Select a PRT.mat file'</span>);
@@ -76,7 +76,7 @@ This function is called by:
 0022 <span class="keyword">if</span> fp==-1, sts = false; <span class="keyword">return</span>; <span class="keyword">end</span>;
 0023 
 0024 <span class="comment">%% Heading part</span>
-0025 <span class="comment">% fprintf(fp,'%% $Id: prt_struct2latex.m 395 2011-11-17 22:34:59Z cphillip $\n\n');</span>
+0025 <span class="comment">% fprintf(fp,'%% $Id$\n\n');</span>
 0026 fprintf(fp,<span class="string">'\\chapter{%s}\n\\label{sec:%s}\n\\minitoc\n\n'</span>,<span class="keyword">...</span>
 0027     <a href="#_sub2" class="code" title="subfunction str = texify(str0)">texify</a>(<span class="string">'PRT structure'</span>),<span class="string">'PRTstruct'</span>);
 0028 fprintf(fp,<span class="string">'This is how the main {\\tt PRT} structure is organised.\n\n'</span>);
@@ -167,6 +167,6 @@ This function is called by:
 0113 <span class="keyword">return</span>;
 0114 
 0115 <span class="comment">%==========================================================================</span></pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

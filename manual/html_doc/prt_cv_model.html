@@ -27,24 +27,24 @@
 <div class="box"><strong>function [outfile]=prt_cv_model(PRT,in) </strong></div>
 
 <h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
-<div class="fragment"><pre class="comment"> Function to run a cross-validation structure on a given model 
+<div class="fragment"><pre class="comment"> Function to run a cross-validation structure on a given model
 
  Inputs:
  -------
- PRT:           data structure
- in.fname:      filename for PRT.mat (string)
- in.model_name: name for this model (string)
+ PRT:             data structure
+ in.fname:        filename for PRT.mat (string)
+ in.model_name:   name for this model (string)
 
  Outputs:
  --------
  Writes the following fields in the PRT data structure:
- 
+
  PRT.model(m).output.fold(i).targets:     targets for fold(i)
  PRT.model(m).output.fold(i).predictions: predictions for fold(i)
  PRT.model(m).output.fold(i).stats:       statistics for fold(i)
  PRT.model(m).output.fold(i).{custom}:    optional fields
 
- Notes: 
+ Notes:
  ------
  The PRT.model(m).input fields are set by prt_init_model, not by
  this function
@@ -56,7 +56,7 @@ __________________________________________________________________________
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_cv_fold.html" class="code" title="function [model, targets] = prt_cv_fold(PRT, in)">prt_cv_fold</a>	Function to run a single cross-validation fold</li><li><a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>	function to initialise the kernel data structure</li><li><a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>	function to initialise the model data structure</li><li><a href="prt_stats.html" class="code" title="function stats = prt_stats(model, tte, ttr)">prt_stats</a>	Function to compute predictions machine performance statistcs statistics</li></ul>
+<li><a href="prt_cv_fold.html" class="code" title="function [model, targets] = prt_cv_fold(PRT, in)">prt_cv_fold</a>	Function to run a single cross-validation fold</li><li><a href="prt_getKernelModel.html" class="code" title="function [Phi_all,ID,fid] = prt_getKernelModel (PRT,prt_dir,mid)">prt_getKernelModel</a>	Function to load the kernels according to the samples considered in a</li><li><a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>	function to initialise the model data structure</li><li><a href="prt_nested_cv.html" class="code" title="function [out] = prt_nested_cv(PRT, in)">prt_nested_cv</a>	Function to perform the nested CV</li><li><a href="prt_stats.html" class="code" title="function stats = prt_stats(model, tte, nk)">prt_stats</a>	Function to compute predictions machine performance statistcs statistics</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
 <li><a href="prt_ui_cv_model.html" class="code" title="function varargout = prt_ui_cv_model(varargin)">prt_ui_cv_model</a>	PRT_UI_CV_MODEL M-file for prt_ui_cv_model.fig</li><li><a href="prt_ui_model.html" class="code" title="function varargout = prt_ui_model(varargin)">prt_ui_model</a>	PRT_UI_KERNEL_CONSTRUCTION M-file for prt_ui_kernel_construction.fig</li></ul>
@@ -70,9 +70,9 @@ This function is called by:
 0003 <span class="comment">%</span>
 0004 <span class="comment">% Inputs:</span>
 0005 <span class="comment">% -------</span>
-0006 <span class="comment">% PRT:           data structure</span>
-0007 <span class="comment">% in.fname:      filename for PRT.mat (string)</span>
-0008 <span class="comment">% in.model_name: name for this model (string)</span>
+0006 <span class="comment">% PRT:             data structure</span>
+0007 <span class="comment">% in.fname:        filename for PRT.mat (string)</span>
+0008 <span class="comment">% in.model_name:   name for this model (string)</span>
 0009 <span class="comment">%</span>
 0010 <span class="comment">% Outputs:</span>
 0011 <span class="comment">% --------</span>
@@ -92,7 +92,7 @@ This function is called by:
 0025 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0026 
 0027 <span class="comment">% Written by A Marquand</span>
-0028 <span class="comment">% $Id: prt_cv_model.m 551 2012-05-31 08:26:54Z amarquan $</span>
+0028 <span class="comment">% $Id$</span>
 0029 
 0030 prt_dir = char(regexprep(in.fname,<span class="string">'PRT.mat'</span>, <span class="string">''</span>));
 0031 
@@ -102,90 +102,117 @@ This function is called by:
 0035 <span class="comment">% configure some variables</span>
 0036 CV       = PRT.model(mid).input.cv_mat;     <span class="comment">% CV matrix</span>
 0037 n_folds  = size(CV,2);                      <span class="comment">% number of CV folds</span>
-0038 n_Phi    = length(PRT.model(mid).input.fs); <span class="comment">% number of data matrices</span>
-0039 samp_idx = PRT.model(mid).input.samp_idx;   <span class="comment">% which samples are in the model</span>
-0040 
-0041 <span class="comment">% targets</span>
-0042 <span class="keyword">if</span> isfield(PRT.model(mid).input,<span class="string">'include_allscans'</span>) &amp;&amp; <span class="keyword">...</span>
-0043    PRT.model(mid).input.include_allscans
-0044     t = PRT.model(mid).input.targ_allscans;
-0045 <span class="keyword">else</span>
-0046     t = PRT.model(mid).input.targets;
-0047 <span class="keyword">end</span>
-0048 
-0049 <span class="comment">% load data files and configure ID matrix</span>
-0050 disp(<span class="string">'Loading data files.....&gt;&gt;'</span>);
-0051 Phi_all = cell(1,n_Phi);
-0052 <span class="keyword">for</span> i = 1:length(PRT.model(mid).input.fs)
-0053     fid = <a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>(PRT, PRT.model(mid).input.fs(i));
-0054     
-0055     <span class="keyword">if</span> i == 1
-0056         ID = PRT.fs(fid).id_mat(PRT.model(mid).input.samp_idx,:);
-0057     <span class="keyword">end</span>
-0058         
-0059     <span class="keyword">if</span> PRT.model(mid).input.use_kernel
-0060         load(fullfile(prt_dir, PRT.fs(fid).k_file));
-0061         Phi_all{i} = Phi(samp_idx,samp_idx);
-0062     <span class="keyword">else</span>
-0063         error(<span class="string">'training with features not implemented yet'</span>);
-0064         <span class="comment">%vname = whos('-file', [prt_dir,PRT.fs(fid).fs_file]);</span>
-0065         <span class="comment">%eval(['Phi_all{',num2str(i),'}=',vname,'(samp_idx,:);']);</span>
-0066     <span class="keyword">end</span>
-0067 <span class="keyword">end</span>
-0068 
-0069 <span class="comment">% Begin cross-validation loop</span>
-0070 <span class="comment">% -------------------------------------------------------------------------</span>
-0071 PRT.model(mid).output.fold = struct();
-0072 <span class="keyword">for</span> f = 1:n_folds
-0073     disp ([<span class="string">' &gt; running CV fold: '</span>,num2str(f),<span class="string">' of '</span>,num2str(n_folds),<span class="string">' ...'</span>])
-0074     <span class="comment">% configure data structure for prt_cv_fold</span>
-0075     fdata.ID      = ID;
-0076     fdata.mid     = mid;
-0077     fdata.CV      = CV(:,f);
-0078     fdata.Phi_all = Phi_all;
-0079     fdata.t       = t;
-0080     
-0081     <span class="comment">% compute the model for this CV fold</span>
-0082     [model, targets] = <a href="prt_cv_fold.html" class="code" title="function [model, targets] = prt_cv_fold(PRT, in)">prt_cv_fold</a>(PRT,fdata);
-0083     
-0084     <span class="comment">% compute stats</span>
-0085     stats = <a href="prt_stats.html" class="code" title="function stats = prt_stats(model, tte, ttr)">prt_stats</a>(model, targets.test, targets.train);
+0038 
+0039 <span class="comment">% targets</span>
+0040 <span class="keyword">if</span> isfield(PRT.model(mid).input,<span class="string">'include_allscans'</span>) &amp;&amp; <span class="keyword">...</span>
+0041         PRT.model(mid).input.include_allscans
+0042     t = PRT.model(mid).input.targ_allscans;
+0043     <span class="comment">% Get covariates if GLM required</span>
+0044     <span class="keyword">if</span> any(ismember(PRT.model(mid).input.operations,5))
+0045         cov = PRT.model(mid).input.cov_allscans;
+0046     <span class="keyword">else</span>
+0047         cov=[];
+0048     <span class="keyword">end</span>
+0049 <span class="keyword">else</span>
+0050     t = PRT.model(mid).input.targets;
+0051     <span class="comment">% Get covariates if GLM required</span>
+0052     <span class="keyword">if</span> any(ismember(PRT.model(mid).input.operations,5))
+0053         cov = PRT.model(mid).input.covar;
+0054     <span class="keyword">else</span>
+0055         cov=[];
+0056     <span class="keyword">end</span>
+0057 <span class="keyword">end</span>
+0058 
+0059 <span class="comment">%get number of classes</span>
+0060 <span class="keyword">if</span> strcmpi(PRT.model(mid).input.type,<span class="string">'classification'</span>)
+0061     nc=max(unique(t));
+0062 <span class="keyword">else</span>
+0063     nc=[];
+0064 <span class="keyword">end</span>
+0065 fdata.nc = nc;
+0066 
+0067 <span class="comment">%load kernels and get the used sample in this model</span>
+0068 [Phi_all,ID] = <a href="prt_getKernelModel.html" class="code" title="function [Phi_all,ID,fid] = prt_getKernelModel (PRT,prt_dir,mid)">prt_getKernelModel</a>(PRT,prt_dir,mid);
+0069 
+0070 
+0071 <span class="comment">% Begin cross-validation loop</span>
+0072 <span class="comment">% -------------------------------------------------------------------------</span>
+0073 PRT.model(mid).output=struct();
+0074 PRT.model(mid).output.fold = struct();
+0075 <span class="keyword">for</span> f = 1:n_folds
+0076     disp ([<span class="string">' &gt; running CV fold: '</span>,num2str(f),<span class="string">' of '</span>,num2str(n_folds),<span class="string">' ...'</span>])
+0077     <span class="comment">% configure data structure for prt_cv_fold</span>
+0078     fdata.ID      = ID;
+0079     fdata.mid     = mid; <span class="comment">%index of model</span>
+0080     fdata.CV      = CV(:,f);
+0081     fdata.Phi_all = Phi_all; <span class="comment">%kernel(s)</span>
+0082     fdata.t       = t; <span class="comment">%targets</span>
+0083     <span class="keyword">if</span> ~isempty(cov)
+0084         fdata.cov = cov;
+0085     <span class="keyword">end</span>
 0086     
-0087     <span class="comment">% update PRT</span>
-0088     PRT.model(mid).output.fold(f).targets     = targets.test; 
-0089     PRT.model(mid).output.fold(f).predictions = model.predictions(:);
-0090     PRT.model(mid).output.fold(f).stats       = stats;
-0091     <span class="comment">% copy other fields from the model</span>
-0092     flds = fieldnames(model);
-0093     <span class="keyword">for</span> fld = 1:length(flds)
-0094         fldnm = char(flds(fld));
-0095         <span class="keyword">if</span> ~strcmpi(fldnm,<span class="string">'predictions'</span>)
-0096             PRT.model(mid).output.fold(f).(fldnm)=model.(fldnm);
-0097         <span class="keyword">end</span>
-0098     <span class="keyword">end</span>
-0099 <span class="keyword">end</span>
-0100 
-0101 
-0102 <span class="comment">% Model level statistics (across folds)</span>
-0103 t             = vertcat(PRT.model(mid).output.fold(:).targets);
-0104 m.type        = PRT.model(mid).output.fold(1).type;
-0105 m.predictions = vertcat(PRT.model(mid).output.fold(:).predictions);
-0106 <span class="comment">%m.func_val    = [PRT.model(mid).output.fold(:).func_val];</span>
-0107 stats         = <a href="prt_stats.html" class="code" title="function stats = prt_stats(model, tte, ttr)">prt_stats</a>(m,t(:),t(:));
-0108 
-0109 PRT.model(mid).output.stats=stats;
-0110 
-0111 <span class="comment">% Save PRT containing machine output</span>
-0112 <span class="comment">% -------------------------------------------------------------------------</span>
-0113 outfile = [prt_dir, <span class="string">'PRT'</span>];
-0114 disp(<span class="string">'Updating PRT.mat.......&gt;&gt;'</span>)
-0115 <span class="keyword">if</span> spm_matlab_version_chk(<span class="string">'7'</span>) &gt;= 0
-0116     save(outfile,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
-0117 <span class="keyword">else</span>
-0118     save(outfile,<span class="string">'PRT'</span>);
-0119 <span class="keyword">end</span>
-0120 <span class="keyword">end</span>
-0121</pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0087     <span class="comment">% Nested CV for hyper-parameter optimisation or feature selection</span>
+0088     <span class="keyword">if</span> isfield(PRT.model(mid).input,<span class="string">'use_nested_cv'</span>)
+0089         <span class="keyword">if</span> PRT.model(mid).input.use_nested_cv
+0090             [out] = <a href="prt_nested_cv.html" class="code" title="function [out] = prt_nested_cv(PRT, in)">prt_nested_cv</a>(PRT, fdata);
+0091             PRT.model(mid).output.fold(f).param_effect = out;
+0092             PRT.model(mid).input.machine.args = out.opt_param;
+0093         <span class="keyword">end</span>
+0094     <span class="keyword">end</span>
+0095     
+0096     <span class="comment">% compute the model for this CV fold</span>
+0097     [model, targets] = <a href="prt_cv_fold.html" class="code" title="function [model, targets] = prt_cv_fold(PRT, in)">prt_cv_fold</a>(PRT,fdata);
+0098     
+0099     <span class="comment">%for classification check that for each fold, the test targets have been trained</span>
+0100     <span class="keyword">if</span> strcmpi(PRT.model(mid).input.type,<span class="string">'classification'</span>)
+0101         <span class="keyword">if</span> ~all(ismember(unique(targets.test),unique(targets.train)))
+0102             beep
+0103             disp(<span class="string">'At least one class is in the test set but not in the training set'</span>)
+0104             disp(<span class="string">'Abandoning modelling, please correct class selection/cross-validation'</span>)
+0105             <span class="keyword">return</span>
+0106         <span class="keyword">end</span>
+0107     <span class="keyword">end</span>
+0108     
+0109     <span class="comment">% compute stats</span>
+0110     stats = <a href="prt_stats.html" class="code" title="function stats = prt_stats(model, tte, nk)">prt_stats</a>(model, targets.test, nc); <span class="comment">%targets.train</span>
+0111     
+0112     <span class="comment">% update PRT</span>
+0113     PRT.model(mid).output.fold(f).targets     = targets.test;
+0114     PRT.model(mid).output.fold(f).predictions = model.predictions(:);
+0115     PRT.model(mid).output.fold(f).stats       = stats;
+0116     <span class="comment">% copy other fields from the model</span>
+0117     flds = fieldnames(model);
+0118     <span class="keyword">for</span> fld = 1:length(flds)
+0119         fldnm = char(flds(fld));
+0120         <span class="keyword">if</span> ~strcmpi(fldnm,<span class="string">'predictions'</span>)
+0121             PRT.model(mid).output.fold(f).(fldnm)=model.(fldnm);
+0122         <span class="keyword">end</span>
+0123     <span class="keyword">end</span>
+0124 <span class="keyword">end</span>
+0125 
+0126 
+0127 <span class="comment">% Model level statistics (across folds)</span>
+0128 ttt             = vertcat(PRT.model(mid).output.fold(:).targets);
+0129 m.type        = PRT.model(mid).output.fold(1).type;
+0130 m.predictions = vertcat(PRT.model(mid).output.fold(:).predictions);
+0131 <span class="comment">%m.func_val    = [PRT.model(mid).output.fold(:).func_val];</span>
+0132 stats         = <a href="prt_stats.html" class="code" title="function stats = prt_stats(model, tte, nk)">prt_stats</a>(m,ttt(:),nc);
+0133 
+0134 PRT.model(mid).output.stats=stats;
+0135 
+0136 
+0137 <span class="comment">% Save PRT containing machine output</span>
+0138 <span class="comment">% -------------------------------------------------------------------------</span>
+0139 outfile = [prt_dir, filesep,<span class="string">'PRT.mat'</span>];
+0140 disp(<span class="string">'Updating PRT.mat.......&gt;&gt;'</span>)
+0141 <span class="keyword">if</span> spm_check_version(<span class="string">'MATLAB'</span>,<span class="string">'7'</span>) &lt; 0
+0142     save(outfile,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
+0143 <span class="keyword">else</span>
+0144     save(outfile,<span class="string">'PRT'</span>);
+0145 <span class="keyword">end</span>
+0146 <span class="keyword">end</span>
+0147 
+0148</pre></div>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -1,6 +1,11 @@
 function [H HN SN idfeatroi] = prt_region_histogram(beta, atlas)
 
-%% L1-HISTOGRAM
+% 
+% Atlas-based region histograms.
+% 
+% Based on the following function:
+% 
+% L1-HISTOGRAM
 % (c) Luca Baldassarre
 % CS Dept, UCL, London, UK
 % 8th May 2012
@@ -23,6 +28,11 @@ function [H HN SN idfeatroi] = prt_region_histogram(beta, atlas)
 % [H HN sorted_regions] = l1_histogram(beta, atlas) return the list of
 % regions, sorted in descending order according to the normalized
 % histogram.
+%__________________________________________________________________________
+% Copyright (C) 2015 Machine Learning & Neuroimaging Laboratory
+
+% Written by J. Schrouff
+% $Id$
 
 
 % Number of vectors

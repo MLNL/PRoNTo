@@ -8,13 +8,13 @@ function prt = prt_cfg_batch
 % Written by Christophe Phillips
 % $Id$
 
-
-% if ~isdeployed, addpath(fullfile(spm('Dir'),'toolbox','PRoNTo')); end
-% Only de-comment the previous line if
-% - PRT is installed in SPM8 toolbox directory, for example
-%   SPM8\toolbox\PRoNTo
+% NOTE:
+% Only de-comment the following line if
+% - PRT is installed in SPM8/12 toolbox directory, for example
+%   SPM12\toolbox\PRoNTo
 % - and this directory isn't saved on Matlab path (which it shouldn't)
-
+%
+% if ~isdeployed, addpath(fullfile(spm('Dir'),'toolbox','PRoNTo')); end
 
 % ---------------------------------------------------------------------
 %% prt PRoNTo series of modules

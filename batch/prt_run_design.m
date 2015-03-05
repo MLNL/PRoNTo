@@ -20,6 +20,13 @@ function out = prt_run_design(varargin)
 % -------------------------------------------------------------------------
 job   = varargin{1};
 
+% Back compatibility (at least trying to...)
+% -------------------------------------------------------------------------
+if isfield(job,'hrfover') % old setup
+    job.fmri_des.hrfover = job.hrfover;
+    job.fmri_des.hrfdel  = job.hrfdel;
+end
+
 % Directory
 % -------------------------------------------------------------------------
 fname   = 'PRT.mat';
@@ -156,8 +163,8 @@ if isfield(job.group(1).select,'modality')
                 end
             end
         end
-        PRT.group(g).hrfoverlap = job.hrfover;
-        PRT.group(g).hrfdelay = job.hrfdel;
+        PRT.group(g).hrfoverlap = job.fmri_des.hrfover;
+        PRT.group(g).hrfdelay   = job.fmri_des.hrfdel;
     end
 else
     % selection by subject
@@ -226,13 +233,13 @@ else
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
                             end                        
-                            checked_conds = prt_check_design(conds,TR,unit,job.hrfover,job.hrfdel);
+                            checked_conds = prt_check_design(conds,TR,unit,job.fmri_des.hrfover,job.fmri_des.hrfdel);
                             design.conds  = checked_conds.conds;
                             design.stats  = checked_conds.stats;
                             design.TR     = TR;
                             design.unit   = unit;
                             maxcond       = max([design.conds(:).scans]);
-                            if nscans < maxcond
+                            if nscans>1 && nscans < maxcond
                                 sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                 disp('Corresponding events were discarded')
                                 for l = 1:length(design.conds)
@@ -312,35 +319,7 @@ else
                                     design.conds = conds;
                                 else
                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
-                                    if ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar{1})
-                                        try
-                                            load(char(job.group(g).select.subject{j}(k).design.new_design.covar{1}));
-                                            if exist('R','var')
-                                                if size(R,1) == nscans
-                                                    covar = R;
-                                                else
-                                                    out.files{1} = [];
-                                                    beep
-                                                    sprintf('Number of covariates must be the number of scans! ')
-                                                    disp('Please correct!')
-                                                    return
-                                                end
-                                            else
-                                                out.files{1} = [];
-                                                beep
-                                                sprintf('Covariates file must contain ''R'' variable! ')
-                                                disp('Please correct!')
-                                                return
-                                            end
-                                        catch
-                                            beep
-                                            sprintf('Could not load %s file!',char(job.group(g).select.subject{j}(k).design.new_design.covar{1}))
-                                            out.files{1} = [];
-                                            return
-                                        end
-                                    else
-                                        covar = [];
-                                    end
+                                    covar = [];
                                 end                           
                                 ncond = length(design.conds);
                                 for c = 1:ncond
@@ -370,14 +349,14 @@ else
                                         design.conds(c).rt_trial=[];
                                     end
                                 end
-                                checked_conds = prt_check_design(design.conds,TR,unit,job.hrfover,job.hrfdel);
+                                checked_conds = prt_check_design(design.conds,TR,unit,job.fmri_des.hrfover,job.fmri_des.hrfdel);
                                 design.conds  = checked_conds.conds;
                                 design.stats  = checked_conds.stats;
                                 design.TR     = checked_conds.TR;
                                 design.unit   = unit;
                                 design.covar  = covar;
                                 maxcond       = max([design.conds(:).scans]);
-                                if nscans < maxcond
+                                if nscans>1 && nscans < maxcond
                                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series!',j,g,k)
                                     disp('Corresponding events were discarded')                                  
                                     for l = 1:length(design.conds)
@@ -408,8 +387,8 @@ else
                 return
             end
         end
-        PRT.group(g).hrfoverlap = job.hrfover;
-        PRT.group(g).hrfdelay   = job.hrfdel;
+        PRT.group(g).hrfoverlap = job.fmri_des.hrfover;
+        PRT.group(g).hrfdelay   = job.fmri_des.hrfdel;
     end
 end
 
@@ -447,3 +426,34 @@ end
 disp('Done')
 
 return
+
+% Old code to deal with covariates per trial
+% if ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar{1})
+%     try
+%         load(char(job.group(g).select.subject{j}(k).design.new_design.covar{1}));
+%         if exist('R','var')
+%             if size(R,1) == nscans
+%                 covar = R;
+%             else
+%                 out.files{1} = [];
+%                 beep
+%                 sprintf('Number of covariates must be the number of scans! ')
+%                 disp('Please correct!')
+%                 return
+%             end
+%         else
+%             out.files{1} = [];
+%             beep
+%             sprintf('Covariates file must contain ''R'' variable! ')
+%             disp('Please correct!')
+%             return
+%         end
+%     catch
+%         beep
+%         sprintf('Could not load %s file!',char(job.group(g).select.subject{j}(k).design.new_design.covar{1}))
+%         out.files{1} = [];
+%         return
+%     end
+% else
+%     
+% end

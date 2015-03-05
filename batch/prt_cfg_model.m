@@ -98,7 +98,6 @@ fsets.num     = [1 Inf];
 %fsets.values  = {fsets};
 fsets.strtype  = 's';
 
-
 % ---------------------------------------------------------------------
 % gr_name Group name
 % ---------------------------------------------------------------------
@@ -285,7 +284,6 @@ reg_group.help    = {'Specify data and design for the group.'};
 %reg_group.val     = {gr_name, subj_nums,mod_name2 };
 reg_group.val     = {gr_name, subj_nums};
 
-
 % ---------------------------------------------------------------------
 % k_args Define k for partioning
 % ---------------------------------------------------------------------
@@ -372,7 +370,6 @@ cv_loro.val     = {1};
 cv_loro.help    = {...
     ['Leave out a single run (modality) from each subject each iteration. ', ...
      'Appropriate for single subject designs with multiple runs/sessions.']};
-
    
 % ---------------------------------------------------------------------
 % cv_custom Feature set mask
@@ -384,7 +381,7 @@ cv_custom.filter = 'mat';
 cv_custom.ufilter = '.*';
 cv_custom.num    = [1 1];
 cv_custom.help   = {...
-    ['Load a cross-validation matrix comprising a CV variable']};
+    'Load a cross-validation matrix comprising a CV variable'};
 
 % ---------------------------------------------------------------------
 % cv_type Cross-validation type
@@ -392,12 +389,10 @@ cv_custom.help   = {...
 cv_type        = cfg_choice;
 cv_type.tag    = 'cv_type';
 cv_type.name   = 'Cross-validation type';
-cv_type.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
-    cv_lkbo, cv_loro,cv_custom};
+cv_type.values = {cv_loso, cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
+    cv_lkbo, cv_loro, cv_custom};
 cv_type.val    = {cv_loso};
 cv_type.help   = {'Choose the type of cross-validation to be used'};
-
-
 
 % ---------------------------------------------------------------------
 % machine_func Filename(s) of data
@@ -436,7 +431,7 @@ svm_opt.tag     = 'svm_opt';
 svm_opt.name    = 'Optimize hyper-parameter';
 svm_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
     'If Yes, than provide a range of possible values for C, in the form '...
-    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.' ...
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. ' ...
     'If not, a default value will be used (C=1).']};
 svm_opt.labels  = {
     'No'
@@ -451,7 +446,7 @@ svm_opt.val     = {0};
 svm_args         = cfg_entry;
 svm_args.tag     = 'svm_args';
 svm_args.name    = 'Soft-margin hyper-parameter';
-svm_args.help    = {['Value(s) for prt_machine_svm_bin: soft-margin C.',...
+svm_args.help    = {['Value(s) for prt_machine_svm_bin: soft-margin C. ',...
     'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.']};
 svm_args.strtype = 'e';
 svm_args.val     = {def.model.svmargs};
@@ -464,10 +459,9 @@ svm_cv_type_nested        = cfg_choice;
 svm_cv_type_nested.tag    = 'cv_type_nested';
 svm_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
 svm_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
-    cv_lkbo, cv_loro,cv_custom};
+    cv_lkbo, cv_loro};
 svm_cv_type_nested.val    = {cv_loso};
 svm_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
-
 
 % ---------------------------------------------------------------------
 % svm group
@@ -526,7 +520,7 @@ sMKL_cla_opt.tag     = 'sMKL_cla_opt';
 sMKL_cla_opt.name    = 'Optimize hyper-parameter';
 sMKL_cla_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
     'If Yes, than provide a range of possible values for C, in the form '...
-    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.' ...
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. ' ...
     'If not, a default value will be used (C=1).']};
 sMKL_cla_opt.labels  = {
     'No'
@@ -558,16 +552,14 @@ sMKL_cla_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,..
 sMKL_cla_cv_type_nested.val    = {cv_loso};
 sMKL_cla_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
 
-
-
 % ---------------------------------------------------------------------
 % sMKL_cla simple (L1) MKL
 % ---------------------------------------------------------------------
 sMKL_cla         = cfg_branch;
 sMKL_cla.tag     = 'sMKL_cla';
 sMKL_cla.name    = 'L1 Multi-Kernel Learning';
-sMKL_cla.help    = {'Multi-Kernel Learning. Choose only if multiple kernels' ...
-    'were built during the feature set construction (either multiple modalities or ROIs)' ...
+sMKL_cla.help    = {'Multi-Kernel Learning. Choose only if multiple kernels ' ...
+    'were built during the feature set construction (either multiple modalities or ROIs). ' ...
     'It is strongly advised to "normalize" the kernels (in "operations").'};
 sMKL_cla.val     = {sMKL_cla_opt, sMKL_cla_args, sMKL_cla_cv_type_nested};
 
@@ -591,7 +583,6 @@ gpr.name    = 'Gaussian Process Regression';
 gpr.help    = {'Gaussian Process Regression'};
 gpr.val     = {gpr_args};
 
-
 % ---------------------------------------------------------------------
 % sMKL_reg_opt L1-MKL : flag whether to optimize the hyperparameter
 % ---------------------------------------------------------------------
@@ -600,7 +591,7 @@ sMKL_reg_opt.tag     = 'sMKL_reg_opt';
 sMKL_reg_opt.name    = 'Optimize hyper-parameter';
 sMKL_reg_opt.help    = {['Whether to optimize C, the MKL hyper-parameter, or not. '...
     'If Yes, than provide a range of possible values for C, in the form '...
-    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.' ...
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. ' ...
     'If not, a default value will be used (C=1).']};
 sMKL_reg_opt.labels  = {
     'No'
@@ -648,7 +639,7 @@ krr_opt.tag     = 'krr_opt';
 krr_opt.name    = 'Optimize hyper-parameter';
 krr_opt.help    = {['Whether to optimize K, the KRR hyper-parameter, or not. '...
     'If Yes, than provide a range of possible values for K, in the form '...
-    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.' ...
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. ' ...
     'If not, a default value will be used.']};
 krr_opt.labels  = {
     'No'
@@ -663,7 +654,7 @@ krr_opt.val     = {0};
 krr_args         = cfg_entry;
 krr_args.tag     = 'krr_args';
 krr_args.name    = 'Regularization';
-krr_args.help    = {['Regularization for prt_machine_krr.',...
+krr_args.help    = {['Regularization for prt_machine_krr. ',...
     'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.']};
 krr_args.strtype = 'e';
 krr_args.val     = {1};
@@ -738,10 +729,12 @@ rt.val     = {rt_args};
 machine_cl       = cfg_choice;
 machine_cl.tag    = 'machine_cl';
 machine_cl.name   = 'Machine';
-machine_cl.values = {svm,gpc,gpclap,rt,sMKL_cla,custom_machine};
+machine_cl.values = {svm, gpc, gpclap, sMKL_cla, custom_machine}; 
 machine_cl.val    =  {svm};
 machine_cl.help   = {...
     ['Choose a prediction machine for this model']};
+% Random Trees out since only kernel methods available for the moment
+% machine_cl.values = {svm,gpc,gpclap,rt,sMKL_cla,custom_machine};
 
 % ---------------------------------------------------------------------
 % machine_rg Select Machine
@@ -803,7 +796,6 @@ model_type.name   = 'Model Type ';
 model_type.values = {classification, regression};
 model_type.help   = {'Select which kind of predictive model is to be used.'};
 
-
 % ---------------------------------------------------------------------
 % include_allscans Include unused scans
 % ---------------------------------------------------------------------
@@ -843,15 +835,23 @@ data_op         = cfg_menu;
 data_op.tag     = 'data_op';
 data_op.name    = 'Operation';
 data_op.help    = {'Select an operation to apply.'};
+% data_op.labels  = {
+%     'Done'
+%     'Sample averaging (within block)'
+%     'Sample averaging (within subject/condition)'
+%     'Mean centre features using training data'
+%     'Normalize samples'
+%     'Regress out covariates (subjects only)'
+% }';
+% data_op.values  = {0 1 2 3 4 5};
 data_op.labels  = {
     'Done'
     'Sample averaging (within block)'
     'Sample averaging (within subject/condition)'
     'Mean centre features using training data'
     'Normalize samples'
-    'Perform a GLM (fMRI only)'
-}';
-data_op.values  = {0 1 2 3 4 5};
+    }';
+data_op.values  = {0 1 2 3 4};
 data_op.val     = {0};
 
 % ---------------------------------------------------------------------
@@ -865,8 +865,8 @@ data_op_mc.labels  = {
     'Yes'
     'No'
 }';
-data_op_mc.values  = {0 1};
-data_op_mc.val     = {0};
+data_op_mc.values  = {1 0};
+data_op_mc.val     = {1};
 
 % ---------------------------------------------------------------------
 % other_ops Other Operations
@@ -901,7 +901,6 @@ sel_ops.name    = 'Data operations';
 sel_ops.help    = {...
     ['Specify operations to apply']};
 sel_ops.val     = {data_op_mc use_other_ops};
-
 
 % ---------------------------------------------------------------------
 % data_ops Select Features

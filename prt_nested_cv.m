@@ -53,10 +53,8 @@ switch PRT.model(in.mid).input.machine.function
         else
             d1 = -2 : 3;
             par = 10 .^(d1);
-            beep
-            warning('No parameter range specified for optimization, using 10^-2 to 10^3')
         end
-    case 'prt_machine_ENMKL'
+    case 'prt_machine_wip'
         if ~isempty(PRT.model(in.mid).input.nested_param)
             % Get parameter ranges from PRT
             c = PRT.model(in.mid).input.nested_param{1};
@@ -70,8 +68,6 @@ switch PRT.model(in.mid).input.machine.function
             mu = 0:0.1:1;
             [c_mesh,mu_mesh] = meshgrid(c, mu);
             par = [c_mesh(:), mu_mesh(:)]';
-            beep
-            warning('No parameter range specified for C and mu, using 10^-2 to 10^3 and 0 to 1')
         end
         
     otherwise
@@ -97,7 +93,7 @@ for i = 1:size(par, 2)
             PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'regression';
             
-        case 'prt_machine_ENMKL'
+        case 'prt_machine_wip'
             PRT.model(in.mid).input.machine.args = par(:,i)';
             m.type = 'classifier';
             
@@ -155,7 +151,7 @@ end
 
 % For now, only parameter optimisation. Add flag for feature selection
 % Get optimal parameter
-if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_ENMKL')
+if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_wip')
     
     % Reshape the stats vector into a matrix
     stats_mat = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';

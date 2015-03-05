@@ -29,7 +29,6 @@ else
 end
 pathdir = regexprep(fname,'PRT.mat', '');
 
-
 % -------------------------------------------------------------------------
 % Input file
 % -------------------------------------------------------------------------
@@ -42,13 +41,12 @@ else
     flag      = 0;
 end
 
-
 % -------------------------------------------------------------------------
 % Weights per ROI
 % -------------------------------------------------------------------------
-if isfield(job, 'atl_name')
-    if ~isempty(job.atl_name{1})
-        in.atl_name = job.atl_name{1};
+if isfield(job, 'build_wpr')
+    if isfield(job.build_wpr,'atl_name') && ~isempty(job.build_wpr.atl_name{1})
+        in.atl_name = job.build_wpr.atl_name{1};
         flag2 = 1;
     else
         in.atl_name = [];

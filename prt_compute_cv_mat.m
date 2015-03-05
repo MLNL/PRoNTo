@@ -1,5 +1,11 @@
 function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)
-% Function to compute the cross-validation matrix. Also does error checking
+% Function to compute the cross-validation matrix. 
+% Also does error checking
+%__________________________________________________________________________
+% Copyright (C) 2015 Machine Learning & Neuroimaging Laboratory
+
+% Written by J. Schrouff
+% $Id$
 
 % Check if the use_nested_cv varible has been inputed
 if ~exist('use_nested_cv', 'var')
@@ -31,7 +37,6 @@ else
     k = in.cv.k;    
 end
 
-
 if k==1 %half-half
     k=2;
     flaghh=1;
@@ -59,15 +64,16 @@ switch in.cv.type
     case 'loso'
         % leave-one-subject-out
         % give each subject a unique id
-        [gids,d1] = unique(ID(:,1), 'last');
-        [gids,d2] = unique(ID(:,1),'first');
+
+        gids = unique(ID(:,1));
         gc = 0;
         ns=zeros(length(gids),1);
         dID = ID;
+        gidx = cell(length(ns),1);
         for g = 1:length(gids)
-            ns(g)=length(unique(ID(d2(g):d1(g),2)));
-            gidx = ID(:,1) == gids(g);
-            dID(gidx,2) = dID(gidx,2) + gc;
+            gidx{g} = ID(:,1) == gids(g);
+            ns(g)=length(unique(ID(gidx{g},2)));
+            dID(gidx{g},2) = dID(gidx{g},2) + gc;
             gc = gc + ns(g);
         end
         % Compute CV matrix
@@ -93,7 +99,7 @@ switch in.cv.type
         end
         snums=[];
         for g = 1:length(gids)
-            snums = [snums;histc(dID(d2(g):d1(g),2),unique(dID(d2(g):d1(g),2)))];
+            snums = [snums;histc(dID(gidx{g},2),unique(dID(gidx{g},2)))];
         end
         if length(snums) == 1
             error('prt_model:losoSelectedWithOneSubject',...
@@ -217,20 +223,18 @@ switch in.cv.type
         
     case 'lobo'
         % leave-one-block-out - limited to one single subject for the
-        % moment
-        % give each block a unique id
-        [cids,d1] = unique(ID(:,4), 'last');
-        [cids,d2] = unique(ID(:,4),'first');
+        % moment       
+        cids = unique(ID(:,4));        
         gc = 0;
         nb=zeros(length(cids),1);
         dID = ID;
+        cidx = cell(length(cids),1);
         for c = 1:length(cids)
-            nb(c)=length(unique(ID(d2(c):d1(c),5)));
-            cidx = ID(:,4) == cids(c);
-            dID(cidx,5) = dID(cidx,5) + gc;
+            cidx{c} = ID(:,4) == cids(c);
+            nb(c)=length(unique(ID(cidx{c},5)));            
+            dID(cidx{c},5) = dID(cidx{c},5) + gc;
             gc = gc + nb(c);
         end
-        
         if k>1 %k-fold CV
             nsb=floor(gc/k);
             % Check that the number of folds does not exceed the number of
@@ -250,11 +254,10 @@ switch in.cv.type
             end
         else %Leave-One-Block-Out
             sk = 1:gc;
-            nsb=1;
         end
         snums=[];
         for g = 1:length(cids)
-            snums = [snums;histc(dID(d2(g):d1(g),5),unique(dID(d2(g):d1(g),5)))];
+            snums = [snums;histc(dID(cidx{g},5),unique(dID(cidx{g},5)))];
         end
         if length(snums) == 1
             error('prt_model:logoSelectedWithOneSubject',...
@@ -305,13 +308,22 @@ switch in.cv.type
                 end
             end
             % leave-one-subject-per-group-out
-            [gids,d1] = unique(vcl(:,1), 'last');
-            [gids,d2] = unique(vcl(:,1),'first');
-            %compute the number of subjects per class
-            ns=zeros(length(gids),1);
-            for ig= 1:length(gids)
-                ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
+            cids = unique(vcl(:,1));        
+            gc = 0;
+            ns=zeros(length(cids),1);
+            cidx = cell(length(cids),1);
+            for c = 1:length(cids)
+                cidx{c} = vcl(:,1) == cids(c);
+                ns(c)=length(unique(vcl(cidx{c},2)));            
+                gc = gc + ns(c);
             end
+%             [gids,d1] = unique(vcl(:,1), 'last');
+%             [gids,d2] = unique(vcl(:,1),'first');
+%             %compute the number of subjects per class
+%             ns=zeros(length(gids),1);
+%             for ig= 1:length(gids)
+%                 ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
+%             end
         elseif isfield(in,'t')
             ntar = unique(in.t);
             ns=zeros(length(ntar),1);
@@ -400,7 +412,7 @@ switch in.cv.type
         end
         
     case 'custom'
-        %load matrix and check that each fold contains test and train data.
+        % load matrix and check that each fold contains test and train data.
         if isfield(in.cv,'mat_file') && ~isempty(in.cv.mat_file)
             load(in.cv.mat_file)
             if ~exist('CV')
@@ -428,16 +440,15 @@ switch in.cv.type
                 end
             end
         elseif isfield(PRT.model(modelid).input,'cv_mat') && ...
-                ~isempty(PRT.model(modelid).input.cv_mat) %custom CV specified by GUI
-            CV=PRT.model(modelid).input.cv_mat;
+                ~isempty(PRT.model(modelid).input.cv_mat) % custom CV specified by GUI
+            CV = PRT.model(modelid).input.cv_mat;
         else
-            %custom CV with only number of folds specified
+            % custom CV with only number of folds specified
             if isfield(in.cv,'k')
-                CV = ones (size(ID,1),in.cv.k);
+                CV = ones(size(ID,1),in.cv.k);
             end
             
         end
-        
         
     otherwise
         error('prt_cv:unknownTypeSpecified',...

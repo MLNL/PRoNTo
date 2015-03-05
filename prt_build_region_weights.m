@@ -1,20 +1,25 @@
-function [NW_roi,idfeatroi]=prt_build_region_weights(weight_fname,atlas_fname,build_im,comp_perm)
+function [NW_roi,idfeatroi] = prt_build_region_weights(weight_fname,atlas_fname,build_im,comp_perm)
 %
-%function to compute the weights for each region as specified by the atlas
-%image (one value per region). Weights not in the atlas are comprised in an
-%additional region with name 'others'.
-%--------------------------------------------------------------------------
-%input: name of the weights image (weight_fname), name of the atlas image 
-%       (atlas_fname). build_im is set to 1 to build the resulting image.
-%       comp_perm is set to 1 to compute the ranking for the permutations.
-%output: -image file with the normalized weights in each region, which can
-%         be viewed in the results GUI as a weight image.
-%        -.mat file containing the weights of each ROI, in %, pH, the
-%        normalized weights for each region, in %, pHN and the list of
-%        region names.
-%--------------------------------------------------------------------------
-%Written by Jessica Schrouff, 19/09/2012
-%for PRoNTo
+% Function to compute the weights for each region as specified by the atlas
+% image (one value per region). Weights not in the atlas are comprised in an
+% additional region with name 'others'.
+%
+% --------------------------------------------------------------------------
+% INPUT : 
+%   - weight_fname : name of the weights image
+%   - atlas_fname  : name of the atlas image
+%   - build_im     : set to 1 to build the resulting image.
+%   - comp_perm    : set to 1 to compute the ranking for the permutations.
+% OUTPUT: 
+%   - image file with the normalized weights in each region, which can
+%           be viewed in the results GUI as a weight image.
+%   - .mat file containing the weights of each ROI, in %, pH, the
+%           normalized weights for each region, in %, pHN and the list of
+%           region names.
+%__________________________________________________________________________
+% Copyright (C) 2015 Machine Learning & Neuroimaging Laboratory
+
+% Written by Jessica Schrouff, 19/09/2012
 
 
 %select weight map

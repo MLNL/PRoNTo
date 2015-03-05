@@ -65,10 +65,10 @@ __________________________________________________________________________
 <h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
 This function calls:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_normalise_kernel.html" class="code" title="function K_normalised = prt_normalise_kernel(K)">prt_normalise_kernel</a>	FORMAT K_normalised = prt_normalise_kernel(K)</li></ul>
+<li><a href="prt_remove_confounds.html" class="code" title="function [Kr, R] = prt_remove_confounds(K,C)">prt_remove_confounds</a>	[Kr, R] = prt_remove_confounds(K,C)</li></ul>
 This function is called by:
 <ul style="list-style-image:url(../matlabicon.gif)">
-<li><a href="prt_compute_weights.html" class="code" title="function prt_compute_weights(PRT,in)">prt_compute_weights</a>	FORMAT prt_compute_weights(PRT,in)</li><li><a href="prt_cv_fold.html" class="code" title="function [model, targets] = prt_cv_fold(PRT, in)">prt_cv_fold</a>	Function to run a single cross-validation fold</li></ul>
+<li><a href="prt_compute_weights_class.html" class="code" title="function img_name = prt_compute_weights_class(PRT,in,model_idx,flag, ibe, flag2)">prt_compute_weights_class</a>	FORMAT prt_compute_weights_class(PRT,in,model_idx)</li><li><a href="prt_compute_weights_regre.html" class="code" title="function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag, ibe, flag2)">prt_compute_weights_regre</a>	FORMAT prt_compute_weights_regre(PRT,in,model_idx)</li><li><a href="prt_cv_fold.html" class="code" title="function [model, targets] = prt_cv_fold(PRT, in)">prt_cv_fold</a>	Function to run a single cross-validation fold</li></ul>
 <!-- crossreference -->
 
 <h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
@@ -112,7 +112,7 @@ This function is called by:
 0034 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0035 
 0036 <span class="comment">% Written by A Marquand</span>
-0037 <span class="comment">% $Id: prt_apply_operation.m 422 2012-01-26 10:30:21Z amarquan $</span>
+0037 <span class="comment">% $Id$</span>
 0038 
 0039 <span class="comment">% copy input fields to output</span>
 0040 out = in;
@@ -242,7 +242,7 @@ This function is called by:
 0164             <span class="keyword">if</span> ~isfield(in,<span class="string">'test'</span>)
 0165                 <span class="comment">% No test data</span>
 0166                 <span class="keyword">if</span> in.use_kernel
-0167                     Phi = <a href="prt_normalise_kernel.html" class="code" title="function K_normalised = prt_normalise_kernel(K)">prt_normalise_kernel</a>(in.train{d});
+0167                     Phi = prt_normalise_kernel(in.train{d});
 0168                     tr = 1:size(in.train{d},1);
 0169                     out.train{d} = Phi(tr,tr);
 0170                 <span class="keyword">else</span>
@@ -255,7 +255,7 @@ This function is called by:
 0177                 
 0178                 <span class="keyword">if</span> in.use_kernel
 0179                     Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
-0180                     Phi = <a href="prt_normalise_kernel.html" class="code" title="function K_normalised = prt_normalise_kernel(K)">prt_normalise_kernel</a>(Phi);
+0180                     Phi = prt_normalise_kernel(Phi);
 0181                     
 0182                     tr = 1:size(in.train{d},1);
 0183                     te = (1:size(in.test{d},1))+max(tr);
@@ -285,83 +285,117 @@ This function is called by:
 0207         <span class="keyword">case</span> 5 
 0208             <span class="comment">% perform a GLM</span>
 0209             <span class="comment">% -------------</span>
-0210             error (<span class="string">'GLM not implemented yet'</span>);
-0211                         
-0212         <span class="keyword">otherwise</span>
-0213             error(<span class="string">'prt_apply_operation:UnknownOperationSpecified'</span>,<span class="keyword">...</span>
-0214                 <span class="string">'Unknown operation requested'</span>);
-0215     <span class="keyword">end</span>
-0216 <span class="keyword">end</span>
-0217 
-0218 <span class="comment">%out.use_kernel = in.use_kernel;</span>
-0219 <span class="comment">%if isfield(in,'pred_type');</span>
-0220 <span class="comment">%    out.pred_type  = in.pred_type;</span>
-0221 <span class="comment">%end</span>
-0222 <span class="keyword">end</span>
-0223 
-0224 <span class="comment">% -------------------------------------------------------------------------</span>
-0225 <span class="comment">% Private Functions</span>
-0226 <span class="comment">% -------------------------------------------------------------------------</span>
-0227 
-0228 <a name="_sub1" href="#_subfunctions" class="code">function P = compute_tc_mat(ID)</a>
-0229 <span class="comment">% function to compute the block averaging matrix (P) necessary to apply</span>
-0230 <span class="comment">% temporal compression</span>
-0231 
-0232 <span class="comment">% give each block a unique id</span>
-0233 IDc = zeros(size(ID,1),1);
-0234 C = {}; 
-0235 ccount = 0; 
-0236 lastid = zeros(1,5);
-0237 <span class="keyword">for</span> c = 1:size(ID,1)
-0238     currid = ID(c,1:5);  
-0239     <span class="keyword">if</span> any(lastid ~= currid)
-0240         ccount = ccount + 1;
-0241     <span class="keyword">end</span>
-0242     lastid = currid;
-0243     IDc(c) = ccount;
-0244 <span class="keyword">end</span>
-0245 
-0246 <span class="comment">% Compute sample averaging matrix</span>
-0247 cids  = unique(IDc);
-0248 cnums = histc(IDc,cids);
-0249 C = cell(length(cnums),1);
-0250 <span class="keyword">for</span> c = 1:length(cnums)
-0251     C{c} = 1/cnums(c) .* ones(1,cnums(c));
-0252 <span class="keyword">end</span>
-0253 P = blkdiag(C{:});
-0254 <span class="keyword">end</span>
-0255 
-0256 <a name="_sub2" href="#_subfunctions" class="code">function P = compute_sa_mat(ID)</a>
-0257 <span class="comment">% function to compute the block averaging matrix (P) necessary to apply</span>
-0258 <span class="comment">% temporal compression</span>
-0259 
-0260 <span class="comment">% give each subject a unique id</span>
-0261 IDs = zeros(size(ID,1),1);
-0262 ccount = 0; 
-0263 lastid = zeros(1,2);
-0264 <span class="keyword">for</span> s = 1:size(ID,1)
-0265     currid = ID(s,1:2);  
-0266     <span class="keyword">if</span> any(lastid ~= currid)
-0267         ccount = ccount + 1;
-0268     <span class="keyword">end</span>
-0269     lastid = currid;
-0270     IDs(s) = ccount;
-0271 <span class="keyword">end</span>
-0272 
-0273 subs = unique(IDs);
-0274 
-0275 P = [];
-0276 <span class="keyword">for</span> s = 1:length(subs)
-0277     sidx = IDs == subs(s);
-0278     conds = unique(ID(sidx,4));
-0279     <span class="keyword">for</span> c = 1:length(conds)
-0280         p = (IDs == s &amp; ID(:,4) == conds(c))';
-0281         P = [P; 1./sum(p) * double(p)];
-0282     <span class="keyword">end</span>
-0283 <span class="keyword">end</span>
-0284 P = double(P);
-0285 <span class="keyword">end</span>
-0286</pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0210             <span class="keyword">if</span> ~isfield(in,<span class="string">'tr_cov'</span>)
+0211                 error(<span class="string">'prt_apply_operation:NoCovariates'</span>,<span class="keyword">...</span>
+0212                 <span class="string">'No covariates found to perform requested GLM'</span>);
+0213             <span class="keyword">end</span>
+0214             <span class="keyword">if</span> ~isfield(in,<span class="string">'test'</span>) 
+0215                 <span class="comment">% No test data</span>
+0216                 <span class="keyword">if</span> in.use_kernel
+0217                     out.train{d} = <a href="prt_remove_confounds.html" class="code" title="function [Kr, R] = prt_remove_confounds(K,C)">prt_remove_confounds</a>(in.train{d},in.tr_cov);
+0218                 <span class="keyword">else</span>
+0219                     error(<span class="string">'prt_apply_operation:GLMnonKernel'</span>,<span class="keyword">...</span>
+0220                 <span class="string">'GLM not implemented for non-kernel methods'</span>);
+0221                 <span class="keyword">end</span>
+0222             <span class="keyword">else</span> <span class="comment">% Test data: for now does NOT take train/test division</span>
+0223                 Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
+0224                  <span class="keyword">if</span> in.use_kernel
+0225                     [Phi] = <a href="prt_remove_confounds.html" class="code" title="function [Kr, R] = prt_remove_confounds(K,C)">prt_remove_confounds</a>(Phi,[in.tr_cov;in.te_cov]);
+0226                     tr = 1:size(in.train{d},1);
+0227                     te = (1:size(in.test{d},1))+max(tr);
+0228                     out.train{d}    = Phi(tr,tr);
+0229                     out.test{d}     = Phi(te,tr);
+0230                     out.testcov{d}  = Phi(te,te);
+0231                 <span class="keyword">else</span>
+0232                     error(<span class="string">'prt_apply_operation:GLMnonKernel'</span>,<span class="keyword">...</span>
+0233                      <span class="string">'GLM not implemented for non-kernel methods'</span>);
+0234                 <span class="keyword">end</span>
+0235                 out.te_id = in.te_id;
+0236             <span class="keyword">end</span>
+0237             out.tr_id = in.tr_id;
+0238             <span class="keyword">if</span> isfield(in,<span class="string">'tr_targets'</span>)
+0239                 out.tr_targets = in.tr_targets;
+0240             <span class="keyword">end</span>
+0241             <span class="keyword">if</span> isfield(in,<span class="string">'te_targets'</span>)
+0242                 out.te_targets = in.te_targets;
+0243             <span class="keyword">end</span>
+0244             
+0245                         
+0246         <span class="keyword">otherwise</span>
+0247             error(<span class="string">'prt_apply_operation:UnknownOperationSpecified'</span>,<span class="keyword">...</span>
+0248                 <span class="string">'Unknown operation requested'</span>);
+0249     <span class="keyword">end</span>
+0250 <span class="keyword">end</span>
+0251 
+0252 <span class="comment">%out.use_kernel = in.use_kernel;</span>
+0253 <span class="comment">%if isfield(in,'pred_type');</span>
+0254 <span class="comment">%    out.pred_type  = in.pred_type;</span>
+0255 <span class="comment">%end</span>
+0256 <span class="keyword">end</span>
+0257 
+0258 <span class="comment">% -------------------------------------------------------------------------</span>
+0259 <span class="comment">% Private Functions</span>
+0260 <span class="comment">% -------------------------------------------------------------------------</span>
+0261 
+0262 <a name="_sub1" href="#_subfunctions" class="code">function P = compute_tc_mat(ID)</a>
+0263 <span class="comment">% function to compute the block averaging matrix (P) necessary to apply</span>
+0264 <span class="comment">% temporal compression</span>
+0265 
+0266 <span class="comment">% give each block a unique id</span>
+0267 IDc = zeros(size(ID,1),1);
+0268 C = {}; 
+0269 ccount = 0; 
+0270 lastid = zeros(1,5);
+0271 <span class="keyword">for</span> c = 1:size(ID,1)
+0272     currid = ID(c,1:5);  
+0273     <span class="keyword">if</span> any(lastid ~= currid)
+0274         ccount = ccount + 1;
+0275     <span class="keyword">end</span>
+0276     lastid = currid;
+0277     IDc(c) = ccount;
+0278 <span class="keyword">end</span>
+0279 
+0280 <span class="comment">% Compute sample averaging matrix</span>
+0281 cids  = unique(IDc);
+0282 cnums = histc(IDc,cids);
+0283 C = cell(length(cnums),1);
+0284 <span class="keyword">for</span> c = 1:length(cnums)
+0285     C{c} = 1/cnums(c) .* ones(1,cnums(c));
+0286 <span class="keyword">end</span>
+0287 P = blkdiag(C{:});
+0288 <span class="keyword">end</span>
+0289 
+0290 <a name="_sub2" href="#_subfunctions" class="code">function P = compute_sa_mat(ID)</a>
+0291 <span class="comment">% function to compute the block averaging matrix (P) necessary to apply</span>
+0292 <span class="comment">% temporal compression</span>
+0293 
+0294 <span class="comment">% give each subject a unique id</span>
+0295 IDs = zeros(size(ID,1),1);
+0296 ccount = 0; 
+0297 lastid = zeros(1,2);
+0298 <span class="keyword">for</span> s = 1:size(ID,1)
+0299     currid = ID(s,1:2);  
+0300     <span class="keyword">if</span> any(lastid ~= currid)
+0301         ccount = ccount + 1;
+0302     <span class="keyword">end</span>
+0303     lastid = currid;
+0304     IDs(s) = ccount;
+0305 <span class="keyword">end</span>
+0306 
+0307 subs = unique(IDs);
+0308 
+0309 P = [];
+0310 <span class="keyword">for</span> s = 1:length(subs)
+0311     sidx = IDs == subs(s);
+0312     conds = unique(ID(sidx,4));
+0313     <span class="keyword">for</span> c = 1:length(conds)
+0314         p = (IDs == s &amp; ID(:,4) == conds(c))';
+0315         P = [P; 1./sum(p) * double(p)];
+0316     <span class="keyword">end</span>
+0317 <span class="keyword">end</span>
+0318 P = double(P);
+0319 <span class="keyword">end</span>
+0320</pre></div>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

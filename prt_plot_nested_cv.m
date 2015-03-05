@@ -22,6 +22,7 @@ function prt_plot_nested_cv(PRT, model, fold, axes_handle)
 
 
 % Check machine and set the labels an axes
+logscale = 0;
 switch PRT.model(model).input.machine.function
     case {'prt_machine_svm_bin','prt_machine_sMKL_cla'}
         x_label = 'C';
@@ -30,11 +31,13 @@ switch PRT.model(model).input.machine.function
         %If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
             figure;
-            axes_handle = axes('XScale','log','XMinorTick','on');
+            axes_handle = axes('XMinorTick','on');
+            logscale = 1;
         else
             % Clear EVERYTHING in the UI before defining the axes
             cla(axes_handle, 'reset');
-            set(axes_handle, 'XScale','log','XMinorTick','on');
+            set(axes_handle,'XMinorTick','on');
+            logscale = 1;
         end
         box(axes_handle,'on');
         hold(axes_handle,'all');
@@ -46,11 +49,13 @@ switch PRT.model(model).input.machine.function
         %If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
             figure;
-            axes_handle = axes('XScale','log','XMinorTick','on');
+            axes_handle = axes('XMinorTick','on');
+            logscale = 1;
         else
             % Clear EVERYTHING in the UI before defining the axes
             cla(axes_handle, 'reset');
-            set(axes_handle, 'XScale','log','XMinorTick','on');
+            set(axes_handle, 'XMinorTick','on');
+            logscale = 1;
         end
         box(axes_handle,'on');
         hold(axes_handle,'all');
@@ -64,15 +69,16 @@ switch PRT.model(model).input.machine.function
         if ~exist('axes_handle', 'var')
             figure;
             axes_handle = axes;
+            logscale = 1;
         else
             % Clear EVERYTHING in the UI before defining the axes
             cla(axes_handle, 'reset');
-            set(axes_handle, 'XScale','linear');
+            logscale = 1;
         end
         
         
         
-    case 'prt_machine_ENMKL'
+    case 'prt_machine_wip'
         x_label = 'mu';
         y_label = 'C';
         z_label = 'Balanced Accuracy (%)';
@@ -84,7 +90,8 @@ switch PRT.model(model).input.machine.function
         else
             % Clear EVERYTHING in the UI before defining the axes
             cla(axes_handle, 'reset');
-            set(axes_handle, 'XScale','linear', 'YScale','log', 'XMinorTick','on', 'YMinorTick','on');
+            set(axes_handle, 'XScale','linear', 'XMinorTick','on', 'YMinorTick','on');
+            logscale = 1;
         end
         
     otherwise
@@ -95,10 +102,13 @@ end
 cla(axes_handle)
 rotate3d off
 set(axes_handle,'Color',[1,1,1])
+pos=get(axes_handle,'Position');
+set(axes_handle,'Position',[pos(1) pos(2) 0.9*pos(3) pos(4)])
+
 
 
 % Check if it's a 2 parameter optimisation problem
-if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
+if strcmp(PRT.model(model).input.machine.function, 'prt_machine_wip')
     
     if fold == 1
         
@@ -121,7 +131,7 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         
         %         subplot(2,1,1);
         % TODO: Put Logscale on the Y axis
-        axes_handle = image(f_mean, 'CDataMapping', 'scaled', 'XData', mu, 'YData', c);
+        axes_handle = image(f_mean, 'CDataMapping', 'scaled', 'XData', mu, 'YData', log10(c));
         % set(axes_handle,'Yscale','log','Ydir','normal');
         axes_color = colorbar;
         title('Mean')
@@ -195,7 +205,7 @@ if strcmp(PRT.model(model).input.machine.function, 'prt_machine_ENMKL')
         f = 100.*f;
         
         % Plot points
-        axes_handle = image(f, 'CDataMapping', 'scaled', 'XData', mu, 'YData', c);
+        axes_handle = image(f, 'CDataMapping', 'scaled', 'XData', mu, 'YData', log10(c));
         axes_color = colorbar;
         
         % Properties
@@ -250,21 +260,43 @@ else % It's a 1 parameter optimisation problem
         
         
         % Plot
-        hold on
-        errorbar(axes_handle, x, f_mean, f_std, 'xk', 'markersize', markersize, 'linewidth', 2);
-        plot(axes_handle, x, mean(f), '-k', 'linewidth', 1);
-        for i = 1:length(x_opt)
-            R = x_opt(i);
-            B = 1-R;
-            plot(x(i), f_mean(i), 'x', 'markersize', markersize, ...
-                'linewidth', 3,'Color', [R 0 B]);
+        if logscale
+            x = log10(x);
         end
+      
+        hold on
+        [hax,hbar,hline] = plotyy(x,x_opt*100,x,mean(f),'bar','plot');
+        errorbar(axes_handle, x, f_mean, f_std, '.k', 'linewidth', 2);
+        set(hbar,'BarWidth',0.5,'FaceColor',[0.5 0.8 0.5])
+        set(hline,'Color','k','Linewidth',1)
+        set(hax(1),'YColor',[0.1,0.6,0.1])
+        set(hax(2),'YColor',[0,0,0])
+%         for i = 1:length(x_opt)
+%             R = x_opt(i);
+%             B = 1-R;
+%             plot(x(i), f_mean(i), 'o', 'markersize', 4, ...
+%                 'linewidth', 0.01,'MarkerFaceColor', [R 0 B]);
+%         end
         hold off
         
         % Properties
-        xlabel(axes_handle, x_label,'FontWeight','bold');
-        ylabel(axes_handle, y_label,'FontWeight','bold');
-        axis(axes_handle, [min(x) max(x) f_min f_max]);
+       
+        ylabel(hax(2), y_label,'FontWeight','bold');
+        ylabel(hax(1),'Frequency of selection (%)','FontWeight','bold');
+        if logscale 
+             xlabel(axes_handle, [x_label, ' (log 10)'],'FontWeight','bold');
+        else
+             xlabel(axes_handle, x_label,'FontWeight','bold');
+        end
+        axis(hax(1), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
+        axis(hax(2), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
+        set(hax(2),'XTickLabel',{})
+        set(hax(2),'YTickLabel',{})
+        a=get(hax(1),'YTick');
+        b=get(hax(1),'YTickLabel');
+        set(hax(2),'YTick',a);
+        set(hax(2),'YTickLabel',b);
+        
         
     else
         
@@ -298,6 +330,9 @@ else % It's a 1 parameter optimisation problem
                 error('Type of model not recognised');
         end
         
+        if logscale
+            x = log10(x);
+        end
         
         % Plot all points
         hold on
@@ -307,6 +342,9 @@ else % It's a 1 parameter optimisation problem
         hold off
         
         % Properties
+        if logscale
+            x_label = [x_label,' (log 10)'];
+        end
         xlabel(axes_handle, x_label,'FontWeight','bold');
         ylabel(axes_handle, y_label,'FontWeight','bold');
         legend(opt_handle, 'Optimal value(s)');

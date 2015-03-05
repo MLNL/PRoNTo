@@ -28,7 +28,7 @@ function varargout = prt_ui_results_stats(varargin)
 
 % Edit the above text to modify the response to help prt_ui_results_stats
 
-% Last Modified by GUIDE v2.5 02-Jan-2014 17:05:27
+% Last Modified by GUIDE v2.5 26-Jan-2015 17:01:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -348,8 +348,14 @@ function plotmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns plotmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from plotmenu
 
+nplot         = get(handles.plotmenu,'String');
 plotm         = get(handles.plotmenu,'Value');
 plotchosen    = num2str(plotm);
+if plotm>length(nplot)  % reset to 1 if list of available plot smaller than chosen plot
+    set(handles.plotmenu,'Value',1);
+    plotm = 1;
+    plotchosen    = num2str(plotm);
+end
 fold          = get(handles.foldmenu,'Value');
 model         = get(handles.classmenu,'Value');
 mi            = handles.mi;
@@ -362,6 +368,9 @@ isyc2         = 0;
 c1            = 0;
 c2            = 0;
 rotate3d off
+pos = [0.108 0.1101 0.8543 0.8165];
+set(handles.axes5,'Position',pos);
+
 
 if strcmp(PRT.model(model).input.type,'classification')
     %     mclass        = length(handles.PRT.model(model).output.stats.c_acc);
@@ -920,3 +929,23 @@ function showweights_Callback(hObject, eventdata, handles)
 % hObject    handle to showweights (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in editPlotButton.
+function editPlotButton_Callback(hObject, eventdata, handles)
+% hObject    handle to editPlotButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get stuff from the displayed figure
+old_fig = gcf;
+figure_children = get(old_fig,'Children');
+children_axes = findall(figure_children,'Type','axes'); %important to get the legends too
+
+% Create a new figure
+fig_out = figure;
+if length(children_axes) > 1 % There are legends in the figure
+    axes_out = copyobj([children_axes(1); children_axes(2)], fig_out);
+else % There are no legends in the figure
+    axes_out = copyobj(children_axes, fig_out);
+end

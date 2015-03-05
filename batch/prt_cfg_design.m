@@ -17,7 +17,7 @@ covar.help    = {['Select a .mat file containing '...
     'your covariates (i.e. any other data/information '...
     'you would like to include in your design). This file '...
     'should contain a variable ''R'' with a matrix of '...
-    'covariates.']};
+    'covariates. On covariate per image is expected.']};
 covar.val{1}  = {''};
 covar.filter  = 'mat';
 covar.ufilter = '.*';
@@ -119,6 +119,15 @@ hrfdel.help    = {['If using fMRI data please specify the delay of the '...
 hrfdel.strtype = 'e';
 hrfdel.num     = [1 1];
 hrfdel.def     = @(val)prt_get_defaults('datad.hrfd', val{:});
+
+% ---------------------------------------------------------------------
+% fmri_des fMRI design specific parameters
+% ---------------------------------------------------------------------
+fmri_des      = cfg_branch;
+fmri_des.tag  = 'fmri_des';
+fmri_des.name = 'fMRI_Des';
+fmri_des.val  = {hrfover, hrfdel};
+fmri_des.help = {'fMRI design specific parameters, HRF overlap and delay.'};
 
 % ---------------------------------------------------------------------
 % mod_name Name
@@ -349,7 +358,7 @@ new_design         = cfg_branch;
 new_design.tag     = 'new_design';
 new_design.name    = 'Specify design';
 new_design.help    = {'Specify design: scans (data), onsets and durations.'};
-new_design.val     = {unit conditions multi_conds covar};
+new_design.val     = {unit conditions multi_conds}; %covar for covar per trial (v3)
 
 % ---------------------------------------------------------------------
 % no_design No design
@@ -463,7 +472,7 @@ dir_name.num     = [1 1];
 data        = cfg_exbranch;
 data.tag    = 'data';
 data.name   = 'Data & Design';
-data.val    = {dir_name groups masks hrfover hrfdel review};
+data.val    = {dir_name groups masks fmri_des review};
 data.help   = {'Specify the data and design for each group (minimum one group).'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;

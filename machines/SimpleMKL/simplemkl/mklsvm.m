@@ -290,7 +290,7 @@ while loop & nloopmax >0 ;
     %----------------------------------------------------
     if  option.stopdualitygap== 1 & dualitygap < option.seuildualitygap
         loop = 0;
-        fprintf(1,'Duality gap criteria reached \n');
+        %fprintf(1,'Duality gap criteria reached \n');
 
         history.sigma= [history.sigma;Sigma];
         history.obj=[history.obj obj];

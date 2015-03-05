@@ -68,7 +68,7 @@ This function is called by:
 0013 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
 0014 
 0015 <span class="comment">% Written by A Marquand and J Schrouff</span>
-0016 <span class="comment">% $Id: prt_run_fs.m 558 2012-06-19 08:09:08Z amarquan $</span>
+0016 <span class="comment">% $Id$</span>
 0017 
 0018 <span class="comment">% Job variable</span>
 0019 <span class="comment">% -------------------------------------------------------------------------</span>
@@ -78,86 +78,106 @@ This function is called by:
 0023     clear PRT
 0024 <span class="keyword">end</span>
 0025 load(fname);
-0026 fs_name=job.k_file;
+0026 fs_name = job.k_file;
 0027 
-0028 mod=struct();
-0029 allmod={PRT.masks(:).mod_name};
-0030 modchos={job.modality(:).mod_name};
-0031 <span class="comment">%maskchos={job.mask(:).mod_name};</span>
-0032 maskchos={job.modality(:).mod_name};
-0033 
-0034 <span class="keyword">if</span> ~isempty(setdiff(modchos,allmod))
-0035     error([<span class="string">'Couldn''t find modality &quot;'</span>,cell2mat(modchos),<span class="string">'&quot; in PRT.mat'</span>]);
-0036 <span class="keyword">end</span>
-0037 
-0038 <span class="keyword">for</span> i=1:length(PRT.masks)
-0039     <span class="keyword">if</span> any(strcmpi(modchos,allmod{i}))
-0040         mod(i).mod_name=allmod{i};
-0041         ind=find(strcmpi(modchos,allmod{i}));
-0042         
-0043         <span class="comment">%mod(i).detrend=job.modality(ind).detrend;</span>
-0044         <span class="comment">%mod(i).param_dt=job.modality(ind).param_dt;</span>
-0045         <span class="keyword">if</span> isfield(job.modality(ind).detrend,<span class="string">'linear_dt'</span>)
-0046             mod(i).detrend=1;
-0047             mod(i).param_dt=job.modality(ind).detrend.linear_dt.paramPoly_dt;
-0048         <span class="keyword">elseif</span> isfield(job.modality(ind).detrend,<span class="string">'no_dt'</span>)
-0049             mod(i).detrend=0;
-0050             mod(i).param_dt=[];
-0051         <span class="keyword">else</span>
-0052             mod(i).detrend=2;
-0053             mod(i).param_dt=job.modality(ind).detrend.dct_dt.param_dt;
-0054         <span class="keyword">end</span>        
-0055         
-0056         <span class="keyword">if</span> isfield(job.modality(ind).normalise,<span class="string">'no_gms'</span>)
-0057             mod(i).normalise = 0;
-0058             mod(i).matnorm = [];
-0059         <span class="keyword">elseif</span> isfield(job.modality(ind).normalise,<span class="string">'mat_gms'</span>)
-0060             mod(i).normalise=2;
-0061             mod(i).matnorm = char(job.modality(ind).normalise.mat_gms);
-0062         <span class="keyword">end</span>
-0063         
-0064         <span class="keyword">if</span> isfield(job.modality(ind).conditions,<span class="string">'all_cond'</span>)
-0065             mod(i).mode=<span class="string">'all_cond'</span>;
-0066         <span class="keyword">elseif</span> isfield(job.modality(ind).conditions,<span class="string">'all_scans'</span>)
-0067             mod(i).mode=<span class="string">'all_scans'</span>;
-0068         <span class="keyword">else</span>
-0069             error(<span class="string">'Wrong mode selected: choose either all scans or all conditions'</span>)
-0070         <span class="keyword">end</span>            
-0071         indm=find(strcmpi(maskchos,allmod{i}));
-0072 <span class="comment">%         if isempty(indm)</span>
-0073 <span class="comment">%             error(['No mask selected for ',allmod{i}])</span>
-0074 <span class="comment">%         else</span>
-0075 <span class="comment">%             mod(i).mask=char(job.modality(indm).fmask);</span>
-0076 <span class="comment">%         end</span>
-0077         <span class="keyword">if</span> isfield(job.modality(indm).voxels,<span class="string">'fmask'</span>)
-0078             mod(i).mask = char(job.modality(indm).voxels.fmask);
-0079         <span class="keyword">else</span>
-0080             mod(i).mask = [];
-0081         <span class="keyword">end</span>
-0082             
-0083     <span class="keyword">else</span>
-0084         mod(i).mod_name=[];<span class="comment">%allmod{i};</span>
-0085         mod(i).detrend=nan;
-0086         mod(i).mode=nan;
-0087         mod(i).mask=[];
-0088     <span class="keyword">end</span>
-0089 <span class="keyword">end</span>
-0090 
-0091 input=struct();
-0092 input.fname=fname;
-0093 input.fs_name=fs_name;
-0094 input.mod=mod;
-0095     
-0096 prt_fs(PRT,input);
-0097 
-0098 out.fname{1} = fname;
-0099 disp(<span class="string">'Done.'</span>)
-0100 <span class="keyword">end</span>
-0101 
-0102 
-0103 
-0104 
-0105</pre></div>
-<hr><address>Generated on Mon 03-Sep-2012 18:07:18 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+0028 <span class="comment">% Check for multimodal MKL flag</span>
+0029 <span class="keyword">if</span> isfield(job, <span class="string">'flag_mm'</span>)
+0030     flag_mm = job.flag_mm;
+0031 <span class="keyword">else</span>
+0032     flag_mm = 0;
+0033 <span class="keyword">end</span>
+0034 
+0035 mod      = struct();
+0036 allmod   = {PRT.masks(:).mod_name};
+0037 modchos  = {job.modality(:).mod_name};
+0038 <span class="comment">% maskchos = {job.mask(:).mod_name};</span>
+0039 maskchos = {job.modality(:).mod_name};
+0040 
+0041 <span class="keyword">if</span> ~isempty(setdiff(modchos,allmod))
+0042     error([<span class="string">'Couldn''t find modality &quot;'</span>,cell2mat(modchos),<span class="string">'&quot; in PRT.mat'</span>]);
+0043 <span class="keyword">end</span>
+0044 
+0045 <span class="keyword">for</span> i=1:length(PRT.masks)
+0046     <span class="keyword">if</span> any(strcmpi(modchos,allmod{i}))
+0047         mod(i).mod_name=allmod{i};
+0048         ind=find(strcmpi(modchos,allmod{i}));
+0049         
+0050         <span class="comment">%mod(i).detrend=job.modality(ind).detrend;</span>
+0051         <span class="comment">%mod(i).param_dt=job.modality(ind).param_dt;</span>
+0052         <span class="keyword">if</span> isfield(job.modality(ind).detrend,<span class="string">'linear_dt'</span>)
+0053             mod(i).detrend=1;
+0054             mod(i).param_dt=job.modality(ind).detrend.linear_dt.paramPoly_dt;
+0055         <span class="keyword">elseif</span> isfield(job.modality(ind).detrend,<span class="string">'no_dt'</span>)
+0056             mod(i).detrend=0;
+0057             mod(i).param_dt=[];
+0058         <span class="keyword">else</span>
+0059             mod(i).detrend=2;
+0060             mod(i).param_dt=job.modality(ind).detrend.dct_dt.param_dt;
+0061         <span class="keyword">end</span>        
+0062         
+0063         <span class="keyword">if</span> isfield(job.modality(ind).normalise,<span class="string">'no_gms'</span>)
+0064             mod(i).normalise = 0;
+0065             mod(i).matnorm = [];
+0066         <span class="keyword">elseif</span> isfield(job.modality(ind).normalise,<span class="string">'mat_gms'</span>)
+0067             mod(i).normalise=2;
+0068             mod(i).matnorm = char(job.modality(ind).normalise.mat_gms);
+0069         <span class="keyword">end</span>
+0070         
+0071         <span class="keyword">if</span> isfield(job.modality(ind).conditions,<span class="string">'all_cond'</span>)
+0072             mod(i).mode=<span class="string">'all_cond'</span>;
+0073         <span class="keyword">elseif</span> isfield(job.modality(ind).conditions,<span class="string">'all_scans'</span>)
+0074             mod(i).mode=<span class="string">'all_scans'</span>;
+0075         <span class="keyword">else</span>
+0076             error(<span class="string">'Wrong mode selected: choose either all scans or all conditions'</span>)
+0077         <span class="keyword">end</span>            
+0078         indm=find(strcmpi(maskchos,allmod{i}));
+0079 <span class="comment">%         if isempty(indm)</span>
+0080 <span class="comment">%             error(['No mask selected for ',allmod{i}])</span>
+0081 <span class="comment">%         else</span>
+0082 <span class="comment">%             mod(i).mask=char(job.modality(indm).fmask);</span>
+0083 <span class="comment">%         end</span>
+0084         <span class="keyword">if</span> isfield(job.modality(indm).voxels,<span class="string">'fmask'</span>)
+0085             mod(i).mask = char(job.modality(indm).voxels.fmask);
+0086         <span class="keyword">else</span>
+0087             mod(i).mask = [];
+0088         <span class="keyword">end</span>
+0089         
+0090         <span class="keyword">if</span> isfield(job.modality(ind),<span class="string">'atlasroi'</span>)
+0091             mod(i).atlasroi = job.modality(ind).atlasroi{1};
+0092             <span class="keyword">if</span> ~isempty(mod(i).atlasroi)
+0093                 mod(i).multroi = 1;
+0094             <span class="keyword">else</span>
+0095                 mod(i).multroi = 0;
+0096             <span class="keyword">end</span>
+0097         <span class="keyword">else</span>
+0098             mod(i).multroi = 0;
+0099         <span class="keyword">end</span>
+0100         
+0101     <span class="keyword">else</span>
+0102         mod(i).mod_name=[];<span class="comment">%allmod{i};</span>
+0103         mod(i).detrend=nan;
+0104         mod(i).mode=nan;
+0105         mod(i).mask=[];
+0106     <span class="keyword">end</span>
+0107 <span class="keyword">end</span>
+0108 
+0109 input = struct( <span class="keyword">...</span>
+0110             <span class="string">'fname'</span>,fname, <span class="keyword">...</span>
+0111             <span class="string">'fs_name'</span>,fs_name, <span class="keyword">...</span>
+0112             <span class="string">'mod'</span>,mod, <span class="keyword">...</span>
+0113             <span class="string">'flag_mm'</span>, flag_mm);
+0114     
+0115 prt_fs(PRT,input);
+0116 
+0117 out.fname{1} = fname;
+0118 out.fs_name  = fs_name;
+0119 disp(<span class="string">'Done.'</span>)
+0120 <span class="keyword">end</span>
+0121 
+0122 
+0123 
+0124 
+0125</pre></div>
+<hr><address>Generated on Tue 10-Feb-2015 18:16:33 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
 </body>
 </html>

@@ -55,7 +55,7 @@ switch lower(Action)
             addpath(fullfile(prt('Dir'),'utils'));
         end
         
-        % check installation of machines and that of SPM8
+        % check installation of machines and that of SPM8/12
         ok = check_installation;
         if ~ok
             beep
@@ -91,18 +91,18 @@ switch lower(Action)
         %==================================================================
     case 'asciiwelcome'                       %-ASCII PRoNTo banner welcome
         %==================================================================
-        disp( '                                                      ');
-        disp( '     ____  ____        _   ________                   ');
-        disp( '    / __ \/ __ \____  / | / /_  __/_         ___ ___  ');
-        disp( '   / /_/ / /_/ / __ \/  |/ / / / __ \   _  _<  /<  /  ');
-        disp( '  / ____/ _, _/ /_/ / /|  / / / /_/ /  | |/ / / / /   ');
-        disp( ' /_/   /_/ |_|\____/_/ |_/ /_/\____/   |___/_(_)_/    ');
-        disp( '                                                      ');
-        disp( '  PRoNTo v1.1 - http://www.mlnl.cs.ucl.ac.uk/pronto   ');
+        disp( '                                                             ');
+        disp( '     ____  ____        _   ________              ___    ____ ');
+        disp( '    / __ \/ __ \____  / | / /_  __/___     _   _|__ \  / __ \');
+        disp( '   / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / /_/ / / / / /');
+        disp( '  / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ / __/_/ /_/ / ');
+        disp( ' /_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/  ');
+        disp( '                                                             ');
+        disp( '      PRoNTo v2.0 - http://www.mlnl.cs.ucl.ac.uk/pronto      ');
         fprintf('\n');
         
         %==================================================================
-    case 'dir'                          %-Identify specific (SPM) directory
+    case 'dir'                          %-Identify specific (PRT) directory
         %==================================================================
         % prt('Dir',Mfile)
         %------------------------------------------------------------------
@@ -122,46 +122,31 @@ switch lower(Action)
         end
         PRTdir    = fileparts(PRTdir);
         varargout = {PRTdir};
-        
+ 
         %==================================================================
     case 'ver'                                             %-PRoNTo version
         %==================================================================
-        % [ver, rel] = prt('Ver',Mfile,ReDo)
+        % [ver, rel] = prt('Ver',ReDo)
         %------------------------------------------------------------------
         % NOTE:
+        % 1/
         % This bit of code is largely inspired/copied from SPM8!
         % See http://www.fil.ion.ucl.ac.uk/spm for details.
-        
-        if nargin ~= 3,
+        %
+        % 2/
+        % NOT usable any more to get the version of an individual file 
+        % since the  switch from SVN to GitHub!
+        % Git does not update an Id tag inside the files, hence no option 
+        % to check the version automatically...
+       
+        if nargin ~= 2,
             ReDo = false;
         else
             ReDo = logical(varargin{3});
         end
-        if nargin == 1 || (nargin > 1 && isempty(varargin{2}))
-            Mfile = '';
-        else
-            Mfile = which(varargin{2});
-            if isempty(Mfile)
-                error('PRoNTo:UnknownFile','Can''t find %s on MATLABPATH.',varargin{2});
-            end
-        end
         
         v = get_version(ReDo);
-        
-        if isempty(Mfile)
-            varargout = {v.Release v.Version};
-        else
-            unknown = struct('file',Mfile,'id','???','date','','author','');
-            fp  = fopen(Mfile,'rt');
-            if fp == -1, error('Can''t read %s.',Mfile); end
-            str = fread(fp,Inf,'*uchar');
-            fclose(fp);
-            str = char(str(:)');
-            r = regexp(str,['\$Id: (?<file>\S+) (?<id>[0-9]+) (?<date>\S+) ' ...
-                '(\S+Z) (?<author>\S+) \$'],'names','once');
-            if isempty(r), r = unknown; end
-            varargout = {r(1).id v.Release};
-        end
+        varargout = {v.Release v.Version};
         
         %==================================================================
     otherwise                                       %-Unknown action string
@@ -187,17 +172,17 @@ ok = true;
 if exist('spm.m','file')
     [SPMver, SPMrel] = spm('Ver');
     if (~(strcmpi(SPMver,'spm8') && str2double(SPMrel)>8.5)) && ...
-            ~strcmpi(SPMver,'spm12b')
+            isempty(regexpi(SPMver,'spm12'))
         beep
         fprintf('\nERROR:\n')
-        fprintf('\tThe *latest* version of SPM8 or SPM12b should be installed on your computer,\n')
+        fprintf('\tThe *latest* version of SPM8 or SPM12 should be installed on your computer,\n')
         fprintf('\tand be available on MATLABPATH!\n\n')
         ok = false;
     end
 else
     beep
     fprintf('\nERROR:\n')
-    fprintf('\tThe *latest* version of SPM8 should be installed on your computer,\n')
+    fprintf('\tThe *latest* version of SPM8 or SPM12 should be installed on your computer,\n')
     fprintf('\tand be available on MATLABPATH!\n\n')
     ok = false;
 end
@@ -207,12 +192,12 @@ end
 %============================
 % - svm
 dumb = which('svmtrain');
-if ~isempty(strfind(dumb,'libsvm'))          %svm found in libsvm folder, OK
+if ~isempty(strfind(dumb,'libsvm'))          % svm found in libsvm folder, OK
     disp('SVM path: OK')
     flag=1;
-elseif ~isempty(strfind(dumb,'biolearning')) %svm found in the Matlab toolbox
+elseif ~isempty(strfind(dumb,'biolearning')) % svm found in the Matlab toolbox
     flag=0;
-else                                         %svm not found at all, so need to compile
+else                                         % svm not found at all, so need to compile
     flag=2;
 end
 
@@ -230,7 +215,7 @@ if ~flag
     end
     dumb = which('svmtrain');
     if isempty(strfind(dumb,'libsvm'))
-        flag=2; %still not working, need to recompile
+        flag=2; %s till not working, need to recompile
     elseif ~isempty(strfind(dumb,'biolearning'))
         flag = 2;
         disp('PRoNTo was found under the biostats toolbox, please correct path')
@@ -240,7 +225,7 @@ if ~flag
     end
 end
 
-if flag ==2 %need to recompile for the OS
+if flag ==2 % need to recompile for the OS
     pth_machines = fullfile(prt('Dir'),'machines');
     ls_machinedir = list_subdir(pth_machines);
     for i=1:length(ls_machinedir)
@@ -275,18 +260,23 @@ else
     disp('GP not compiled: routines will work but be slower')
 end
 
-% - RF
-dumb = which('rtenslearn_c');
-if ~isempty(dumb) || ~isempty(strfind(dumb,'.mex'))
-    disp('RF path: OK')
-else
-    beep
-    warning('PRoNTo:RFcompilation', ...
-        ['RF path not recognized. Please check that \n', ...
-        'PRoNTo was added with all subfolders \n',...
-        'Otherwise, the routines surely need to be re-compiled for your OS \n',...
-        'Please look on the web or ask on the mailing list for assistance'])
-end
+% NOTE:
+% Tree-based methods not available in this version. 
+% So no need to check for it!
+% We still plan to have it in a future release.
+% 
+% % - RF
+% dumb = which('rtenslearn_c');
+% if ~isempty(dumb) || ~isempty(strfind(dumb,'.mex'))
+%     disp('RF path: OK')
+% else
+%     beep
+%     warning('PRoNTo:RFcompilation', ...
+%         ['RF path not recognized. Please check that \n', ...
+%         'PRoNTo was added with all subfolders \n',...
+%         'Otherwise, the routines surely need to be re-compiled for your OS \n',...
+%         'Please look on the web or ask on the mailing list for assistance'])
+% end
 
 return
 
@@ -326,7 +316,7 @@ v = PRoNTo_VER;
 if isempty(PRoNTo_VER) || (nargin > 0 && ReDo)
     v = struct('Name','','Version','','Release','','Date','');
     try
-        vfile = fullfile(prt('Dir'),'Contents.m');
+        vfile = fullfile(prt('Dir'),'prt_contents.m');
         fid = fopen(vfile,'rt');
         if fid == -1, error(str); end
         l1 = fgetl(fid); l2 = fgetl(fid);

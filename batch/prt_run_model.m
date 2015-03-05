@@ -158,10 +158,10 @@ if isfield(job.model_type,'classification')
                 model.cv.nested_param = job.model_type.classification.machine_cl.svm.svm_args;
             end
         end
-         if isfield(job.model_type.classification.machine_cl.svm, 'cv_type_nested')
-           [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.svm.cv_type_nested);
-           model.cv.type_nested = cv_type;
-           model.cv.k_nested = k;
+        if isfield(job.model_type.classification.machine_cl.svm, 'cv_type_nested')
+           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.svm.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
         end
     elseif isfield(job.model_type.classification.machine_cl,'gpc')
         model.machine.function='prt_machine_gpml';
@@ -182,9 +182,9 @@ if isfield(job.model_type,'classification')
             end
         end
         if isfield(job.model_type.classification.machine_cl.sMKL_cla, 'cv_type_nested')
-           [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.sMKL_cla.cv_type_nested);
-           model.cv.type_nested = cv_type;
-           model.cv.k_nested = k;
+           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.sMKL_cla.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
         end
         
     else
@@ -215,10 +215,10 @@ elseif isfield(job.model_type,'regression')
                 model.cv.nested_param = job.model_type.regression.machine_rg.krr.krr_args;
             end
         end
-         if isfield(job.model_type.classification.machine_cl.krr, 'cv_type_nested')
-           [cv_type, k] = get_cv_type(job.model_type.classification.machine_cl.krr.cv_type_nested);
-           model.cv.type_nested = cv_type;
-           model.cv.k_nested = k;
+         if isfield(job.model_type.regression.machine_rg.krr, 'cv_type_nested')
+           [cv_tmp] = get_cv_type(job.model_type.regression.machine_rg.krr.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
         end
     elseif isfield(job.model_type.regression.machine_rg,'rvr')
         model.machine.function='prt_machine_rvr';
@@ -236,9 +236,9 @@ elseif isfield(job.model_type,'regression')
             end
         end
         if isfield(job.model_type.regression.machine_rg.sMKL_reg, 'cv_type_nested')
-           [cv_type, k] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
-           model.cv.type_nested = cv_type;
-           model.cv.k_nested = k;
+           [cv_tmp] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
         end        
         
     else
@@ -251,7 +251,7 @@ else
 end
 
 % assemble structure for performing cross-validation
-[model.cv.type, model.cv.k] = get_cv_type(job.cv_type);
+model.cv = get_cv_type(job.cv_type);
 model.include_allscans = job.include_allscans;
 
 % specify operations to apply to the data prior to prediction
@@ -265,7 +265,7 @@ if isfield(job.sel_ops.use_other_ops,'data_op')
 elseif isfield(job.sel_ops.use_other_ops,'no_op')
     ops = [];
 end
-if job.sel_ops.data_op_mc == 0
+if job.sel_ops.data_op_mc == 1
     model.operations = [3 ops];
 else
     model.operations = ops;
@@ -284,32 +284,27 @@ end
 %--------------------------------------------------------------------------
 % Private functions
 %--------------------------------------------------------------------------
-function [cv_type, k] = get_cv_type(cv_struct)
+function cv = get_cv_type(cv_struct)
 
 % assemble structure for performing cross-validation
 if isfield(cv_struct,'cv_loso')
-    cv_type = 'loso';
-    k = 0;
+    cv = struct('type','loso','k',0);
 elseif isfield(cv_struct,'cv_lkso')
-    cv_type = 'loso';
-    k = cv_struct.cv_lkso.k_args;
+    cv = struct('type','loso','k',cv_struct.cv_lkso.k_args);
 elseif isfield(cv_struct,'cv_losgo')
-    cv_type = 'losgo';
-    k = 0;
+    cv = struct('type','losgo','k',0);
 elseif isfield(cv_struct,'cv_lksgo')
-    cv_type = 'losgo';
-    k = cv_struct.cv_lksgo.k_args;
+    cv = struct('type','losgo','k',cv_struct.cv_lksgo.k_args);
 elseif isfield(cv_struct,'cv_lobo')
-    cv_type = 'lobo';
-    k = 0;
+    cv = struct('type','lobo','k',0);
 elseif isfield(cv_struct,'cv_lkbo')
-    cv_type = 'lobo';
-    k = cv_struct.cv_lkbo.k_args;
-elseif isfield(cv_struct,'cv_loro') %currently implemented for MCKR only
-    cv_type = 'loro';
+    cv = struct('type','lobo','k',cv_struct.cv_lkbo.k_args);
+elseif isfield(cv_struct,'cv_loro') % currently implemented for MCKR only
+    cv = struct('type','loro');
 else
-    cv_type     = 'custom';
-    k = cv_struct.cv_custom{1};
+    cv = struct('type','custom','k',cv_struct.cv_custom{1},...
+        'mat_file',cv_struct.cv_custom{1});
+    % Not sure if I should keep the field 'k' here...
 end
 
 end

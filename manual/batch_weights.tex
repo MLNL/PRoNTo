@@ -1,4 +1,4 @@
-% $Id: prt_latex.m 518 2012-04-17 10:01:12Z cphillip $ 
+% $Id$ 
 
 \chapter{Compute weights  \label{Chap:weights}}
 
@@ -21,4 +21,20 @@ batch modules.
 
 \section{Image name (optional)}
 Name of the file with weights (optional). If left empty  an automatic name will be generated.
+
+
+\section{Build weight images per ROI}
+Set to Yes to compute the weight images per ROI You need then to select the atlas image.
+
+
+\subsection{No weight per ROI}
+Not computing weight per ROI.
+
+
+\subsection{Load Atlas}
+Select atlas file to build weights per ROI.
+
+
+\section{Build weight images for permutations}
+Set to Yes to compute the weight images obtained from each permutation. This is to further assess the significance of the ranking distance between two models.
 

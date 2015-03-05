@@ -46,12 +46,7 @@ mname = PRT.model(model_idx).model_name;
 % -------------------------------------------------------------------
 % Get index of feature set
 fs_name  = PRT.model(model_idx).input.fs.fs_name;
-nfs = length(PRT.fs);
-for f = 1:nfs
-    if strcmp(PRT.fs(f).fs_name,fs_name)
-        fs_idx = f;
-    end
-end
+fs_idx = find(strcmpi(fs_name,{PRT.fs(:).fs_name}));
 
 % Find modality
 nfas = length(PRT.fas);

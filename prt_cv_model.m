@@ -40,8 +40,20 @@ n_folds  = size(CV,2);                      % number of CV folds
 if isfield(PRT.model(mid).input,'include_allscans') && ...
         PRT.model(mid).input.include_allscans
     t = PRT.model(mid).input.targ_allscans;
+    % Get covariates if GLM required
+    if any(ismember(PRT.model(mid).input.operations,5))
+        cov = PRT.model(mid).input.cov_allscans;
+    else
+        cov=[];
+    end
 else
     t = PRT.model(mid).input.targets;
+    % Get covariates if GLM required
+    if any(ismember(PRT.model(mid).input.operations,5))
+        cov = PRT.model(mid).input.covar;
+    else
+        cov=[];
+    end
 end
 
 %get number of classes
@@ -68,10 +80,17 @@ for f = 1:n_folds
     fdata.CV      = CV(:,f);
     fdata.Phi_all = Phi_all; %kernel(s)
     fdata.t       = t; %targets
+    if ~isempty(cov)
+        fdata.cov = cov;
+    end
     
     % Nested CV for hyper-parameter optimisation or feature selection
     if isfield(PRT.model(mid).input,'use_nested_cv')
         if PRT.model(mid).input.use_nested_cv
+            if f==1 && isempty(PRT.model(mid).input.nested_param)
+                beep
+                warning('No parameter range specified for optimization, using defaults.')
+            end
             [out] = prt_nested_cv(PRT, fdata);
             PRT.model(mid).output.fold(f).param_effect = out;
             PRT.model(mid).input.machine.args = out.opt_param;

@@ -1,6 +1,6 @@
 % $Id$ 
 
-\chapter{Feature set / Kernel  \label{Chap:fs}}
+\chapter{Feature set/Kernel  \label{Chap:fs}}
 
 \vskip 1.5cm
 
@@ -11,7 +11,7 @@ Compute feature set according to the design specified
 Select data/design structure file (PRT.mat).
 
 
-\section{Name}
+\section{Feature/kernel name}
 Target name for kernel matrix. This should containonly alphanumerical characters or underscores (\_).
 
 
@@ -23,7 +23,7 @@ Add modalities
 Specify modality, such as name and data.
 
 
-\subsubsection{Name}
+\subsubsection{Modality name}
 Name of modality. Example: 'BOLD'. Must match design specification
 
 
@@ -85,4 +85,12 @@ Do not scale the input scans
 
 \paragraph{Specify from *.mat}
 Specify a mat file containing the scaling parameters for each modality.
+
+
+\subsubsection{Use atlas to build ROI specific kernels}
+Select an atlas file to build one kernel per ROI. The AAL atlas (named 'aal\_79x91x69.img') is available in the 'atlas' subdirectory of PRoNTo
+
+
+\section{Use one kernel per modality}
+Select "Yes" to use one kernel per modality.
 

@@ -58,7 +58,7 @@ flag_cwi.values  = {1 0};
 flag_cwi.val     = {0};
 
 % ---------------------------------------------------------------------
-% atlasroi Filename for the atlas to compute the weights per ROI
+% atl_name Filename for the atlas to compute the weights per ROI
 % ---------------------------------------------------------------------
 atl_name         = cfg_files;
 atl_name.tag     = 'atl_name';
@@ -67,9 +67,47 @@ atl_name.ufilter = '.*';
 atl_name.filter  = 'image';
 atl_name.num     = [0 1];
 atl_name.val     = {{''}};
-% atlasroi.def     = @(val)prt_get_defaults('fs.atlasroi', val{:});
+atl_name.def     = @(val)prt_get_defaults('fs.atlasroi', val{:});
 atl_name.help    = {'Select atlas file to build weights per ROI.'};
 
+% ---------------------------------------------------------------------
+% no_atl No weight per ROI
+% ---------------------------------------------------------------------
+no_atl         = cfg_const;
+no_atl.tag     = 'no_atl';
+no_atl.name    = 'No weight per ROI';
+no_atl.val     = {0};
+no_atl.help    = {'Not computing weight per ROI.'};
+
+% ---------------------------------------------------------------------
+% build_wpr Build the weight images per ROI
+% ---------------------------------------------------------------------
+build_wpr         = cfg_choice;
+build_wpr.tag     = 'build_wpr';
+build_wpr.name    = 'Build weight images per ROI';
+build_wpr.help    = {['Set to Yes to compute the weight images per ROI ' ...
+    'You need then to select the atlas image.']};
+% build_wpr.labels  = {
+%                'Yes'
+%                'No'
+% }';
+build_wpr.values  = {no_atl atl_name};
+build_wpr.val     = {no_atl};
+
+% ---------------------------------------------------------------------
+% flag_wroi Build the weight images for each ROI (optional)
+% ---------------------------------------------------------------------
+flag_wroi         = cfg_menu;
+flag_wroi.tag     = 'flag_cwi';
+flag_wroi.name    = 'Build weight images per ROI';
+flag_wroi.help    = {['Set to Yes to compute the weight images obtained ' ...
+    'from each ROI.']};
+flag_wroi.labels  = {
+               'Yes'
+               'No'
+}';
+flag_wroi.values  = {1 0};
+flag_wroi.val     = {0};
 
 % ---------------------------------------------------------------------
 % cv_model Preprocessing
@@ -77,7 +115,7 @@ atl_name.help    = {'Select atlas file to build weights per ROI.'};
 weights        = cfg_exbranch;
 weights.tag    = 'weights';
 weights.name   = 'Compute weights';
-weights.val    = {infile model_name img_name flag_cwi atl_name};
+weights.val    = {infile model_name img_name build_wpr flag_cwi};
 weights.help   = {[
     'Compute weights. This module computes the linear weights of a classifier ',...
     'and saves them as a 4D image. 3 dimensions correspond to the image dimensions specified in ',...
