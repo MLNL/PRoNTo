@@ -67,6 +67,16 @@ switch lower(Action)
         if ~exist('cfg_util','file')
             addpath(fullfile(spm('Dir'),'matlabbatch'));
         end
+         % - SPM FieldTrip for MEEG
+        if ~exist('ft_struct2double','file')
+            addpath(fullfile(spm('Dir'),'external','fieldtrip'));
+            clear ft_defaults
+            clear global ft_default
+            ft_defaults;
+            global ft_default
+            ft_default.trackcallinfo = 'no';
+            ft_default.showcallinfo = 'no';
+        end
         
         % intialize the matlabbatch system
         cfg_get_defaults('cfg_util.genscript_run', @genscript_run);

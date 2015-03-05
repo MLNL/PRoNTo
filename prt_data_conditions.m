@@ -547,7 +547,6 @@ else
     conds = handles.des;
     conds.conds = handles.cond;
 end
-conds.covar=handles.covar;
 handles.output=conds;
 % Update handles structure
 guidata(hObject, handles);
