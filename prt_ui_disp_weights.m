@@ -28,7 +28,7 @@ function varargout = prt_ui_disp_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_disp_weights
 
-% Last Modified by GUIDE v2.5 16-Apr-2014 17:50:09
+% Last Modified by GUIDE v2.5 09-Mar-2015 16:15:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -276,6 +276,7 @@ set(handles.disp_voxels,'Value',1)
 set(handles.disp_voxels,'Enable','off')
 set(handles.disp_regions,'Value',0)
 set(handles.disp_regions,'Enable','off')
+uistack(handles.weightspanel,'bottom')
 % Choose default command line output for prt_ui_disp_weights
 handles.output = hObject;
 
@@ -294,6 +295,7 @@ function varargout = prt_ui_disp_weights_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
+% delete(handles.figure1)
 varargout{1} = handles.output;
 
 
@@ -386,7 +388,11 @@ function quitbutton_Callback(hObject, eventdata, handles)
 
 % Close and clear figure
 % -------------------------------------------------------------------------
-close(handles.figure1);
+Tag='WeightResults';
+F = findall(allchild(0),'Flat','Tag',Tag);
+delete(F);
+clear handles
+clear F
 
 
 function loadweight_Callback(hObject, eventdata, handles)
@@ -434,6 +440,12 @@ end
 
 spm_orthviews('Reset');
 gcfchil = get(gcf,'Children');
+for i=1:length(gcfchil)
+    if strcmpi(get(gcfchil(i),'Type'),'axes')
+        delete(gcfchil(i)) % Delete any left-over colorbar
+    end
+end
+gcfchil = get(handles.weightspanel,'Children');
 for i=1:length(gcfchil)
     if strcmpi(get(gcfchil(i),'Type'),'axes')
         delete(gcfchil(i)) % Delete any left-over colorbar
@@ -528,7 +540,10 @@ xax = BB(1,1):abs(vx(1)):BB(2,1);
 yax = BB(1,2):abs(vx(2)):BB(2,2);
 zax = BB(1,3):abs(vx(3)):BB(2,3);
 
-h  = spm_orthviews('Image', handles.wmap,[0.0519 0.498 0.4182 0.3951]);
+% aa = get(handles.weightspanel,'Position');
+% h  = spm_orthviews('Image', handles.wmap,aa);
+% h  = spm_orthviews('Image', handles.wmap,[0.0519 0.498 0.4182 1.08]);
+h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08]);
 handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
@@ -540,6 +555,26 @@ end
 spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
 % spm_orthviews('Zoom',(xfov*abs(vx(1))))
 spm_orthviews('Redraw');
+[fpw,faw]=fileparts(handles.wmap); %Sometimes extensions can pose problems
+for i=1:length(st.vols) % Image was added to variable st
+    if ~isempty(st.vols{i})
+        [fp,fa] = fileparts(st.vols{i}.fname);
+        if strcmpi([fp,fa],[fpw,faw])
+            idxw = i;
+            set(st.vols{idxw}.ax{1}.ax,'parent',handles.weightspanel);
+            set(st.vols{idxw}.ax{2}.ax,'parent',handles.weightspanel);
+            set(st.vols{idxw}.ax{3}.ax,'parent',handles.weightspanel);
+            set(st.vols{idxw}.blobs{1}.cbar,'parent',handles.weightspanel);
+            cbp = get(st.vols{idxw}.blobs{1}.cbar,'Position'); % Colorbar position
+            set(st.vols{idxw}.blobs{1}.cbar,'Position',...
+                [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
+        end
+    end
+end
+% uistack(st.vols{idx}.ax{1}.ax,'top');
+% uistack(st.vols{idx}.ax{2}.ax,'top');
+% uistack(st.vols{idx}.ax{3}.ax,'top');
+
 
 if isfield(handles,'aimg')
     anatomicalbutton_Callback(hObject, eventdata, handles);
@@ -599,17 +634,44 @@ if ~isfield(handles,'aimg') || ~handles.noloadi
 else
     img = handles.aimg;
 end
-
+gcfchil = get(handles.weightspanel,'Children');
+for i=1:length(gcfchil)
+    if strcmpi(get(gcfchil(i),'Type'),'axes')
+        delete(gcfchil(i)) % Delete any left-over colorbar
+    end
+end
 % Show anatomical image
 % -------------------------------------------------------------------------
 rotate3d off
-st.fig = handles.figure1;
-handle = spm_orthviews('Image', img, [0.5595 0.498 0.4182 0.3951]);
+% handle = spm_orthviews('Image', img,[0.03 0.514 0.498 1.08]);
+handle = spm_orthviews('Image', img,[0.03 0.01 0.95 1.08]);
+[pimg,aimg]=fileparts(img); % Sometimes extension can pose problems
+if isfield(handles,'wmap') 
+    [fpl,fal] = fileparts(handles.wmap);
+end
+for i=1:length(st.vols) % Image was added to variable st
+    if ~isempty(st.vols{i}) % Look for weight image
+        [fp,fa] = fileparts(st.vols{i}.fname);
+        if isfield(handles,'wmap') && strcmpi([fp,fa],[fpl,fal])
+            idxw = i;
+            set(st.vols{idxw}.ax{1}.ax,'parent',handles.weightspanel);
+            set(st.vols{idxw}.ax{2}.ax,'parent',handles.weightspanel);
+            set(st.vols{idxw}.ax{3}.ax,'parent',handles.weightspanel);
+        elseif strcmpi([fp,fa],[pimg,aimg]) % Look for anatomical image
+            idxa = i;
+            set(st.vols{idxa}.ax{1}.ax,'parent',handles.anatomicalpanel);
+            set(st.vols{idxa}.ax{2}.ax,'parent',handles.anatomicalpanel);
+            set(st.vols{idxa}.ax{3}.ax,'parent',handles.anatomicalpanel);
+        end
+    end
+end
+% handle = spm_orthviews('Image', img,[0.5595 0.498 0.4182 0.3951]);
 cmap   = get(gcf,'Colormap');
 if size(cmap,1)~=128
     spm_figure('Colormap','gray')
 end
 
+% uistack(handles.weightspanel,'bottom')
 handles.aimgh   = handle;
 handles.aimg    = img;
 handles.img     = 1;
@@ -618,7 +680,6 @@ handles.noloadi = 1;
 % Show file name
 % -------------------------------------------------------------------------
 set(handles.loadanatomical,'String',handles.aimg);
-
 guidata(hObject, handles);
 
 
@@ -1026,7 +1087,7 @@ if disp_vox
     set(handles.disp_voxels,'Value',1)
     set(handles.disp_regions,'Value',0)
 elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{handles.class})
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
     fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
     set(handles.disp_voxels,'Value',0)
     set(handles.disp_regions,'Value',1)
@@ -1245,7 +1306,21 @@ set(handles.butt_load_labels,'visible','off');
 set(handles.saveweight,'visible','off');
 set(handles.modtable,'Visible','off')
 set(handles.modtable,'Enable','off')
+set(handles.loadweight,'String','Load weights map')
+set(handles.loadanatomical,'String','Load anatomical img')
 handles.noloadw = 0;
+gcfchil = get(handles.weightspanel,'Children');
+for i=1:length(gcfchil)
+    if strcmpi(get(gcfchil(i),'Type'),'axes')
+        delete(gcfchil(i)) % Delete any left-over colorbar
+    end
+end
+gcfchil = get(handles.anatomicalpanel,'Children');
+for i=1:length(gcfchil)
+    if strcmpi(get(gcfchil(i),'Type'),'axes')
+        delete(gcfchil(i)) % Delete any left-over colorbar
+    end
+end
 guidata(hObject, handles);
 
 % Save menu
@@ -1639,3 +1714,16 @@ for i = 1:size(num_roi)
 end
 fclose(fid);
 disp('Save Done!');
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: delete(hObject) closes the figure
+Tag='WeightResults';
+F = findall(allchild(0),'Flat','Tag',Tag);
+delete(F);
+clear handles
+clear F
