@@ -270,6 +270,7 @@ else
         set(handles.modtable,'Enable','off')
         % Clear axes
         cla(handles.axes1);
+%         classmenu_Callback(hObject, eventdata, handles)
     end
 end
 set(handles.disp_voxels,'Value',1)
@@ -309,6 +310,15 @@ function originbutton_Callback(hObject, eventdata, handles)
 % -------------------------------------------------------------------------
 if isfield(handles,'img')
     spm_orthviews('Reposition',[0 0 0]);
+    child = get(handles.weightspanel,'Children');
+    flag = 0;
+    for i = 1:length(child)
+        if ~flag && strcmpi(get(child(i),'Type'),'axes')
+            flag = 1;
+            pos = get(child(i),'Position');
+            set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+        end
+    end
 end
 
 function mmedit_Callback(hObject, eventdata, handles)
@@ -329,6 +339,15 @@ if isfield(handles,'img')
         pos = spm_orthviews('Pos');
     end
     spm_orthviews('Reposition',pos);
+    child = get(handles.weightspanel,'Children');
+    flag = 0;
+    for i = 1:length(child)
+        if ~flag && strcmpi(get(child(i),'Type'),'axes')
+            flag = 1;
+            pos = get(child(i),'Position');
+            set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+        end
+    end
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -364,6 +383,15 @@ if isfield(handles,'img')
     tmp = handles.vols{1}.mat;
     pos = tmp(1:3,:)*[pos ; 1];
     spm_orthviews('Reposition',pos);
+    child = get(handles.weightspanel,'Children');
+    flag = 0;
+    for i = 1:length(child)
+        if ~flag && strcmpi(get(child(i),'Type'),'axes')
+            flag = 1;
+            pos = get(child(i),'Position');
+            set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+        end
+    end
 end
 
 
@@ -418,7 +446,7 @@ end
 
 
 % --- Executes on button press in weightbutton.
-function weightbutton_Callback(hObject, eventdata, handles)
+function handles = weightbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to weightbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -531,7 +559,7 @@ handles.img     = 1;
 st.handles  = handles;
 st.fig      = handles.figure1;
 st.V        = V;
-st.callback = 'prt_ui_results(''showpos'')';
+st.callback = 'prt_ui_disp_weights(''showpos'')';
 
 % Display maps
 % -------------------------------------------------------------------------
@@ -568,13 +596,13 @@ for i=1:length(st.vols) % Image was added to variable st
             cbp = get(st.vols{idxw}.blobs{1}.cbar,'Position'); % Colorbar position
             set(st.vols{idxw}.blobs{1}.cbar,'Position',...
                 [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
+            handles.posaxe1 = get(st.vols{idxw}.ax{1}.ax,'Position');
+            handles.posaxe2 = get(st.vols{idxw}.ax{2}.ax,'Position');
+            handles.posaxe3 = get(st.vols{idxw}.ax{3}.ax,'Position');
+            handles.posaxe4 = get(st.vols{idxw}.blobs{1}.cbar,'Position');
         end
     end
 end
-% uistack(st.vols{idx}.ax{1}.ax,'top');
-% uistack(st.vols{idx}.ax{2}.ax,'top');
-% uistack(st.vols{idx}.ax{3}.ax,'top');
-
 
 if isfield(handles,'aimg')
     anatomicalbutton_Callback(hObject, eventdata, handles);
@@ -627,6 +655,12 @@ function anatomicalbutton_Callback(hObject, eventdata, handles)
 if ~isfield(handles,'wmap')
     spm_orthviews('Reset');
 end
+gcfchil = get(handles.anatomicalpanel,'Children');
+for i=1:length(gcfchil)
+    if strcmpi(get(gcfchil(i),'Type'),'axes')
+        delete(gcfchil(i)) % Delete any left-over colorbar
+    end
+end
 global st
 st.fig = handles.figure1;
 if ~isfield(handles,'aimg') || ~handles.noloadi
@@ -634,12 +668,7 @@ if ~isfield(handles,'aimg') || ~handles.noloadi
 else
     img = handles.aimg;
 end
-gcfchil = get(handles.weightspanel,'Children');
-for i=1:length(gcfchil)
-    if strcmpi(get(gcfchil(i),'Type'),'axes')
-        delete(gcfchil(i)) % Delete any left-over colorbar
-    end
-end
+
 % Show anatomical image
 % -------------------------------------------------------------------------
 rotate3d off
@@ -654,9 +683,10 @@ for i=1:length(st.vols) % Image was added to variable st
         [fp,fa] = fileparts(st.vols{i}.fname);
         if isfield(handles,'wmap') && strcmpi([fp,fa],[fpl,fal])
             idxw = i;
-            set(st.vols{idxw}.ax{1}.ax,'parent',handles.weightspanel);
-            set(st.vols{idxw}.ax{2}.ax,'parent',handles.weightspanel);
-            set(st.vols{idxw}.ax{3}.ax,'parent',handles.weightspanel);
+            set(st.vols{idxw}.ax{1}.ax,'Position',handles.posaxe1);
+            set(st.vols{idxw}.ax{2}.ax,'Position',handles.posaxe2);
+            set(st.vols{idxw}.ax{3}.ax,'Position',handles.posaxe3);
+            set(st.vols{idxw}.blobs{1}.cbar,'Position',handles.posaxe4);
         elseif strcmpi([fp,fa],[pimg,aimg]) % Look for anatomical image
             idxa = i;
             set(st.vols{idxa}.ax{1}.ax,'parent',handles.anatomicalpanel);
@@ -671,7 +701,6 @@ if size(cmap,1)~=128
     spm_figure('Colormap','gray')
 end
 
-% uistack(handles.weightspanel,'bottom')
 handles.aimgh   = handle;
 handles.aimg    = img;
 handles.img     = 1;
@@ -1112,7 +1141,7 @@ if exist([handles.prtdir,filesep,fntl,'.img'],'file') || ...
     handles.selectedcell = [];
     % Update handles structure
     guidata(hObject, handles);
-    weightbutton_Callback(hObject, eventdata, handles);
+    handles=weightbutton_Callback(hObject, eventdata, handles);
 end
 
 % % Compute homogeneity of ROIs if MKL on ROIs or summarizing
@@ -1284,7 +1313,15 @@ set(mp13,'String',sprintf('%.1f %.1f %.1f',spm_orthviews('Pos')));
 pos = spm_orthviews('Pos',1);
 set(mp14,'String',sprintf('%.1f %.1f %.1f',pos));
 set(tx20,'String',sprintf('%g',spm_sample_vol(st.V,pos(1),pos(2),pos(3),st.hld)));
-
+child = get(st.handles.weightspanel,'Children');
+flag = 0;
+for i = 1:length(child)
+    if ~flag && strcmpi(get(child(i),'Type'),'axes')
+        flag = 1;
+        pos = get(child(i),'Position');
+        set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+    end
+end
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
     spm_figure('Colormap','gray-jet');
