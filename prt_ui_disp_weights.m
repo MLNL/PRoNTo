@@ -551,6 +551,9 @@ zm = round(median(XYZ(3,:)));
 % Set spm_orthviews properties
 % -------------------------------------------------------------------------
 rotate3d off
+try
+    clear st
+end
 global st
 
 handles.notinit = 1;
@@ -655,12 +658,12 @@ function anatomicalbutton_Callback(hObject, eventdata, handles)
 if ~isfield(handles,'wmap')
     spm_orthviews('Reset');
 end
-gcfchil = get(handles.anatomicalpanel,'Children');
-for i=1:length(gcfchil)
-    if strcmpi(get(gcfchil(i),'Type'),'axes')
-        delete(gcfchil(i)) % Delete any left-over colorbar
-    end
-end
+% gcfchil = get(handles.anatomicalpanel,'Children');
+% for i=1:length(gcfchil)
+%     if strcmpi(get(gcfchil(i),'Type'),'axes')
+%         delete(gcfchil(i)) % Delete any left-over colorbar
+%     end
+% end
 global st
 st.fig = handles.figure1;
 if ~isfield(handles,'aimg') || ~handles.noloadi
