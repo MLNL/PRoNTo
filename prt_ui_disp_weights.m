@@ -571,10 +571,10 @@ xax = BB(1,1):abs(vx(1)):BB(2,1);
 yax = BB(1,2):abs(vx(2)):BB(2,2);
 zax = BB(1,3):abs(vx(3)):BB(2,3);
 
-% aa = get(handles.weightspanel,'Position');
-% h  = spm_orthviews('Image', handles.wmap,aa);
-% h  = spm_orthviews('Image', handles.wmap,[0.0519 0.498 0.4182 1.08]);
 h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08]);
+% h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95
+% 1.08],handles.weightspanel); %to change when spm_orthviews will be
+% updated, Matlab 2014b issue
 handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
@@ -675,8 +675,9 @@ end
 % Show anatomical image
 % -------------------------------------------------------------------------
 rotate3d off
-% handle = spm_orthviews('Image', img,[0.03 0.514 0.498 1.08]);
 handle = spm_orthviews('Image', img,[0.03 0.01 0.95 1.08]);
+% handle = spm_orthviews('Image', img,[0.03 0.01 0.95 1.08],handles.anatomicalpanel);
+spm_orthviews('AddContext',handle);
 [pimg,aimg]=fileparts(img); % Sometimes extension can pose problems
 if isfield(handles,'wmap') 
     [fpl,fal] = fileparts(handles.wmap);
@@ -698,7 +699,7 @@ for i=1:length(st.vols) % Image was added to variable st
         end
     end
 end
-% handle = spm_orthviews('Image', img,[0.5595 0.498 0.4182 0.3951]);
+
 cmap   = get(gcf,'Colormap');
 if size(cmap,1)~=128
     spm_figure('Colormap','gray')
