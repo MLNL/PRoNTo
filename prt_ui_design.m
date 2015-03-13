@@ -673,12 +673,11 @@ end
 %Create modality within the dat structure, with the fields compatible with
 %the batch
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.detrend;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).covar=mod.covar;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).rt_subj=mod.rt_subj;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).MEEG = mod.MEEG;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).type = mod.type;
 
 newlist=[get(handles.modality_list,'String'); {mod.name}];
 set(handles.modality_list,'String',newlist);
@@ -688,7 +687,7 @@ masklist = get(handles.mask_list,'String');
 if size(masklist,1)==1 && strcmpi(masklist,'none')
     masklist = {};
 end
-if ~handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).MEEG
+if strcmpi(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).type,'Neuroimaging')
     masklist = [masklist; {mod.name}];
 end
 if ~isempty(masklist) 
@@ -712,7 +711,7 @@ else
         indm=length(handles.dat.masks)+1;
     end
 end
-handles.dat.masks(indm).MEEG = mod.MEEG;
+handles.dat.masks(indm).type = mod.type;
 handles.dat.masks(indm).mod_name = mod.name;
 if ~isempty(mod.scans)
     set(handles.file_list,'String',cellstr(mod.scans));
@@ -734,7 +733,7 @@ if length(handles.modlist)==length(handles.dat.masks)
     for i=1:length(handles.modlist)
         if (isfield(handles.dat.masks(i),'fname') && ...
                 ~isempty(handles.dat.masks(i).fname)) || ...
-                handles.dat.masks(i).MEEG
+                ~strcmpi(handles.dat.masks(i).type,'Neuroimaging')
             f=f+1;
         end
     end
@@ -768,12 +767,11 @@ if isnumeric(mod)
 end
 %update structure
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).detrend=mod.detrend;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).covar=mod.covar;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).rt_subj=mod.rt_subj;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).MEEG=mod.MEEG;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).type=mod.type;
 
 %update list of modalities and remove the former name from the modlist and
 %mask_list if it is not present in any other subject
@@ -827,7 +825,7 @@ if ~strcmpi(list{val},mod.name)
     end
     masklist = []; % Update list of modalities for which a mask is needed
     for i=1:length(handles.dat.masks)
-        if ~handles.dat.masks(i).MEEG
+        if strcmpi(handles.dat.masks(i).type,'Neuroimaging')
             masklist = [masklist;{handles.dat.masks(i).mod_name}];
         end
     end
@@ -926,7 +924,7 @@ if isfield(handles.dat.masks,'mod_name')
     end
     masklist = []; % Update list of modalities for which a mask is needed
     for i=1:length(handles.dat.masks)
-        if ~handles.dat.masks(i).MEEG
+        if strcmpi(handles.dat.masks(i).type,'Neuroimaging')
             masklist = [masklist;{handles.dat.masks(i).mod_name}];
         end
     end
@@ -973,8 +971,8 @@ try
 catch
     prevlist={};
 end
-if isfield(handles.dat.group(cgr).subject(cs).modality(cm),'MEEG') && ...
-        handles.dat.group(cgr).subject(cs).modality(cm).MEEG
+if isfield(handles.dat.group(cgr).subject(cs).modality(cm),'type') && ...
+        ~strcmpi(handles.dat.group(cgr).subject(cs).modality(cm).type,'Neuroimaging')
     fnames=spm_select([1 1],'mat','Select files for the modality',prevlist);
     % update the design automatically loaded from the file
     if size(fnames,1)>1
@@ -1062,7 +1060,7 @@ if length(handles.modlist)==length(handles.dat.masks)
     for i=1:length(handles.modlist)
         if (isfield(handles.dat.masks(i),'fname') && ...
                 ~isempty(handles.dat.masks(i).fname)) || ...
-                handles.dat.masks(i).MEEG
+                ~strcmpi(handles.dat.masks(i).type,'Neuroimaging')
             f=f+1;
         end
     end
@@ -1166,7 +1164,7 @@ if ~flagmask==1
 end
 masklist = []; % Create list of modalities for which a mask is needed
 for i=1:length(handles.dat.masks)
-    if ~handles.dat.masks(i).MEEG
+    if strcmpi(handles.dat.masks(i).type,'Neuroimaging')
         masklist = [masklist;{handles.dat.masks(i).mod_name}];
     end
 end
@@ -1306,7 +1304,7 @@ end
 %check that one mask was entered for each modality
 nmimg = 0;
 for i = 1:length(handles.dat.masks)
-    if ~handles.dat.masks(i).MEEG && ...
+    if strcmpi(handles.dat.masks(i).type,'Neuroimaging') && ...
             isfield(handles.dat.masks(i),'fname') && ...
             ~isempty(handles.dat.masks(i).fname)
         nmimg = nmimg+1;
@@ -1348,7 +1346,6 @@ for i=1:ng
                 des=handles.dat.group(i).subject(j).modality(m2).design;
                 maxcond=max([des.conds(:).scans]);
                 if matdat(j,k)>1 && matdat(j,k)<maxcond 
-%                        &&  ~handles.dat.group(i).subject(j).modality(m2).MEEG
                     beep
                     sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',j,i,k)
                     disp('Corresponding events were discarded')

@@ -190,7 +190,7 @@ nm = length(PRT.masks);
 flagim = 0;
 flagMEEG = 0;
 for i=1:nm
-    if isfield(PRT.masks(i),'MEEG') && PRT.masks(i).MEEG
+    if isfield(PRT.masks(i),'type') && strcmpi(PRT.masks(i).type,'MEEG')
         flagMEEG = flagMEEG + 1;
     else
         flagim = flagim + 1;

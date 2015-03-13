@@ -145,7 +145,7 @@ handles.cond=struct();
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     des=varargin{2}{1};
     szn=length(des.conds);    
-    dat=cell(szn,4);
+    dat=cell(szn,5);
     handles.cond = des.conds;
     for i=1:szn
         try
@@ -187,6 +187,17 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             dat{i,4}='';
             handles.cond(i).rt_trial=[];
         end
+        try
+            temp=[];
+            for j=1:length(des.conds(i).cov_trial)
+                temp=[temp, ' ',num2str(des.conds(i).cov_trial(j),3)];
+            end
+            dat{i,5}=temp;
+            handles.cond(i).rt_trial=des.conds(i).cov_trial;
+        catch
+            dat{i,5}='';
+            handles.cond(i).cov_trial=[];
+        end
     end
     handles.des = des;
     set(handles.condtable,'visible','on');
@@ -202,10 +213,10 @@ else
     des.unit=1;
 end
 set(handles.condtable,'Data',dat);
-set(handles.condtable,'ColumnName',{'Name','Onsets','Duration','Regression targets (trials)'});
-set(handles.condtable,'ColumnEditable',[true,true,true,true]);
-set(handles.condtable,'ColumnWidth',{'auto',130,130,130});
-set(handles.condtable,'ColumnFormat',{'char','char','char','char'});
+set(handles.condtable,'ColumnName',{'Name','Onsets','Duration','Regression targets (trials)', 'Covariates (trials)'});
+set(handles.condtable,'ColumnEditable',[true,true,true,true,true]);
+set(handles.condtable,'ColumnWidth',{'auto',130,130,130,130});
+set(handles.condtable,'ColumnFormat',{'char','char','char','char','char'});
 set(handles.pop_unit,'String',{'Seconds','Scans'});
 if des.unit
     uv=1;
@@ -280,12 +291,13 @@ if choice==1
     if isnan(ncond)
         return
     end
-    dat=cell(ncond,4);
+    dat=cell(ncond,5);
     for i=1:ncond
         dat{i,1}=['cond ',num2str(i)];
         dat{i,2}='NaN';
         dat{i,3}='NaN';
         dat{i,4}='[]';
+        dat{i,5}='[]';
         handles.cond(i).cond_name=['cond ',num2str(i)];
     end
     set(handles.condtable,'visible','on');
@@ -326,8 +338,13 @@ else
         disp('No regression target (rt_trial) found in the .mat file')
         disp('Only classification techniques will be used')
     end
+    try
+        cov= R;
+    catch
+        cov = [];
+    end
     szn=length(names);    
-    dat=cell(szn,4);
+    dat=cell(szn,5);
     for i=1:szn
         try
             dat{i,1}=na{i};
@@ -353,8 +370,15 @@ else
             dat{i,4}=num2str(rt{i},3);
             handles.cond(i).rt_trial=rt{i};
         catch
-            dat{i,4}='NaN';
+            dat{i,4}='';
             handles.cond(i).rt_trial=[];
+        end
+        try
+            dat{i,5}=num2str(R{i},3);
+            handles.cond(i).cov_trial=R{i};
+        catch
+            dat{i,5}='';
+            handles.cond(i).cov_trial=[];
         end
     end
     set(handles.condtable,'visible','on');
@@ -482,6 +506,8 @@ elseif ind(2)==3
     handles.cond(ind(1)).durations=vect;
 elseif ind(2)==4
     handles.cond(ind(1)).rt_trial=vect;
+elseif ind(2)==5
+    handles.cond(ind(1)).cov_trial=vect;
 end
 temp=[];
 for j=1:length(vect)
@@ -520,6 +546,7 @@ for i=1:ncond
     szon=length(handles.cond(i).onsets);
     szdur=length(handles.cond(i).durations);
     szrt=length(handles.cond(i).rt_trial);
+    szcov=length(handles.cond(i).cov_trial);
     if szdur==1
         handles.cond(i).durations=repmat(handles.cond(i).durations, 1, szon);
         szdur=length(handles.cond(i).durations);
@@ -531,6 +558,12 @@ for i=1:ncond
         return
     end
     if szrt && szdur ~=szrt
+        beep
+        disp('The number of regression targets must be the number of trials!')
+        sprintf('Please correct condition %d',i)
+        return
+    end
+    if szcov && szdur ~=szcov
         beep
         disp('The number of regression targets must be the number of trials!')
         sprintf('Please correct condition %d',i)

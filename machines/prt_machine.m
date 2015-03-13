@@ -136,7 +136,8 @@ if SANITYCHECK==true
         Nk_train   = length(d.train);
         
         % 5: Check if data has more than one cell
-        if isempty(strfind(char(fnch),'MKL')) && Nk_train > 1
+        if (isempty(strfind(char(fnch),'MKL')) &&...
+              isempty(strfind(char(fnch),'wip')))  && Nk_train > 1
             %Check that if multiple kernels, MKL was selected,
             %otherwise add the kernels
             tr_tmp = zeros(size(d.train{1}));

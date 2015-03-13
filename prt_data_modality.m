@@ -27,7 +27,7 @@ function varargout = prt_data_modality(varargin)
 % $Id$
 
 % Edit the above text to modify the response to help prt_data_modality
-% Last Modified by GUIDE v2.5 23-Feb-2015 14:52:39
+% Last Modified by GUIDE v2.5 13-Mar-2015 10:53:16
 
 
 % Begin initialization code - DO NOT EDIT
@@ -139,17 +139,19 @@ else
         end
     end
     handles.mod=[];
-    handles.mod.detrend=0;
     handles.mod.design=0;
     handles.mod.scans=[];
     handles.mod.name={};
     handles.mod.covar=[];
     handles.mod.rt_subj=[];
-    handles.mod.MEEG = 0;
+    handles.mod.type = 'Neuroimaging';
     handles.subj1=0;
     set(handles.design_menu,...
-            'String',{'Load SPM.mat','Specify design','No design'},...
-            'Value',3);
+        'String',{'Load SPM.mat','Specify design','No design'},...
+        'Value',3);
+    set(handles.type,...
+        'String',{'Neuroimaging','MEEG'},...
+        'Value',1);
 
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         %Particular options if you select by 'scans'
@@ -180,11 +182,6 @@ else
                 valsel=find(strcmpi(modsel.mod_name,nlist));
                 set(handles.modname,'String',nlist);
                 set(handles.modname,'Value',valsel);
-                if isfield(modsel,'detrend')
-                    handles.mod.detrend=modsel.detrend;
-                else
-                    handles.mod.detrend=0;
-                end
                 handles.mod.design=modsel.design;
                 if ~isempty(modsel.design)
                     set(handles.design_menu,'Value',2)
@@ -203,12 +200,20 @@ else
                 if ~isempty(modsel.rt_subj)
                     set(handles.edit_regt,'String',num2str(modsel.rt_subj'))
                 end
-                if isfield(modsel,'MEEG')
-                    set(handles.MEEGflag,'Value',modsel.MEEG)
-                    handles.mod.MEEG = modsel.MEEG;
+                if isfield(modsel,'type')
+                    if strcmpi(modsel.type,'MEEG')
+                        set(handles.type,'Value',2)
+                        set(handles.design_menu,...
+                            'String',{'Events in file'},...
+                            'Value',1);
+                    else
+                        set(handles.type,'Value',1)
+                    end
+                    handles.mod.type = modsel.type;
                 else
-                    set(handles.MEEGflag,'Value',0)
+                    set(handles.type,'Value',1)
                 end
+                set(handles.modname,'Enable','off')
             else
                 nlist=[varargin{2}{1}, {'Enter new'}];
                 set(handles.modname,'String',nlist,'Value',length(nlist));  
@@ -362,7 +367,7 @@ if choice==0
     choice=handles.desnmenu;
     set(handles.design_menu,'Value')
 end
-if ~handles.mod.MEEG && choice==1
+if strcmpi(handles.mod.type,'Neuroimaging') && choice==1 %Neuroimaging data
     desn=spm_select(1,'mat','Select SPM.mat file',[],[],'SPM.mat');
     try
         load(desn);
@@ -438,17 +443,17 @@ if ~handles.mod.MEEG && choice==1
     end
     desn=prt_check_design(conds,SPM.xX.K(1).RT,units,overl,del);
     desn.covar = [];
-elseif ~handles.mod.MEEG && choice==2
+elseif strcmpi(handles.mod.type,'Neuroimaging') && choice==2
     if isstruct(handles.mod.design)
         desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT,0});
     else
         desn=prt_data_conditions;
     end
-elseif ~handles.mod.MEEG && choice ==3
+elseif strcmpi(handles.mod.type,'Neuroimaging') && choice ==3
     desn=[];
-elseif choice==4        % replicate design of 1st subject
+elseif strcmpi(handles.mod.type,'Neuroimaging') && choice==4        % replicate design of 1st subject
     desn=handles.subj1(handles.indmods1).design;
-elseif handles.mod.MEEG         %load desing from D object if file was selected
+elseif strcmpi(handles.mod.type,'MEEG')         %load design from D object if file was selected
     if isempty(handles.mod.scans)
         beep
         disp('Select .mat for subject first')
@@ -506,45 +511,47 @@ if ~isempty(handles.mod.scans)
 else
     sel=[];
 end
-t=spm_select([1 Inf],'any','Select files for the modality',sel);
+typ = get(handles.type,'Value');
+if typ>1 % either MEEG or .mat with data matrix (v3.1)
+    t=spm_select([1 Inf],'mat','Select files for the modality',sel);
+else
+    t=spm_select([1 Inf],'image','Select files for the modality',sel);
+end
 handles.mod.scans=t;
 % Update handles structure
 guidata(hObject, handles);
 
-% --- Executes on button press in MEEGflag.
-function MEEGflag_Callback(hObject, eventdata, handles)
-% hObject    handle to MEEGflag (see GCBO)
+% --- Executes on button press in type.
+function type_Callback(hObject, eventdata, handles)
+% hObject    handle to type (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of MEEGflag
-val = get(handles.MEEGflag,'Value');
-if val
-    %load desing from D object if file was selected
-    if isempty(handles.mod.scans)
-        beep
-        disp('Select .mat for subject first')
-        set(handles.MEEGflag,'Value',0);
-        return
-    elseif size(handles.mod.scans,1)>1
-        beep
-        disp('Select only one file per modality for MEEG')
-        set(handles.MEEGflag,'Value',0);
-        return
-    end
+% Hint: get(hObject,'Value') returns toggle state of type
+val = get(handles.type,'Value');
+typ = get(handles.type,'String');
+if val==0
+    val=1;
+    set(handles.type,'Value',val)
+end
+if val==2
     set(handles.design_menu,...
         'String',{'Events in file'},...
         'Value',1);
-    D = spm_eeg_load(handles.mod.scans(1,:));
-    desn = prt_get_design_MEEG(D);
-    desn.covar = [];
-    handles.mod.design=desn;
 else
     set(handles.design_menu,...
             'String',{'Load SPM.mat','Specify design','No design'},...
             'Value',3);
+    if isstruct(handles.subj1)
+        if any(strcmpi(modname, {handles.subj1(:).mod_name}))
+            handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
+            list=get(handles.design_menu,'String');
+            list=[list;{'Replicate design of subject 1'}];
+            set(handles.design_menu,'String',list);
+        end
+    end
 end
-handles.mod.MEEG = val;
+handles.mod.type = typ{val};
 % Update handles structure
 guidata(hObject, handles);
 

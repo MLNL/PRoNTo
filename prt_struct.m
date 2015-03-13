@@ -21,19 +21,6 @@ np = fieldnames(PRT.group(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
     flag = 0;
-%     ita = find(cg==0);  Repair
-%     for i = 1:length(ita)
-%         for j=1:length(PRT.group)
-%             PRT.group(j).(ng{ita(i)}) = [];
-%             if ita(i)==1
-%                 PRT.group(j).gr_name = '';
-%             elseif ita(i)==3
-%                 PRT.group(j).hrfoverlap = 0;
-%             elseif ita(i)==4
-%                 PRT.group(j).hrfdelay = 0;
-%             end
-%         end
-%     end
 end
 
 % Subject
@@ -42,21 +29,10 @@ np = fieldnames(PRT.group(1).subject(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
     flag = 0;
-%     ita = find(cg==0);
-%     for i = 1:length(ita)
-%         for j=1:length(PRT.group)
-%             for k  = 1:length(PRT.group(j).subject)
-%                 PRT.group(j).subject(k).(ng{ita(i)}) = [];
-%                 if ita(i)==1
-%                     PRT.group(j).subject(k).subj_name = '';
-%                 end
-%             end
-%         end
-%     end
 end
 
 %Modality
-ng = {'mod_name','detrend','covar','rt_subj','design','scans','MEEG'};
+ng = {'mod_name','covar','rt_subj','design','scans','type'};
 np = fieldnames(PRT.group(1).subject(1).modality(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
@@ -67,12 +43,10 @@ if ~all(cg) % missing fields
             for k  = 1:length(PRT.group(j).subject)
                 for l = 1:length(PRT.group(j).subject(k).modality)
                     PRT.group(j).subject(k).modality(l).(ng{ita(i)}) = [];
-                    if ita(i) == 2
-                        PRT.group(j).subject(k).modality(l).detrend = 0;
-                    elseif ita(i)==1
+                    if ita(i)==1
                         PRT.group(j).subject(k).modality(l).mod_name = '';
                     elseif ita(i)==7
-                        PRT.group(j).subject(k).modality(l).MEEG = 0;
+                        PRT.group(j).subject(k).modality(l).type = 'Neuroimaging';
                     end
                 end
             end
@@ -82,7 +56,7 @@ end
 
 % Masks
 %--------------------------------------------------------------------------
-ng = {'mod_name','fname','MEEG'};
+ng = {'mod_name','fname','type'};
 np = fieldnames(PRT.masks(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
@@ -92,7 +66,7 @@ if ~all(cg) % missing fields
         for j=1:length(PRT.masks)
             PRT.masks(j).(ng{ita(i)}) = [];
             if ita(i)==3
-                PRT.masks(j).MEEG = 0;
+                PRT.masks(j).type = 'Neuroimaging';
             end
         end
     end

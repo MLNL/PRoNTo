@@ -434,7 +434,8 @@ if get(handles.pop_reg,'Value')==1 %for classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
-            list = [list,{'L1- Multi-Kernel Learning'}];
+            list = [list,{'L1- Multi-Kernel Learning';'wip'}];
+%             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -516,7 +517,8 @@ if get(handles.pop_reg,'Value')==1 %for classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi || length(handles.fs)>1
-            list = [list,{'L1- Multi-Kernel Learning'}];
+%             list = [list,{'L1- Multi-Kernel Learning'}];
+            list = [list,{'L1- Multi-Kernel Learning'},{'wip'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -622,7 +624,7 @@ if ~isempty(handles.fs)
                 'Multiclass GPC'};
             if handles.multimod || handles.multiroi || length(handles.fs)>1
                 list = [list,{'L1- Multi-Kernel Learning',...
-                    'Work in progress'}];
+                    'wip'}];
             end
             set(handles.pop_machine,'String',list)
             set(handles.pop_machine,'Value',1)
@@ -701,7 +703,7 @@ if get(handles.pop_reg,'Value')==1 %for classification
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning',...
-                    'Work in progress'}];
+                    'wip'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -737,7 +739,7 @@ if val==1 %Classification
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning',...
-                    'Work in progress'}];
+                    'wip'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -877,54 +879,7 @@ if strcmpi(handles.type,'classification')
     set(handles.pop_cv_nested,'String',list);
     val = get(handles.pop_cv,'Value');
     set(handles.pop_cv_nested,'Value',max(1,val-1));
-%     if (speccl.design) && max(ns)==1
-%         list=get(handles.pop_cv_nested,'String');
-%         if ~any(ismember(list, 'Leave One Block Out'))
-%             list=[list;{'Leave One Block Out'}];
-%         end
-%         if ~any(ismember(list, 'k-folds CV on Block'))
-%             list=[list;{'k-folds CV on Block'}];
-%         end
-%         set(handles.pop_cv_nested,'String',list)
-%         set(handles.pop_cv_nested,'Value',length(list)-1)
-%         if ~any(ismember(list, 'Leave One Block per Class Out'))
-%             list=[list;{'Leave One Block per Class Out'}];
-%         end
-%         if ~any(ismember(list, 'k-folds CV on Block per Class'))
-%             list=[list;{'k-folds CV on Block per Class'}];
-%         end
-%         set(handles.pop_cv_nested,'String',list)
-%         handles.cv_nested.type     = 'lobo';
-%     end
-%     if min(ns)>1
-%         list=get(handles.pop_cv_nested,'String');
-%         if ~any(ismember(list, 'Leave One Subject Out'))
-%             list=[list;{'Leave One Subject Out'}];
-%         end
-%         if ~any(ismember(list, 'k-folds CV on Subject Out'))
-%             list=[list;{'k-folds CV on Subject Out'}];
-%         end
-%         set(handles.pop_cv_nested,'String',list)
-%         set(handles.pop_cv_nested,'Value',length(list)-1)
-%         if ~any(ismember(list, 'Leave One Block per Class Out'))
-%             list=[list;{'Leave One Block per Class Out'}];
-%         end
-%         if ~any(ismember(list, 'k-folds CV on Block per Class'))
-%             list=[list;{'k-folds CV on Block per Class'}];
-%         end
-%         set(handles.pop_cv_nested,'String',list)
-%         handles.cv_nested.type     = 'loso';
-%         if ~ng1 || ~ng2
-%             list=get(handles.pop_cv_nested,'String');
-%             if ~any(ismember(list, 'Leave One Subject per Group Out'))
-%                 list=[list;{'Leave One Subject per Group Out'}];
-%             end
-%             if ~any(ismember(list, 'k-folds CV on Subject per Group'))
-%                 list=[list;{'k-folds CV on Subject per Group'}];
-%             end
-%             set(handles.pop_cv_nested,'String',list)
-%         end
-%     end  
+    
 else % Regression
     d1=prt_ui_select_reg_new('UserData',{handles.dat,handles.fs(1).indfs});
     try
@@ -1016,7 +971,7 @@ elseif any(strfind(mach{val},'Random'))
 elseif any(strfind(mach{val},'L1- Multi-Kernel'))
     handles.machine.function='prt_machine_sMKL_cla';
     handles.machine.args=handles.def.l1MKLargs;
-elseif any(strfind(mach{val},'Work in progress'))
+elseif any(strfind(mach{val},'wip'))
     handles.machine.function='prt_machine_wip_cla';
     handles.machine.args=handles.def.wipargs;
 elseif any(strfind(mach{val},'Multi-Kernel Regression'))
@@ -1050,7 +1005,7 @@ v = get(handles.flag_opt_param,'Value');
 if v
     switch handles.machine.function
         case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
-                'prt_machine_ENMKL_cl','prt_machine_krr',...
+                'prt_machine_wip_cla','prt_machine_krr',...
                 'prt_machine_sMKL_reg'}
             set(handles.edit_param_range,'Enable','on')
             set(handles.pop_cv_nested,'Enable','on')
@@ -1090,6 +1045,15 @@ catch
 end
 if isnumeric(p)
     handles.cv.nested_param = p;
+elseif iscell(p)
+    for i=1:length(p)
+        if isnumeric(p{i})
+            handles.cv.nested_param{i} = p{i};
+        else
+           beep
+            disp('Parameter range is not numeric, please enter as min:step:max')
+        end
+    end
 else
     beep
     disp('Parameter range is not numeric, please enter as min:step:max')

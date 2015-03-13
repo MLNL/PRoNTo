@@ -29,16 +29,8 @@ end
 flagi = 0;
 N = [];
 D = [];
-try
-    N  = nifti(filenames); % read the image dimensions from the header
-    dm = size(N(1).dat);
-    if length(dm)==2, dm = [dm 1]; end % handling case of 2D image 
-    if length(dm) == 3
-        n_vol = 1;
-    else
-        n_vol = dm(4);
-    end
-catch
+[d,dd,ext] = fileparts(filenames(1,:));
+if strcmpi(ext,'.mat')
     try
         D = spm_eeg_load(filenames); % read an MEEG object
         dm = size(D);
@@ -47,9 +39,19 @@ catch
             flagi = 1;
         end % handling non t-f
         n_vol = dm(4);
-%         nbad = D.badtrials;
-%         igt = setdiff(n_tot,nbad); % does not write bad trials
-%         n_vol = length(igt);
+    catch
+        error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
+    end 
+else
+    try
+        N  = nifti(filenames); % read the image dimensions from the header
+        dm = size(N(1).dat);
+        if length(dm)==2, dm = [dm 1]; end % handling case of 2D image
+        if length(dm) == 3
+            n_vol = 1;
+        else
+            n_vol = dm(4);
+        end
     catch
         error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
     end

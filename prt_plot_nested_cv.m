@@ -78,7 +78,7 @@ switch PRT.model(model).input.machine.function
         
         
         
-    case 'prt_machine_wip'
+    case 'prt_machine_wip_cla'
         x_label = 'mu';
         y_label = 'C';
         z_label = 'Balanced Accuracy (%)';
@@ -108,7 +108,7 @@ set(axes_handle,'Position',[pos(1) pos(2) 0.9*pos(3) pos(4)])
 
 
 % Check if it's a 2 parameter optimisation problem
-if strcmp(PRT.model(model).input.machine.function, 'prt_machine_wip')
+if strcmp(PRT.model(model).input.machine.function, 'prt_machine_wip_cla')
     
     if fold == 1
         

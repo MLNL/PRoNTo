@@ -143,8 +143,8 @@ nmeeg = 0;
 indmeeg = [];
 indimg = [];
 for i = 1:n_mod
-    if isfield(handles.dat.masks(i),'MEEG') && ...
-            handles.dat.masks(i).MEEG
+    if isfield(handles.dat.masks(i),'type') && ...
+            strcmpi(handles.dat.masks(i).type,'MEEG')
         nmeeg = nmeeg + 1;
         indmeeg = [indmeeg,i];
     else

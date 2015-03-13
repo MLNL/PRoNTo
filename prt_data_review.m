@@ -340,12 +340,17 @@ PRT=handles.PRT;
 for i=1:length(PRT.group)
     for j=1:length(PRT.group(i).subject)
         m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
+        if ~strcmpi(PRT.group(i).subject(j).modality(m).type,'Neuroimaging')
+            beep
+            disp('These parameters should not be used for non-imaging data')
+            return
+        end
         dess=PRT.group(i).subject(j).modality(m).design;
         desn=prt_check_design(dess.conds,dess.TR,dess.unit,val,del);
 %         desn.covar=dess.covar;
         maxcond=max([desn.conds(:).scans]);
         lfiles=size(PRT.group(i).subject(j).modality(m).scans,1);
-        if lfiles<maxcond
+        if lfiles>1 && lfiles<maxcond
             sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',i,j,m)
             disp('Corresponding events were discarded')
             for l=1:length(desn.conds)
@@ -408,11 +413,16 @@ for i=1:length(PRT.group)
     for j=1:length(PRT.group(i).subject)
         m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
         dess=PRT.group(i).subject(j).modality(m).design;
+        if ~strcmpi(PRT.group(i).subject(j).modality(m).type,'Neuroimaging')
+            beep
+            disp('These parameters should not be used for non-imaging data')
+            return
+        end
         desn=prt_check_design(dess.conds,dess.TR,dess.unit,val,del);
 %         desn.covar=dess.covar;
         maxcond=max([desn.conds(:).scans]);
         lfiles=size(PRT.group(i).subject(j).modality(m).scans,1);
-        if lfiles<maxcond
+        if lfiles>1 && lfiles<maxcond
             sprintf('Design of subject %d, group %d, modality %d, exceeds time series \n',i,j,m)
             disp('Corresponding events were discarded')
             for l=1:length(desn.conds)
@@ -513,6 +523,7 @@ for i=1:length(dat.group)
 end
 
 %plot the results into bar graphs
+figure(handles.figure1)
 set(handles.figure1,'CurrentAxes',handles.axes2)
 cla
 ncond=size(meantp,2);
