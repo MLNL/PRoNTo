@@ -282,7 +282,10 @@ switch in.cv.type
             nsb=0;
             for ic=1:length(in.class)
                 listcond = {in.class(ic).group(1).subj(1).modality(1).conds(:).cond_name}; %only conditions common to all subjects are presented
-                lmod = {in.class(ic).group(1).subj(1).modality(:).mod_name{1}};
+                lmod=[];
+                for i=1:length(in.class(ic).group(1).subj(1).modality)
+                    lmod = [lmod,in.class(ic).group(1).subj(1).modality(i).mod_name(1)];
+                end
                 ids = in.class(ic).group(1).subj(1).num;
                 gnames = {PRT.group(:).gr_name};
                 [d,ng]=ismember(in.class(ic).group(:).gr_name,gnames);
@@ -332,14 +335,18 @@ switch in.cv.type
                 inds = find(in.t == ic);
                 ns(ic) = length(inds);
                 vcl(inds,1) = ic;
-                ngi = unique(ID(inds,4));
-                for ig = 1:length(ngi)
-                    igi = find(ID(inds,4)==ngi(ig));
-                    indss = unique(ID(inds(igi),5));
-                    for is = 1:length(indss)
-                        inss = find(ID(inds(igi),5) == indss(is));
-                        vcl(inds(igi(inss)),2) = nsb;
-                        nsb = nsb + 1;
+                nmi = unique(ID(inds,3));
+                for im=1:length(nmi)
+                    imi = find(ID(inds,3)==nmi(im));
+                    ngi = unique(ID(inds(imi),4));
+                    for ig = 1:length(ngi)
+                        igi = find(ID(inds(imi),4)==ngi(ig));
+                        indss = unique(ID(inds(imi(igi)),5));
+                        for is = 1:length(indss)
+                            inss = find(ID(inds(imi(igi)),5) == indss(is));
+                            vcl(inds(imi(igi(inss))),2) = nsb;
+                            nsb = nsb + 1;
+                        end
                     end
                 end
             end
@@ -373,7 +380,7 @@ switch in.cv.type
                 mns=mod(ns(g),nsfg);
                 dk=nsfg*ones(1,floor(length(unique(vcl(is,2)))/nsfg));
                 if mns>0
-                    dk(end)=dk(end)+mns;
+                    dk(end)=dk(end)+length(unique(vcl(is,2)))-sum(dk);
                 end
                 inds=1;
                 sk=[];

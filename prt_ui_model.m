@@ -849,22 +849,15 @@ if strcmpi(handles.type,'classification')
         end
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
-        if ~any(ismember(list, 'Leave One Block per Class Out'))
-            list=[list;{'Leave One Block per Class Out'}];
-        end
-        if ~any(ismember(list, 'k-folds CV on Block per Class'))
-            list=[list;{'k-folds CV on Block per Class'}];
-        end
-        set(handles.pop_cv,'String',list)
         handles.cv.type     = 'loso';
         handles.cv.type_nested='loso';
         if ~ng1 || ~ng2
             list=get(handles.pop_cv,'String');
-            if ~any(ismember(list, 'Leave One Subject per Group Out'))
-                list=[list;{'Leave One Subject per Group Out'}];
+            if ~any(ismember(list, 'Leave One Subject per Class Out'))
+                list=[list;{'Leave One Subject per Class Out'}];
             end
-            if ~any(ismember(list, 'k-folds CV on Subject per Group'))
-                list=[list;{'k-folds CV on Subject per Group'}];
+            if ~any(ismember(list, 'k-folds CV on Subject per Class'))
+                list=[list;{'k-folds CV on Subject per Class'}];
             end
             set(handles.pop_cv,'String',list)
         end
@@ -1093,7 +1086,8 @@ if val==0
 end
 if any(strfind(mach{val},'Subject Out'))
     handles.cv.type = 'loso';
-elseif any(strfind(mach{val},'Subject per Class'))
+elseif any(strfind(mach{val},'Subject per Class')) || ...
+        any(strfind(mach{val},'Subject per Group')) % Backwards compatibility
     if ~handles.loospg
         beep
         disp('Warning: Subjects are not balanced across classes!')
@@ -1507,7 +1501,7 @@ if val==0
 end
 if any(strfind(mach{val},'Subject Out'))
     handles.cv.type_nested = 'loso';
-elseif any(strfind(mach{val},'Subject per Group'))
+elseif any(strfind(mach{val},'Subject per Class'))
     if ~handles.loospg
         beep
         disp('Warning: Subjects are not balanced across classes!')

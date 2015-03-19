@@ -177,7 +177,8 @@ else
         % Load PRT.mat
         PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
         if isempty(PRT)
-            error('prt_ui_disp_weights:NoPRT','No PRT file selected')        
+            disp('No PRT file selected')     
+            return
         end
 
         pathdir = regexprep(PRT,'PRT.mat', '');
@@ -830,7 +831,8 @@ handles.class = 1;
 in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
 fid = prt_init_fs(handles.PRT,in);
 handles.fid = fid;
-if ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && ...
+if (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) ||...
+       ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip')))  && ...
         handles.PRT.fs(fid).multkernel
     nmod = length(handles.PRT.fs(fid).modality);
     mods = cell(nmod,1);
@@ -838,7 +840,8 @@ if ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && .
         mods{i} = handles.PRT.fs(fid).modality(i).mod_name;
     end
     handles.summed = 0;
-elseif ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && ...
+elseif (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))  ||...
+       ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip'))) && ...
         ~handles.PRT.fs(fid).multkernel
     mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
     handles.summed = 0; % either summed modalities or only one
@@ -1030,7 +1033,8 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    dat(:,2) = num2cell(weights);   
    
    % Fill the table with ROI size if ROIs
-   if ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && ...
+   if (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) ||...
+       ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip'))) && ...
            handles.PRT.fs(fid).multkernelROI  %Multiple kernel learning on ROIs
        if isfield(handles.PRT.fs(fid).modality,'idfeat_img')&& ... % Get the indexes of each ROI in the image
                ~isempty(handles.PRT.fs(fid).modality(mids).idfeat_img)

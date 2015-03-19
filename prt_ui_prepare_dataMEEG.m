@@ -213,11 +213,9 @@ set(handles.av_chan,'Value',0);
 set(handles.av_chan,'Enable','on');
 set(handles.mult_chan,'Value',0);
 set(handles.mult_chan,'Enable','on');
+handles.lchan = lchan;
 %get freq info
 if length(size(D))== 4 
- % by default select all freq bins
-%     set(handles.fb_all,'Value',1)
-%     set(handles.fb_select,'Value',0)
     handles.mod.ifr = 1:size(D,2);
     handles.freq = D.frequencies;
     set(handles.fb_start,'String',num2str(handles.freq(1)))
@@ -229,12 +227,6 @@ if length(size(D))== 4
     handles.mod.aver(2) = 0;
     set(handles.mult_fb,'Enable','on')
     set(handles.mult_fb,'Value',0)
-%     set(handles.mult_fb_fb,'Enable','off')
-%     set(handles.mult_fb_fb,'Value',0)
-%     set(handles.mult_fb_win,'Enable','off')
-%     set(handles.mult_fb_win,'Value',0)
-%     set(handles.mult_fb_winsize,'Enable','off')
-%     set(handles.mult_fb_winsize,'String','')
     % Set color of all text boxes to the color of enabled buttons
     cc = get(handles.mult_fb,'ForegroundColor');
     aa=get(handles.uipanel3,'children');
@@ -245,8 +237,6 @@ if length(size(D))== 4
     end
     handles.dim = [size(D,1),size(D,2),size(D,3)];    
 else
-%     set(handles.fb_all,'Value',0)
-%     set(handles.fb_select,'Value',0)
     set(handles.fb_start,'String','')
     set(handles.fb_start,'Enable','off')
     set(handles.fb_stop,'String','')
@@ -257,12 +247,6 @@ else
     handles.mod(1).aver(2) = 0;
     set(handles.mult_fb,'Enable','off')
     set(handles.mult_fb,'Value',0)
-%     set(handles.mult_fb_fb,'Enable','off')
-%     set(handles.mult_fb_fb,'Value',0)
-%     set(handles.mult_fb_win,'Enable','off')
-%     set(handles.mult_fb_win,'Value',0)
-%     set(handles.mult_fb_winsize,'Enable','off')
-%     set(handles.mult_fb_winsize,'String','')
     % Set color of all text boxes to the color of disabled buttons
     cc = get(handles.mult_fb,'ForegroundColor');
     aa=get(handles.uipanel3,'children');
@@ -272,6 +256,7 @@ else
         end
     end
     handles.dim = [size(D,1),1,size(D,2)];
+    handles.freq = [];
 end
 % get time info
 handles.time = [D.time];
@@ -296,10 +281,9 @@ set(handles.mult_tp_winsize,'Enable','off')
 set(handles.mult_tp_winsize,'String','')
 cc = get(handles.mult_tp_win,'ForegroundColor');
 set(handles.text6,'ForegroundColor',cc);
-% set(handles.smooth_tp,'Enable','on')
-% set(handles.smooth_tp,'Value',0)
-% set(handles.smooth_tp_win,'Enable','off')
-% set(handles.smooth_tp_win,'String','')
+% get the position of the channels in 2d
+handles.chanpos = D.coor2D;
+
 
 % --- Executes on selection change in uns_chan.
 function uns_chan_Callback(hObject, eventdata, handles)
@@ -445,48 +429,6 @@ else
 end
 % Update handles structure
 guidata(hObject, handles);
-
-% --- Executes on button press in tp_all.
-% function tp_all_Callback(hObject, eventdata, handles)
-% % hObject    handle to tp_all (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hint: get(hObject,'Value') returns toggle state of tp_all
-% val = get(handles.tp_all,'Value');
-% if val
-%     set(handles.tp_select,'Value',0)
-%     set(handles.tp_start,'String','')
-%     set(handles.tp_start,'Enable','off')
-%     set(handles.tp_stop,'String','')
-%     set(handles.tp_stop,'Enable','off')
-% else
-%     set(handles.tp_start,'Enable','on')
-%     set(handles.tp_stop,'Enable','on')    
-% end
-% handles.mod.itp = 1:length(handles.time); % to be over-written by start and stop if selection
-% guidata(hObject,handles)
-
-% % --- Executes on button press in tp_select.
-% function tp_select_Callback(hObject, eventdata, handles)
-% % hObject    handle to tp_select (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hint: get(hObject,'Value') returns toggle state of tp_select
-% val = get(handles.tp_select,'Value');
-% if ~val
-%     set(handles.tp_start,'String','')
-%     set(handles.tp_start,'Enable','off')
-%     set(handles.tp_stop,'String','')
-%     set(handles.tp_stop,'Enable','off')
-% else
-%     set(handles.tp_all,'Value',0)
-%     set(handles.tp_start,'Enable','on')
-%     set(handles.tp_stop,'Enable','on')
-%     handles.mod.itp = 1:length(handles.time);
-% end
-% guidata(hObject,handles)
 
 
 function tp_start_Callback(hObject, eventdata, handles)
@@ -713,96 +655,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in smooth_tp.
-% function smooth_tp_Callback(hObject, eventdata, handles)
-% % hObject    handle to smooth_tp (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hint: get(hObject,'Value') returns toggle state of smooth_tp
-% val = get(handles.smooth_tp,'Value');
-% if val
-%     handles.mod.smooth = 1;
-%     set(handles.smooth_tp_win,'Enable','on');
-%     set(handles.smooth_tp_win,'String','');
-% else
-%     handles.mod.smooth = 0;
-%     handles.mod.smoothparam = [];
-%     set(handles.smooth_tp_win,'Enable','off');
-%     set(handles.smooth_tp_win,'String','');
-% end
-% guidata(hObject,handles);
-
-
-% function smooth_tp_win_Callback(hObject, eventdata, handles)
-% % hObject    handle to smooth_tp_win (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hints: get(hObject,'String') returns contents of smooth_tp_win as text
-% %        str2double(get(hObject,'String')) returns contents of smooth_tp_win as a double
-% val = str2double(get(handles.smooth_tp_win,'String'));
-% if ~isnan(val)
-%     handles.mod.smoothparam = val;
-% end
-% guidata(hObject,handles);
-
-% % --- Executes during object creation, after setting all properties.
-% function smooth_tp_win_CreateFcn(hObject, eventdata, handles)
-% % hObject    handle to smooth_tp_win (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    empty - handles not created until after all CreateFcns called
-% 
-% % Hint: edit controls usually have a white background on Windows.
-% %       See ISPC and COMPUTER.
-% if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-%     set(hObject,'BackgroundColor','white');
-% end
-
-
-% % --- Executes on button press in fb_all.
-% function fb_all_Callback(hObject, eventdata, handles)
-% % hObject    handle to fb_all (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hint: get(hObject,'Value') returns toggle state of fb_all
-% val = get(handles.fb_all,'Value');
-% if val
-%     set(handles.fb_select,'Value',0)
-%     set(handles.fb_start,'String','')
-%     set(handles.fb_start,'Enable','off')
-%     set(handles.fb_stop,'String','')
-%     set(handles.fb_stop,'Enable','off')
-% else
-%     set(handles.fb_start,'Enable','on')
-%     set(handles.fb_stop,'Enable','on')    
-% end
-% handles.mod.ifr = 1:length(handles.freq); % to be over-written by start and stop if selection
-% guidata(hObject,handles)
-
-% --- Executes on button press in fb_select.
-% function fb_select_Callback(hObject, eventdata, handles)
-% % hObject    handle to fb_select (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hint: get(hObject,'Value') returns toggle state of fb_select
-% val = get(handles.fb_select,'Value');
-% if ~val
-%     set(handles.fb_start,'String','')
-%     set(handles.fb_start,'Enable','off')
-%     set(handles.fb_stop,'String','')
-%     set(handles.fb_stop,'Enable','off')
-% else
-%     set(handles.fb_all,'Value',0)
-%     set(handles.fb_start,'Enable','on')
-%     set(handles.fb_stop,'Enable','on')
-%     handles.mod.ifr = 1:length(handles.freq);
-% end
-% guidata(hObject,handles)
-
-
 function fb_start_Callback(hObject, eventdata, handles)
 % hObject    handle to fb_start (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -898,19 +750,10 @@ handles.mod.aver(2) = avfb;
 if avfb % Cannot build one kernel per time point if performing average
     set(handles.mult_fb,'Value',0);
     set(handles.mult_fb,'Enable','off');
-%     set(handles.mult_fb_fb,'Value',0);
-%     set(handles.mult_fb_fb,'Enable','off')
-%     set(handles.mult_fb_win,'Value',0);
-%     set(handles.mult_fb_win,'Enable','off')
-%     set(handles.mult_fb_winsize,'String','');
-%     set(handles.mult_fb_winsize,'Enable','off')
     handles.mod.multkern(2) = 0;
 else
     multfb = get(handles.mult_fb,'Value');
     set(handles.mult_fb,'Enable','on');
-%     set(handles.mult_fb_fb,'Enable','on');
-%     set(handles.mult_fb_win,'Enable','on');
-%     set(handles.mult_fb_winsize,'Enable','off');
     handles.mod.multkern(2) = multfb;
 end
 % Update handles structure
@@ -928,83 +771,14 @@ handles.mod.multkern(2) = multfb;
 if multfb % Cannot average if multiple kernels
     set(handles.av_fb,'Value',0);
     set(handles.av_fb,'Enable','off');
-%     set(handles.mult_fb_fb,'Enable','on')
-%     set(handles.mult_fb_win,'Value',0);
-%     set(handles.mult_fb_win,'Enable','on')
-%     set(handles.mult_fb_winsize,'String','');
-%     set(handles.mult_fb_winsize,'Enable','off')
     handles.mod.aver(2) = 0;
 else
     avfb = get(handles.av_fb,'Value');
-%     set(handles.mult_fb_win,'Value',0);
-%     set(handles.mult_fb_fb,'Value',0);
-%     set(handles.mult_fb_winsize,'String','');
     set(handles.av_fb,'Enable','on');
-%     set(handles.mult_fb_fb,'Enable','off');
-%     set(handles.mult_fb_win,'Enable','off');
-%     set(handles.mult_fb_winsize,'Enable','off');
     handles.mod.aver(2) = avfb;
 end
 % Update handles structure
 guidata(hObject, handles);
-
-% % --- Executes on button press in mult_fb_fb.
-% function mult_fb_fb_Callback(hObject, eventdata, handles)
-% % hObject    handle to mult_fb_fb (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hint: get(hObject,'Value') returns toggle state of mult_fb_fb
-% val = get(handles.mult_fb_fb,'Value');
-% if val
-%     handles.mod.multkernparam{2} = 1;
-%     set(handles.mult_fb_win,'Value',0);
-%     set(handles.mult_fb_winsize,'String','');
-%     set(handles.mult_fb_winsize,'Enable','off');
-% end
-% % Update handles structure
-% guidata(hObject, handles);
-
-% % --- Executes on button press in mult_fb_win.
-% function mult_fb_win_Callback(hObject, eventdata, handles)
-% % hObject    handle to mult_fb_win (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hint: get(hObject,'Value') returns toggle state of mult_fb_win
-% val = get(handles.mult_fb_win,'Value');
-% if val
-%     set(handles.mult_fb_fb,'Value',0);
-%     set(handles.mult_fb_winsize,'String','');
-%     set(handles.mult_fb_winsize,'Enable','on');
-% end
-% % Update handles structure
-% guidata(hObject, handles);
-
-
-% function mult_fb_winsize_Callback(hObject, eventdata, handles)
-% % hObject    handle to mult_fb_winsize (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hints: get(hObject,'String') returns contents of mult_fb_winsize as text
-% %        str2double(get(hObject,'String')) returns contents of mult_fb_winsize as a double
-% val = str2double(get(handles.mult_fb_winsize,'String'));
-% handles.mod.multkernparam{2} = val;
-% % Update handles structure
-% guidata(hObject, handles);
-
-% % --- Executes during object creation, after setting all properties.
-% function mult_fb_winsize_CreateFcn(hObject, eventdata, handles)
-% % hObject    handle to mult_fb_winsize (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    empty - handles not created until after all CreateFcns called
-% 
-% % Hint: edit controls usually have a white background on Windows.
-% %       See ISPC and COMPUTER.
-% if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-%     set(hObject,'BackgroundColor','white');
-% end
 
 
 % --- Executes on button press in donebutt.
@@ -1030,20 +804,8 @@ if isempty(handles.mod.ifr) && handles.dim(2)>1
     disp('No frequencies selected, Please correct')
     return
 end
-% if handles.mod.smooth
-%     if isempty(handles.mod.smoothparam)
-%         beep
-%         disp('Temporal smoothing selected but no FWHM provided')
-%         return
-%     end
-% end
 if any(handles.mod.multkern)
     idx = find(handles.mod.multkern);
-%     if any(ismember(idx,2)) && isempty(handles.mod.multkernparam{2})
-%         beep
-%         disp('Multiple kernels in frequency but no band width chosen')
-%         return
-%     end
     if any(ismember(idx,3)) && isempty(handles.mod.multkernparam{3})
         beep
         disp('Multiple kernels in time but no time window chosen')
@@ -1051,6 +813,12 @@ if any(handles.mod.multkern)
     end
     
 end
+%Get information for fas
+handles.mod.time = handles.time;
+handles.mod.chanlab = handles.lchan;
+handles.mod.freq = handles.freq;
+handles.mod.chanpos = handles.chanpos;
+
 handles.output=handles.mod;
 % Update handles structure
 guidata(hObject, handles);

@@ -139,7 +139,8 @@ for b = 1:n_block
         %-------------------------------------------------------------------
         % get the indices of the voxels within the file array mask (data &
         % design step)
-        if ~isempty(PRT.fas(mid).idfeat_img) %i.e. specified neuroimaging mask
+        if ~iscell(PRT.fas(mid).idfeat_img) &&...
+                ~isempty(PRT.fas(mid).idfeat_img) %i.e. specified neuroimaging mask
             ind_ddmask = PRT.fas(mid).idfeat_img(vox_range);            
             %load the second-level mask if specified
             if ~isempty(in.precmask{m})

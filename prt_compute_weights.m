@@ -23,7 +23,7 @@ function img_name = prt_compute_weights(PRT,in,flag,flag2)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M.J.Rosa
+% Written by M.J.Rosa and J.Schrouff
 % $Id$
 
 % Find model

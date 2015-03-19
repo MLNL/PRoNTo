@@ -91,8 +91,6 @@ else
         PRT.fs(fid).modality(m).mod_name = in.mod(mids(m)).mod_name;
         PRT.fs(fid).modality(m).aver     = in.mod(mids(m)).aver;
         PRT.fs(fid).modality(m).multkern = in.mod(mids(m)).multkern;
-%         PRT.fs(fid).modality(m).smooth   = in.mod(mids(m)).smooth;
-%         PRT.fs(fid).modality(m).smoothparam = in.mod(mids(m)).smoothparam;
     end
     
     
@@ -212,7 +210,8 @@ else
         if tocomp(mids(i))
             PRT.fas(mids(i)).mod_name = in.mod(mids(i)).mod_name;
             PRT.fas(mids(i)).hdr = hdr(i,:);
-            PRT.fas(mids(i)).idfeat_img = [];
+            PRT.fas(mids(i)).idfeat_img = {in.mod(mids(i)).chanlab, ...
+                in.mod(mids(i)).freq, in.mod(mids(i)).time, in.mod(mids(i)).chanpos}; % For weight display
             datname=[pathName,filesep,'Feature_set_',char(in.mod(mids(i)).mod_name),'.dat'];
             PRT.fas(mids(i)).dat = file_array(...
                 datname, ...                 % fname     - filename
