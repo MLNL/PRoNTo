@@ -282,7 +282,7 @@ set(handles.mult_tp_winsize,'String','')
 cc = get(handles.mult_tp_win,'ForegroundColor');
 set(handles.text6,'ForegroundColor',cc);
 % get the position of the channels in 2d
-handles.chanpos = D.coor2D;
+handles.chanpos = D.coor2D';
 
 
 % --- Executes on selection change in uns_chan.

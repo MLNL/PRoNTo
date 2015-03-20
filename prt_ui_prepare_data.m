@@ -275,8 +275,9 @@ if ~handles.flagMEEG
     end
 else
     for i=1:n_mod
-        handles.mod(i)=struct('mod_name',[],'ich',[],'itp',[],'ifr',[],...
-            'multkernparam',[],'aver',[0 0 0],'multkern',[0 0 0]);
+         handles.mod(i) =struct('mod_name',[],'ich',[],'itp',[],'ifr',[],...
+            'multkernparam',[],'aver',[0 0 0],'multkern',[0 0 0],'time',...
+            [],'chanlab',[],'freq',[],'chanpos',[]);
     end
 end
 

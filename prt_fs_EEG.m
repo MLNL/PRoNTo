@@ -95,11 +95,11 @@ end
 
 Phi = [];
 nim1 =length(find(PRT.fs(fid).id_mat(:,3) == mids(1)));
-igm = zeros(nkm,1);
 PRT.fs(fid).igood_kerns = [];
 PRT.fs(fid).multkernelROI = 0;
 PRT.fs(fid).multkernel = 0;
 addin.n_vols_s = n_vols_s;
+igm = [];
 for ik = 1:nkm
     if in.flag_mm
         idtk = PRT.fs(fid).id_mat(:,3) == mids(ik);
@@ -120,12 +120,12 @@ for ik = 1:nkm
         [d1,idmin] = min(Phik);
         min_max = find(idmax==idmin);
         if isempty(min_max) || unique(Phik(:,min_max))~=0 %Kernel does not contain a whole line of zeros
-            igm(ik) = 1;
+            PRT.fs(fid).igood_kerns = [PRT.fs(fid).igood_kerns,[1;ik]];
         else
             error('prt_fs:NoDataInMask',...
                 'Signal is zero for at least one event, cannot create kernel')
         end
-        Phim = {Phik};
+        Phim = {Phik};        
         clear Phik
     else
         %Initialize all fields and compute the feature sets if needed
@@ -139,8 +139,6 @@ for ik = 1:nkm
         %further computation of the weights
         PRT.fs(fid).modality(1).idfeat_img = cell(n_kern(ik),1);
         igd = []; %indexes of non 0 kernels
-%         dim = dim_m(ik,:).*in.multkern;
-%         dim(dim==0) = 1;
         nroi = 1;
         addin.buildkern = 1;
         for ich = 1:kernt(1)
@@ -202,15 +200,13 @@ for ik = 1:nkm
                 'Signal is zero for at least one event, cannot create kernel')
         else
             Phim = Phim(igd);
-            PRT.fs(fid).igood_kerns = [PRT.fs(fid).igood_kerns, igd];
+            igm = ik*ones(1,length(igd));
+            PRT.fs(fid).igood_kerns = [PRT.fs(fid).igood_kerns, [igd;igm]];
+%             PRT.fs(fid).modality(ik).idfeat_img = PRT.fs(fid).modality(ik).idfeat_img(igd);
         end
 
     end
     
-%     if ~isempty(igd)
-%         PRT.fs(fid).modality(ik).idfeat_img = PRT.fs(fid).modality(ik).idfeat_img(igd);
-%         PRT.fs(fid).modality(ik).num_ROI = roi(igd);
-%     end 
 
     if in.flag_mm
         %post-hoc: the ID mat should be the same for all modalities involved,

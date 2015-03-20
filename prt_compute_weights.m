@@ -42,26 +42,29 @@ if model_idx == 0, error('prt_compute_weights:ModelNotFound',...
 mtype = PRT.model(model_idx).input.type;
 mname = PRT.model(model_idx).model_name;
 
-% Initialize: get feature set and modalities indexes and deal with MK
+% Initialize: get feature sets and modalities indexes and deal with MK
 % -------------------------------------------------------------------
 % Get index of feature set
-fs_name  = PRT.model(model_idx).input.fs.fs_name;
-fs_idx = find(strcmpi(fs_name,{PRT.fs(:).fs_name}));
-
-% Find modality
-nfas = length(PRT.fas);
-mods = {PRT.fs(fs_idx).modality.mod_name};
-fas  = zeros(1,nfas);
-mm=zeros(length(mods),nfas);
-for i = 1:nfas
-    for j = 1:length(mods)
-        if strcmpi(PRT.fas(i).mod_name,mods{j})
-            fas(i) = 1;
-            mm(i,j)= 1;
+fs_idx = zeros(length(PRT.model(model_idx).input.fs),1);
+fs_name = cell(length(PRT.model(model_idx).input.fs),1);
+for ifs=1:length(PRT.model(model_idx).input.fs)
+    fs_name{ifs}  = PRT.model(model_idx).input.fs(ifs).fs_name;
+    fs_idx(ifs) = find(strcmpi(fs_name,{PRT.fs(:).fs_name}));
+    % Find modality
+    nfas = length(PRT.fas);
+    mods = {PRT.fs(fs_idx).modality.mod_name};
+    fas  = zeros(1,nfas);
+    mm=zeros(length(mods),nfas);
+    for i = 1:nfas
+        for j = 1:length(mods)
+            if strcmpi(PRT.fas(i).mod_name,mods{j})
+                fas(i) = 1;
+                mm(i,j)= 1;
+            end
         end
     end
+    fas_idx = find(fas);
 end
-fas_idx = find(fas);
 
 % Loop over the different feature sets if they were considered as separate
 % kernels (i.e. one or more kernel(s) per modality)
