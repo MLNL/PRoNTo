@@ -941,7 +941,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
        handles.PRT.fs(fid).atlas_name = {handles.PRT.fs(fid).atlas_name};
    end
    % Get the number of ROIs and their labels for each modality
-   handles.num_roi = [];
+   handles.num_roi = {};
    
    for i = 1:stm
        if isfield(handles.PRT.fs(fid).modality(i),'num_ROI') && ~handles.summed
@@ -956,7 +956,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
                atl_name = []; %MKL on modalities
            end
        end
-       handles.num_roi(:,i) = num_roi;
+       handles.num_roi{i} = num_roi;
        
        % Get the labels if they are stored in a .mat along the atlas file for
        % MKL on regions and summarisation
@@ -981,26 +981,28 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
                end
            else
                if isfield(handles.PRT.fs(fid),'igood_kerns') && ...
-                       length(handles.PRT.fs(fid).igood_kerns)==length(num_roi) &&...
                        ~handles.summed
-                    label = handles.labels{mi(m)}{i}(handles.PRT.fs(fid).igood_kerns); %take 0 kernels out
-                    handles.num_roi(:,i) = handles.PRT.fs(fid).igood_kerns;
+                    im = handles.PRT.fs(fid).igood_kerns(:,2)==i;
+                    if length(handles.PRT.fs(fid).igood_kerns(im,1))==length(num_roi)
+                        label = handles.labels{mi(m)}{i}(handles.PRT.fs(fid).igood_kerns(im,1)); %take 0 kernels out
+                        handles.num_roi{i} = handles.PRT.fs(fid).igood_kerns(im,1);
+                    end
                else
                    try
                        label = handles.labels{mi(m)}{i}(num_roi);
                    catch
                        if length(num_roi)==length(handles.labels{mi(m)}{i})  % match between labels and number of regions
                            label = handles.labels{mi(m)}{i}(num_roi);
-                           handles.num_roi(:,i) = num_roi;
+                           handles.num_roi{i} = num_roi;
                        elseif length(num_roi)==length(handles.labels{mi(m)}{i})+1    %missing the 'others' region
                            handles.labels{mi(m)}{i} = [{'others'};handles.labels{mi(m)}{i}];
                            label = handles.labels{mi(m)}{i}(num_roi);
-                           handles.num_roi(:,i) = num_roi;
+                           handles.num_roi{i} = num_roi;
                        else
                            warning('prt_ui_disp_weights:LabelsDoNotCorrespondtoROI',... % could not use file
                                'Number of labels in .mat does not correspond to number of ROIs');
                            label=cell(length(num_roi(:,i)),1);
-                           for j=1:length(num_roi(:,i))
+                           for j=1:length(handles.num_roi{i})
                                label{j} = ['ROI_',num2str(num_roi(j,i))];
                            end
                        end
@@ -1549,7 +1551,7 @@ else
         disp('No variable ROI_names found, generic names used')
     end
 end
-num_roi = handles.num_roi(:,mim);
+num_roi = handles.num_roi{mim};
 try
     label = handles.labels{mi(m)}{mim}(num_roi);
 catch
@@ -1738,7 +1740,7 @@ mim = get(handles.imagemenu,'Value');
 if mim==0
     mim=1;
 end
-num_roi = handles.num_roi(:,mim);
+num_roi = handles.num_roi{mim};
 
 disp('Saving the sorted list of regions to text file.....>>');
 modelname = char(strcat(handles.mnames(get(handles.classmenu,'value')),'_RegionList.txt'));

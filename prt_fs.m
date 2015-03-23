@@ -72,6 +72,7 @@ igd = [];
 PRT.fs(fid).multkernelROI = 0; % Multiple kernels with an atlas
 PRT.fs(fid).multkernel = 0;    % Multiple kernels from different modalities
 nroi = 0;
+igm = [];
 
 if in.flag_mm   % One kernel per modality so need to treat them independently
     for i = 1:n_mods  % multiple modalities
@@ -99,6 +100,7 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
             [PRT,Phim,igk,nroi] = prt_compute_ROI_kernels(PRT,in,fid,mids(i),atl,addin,i);
             PRT.fs(fid).atlas_name = ratl;            
             igd = [igd,igk+nroiprev];
+            igm = [igm, i*ones(1,length(igd))];
         else
             [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
             [d1,idmax] = max(Phim);
@@ -106,6 +108,7 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
             min_max = find(idmax==idmin);
             if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
                 igd = [igd,i];
+                igm = [igm,i];
             else
                 beep
                 disp('No overlap between data and mask/atlas for at least one sample')
@@ -162,6 +165,7 @@ else
             [PRT] = prt_fs_modality(PRT,in,0,[]);
         end
         [PRT,Phim,igd] = prt_compute_ROI_kernels(PRT,in,fid,mids(1),atl,addin,1);
+        igm = ones(1,length(igd));
         PRT.fs(fid).atlas_name{1} = ratl{1};
         Phi = Phim;
     else % Simply concatenate the modalities in samples
@@ -173,6 +177,7 @@ else
         min_max = find(idmax==idmin);
         if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
             igd = 1;
+            igm = 1;
         else
             error('prt_fs:NoDataInMask',...
                 'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
@@ -189,7 +194,8 @@ if isempty(igd)
         'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
 else
     Phi = Phi(igd);
-    PRT.fs(fid).igood_kerns = igd;
+    PRT.fs(fid).igood_kerns(:,1) = igd;
+    PRT.fs(fid).igood_kerns(:,2) = igm;
 end
 
 
