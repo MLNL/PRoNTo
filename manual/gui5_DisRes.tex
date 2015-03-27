@@ -11,19 +11,12 @@
 \section{Introduction}
 
 Once a machine (e.g. a classifier or a regression function) has been specified, 
-its parameters have been estimated over training data, and its performance has been
-evaluated over a test set in cross-validation, it is necessary to examine the outcome
-of the whole procedure in detail. The results windows helps make various useful
-statistical statements about the predictive power of a machine, which (if any) subjects
-or conditions are modelled best, and which machine has the lowest error rate on a given
-dataset.
+its parameters have been estimated over training data, and its performance has been evaluated over a testing set using cross-validation, it is necessary to examine the outcome of the whole procedure in detail. The results windows enables the user to see the model's performance evaluated by different metrics.
 
 Examining model output and parameters is helpful in diagnosing the potentially
 bad performance of a particular model. For example, if the machine cannot perform above
 chance, it could be due to an inappropriate experimental paradigm, noisy data, insufficient
-amount of data, wrong choice of features,  or the wrong choice of machine. It is important to
-recognise that any of these factors could cause the modelling to fail. The results window
-can help to pinpoint the source of error.
+amount of data, wrong choice of features,  or the wrong choice of machine. It is important to recognise that any of these factors could cause the modelling to fail. 
 
 Model performance can be reviewed using the `Display Results' GUI. Alternatively, all computed statistics are saved within the PRT structure, in the \texttt{PRT.model(m).output.stats} field, with \texttt{m}, being the index of the model to review.
 
@@ -49,9 +42,9 @@ are:
 \begin{description}
 \item[Plot]: This panel displays the plots for the various analyses that can be performed on
 test results. With the exception of the confusion matrix plot, these cannot be interacted with.
-\item[Model]: This panel allows the user to select the model to analyse, whether to analyse a
+\item[Model]: This panel allows the user to select the model to visualize, whether to visualize a
 particular fold or all folds at once, and which plot to produce.
-\item[Stats]: The {\tt stats} panel allows the user to generate a variety of statistics on the test (based on the selected fold), including accuracy statistics for classifiers and p-values on these parameters via permutation testing.
+\item[Stats]: The {\tt stats} panel allows the user to visualize a variety of performance metrics (based on the selected fold), including accuracy statistics for classifiers and MSE for regression models. In addition, p-values for these metrics based on permutation tests can also be visualized.
 \end{description}
 
 To populate the `Plot' panel, first click on a model in the {\tt Model} selector, then on
@@ -66,7 +59,7 @@ acts as a `printscreen' of this window (with white background), which can be sav
 \section{Analysing a machine's performance graphically}
 
 Looking at a machine output's graphically can often yield insights into the performance
-of the machine, and where modelling assumptions may prove false. In PRoNTo, plots are different for classification and regression.
+of the machine. In PRoNTo, plots are different for classification and regression.
 
 \subsection{Classification}
 
