@@ -111,7 +111,9 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
             Phim = {Phim};
             PRT.fs(fid).atlas_name = {};
         end
-        Phi = [Phi, Phim(igd)];
+        kerns = Phim(igd);
+        kerns = reshape(kerns,1,length(kerns));
+        Phi = [Phi, kerns];
         PRT.fs(fid).modality(i).igood_kerns = igd;
     end
     %post-hoc: the ID mat should be the same for all modalities involved,
@@ -165,7 +167,9 @@ else
             error('prt_fs:NoDataInMask',...
                 'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
         end
-        Phi = Phim(igd);
+        kerns = Phim(igd); % Makig sure the dimensions are consistent
+        kerns = reshape(kerns,1,length(kerns));
+        Phi = kerns;
     else % Simply concatenate the modalities in samples
         [PRT,Phim] = prt_fs_modality(PRT,in,0,[]);
         PRT.fs(fid).multkernel = 0;
