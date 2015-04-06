@@ -71,8 +71,6 @@ Phi = [];
 igd = [];
 PRT.fs(fid).multkernelROI = 0; % Multiple kernels with an atlas
 PRT.fs(fid).multkernel = 0;    % Multiple kernels from different modalities
-nroi = 0;
-igm = [];
 
 if in.flag_mm   % One kernel per modality so need to treat them independently
     for i = 1:n_mods  % multiple modalities
@@ -96,11 +94,8 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
             if any(in.tocomp)
                 [PRT] = prt_fs_modality(PRT,in,1,addin);
             end
-            nroiprev = nroi;
-            [PRT,Phim,igk,nroi] = prt_compute_ROI_kernels(PRT,in,fid,mids(i),atl,addin,i);
-            PRT.fs(fid).atlas_name = ratl;            
-            igd = [igd,igk+nroiprev];
-            igm = [igm, i*ones(1,length(igd))];
+            [PRT,Phim,igd] = prt_compute_ROI_kernels(PRT,in,fid,mids(i),atl,addin,i);
+            PRT.fs(fid).atlas_name = ratl;                      
         else
             [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
             [d1,idmax] = max(Phim);
@@ -108,7 +103,6 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
             min_max = find(idmax==idmin);
             if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
                 igd = [igd,i];
-                igm = [igm,i];
             else
                 beep
                 disp('No overlap between data and mask/atlas for at least one sample')
@@ -117,7 +111,8 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
             Phim = {Phim};
             PRT.fs(fid).atlas_name = {};
         end
-        Phi = [Phi, Phim];
+        Phi = [Phi, Phim(igd)];
+        PRT.fs(fid).modality(i).igood_kerns = igd;
     end
     %post-hoc: the ID mat should be the same for all modalities involved,
     %so only the first one will be saved
@@ -165,9 +160,12 @@ else
             [PRT] = prt_fs_modality(PRT,in,0,[]);
         end
         [PRT,Phim,igd] = prt_compute_ROI_kernels(PRT,in,fid,mids(1),atl,addin,1);
-        igm = ones(1,length(igd));
         PRT.fs(fid).atlas_name{1} = ratl{1};
-        Phi = Phim;
+        if isempty(igd)
+            error('prt_fs:NoDataInMask',...
+                'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
+        end
+        Phi = Phim(igd);
     else % Simply concatenate the modalities in samples
         [PRT,Phim] = prt_fs_modality(PRT,in,0,[]);
         PRT.fs(fid).multkernel = 0;
@@ -177,26 +175,16 @@ else
         min_max = find(idmax==idmin);
         if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
             igd = 1;
-            igm = 1;
+            Phi{1}=Phim;
         else
             error('prt_fs:NoDataInMask',...
                 'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
         end
-        Phi{1}=Phim;
     end
+    PRT.fs(fid).modality(1).igood_kerns = igd;
 end
-
 
 clear Phim
-
-if isempty(igd)
-    error('prt_fs:NoDataInMask',...
-        'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
-else
-    Phi = Phi(igd);
-    PRT.fs(fid).igood_kerns(:,1) = igd;
-    PRT.fs(fid).igood_kerns(:,2) = igm;
-end
 
 
 % Save kernel and function output

@@ -980,12 +980,11 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
                    label{j} = ['ROI_',num2str(num_roi(j))];
                end
            else
-               if isfield(handles.PRT.fs(fid),'igood_kerns') && ...
+               if isfield(handles.PRT.fs(fid).modality(i),'igood_kerns') && ...
                        ~handles.summed
-                    im = handles.PRT.fs(fid).igood_kerns(:,2)==i;
-                    if length(handles.PRT.fs(fid).igood_kerns(im,1))==length(num_roi)
-                        label = handles.labels{mi(m)}{i}(handles.PRT.fs(fid).igood_kerns(im,1)); %take 0 kernels out
-                        handles.num_roi{i} = handles.PRT.fs(fid).igood_kerns(im,1);
+                    if length(handles.PRT.fs(fid).modality(i).igood_kerns)==length(num_roi)
+                        label = handles.labels{mi(m)}{i}(handles.PRT.fs(fid).modality(i).igood_kerns); %take 0 kernels out
+                        handles.num_roi{i} = handles.PRT.fs(fid).modality(i).igood_kerns;
                     end
                else
                    try

@@ -56,7 +56,7 @@ if ~all(cg) % missing fields
 end
 
 %Modality
-ng = {'mod_name','detrend','covar','rt_subj','design','scans'};
+ng = {'mod_name','covar','rt_subj','design','scans'};
 np = fieldnames(PRT.group(1).subject(1).modality(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
@@ -67,10 +67,9 @@ if ~all(cg) % missing fields
             for k  = 1:length(PRT.group(j).subject)
                 for l = 1:length(PRT.group(j).subject(k).modality)
                     PRT.group(j).subject(k).modality(l).(ng{ita(i)}) = [];
-                    if ita(i) == 2
-                        PRT.group(j).subject(k).modality(l).detrend = 0;
-                    elseif ita(i)==1
+                    if ita(i)==1
                         PRT.group(j).subject(k).modality(l).mod_name = '';
+
                     end
                 end
             end
@@ -98,7 +97,7 @@ end
 if isfield(PRT,'fs')
     % Feature set .fs
     ng = {'fs_name','k_file','id_col_names','fas','modality','id_mat','multkernel',...
-        'atlas_name','igood_kerns','multkernelROI'};
+        'atlas_name','multkernelROI'};
     np = fieldnames(PRT.fs(1));
     cg = ismember(ng,np);
     if ~all(cg) % missing fields
@@ -109,11 +108,9 @@ if isfield(PRT,'fs')
                 PRT.fs(j).(ng{ita(i)}) = [];
                 if ita(i)== 7
                     PRT.fs(j).multkernel = 0;
-                elseif ita(i) == 9
-                    PRT.fs(j).igood_kerns = 1;
                 elseif ita(i) == 1
                     PRT.fs(j).fs_name = '';
-                elseif ita(i) == 10
+                elseif ita(i) == 9
                     PRT.fs(j).multkernelROI = 0;
                 end
             end
@@ -137,7 +134,7 @@ if isfield(PRT,'fs')
     end
     
     % fs.modality: parameters selected for each modality in GUI
-    ng = {'mod_name','detrend','param_dt','mode','idfeat_fas','normalise'};
+    ng = {'mod_name','detrend','param_dt','mode','idfeat_fas','normalise','igood_kerns'};
     np = fieldnames(PRT.fs(1).modality);
     cg = ismember(ng,np);
     if ~all(cg) % missing fields
@@ -155,7 +152,9 @@ if isfield(PRT,'fs')
                         PRT.fs(j).modality(k).mode = 'all_scans';
                     elseif ita(i) == 6
                         PRT.fs(j).modality(k).normalise.type = 0;
-                        PRT.fs(j).modality(k).normalise.scaling = [];
+                        PRT.fs(j).modality(k).normalise.scaling = [];                    
+                    elseif ita(i)==7
+                        PRT.fs(j).modality(k).igood_kerns = 1; % version 2.0
                     end
                 end
             end
