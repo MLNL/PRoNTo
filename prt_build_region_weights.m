@@ -138,7 +138,7 @@ for ii=1:size(fperm,1)
         end
         clear tmp
     end    
-    atlas=h(:);
+    atlas=round(h(:)); % assuming integer numbers of regions
     atlas(isnan(w(:,1)))=NaN;
     
      %Compute the volume of the 'others' region

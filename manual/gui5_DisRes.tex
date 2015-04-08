@@ -11,12 +11,15 @@
 \section{Introduction}
 
 Once a machine (e.g. a classifier or a regression function) has been specified, 
-its parameters have been estimated over training data, and its performance has been evaluated over a testing set using cross-validation, it is necessary to examine the outcome of the whole procedure in detail. The results windows enables the user to see the model's performance evaluated by different metrics.
+its parameters have been estimated over training data, and its performance has been
+evaluated over a testing set using cross-validation, it is necessary to examine the outcome
+of the whole procedure in detail. The results windows enables the user to see the model's performance evaluated by different metrics.
 
 Examining model output and parameters is helpful in diagnosing the potentially
 bad performance of a particular model. For example, if the machine cannot perform above
 chance, it could be due to an inappropriate experimental paradigm, noisy data, insufficient
-amount of data, wrong choice of features,  or the wrong choice of machine. It is important to recognise that any of these factors could cause the modelling to fail. 
+amount of data, wrong choice of features,  or the wrong choice of machine. It is important to
+recognise that any of these factors could cause the modelling to fail. 
 
 Model performance can be reviewed using the `Display Results' GUI. Alternatively, all computed statistics are saved within the PRT structure, in the \texttt{PRT.model(m).output.stats} field, with \texttt{m}, being the index of the model to review.
 
@@ -123,13 +126,13 @@ of functional values, and recording the joint sensitivity/specificity values
 for each decision threshold setting. A typical linear SVM would have a decision
 threshold at 0.
 
-Figure \ref{fig_prt_ui_results_plots_hist} shows an example of such a plot for a multi-class classification (Haxby dataset, Faces versus Houses versus Scissors, LOBO CV).
+Figure \ref{fig_prt_ui_results_plots_hist} shows an example of such a plot for a binary classification (SPM EEG dataset, Faces versus Scrambled, LOBO CV).
 
 
 \begin{figure}[h!]
 \begin{center}
 \includegraphics[width=8cm]{images/prt_ui_results_plots_hist.png}
-\caption{Example function values histogram curve for a three-class problem modelled by GP.}
+\caption{Example function values histogram curve for a binary problem modelled by L1-MKL.}
 \label{fig_prt_ui_results_plots_hist}
 \end{center}
 \end{figure}
@@ -157,7 +160,7 @@ Figure \ref{fig_prt_ui_results_plots_confMat} shows an example of a confusion ma
 
 \subsubsection{Predictions (scatter)}
 
-This plot represents the predicted values (x-axis) against the targets (y-axis). A perfect correspondence between targets and predictions would be represented by a diagonal on this plot. Figure \ref{fig_prt_ui_results_plots_predReg} displays such a plot for the prediction of age from sMRI images (IXI dataset, 15 images acquired across 3 centres).
+This plot represents the predicted values (x-axis) against the real values or targets (y-axis). A perfect correspondence between targets and predictions would be represented by a diagonal on this plot. Figure \ref{fig_prt_ui_results_plots_predReg} displays such a plot for the prediction of age from sMRI images (IXI dataset, 15 images acquired across 3 centres).
 
 \begin{figure}[h!]
 \begin{center}
@@ -207,7 +210,7 @@ This plot will be present in the list if hyper-parameter optimization was perfor
 \label{s:DisRes_stats}
 
 One of the main questions to ask of a model is how precise its predictions are.
-In regression, goodness-of-fit is often assessed via mean squared error and coefficient of determination ($R^2$). In classification, a common practice is to compute prediction accuracy, both for each class and for all test data. Once an accuracy value has been obtained, it is also possible to obtain a p-value for the accuracy, reflecting
+In regression, goodness-of-fit is often assessed via mean squared error and coefficient of determination ($R^2$). In classification, a common practice is to compute prediction accuracy, both for each class and for all test data. Once a specific performance metric has been obtained, it is also possible to obtain a p-value for the metric, reflecting
 how certain we are that the result is not due to chance.
 
 The statistics table gives a summary of the model's performance. Model performance is estimated differently for classification and for regression. In PRoNTo, classification performance is assessed using total accuracy (TA), balanced accuracy (BA), class accuracies (CA) and class predictive values. For regression, the goodness-of-fit is assessed based on the coefficient of determination ($R^2$), the mean squared error (MSE), the normalized mean squared error, and the correlation between the targets and the predictions.
@@ -218,17 +221,17 @@ The accuracy $acc$ is the total number of correctly classified test samples divi
 
 \begin{equation}
 \label{eq:acc_as_01loss}
-acc = 1- \frac{1}{N} \sum_n l_{01}(\omega_n,f(\mathbf{x}_n)),
+acc = 1- \frac{1}{N} \sum_n l_{01}(y_n,f(\mathbf{x}_n)),
 \end{equation}
 
-where $l_{01}(\omega_n,f(\mathbf{x}_n))$ is a 0-1 loss function that 
+where $l_{01}(y_n,f(\mathbf{x}_n))$ is a 0-1 loss function that 
 counts each classification error as costing 1 and each classification success as costing 0:
 
 \begin{equation}
-l_{01}(\omega_n,f(\mathbf{x}_n)) = \left\{
+l_{01}(y_n,f(\mathbf{x}_n)) = \left\{
 \begin{array}{ll}
-0 & \omega_n = f(\mathbf{x}_n)\\
-1 & \omega_n \neq f(\mathbf{x}_n)
+0 & y_n = f(\mathbf{x}_n)\\
+1 & y_n \neq f(\mathbf{x}_n)
 \end{array} \right.
 \end{equation}
 
@@ -249,7 +252,7 @@ class, called the \textit{majority class}, has much more data than others).
 The stats panel also gives the class accuracies $\{acc_1, \ldots, acc_C\}$, useful
 to check whether the model favours some classes over others. If class 1 represents control subjects, 
 and class 2 represents patients, then class 1 accuracy is equivalent to specificity, and class 2 accuracy is 
-equivalent to sensitivity.In the same way, the figure displays class predictive value, which represents the number of false positives for each class. An example of classification stats is displayed in Figure \ref{fig_prt_ui_results_statsTable}.
+equivalent to sensitivity. In the same way, the figure displays class positive predictive value, which represents the number of false positives for each class. An example of classification stats is displayed in Figure \ref{fig_prt_ui_results_statsTable}.
 
 \begin{figure}[h!]
 \begin{center}
@@ -265,7 +268,7 @@ As previously mentioned, model performance for regression is assessed by the cor
 
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[height=8cm]{images/prt_ui_results_statsTableReg.png}
+\includegraphics[height=8cm]{images/prt_ui_results_statsTableReg.PNG}
 \caption{Example statistics for all folds of a KRR modelling on 15 data points.}
 \label{fig_prt_ui_results_statsTableReg}
 \end{center}
@@ -318,7 +321,7 @@ confidence intervals (such as the binomial confidence interval) may not always
 be appropriate. Permutation testing is a non-parametric procedure that allows to obtain meaningful 
 confidence intervals and p-values in this case. Because it requires retraining the model a number of times, 
 which can be costly in computation time, this is not done by default. After filling in the {\tt repetitions}
-field with a number of repetitions $R$, pressing the {\tt Permutation test} button will run for the specified number of times, and produce a  p-value for performance statistics (see Figure~\ref{fig_prt_ui_results_statsTable}). The smallest increment in p-value is equal to $1/R$ (e.g. 20 permutations gives you increments of 0.05), with a minimum value of $1/R$ (i.e. running 10 permutations will never lead to statistically significant result at the commonly used threshold of $p<0.05$). Usually, we would recommend computing several hundreds to a thousand permutations.
+field with a number of repetitions $R$, pressing the {\tt Permutation test} button will estimate the model for the specified number of times with permuted labels/targets, and produce a  p-value for performance statistics (see Figure~\ref{fig_prt_ui_results_statsTable}). The smallest increment in p-value is equal to $1/R$ (e.g. 20 permutations gives you increments of 0.05), with a minimum value of $1/R$ (i.e. running 10 permutations will never lead to statistically significant result at the commonly used threshold of $p<0.05$). Usually, we would recommend computing several hundreds to a thousand permutations.
 
 For both classification and regression models, the p-value associated with each performance measure can be estimated using permutations. Until they have been estimated, `N.A.' will be displayed (standing for `not available').
 

@@ -3,314 +3,306 @@
 \chapter{Regression dataset}
 \minitoc
 
-This chapter will describe the steps necessary to perform a regression using PRoNTo. These are similar to the ones in the previous chapter, thus, the reader is advised to complete the tutorial in chapter \ref{sec:Block_design_fMRI_dataset} before moving on, since the explanation of each step will be less descriptive.
+This chapter will describe the steps necessary to perform a regression using PRoNTo. These are similar to the ones in the previous chapter, thus, the reader is advised to complete the tutorial in Chapter \ref{sec:Block_design_fMRI_dataset} before moving on, since the explanation of some steps will be less descriptive. The dataset used in this chapter can be found in PRoNTo's website \url{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} (data set 3).
 
-The data set used in this tutorial can be found in \url{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} (data set 3).
 
 \section{GUI analysis}
-As in chapter \ref{sec:Block_design_fMRI_dataset}, the analysis of the data will start with the PRoNTo's GUI. Please create a folder in your computer to store the results and run `prt' or `pronto' in the MATLAB command window. This will open PRoNTo's main window (figure \ref{fig:PRoNTo_main_window}).
+As in Chapter \ref{sec:Block_design_fMRI_dataset}, the analysis of the data will start with the PRoNTo's GUI. Please create a folder in your computer to store the results and run `prt' or `pronto' in the MATLAB command window. This will open the main interface of PRoNTo (see Figure \ref{fig:mainInterface} in the previous chapter).
 
+
+%----------------------------------------------------------------------
 
 \subsection{Data \& Design}
 
 \begin{itemize}
 
-    \item In PRoNTo's main window, click on the first button on the left (figure \ref{fig:PRoNTo_main_window});
+	\item In PRoNTo's main window, click on `Data \& Design'. Like in the previous chapter, browse the directory in which to save the PRT structure (saved as `PRT.mat');
+	
+	\item In the panel `Groups', click on `Add' and provide a name to the group, e.g. `Aged';
+
+	\item Unlike the previous chapter, all the images in the dataset correspond to different subjects; therefore, click on `Scans' tick box. This will lock the `Subjects/Scans' field, allowing you to skip to the third field;
+	
+	\item In the `Modalities' panel, click on `Add' and provide a name to the modality, e.g. `fMRI';
+	
+	\item Load all the image files available in the directory (IXIdata/aged/Guys/). You can select all the files by using the right mouse button and clicking on the option `Select All'. When all the images are selected, click on `Done' button;
+ 
+    \item Into the `Regression targets' field, write (or paste) the list of target values available in the `Age\_old\_Guys' file (IXIdata/aged/). The final window should look like to the Figure \ref{fig:specifyModalityReg}. Press `OK'; 
 
         \begin{figure}[h!]
             \begin{center}
-                \includegraphics[height=7cm]{images/Tutorial/example2/gui/PRoNTo_main.png}
+                \includegraphics[scale=0.75]{images/Tutorial/regression/specifyModalityReg.png}
             \end{center}
-            \caption{Main interface of PRoNTo.}
-            \label{fig:PRoNTo_main_window}
+            \caption{`Specify modality' GUI.}
+            \label{fig:specifyModalityReg}
         \end{figure}
 
-    \item A new window will appear. Like in the previous chapter, you have to define the path where the PRT.mat file will be saved and add a new group called `Aged';
-
-    \item Unlike the previous chapter, all the images in the dataset correspond to different subjects, therefore, click on the tick box that says `Scans'. This will lock the `Subjects/Scans' field, allowing you to skip to the third field;
-
-    \item In the third field click on `Add'. A new window will appear. On the first drop-down list of this window select the option `Enter New' to enter a new modality called `fMRI';
-
-    \item Click on the `select\ldots' button to select the files to be used. You can select all the files by using the right mouse button and clicking on the option `Select All' (figure \ref{fig:Select_images}). When all the images are selected, click on the `Done' button;
-
-        \begin{figure}[h!]
+	 \item In the `Masks' field, on the bottom left of the `Data and design' window, select the `SPM\_mask\_noeyes' mask for the modality specified. The mask is available in the path where you have installed PRoNTo (PRoNTo/masks/);
+    
+     \item The `Data and design' window should look similar to Figure \ref{fig:dataDesignFinal}. Click on `Save' button to create `PRT.mat' file with the structure containing the information that has been previously specified. If no errors are shown in the MATLAB command, leave the `Data and design' window by clicking `Quit'.
+     
+     \begin{figure}[h!]
             \begin{center}
-                \includegraphics[height=7cm]{images/Tutorial/example2/gui/select_images.png}
+                \includegraphics[scale=0.75]{images/Tutorial/regression/dataDesignFinal.png}
             \end{center}
-            \caption{User interface that allows the user to select the files for the modality.}
-            \label{fig:Select_images}
+            \caption{`Data and design' GUI final configuration.}
+            \label{fig:dataDesignFinal}
         \end{figure}
-
-    \item After loading the images, write (or paste) the list of target values into the `Regression targets' field. The final window should look like figure \ref{fig:Specify_modality}. Press `OK';
-
-        \begin{figure}[h!]
-            \begin{center}
-                \includegraphics[height=7cm]{images/Tutorial/example2/gui/specify_modality.png}
-            \end{center}
-            \caption{`Specify modality' user interface.}
-            \label{fig:Specify_modality}
-        \end{figure}
-
-    \item The Data \& Design window should look similar to figure \ref{fig:Data_and_Design}. The last step is to select the appropriate mask. Click on the drop-down list that says `Mask' and select the `fMRI' option to load the mask for this modality. The mask used in this example can be found in the path where you have installed PRoNTo (e.g. PRoNTo/masks/SPM\_mask\_noeyes.img);
-
-
-        \begin{figure}[h!]
-            \begin{center}
-                \includegraphics[width=1.0\textwidth]{images/Tutorial/example2/gui/Data_and_Design.png}
-            \end{center}
-            \caption{Data \& Design graphical user interface.}
-            \label{fig:Data_and_Design}
-        \end{figure}
-
-    \item Click on the button that says `Save'. If no errors are shown in the MATLAB command window, quit the window.
 
 
 \end{itemize}
 
+%----------------------------------------------------------------
 
 \subsection{Prepare feature set}
 
 
 \begin{itemize}
 
-    \item In PRoNTo's main window, click on the button that says `Prepare feature set';
+	\item In PRoNTo's main window, click on `Prepare feature set' and a new window will open, `Prepare feature set' (see Figure \ref{fig:prepareFeature} in the previous chapter);   
 
-    \item A new window will appear. In this window click on the `\ldots' button and load the PRT.mat file saved from the last step;
-
-    \item A new window will appear (figure \ref{fig:Specify_model_to_include}). There is no need to change anything for this example. Just click on the `Done' button;
-
-        \begin{figure}[h!]
+	\item Select the `PRT.mat' file previously created in the `Data \& Design' step and another window will open, `Specify modality to include' (Figure \ref{fig:specifyModality2}). There is no need to change anything for this example. Just click on `Done' button;
+	
+	\begin{figure}[h!]
             \begin{center}
-                \includegraphics[height=7cm]{images/Tutorial/example2/gui/Specify_model_to_include.png}
+                \includegraphics[scale=0.75]{images/Tutorial/regression/specifyModality2.png}
             \end{center}
-            \caption{Interface of the `Prepare feature set' step. The `Specify modality to include' window, which is called when the PRT.mat file is selected, allows the specification of the modality, conditions, second-level mask selection and detrend and scaling parameters.}
-            \label{fig:Specify_model_to_include}
+            \caption{`Specify modality to include' GUI.}
+            \label{fig:specifyModality2}
         \end{figure}
-
-    \item Back in the previous window, change the name of the feature set to `Scalar\_Momentum' and click on `Build Kernel / data matrix' (figure \ref{fig:Prepare_feature_set}).
-
-        \begin{figure}[h!]
-            \begin{center}
-                \includegraphics[height=7cm]{images/Tutorial/example2/gui/Prepare_feature_set.png}
-            \end{center}
-            \caption{`Prepare feature set' user interface.}
-            \label{fig:Prepare_feature_set}
-        \end{figure}
-
+	
+	\item In the `Prepare feature set' window, provide a name to the feature set, e.g. `Scalar\_Momentum'; and click on `Build Kernel / data matrix' to build the feature set and kernel;
+	
 \end{itemize}
 
-
+%----------------------------------------------------------------
 
 \subsection{Specify model}
 \begin{itemize}
 
-    \item In PRoNTo's main window, click on the button that says `Specify model';
+    \item In PRoNTo's main window, click on `Specify model' and a new window will open, `Specify model' (see Figure \ref{fig:specifyModel} in the previous chapter);
 
-    \item A new window will appear. In this window click on the `\ldots' button and load the PRT.mat file saved from the last step;
+   	\item Select the `PRT.mat' file and provide a name to the model, e.g. `KRR';
 
-    \item Change the model name to `KRR';
+    \item Select one of the `Feature Set' previously defined. In this case, there is only one `Scalar\_Momentum';
 
-    \item Select the Scalar\_Momentum in the `Feature set' drop-down list;
-
-    \item Select `Yes' in the `Use kernels' option;
-
-    \item Select `Regression' in the `Model' drop-down list;
-
-    \item Click on the `Select subjects/scans' button. This will open a new window, click on `Select all' to use all the scans for the regression (figure \ref{fig:Specify_scans_for_regression});
+	\item Leave the option `Use kernels' tick box as it is, i.e. `Yes';
+	
+	\item Select the `Regression' model type and click on `Select subjects/scans` button. This will open a new window, `Specify subjects/scans to regress', click on `Select all' button to use all the scans for the regression  (Figure \ref{fig:specifySubjects});
+	
 
         \begin{figure}[h!]
             \begin{center}
-                \includegraphics[height=7cm]{images/Tutorial/example2/gui/Specify_scans_for_regression.png}
+                \includegraphics[scale=0.75]{images/Tutorial/regression/specifySubjects}
             \end{center}
-            \caption{`Specify scans for regression' user interface.}
-            \label{fig:Specify_scans_for_regression}
+            \caption{`Specify subjects/scans to regress' GUI.}
+            \label{fig:specifySubjects}
         \end{figure}
-
-    \item Select the `Kernel Ridge Regression' option in the drop-down list;
-
-    \item Select the `Mean centre features using training data' data operation;
-
-    \item Select the `Leave One Subject Out' option in the `Cross-Validation' drop-down list;
-
-    \item The final window should look like figure \ref{fig:Specify_model}. Click on the `Specify and run model' button;
+        
+     \item Select the `Kernel Ridge Regression' option, in the Machine field;
+     
+	 \item Leave the option `Optimize hyper-parameter' tick box unchecked and `Cross-Validation Scheme' (internal loop) as it is; 
+	
+	\item Select the `Leave One Subject Out' cross-validation scheme (external loop);
+	
+	\item In the `Data operations' box, select the `Mean centre features using training data' option. The final `Specify model' window should look similar to the Figure \ref{fig:specifyModelFinal}. Click on `Specify and run model' button;
+	     
 
         \begin{figure}[h!]
             \begin{center}
-                \includegraphics[height=9cm]{images/Tutorial/example2/gui/Specify_model.png}
+                \includegraphics[scale=0.75]{images/Tutorial/regression/specifyModelFinal.png}
             \end{center}
-            \caption{`Specify model' user interface.}
-            \label{fig:Specify_model}
+            \caption{`Specify model' GUI final configuration.}
+            \label{fig:specifyModelFinal}
         \end{figure}
 
     \item Repeat the process two times using the other two machines. To do this, just follow the same steps in this section, but select the other options in the `Machine' drop-down list (`Relevance Vector Regression' and `Gaussian Process Regression') and give different names to the each model.
 
 \end{itemize}
 
+%----------------------------------------------------------------------------
+
 \subsection{Display results}
-\label{sec:Display_results}
+\label{sec:display_results_reg}
 \begin{itemize}
 
-    \item In PRoNTo's main window, click on the `Display results' button;
-
-    \item A new window will appear, asking you to select the PRT.mat file. Select the file saved from the last step. This will open a window similar to figure \ref{fig:Results};
+    \item In PRoNTo's main window, click on `Display results' and select the `PRT.mat' file. This will open the main results window similar to the Figure \ref{fig:resultsReg};
 
         \begin{figure}[h!]
             \begin{center}
-                \includegraphics[width=1.0\textwidth]{images/Tutorial/example2/gui/Results.png}
+                \includegraphics[scale=0.75]{images/Tutorial/regression/resultsReg.png}
             \end{center}
-            \caption{`Results' user interface.}
-            \label{fig:Results}
+            \caption{`Results' GUI.}
+            \label{fig:resultsReg}
         \end{figure}
 
-    \item In the `Results' window, one can select the different regression models in the `Model' list on the upper right region. This will show the results obtained using each one of the regression models;
-
-    \item To see the correlation and the Mean Square Error (MSE) given by each model, click on the `STATS TABLE' button. This will open a window similar to figure \ref{fig:Statistics}, where the values are shown, these should be similar to the ones acquired in the paper by Schrouff \textit{et al.} \cite{Schrouff2013}.
-
-
-        \begin{figure}[h!]
-            \begin{center}
-                \includegraphics[height=7cm]{images/Tutorial/example2/gui/prt_ui_stats.png}
-            \end{center}
-            \caption{Window showing the values of correlation and MSE for one of the models.}
-            \label{fig:Statistics}
-        \end{figure}
-
-
+    \item In the `Results' window, one can select the different regression models in the `Model' list on the upper right region. This will show the results obtained using each one of the regression models.
 \end{itemize}
+
+
+%=====================================================
+
+
+
+%=====================================================
 
 \section{Batch analysis}
 
-In this section, the previous experiment will be repeated using the `\texttt{matlabbatch}' system. The reader is advised to complete the tutorial in section \ref{sec:Batch_analysis} before continuing, since the explanation of each step will be less descriptive.
+In this section, the previous experiment will be repeated using the `\texttt{matlabbatch}' system. The reader is advised to complete the tutorial in Section \ref{sec:Batch_analysis_svm} before continuing, since the explanation of each step will be less descriptive.
+
+Once again, to analyse the data, create a new directory in which to save the results of the analysis, saved as 'PRT.mat'. On the main interface of PRoNTo click on 'Batch' button to open the `{\tt matlabbatch}'. Alternatively, type `prt\_batch' in the MATLAB prompt.
 
 \subsection{Data \& Design}
 \begin{itemize}
 
-    \item Open PRoNTo and click on the `Batch' button or type `prt\_batch' on the MATLAB command window. This will open a window similar to the one in figure \ref{fig:23};
+    \item Click on `Data \& Design' in the PRoNTo menu (see Figure \ref{fig:batchData} in the previous chapter);
+    
+    \item In the `Directory' field, select a directory where the `PRT.mat' file will be saved;
+    
+    \item In the `Groups' field:
+ 	
+		\begin{itemize}
+		
+		\item Add one group;
+		
+		\item In the field `Name', provide a name without spaces to this group, e.g. `Aged';
 
-    \item On the top menu, select the option `PRoNTo' and add a `Data \& Design' module;
-
-    \item In the `Directory' section, select the folder where you which to save the PRT.mat file;
-
-    \item Create a new Group called `Aged';
-
-    \item In the `Select by' section, choose the option `Scans';
-
-    \item Create a new modality called `fMRI'. Select the image files in the `Files' section and define the regression targets in the `Regression targets (per scans)' section;
-
-    \item In the `Masks' section, create a new modality called `fMRI';
-
-    \item In the `File' section, select the appropriate mask. The mask used in this example can be found in the path where you have installed PRoNTo (e.g. PRoNTo/masks/SPM\_mask\_noeyes.img);
-
-    \item Set `HRF overlap' and `HRF delay' to 0;
-
-    \item Set `Review' to `No'. The final `Data \& Design' module should look like the one in figure \ref{fig:batch_Data_and_Design}. 
+    	\item In the field `Select by', select the `Scans' option and add a new modality. For more information on the Scans option please consult Chapter \ref{chap:DataDesign};	
+        	
+    	\item Provide a name for this modality, e.g. `fMRI'; select the image files available in the `aged/Guy' directory of the IXI dataset and write (or paste) the regression targets\footnote{Available in the `Age\_old\_Guys' file (IXIdata/aged/} in the `Regression targets (per scans)' field;
+    	
+    	\item Leave `Covariates' field as default. The batch editor should look similar to the Figure \ref{fig:batchGroup};
 
         \begin{figure}[h!]
             \begin{center}
-                \includegraphics[width=\textwidth]{images/Tutorial/example2/batch/data_and_design.png}
+                \includegraphics[scale=0.75]{images/Tutorial/regression/batchGroup.png}
             \end{center}
-            \caption{`Data \& Design' module in the matlabbatch.}
-            \label{fig:batch_Data_and_Design}
-        \end{figure}
+            \caption{Data and design module in {\tt matlabbatch}.}
+            \label{fig:batchGroup}
+        \end{figure}    	
+    
+		\item In the `Masks' field, add a new modality and provide the same modality name, `fMRI'; and select the `SPM\_mask\_noeyes' mask available in the path where you have installed PRoNTo (PRoNTo/masks/). The name of the modality here has to be exactly the same as in `Modalities', otherwise PRoNTo will not work;       
+        
+    \item Leave the `HRF overlap' and the `HRF delay' fields as default;
+	
+	\item In the `Review' field, select `Yes' if you would like to review your data and design in a separate window. Otherwise, leave as it is, i.e. `No'.
 
 \end{itemize}
+
+\end{itemize}
+%---------------------------------------------------------------
 
 \subsection{Feature set/Kernel}
 
 \begin{itemize}
 
-    \item Add a new `Feature set/Kernel' module;
+    \item Click on `Feature set / Kernel' option on PRoNTo's {\tt matlabbatch} menu (see Figure \ref{fig:batchFeature} in the previous chapter);
+    
+     \item With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step or click on `Select files' button to browse where `PRT.mat' file was saved;
 
-    \item In the `Load PRT.mat' section, click on the `Dependency' button and select the only option available at this point (`Data \& Design: PRT.mat file');
-
-    \item In the `Feature/kernel name' section, write `Scalar\_Momentum';
-
-    \item Add a new modality called `fMRI';
-
-    \item In the `Scans / Conditions' section, select the option `All scans';
-
-    \item In the `Voxels to include' section, select the option `All voxels';
-
-    \item In the `Detrend' section, select the option `None';
-
-    \item Finally, in the `Scale input scans' section, select the option `No scaling'. The `Feature set/Kernel' module should look like the one in figure \ref{fig:batch_FeatureSet_Kernel}.
-
-        \begin{figure}[h!]
-            \begin{center}
-                \includegraphics[width=\textwidth]{images/Tutorial/example2/batch/FeatureSet_Kernel.png}
-            \end{center}
-            \caption{`Feature set/Kernel' module in the matlabbatch.}
-            \label{fig:batch_FeatureSet_Kernel}
-        \end{figure}
-
+    \item Provide a name to the `Feature/kernel' set, e.g. `Scalar\_Momentum';
+    
+    \item Add one modality and select the modality name with the `Dependency' button\footnote{Or type it in manually, `fMRI', but the name needs to be {\it exactly} the same as the one specified in the `Data \& Design' module.}(Data \& Design:Mod\#1 name);
+	
+		\begin{itemize}
+	
+	\item In the `Scans/Conditions' field, select `All scans' option, this means we are not entering with an additional second-level mask;
+	
+	\item In the `Voxels to include' field, select `All voxels' option;
+	
+	\item In the `Detrend' field, select `None' option;
+	
+	\item In the `Scale input scans' field, select `No scaling' option;
+	
+	\item Leave `Load Atlas' as default. After all this steps, the batch editor should look similar to the Figure \ref{fig:batchModalityReg};
+	
+	\begin{figure}[h!]
+	\centering
+		\includegraphics[scale=0.75]{images/Tutorial/regression/batchModalityReg.png}
+	\caption{Feature set / Kernel module. Selected parameters in the Modality option.}
+	\label{fig:batchModalityReg}
+\end{figure}
+	
+	\end{itemize}
+	   
+    \item Leave the `Generate Multiple Kernels' and the `Use one kernel per modality' fields as default.
+    
 \end{itemize}
+
+%----------------------------------------------------------------------
 
 \subsection{Specify model (KRR)}
 
 \begin{itemize}
 
-    \item Add a new `Specify model' module;
+\item Click on `Specify model' option on PRoNTo's {\tt matlabbatch} menu (see Figure \ref{fig:batchSpecifyModel} in the previous chapter);
 
-    \item In the `Load PRT.mat' section, click on the `Dependency' button and select the option `Feature set/Kernel: PRT.mat file';
+\item With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Feature set / Kernel' step or click on `Select files' button to browse where `PRT.mat' file was saved;
 
-    \item In the `Model name' section, set the name to `KRR';
+\item Provide a name to the model, e.g. `KRR';   
 
-    \item In the `Use kernels' section, select the option `Yes';
+\item Leave the `Use kernels' field as it is, i.e. `Yes';    
 
-    \item In the `Feature sets' section, click on the `Dependency' button and select the option `Feature set/Kernel: Feature/kernel name';
+\item Select the feature set name with the `Dependency' button\footnote{or write it {\it exactly} as previously defined in the `Feature set / Kernel' module (option `Feature set/Kernel: Feature/kernel name'), here `Scalar\_Momentum'.};    
+    
+\item Select the `Regression' model type:
 
-    \item In the `Model Type' section, select `Regression';
+    \begin{itemize}
+    
+    \item Add a new group and call it `Aged';
+    
+    \item In the `Subjects' field, type `1:170'. This will instruct the program to use all the 170 scans, i.e. from scan 1 to scan 170;
+       
+    \end{itemize}
+    
+    \item In the `Machine' field: 
+    
+    \begin{itemize}
 
-    \item Create a new group and call it `Aged';
+   \item Select `Kernel Ridge Regression' option:
+       
+	\item Leave the `Optimize hyper-parameter' field as it is, i.e. `No';
+	
+	\item Leave the `Regularization' field as it is, i.e. `1';
+	
+	\item Leave the `Cross validation type for hyper-parameter optimization' field as it is, i.e. `Leave one subject out';    
 
-    \item In the `Subjects' section, type `1:170'. This will instruct the program to use all the 170 scans (i.e. from scan 1 to scan 170);
+   \end{itemize}
+   
+   \item In the `Cross-validation type' field, select `Leave One Subject Out' option;
+	
+	\item Leave the `Include all scans' field as it is, i.e. `No';
 
-    \item In the `Machine' section, select `Kernel Ridge Regression' with a `Regularization' of 1;
-
-    \item In the `Cross-validation type' section, select `Leave one out';
-
-    \item In the `Include all scans' section, select `No';
-
-    \item In the `Mean centre features' section, select `Yes';
-
-    \item Finally, in the `Other operations' section, select `No operations'. The `Specify model' module should look like the one in figure \ref{fig:KRR_SpecifyModel}.
-
-
-        \begin{figure}[h!]
-            \begin{center}
-                \includegraphics[width=\textwidth]{images/Tutorial/example2/batch/KRR_SpecifyModel.png}
-            \end{center}
-            \caption{`Specify model' module in the matlabbatch.}
-            \label{fig:KRR_SpecifyModel}
-        \end{figure}
-
+	\item In the `Data operations' field:
+	
+		\begin{itemize}
+		\item  Leave the `Mean centre features' field as it is, i.e. `Yes'; 
+				
+		\item  Leave the `Other Operations' field as it is, i.e. `No operations';
+		\end{itemize}
+	
 \end{itemize}
+
+%---------------------------------------------------------------------------------
 
 \subsection{Run model (KRR)}
 
 \begin{itemize}
 
-    \item Add a new `Run model' module;
+    \item Click on `Run model' option on PRoNTo's {\tt matlabbatch} menu (see Figure \ref{fig:batchRun} in the previous chapter);
+    
+   	\item  With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Specify model' step;
 
-    \item In the `Load PRT.mat' section, click on `Dependency' and select `Specify model: PRT.mat file';
+    \item Select the model name from the `Specify model' module with the `Dependency' button\footnote{or write it {\it exactly} as previously defined in the `Specify model' module, here `KRR'};
+    
+    \item In the field `Do permutation test?', leave as it is, i.e. `No permutation test' 
 
-    \item In `Model name' section, click on `Dependency' and select `Specify model: Model name'. Alternatively, you can write `KRR'. The `Run model' module should look like the one in figure \ref{fig:KRR_RunModel}.
-
-        \begin{figure}[h!]
-            \begin{center}
-                \includegraphics[width=\textwidth]{images/Tutorial/example2/batch/KRR_RunModel.png}
-            \end{center}
-            \caption{`Run model' module in the matlabbatch.}
-            \label{fig:KRR_RunModel}
-        \end{figure}
-\end{itemize}
-
+       \end{itemize}
 
 \subsection{Specify and Run model (RVR and GPR)}
 
-The specification of the other models (Relevance Vector Regression and Gaussian Process Regression) follows the same procedure as the KRR. The only difference is that in the `Machine' section of the `Specify model' module, one has to choose the appropriate machine to use (`Relevance Vector Regression' or `Gaussian Process Regression'). The parameters used for each machine should be the default ones.
+The specification of the other models (`Relevance Vector Regression' and `Gaussian Process Regression') follows the same procedure as the `KRR'. The only difference is that in the `Machine' field of the `Specify model' module, one has to choose the appropriate machine to use (`Relevance Vector Regression' or `Gaussian Process Regression'). The parameters used for each machine should be the default ones.
 
-Note that when the PRT.mat file is loaded in each module, the user should select the latest option on the list.
+Note that when the `PRT.mat' file is loaded in each module, the user should select the latest option on the list.
 
 When all the models are defined, the `Module List' should contain 8 modules:
 \begin{enumerate}
@@ -321,9 +313,9 @@ When all the models are defined, the `Module List' should contain 8 modules:
     \item Specify model;
     \item Run model;
     \item Specify model;
-    \item Run model;
+    \item Run model.
 \end{enumerate}
 
 Note that modules 3 and 4 correspond to the KRR model; 5 and 6 to the RVR model; 7 and 8 to the GPR model.
 
-When all the modules are added, just press the `Run Batch' button. The resulting PRT.mat file will be saved in the specified directory and the results can be viewed using the process described in section \ref{sec:Display_results}.
+When all the modules are added, just click on `Run Batch' button. The resulting `PRT.mat' file will be saved in the specified directory and the results can be viewed using the process described in Section \ref{sec:display_results_reg}.

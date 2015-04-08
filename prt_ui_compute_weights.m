@@ -404,7 +404,12 @@ function build_ROI_flag2_Callback(hObject, eventdata, handles)
 val = get(handles.build_ROI_flag2,'Value');
 if val
     handles.flag2 = 1;
-    handles.atl_name = [];
+    an = get(handles.edit_atlas,'String');
+    if ~strcmpi(an,'Load atlas')
+        handles.atl_name = an;
+    else
+        handles.atl_name = [];
+    end
     set(handles.edit_atlas,'Enable','on')
     set(handles.br_atlas,'Enable','on')
 else
@@ -451,8 +456,12 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.atl_name=spm_select(1,'img','Select atlas to build weights per region',[],pwd,'.*');
-set(handles.edit_atlas,'String',handles.atl_name)
+handles.atl_name=spm_select(1,'image','Select atlas to build weights per region',[],pwd);
+if ~isempty(handles.atl_name)
+    set(handles.edit_atlas,'String',handles.atl_name)
+else
+    set(handles.edit_atlas,'String','Load atlas')
+end
 % Update handles structure
 guidata(hObject, handles);
 
@@ -466,5 +475,10 @@ in.model_name=list{handles.selmod};
 in.pathdir=handles.prtdir;
 in.img_name=handles.img_name;  %for the moment, coming soon
 in.atl_name = handles.atl_name;
+if isempty(in.atl_name) && handles.flag2 
+    disp('No atlas selected for ROI image')
+    beep
+    return
+end
 prt_compute_weights(handles.dat,in,handles.flag,handles.flag2);
 delete(handles.figure1)
