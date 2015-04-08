@@ -191,7 +191,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1  % Need to loop over the modal
                 % Build image of weights per region if asked for (flag2==1)
                 if exist('flag2','var') && flag2 
                     
-                    if mult_kern_ROI % Kernels built from an atlas directly
+                    if mult_kern_ROI && ~added % Kernels built from an atlas directly
                         disp('Building image of weights per region')
                         if length(name_f)>1 % multiple classes
                             in.img_name = ['ROI_',name_f{j}(1:end-2)];
