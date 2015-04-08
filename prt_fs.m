@@ -73,7 +73,7 @@ PRT.fs(fid).multkernelROI = 0; % Multiple kernels with an atlas
 PRT.fs(fid).multkernel = 0;    % Multiple kernels from different modalities
 
 if in.flag_mm   % One kernel per modality so need to treat them independently
-    for i = 1:n_mods  % multiple modalities
+    for i = 1:n_mods  % multiple modalitiestt
         % For each modality, get the corresponding ID mat and sample index
         idtk = PRT.fs(fid).id_mat(:,3) == mids(i);
         nimm = length(unique(PRT.fs(fid).id_mat(:,3) == mids(i)));
@@ -95,32 +95,34 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
                 [PRT] = prt_fs_modality(PRT,in,1,addin);
             end
             [PRT,Phim,igd] = prt_compute_ROI_kernels(PRT,in,fid,mids(i),atl,addin,i);
-            PRT.fs(fid).atlas_name = ratl;                      
+            PRT.fs(fid).atlas_name = ratl;   
+            kerns = Phim(igd);
         else
             [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
             [d1,idmax] = max(Phim);
             [d1,idmin] = min(Phim);
             min_max = find(idmax==idmin);
             if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
-                igd = [igd,i];
+                igd = i;
+                Phim = {Phim};
+                kerns = Phim;
             else
                 beep
                 disp('No overlap between data and mask/atlas for at least one sample')
                 disp(['Kernel ',num2str(i),' will be removed from further analysis'])
+                kerns = [];
+                nmodin = 1:length(PRT.fs(fid).modality);
+                igm = setdiff(nmodin,i);
+                PRT.fs(fid).modality = PRT.fs(fid).modality(igm);
             end
-            Phim = {Phim};
             PRT.fs(fid).atlas_name = {};
         end
-        kerns = Phim(igd);
         kerns = reshape(kerns,1,length(kerns));
         Phi = [Phi, kerns];
         PRT.fs(fid).modality(i).igood_kerns = igd;
     end
     %post-hoc: the ID mat should be the same for all modalities involved,
     %so only the first one will be saved
-    if ~isempty(igd) && isempty(PRT.fs(fid).atlas_name)
-        PRT.fs(fid).modality = PRT.fs(fid).modality(igd);
-    end
     indm=PRT.fs(fid).fas.im==1;
     PRT.fs(fid).id_mat=PRT.fs(fid).id_mat(indm,:);
     PRT.fs(fid).multkernel = 1;
