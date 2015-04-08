@@ -95,23 +95,25 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
                 [PRT] = prt_fs_modality(PRT,in,1,addin);
             end
             [PRT,Phim,igd] = prt_compute_ROI_kernels(PRT,in,fid,mids(i),atl,addin,i);
-            PRT.fs(fid).atlas_name = ratl;                      
+            PRT.fs(fid).atlas_name = ratl;   
+            kerns = Phim(igd);
         else
             [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
             [d1,idmax] = max(Phim);
             [d1,idmin] = min(Phim);
             min_max = find(idmax==idmin);
             if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
-                igd = [igd,i];
+                igd = i;
+                Phim = {Phim};
+                kerns = Phim;
             else
                 beep
                 disp('No overlap between data and mask/atlas for at least one sample')
                 disp(['Kernel ',num2str(i),' will be removed from further analysis'])
+                kerns=[];
             end
-            Phim = {Phim};
-            PRT.fs(fid).atlas_name = {};
-        end
-        kerns = Phim(igd);
+            PRT.fs(fid).atlas_name = {};            
+        end        
         kerns = reshape(kerns,1,length(kerns));
         Phi = [Phi, kerns];
         PRT.fs(fid).modality(i).igood_kerns = igd;

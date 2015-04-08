@@ -343,6 +343,7 @@ handles.cgr=ngr;
 handles.dat.group(ngr).gr_name=gname;
 newlist=[get(handles.group_list,'String'); {gname}];
 set(handles.group_list,'String',newlist);
+set(handles.use_scans,'Enable','on');
 val=get(handles.use_scans,'Value');
 ren=uicontextmenu;
 % Update handles structure
@@ -402,6 +403,7 @@ if ngr==1
         'Value',1);
     set(handles.text6,'ForegroundColor',handles.color.high)
     handles.modlist={};
+    set(handles.use_scans,'Enable','off');
 elseif handles.cgr==1 && ngr>1
     nlist={list{2:end}};
     handles.dat.group=handles.dat.group(2:end);
@@ -427,13 +429,13 @@ else
     handles.cm=1;
     handles.cf=1;
 end
-set(handles.group_list,'String',nlist);
 val=get(handles.use_scans,'Value');
-if val==1
+if val==1 && isfield(handles,'ds')
     set(handles.use_scans,'Value',0)
     set(handles.subj_add,'enable','on')
     set(handles.subj_remove,'enable','on')
 end
+set(handles.group_list,'String',nlist);
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
@@ -688,7 +690,7 @@ if size(masklist,1)==1 && strcmpi(masklist,'none')
     masklist = {};
 end
 if strcmpi(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).type,'Neuroimaging')
-    masklist = [masklist; {mod.name}];
+    masklist = union(masklist,{mod.name});
 end
 if ~isempty(masklist) 
     set(handles.mask_list,'String',masklist);

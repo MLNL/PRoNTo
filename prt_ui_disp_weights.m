@@ -831,23 +831,27 @@ handles.class = 1;
 in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
 fid = prt_init_fs(handles.PRT,in);
 handles.fid = fid;
-if (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) ||...
-       ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip')))  && ...
-        handles.PRT.fs(fid).multkernel
+if handles.PRT.fs(fid).multkernel  %(~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) ||...
+      % ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip')))  && ...
     nmod = length(handles.PRT.fs(fid).modality);
     mods = cell(nmod,1);
     for i=1:nmod
         mods{i} = handles.PRT.fs(fid).modality(i).mod_name;
     end
-    handles.summed = 0;
-elseif (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))  ||...
+    if (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))  ||...
+       ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip')))
+        handles.summed = 0;
+    else
+        handles.summed = 1; % either summed modalities or only one
+    end
+elseif  (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))  ||...
        ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip'))) && ...
         ~handles.PRT.fs(fid).multkernel
     mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
-    handles.summed = 0; % either summed modalities or only one
+    handles.summed = 0; 
 else
     mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
-    handles.summed = 1; % either summed modalities or only one
+    handles.summed = 1; 
 end
 handles.nmods = mods;
 guidata(hObject, handles);
@@ -935,7 +939,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
    fid = prt_init_fs(handles.PRT,in);
    % For each modality if multiple modalities in multiple kernel settings
-   if handles.PRT.fs(fid).multkernel && ~handles.summed
+   if handles.PRT.fs(fid).multkernel %&& ~handles.summed
        stm = length(handles.nmods); %if multiple modalities used in multiple kernels
    else
        stm =1; % if modalities concatenated or only one
@@ -944,7 +948,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
        handles.PRT.fs(fid).atlas_name = {handles.PRT.fs(fid).atlas_name};
    end
    % Get the number of ROIs and their labels for each modality
-   handles.num_roi = {};
+   handles.num_roi = cell(stm,1);
    
    for i = 1:stm
        if isfield(handles.PRT.fs(fid).modality(i),'num_ROI') && ~handles.summed

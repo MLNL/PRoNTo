@@ -42,16 +42,25 @@ if model_idx == 0, error('prt_compute_weights:ModelNotFound',...
 mtype = PRT.model(model_idx).input.type;
 mname = PRT.model(model_idx).model_name;
 
-% Initialize: get feature sets and modalities indexes and deal with MK
-% -------------------------------------------------------------------
-% Get index of feature set
-fs_idx = zeros(length(PRT.model(model_idx).input.fs),1);
+
+% Initialize for loop over feature sets
 fs_name = cell(length(PRT.model(model_idx).input.fs),1);
+nfas = length(PRT.fas);
+count = 0;
+if isempty(strfind(PRT.model(model_idx).input.machine.function,'MKL')) || ... % MKL machine or kernels added?
+        isempty(strfind(PRT.model(model_idx).input.machine.function,'wip'))
+    added = 1;
+else
+    added = 0;
+end
+
 for ifs=1:length(PRT.model(model_idx).input.fs)
+    
+    % Initialize: get feature set and modality index(es) and deal with MK
     fs_name{ifs}  = PRT.model(model_idx).input.fs(ifs).fs_name;
-    fs_idx(ifs) = find(strcmpi(fs_name,{PRT.fs(:).fs_name}));
-    % Find modality
-    nfas = length(PRT.fas);
+    fs_idx = find(strcmpi(fs_name,{PRT.fs(:).fs_name}));
+    
+    % Find modality/modalities in feature set
     mods = {PRT.fs(fs_idx).modality.mod_name};
     fas  = zeros(1,nfas);
     mm=zeros(length(mods),nfas);
@@ -64,66 +73,53 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
         end
     end
     fas_idx = find(fas);
-end
-
-% Loop over the different feature sets if they were considered as separate
-% kernels (i.e. one or more kernel(s) per modality)
-ibeta_mod = cell(length(fas_idx),1);
-if PRT.fs(fs_idx).multkernelROI   %multiple ROI kernels in feature set  
-    mult_kern_ROI = 1;
-    if PRT.fs(fs_idx).multkernel % Multiple modalities treated separately
-        count = 0;
-        % get the indexes of the betas for each modality
-        for i=1:length(fas_idx)
-%             mim = find(mm(i,:));
-            numk = length(PRT.fs(fs_idx).modality(i).idfeat_img);
-            ibeta_mod{i} = (1:numk)+count;
-            count = count + numk;
-        end
-    else % Multiple modalities concatenated or only one modality
-        ibeta_mod{1} = 1:length(PRT.fs(fs_idx).modality(1).idfeat_img);
-    end
-    nim = length(fas_idx);
-else
-    if PRT.fs(fs_idx).multkernel % Multiple modalities treated separately
-        for i=1:length(fas_idx)
-            ibeta_mod{i} = i;
+    
+    % Get the indexes of each modality in terms of model parameters
+    ibeta_mod = cell(length(fas_idx),1);
+    if PRT.fs(fs_idx).multkernelROI   %multiple ROI kernels in feature set
+        mult_kern_ROI = 1;
+        if PRT.fs(fs_idx).multkernel % Multiple modalities treated separately
+            % get the indexes of the betas for each modality
+            for i=1:length(fas_idx)
+                numk = length(PRT.fs(fs_idx).modality(i).igood_kerns);
+                ibeta_mod{i} = (1:numk)+count;
+                count = count + numk;
+            end
+        else % Multiple modalities concatenated or only one modality
+            ibeta_mod{1} = count+1: count+length(PRT.fs(fs_idx).modality(1).igood_kerns);
         end
         nim = length(fas_idx);
     else
-        nim = 1;
+        if PRT.fs(fs_idx).multkernel % Multiple modalities treated separately
+            for i=1:length(fas_idx)
+                ibeta_mod{i} = count + i;
+            end
+            nim = length(fas_idx);
+            count = count + i;
+        else
+            nim = 1;
+        end
+        mult_kern_ROI = 0;
     end
-    mult_kern_ROI = 0;   
-end
 
-% We also need to know whether those multiple kernels have been added in a
-% non-MKL machine or if a MKL machine was used.
-if ~isfield(PRT.model(model_idx).output.fold(1),'beta') || ...
-        isempty(PRT.model(model_idx).output.fold(1).beta)
-    added = 1;
-else
-    added = 0;
-end
-
-% Compute the total number of images to be computed to initialize the
-% outputs
-switch mtype
-    case 'classification'
-        nc = size(PRT.model(model_idx).output.stats.con_mat, 2);
-    case 'regression'
-        nc = 1;
-end
-if nc > 2
-    nim = nim*nc;
-end
-
-% Check inputs for weights per region
-if exist('flag2','var') && flag2
-    if isempty(in.atl_name) && ~mult_kern_ROI
-        error('prt_compute_weights:NoAtlas',...
-            'Error: Atlas should be provided to compute weights per region')
+    % Compute the total number of images to be computed
+    switch mtype
+        case 'classification'
+            nc = size(PRT.model(model_idx).output.stats.con_mat, 2);
+        case 'regression'
+            nc = 1;
     end
-end
+    if nc > 2
+        nim = nim*nc;
+    end
+
+    % Check inputs for weights per region
+    if exist('flag2','var') && flag2
+        if isempty(in.atl_name) && ~mult_kern_ROI
+            error('prt_compute_weights:NoAtlas',...
+                'Error: Atlas should be provided to compute weights per region')
+        end
+    end
 
 
 % Build weights
@@ -139,7 +135,7 @@ if isfield(PRT.model(model_idx).output,'weight_atlas') && ...
 end
 PRT.model(model_idx).output.weight_ROI = cell(nim,1);
 
-if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over the modalities since multiple kernels
+if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 %&& ~added % Need to loop over the modalities since multiple kernels
     summroi  = 0;
     %get/set image names by appending the modality name at the end
     im_name = cell(1,length(fas_idx));
@@ -238,7 +234,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
                         disp('Building image of weights per region')
                         in.flag = flag;
                         summroi = 1;
-                        [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
+                        [NW, idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
                         PRT.model(model_idx).output.weight_ROI(imgcnt) = {NW};
                         PRT.model(model_idx).output.weight_idfeatroi(imgcnt) = {idfeatroi};
                         PRT.model(model_idx).output.weight_atlas{imgcnt} = in.atl_name;
@@ -257,7 +253,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
     
     % Used for the display of the weights per modality in
     % prt_ui_disp_weights
-    if PRT.fs(fs_idx).multkernel && ~summroi    %create one image per modality, from MKL learning
+    if PRT.fs(fs_idx).multkernel && ~summroi && ~added   %create one image per modality, from MKL learning
         for i=1:size(name_fin,1)
             [du,name_fin{i}] = spm_fileparts(name_fin{i});
             if ~mult_kern_ROI
@@ -279,7 +275,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
             end
         end
     else
-        if PRT.fs(fs_idx).multkernel && summroi
+        if PRT.fs(fs_idx).multkernel && summroi && ~added
             for i=1:size(name_fin,1)
                 idb = ibeta_mod{i};
                 tmp = zeros(length(idb),length(PRT.model(model_idx).output.fold));
@@ -381,6 +377,7 @@ else
                  PRT.model(model_idx).output.weight_ROI = [];
              end
     end
+end
 end
 
 if ~iscell(name_fin)
