@@ -133,7 +133,7 @@ To start, create a new directory in which to save the results of the analysis, t
 	
 	\item Select the `L1- Multi-Kernel Learning' option, in the Machine field;
 	
-	\item Select the `Optimize hyper-parameter' tick box and leave as default or define an array with the hyper-parameter values that you wish to test. Note that if you leave it empty, PRoNTo will use an array with default hyper-parameter values;
+	\item Select the `Optimize hyper-parameter' tick box and leave the textbox empty. This will force PRoNTo to use an array with default hyper-parameter values for the optimization. Please note that for this example the default might be a bit time consuming, thus, you can define a smaller number of values to be used for hyper-parameter optimization (e.g. [0.1, 1, 100]);
 	
 	\item Leave the `Cross-Validation Scheme' (internal loop) field as it is, i.e `Leave One Block Out';
 		
@@ -194,7 +194,7 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \item Select the model from the list to `Models computed in PRT', `mklFacesHouses' model;
 
-\item Leave the option `Compute average/kernel weight per region' tick box unchecked;
+\item Check the tick box option `Compute average/kernel weight per region';
 
 \item Click on the 'Compute weights' button. Computations will be displayed on the MATLAB prompt.
 
@@ -207,16 +207,16 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Display results' and select the `PRT.mat' file. This will open the main results window. In the `Model' panel, select the model that you want to view, `mklFacesHouses', and the results through performance will be similar to the Figure \ref{fig:resultsmkl};
+	\item In PRoNTo's main window, click on `Display results' and select the `PRT.mat' file. This will open the main results window. In the `Model' panel, select the model that you want to view, `mklFacesHouses', and the results through performance will be similar to the one in Figure \ref{fig:resultsmkl};
 	
 	\begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.75]{images/Tutorial/mkl/resultsmkl.png}
+		\includegraphics[width=0.75\textwidth]{images/Tutorial/mkl/resultsmkl.png}
 	\caption{Summary for model's performance.}
 	\label{fig:resultsmkl}
 \end{figure}
 	
-	\item In the `Results' window, one can select the different plot in the `Plots' list;
+	\item In the `Results' window, one can select the different plots in the `Plots' list. Please note that there is a new plot on the list, this displays information about the hyper-parameter optimization, for more information, please refer to Chapter \ref{chap:DisRes}.
 		
 	
 \end{itemize}
@@ -227,11 +227,13 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Display weights' and select the `PRT.mat' file. This will open the `Model interpretation' window. By clicking on `Model', mklFacesHouses, an image will appear in the `Weights map' box; and to show the `Anatomical img' you have to load an anatomical image for reference. A template image can be found in the SPM8's canonical folder `avg152PD'. The final result window will look similar to that shown in Figure \ref{fig:modelInterpretationMKL}.
+	\item In PRoNTo's main window, click on `Display weights' and select the `PRT.mat' file. This will open the `Model interpretation' window. By clicking on `Model', mklFacesHouses, an image will appear in the `Weights map' box; and to show the `Anatomical img' you have to load an anatomical image for reference. A template image can be found in the SPM's canonical folder `single\_subj\_T1'. The final result window will look similar to that shown in Figure \ref{fig:modelInterpretationMKL}.
+
+    \item Since the machine used in the example was MKL with a kernel calculated for each brain region, it is possible to see the contributions of each region. The labels for the regions can be found in the same folder where the atlas is located (PRoNTo/atlas). For more information, please refer to Chapter \ref{chap:DisWeights}.
 
 \begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.75]{images/Tutorial/mkl/modelInterpretationMKL.png}
+		\includegraphics[width=0.75\textwidth]{images/Tutorial/mkl/modelInterpretationMKL.png}
 	\caption{Summary for model's performance.}
 	\label{fig:modelInterpretationMKL}
 \end{figure}
@@ -314,7 +316,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 
 		\end{itemize}
 	
-	\item In the `Masks' field, add a new modality and provide the same modality name, `fMRI'; and select the `whole\_brain' mask available in the masks directory of the Haxby dataset. The name of the modality here has to be exactly the same as in `Modalities', otherwise PRoNTo will not work;
+	\item In the `Masks' field, add a new modality and provide the same modality name, `fMRI'; and select the `whole\_brain' mask available in the masks directory of the Haxby dataset. The name of the modality here has to be exactly the same as in `Modalities', otherwise it will not work;
 	
 	\item Leave the `HRF overlap' and the `HRF delay' options as default;
 	
@@ -337,7 +339,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 	\label{fig:batchFeaturemkl}
 \end{figure}
 	
-	\item With `Load PRT.mat' field selected, click on the 'Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batchDependencymkl}) or click on the 'Select files' button to browse where `PRT.mat' file was saved;
+	\item With `Load PRT.mat' field selected, click on the 'Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batchDependencymkl}) or click on the `Select files' button to browse where `PRT.mat' file was saved;
 	
 	 	
 \begin{figure}[!h]
@@ -353,13 +355,13 @@ Once again, to analyse the data, create a new directory in which to save the res
 	
 		\begin{itemize}
 	
-	\item In the `Scans/Conditions' field , select `All scans' option, this means we are not entering with an additional second-level mask;
+	\item In the `Scans/Conditions' field , select `All scans' option;
 	
-	\item In the `Voxels to include' field, select `All voxels' option;
+	\item In the `Voxels to include' field, select `All voxels' option, this means we are not entering an additional second-level mask;
 	
-			\begin{itemize}
-			\item This is an optional step. In the `Voxels to include' options, the user can specify a `second-level' mask, which would define regions of interest (ROIs) on which the classification can be performed. In this case, select the `fusiform\_gyrus' mask;
-			\end{itemize}
+			%\begin{itemize}
+			%\item This is an optional step. In the `Voxels to include' options, the user can specify a `second-level' mask, which would define regions of interest (ROIs) on which the classification can be performed. In this case, select the `fusiform\_gyrus' mask;
+			%\end{itemize}
 	
 	\item In the `Detrend' field, select `Polynomial detrend' option with order 1;
 	
@@ -369,13 +371,13 @@ Once again, to analyse the data, create a new directory in which to save the res
  	
 	\end{itemize}
 	
-\item In the field `Use one kernel per modality', select Yes option.	
+\item In the field `Use one kernel per modality', select the `No' option.	
 
-After all this steps, the batch editor should look similar to the Figure \ref{fig:batchModalitymkl}.
+After all this steps, the batch editor should look similar to the one in Figure \ref{fig:batchModalitymkl}.
 	
 	\begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/mkl/batchModalitymkl.png}
+		\includegraphics[width=0.75\textwidth]{images/Tutorial/mkl/batchModalitymkl.png}
 	\caption{Feature set / Kernel module. Selected parameters in the Modality option.}
 	\label{fig:batchModalitymkl}
 \end{figure}
@@ -389,7 +391,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 
 \begin{itemize}
 
-\item Click on the 'Specify model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchSpecifyModelmkl});
+\item Click on the `Specify model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchSpecifyModelmkl});
 	
 	\begin{figure}[!h]
 	\centering
@@ -398,7 +400,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 	\label{fig:batchSpecifyModelmkl}
 \end{figure}
 	
-	\item With `Load PRT.mat' field selected, click on the 'Dependency' button to associate the `PRT.mat' file created in the previous `Feature set / Kernel' step or click on the 'Select files' button to browse where `PRT.mat' file was saved;
+	\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Feature set / Kernel' step or click on the `Select files' button to browse where `PRT.mat' file was saved;
 	
 	\item Provide a name to the model, e.g. `mklFacesHouses'; 
 	
@@ -436,7 +438,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 	
 	\item In the `Optimize hyper-parameter' field, select the `Yes' option;
 	
-	\item Leave the `Arguments' field as it is, i.e. `1';
+	\item In the `Arguments' field, input the hyper-parameters that you wish to use for the hyper-parameter optimization (e.g. [0.01, 1, 100]);
 	
 	\item In the `Cross validation type for hyper-parameter optimization' (internal loop) field, select `Leave one block out' option;
 	
@@ -472,7 +474,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 \end{figure}
 	
 	
-	\item  With `Load PRT.mat' field selected, click on the 'Dependency' button to associate the `PRT.mat' file created in the previous `Specify model' step;
+	\item  With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Specify model' step;
 	
 	\item Select the model name from the `Specify model' module with the `Dependency' button\footnote{Or write it {\it exactly} as previously defined in the `Specify model' module, here `mklFacesHouses'};
 
@@ -485,25 +487,26 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 
 \begin{itemize}
 
-	\item Click on the 'Compute weights' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchWeightsMKL});
+	\item Click on the `Compute weights' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchWeightsMKL});
 	
 	\begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/mkl/batchWeightsMKL.png}
+		\includegraphics[width=0.75\textwidth]{images/Tutorial/mkl/batchWeightsMKL.png}
 	\caption{Compute weights module in {\tt matlabbatch}.}
 	\label{fig:batchWeightsMKL}
 \end{figure}
 
-	\item With `Load PRT.mat' field selected, click on the 'Dependency' button to associate the `PRT.mat' file created in the previous `Run model' step;
+	\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Run model' step;
 	
-	\item Select the model name from the 'Specify model' module with `Dependency' button;
-	
+	\item Select the model name from the `Specify model' module with the `Dependency' button;
+
 	\item It's optional to define a name for the image; 
+
+	\item In the `Build weight images per ROI', load the atlas that was used for building the feature set, which can be found in PRoNTo/atlas/;
 	
 	\item Leave the `Build weights images for permutations' field as it is, i.e. `No'; 
 	
-	\item Leave the 'Load Atlas' field as default.
 
 \end{itemize}
 
-Finally, save the batch (e.g. as batch\_run\_all.m) and click on the 'Run Batch' option, in the `File menu'. The batch file created can then be opened and edited for further analyses. The results will be the same as those obtained using the GUI (see Section \ref{display_results_MKL}  of this tutorial).
+Finally, save the batch (e.g. as batch\_run\_all.m) and click on the `Run Batch' option, in the `File menu'. The batch file created can then be opened and edited for further analyses. The results will be the same as those obtained using the GUI (see Section \ref{display_results_MKL}  of this tutorial).
