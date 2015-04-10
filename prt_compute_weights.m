@@ -136,7 +136,7 @@ if isfield(PRT.model(model_idx).output,'weight_atlas') && ...
 end
 PRT.model(model_idx).output.weight_ROI = cell(nim,1);
 
-if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over the modalities since multiple kernels
+if PRT.fs(fs_idx).multkernel && length(fas_idx)>1  % Need to loop over the modalities since multiple kernels
     summroi  = 0;
     %get/set image names by appending the modality name at the end
     im_name = cell(1,length(fas_idx));
@@ -191,7 +191,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
                 % Build image of weights per region if asked for (flag2==1)
                 if exist('flag2','var') && flag2 
                     
-                    if mult_kern_ROI % Kernels built from an atlas directly
+                    if mult_kern_ROI && ~added % Kernels built from an atlas directly
                         disp('Building image of weights per region')
                         if length(name_f)>1 % multiple classes
                             in.img_name = ['ROI_',name_f{j}(1:end-2)];
@@ -209,7 +209,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
                             if c>1
                                 imgcnt = imgcnt + 1;
                             end
-                            [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
+                            [NW, idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
                             PRT.model(model_idx).output.weight_ROI(imgcnt) = {NW};
                             PRT.model(model_idx).output.weight_idfeatroi(imgcnt) = {idfeatroi};
                             PRT.model(model_idx).output.weight_atlas{imgcnt} = in.atl_name;
@@ -254,7 +254,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
     
     % Used for the display of the weights per modality in
     % prt_ui_disp_weights
-    if PRT.fs(fs_idx).multkernel && ~summroi    %create one image per modality, from MKL learning
+    if PRT.fs(fs_idx).multkernel && ~summroi && ~added    %create one image per modality, from MKL learning
         for i=1:size(name_fin,1)
             [du,name_fin{i}] = spm_fileparts(name_fin{i});
             if ~mult_kern_ROI
@@ -276,7 +276,7 @@ if PRT.fs(fs_idx).multkernel && length(fas_idx)>1 && ~added % Need to loop over 
             end
         end
     else
-        if PRT.fs(fs_idx).multkernel && summroi
+        if PRT.fs(fs_idx).multkernel && summroi && ~added
             for i=1:size(name_fin,1)
                 idb = ibeta_mod{i};
                 tmp = zeros(length(idb),length(PRT.model(model_idx).output.fold));
