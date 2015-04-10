@@ -39,7 +39,7 @@ To start, create a new directory in which to save the results of the analysis, t
 	
 	\item In the panel `Groups', click on `Add' and provide a name to the group (we only have one group/subject), with no spaces, e.g. `G1';
 	
-	\item Add a subject in the `Subject/Scans' option, e.g. s1, and leave the `Scans' tick box below the panel unchecked. See Chapter \ref{chap:DataDesign} of the manual for more information on this option;
+	\item Add a subject in the `Subject/Scans' option, e.g. `s1', and leave the `Scans' tick box below the panel unchecked. See Chapter \ref{chap:DataDesign} of the manual for more information on this option;
 	
 	\item In the `Modalities' panel, click on `Add' and provide a name to the modality, e.g. `fMRI'. In the `Design' field, choose the option `Load SPM.mat' (Figure \ref{fig:modality}). This file is available with the Haxby dataset on PRoNTo's website\footnote{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} inside the folder Haxby\_dataset/design/;
 	
@@ -63,7 +63,7 @@ To start, create a new directory in which to save the results of the analysis, t
 	\label{fig:specifyDesign}
 \end{figure}
 	
-	\item Finally, load all the image files available in the fMRI directory (Haxby\_dataset/fMRI/). You can select all the files by using the right mouse button and clicking on the option `Select All' (Figure \ref{fig:files}). When all the images are selected, click on `Done' button;
+	\item Finally, load all the image files available in the fMRI directory (Haxby\_dataset/fMRI/). You can select all the files by using the right mouse button and clicking on the option `Select All' (Figure \ref{fig:files}). When all the images are selected, click on the `Done' button;
 	
 		
 \begin{figure}[!h]
@@ -92,7 +92,7 @@ To start, create a new directory in which to save the results of the analysis, t
 	\label{fig:review}
 \end{figure}	
 	
-	\item The `Data and design' window should look similar to the Figure \ref{fig:finalDesign}. Click on `Save' button to create `PRT.mat' file with the structure containing the information that has been previously specified. If no errors are shown in the MATLAB command, leave the `Data and design' window by clicking `Quit'.
+	\item The `Data and design' window should look similar to the Figure \ref{fig:finalDesign}. Click on `Save' button to create `PRT.mat' file with the structure containing the information that has been previously specified. If no errors are shown in the MATLAB command window, leave the `Data and design' window by clicking `Quit'.
 	
 
 \begin{figure}[!h]
@@ -125,7 +125,7 @@ To start, create a new directory in which to save the results of the analysis, t
 		\item `Modality' field: select the modality previously specified in the `Data \& Design' step, `fMRI';
 		\item `Conditions' field: select `All scans'; 
 		\item Parameters box: select the polynomial detrend with order 1 and the 'No scaling' option;
-		\item Features box: leave the additional mask field as it is and the `build one kernel per region' tick box unchecked. Then, click on `Done' button.  
+		\item Features box: leave the additional mask field as it is and the `build one kernel per region' tick box unchecked. Then, click on the `Done' button.  
 		
 			\begin{itemize}
 			\item As an optional step, in the `Additional mask for selected modality' field, the user can specify a `second-level' mask, which can be used to select regions of interest (ROIs) on which the classification can be performed. For instance, we can enter the `fusiform\_gyrus' mask available with this dataset; 
@@ -140,7 +140,7 @@ To start, create a new directory in which to save the results of the analysis, t
 		
 	\end{itemize}		
 		
-	\item In the `Prepare feature set' window, provide a name to the feature set, e.g. `HaxbyFeatures';
+	\item In the `Prepare feature set' window, provide a name for the feature set, e.g. `HaxbyFeatures';
 
 	\item Click on `Build kernel/data matrix' to build the feature set and kernel (Figure \ref{fig:buildKernel}). It takes a few minutes.
 
@@ -187,13 +187,13 @@ To start, create a new directory in which to save the results of the analysis, t
 	\label{fig:specifyClasses}
 \end{figure}
 	
-	\item Select the `Binary support vector machine' option, in the Machine field;
+	\item Select the `Binary support vector machine' option, in the `Machine' field;
 	
 	\item Leave the option `Optimize hyper-parameter' tick box unchecked and `Cross-Validation Scheme' (internal loop) as it is; 
 	
 	\item Select the `Leave One Block Out' cross-validation scheme (external loop);
 	
-	\item In the `Data operations' box, select the `Sample averaging (within block)' option, which corresponds to a temporal compression of the data within each block, and `Mean centre features using training data' option. Then, the `Specify model' window should look similar to the Figure \ref{fig:finalModel};
+	\item In the `Data operations' box, select the `Sample averaging (within block)' option, which corresponds to a temporal compression of the data within each block, and `Mean centre features using training data' option. Then, the `Specify model' window should look similar to Figure \ref{fig:finalModel};
 	
 	\begin{figure}[h!]
 	\centering
@@ -272,7 +272,7 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \item Leave the option `Compute average/kernel weight per region' tick box unchecked;
 
-\item Click on `Compute weights' button. Computations will be displayed on the MATLAB prompt.
+\item Click on `Compute weights' button. Computations will be displayed on the MATLAB command window.
 
 \end{itemize}
 
@@ -293,7 +293,7 @@ To start, create a new directory in which to save the results of the analysis, t
 \end{figure}
 	
 	
-	\item In the `Model' panel, select the model that you want to view, `svmFacesHouses', and the results through performance will be similar to the Figure \ref{fig:stats};
+	\item In the `Model' panel, select the model that you want to view, `svmFacesHouses'. The performance should be similar to the one in Figure \ref{fig:stats};
 	
 	\begin{figure}[h!]
 	\centering
@@ -302,10 +302,10 @@ To start, create a new directory in which to save the results of the analysis, t
 	\label{fig:stats}
 \end{figure}
 	
-	\item In the `Results' window, one can select the different plot in the `Plots' list;
+	\item In the `Results' window, one can select a different plot in the `Plots' list;
 	
 	
-	\item Finally, to check the significance of the results, run a permutation test  by clicking on `Permutation test' button with 100 repetitions. Results will be displayed on the MATLAB prompt (Figure \ref{fig:permutations}).
+	\item Finally, to check the significance of the results, run a permutation test by clicking on `Permutation test' button with 100 repetitions. Results will be displayed on the MATLAB prompt (Figure \ref{fig:permutations}). Please note that 100 repetitions is a small amount, if possible, this should be greater (e.g. 1000).
 
 \begin{figure}[h!]
 	\centering
@@ -332,7 +332,7 @@ To start, create a new directory in which to save the results of the analysis, t
 \end{figure}
 
 	
-	\item By clicking on `Model', svmFacesHouses, an image will appear in the `Weights map' box; and to show the `Anatomical img' you have to load an anatomical image for reference. A template image can be found in the SPM8's canonical folder (`single\_subj\_T1` file). The final result window will look similar to that shown in the Figure \ref{fig:modelInterpretation}.
+	\item By clicking on `Model', svmFacesHouses, an image will appear in the `Weights map' box; and to show the `Anatomical img' you have to load an anatomical image for reference. A template image can be found in SPM's canonical folder (`single\_subj\_T1` file). The final window will look similar to the one shown in the Figure \ref{fig:modelInterpretation}.
 
 \begin{figure}[h!]
 	\centering
@@ -354,7 +354,7 @@ To start, create a new directory in which to save the results of the analysis, t
 
 This tutorial will now show how to analyse the same data but using the {\tt matlabbatch} system.
 
-Once again, to analyse the data, create a new directory in which to save the results of the analysis, saved as 'PRT.mat'. On the main interface of PRoNTo click on 'Batch' button to open the `{\tt matlabbatch}'. Alternatively, type `prt\_batch' in the MATLAB prompt. On the menu bar of the batch, there is a PRoNTo menu with the 5 options shown in the main steps interface (Figure \ref{fig:batch}).
+Once again, create a new directory where you wish to save the results. On the main interface of PRoNTo click on the `Batch' button to open the `{\tt matlabbatch}'. Alternatively, type `prt\_batch' on the MATLAB command window. On the menu bar of the batch, there is a PRoNTo menu with the 5 options shown in the main steps interface (Figure \ref{fig:batch}).
 
 \begin{figure}[h!]
 	\centering
@@ -380,7 +380,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 	
 	\end{figure}
 
-	\item In the `Directory' field, select a directory where the `PRT.mat' file will be saved. There are three options to edit all fields in {\tt matlabbatch}: (i) by using the right mouse button and clicking on the current option, (ii) clicking on current button in the window or (iii) by double clicking;
+	\item In the `Directory' field, select a directory where the `PRT.mat' file will be saved. There are three ways of editing all fields in {\tt matlabbatch}: (i) by using the right mouse button and clicking on the current option, (ii) clicking on current button in the window or (iii) by double clicking;
 	
 	\item In the `Groups' field:
  	
@@ -392,9 +392,9 @@ Once again, to analyse the data, create a new directory in which to save the res
 		
 		\item In the field `Select by', select the `Subjects' option and add one subject;
 		
-		\item Add on modality for this subject and provide a name, e.g. `fMRI'; define the interscan interval of 2.5 seconds; and in the field `Scans', select all the image files available in the fMRI directory of the Haxby dataset;	
+		\item Add one modality for this subject and provide a name, e.g. `fMRI'; define the interscan interval of 2.5 seconds; and in the field `Scans', select all the image files available in the fMRI directory of the Haxby dataset;	
 		
-		\item In the `Data \& Design' field, choose `Load SPM.mat' option. This file is available with the Haxby dataset on PRoNTo's website\footnote{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} inside the folder Haxby\_dataset/design/. The batch editor should look similar to the Figure \ref{fig:batchGroups};	
+		\item In the `Data \& Design' field, choose `Load SPM.mat' option. This file is available with the Haxby dataset on PRoNTo's website\footnote{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} inside the folder Haxby\_dataset/design/. The batch editor should look similar to the one in Figure \ref{fig:batchGroups};	
 		
 		\begin{figure}[h!]
 	\centering
@@ -406,7 +406,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 		
 		\begin{itemize}
 	
-			\item In case there is no `SPM.mat' file already available to use, create a new 	design by selecting the option `Specify design'. Choose how many conditions you have, which in this case are 8 conditions (corresponding to the 8 categories of images). The unit in which the onsets/durations are read is `Scans'. Write the names, onsets and durations of each condition (Figure \ref{fig:batchSpecifyDesign});
+			\item In case there is no `SPM.mat' file available to use, create a new	design by selecting the option `Specify design'. Choose how many conditions you have, which in this case are 8 conditions (corresponding to the 8 categories of images). The unit in which the onsets/durations are read is `Scans'. Write the names, onsets and durations of each condition (Figure \ref{fig:batchSpecifyDesign});
 	
 \begin{figure}[h!]
 	\centering
@@ -419,7 +419,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 
 		\end{itemize}
 	
-	\item In the `Masks' field, add a new modality and provide the same modality name, `fMRI'; and select the `whole\_brain' mask available in the masks directory of the Haxby dataset. The name of the modality here has to be exactly the same as in `Modalities', otherwise PRoNTo will not work;
+	\item In the `Masks' field, add a new modality and provide the same modality name, `fMRI'; and select the `whole\_brain' mask available in the masks directory of the Haxby dataset. The name of the modality here has to be exactly the same as in `Modalities', otherwise it will not work;
 	
 	%checar aqui
 	
@@ -444,7 +444,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 	\label{fig:batchFeature}
 \end{figure}
 	
-	\item With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batchDependency}) or click on `Select files' button to browse where `PRT.mat' file was saved;
+	\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batchDependency}) or click on the `Select files' button to browse where `PRT.mat' file was saved;
 	
 	 	
 \begin{figure}[h!]
@@ -460,9 +460,9 @@ Once again, to analyse the data, create a new directory in which to save the res
 	
 		\begin{itemize}
 	
-	\item In the `Scans/Conditions' field , select `All scans' option, this means we are not entering with an additional second-level mask;
+	\item In the `Scans/Conditions' field , select the `All scans' option;
 	
-	\item In the `Voxels to include' field, select `All voxels' option;
+	\item In the `Voxels to include' field, select `All voxels' option, this means we are not entering an additional second-level mask;
 	
 			\begin{itemize}
 			\item This is an optional step. In the `Voxels to include' options, the user can specify a `second-level' mask, which would define regions of interest (ROIs) on which the classification can be performed. In this case, select the `fusiform\_gyrus' mask;
@@ -472,7 +472,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 	
 	\item In the `Scale input scans' field, select `No scaling' option;
 	
-	\item Leave `Load Atlas' as default. After all this steps, the batch editor should look similar to the Figure \ref{fig:batchModality};
+	\item Leave `Load Atlas' as default. After all these steps, the batch editor should look similar to the one in Figure \ref{fig:batchModality};
 	
 	\begin{figure}[h!]
 	\centering
@@ -524,13 +524,13 @@ Once again, to analyse the data, create a new directory in which to save the res
 		
 		\item Add 2 new classes;
 		
-		\item For Class (1) write `Faces' on the name field and add one group. Select the group name from the `Data \& Design' module (`Data \& Design:Group\#1 name') with the `Dependency' button\footnote{Or write it {\it exactly} as previously defined in the Data \& Design' module, here `G1'}. Similarly, for Class (2) write `Houses' on the name field and add the group created in the `Data \& Design' module, `G1';	
+		\item For Class (1) write `Faces' on the name field and add one group. Select the group name from the `Data \& Design' module (`Data \& Design:Group\#1 name') with the `Dependency' button\footnote{Or write it {\it exactly}, as previously defined in the Data \& Design' module, here `G1'}. Similarly, for Class (2) write `Houses' on the name field and add the group created in the `Data \& Design' module, `G1';	
 		
-		\item In the `Subjects' field, type `1' (only subject one is selected);
+		\item In the `Subjects' field, type `1' (only subject 1 is selected);
 		
-		\item In the `Conditions / Scans' field, select the `Specify Conditions' option and add a new condition. Provide a name for this condition, i.e. for Class (1) `Faces' and for Class (2) `Houses'. Note that this name need to be exactly as specified in the `Data \& Design' module: if you simply loaded an `SPM.mat' file for the design, you {\it must} know the names of the conditions;
+		\item In the `Conditions / Scans' field, select the `Specify Conditions' option and add a new condition. Provide a name for this condition, i.e. for Class (1) `Faces' and for Class (2) `Houses'. Note that this name needs to be spelled exactly as specified in the `Data \& Design' module: if you simply loaded an `SPM.mat' file for the design, you {\it must} know the names of the conditions;
 		
-		\item After all this steps, the batch editor should look similar to the Figure \ref{fig:batchClass}	
+		\item After all this steps, the batch editor should look similar to the one in Figure \ref{fig:batchClass}	
 	
 	\begin{figure}[h!]
 	\centering
@@ -544,7 +544,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 	\item In the `Machine' field:
 	
 	\begin{itemize}
-	\item Select `SVM Classification' option;	
+	\item Select the `SVM Classification' option;	
 	
 	\item Leave the `Optimize hyper-parameter' field as it is, i.e. `No';
 	
@@ -575,7 +575,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 
 \begin{itemize}
 
-	\item Click on `Run model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchRun});
+	\item Click on the `Run model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchRun});
 	
 	\begin{figure}[h!]
 	\centering
@@ -585,9 +585,9 @@ Once again, to analyse the data, create a new directory in which to save the res
 \end{figure}
 	
 	
-	\item  With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Specify model' step;
+	\item  With the `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Specify model' step;
 	
-	\item Select the model name from the `Specify model' module with the `Dependency' button\footnote{Or write it {\it exactly} as previously defined in the `Specify model' module, here `svmFacesHouses'};
+	\item Select the model name from the `Specify model' module with the `Dependency' button\footnote{Or write it {\it exactly}, as previously defined in the `Specify model' module, here `svmFacesHouses'};
 
 	\item In the field `Do permutation test?', select `yes' with 100 repetitions or leave as default (1000 repetitions).
 
@@ -598,7 +598,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 
 \begin{itemize}
 
-	\item Click on `Compute weights' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchWeights});
+	\item Click on the `Compute weights' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchWeights});
 	
 	\begin{figure}[h!]
 	\centering
@@ -607,9 +607,9 @@ Once again, to analyse the data, create a new directory in which to save the res
 	\label{fig:batchWeights}
 \end{figure}
 
-	\item With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Run model' step;
+	\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Run model' step;
 	
-	\item Select the model name from the `Specify model' module with `Dependency' button;
+	\item Select the model name from the `Specify model' module with the `Dependency' button;
 	
 	\item It's optional to define a name for the image; 
 	
@@ -619,4 +619,4 @@ Once again, to analyse the data, create a new directory in which to save the res
 
 \end{itemize}
 
-Finally, save the batch (e.g. as batch\_run\_all.m) and click on `Run Batch' option, in the `File menu'. The batch file created can then be opened and edited for further analyses. The results will be the same as those obtained using the GUI (see Section \ref{display_results}  of this chapter).
+Finally, save the batch (e.g. as batch\_run\_all.m) and click on the `Run Batch' option, in the `File menu'. The batch file created can then be opened and edited for further analyses. The results will be the same as those obtained using the GUI (see Section \ref{display_results}  of this chapter). Please note that in this case the `Sample averaging (within block)' operation was not selected when specifying the model. In order to obtain the same results as before, the model has to use the same data operations.

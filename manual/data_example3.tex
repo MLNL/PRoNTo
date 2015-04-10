@@ -5,14 +5,13 @@
 \minitoc
 
 
-This chapter will describe the steps necessary to perform a classification with SimpleMKL \url{http://asi.insa-rouen.fr/enseignants/~arakoto/code/mklindex.html} \cite{Rakotomamonjy2008} using PRoNTo. These are similar to the Chapter \ref{sec:Block_design_fMRI_dataset}, thus, the reader is advised to complete the tutorial in Chapter \ref{sec:Block_design_fMRI_dataset}  before moving on, since the explanation of some steps will be less descriptive.
+This chapter will describe the steps necessary to perform a classification with SimpleMKL \url{http://asi.insa-rouen.fr/enseignants/~arakoto/code/mklindex.html} \cite{Rakotomamonjy2008} using PRoNTo. These are similar to the ones in Chapter \ref{sec:Block_design_fMRI_dataset}, thus, the reader is advised to complete the tutorial in Chapter \ref{sec:Block_design_fMRI_dataset}  before moving on, since the explanation of some steps will be less descriptive.
 
-Many practical learning problems involve multiple and heterogeneous data source. In this way, Multiple Kernel Learning (MKL) \cite{Bach2004} has been proposed to simultaneously learn and combine different models, represented by different kernels, in supervised learning settings. In MKL, the kernel $K$  can  be  considered  as  a  linear  combination  of $M$ `basis kernel'. For further details, please refer to \cite{Bach2004}.
+Many practical learning problems involve multiple and heterogeneous data sources. In this way, Multiple Kernel Learning (MKL) \cite{Bach2004} has been proposed to simultaneously learn and combine different models, represented by different kernels, in supervised learning settings. In MKL, the kernel $K$  can  be  considered  as  a  linear  combination  of $M$ `basis kernels'. For further details, please refer to \cite{Bach2004}.
 
-One example of a MKL approach based on SVM is the SimpleMKL algorithm \cite{Rakotomamonjy2008}. Essentially, the algorithm is based on a gradient de-
-scent on the SVM objective value and iteratively determine the combination of kernels by a gradient descent wrapping \cite{Rakotomamonjy2008}. For further details, please refer to \cite{Rakotomamonjy2008}
+One example of a MKL approach based on SVM is the SimpleMKL algorithm \cite{Rakotomamonjy2008}. Essentially, the algorithm is based on a gradient descent on the SVM objective value and iteratively determine the combination of kernels by a gradient descent wrapping \cite{Rakotomamonjy2008}. For further details, please refer to \cite{Rakotomamonjy2008}
 
-We will use the same dataset used in Chapter \ref{sec:Block_design_fMRI_dataset}, Haxby dataset, and as explained this fMRI dataset originates from a study on face and object representation in human ventral temporal cortex \cite{Haxby2001}. The dataset\footnote{Pre-processed (realigned and normalised) data from participant 1.} used in this chapter can be found in PRoNTo's website \url{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} (data set 1) and the whole\footnote{Not pre-processed.} dataset is available in \url{http://data.pymvpa.org/datasets/haxby2001/}.
+We will use the same dataset used in Chapter \ref{sec:Block_design_fMRI_dataset}, this fMRI dataset originates from a study on face and object representation in human ventral temporal cortex \cite{Haxby2001}. The dataset\footnote{Pre-processed (realigned and normalised) data from participant 1.} used in this chapter can be found in PRoNTo's website \url{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} (data set 1) and the whole\footnote{Not pre-processed.} dataset is available in \url{http://data.pymvpa.org/datasets/haxby2001/}.
 
 For simplicity, in this example we will use PRoNTo to predict if the subject is viewing an image of a Face or a House based on the fMRI scans. We will classify the whole brain images using SimpleMKL and a leave one block out cross-validation scheme.
 
@@ -40,7 +39,7 @@ To start, create a new directory in which to save the results of the analysis, t
 	
 	\item In the panel `Groups', click on `Add' and provide a name to the group (we only have one group/subject), with no spaces, e.g. `G1';
 	
-	\item Add a subject in the `Subject/Scans' option, e.g. s1, and leave the `Scans' tick box below the panel unchecked. See Chapter \ref{chap:DataDesign} of the manual for more information on this option;
+	\item Add a subject in the `Subject/Scans' option, e.g. `S1', and leave the `Scans' tick box below the panel unchecked. See Chapter \ref{chap:DataDesign} of the manual for more information on this option;
 	
 	\item In the `Modalities' panel, click on `Add' and provide a name to the modality, e.g. `fMRI'. In the `Design' field, choose the option `Load SPM.mat'. This file is available with the Haxby dataset on PRoNTo's website\footnote{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} inside the folder Haxby\_dataset/design/;
 	
@@ -52,13 +51,13 @@ To start, create a new directory in which to save the results of the analysis, t
 	\end{itemize}
 	
 	
-	\item Finally, load all the image files available in the fMRI directory (Haxby\_dataset/fMRI/). You can select all the files by using the right mouse button and clicking on the option `Select All'. When all the images are selected, click on `Done' button;
+	\item Finally, load all the image files available in the fMRI directory (Haxby\_dataset/fMRI/). You can select all the files by using the right mouse button and clicking on the option `Select All'. When all the images are selected, click on the `Done' button;
 	
-	\item In the `Masks' field, on the bottom left of the `Data and design' window, select the `whole\_brain' mask for the modality specified. The mask is available in the masks directory inside the folder Haxby\_dataset/masks/;
+	\item In the `Masks' field, on the bottom left of the `Data and design' window, select the `whole\_brain' mask for the specified modality. The mask is available in the masks directory inside the folder Haxby\_dataset/masks/;
 
-	\item Click on `Review' button to check the data and the design inserted in this modality. For more information on what one can do with the Review option please see Chapter \ref{chap:DataDesign};
+	\item Click on the 'Review' button to check the data and the design inserted for this modality. For more information on what one can do with the Review option, please see Chapter \ref{chap:DataDesign};
 	
-	\item The `Data and design' window should look similar to the Figure \ref{fig:dataDesignmkl}. Click on `Save' button to create `PRT.mat' file with the structure containing the information that has been previously specified. If no errors are shown in the MATLAB command, leave the `Data and design' window by clicking `Quit'.
+	\item The `Data and design' window should look similar to the one in Figure \ref{fig:dataDesignmkl}. Click on the 'Save' button to create the `PRT.mat' file with the structure containing the information that has been previously specified. If no errors are shown in the MATLAB command, leave the `Data and design' window by clicking `Quit'.
 	
 
 \begin{figure}[!h]
@@ -76,17 +75,17 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Prepare feature set' and a new window called `Prepare feature set' will open (see Figure \ref{fig:prepareFeature} in the Chapter \ref{sec:Block_design_fMRI_dataset});
+	\item In PRoNTo's main window, click on `Prepare feature set' and a new window called `Prepare feature set' will open (see Figure \ref{fig:prepareFeature} in Chapter \ref{sec:Block_design_fMRI_dataset});
 	
-	\item Select the `PRT.mat' file previously created in the `Data \& Design' step and another window will open, `Specify modality to include' (see Figure \ref{fig:specifyModality} in the Chapter \ref{sec:Block_design_fMRI_dataset}), to set the specification of different parameters and options for each modality, which are: 
+	\item Select the `PRT.mat' file previously created in the `Data \& Design' step and another window will open, `Specify modality to include' (see Figure \ref{fig:specifyModality} in Chapter \ref{sec:Block_design_fMRI_dataset}), to set the specification of different parameters and options for each modality, which are: 
 	
 	\begin{itemize}
 		\item `Modality' field: select the modality previously specified in the `Data \& Design' step, `fMRI';
 
 		\item `Conditions' field: select `All scans'; 
 		
-		\item Parameters box: select the polynomial detrend with order 1 and the 'No scaling' option;
-		\item Features box: select `Build one kernel per region' tick box and load `AAL' atlas (named 'aal\_79x91x69') available in the PRoNTo directory (PRoNTo/atlas/). Then, click on `Done' button. The final `Specify modality to include' window should look similar to the Figure \ref{fig:specifyModalitymkl};
+		\item `Parameters' box: select the polynomial detrend with order 1 and the 'No scaling' option;
+		\item `Features' box: select the `Build one kernel per region' tick box and load the `AAL' atlas (named 'aal\_79x91x69') available in the PRoNTo directory (PRoNTo/atlas/). Then, click on the 'Done' button. The final `Specify modality to include' window should look similar to the one in Figure \ref{fig:specifyModalitymkl};
 		
 			
 		\begin{figure}[!h]
@@ -96,16 +95,16 @@ To start, create a new directory in which to save the results of the analysis, t
 	\label{fig:specifyModalitymkl}
 \end{figure}	
 		
-			\begin{itemize}
-			\item As an optional step, in the `Additional mask for selected modality' field, the user can specify a `second-level' mask, which can be used to select regions of interest (ROIs) on which the classification can be performed. For instance, we can enter the `fusiform\_gyrus' mask available with this dataset; 
-			\end{itemize}	
+			%\begin{itemize}
+			%\item As an optional step, in the `Additional mask for selected modality' field, the user can specify a `second-level' mask, which can be used to select regions of interest (ROIs) in which the classification can be performed. For instance, we can enter the `fusiform\_gyrus' mask available with this dataset; 
+			%\end{itemize}	
 			
 		
 	\end{itemize}		
 		
 	\item In the `Prepare feature set' window, provide a name to the feature set, e.g. `HaxbyFeatures';
 
-	\item Click on `Build kernel/data matrix' to build the feature set and kernel. It takes a few minutes.
+	\item Click on `Build kernel/data matrix' to build the feature set and kernel. It will take a few minutes.
 
 \end{itemize}
 
@@ -116,15 +115,15 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Specify model' and a new window called `Specify model' will open (see Figure \ref{fig:specifyModel} in the Chapter \ref{sec:Block_design_fMRI_dataset});
+	\item In PRoNTo's main window, click on `Specify model' and a new window called `Specify model' will open (see Figure \ref{fig:specifyModel} in Chapter \ref{sec:Block_design_fMRI_dataset});
 	
 	\item Select the `PRT.mat' file and provide a name to the model, e.g. `mklFacesHouses';
 
-	\item Select one of the `Feature Set' previously defined. In this case, there is only one `HaxbyFeatures';
+	\item Select one of the feature sets previously defined. In this case, there is only one: `HaxbyFeatures';
 
 	\item Leave the option `Use kernels' tick box as it is, i.e. `Yes';
 
-	\item	Select the `Classification' model type and click on `Define classes` button. A new window will open, `Specify classes', to define the number of classes and a name for each class. We will define 2 classes:
+	\item	Select the `Classification' model type and click on the 'Define classes` button. A new window will open, `Specify classes', to define the number of classes and a name for each class. We will define 2 classes:
 	
 		\begin{itemize}
 			\item for `Class 1' select subject `S1' and the condition `Faces' and;
@@ -134,13 +133,13 @@ To start, create a new directory in which to save the results of the analysis, t
 	
 	\item Select the `L1- Multi-Kernel Learning' option, in the Machine field;
 	
-	\item Select the `Optimize hyper-parameter' tick box and leave as default or define a range;
+	\item Select the `Optimize hyper-parameter' tick box and leave as default or define an array with the hyper-parameter values that you wish to test. Note that if you leave it empty, PRoNTo will use an array with default hyper-parameter values;
 	
 	\item Leave the `Cross-Validation Scheme' (internal loop) field as it is, i.e `Leave One Block Out';
 		
 	\item Select the `Leave One Block Out' cross-validation scheme (external loop); 
 	
-	\item In the `Data operations' box, select `Mean centre features using training data' option. Then, the `Specify model' window should look similar to the Figure \ref{fig:specifyModelmkl};
+	\item In the `Data operations' box, select `Mean centre features using training data' option. Then, the `Specify model' window should look similar to the one in Figure \ref{fig:specifyModelmkl};
 	
 	\begin{figure}[!h]
 	\centering
@@ -149,7 +148,7 @@ To start, create a new directory in which to save the results of the analysis, t
 	\label{fig:specifyModelmkl}
 \end{figure}
 	
-	\item Click on `Specify and run model' and the model will be immediately estimated, therefore there is no need to use the `Run model' module in this case. It takes a couple of minutes to complete.
+	\item Click on `Specify and run model' and the model will be immediately estimated, therefore there is no need to use the `Run model' module in this case. It will take a few minutes to complete.
 
 \end{itemize}
 
@@ -158,10 +157,10 @@ To start, create a new directory in which to save the results of the analysis, t
 \subsection{Display model (optional step)}
 
 \begin{itemize}
-\item To review the model specification, in the main PRoNTo GUI, click on `Review kernel \& CV' and a new window will open, `Review Model Specification' (see Figure \ref{fig:reviewModel} in the Chapter \ref{sec:Block_design_fMRI_dataset});
+\item To review the model specification, in the main PRoNTo GUI, click on `Review kernel \& CV' and a new window will open, `Review Model Specification' (see Figure \ref{fig:reviewModel} in Chapter \ref{sec:Block_design_fMRI_dataset});
 
 
-\item Select the model, `mklFacesHouses', from the list at the top and click on `Review model'; then, select one class from the list of `Class' to see which groups, subjects and conditions this class comprises (see Figure \ref{fig:reviewModelClass} in the Chapter \ref{sec:Block_design_fMRI_dataset});
+\item Select the model, `mklFacesHouses', from the list at the top and click on `Review model'; then, select one class from the list to see which groups, subjects and conditions belong to this class (see Figure \ref{fig:reviewModelClass} in Chapter \ref{sec:Block_design_fMRI_dataset});
 
 
 \item To review the data and cross-validation matrix click on `Review CV' (Figure \ref{fig:reviewCVmkl}). For more information on what these matrices mean, please consult the previous chapters of the manual;
@@ -197,7 +196,7 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \item Leave the option `Compute average/kernel weight per region' tick box unchecked;
 
-\item Click on `Compute weights' button. Computations will be displayed on the MATLAB prompt.
+\item Click on the 'Compute weights' button. Computations will be displayed on the MATLAB prompt.
 
 \end{itemize}
 
@@ -250,7 +249,7 @@ To start, create a new directory in which to save the results of the analysis, t
 
 This tutorial will now show how to analyse the same data but using the {\tt matlabbatch} system.
 
-Once again, to analyse the data, create a new directory in which to save the results of the analysis, saved as 'PRT.mat'. On the main interface of PRoNTo click on 'Batch' button to open the `{\tt matlabbatch}'. Alternatively, type `prt\_batch' in the MATLAB prompt. On the menu bar of the batch, there is a PRoNTo menu with the 5 options shown in the main steps interface (Figure \ref{fig:batchmkl}).
+Once again, to analyse the data, create a new directory in which to save the results of the analysis, saved as 'PRT.mat'. On the main interface of PRoNTo click on the 'Batch' button to open the `{\tt matlabbatch}'. Alternatively, type `prt\_batch' in the MATLAB prompt. On the menu bar of the batch, there is a PRoNTo menu with the 5 options shown in the main steps interface (Figure \ref{fig:batchmkl}).
 
 \begin{figure}[!h]
 	\centering
@@ -329,7 +328,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 \subsection{Feature set / Kernel}
 
 \begin{itemize}
-	\item Click on `Feature set / Kernel' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchFeaturemkl});
+	\item Click on the 'Feature set / Kernel' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchFeaturemkl});
 	
 	\begin{figure}[!h]
 	\centering
@@ -338,7 +337,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 	\label{fig:batchFeaturemkl}
 \end{figure}
 	
-	\item With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batchDependencymkl}) or click on `Select files' button to browse where `PRT.mat' file was saved;
+	\item With `Load PRT.mat' field selected, click on the 'Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batchDependencymkl}) or click on the 'Select files' button to browse where `PRT.mat' file was saved;
 	
 	 	
 \begin{figure}[!h]
@@ -390,7 +389,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 
 \begin{itemize}
 
-\item Click on `Specify model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchSpecifyModelmkl});
+\item Click on the 'Specify model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchSpecifyModelmkl});
 	
 	\begin{figure}[!h]
 	\centering
@@ -399,7 +398,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 	\label{fig:batchSpecifyModelmkl}
 \end{figure}
 	
-	\item With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Feature set / Kernel' step or click on `Select files' button to browse where `PRT.mat' file was saved;
+	\item With `Load PRT.mat' field selected, click on the 'Dependency' button to associate the `PRT.mat' file created in the previous `Feature set / Kernel' step or click on the 'Select files' button to browse where `PRT.mat' file was saved;
 	
 	\item Provide a name to the model, e.g. `mklFacesHouses'; 
 	
@@ -463,7 +462,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 
 \begin{itemize}
 
-	\item Click on `Run model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchRunMKL});
+	\item Click on the 'Run model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchRunMKL});
 	
 	\begin{figure}[!h]
 	\centering
@@ -473,7 +472,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 \end{figure}
 	
 	
-	\item  With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Specify model' step;
+	\item  With `Load PRT.mat' field selected, click on the 'Dependency' button to associate the `PRT.mat' file created in the previous `Specify model' step;
 	
 	\item Select the model name from the `Specify model' module with the `Dependency' button\footnote{Or write it {\it exactly} as previously defined in the `Specify model' module, here `mklFacesHouses'};
 
@@ -486,7 +485,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 
 \begin{itemize}
 
-	\item Click on `Compute weights' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchWeightsMKL});
+	\item Click on the 'Compute weights' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchWeightsMKL});
 	
 	\begin{figure}[!h]
 	\centering
@@ -495,7 +494,7 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 	\label{fig:batchWeightsMKL}
 \end{figure}
 
-	\item With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Run model' step;
+	\item With `Load PRT.mat' field selected, click on the 'Dependency' button to associate the `PRT.mat' file created in the previous `Run model' step;
 	
 	\item Select the model name from the 'Specify model' module with `Dependency' button;
 	
@@ -507,4 +506,4 @@ After all this steps, the batch editor should look similar to the Figure \ref{fi
 
 \end{itemize}
 
-Finally, save the batch (e.g. as batch\_run\_all.m) and click on `Run Batch' option, in the `File menu'. The batch file created can then be opened and edited for further analyses. The results will be the same as those obtained using the GUI (see Section \ref{display_results_MKL}  of this tutorial).
+Finally, save the batch (e.g. as batch\_run\_all.m) and click on the 'Run Batch' option, in the `File menu'. The batch file created can then be opened and edited for further analyses. The results will be the same as those obtained using the GUI (see Section \ref{display_results_MKL}  of this tutorial).
