@@ -831,27 +831,27 @@ handles.class = 1;
 in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
 fid = prt_init_fs(handles.PRT,in);
 handles.fid = fid;
-if handles.PRT.fs(fid).multkernel  %(~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) ||...
-      % ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip')))  && ...
+
+if handles.PRT.fs(fid).multkernel
     nmod = length(handles.PRT.fs(fid).modality);
     mods = cell(nmod,1);
     for i=1:nmod
         mods{i} = handles.PRT.fs(fid).modality(i).mod_name;
     end
-    if (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))  ||...
+	if (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))  ||...
        ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip')))
         handles.summed = 0;
     else
-        handles.summed = 1; % either summed modalities or only one
+        handles.summed = 1; % summed modalities
     end
 elseif  (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))  ||...
        ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip'))) && ...
-        ~handles.PRT.fs(fid).multkernel
+       ~handles.PRT.fs(fid).multkernel
     mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
     handles.summed = 0; 
 else
     mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
-    handles.summed = 1; 
+  handles.summed = 1; % concatenated or one modality
 end
 handles.nmods = mods;
 guidata(hObject, handles);
@@ -939,9 +939,9 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
    fid = prt_init_fs(handles.PRT,in);
    % For each modality if multiple modalities in multiple kernel settings
-   if handles.PRT.fs(fid).multkernel %&& ~handles.summed
-       stm = length(handles.nmods); %if multiple modalities used in multiple kernels
-   else
+if handles.PRT.fs(fid).multkernel 
+       stm = length(handles.nmods); %if multiple modalities 
+else
        stm =1; % if modalities concatenated or only one
    end
    if ~iscell(handles.PRT.fs(fid).atlas_name)

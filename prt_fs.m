@@ -73,7 +73,7 @@ PRT.fs(fid).multkernelROI = 0; % Multiple kernels with an atlas
 PRT.fs(fid).multkernel = 0;    % Multiple kernels from different modalities
 
 if in.flag_mm   % One kernel per modality so need to treat them independently
-    for i = 1:n_mods  % multiple modalities
+    for i = 1:n_mods  % multiple modalitiestt
         % For each modality, get the corresponding ID mat and sample index
         idtk = PRT.fs(fid).id_mat(:,3) == mids(i);
         nimm = length(unique(PRT.fs(fid).id_mat(:,3) == mids(i)));
@@ -110,10 +110,13 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
                 beep
                 disp('No overlap between data and mask/atlas for at least one sample')
                 disp(['Kernel ',num2str(i),' will be removed from further analysis'])
-                kerns=[];
+                kerns = [];
+                nmodin = 1:length(PRT.fs(fid).modality);
+                igm = setdiff(nmodin,i);
+                PRT.fs(fid).modality = PRT.fs(fid).modality(igm);
             end
-            PRT.fs(fid).atlas_name = {};            
-        end        
+            PRT.fs(fid).atlas_name = {};
+        end
         kerns = reshape(kerns,1,length(kerns));
         Phi = [Phi, kerns];
         PRT.fs(fid).modality(i).igood_kerns = igd;

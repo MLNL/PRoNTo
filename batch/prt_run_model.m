@@ -251,7 +251,10 @@ else
 end
 
 % assemble structure for performing cross-validation
-model.cv = get_cv_type(job.cv_type);
+mainCV = get_cv_type(job.cv_type);
+model.cv.k = mainCV.k; 
+model.cv.type = mainCV.type;
+
 model.include_allscans = job.include_allscans;
 
 % specify operations to apply to the data prior to prediction
