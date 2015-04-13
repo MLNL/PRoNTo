@@ -89,18 +89,12 @@ end
 
 % Other info
 % -------------------------------------------------------------------------
-fs_name  = PRT.model(model_idx).input.fs(1).fs_name;
 samp_idx = PRT.model(model_idx).input.samp_idx;
 nfold    = length(PRT.model(model_idx).output.fold);
 
 % Find feature set
 % -------------------------------------------------------------------------
-nfs = length(PRT.fs);
-for f = 1:nfs
-    if strcmp(PRT.fs(f).fs_name,fs_name)
-        fs_idx = f;
-    end
-end
+fs_idx = in.fs_idx;
 ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
 ID_all = PRT.fs(fs_idx).id_mat;
 
