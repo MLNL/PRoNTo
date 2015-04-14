@@ -201,7 +201,14 @@ elseif isfield(job.model_type,'regression')
         sids   =  job.model_type.regression.reg_group(g).subj_nums;
         for s = 1:length(sids)
             model.group(g).subj(scount).num = sids(s);
-            model.group(g).subj(scount).modality.mod_name =  mods;
+            if iscell(mods)
+                for m = 1:length(mods)
+                    model.group(g).subj(scount).modality(m).mod_name =  mods{m};
+                end
+            else
+                model.group(g).subj(scount).modality.mod_name =  mods;
+            end
+            
             scount=scount+1;
         end
     end
