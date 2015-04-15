@@ -74,7 +74,10 @@ model.use_kernel = job.use_kernel;
 
 model.fs(1).fs_name = job.fsets;
 fid = prt_init_fs(PRT,model.fs(1));
-mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
+mods = [PRT.fs(fid).modality(:).mod_name];
+if ~iscellstr(mods) % Compatibility with version 1
+    mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
+end
 
 % get the conditions which are common to all subjects from all groups
 nm = length(mods);

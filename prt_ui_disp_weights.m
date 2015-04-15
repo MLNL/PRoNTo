@@ -725,17 +725,9 @@ function foldmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns foldmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from foldmenu
 
-% Change weight map
-% -------------------------------------------------------------------------
-if ~handles.model_button
-    if isfield(handles,'vols')
-        handles.noloadw = 1;
-        handles.selectedcell = [];
-        weightbutton_Callback(hObject, eventdata, handles);
-    end
-end
 
 % Update table and bar graph
+%--------------------------------------------------------------------------
 m  = get(handles.classmenu,'Value');
 if m==0
     m=1;
@@ -755,6 +747,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
    dat(:,2) = num2cell(weights);
    [vald,idwroi] = sort(weights,'descend');
    dat = dat(idwroi,:);
+   handles.sort_roi= idwroi;
    set(handles.ROItable,'Data',dat);
    set(handles.ROItable,'visible','on');
    set(handles.butt_load_labels,'visible','on');
@@ -780,6 +773,17 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model ha
         set(handles.modtable,'Visible','on')
    end
 end
+
+% Change weight map
+% -------------------------------------------------------------------------
+if ~handles.model_button
+    if isfield(handles,'vols')
+        handles.noloadw = 1;
+        handles.selectedcell = [];
+        weightbutton_Callback(hObject, eventdata, handles);
+    end
+end
+
 guidata(hObject, handles);
 
 
@@ -984,7 +988,8 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
                    label{j} = ['ROI_',num2str(num_roi(j))];
                end
            else
-               if isfield(handles.PRT.fs(fid).modality(i),'igood_kerns') && ...
+               if isfield(handles.PRT.fs(fid),'multkernelROI') && ...
+                       handles.PRT.fs(fid).multkernelROI && ...
                        ~handles.summed
                     if length(handles.PRT.fs(fid).modality(i).igood_kerns)==length(num_roi)
                         label = handles.labels{mi(m)}{i}(handles.PRT.fs(fid).modality(i).igood_kerns); %take 0 kernels out
