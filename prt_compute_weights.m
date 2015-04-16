@@ -236,7 +236,7 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
                 % Build image of weights per region if asked for (flag2==1)
                 if exist('flag2','var') && flag2 
                     
-                    if mult_kern_ROI % Kernels built from an atlas directly
+                    if mult_kern_ROI  && ~added % Kernels built from an atlas directly
                         disp('Building image of weights per region')
                         in.img_name = ['ROI_',name_f{1}];
                         prt_compute_weights_regre(PRT,in,model_idx,flag,ibeta_mod{i},1);
@@ -255,7 +255,7 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
         if ~iscell(img_name)
             img_name={img_name};
         end
-        name_fin = [name_fin; img_name];
+        name_fin = [name_fin, img_name];
         imgcnt = imgcnt + 1;
     end
     PRT.fs(fs_idx).fas.ifa = ifa_all;
@@ -264,10 +264,8 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
     
     % Used for the display of the weights per modality in
     % prt_ui_disp_weights
-
-    if PRT.fs(fs_idx).multkernel && ~summroi && ~added  
-        for i=1:size(name_fin,1)
-            [du,name_fin{i}] = spm_fileparts(name_fin{i});
+    if PRT.fs(fs_idx).multkernel && ~summroi && ~added    %create one image per modality, from MKL learning
+        for i=1:length(name_fin)
             if ~mult_kern_ROI
                 idb = 1:length(fas_idx);
             else
@@ -288,7 +286,7 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
         end
     else
         if PRT.fs(fs_idx).multkernel && summroi && ~added
-            for i=1:size(name_fin,1)
+            for i=1:length(name_fin)
                 idb = ibeta_mod{i};
                 tmp = zeros(length(idb),length(PRT.model(model_idx).output.fold));
                 for j = 1:length(PRT.model(model_idx).output.fold)
@@ -298,9 +296,9 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
                 output.weight_MOD(i) = {betas}; %average of a multiple kernel on modalities
             end
         end
-        for i=1:size(name_fin,1)
-            [du,name_fin{i}] = spm_fileparts(name_fin{i}); %get rid of path
-        end
+    end
+    for i=1:length(name_fin)
+        [du,name_fin{i}] = spm_fileparts(name_fin{i}); %get rid of path
     end
     
  % Only one modality or they have been concatenated

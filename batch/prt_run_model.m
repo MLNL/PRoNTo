@@ -74,7 +74,10 @@ model.use_kernel = job.use_kernel;
 
 model.fs(1).fs_name = job.fsets;
 fid = prt_init_fs(PRT,model.fs(1));
-mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
+mods = [PRT.fs(fid).modality(:).mod_name];
+if ~iscellstr(mods) % Compatibility with version 1
+    mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
+end
 
 % get the conditions which are common to all subjects from all groups
 nm = length(mods);
@@ -201,7 +204,14 @@ elseif isfield(job.model_type,'regression')
         sids   =  job.model_type.regression.reg_group(g).subj_nums;
         for s = 1:length(sids)
             model.group(g).subj(scount).num = sids(s);
-            model.group(g).subj(scount).modality.mod_name =  mods;
+            if iscell(mods)
+                for m = 1:length(mods)
+                    model.group(g).subj(scount).modality(m).mod_name =  mods{m};
+                end
+            else
+                model.group(g).subj(scount).modality.mod_name =  mods;
+            end
+            
             scount=scount+1;
         end
     end

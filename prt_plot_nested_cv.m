@@ -245,25 +245,16 @@ else % It's a 1 parameter optimisation problem
         x_opt = hist(x_opt, x)./size(f,1);
         
         
-        % general properties of the plots
-        markersize = 10;
-        switch PRT.model(model).input.type
-            case 'classification'
-                f_min = 0;
-                f_max = 108;
-            case 'regression'
-                f_min = min(f(:));
-                f_max = max(f(:));
-            otherwise
-                error('Type of model not recognised');
-        end
-        
-        
-        % Plot
+         % Plot
         if logscale
             x = log10(x);
         end
-      
+        
+        % general properties of the plots
+        markersize = 10;
+        f_min = 0;
+        f_max = 108;
+
         hold on
         [hax,hbar,hline] = plotyy(x,x_opt*100,x,mean(f),'bar','plot');
         errorbar(axes_handle, x, f_mean, f_std, '.k', 'linewidth', 2);
@@ -271,12 +262,6 @@ else % It's a 1 parameter optimisation problem
         set(hline,'Color','k','Linewidth',1)
         set(hax(1),'YColor',[0.1,0.6,0.1])
         set(hax(2),'YColor',[0,0,0])
-%         for i = 1:length(x_opt)
-%             R = x_opt(i);
-%             B = 1-R;
-%             plot(x(i), f_mean(i), 'o', 'markersize', 4, ...
-%                 'linewidth', 0.01,'MarkerFaceColor', [R 0 B]);
-%         end
         hold off
         
         % Properties
@@ -290,13 +275,12 @@ else % It's a 1 parameter optimisation problem
         end
         axis(hax(1), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
         axis(hax(2), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
-        set(hax(2),'XTickLabel',{})
+        set(hax(2),'XTickLabel',{})      
         set(hax(2),'YTickLabel',{})
         a=get(hax(1),'YTick');
         b=get(hax(1),'YTickLabel');
         set(hax(2),'YTick',a);
-        set(hax(2),'YTickLabel',b);
-        
+        set(hax(2),'YTickLabel',b);         
         
     else
         
@@ -324,8 +308,8 @@ else % It's a 1 parameter optimisation problem
                 f_min = 0;
                 f_max = 108;
             case 'regression'
-                f_min = min(f(:));
-                f_max = max(f(:));
+                f_min = min(f(:))-0.1*min(f(:));
+                f_max = max(f(:))+0.1*min(f(:));
             otherwise
                 error('Type of model not recognised');
         end
