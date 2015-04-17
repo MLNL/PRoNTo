@@ -920,7 +920,7 @@ end
 % the index of the modality
 nim = get(handles.imagemenu,'String');
 for i = 1:length(handles.nmods)
-    if ~isempty(strfind(nim,char(handles.nmods{i})))
+    if ~isempty(strfind(nim(handles.class),char(handles.nmods{i})))
         mids = i;
     end
 end
