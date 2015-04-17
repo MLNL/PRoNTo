@@ -63,6 +63,7 @@ end
 %     PRT.model(model_idx).output.weight_atlas ={};
 % end
 PRT.model(model_idx).output.weight_ROI = [];
+PRT.model(model_idx).output.weight_MOD = [];
 PRT.model(model_idx).output.weight_idfeatroi =[];
 PRT.model(model_idx).output.weight_atlas =[];
 PRT.model(model_idx).output.weight_img =[];
@@ -175,7 +176,11 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
     output.weight_ROI = cell(nim,1);
     output.weight_idfeatroi = cell(nim,1);
     output.weight_atlas = cell(nim,1);
-    
+    if nc<=2
+        output.weight_MOD = cell(nim,1);
+    else
+        output.weight_MOD = cell(nim/nc,1);
+    end
     imgcnt = 1;
     
     for i = 1:length(fas_idx)
@@ -264,7 +269,8 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
     
     % Used for the display of the weights per modality in
     % prt_ui_disp_weights
-    if PRT.fs(fs_idx).multkernel && ~summroi && ~added    %create one image per modality, from MKL learning
+    if (PRT.fs(fs_idx).multkernel || length(fs_name)>1) ...
+        && ~summroi && ~added    %create one image per modality, from MKL learning
         for i=1:length(name_fin)
             if ~mult_kern_ROI
                 idb = 1:length(fas_idx);
@@ -285,7 +291,8 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
             end
         end
     else
-        if PRT.fs(fs_idx).multkernel && summroi && ~added
+        if (PRT.fs(fs_idx).multkernel || length(fs_name)>1)...
+                && summroi && ~added
             for i=1:length(name_fin)
                 idb = ibeta_mod{i};
                 tmp = zeros(length(idb),length(PRT.model(model_idx).output.fold));
@@ -307,6 +314,14 @@ else
     in.mm = [];
     for i=1:length(fas_idx)
         in.mm = [in.mm, find(mm(fas_idx(i),:))];
+    end
+    output.weight_ROI = cell(nim,1);
+    output.weight_idfeatroi = cell(nim,1);
+    output.weight_atlas = cell(nim,1);
+    if nc<=2
+        output.weight_MOD = cell(nim,1);
+    else
+        output.weight_MOD = cell(nim/nc,1);
     end
     switch mtype
         case 'classification'
@@ -346,7 +361,7 @@ else
                     PRT.model(model_idx).output.weight_ROI = cell(nimage,1);
                     for c = 1:nimage
                         [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
-                        PRT.model(model_idx).output.weight_ROI(c) = {NW};
+                        output.weight_ROI(c) = {NW};
                     end
                     output.weight_idfeatroi{1} = idfeatroi;
                     output.weight_atlas{1} = in.atl_name;
@@ -388,13 +403,22 @@ else
              end
     end
 end
-PRT.model(model_idx).output.weight_ROI = [PRT.model(model_idx).output.weight_ROI; output.weight_ROI];
-PRT.model(model_idx).output.weight_idfeatroi = [PRT.model(model_idx).output.weight_idfeatroi; output.weight_idfeatroi];
-PRT.model(model_idx).output.weight_atlas = [PRT.model(model_idx).output.weight_atlas; output.weight_atlas];
 if ~iscell(name_fin)
     name_fin = {name_fin};
 end
-PRT.model(model_idx).output.weight_img = [PRT.model(model_idx).output.weight_img; name_fin];
+if ifs == 1
+    PRT.model(model_idx).output.weight_ROI = output.weight_ROI;
+    PRT.model(model_idx).output.weight_MOD = output.weight_MOD;
+    PRT.model(model_idx).output.weight_idfeatroi = output.weight_idfeatroi;
+    PRT.model(model_idx).output.weight_atlas = output.weight_atlas;
+    PRT.model(model_idx).output.weight_img = name_fin;
+else
+    PRT.model(model_idx).output.weight_ROI = [PRT.model(model_idx).output.weight_ROI; output.weight_ROI];
+    PRT.model(model_idx).output.weight_MOD = [PRT.model(model_idx).output.weight_MOD; output.weight_MOD];
+    PRT.model(model_idx).output.weight_idfeatroi = [PRT.model(model_idx).output.weight_idfeatroi; output.weight_idfeatroi];
+    PRT.model(model_idx).output.weight_atlas = [PRT.model(model_idx).output.weight_atlas; output.weight_atlas];
+    PRT.model(model_idx).output.weight_img = [PRT.model(model_idx).output.weight_img; name_fin];
+end
 end
 
 

@@ -830,35 +830,10 @@ end
 set(handles.imagemenu,'Value',1);
 handles.class = 1;
 
-% Get the modalities in the model if multiple kernels and multiple
-% modalities
-in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
-fid = prt_init_fs(handles.PRT,in);
-handles.fid = fid;
-
-if handles.PRT.fs(fid).multkernel
-    nmod = length(handles.PRT.fs(fid).modality);
-    mods = cell(nmod,1);
-    for i=1:nmod
-        mods{i} = handles.PRT.fs(fid).modality(i).mod_name;
-    end
-	if (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))  ||...
-       ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip')))
-        handles.summed = 0;
-    else
-        handles.summed = 1; % summed modalities
-    end
-elseif  (~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))  ||...
-       ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'wip'))) && ...
-       ~handles.PRT.fs(fid).multkernel
-    mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
-    handles.summed = 0; 
-else
-    mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
-  handles.summed = 1; % concatenated or one modality
-end
-handles.nmods = mods;
-guidata(hObject, handles);
+% Get the feature set indexes and potential multiple modalities
+%---------------------------------------------------------------
+get_feature_set_idx(hObject,eventdata,handles,mi(m));
+handles = guidata(hObject);
 imagemenu_Callback(hObject,eventdata,handles)
 handles = guidata(hObject);
 guidata(hObject, handles);
@@ -920,15 +895,6 @@ if handles.class ==0
     handles.class = 1;
 end
 
-% Compare the name of the image with the name of the modalities to obtain
-% the index of the modality
-nim = get(handles.imagemenu,'String');
-for i = 1:length(handles.nmods)
-    if ~isempty(strfind(nim,char(handles.nmods{i})))
-        mids = i;
-    end
-end
-
 
 % Initialize the table
 % -------------------------------------------------------------------------
@@ -939,13 +905,14 @@ flagmodMKL = 0; % One weight per modality?
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... 
        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
    
-   in = struct();
-   in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
-   fid = prt_init_fs(handles.PRT,in);
+    get_feature_set_idx(hObject,eventdata,handles,mi(m));
+    handles = guidata(hObject);
+    fid = handles.fid(handles.class);
+    mids = handles.mids(handles.class);
    % For each modality if multiple modalities in multiple kernel settings
-if handles.PRT.fs(fid).multkernel 
-       stm = length(handles.nmods); %if multiple modalities 
-else
+   if handles.PRT.fs(fid).multkernel
+       stm = length(handles.nmods); %if multiple modalities
+   else
        stm =1; % if modalities concatenated or only one
    end
    if ~iscell(handles.PRT.fs(fid).atlas_name)
@@ -1194,7 +1161,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_MOD') &&...
         ~isempty(handles.PRT.model(mi(m)).output.weight_MOD{handles.class}) && ...
         ~flagmodMKL
     datmod = cell(length(handles.nmods),3);
-    datmod(:,1) = [handles.nmods{:}];
+    datmod(:,1) = {handles.nmods{:}};
     wemod = zeros(length(handles.nmods),handles.nfold+1);
     for i=1:length(handles.nmods) % get all the modalities
         wemod(i,:) = [handles.PRT.model(mi(m)).output.weight_MOD{i}];
@@ -1783,3 +1750,55 @@ F = findall(allchild(0),'Flat','Tag',Tag);
 delete(F);
 clear handles
 clear F
+
+function get_feature_set_idx(hObject,eventdata,handles,m)
+nfs = length(handles.PRT.model(m).input.fs);
+nim = cell(length(handles.PRT.model(m).output.weight_MOD),1);
+if (~isempty(strfind(handles.PRT.model(m).input.machine.function,'MKL'))  ||...
+        ~isempty(strfind(handles.PRT.model(m).input.machine.function,'wip')))
+    handles.summed = 0;
+else
+    handles.summed = 1; % summed modalities
+end
+count = 1;
+if strcmpi(handles.PRT.model(m).input.type,'classification') && ...
+        length(handles.PRT.model(m).input.class)>2
+    nc = length(handles.PRT.model(m).input.class);
+else
+    nc = 1;
+end
+ifs = [];
+imod = [];
+for i=1:nfs
+    in.fs_name = handles.PRT.model(m).input.fs(i).fs_name;
+    if nfs>1
+        nim{count} = in.fs_name;
+    end
+    fid = prt_init_fs(handles.PRT,in);
+    cm = 1;
+    if handles.PRT.fs(fid).multkernel
+        nmod = length(handles.PRT.fs(fid).modality);
+        mods = cell(nmod,1);
+        for im=1:nmod
+            mods{im} = handles.PRT.fs(fid).modality(im).mod_name{1};
+            if ~isempty(nim{count})
+                nim{count} = [nim{count},'_',mods{im}];
+            else
+                nim{count} = mods{im};
+            end
+            count = count + 1;
+            imod = [imod,repmat(cm,1,nc)];
+            cm = cm+1;
+        end
+    else
+        nmod = 1;
+        count = count +1;
+        imod = [imod, 1];
+    end
+    ifs = [ifs,repmat(fid,1,length(nmod)*nc)];
+end
+
+handles.fid = ifs;
+handles.nmods = nim;
+handles.mids = imod;
+guidata(hObject, handles);
