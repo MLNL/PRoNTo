@@ -720,7 +720,7 @@ in3=val;
 in4=[];
 in5=handles.dat;
 mod=prt_data_modality('UserData',{in1,in2,in3,in4,in5});
-if isnumeric(mod)
+if ~isstruct(mod)
     return
 end
 %update structure
