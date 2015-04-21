@@ -538,13 +538,18 @@ for z = 1:zdim,
         z_above   = [z_above,zvals(above)];
     end
 end
-XYZ   = xyz_above(1:3,:);
-Z     = z_above;
+if ~isempty(xyz_above)
+    XYZ   = xyz_above(1:3,:);
+    Z     = z_above;
+    
+    %compute center of gravity to reposition crosshairs
+    xm = round(median(XYZ(1,:)));
+    ym = round(median(XYZ(2,:)));
+    zm = round(median(XYZ(3,:)));
+else
+    disp('Only null contributions in this image')
+end
 
-%compute center of gravity to reposition crosshairs
-xm = round(median(XYZ(1,:)));
-ym = round(median(XYZ(2,:)));
-zm = round(median(XYZ(3,:)));
 % xmin = min(XYZ(1,:));
 % xmax = max(XYZ(1,:));
 % xfov =xmax-xmin;
@@ -578,14 +583,16 @@ h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08]);
 handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
-spm_orthviews('AddBlobs', h, XYZ, Z, M);
-cmap = get(gcf,'Colormap');
-if size(cmap,1)~=128
-    spm_figure('Colormap','jet');
-end
-spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
+if ~isempty(xyz_above)
+    spm_orthviews('AddBlobs', h, XYZ, Z, M);
+    cmap = get(gcf,'Colormap');
+    if size(cmap,1)~=128
+        spm_figure('Colormap','jet');
+    end
+    spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
 % spm_orthviews('Zoom',(xfov*abs(vx(1))))
-spm_orthviews('Redraw');
+    spm_orthviews('Redraw');
+end
 [fpw,faw]=fileparts(handles.wmap); %Sometimes extensions can pose problems
 for i=1:length(st.vols) % Image was added to variable st
     if ~isempty(st.vols{i})
@@ -595,14 +602,17 @@ for i=1:length(st.vols) % Image was added to variable st
             set(st.vols{idxw}.ax{1}.ax,'parent',handles.weightspanel);
             set(st.vols{idxw}.ax{2}.ax,'parent',handles.weightspanel);
             set(st.vols{idxw}.ax{3}.ax,'parent',handles.weightspanel);
-            set(st.vols{idxw}.blobs{1}.cbar,'parent',handles.weightspanel);
-            cbp = get(st.vols{idxw}.blobs{1}.cbar,'Position'); % Colorbar position
-            set(st.vols{idxw}.blobs{1}.cbar,'Position',...
-                [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
+            if ~isempty(xyz_above)
+                set(st.vols{idxw}.blobs{1}.cbar,'parent',handles.weightspanel);
+                cbp = get(st.vols{idxw}.blobs{1}.cbar,'Position'); % Colorbar position
+                set(st.vols{idxw}.blobs{1}.cbar,'Position',...
+                    [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
+                handles.posaxe4 = get(st.vols{idxw}.blobs{1}.cbar,'Position');
+            end
             handles.posaxe1 = get(st.vols{idxw}.ax{1}.ax,'Position');
             handles.posaxe2 = get(st.vols{idxw}.ax{2}.ax,'Position');
             handles.posaxe3 = get(st.vols{idxw}.ax{3}.ax,'Position');
-            handles.posaxe4 = get(st.vols{idxw}.blobs{1}.cbar,'Position');
+            
         end
     end
 end
@@ -741,7 +751,7 @@ if ffi==0 % for average
     ffi=length(get(handles.foldmenu,'String'));
 end
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
    dat = handles.dattable;
    weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
    dat(:,2) = num2cell(weights);
@@ -933,7 +943,7 @@ flagmodMKL = 0; % One weight per modality?
 
 % chosen model has ROI values or weights per modality : create the table
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... 
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
    
    in = struct();
    in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
@@ -1130,7 +1140,7 @@ if disp_vox
     set(handles.disp_voxels,'Value',1)
     set(handles.disp_regions,'Value',0)
 elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
     fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
     set(handles.disp_voxels,'Value',0)
     set(handles.disp_regions,'Value',1)
@@ -1235,7 +1245,7 @@ handles.datmod = datmod;
 
 % Fill table and bar graph if needed
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI or modality weight values
-        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1}) &&...
         isfield(handles,'wmap') && ~isempty(handles.wmap)
     handles.dattable = dat;
     
