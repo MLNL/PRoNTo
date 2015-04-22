@@ -311,13 +311,15 @@ function originbutton_Callback(hObject, eventdata, handles)
 if isfield(handles,'img')
     spm_orthviews('Reposition',[0 0 0]);
     child = get(handles.weightspanel,'Children');
-    flag = 0;
-    for i = 1:length(child)
-        if ~flag && strcmpi(get(child(i),'Type'),'axes')
-            flag = 1;
-            pos = get(child(i),'Position');
-            set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+    count = [];
+    for i = 1:length(child) % Resize colorbar if blobs
+        if strcmpi(get(child(i),'Type'),'axes')
+            count = [count, i];
         end
+    end
+    if length(count)==4
+        pos = get(child(count(1)),'Position');
+        set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
     end
 end
 
@@ -340,13 +342,15 @@ if isfield(handles,'img')
     end
     spm_orthviews('Reposition',pos);
     child = get(handles.weightspanel,'Children');
-    flag = 0;
-    for i = 1:length(child)
-        if ~flag && strcmpi(get(child(i),'Type'),'axes')
-            flag = 1;
-            pos = get(child(i),'Position');
-            set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+    count = [];
+    for i = 1:length(child) % Resize colorbar if blobs
+        if strcmpi(get(child(i),'Type'),'axes')
+            count = [count, i];
         end
+    end
+    if length(count)==4
+        pos = get(child(count(1)),'Position');
+        set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
     end
 end
 
@@ -384,13 +388,15 @@ if isfield(handles,'img')
     pos = tmp(1:3,:)*[pos ; 1];
     spm_orthviews('Reposition',pos);
     child = get(handles.weightspanel,'Children');
-    flag = 0;
-    for i = 1:length(child)
-        if ~flag && strcmpi(get(child(i),'Type'),'axes')
-            flag = 1;
-            pos = get(child(i),'Position');
-            set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+    count = [];
+    for i = 1:length(child) % Resize colorbar if blobs
+        if strcmpi(get(child(i),'Type'),'axes')
+            count = [count, i];
         end
+    end
+    if length(count)==4
+        pos = get(child(count(1)),'Position');
+        set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
     end
 end
 
@@ -590,9 +596,10 @@ if ~isempty(xyz_above)
         spm_figure('Colormap','jet');
     end
     spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
-% spm_orthviews('Zoom',(xfov*abs(vx(1))))
+    % spm_orthviews('Zoom',(xfov*abs(vx(1))))
     spm_orthviews('Redraw');
 end
+
 [fpw,faw]=fileparts(handles.wmap); %Sometimes extensions can pose problems
 for i=1:length(st.vols) % Image was added to variable st
     if ~isempty(st.vols{i})
@@ -612,7 +619,6 @@ for i=1:length(st.vols) % Image was added to variable st
             handles.posaxe1 = get(st.vols{idxw}.ax{1}.ax,'Position');
             handles.posaxe2 = get(st.vols{idxw}.ax{2}.ax,'Position');
             handles.posaxe3 = get(st.vols{idxw}.ax{3}.ax,'Position');
-            
         end
     end
 end
@@ -623,7 +629,7 @@ end
 
 % Show positions
 % -------------------------------------------------------------------------
-prt_ui_results('showpos');
+prt_ui_disp_weights('showpos');
 
 disp('Done');
 
@@ -1338,13 +1344,15 @@ pos = spm_orthviews('Pos',1);
 set(mp14,'String',sprintf('%.1f %.1f %.1f',pos));
 set(tx20,'String',sprintf('%g',spm_sample_vol(st.V,pos(1),pos(2),pos(3),st.hld)));
 child = get(st.handles.weightspanel,'Children');
-flag = 0;
-for i = 1:length(child)
-    if ~flag && strcmpi(get(child(i),'Type'),'axes')
-        flag = 1;
-        pos = get(child(i),'Position');
-        set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+count = [];
+for i = 1:length(child) % Resize colorbar if blobs
+    if strcmpi(get(child(i),'Type'),'axes')
+        count = [count, i];     
     end
+end
+if length(count)==4
+    pos = get(child(count(1)),'Position');
+    set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
 end
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
