@@ -123,8 +123,7 @@ When an option has been selected, a new window will appear (Figure \ref{fig_cust
 
 The resulting CV matrix can be saved in a .mat, alongside the PRT (name: \textit{model name\_ CV.mat}). This matrix can loaded as a custom CV in the batch, if exactly the same trials were selected for modelling. \textbf{Note:} The `custom' CV option is not available as a nested/inner cross-validation scheme. 
 
-Information concerning the cross-validation structure is stored internally in matrix format, and can be visualised by clicking `Review Kernel
-and CV' from the main ProNTo window (see \ref{fig_reviewCV} for an example). In the left panel, this figure indicates which group, subject, modality and condition each scan in the feature set belongs to. On the right, each cross-validation fold (partition) is displayed as a separate column and each scan is colour coded according to whether it is in the training or testing set (or if it is unused).
+Information concerning the cross-validation structure is stored internally in matrix format, and can be visualised by clicking `Review Kernel and CV' from the main ProNTo window (see \ref{fig_reviewCV} for an example). In the left panel, this figure indicates which group, subject, modality and condition each scan in the feature set belongs to. On the right, each cross-validation fold (partition) is displayed as a separate column and each scan is colour coded according to whether it is in the training or testing set (or if it is unused).
 
 
 \begin{figure}[!h]
@@ -155,6 +154,8 @@ Other points to note include: (i) the order of operations is potentially importa
 
 At a minimum, we recommend that features should be mean centered over scans during cross-validation. In addition, for multiple kernel learning, we advise the user to normalize each kernel. This will compensate for the fact that different kernels might be computed from examples/samples with different number of features (e.g. different regions contain different numbers of voxels).
 
+The different operations selected for a specific model can then be reviewed using the `Review Kernel and CV' (starting from version 2.0). The selected operations will be listed below the kernels (`Show kernel').
+
 \section{Specify / Run model}
 
 Using the GUI, it is possible to either `Specify' the model, or `Specify and Run' the model. The first option saves all the parameters of the model in the PRT structure. This information can be found in \texttt{PRT.model(\textit{m}).input}, where \textit{m} is the index of the model. The second saves all the parameters of the model and then runs the model. In this case, the inputs, which include the cross-validation matrix, the target values or labels, and the machine (e.g. binary SVM, Gaussian Process, etc.), are fed to the estimation routines, which will then add to the PRT an output field (\texttt{PRT.model(\textit{m}).output}) containing the estimated parameters, statistics, and other information from the learning process.
@@ -179,7 +180,7 @@ It is useful to have a look at what is displayed in the \matlab command space wh
 \end{center}
 \end{figure}
 
-\textbf{Important note:} multiple kernel feature sets can be modelled using any machine. For machines not supporting multiple kernels, these will first be added before the model is estimated. It is important to note that the kernels will be added AFTER the selected operations (e.g. mean centering, normalization) have been applied to each kernel separately. This differs from obtaining a whole brain model when using regions of interest as defined by an atlas. Therefore, we encourage users to build a whole brain feature set before performing multiple kernel analyses.
+\textbf{Important note:} multiple kernel feature sets can be modelled using any machine. For machines not supporting multiple kernels, these will first be added before the model is estimated. This corresponds to concatenating the features from the different regions and/or modalities.
 
 \section{Batch interface}
 
