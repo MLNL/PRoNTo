@@ -30,20 +30,17 @@ Enter a unique name to identify the model, which is used internally in PRoNTo, b
 \section{Feature set}
 The drop-down list entitled `Feature set' will be populated once a \texttt{PRT.mat} containing one or more feature sets is selected. Select the appropriate feature set from the drop-down list. Note that a single feature set may contain more than one data modality (see chapter \ref{chap:PrepFeat}), which can be combined to build multimodal classification and regression models (e.g. L1-Multiple Kernel Learning models). This might also be useful if more than one run/session is available for each subject, in which case each run could be input as an independent modality in the data and design step and a single-subject classifier might be specified using leave-one-run-out cross-validation. 
 
-In the current release of PRoNTo, only kernel classifiers are supported via the user interface. The capability to support non-kernel
-classifiers will be added in a future release. Thus, the `Use kernel' radio button should always be set to true.
+In the current release of PRoNTo, only kernel machines are supported via the user interface. The capability to support non-kernel techniques will be added in a future release. Thus, the `Use kernel' radio button should always be set to true.
 
 \section{Model type / pattern recognition algorithm}
 In this part of the model specification input form, select the pattern recognition algorithm to employ (referred to in PRoNTo as a `machine'). In the current release, three classification algorithms are supported (binary support vector machines, Gaussian processes (binary and multiclass) and L1-Multiple Kernel Learning) and four multivariate regression methods (Gaussian process regression, kernel ridge regression 
 \footnote{Kernel ridge regression is equivalent to a \emph{maximum a posteriori} approach to Gaussian process regression with fixed prior variance and no explicit noise term} , relevance vector regression and L1-Multiple Kernel Learning). 
 
-The PRoNTo user interface provides a mechanism for flexible definition of which components of the data design should be used for each
-classification or regression model. Note that this will not necessarily be the whole experiment; for example, in a complex fMRI experiment
-there may be several groups, each containing multiple subjects, each in turn having multiple experimental conditions (e.g. corresponding to
-different subprocesses of a cognitive task). In such cases, it is usually desirable to ask several different questions using the data, such as
-discriminating between groups for a given experimental condition (``between group comparison"), discriminating between experimental conditions
-for a fixed group (`between-task comparison') or training independent pattern recognition models for different subsets of subjects. All of
+The PRoNTo user interface provides a mechanism for flexible definition of which components of the data design should be used for each classification or regression model. Note that this will not necessarily be the whole experiment; for example, in a complex fMRI experiment there may be several groups, each containing multiple subjects, each in turn having multiple experimental conditions (e.g. corresponding to
+different subprocesses of a cognitive task). In such cases, it is usually desirable to ask several different questions using the data, such as discriminating between groups for a given experimental condition (``between group comparison"), discriminating between experimental conditions for a fixed group (`between-task comparison') or training independent pattern recognition models for different subsets of subjects. All of
 these can be easily defined via the user interface by clicking the `Define classes' button (for classification) or `Select subjects/scan' (for regression).
+
+\textbf{Note:} if a feature set contains multiple kernels (either from regions of interest or based on different modalities) but the selected classification/regression technique is a single kernel method (e.g. SVM or KRR), the kernels will first be summed before entering the classification/regression phase. This corresponds to concatenating the features before building the kernel. For regions of interest in a single modality, the summed kernel is hence equivalent to a whole brain model.
 
 \subsection{Classification}
 
