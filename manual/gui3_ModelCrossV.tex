@@ -36,11 +36,11 @@ In the current release of PRoNTo, only kernel machines are supported via the use
 In this part of the model specification input form, select the pattern recognition algorithm to employ (referred to in PRoNTo as a `machine'). In the current release, three classification algorithms are supported (binary support vector machines, Gaussian processes (binary and multiclass) and L1-Multiple Kernel Learning) and four multivariate regression methods (Gaussian process regression, kernel ridge regression 
 \footnote{Kernel ridge regression is equivalent to a \emph{maximum a posteriori} approach to Gaussian process regression with fixed prior variance and no explicit noise term} , relevance vector regression and L1-Multiple Kernel Learning). 
 
+\textbf{Note:} if a feature set contains multiple kernels (either from regions of interest or based on different modalities) but the selected classification/regression technique is a single kernel method (e.g. SVM or KRR), the kernels will first be summed before entering the classification/regression phase. This corresponds to concatenating the features before building the kernel. For regions of interest in a single modality, the summed kernel is hence equivalent to a whole brain model.
+
 The PRoNTo user interface provides a mechanism for flexible definition of which components of the data design should be used for each classification or regression model. Note that this will not necessarily be the whole experiment; for example, in a complex fMRI experiment there may be several groups, each containing multiple subjects, each in turn having multiple experimental conditions (e.g. corresponding to
 different subprocesses of a cognitive task). In such cases, it is usually desirable to ask several different questions using the data, such as discriminating between groups for a given experimental condition (``between group comparison"), discriminating between experimental conditions for a fixed group (`between-task comparison') or training independent pattern recognition models for different subsets of subjects. All of
 these can be easily defined via the user interface by clicking the `Define classes' button (for classification) or `Select subjects/scan' (for regression).
-
-\textbf{Note:} if a feature set contains multiple kernels (either from regions of interest or based on different modalities) but the selected classification/regression technique is a single kernel method (e.g. SVM or KRR), the kernels will first be summed before entering the classification/regression phase. This corresponds to concatenating the features before building the kernel. For regions of interest in a single modality, the summed kernel is hence equivalent to a whole brain model.
 
 \subsection{Classification}
 
