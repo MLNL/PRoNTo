@@ -757,6 +757,7 @@ if ffi==0 % for average
     ffi=length(get(handles.foldmenu,'String'));
 end
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
+         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
    dat = handles.dattable;
    weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
@@ -949,6 +950,7 @@ flagmodMKL = 0; % One weight per modality?
 
 % chosen model has ROI values or weights per modality : create the table
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... 
+        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
    
    in = struct();
@@ -1146,6 +1148,7 @@ if disp_vox
     set(handles.disp_voxels,'Value',1)
     set(handles.disp_regions,'Value',0)
 elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
+         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
     fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
     set(handles.disp_voxels,'Value',0)
@@ -1251,6 +1254,7 @@ handles.datmod = datmod;
 
 % Fill table and bar graph if needed
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI or modality weight values
+         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1}) &&...
         isfield(handles,'wmap') && ~isempty(handles.wmap)
     handles.dattable = dat;

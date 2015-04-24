@@ -304,7 +304,8 @@ else
                                         conds(mc).onsets     = multicond.onsets{mc};
                                         conds(mc).durations  = multicond.durations{mc};
                                         conds(mc).rt_trial   = multicond.rt_trial{mc};
-                                        if isfield(conds(mc),'rt_trial')
+                                        if isfield(conds(mc),'rt_trial') && ...
+                                                ~isempty(conds(mc).rt_trial)
                                             lons = length(conds(mc).onsets);
                                             lreg = length(conds(mc).rt_trial);
                                             if  lreg ~= lons
