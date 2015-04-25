@@ -70,7 +70,7 @@ elseif length(F)==1
     uistack(F,'top')
 else
     set(handles.figure1,'Tag',Tag)
-    set(handles.figure1,'Name','PRoNTo :: Model interpretation')
+    set(handles.figure1,'Name','PRoNTo :: Weights')
     set(handles.figure1,'MenuBar','figure','WindowStyle','normal');
     
     %set size of the window, taking screen resolution and platform into account
