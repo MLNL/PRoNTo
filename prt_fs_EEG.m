@@ -256,7 +256,12 @@ for i = 1:n_mods
     ich = in.mod(mid).ich; %i
     ifr = in.mod(mid).ifr; %i
     itp = in.mod(mid).itp; %i
-    ndim = PRT.fas(mid).hdr;
+    ndim = size(PRT.fas(mid).hdr);
+    if length(ndim)==3 % No frequency information
+        ndim = [ndim(1),1,ndim(2)];
+    else
+        ndim = ndim(1:end-1);
+    end
     if isempty(ifr) && ndim(2)==1
         ifr = 1;
     end

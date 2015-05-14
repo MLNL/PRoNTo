@@ -6,7 +6,7 @@ function weights = prt_weights_sMKL_cla(d,args)
 %           .datamat    - data matrix [Nfeatures x Nexamples]
 %           .coeffs     - coefficients vector [Nexamples x 1]
 %           .betas      - kernel weights
-%           .idfeat_img - cell with indece
+%           .idfeat_img - cell with indexes of the kernel voxels in img
 %       args            - function arguments (can be left empty)
 % Output:
 %       weights         - vector with weights [Nfeatures x 1]

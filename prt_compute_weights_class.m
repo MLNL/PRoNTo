@@ -22,8 +22,14 @@ function img_name = prt_compute_weights_class(PRT,in,model_idx,flag, ibe, flag2)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M.J.Rosa
+% Written by M.J.Rosa, modified by J. Schrouff for MEEG
 % $Id$
+
+% Find type of data: neuroimaging or MEEG
+% -------------------------------------------------------------------------
+fs_idx = in.fs_idx;
+if strcmpi(PRT.fs(fs_idx).type,'MEEG')
+end
 
 % Find machine
 % -------------------------------------------------------------------------
@@ -94,7 +100,6 @@ nfold    = length(PRT.model(model_idx).output.fold);
 
 % Find feature set
 % -------------------------------------------------------------------------
-fs_idx = in.fs_idx;
 ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
 ID_all = PRT.fs(fs_idx).id_mat;
 

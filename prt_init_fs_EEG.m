@@ -129,9 +129,11 @@ else
     % features for each subject as well.
     n_vols_s=cell(length(PRT.group),n_mods);
     n_vox=zeros(n_mods,1);
-    hdr=zeros(n_mods,3);
+    dims=zeros(n_mods,3);
     idn = 1;
     n=0;
+    hdr=cell(n_mods,3);
+    
     
     for gid = 1:length(PRT.group) % group
         for m = 1:n_mods
@@ -151,10 +153,13 @@ else
                 n = n+n_vols_s{gid,m}{sid};
                 if length(size(D))==4
                     n_vox(m) = ndim(1)*ndim(2)*ndim(3);  %channels*frequency*time
-                    hdr(m,:) = ndim(1:end-1);
+                    dims(m,:) = ndim(1:end-1);
                 elseif length(size(D))==3
                     n_vox(m) = ndim(1)*ndim(2); %channels*time
-                    hdr(m,:) = [ndim(1),1,ndim(2)];
+                    dims(m,:) = [ndim(1),1,ndim(2)];
+                end
+                if gid==1 && sid==1 % Keep channel,time,frequency info for later
+                    hdr{m} = D;
                 end
                 idn = idn+1;
                 clear D
@@ -209,9 +214,8 @@ else
         % create the file array in the PRT if needed
         if tocomp(mids(i))
             PRT.fas(mids(i)).mod_name = in.mod(mids(i)).mod_name;
-            PRT.fas(mids(i)).hdr = hdr(i,:);
-            PRT.fas(mids(i)).idfeat_img = {in.mod(mids(i)).chanlab, ...
-                in.mod(mids(i)).freq, in.mod(mids(i)).time, in.mod(mids(i)).chanpos}; % For weight display
+            PRT.fas(mids(i)).hdr = hdr{i};
+            PRT.fas(mids(i)).idfeat_img = []; 
             datname=[pathName,filesep,'Feature_set_',char(in.mod(mids(i)).mod_name),'.dat'];
             PRT.fas(mids(i)).dat = file_array(...
                 datname, ...                 % fname     - filename

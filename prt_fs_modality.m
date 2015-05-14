@@ -125,7 +125,7 @@ if any(in.tocomp)
     step=1;
 end
 %average across one or multiple dimensions
-flagav = zeros(n_mods,length(PRT.fas(mids(1)).hdr));
+flagav = zeros(n_mods,3);
 for b = 1:n_block
     if nargin<3 || ~flag
         disp ([' > preparing block: ', num2str(b),' of ',num2str(n_block),' ...'])
