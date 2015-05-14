@@ -1354,7 +1354,7 @@ for i=1:ng
                     for l=1:length(des.conds)
                         ovser=find(des.conds(l).scans>matdat(j,k));
                         inser=find(des.conds(l).scans<=matdat(j,k));
-                        des.conds(l).discardedscans=[des.conds(l).discardedscans, des.conds(l).scans(ovser)];
+                        des.conds(l).discardedscans=[des.conds(l).discardedscans; des.conds(l).scans(ovser)];
                         des.conds(l).scans=des.conds(l).scans(inser);
                         des.conds(l).blocks=des.conds(l).blocks(inser);
                     end

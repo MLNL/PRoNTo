@@ -133,17 +133,17 @@ To start, create a new directory in which to save the results of the analysis, t
 	
 	\item Select the `L1- Multi-Kernel Learning' option, in the Machine field;
 	
-	\item Select the `Optimize hyper-parameter' tick box and leave the textbox empty. This will force PRoNTo to use an array with default hyper-parameter values for the optimization. Please note that for this example the default might be a bit time consuming, thus, you can define a smaller number of values to be used for hyper-parameter optimization (e.g. [0.1, 1, 100]);
+	\item Select the `Optimize hyper-parameter' tick box and leave the textbox empty. This will force PRoNTo to use an array with default hyper-parameter values for the optimization. You can choose other values by inputing them in this box (e.g. [0.1, 1, 100]);
 	
-	\item Leave the `Cross-Validation Scheme' (internal loop) field as it is, i.e `Leave One Block Out';
+	\item In the `Cross-Validation Scheme' (internal loop) field, select the option `k-fold CV on Block'. A window will appear asking to define the value of k, set it to 4;
 		
 	\item Select the `Leave One Block Out' cross-validation scheme (external loop); 
 	
-	\item In the `Data operations' box, select `Mean centre features using training data' option. Then, the `Specify model' window should look similar to the one in Figure \ref{fig:specifyModelmkl};
+	\item In the `Data operations' box, select the `Mean centre features using training data' and `Normalize samples' options Then, the `Specify model' window should look similar to the one in Figure \ref{fig:specifyModelmkl};
 	
 	\begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/mkl/specifyModelmkl.png}
+		\includegraphics[width=0.7\textwidth]{images/Tutorial/mkl/specifyModelmkl.png}
 	\caption{`Specify model' GUI final configuration.}
 	\label{fig:specifyModelmkl}
 \end{figure}
@@ -438,9 +438,9 @@ After all this steps, the batch editor should look similar to the one in Figure 
 	
 	\item In the `Optimize hyper-parameter' field, select the `Yes' option;
 	
-	\item In the `Arguments' field, input the hyper-parameters that you wish to use for the hyper-parameter optimization (e.g. [0.01, 1, 100]);
+	\item In the `Arguments' field, input the hyper-parameters that you wish to use for the hyper-parameter optimization (e.g. [0.01, 0.1, 1, 10, 100, 1000]);
 	
-	\item In the `Cross validation type for hyper-parameter optimization' (internal loop) field, select `Leave one block out' option;
+	\item In the `Cross validation type for hyper-parameter optimization' (internal loop) field, select the `k-folds CV on blocks' option and on the field `k' input the value 4;
 	
 	\end{itemize}
 	
@@ -453,7 +453,7 @@ After all this steps, the batch editor should look similar to the one in Figure 
 		\begin{itemize}
 		\item  Leave the `Mean centre features' field as it is, i.e. `Yes'; 
 				
-		\item  Leave the `Other Operations' field as it is, i.e. `No operations';
+		\item  Click on the `Other Operations' field and select the option `Select Operations', then add a new operation and select the `Normalize samples' option;
 		\end{itemize}
 	
 \end{itemize}

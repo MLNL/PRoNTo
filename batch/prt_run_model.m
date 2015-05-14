@@ -262,8 +262,11 @@ end
 
 % assemble structure for performing cross-validation
 mainCV = get_cv_type(job.cv_type);
-model.cv.k = mainCV.k; 
-model.cv.type = mainCV.type;
+% Copy new values to model.cv
+fn = fieldnames(mainCV);
+for fi = 1:length(fn)
+    model.cv.(fn{fi}) = mainCV.(fn{fi});
+end
 
 model.include_allscans = job.include_allscans;
 

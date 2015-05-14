@@ -145,6 +145,25 @@ else
     return
 end
 end
+tcv = handles.PRT.model(handles.indm).input.cv_type;
+kcv = handles.PRT.model(handles.indm).input.cv_k;
+if kcv>0 %k-folds CV
+    cv='k-folds on ';
+else
+    cv='Leave One ';
+end
+if strcmpi(tcv,'lobo')
+    cv = [cv, 'Block Out'];
+elseif strcmpi(tcv,'loro')
+    cv = [cv, 'Run Out'];
+elseif strcmpi(tcv,'loso')
+    cv = [cv, 'Subject Out'];
+elseif strcmpi(tcv,'losgo')
+    cv = [cv, 'Subject per Group Out'];
+elseif strcmpi(tcv,'custom')
+    cv = 'Custom';
+end
+set(handles.selCV,'String',cv);
 % Update handles structure
 guidata(hObject, handles);
 disp_cv(hObject,handles,handles.indm,handles.indf);

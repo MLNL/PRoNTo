@@ -70,7 +70,7 @@ elseif length(F)==1
     uistack(F,'top')
 else
     set(handles.figure1,'Tag',Tag)
-    set(handles.figure1,'Name','PRoNTo :: Model interpretation')
+    set(handles.figure1,'Name','PRoNTo :: Weights')
     set(handles.figure1,'MenuBar','figure','WindowStyle','normal');
     
     %set size of the window, taking screen resolution and platform into account
@@ -312,13 +312,15 @@ function originbutton_Callback(hObject, eventdata, handles)
 if isfield(handles,'img')
     spm_orthviews('Reposition',[0 0 0]);
     child = get(handles.weightspanel,'Children');
-    flag = 0;
-    for i = 1:length(child)
-        if ~flag && strcmpi(get(child(i),'Type'),'axes')
-            flag = 1;
-            pos = get(child(i),'Position');
-            set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+    count = [];
+    for i = 1:length(child) % Resize colorbar if blobs
+        if strcmpi(get(child(i),'Type'),'axes')
+            count = [count, i];
         end
+    end
+    if length(count)==4
+        pos = get(child(count(1)),'Position');
+        set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
     end
 end
 
@@ -341,13 +343,15 @@ if isfield(handles,'img')
     end
     spm_orthviews('Reposition',pos);
     child = get(handles.weightspanel,'Children');
-    flag = 0;
-    for i = 1:length(child)
-        if ~flag && strcmpi(get(child(i),'Type'),'axes')
-            flag = 1;
-            pos = get(child(i),'Position');
-            set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+    count = [];
+    for i = 1:length(child) % Resize colorbar if blobs
+        if strcmpi(get(child(i),'Type'),'axes')
+            count = [count, i];
         end
+    end
+    if length(count)==4
+        pos = get(child(count(1)),'Position');
+        set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
     end
 end
 
@@ -385,13 +389,15 @@ if isfield(handles,'img')
     pos = tmp(1:3,:)*[pos ; 1];
     spm_orthviews('Reposition',pos);
     child = get(handles.weightspanel,'Children');
-    flag = 0;
-    for i = 1:length(child)
-        if ~flag && strcmpi(get(child(i),'Type'),'axes')
-            flag = 1;
-            pos = get(child(i),'Position');
-            set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+    count = [];
+    for i = 1:length(child) % Resize colorbar if blobs
+        if strcmpi(get(child(i),'Type'),'axes')
+            count = [count, i];
         end
+    end
+    if length(count)==4
+        pos = get(child(count(1)),'Position');
+        set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
     end
 end
 
@@ -539,13 +545,18 @@ for z = 1:zdim,
         z_above   = [z_above,zvals(above)];
     end
 end
-XYZ   = xyz_above(1:3,:);
-Z     = z_above;
+if ~isempty(xyz_above)
+    XYZ   = xyz_above(1:3,:);
+    Z     = z_above;
+    
+    %compute center of gravity to reposition crosshairs
+    xm = round(median(XYZ(1,:)));
+    ym = round(median(XYZ(2,:)));
+    zm = round(median(XYZ(3,:)));
+else
+    disp('Only null contributions in this image')
+end
 
-%compute center of gravity to reposition crosshairs
-xm = round(median(XYZ(1,:)));
-ym = round(median(XYZ(2,:)));
-zm = round(median(XYZ(3,:)));
 % xmin = min(XYZ(1,:));
 % xmax = max(XYZ(1,:));
 % xfov =xmax-xmin;
@@ -579,14 +590,17 @@ h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08]);
 handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
-spm_orthviews('AddBlobs', h, XYZ, Z, M);
-cmap = get(gcf,'Colormap');
-if size(cmap,1)~=128
-    spm_figure('Colormap','jet');
+if ~isempty(xyz_above)
+    spm_orthviews('AddBlobs', h, XYZ, Z, M);
+    cmap = get(gcf,'Colormap');
+    if size(cmap,1)~=128
+        spm_figure('Colormap','jet');
+    end
+    spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
+    % spm_orthviews('Zoom',(xfov*abs(vx(1))))
+    spm_orthviews('Redraw');
 end
-spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
-% spm_orthviews('Zoom',(xfov*abs(vx(1))))
-spm_orthviews('Redraw');
+
 [fpw,faw]=fileparts(handles.wmap); %Sometimes extensions can pose problems
 for i=1:length(st.vols) % Image was added to variable st
     if ~isempty(st.vols{i})
@@ -596,14 +610,16 @@ for i=1:length(st.vols) % Image was added to variable st
             set(st.vols{idxw}.ax{1}.ax,'parent',handles.weightspanel);
             set(st.vols{idxw}.ax{2}.ax,'parent',handles.weightspanel);
             set(st.vols{idxw}.ax{3}.ax,'parent',handles.weightspanel);
-            set(st.vols{idxw}.blobs{1}.cbar,'parent',handles.weightspanel);
-            cbp = get(st.vols{idxw}.blobs{1}.cbar,'Position'); % Colorbar position
-            set(st.vols{idxw}.blobs{1}.cbar,'Position',...
-                [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
+            if ~isempty(xyz_above)
+                set(st.vols{idxw}.blobs{1}.cbar,'parent',handles.weightspanel);
+                cbp = get(st.vols{idxw}.blobs{1}.cbar,'Position'); % Colorbar position
+                set(st.vols{idxw}.blobs{1}.cbar,'Position',...
+                    [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
+                handles.posaxe4 = get(st.vols{idxw}.blobs{1}.cbar,'Position');
+            end
             handles.posaxe1 = get(st.vols{idxw}.ax{1}.ax,'Position');
             handles.posaxe2 = get(st.vols{idxw}.ax{2}.ax,'Position');
             handles.posaxe3 = get(st.vols{idxw}.ax{3}.ax,'Position');
-            handles.posaxe4 = get(st.vols{idxw}.blobs{1}.cbar,'Position');
         end
     end
 end
@@ -614,7 +630,7 @@ end
 
 % Show positions
 % -------------------------------------------------------------------------
-prt_ui_results('showpos');
+prt_ui_disp_weights('showpos');
 
 disp('Done');
 
@@ -742,7 +758,8 @@ if ffi==0 % for average
     ffi=length(get(handles.foldmenu,'String'));
 end
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
+         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
    dat = handles.dattable;
    weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
    dat(:,2) = num2cell(weights);
@@ -896,6 +913,16 @@ if handles.class ==0
 end
 
 
+% % Compare the name of the image with the name of the modalities to obtain
+% % the index of the modality
+% nim = get(handles.imagemenu,'String');
+% for i = 1:length(handles.nmods)
+%     if ~isempty(strfind(nim(handles.class),char(handles.nmods{i})))
+%         mids = i;
+%     end
+% end
+
+
 % Initialize the table
 % -------------------------------------------------------------------------
 
@@ -903,7 +930,8 @@ flagmodMKL = 0; % One weight per modality?
 
 % chosen model has ROI values or weights per modality : create the table
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... 
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
+        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
    
     get_feature_set_idx(hObject,eventdata,handles,mi(m));
     handles = guidata(hObject);
@@ -1102,7 +1130,8 @@ if disp_vox
     set(handles.disp_voxels,'Value',1)
     set(handles.disp_regions,'Value',0)
 elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI)
+         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
     fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
     set(handles.disp_voxels,'Value',0)
     set(handles.disp_regions,'Value',1)
@@ -1207,7 +1236,8 @@ handles.datmod = datmod;
 
 % Fill table and bar graph if needed
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI or modality weight values
-        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1}) &&...
         isfield(handles,'wmap') && ~isempty(handles.wmap)
     handles.dattable = dat;
     
@@ -1300,13 +1330,15 @@ pos = spm_orthviews('Pos',1);
 set(mp14,'String',sprintf('%.1f %.1f %.1f',pos));
 set(tx20,'String',sprintf('%g',spm_sample_vol(st.V,pos(1),pos(2),pos(3),st.hld)));
 child = get(st.handles.weightspanel,'Children');
-flag = 0;
-for i = 1:length(child)
-    if ~flag && strcmpi(get(child(i),'Type'),'axes')
-        flag = 1;
-        pos = get(child(i),'Position');
-        set(child(i),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+count = [];
+for i = 1:length(child) % Resize colorbar if blobs
+    if strcmpi(get(child(i),'Type'),'axes')
+        count = [count, i];     
     end
+end
+if length(count)==4
+    pos = get(child(count(1)),'Position');
+    set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
 end
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
