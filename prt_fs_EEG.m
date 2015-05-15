@@ -95,11 +95,10 @@ end
 
 Phi = [];
 nim1 =length(find(PRT.fs(fid).id_mat(:,3) == mids(1)));
-PRT.fs(fid).igood_kerns = [];
 PRT.fs(fid).multkernelROI = 0;
 PRT.fs(fid).multkernel = 0;
 addin.n_vols_s = n_vols_s;
-igm = [];
+
 for ik = 1:nkm
     if in.flag_mm
         idtk = PRT.fs(fid).id_mat(:,3) == mids(ik);
@@ -120,7 +119,7 @@ for ik = 1:nkm
         [d1,idmin] = min(Phik);
         min_max = find(idmax==idmin);
         if isempty(min_max) || unique(Phik(:,min_max))~=0 %Kernel does not contain a whole line of zeros
-            PRT.fs(fid).igood_kerns = [PRT.fs(fid).igood_kerns,[1;ik]];
+            PRT.fs(fid).modality(ik).igood_kerns = 1;
         else
             error('prt_fs:NoDataInMask',...
                 'Signal is zero for at least one event, cannot create kernel')
@@ -188,8 +187,9 @@ for ik = 1:nkm
                         disp(['Kernel ',num2str(nroi),' will be removed from further analysis'])
                     end                    
                     Phim{nroi}=Phitmp;
+                    [d,dd,ddd] = intersect(squeeze(addin.idvox_fas),PRT.fs(fid).modality(ik).idfeat_fas);
+                    PRT.fs(fid).modality(ik).idfeat_img{nroi} = ddd;
                     nroi = nroi+1;
-                    PRT.fs(fid).modality(ik).idfeat_img{nroi} = addin.idvox_fas;
                 end
             end
         end
@@ -200,9 +200,8 @@ for ik = 1:nkm
                 'Signal is zero for at least one event, cannot create kernel')
         else
             Phim = Phim(igd);
-            igm = ik*ones(1,length(igd));
-            PRT.fs(fid).igood_kerns = [PRT.fs(fid).igood_kerns, [igd;igm]];
-%             PRT.fs(fid).modality(ik).idfeat_img = PRT.fs(fid).modality(ik).idfeat_img(igd);
+            PRT.fs(fid).modality(ik).igood_kerns = igd;
+            PRT.fs(fid).modality(ik).idfeat_img = PRT.fs(fid).modality(ik).idfeat_img(igd);
         end
 
     end
@@ -274,7 +273,7 @@ for i = 1:n_mods
     d3(:,:,itp) = 1;
     mask{i} = (d1 & d2 & d3);
     PRT.fs(fid).modality(i).idfeat_fas = find(mask{i});
-    PRT.fs(fid).modality(i).dim_m = [length(ich), length(ifr), length(itp)];
+    PRT.fs(fid).modality(i).dim_m = {ich, ifr, itp};
 end
 
 return

@@ -1,7 +1,7 @@
 function img_name = prt_compute_weights_class(PRT,in,model_idx,flag, ibe, flag2)
 % FORMAT prt_compute_weights_class(PRT,in,model_idx)
 %
-% This function calls prt_weights to compute weights 
+% This function calls prt_weights to compute weights
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).
@@ -22,13 +22,46 @@ function img_name = prt_compute_weights_class(PRT,in,model_idx,flag, ibe, flag2)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M.J.Rosa, modified by J. Schrouff for MEEG
+% Written by M.J.Rosa, modified by J. Schrouff for MEEG and multiple
+% feature sets
 % $Id$
 
-% Find type of data: neuroimaging or MEEG
+% Find type of data (neuroimaging or MEEG) from feature set
 % -------------------------------------------------------------------------
 fs_idx = in.fs_idx;
-if strcmpi(PRT.fs(fs_idx).type,'MEEG')
+fas_idx = in.fas_idx;
+mm = in.mm;
+mname = PRT.fs(fs_idx).modality(mm(1)).mod_name;
+allmods = {PRT.masks(:).mod_name};
+im = find(strcmpi(mname,allmods));
+flagmeeg = 0;
+if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG')
+    ext = '.mat';
+    hdr = PRT.fas(fas_idx(1)).hdr;
+    nchan = nchannels(hdr);
+    if isempty(nchan); dat_dim(1) = 1; else dat_dim(1) = nchan; end
+    nfreq = nfrequencies(hdr);
+    if isempty(nfreq); dat_dim(2) = 1; else dat_dim(2) = nfreq; end
+    ntp = nsamples(hdr);
+    if isempty(ntp); dat_dim(3) = 1; else dat_dim(3) = ntp; end
+    fin_dim(1) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{1});
+    fin_dim(2) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{2});
+    fin_dim(3) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{3});
+    if any(PRT.fs(fs_idx).modality(mm(1)).aver) %average across at least 1 dimension
+        fin_dim(PRT.fs(fs_idx).modality(mm(1)).aver)=1;
+    end
+    if any(fin_dim == 1)
+        fin_dim = fin_dim(~(fin_dim==1));
+    end
+    flagmeeg = 1;
+    idfeat = 1:size(PRT.fas(fas_idx(1)).dat,2);
+    appendn = 'tmp';
+else
+    ext = '.img';
+    hdr        = PRT.fas(fas_idx(1)).hdr.private;
+    dat_dim    = hdr.dat.dim;
+    idfeat = PRT.fas(fas_idx(1)).idfeat_img;
+    appendn=[];
 end
 
 % Find machine
@@ -55,25 +88,27 @@ switch mfunc
         m.function  = 'prt_weights_gpclap';
         nclass      = length(PRT.model(model_idx).input.class);
         for c = 1:nclass
-            img_mach{c} = ['weights_',mname,'_',num2str(c),'.img'];
+            img_mach{c} = ['weights_',mname,'_',num2str(c),ext];
         end
     case 'prt_machine_sMKL_cla'
         m.function = 'prt_weights_sMKL_cla';
-        img_mach{1} = ['weights_',mname,'.img'];
+        img_mach{1} = ['weights_',mname,ext];
     case 'prt_machine_wip_cla'
         m.function = 'prt_weights_sMKL_cla';
-        img_mach{1} = ['weights_',mname,'.img'];
+        img_mach{1} = ['weights_',mname,ext];
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
     otherwise
         m.function  = 'prt_weights_bin_linkernel';
-        img_mach{1} = ['weights_',mname,'.img'];
+        img_mach{1} = ['weights_',mname,ext];
 end
 
 nimage = length(img_mach);
 % Image name
 % -------------------------------------------------------------------------
+img_name = cell(nimage,1);
+finimg_name = cell(nimage,1);
 if ~isempty(in.img_name)
     if ~(prt_checkAlphaNumUnder(in.img_name))
         error('prt_compute_weights:NameNotAlphaNumeric',...
@@ -81,15 +116,18 @@ if ~isempty(in.img_name)
     end
     if nimage>1 && ~flag2
         for c = 1:nimage
-            in.img_name_c  = [in.img_name,'_',num2str(c),'.img'];
-            img_name{c}    = fullfile(in.pathdir,in.img_name_c);
+            in.img_name_c  = [in.img_name,'_',num2str(c),ext];
+            img_name{c}    = fullfile(in.pathdir,[appendn,in.img_name_c]);
+            finimg_name{c} = fullfile(in.pathdir,in.img_name_c);
         end
     else
-        img_name{1}   = fullfile(in.pathdir,[in.img_name,'.img']);
+        img_name{1}   = fullfile(in.pathdir,[appendn,in.img_name,ext]);
+        finimg_name{1}= fullfile(in.pathdir,[in.img_name,ext]);
     end
 else
     for c = 1:nimage
-        img_name{c}    = fullfile(in.pathdir,img_mach{c});
+        img_name{c}    = fullfile(in.pathdir,[appendn,img_mach{c}]);
+        finimg_name{c} = fullfile(in.pathdir,img_mach{c});
     end
 end
 
@@ -97,22 +135,13 @@ end
 % -------------------------------------------------------------------------
 samp_idx = PRT.model(model_idx).input.samp_idx;
 nfold    = length(PRT.model(model_idx).output.fold);
-
-% Find feature set
-% -------------------------------------------------------------------------
 ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
 ID_all = PRT.fs(fs_idx).id_mat;
-
-% Find modality (now as inputs)
-% -------------------------------------------------------------------------
-fas_idx = in.fas_idx;
-mm = in.mm;
 
 % Get the indexes of the voxels which are in the first/second level mask
 % -------------------------------------------------------------------------
 
 idROI = [];
-idfeat = PRT.fas(fas_idx(1)).idfeat_img;
 if isempty(PRT.fs(fs_idx).modality(mm(1)).idfeat_fas) % get the 2nd level masking
     idfeat_fas = 1:length(idfeat);
 else
@@ -152,14 +181,14 @@ pthperm = cell(nimage,1);
 for p=0:maxp
     if p>0
         for c = 1:nimage
-            [pth,nam] = fileparts(img_name{c});            
+            [pth,nam] = fileparts(img_name{c});
             if p==1
                 pthperm{c} = fullfile(pth,['perm_',nam]);
                 if ~exist(pthperm{c},'dir')
                     mkdir(pth,['perm_',nam]);
                 end
-            end            
-            img_nam{c} = fullfile(pthperm{c},[nam,'_perm',num2str(p),'.img']);
+            end
+            img_nam{c} = fullfile(pthperm{c},[nam,'_perm',num2str(p),ext]);
         end
         fprintf('Permutation: %d of %d \n',p, ...
             length(PRT.model(model_idx).output.permutation));
@@ -168,18 +197,22 @@ for p=0:maxp
     end
     
     % check that image does not exist, otherwise, delete
-    if exist(img_nam{1},'file')
+    if exist(finimg_name{1},'file')
         for c = 1:nimage
-            delete(img_nam{c});
-            % delete hdr:
-            [pth,nam] = fileparts(img_nam{c});
-            hdr_name  = [pth,filesep,nam,'.hdr'];
+            delete(finimg_name{c});
+            % delete hdr if neuroimaging, dat if MEEG
+            [pth,nam] = fileparts(finimg_name{c});
+            if ~flagmeeg
+                hdr_name  = [pth,filesep,nam,'.hdr'];
+            else
+                hdr_name  = [pth,filesep,nam,'.dat'];
+                if exist(img_nam{1},'file')
+                    delete(img_nam{c});
+                end
+            end
             delete(hdr_name)
         end
     end
-    
-    hdr        = PRT.fas(fas_idx(1)).hdr.private;
-    dat_dim    = hdr.dat.dim;
     
     if length(dat_dim)==2, dat_dim = [dat_dim 1]; end % handling case of 2D image
     
@@ -194,16 +227,14 @@ for p=0:maxp
             dat_dim(3),folds_comp],'float32-le',0,1,0);
     end
     
-    zdim    = dat_dim(3);
-    xydim   = dat_dim(1)*dat_dim(2);
     % norm3d  = 0;
     
     disp('Computing weights.......>>')
-    
+    zdim    = dat_dim(3);
+    xydim   = dat_dim(1)*dat_dim(2);
+    % Build by z-slices
     for z = 1:zdim
-        
         fprintf('Slice: %d of %d \n',z,zdim);
-        
         img3dav = cell(1,nimage);
         for c = 1:nimage
             img3dav{c}  = zeros(1,xydim); % average weight map
@@ -223,14 +254,12 @@ for p=0:maxp
             feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
                 mask_train<=(xydim*z));
             m.args.idfeat_img = {1:length(feat_slc)};
-        end      
+        end
         
         if isempty(feat_slc)
-            
             for c = 1:nimage
                 img4d{c}(:,:,z,:) = NaN*zeros(dat_dim(1),dat_dim(2),1,folds_comp);
             end
-            
         else
             
             for f = 1:nfold
@@ -257,8 +286,22 @@ for p=0:maxp
                     end
                     ifa  = PRT.fs(fs_idx).fas.ifa(indm);
                     
-                    % index for the target data matrix                    
+                    % index for the target data matrix
                     d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,voxtr(feat_slc));
+                end
+                
+                % Average data matrix along specified dimensions
+                if any(PRT.fs(fs_idx).modality(mm(1)).aver)
+                    tmp = d.datamat';
+                    tmp = reshape(tmp,[dat_dim length(train)]);
+                    dimta = find(PRT.fs(fs_idx).modality(mm(1)).aver); %dimensions to average
+                    for iav = 1:length(dimta)
+                        tmp = mean(tmp, dimta(iav));
+                    end
+                    dimav = dimm;
+                    dimav(PRT.fs(fs_idx).modality(mm(1)).aver) = 1;
+                    tmp = reshape(tmp,prod(dimav),length(itr));
+                    d.datamat = tmp';
                 end
                 
                 % Apply any operations specified during training
@@ -301,8 +344,6 @@ for p=0:maxp
                 
             end
             
-            
-            
             % Create average fold
             %------------------------------------------------------------------
             for c = 1:nimage
@@ -312,7 +353,6 @@ for p=0:maxp
                 norm4dav{c}(z,:)           = sum(img3dav{c}(isfinite(img3dav{c})).^2); %afm
             end
         end
-        
     end
     
     for c =1:nimage
@@ -342,11 +382,45 @@ for p=0:maxp
     clear No
     for c = 1:nimage
         fprintf('Creating image %d of %d--------->>\n',c,nimage);
-        No         = hdr;              % copy header
-        No.dat     = img4d{c};         % change file_array
-        No.descrip = 'Pronto weigths'; % description
-        create(No);                    % write header
-        disp('Done.')
-    end
+        if flagmeeg % Only save non-NaN weights
+            [path,fn] = fileparts(finimg_name{c});
+            fnamedat = fullfile(path,[fn,'.dat']);
+            weightD = clone(hdr,fnamedat,[fin_dim, folds_comp]); % can be 2d or 3d
+            ichan = PRT.fs(fs_idx).modality(mm(1)).dim_m{1};
+            ifreq = PRT.fs(fs_idx).modality(mm(1)).dim_m{2};
+            itp = PRT.fs(fs_idx).modality(mm(1)).dim_m{3};
+            weightD(:,:,:,:) = squeeze(img4d{c}(ichan,ifreq,itp,:));
+            delete(img_nam{c});
+            % Transfer knowledge about the data into weight object
+            if PRT.fs(fs_idx).modality(mm(1)).aver(1) ~= 1
+                weightD = chanlabels(weightD,1:length(ichan),chanlabels(hdr,ichan));
+                weightD = chantype(weightD,1:length(ichan),chantype(hdr,ichan));
+                weightD = badchannels(weightD,1:length(ichan),badchannels(hdr,ichan));
+                weightD = coor2D(weightD,1:length(ichan),coor2D(hdr,ichan));
+            else
+                weightD = chanlabels(weightD,1,'Average');
+                weightD = chantype(weightD,1,chantype(hdr,1));
+            end
+            if PRT.fs(fs_idx).modality(mm(1)).aver(3) ~= 1
+                weightD = time(weightD,1:length(itp),time(hdr,itp));
+            else
+                weightD = time(weightD,1,time(hdr,itp(1)));
+            end
+            if ~isempty(nfrequencies(hdr))
+                if PRT.fs(fs_idx).modality(mm(1)).aver(2) ~= 1
+                    weightD = frequency(weightD,1:length(ifreq),frequency(hdr,ifreq));
+                else
+                    weightD = frequency(weightD,1,frequency(hdr,ifreq(1)));
+                end
+            end
+            save(weightD);
+        else
+            No         = hdr;              % copy header
+            No.dat     = img4d{c};         % change file_array
+            No.descrip = 'Pronto weigths'; % description
+            create(No);                    % write header
+        end 
+        img_name{c} = finimg_name{c};
+    end  
 end
-
+disp('Done.')
