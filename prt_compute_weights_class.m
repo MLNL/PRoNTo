@@ -47,12 +47,6 @@ if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG')
     fin_dim(1) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{1});
     fin_dim(2) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{2});
     fin_dim(3) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{3});
-    if any(PRT.fs(fs_idx).modality(mm(1)).aver) %average across at least 1 dimension
-        fin_dim(PRT.fs(fs_idx).modality(mm(1)).aver)=1;
-    end
-    if any(fin_dim == 1)
-        fin_dim = fin_dim(~(fin_dim==1));
-    end
     flagmeeg = 1;
     idfeat = 1:size(PRT.fas(fas_idx(1)).dat,2);
     appendn = 'tmp';
@@ -68,7 +62,14 @@ end
 % -------------------------------------------------------------------------
 mfunc       = PRT.model(model_idx).input.machine.function;
 mname       = PRT.model(model_idx).model_name;
-nclass      = length(PRT.model(model_idx).input.class);
+mtype       = PRT.model(model_idx).input.type;
+switch mtype
+    case 'classification'
+        nclass      = length(PRT.model(model_idx).input.class);
+    case 'regression'
+        nclass = 1;
+end
+
 if nclass > 2, mfunc = 'multiclass_machine'; end
 m.args      = [];
 
@@ -82,8 +83,7 @@ end
 % unfortunately a bug somewhere causes shifts in weight image if
 % .nii is used...
 
-switch mfunc
-    
+switch mfunc    
     case 'multiclass_machine'
         m.function  = 'prt_weights_gpclap';
         nclass      = length(PRT.model(model_idx).input.class);
@@ -99,9 +99,12 @@ switch mfunc
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
+    case 'prt_machine_sMKL_reg'
+        m.function = 'prt_weights_sMKL_reg';
+        img_mach{1} = ['weights_',mname,'.img'];
     otherwise
         m.function  = 'prt_weights_bin_linkernel';
-        img_mach{1} = ['weights_',mname,ext];
+        img_mach{1} = ['weights_',mname,'.img'];
 end
 
 nimage = length(img_mach);
@@ -293,14 +296,14 @@ for p=0:maxp
                 % Average data matrix along specified dimensions
                 if any(PRT.fs(fs_idx).modality(mm(1)).aver)
                     tmp = d.datamat';
-                    tmp = reshape(tmp,[dat_dim length(train)]);
+                    tmp = reshape(tmp,[fin_dim(1) fin_dim(2) length(train)]);
                     dimta = find(PRT.fs(fs_idx).modality(mm(1)).aver); %dimensions to average
                     for iav = 1:length(dimta)
                         tmp = mean(tmp, dimta(iav));
                     end
-                    dimav = dimm;
-                    dimav(PRT.fs(fs_idx).modality(mm(1)).aver) = 1;
-                    tmp = reshape(tmp,prod(dimav),length(itr));
+                    dimav = fin_dim(1:2);
+                    dimav(find(PRT.fs(fs_idx).modality(mm(1)).aver)) = 1;
+                    tmp = reshape(tmp,prod(dimav),length(train));
                     d.datamat = tmp';
                 end
                 
@@ -314,7 +317,10 @@ for p=0:maxp
                 end
                 d.datamat = cvdata.train{:};
                 
-                if strcmpi(mfunc,'prt_machine_sMKL_cla') || strcmpi(mfunc,'prt_machine_wip_cla')
+                if strcmpi(mfunc,'prt_machine_sMKL_cla') || ...
+                        strcmpi(mfunc,'prt_machine_wip_cla') || ...
+                         strcmpi(mfunc,'prt_machine_sMKL_reg') || ...
+                          strcmpi(mfunc,'prt_machine_wip_reg')
                     if isempty(ibe)
                         m.args.betas = PRT.model(model_idx).output.fold(f).beta;
                     else
@@ -385,32 +391,36 @@ for p=0:maxp
         if flagmeeg % Only save non-NaN weights
             [path,fn] = fileparts(finimg_name{c});
             fnamedat = fullfile(path,[fn,'.dat']);
-            weightD = clone(hdr,fnamedat,[fin_dim, folds_comp]); % can be 2d or 3d
-            ichan = PRT.fs(fs_idx).modality(mm(1)).dim_m{1};
-            ifreq = PRT.fs(fs_idx).modality(mm(1)).dim_m{2};
-            itp = PRT.fs(fs_idx).modality(mm(1)).dim_m{3};
-            weightD(:,:,:,:) = squeeze(img4d{c}(ichan,ifreq,itp,:));
+            aa{1} = PRT.fs(fs_idx).modality(mm(1)).dim_m{1};
+            aa{2} = PRT.fs(fs_idx).modality(mm(1)).dim_m{2};
+            aa{3} = PRT.fs(fs_idx).modality(mm(1)).dim_m{3};
+            if any(PRT.fs(fs_idx).modality(mm(1)).aver) %average across at least 1 dimension
+                fin_dim(find(PRT.fs(fs_idx).modality(mm(1)).aver))=1;
+                aa{find(PRT.fs(fs_idx).modality(mm(1)).aver)}=aa{find(PRT.fs(fs_idx).modality(mm(1)).aver)}(1);
+            end
+            if ismember(2,find(fin_dim == 1)) %No frequency or averaged
+                fin_dim = [fin_dim(1) fin_dim(3)];
+            end
+            weightD = clone(hdr,fnamedat,[fin_dim, folds_comp]); 
+            tmp = squeeze(img4d{c}(aa{1},aa{2},aa{3},:));
+            weightD(:,:,:,:) = reshape(tmp,[fin_dim,folds_comp]);
             delete(img_nam{c});
             % Transfer knowledge about the data into weight object
             if PRT.fs(fs_idx).modality(mm(1)).aver(1) ~= 1
-                weightD = chanlabels(weightD,1:length(ichan),chanlabels(hdr,ichan));
-                weightD = chantype(weightD,1:length(ichan),chantype(hdr,ichan));
-                weightD = badchannels(weightD,1:length(ichan),badchannels(hdr,ichan));
-                weightD = coor2D(weightD,1:length(ichan),coor2D(hdr,ichan));
+                weightD = chanlabels(weightD,1:length(aa{1}),chanlabels(hdr,aa{1}));
+                weightD = chantype(weightD,1:length(aa{1}),chantype(hdr,aa{1}));
+                weightD = badchannels(weightD,1:length(aa{1}),badchannels(hdr,aa{1}));
+                weightD = coor2D(weightD,1:length(aa{1}),coor2D(hdr,aa{1}));
             else
                 weightD = chanlabels(weightD,1,'Average');
-                weightD = chantype(weightD,1,chantype(hdr,1));
+                weightD = chantype(weightD,1,chantype(hdr,aa{1}(1)));
             end
-            if PRT.fs(fs_idx).modality(mm(1)).aver(3) ~= 1
-                weightD = time(weightD,1:length(itp),time(hdr,itp));
-            else
-                weightD = time(weightD,1,time(hdr,itp(1)));
-            end
+            weightD = timeonset(weightD,time(hdr,min(aa{3})));
             if ~isempty(nfrequencies(hdr))
                 if PRT.fs(fs_idx).modality(mm(1)).aver(2) ~= 1
-                    weightD = frequency(weightD,1:length(ifreq),frequency(hdr,ifreq));
+                    weightD = frequencies(weightD,1:length(aa{2}),frequencies(hdr,aa{2}));
                 else
-                    weightD = frequency(weightD,1,frequency(hdr,ifreq(1)));
+                    weightD = frequencies(weightD,1,frequency(hdr,aa{2}(1)));
                 end
             end
             save(weightD);

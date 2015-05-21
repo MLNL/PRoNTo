@@ -60,7 +60,7 @@ function prt_ui_select_reg_new_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_select_reg_new (see VARARGIN)
 
-set(handles.figure1,'Name','PRoNTo :: Specify classes')
+set(handles.figure1,'Name','PRoNTo :: Select subjects/conditions for regression')
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
 if ispc
