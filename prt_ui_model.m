@@ -836,7 +836,7 @@ function edit_param_range_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit7 as a double
 vp = get(handles.edit_param_range,'String');
 try
-    p = eval(vp);
+    eval(['p = [' vp ']']);
 catch
     beep
     disp('Parameter range cannot be evaluated, please enter as min:step:max')
