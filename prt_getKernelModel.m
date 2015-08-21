@@ -1,4 +1,4 @@
-function [Phi_all,ID,fid] = prt_getKernelModel (PRT,prt_dir,mid)
+function [Phi_all,ID,fid] = prt_getKernelModel (PRT,prt_dir,mid,flag)
 
 % Function to load the kernels according to the samples considered in a 
 %given model. These kernels will be added if the machine is a single kernel
@@ -9,6 +9,7 @@ function [Phi_all,ID,fid] = prt_getKernelModel (PRT,prt_dir,mid)
 % PRT:             data structure
 % prt_dir:        path for PRT.mat (string)
 % mid :           index of model in the data structure/ PRT.mat
+% flag:           1 to compute one model for each kernel, 0 otherwise (def)
 %
 % Output:
 % --------
@@ -29,6 +30,10 @@ disp('Loading data files.....>>');
 
 samp_idx = PRT.model(mid).input.samp_idx;   % which samples are in the model
 Phi_all=[];
+
+if nargin<4 || isempty(flag)
+    flag = 0;
+end
 
 for i = 1:length(PRT.model(mid).input.fs)
     %Backwards compatibility with v0 and v1: transform kernel into cell if needed
@@ -62,31 +67,10 @@ for i = 1:length(PRT.model(mid).input.fs)
             if length(Phi)==1
                 Phi_all{1} = Phi{1}(samp_idx,samp_idx);
             else
-                %Check that if multiple kernels, MKL was selected,
-                %otherwise kernels will be added when calling prt_machine
-                 if isempty(strfind(PRT.model(mid).input.machine.function,'MKL')) &&...
-                         isempty(strfind(PRT.model(mid).input.machine.function,'wip'))
-                     warning('prt_cv_model:AddKernels',...
-                         'Multiple kernels but machine cannot deal with them, adding the kernels');
-                     Phi_tmp = zeros(length(samp_idx));
-                     for j=1:length(Phi)
-                         try
-                             %add kernels
-                             tp = Phi{j}(samp_idx,samp_idx);
-                             Phi_tmp=Phi_tmp + tp;
-                         catch
-                             error('prt_cv_model:KernelsWithDifferentDimensions', ...
-                                 'Kernels cannot be added since they have different dimensions')
-                         end
-                     end
-                     Phi_all{1} = Phi_tmp;
-                     clear Phi_tmp
-                 else
-                     Phi_all=cell(1,length(Phi));
-                     for j=1:length(Phi)
-                         Phi_all{j}=Phi{j}(samp_idx,samp_idx);
-                     end
-                 end
+                Phi_all=cell(1,length(Phi));
+                for j=1:length(Phi)
+                    Phi_all{j}=Phi{j}(samp_idx,samp_idx);
+                end
             end
         else
             error('training with features not implemented yet');
@@ -94,6 +78,28 @@ for i = 1:length(PRT.model(mid).input.fs)
             %eval(['Phi_all{',num2str(i),'}=',vname,'(samp_idx,:);']);
         end
     end
+    %Check that if multiple kernels, MKL was selected,
+    %otherwise kernels will be added when calling prt_machine
+    if length(Phi_all)>1 &&...                                                  %Multiple kernels
+            isempty(strfind(PRT.model(mid).input.machine.function,'MKL')) &&... %not simpleMKL
+            isempty(strfind(PRT.model(mid).input.machine.function,'wip')) &&... %not wip
+            ~flag                                                               %not independent models
+        warning('prt_getKernelModel:AddKernels',...
+            'Multiple kernels but machine cannot deal with them, adding the kernels');
+        Phi_tmp = zeros(length(samp_idx));
+        for j=1:length(Phi_all)
+            try
+                %add kernels
+                tp = Phi{j};
+                Phi_tmp=Phi_tmp + tp;
+            catch
+                error('prt_cv_model:KernelsWithDifferentDimensions', ...
+                    'Kernels cannot be added since they have different dimensions')
+            end
+        end
+        Phi_all{1} = Phi_tmp;
+        clear Phi_tmp
+    end  
 end
 clear Phi
 

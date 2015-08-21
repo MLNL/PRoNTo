@@ -203,10 +203,22 @@ catch
 end
 % get channels
 lchan = D.chanlabels;
+pre = '<HTML><FONT color="';
+post = '</FONT></HTML>';
+listboxStr = cell(numel(lchan),1);
+for i = 1:numel(lchan)
+    if ismember(i,D.badchannels)
+        col = [183 25 25];
+    else
+        col = [0 0 0];
+    end
+    str = [pre rgb2Hex(col) '">' lchan{i} post];
+    listboxStr{i} = str;
+end
 set(handles.uns_chan,'Value',1);
-set(handles.uns_chan,'String',lchan);
+set(handles.uns_chan,'String',listboxStr);
 set(handles.sel_chan,'String',{});
-handles.chanlist = lchan;
+handles.chanlist = listboxStr;
 handles.unsindx = [1:length(lchan)]';
 handles.selindx = [];
 set(handles.av_chan,'Value',0);
@@ -283,6 +295,9 @@ cc = get(handles.mult_tp_win,'ForegroundColor');
 set(handles.text6,'ForegroundColor',cc);
 % get the position of the channels in 2d
 handles.chanpos = D.coor2D';
+
+function hexStr = rgb2Hex( rgbColour )
+hexStr = reshape( dec2hex( rgbColour, 2 )',1, 6);
 
 
 % --- Executes on selection change in uns_chan.

@@ -202,7 +202,30 @@ switch n_par
         end
         
         ind = find(stats == opt_stats);
-        opt_stats_ind = round(median(ind));
+        if length(ind)>1
+            try % if user has the image processing toolbox
+                accmap = zeros(size(stats));
+                accmap(ind) = 1;
+                [L,nconn] = bwlabel(accmap);
+                stats = regionprops(L,{'centroid','area'});
+                maxar = stats(1).Area;
+                for i = 2:nconn
+                    if stats(i).Area>maxar
+                        maxar = stats(i).Area;
+                        indmax = i;
+                    end
+                end
+                opt_stats_ind = floor(stats(indmax).Centroid(1));
+            catch
+                iopt = floor(median(1:length(ind)));
+                opt_stats_ind = ind(iopt);
+            end
+        else % if only one maximum, report it
+            opt_stats_ind = ind;
+        end
+        
+%         opt_stats_ind = ind(1);
+%         opt_stats_ind = round(median(ind));
         
     case 2
         if classification
@@ -212,9 +235,40 @@ switch n_par
         end
         
         [ind_c, ind_mu] = find(stats==opt_stats);
+        indopt = find(stats==opt_stats);
         
-        opt_stats_ind(1) = round(median(ind_c));
-        opt_stats_ind(2) = round(median(ind_mu));
+        if length(indopt)>1
+            try % if user has the image processing toolbox
+                accmap = zeros(size(stats));
+                accmap(indopt) = 1;
+                [L,nconn] = bwlabel(accmap);
+                stats = regionprops(L,{'centroid','area'});
+                maxar = stats(1).Area;
+                indmax = 1;
+                for i = 2:nconn
+                    if stats(i).Area>maxar
+                        maxar = stats(i).Area;
+                        indmax = i;
+                    end
+                end
+                opt_stats_ind(1) = floor(stats(indmax).Centroid(2));
+                opt_stats_ind(2) = floor(stats(indmax).Centroid(1));
+            catch
+                iopt = floor(median(1:length(indopt)));
+                opt_stats_ind(1) = ind_c(iopt);
+                opt_stats_ind(2) = ind_mu(iopt);
+            end
+        else % if only one maximum, report it
+            opt_stats_ind(1) = ind_c;
+            opt_stats_ind(2) = ind_mu;
+        end
+        
+        
+%         opt_stats_ind(1) = ind_c(1); %smallest value
+%         opt_stats_ind(2) = ind_mu(1);
+        
+%         opt_stats_ind(1) = round(median(ind_c));
+%         opt_stats_ind(2) = round(median(ind_mu));
         
     otherwise
         error('The number of parameters to optimise must be <=2')

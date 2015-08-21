@@ -294,7 +294,8 @@ for p=0:maxp
                 end
                 
                 % Average data matrix along specified dimensions
-                if any(PRT.fs(fs_idx).modality(mm(1)).aver)
+                if isfield(PRT.fs(fs_idx).modality(mm(1)),'aver') && ...
+                        any(PRT.fs(fs_idx).modality(mm(1)).aver)
                     tmp = d.datamat';
                     tmp = reshape(tmp,[fin_dim(1) fin_dim(2) length(train)]);
                     dimta = find(PRT.fs(fs_idx).modality(mm(1)).aver); %dimensions to average

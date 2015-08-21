@@ -219,7 +219,8 @@ in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
 fid = prt_init_fs(handles.dat,in);
 if isfield(handles.dat.fs(fid),'atlas_name') && ...
         ~isempty(handles.dat.fs(fid).atlas_name) && ...
-        ~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL'))
+        (~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL')) || ...
+        ~isempty(strfind(handles.dat.model(im).input.machine.function,'wip')))
     if iscell(handles.dat.fs(fid).atlas_name)
         set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
     else
@@ -288,7 +289,8 @@ in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
 fid = prt_init_fs(handles.dat,in);
 if isfield(handles.dat.fs(fid),'atlas_name') && ...
         ~isempty(handles.dat.fs(fid).atlas_name) && ...
-        ~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL'))
+        (~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL')) || ...
+        ~isempty(strfind(handles.dat.model(im).input.machine.function,'wip')))
     if iscell(handles.dat.fs(fid).atlas_name)
         set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
     else
@@ -321,7 +323,8 @@ in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
 fid = prt_init_fs(handles.dat,in);
 if isfield(handles.dat.fs(fid),'atlas_name') && ...
         ~isempty(handles.dat.fs(fid).atlas_name) && ...
-        ~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL'))
+        (~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL')) || ...
+        ~isempty(strfind(handles.dat.model(im).input.machine.function,'wip')))
     if iscell(handles.dat.fs(fid).atlas_name)
         set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
     else

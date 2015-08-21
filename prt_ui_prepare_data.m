@@ -173,6 +173,11 @@ if n_mod==1
     else
         try
             tmp=prt_ui_prepare_dataMEEG('UserData',{handles.dat,indmeeg,handles.indmod});
+            if isempty(tmp)
+                disp('No data selected for feature extraction')
+                beep
+                return
+            end
             set(handles.num_mod,'Value',1)
             set(handles.num_mod,'String',1)
             set(handles.sel_mod,'String',{handles.dat.masks(indmeeg).mod_name})
