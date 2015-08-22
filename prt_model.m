@@ -123,7 +123,7 @@ end
 %% ------------------------------------------------------------------------
 % Private Functions
 % -------------------------------------------------------------------------
-function [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PRT, in, flag)
+function [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PRT, in, flag,subsample)
 % Function to compute the prediction targets. Also does some error checking
 
 % Set the reference feature set
@@ -282,8 +282,32 @@ for c = 1:nc
     end
 end
 
+if nargin>=4 && subsample
+    nc_count = hist(t_all(t_all~=0),unique(t_all(t_all~=0))); % count how many trials per class
+    ntk = min(nc_count);
+    for i = 1:nc
+        indnc = find(t_all==i);
+        % Randomly select BLOCKS of trials to match the number of lowest
+        % sample as close as possible, balancing the sub-categories.
+        if length(indnc) > ntk
+            indb = unique(ID(indnc,5));
+            nbcount = hist(ID(indnc,5),indb);
+            rs = randperm(length(indb));
+            [minrs,pivot] = min(abs(cumsum(nbcount(rs))-ntk));
+            disp(['Imbalanced for class ',num2str(i),':',num2str(minrs)])
+            if pivot<length(rs)
+                for j = pivot+1:length(indb)
+                    ii = find(ID(indnc,5)==rs(j));
+                    t_all(indnc(ii)) = 0;
+                    samp_all(indnc(ii)) = 0;
+                end
+            end
+        end
+    end
+end
+    
 samp_idx = find(t_all);
-samp_all = find(samp_all);
+samp_all = find(samp_all);    
 targets  = t_all(samp_idx);
 covar = cov_all(samp_idx);
 end
