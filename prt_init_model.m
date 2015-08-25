@@ -80,7 +80,7 @@ else
     PRT.model(mid).input.use_kernel = in.use_kernel;
     PRT.model(mid).input.type       = in.type;
     PRT.model(mid).input.machine    = in.machine;
-    
+       
     % Use nested CV to optimize hyperparameter?
     if isfield(in.cv,'nested')
         PRT.model(mid).input.use_nested_cv = in.cv.nested;
@@ -95,6 +95,20 @@ else
     else
         PRT.model(mid).input.use_nested_cv = 0;
         PRT.model(mid).input.nested_param  = [];
+    end
+    
+    % Subsample the examples?
+    if isfield(in,'subsample')
+        PRT.model(mid).input.subsample    = in.subsample;
+    else
+        PRT.model(mid).input.subsample    = 0;
+    end
+    
+    % Build one model per kernel?
+    if isfield(in,'indmodels')
+        PRT.model(mid).input.indmodels    = in.indmodels;
+    else
+        PRT.model(mid).input.indmodels    = 0;
     end
     
 end

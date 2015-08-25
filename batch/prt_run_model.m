@@ -71,12 +71,26 @@ end
 model.use_kernel = job.use_kernel;
 
 % insert feature set fields
+if ~isstruct(job.fsets)
+    model.fs(1).fs_name = job.fsets;
+else
+    for i = 1:length(job.fsets.fs_name)
+        model.fs(i).fs_name = job.fsets.fs_name{i};
+    end
+end
+modalities = [];
+for ii=1:length(model.fs)
+    fid = prt_init_fs(PRT,model.fs(ii));
+    mods = [PRT.fs(fid).modality(:).mod_name];
+    if ~iscellstr(mods) % Compatibility with version 1
+        mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
+    end
+    modalities = [modalities,mods];
+end
+mods = modalities;
 
-model.fs(1).fs_name = job.fsets;
-fid = prt_init_fs(PRT,model.fs(1));
-mods = [PRT.fs(fid).modality(:).mod_name];
-if ~iscellstr(mods) % Compatibility with version 1
-    mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
+if isstruct(job.fsets)
+    model.indmodels = job.fsets.indmodels;
 end
 
 % get the conditions which are common to all subjects from all groups
@@ -151,6 +165,7 @@ if isfield(job.model_type,'classification')
             end
         end
     end
+    
     % insert machine fields
     if isfield(job.model_type.classification.machine_cl,'svm')
         model.machine.function = 'prt_machine_svm_bin';
@@ -194,6 +209,11 @@ if isfield(job.model_type,'classification')
         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
         model.machine.function = nam;
         model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
+    end
+    
+    % Flag to subsample the classes according to lowest number of examples
+    if isfield(job.model_type.classification,'subsample')
+        model.subsample = job.model_type.classification.subsample;
     end
 
 elseif isfield(job.model_type,'regression')
@@ -315,6 +335,10 @@ elseif isfield(cv_struct,'cv_lobo')
     cv = struct('type','lobo','k',0);
 elseif isfield(cv_struct,'cv_lkbo')
     cv = struct('type','lobo','k',cv_struct.cv_lkbo.k_args);
+elseif isfield(cv_struct,'cv_locbo')
+    cv = struct('type','locbo','k',0);
+elseif isfield(cv_struct,'cv_lkcbo')
+    cv = struct('type','locbo','k',cv_struct.cv_lkcbo.k_args);
 elseif isfield(cv_struct,'cv_loro') % currently implemented for MCKR only
     cv = struct('type','loro');
 else

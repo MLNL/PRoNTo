@@ -52,6 +52,13 @@ if strcmp(in.type,'classification')
     end
 end
 
+if ~isfield(in,'subsample') % No subsampling of the trials by default
+    subsample = 0;
+else
+    subsample = in.subsample;
+end
+    
+
 for f = 1:length(in.fs)
     fid = prt_init_fs(PRT,in.fs(f));
     
@@ -68,10 +75,10 @@ end
 % compute targets and samp_idx
 % -------------------------------------------------------------------------
 if strcmp(in.type,'classification')
-    [targets, samp_idx, t_allscans, samp_allscans,covar,cov_all] = compute_targets(PRT, in, 0);
+    [targets, samp_idx, t_allscans, samp_allscans,covar,cov_all] = compute_targets(PRT, in, 0,subsample);
 else
  % One RT per trial
-    [targets, samp_idx, t_allscans,samp_allscans, covar,cov_all] = compute_targets(PRT, in, 1);
+    [targets, samp_idx, t_allscans,samp_allscans, covar,cov_all] = compute_targets(PRT, in, 1,subsample);
 end
 %[afm]
 if isfield(in,'include_allscans') && in.include_allscans   

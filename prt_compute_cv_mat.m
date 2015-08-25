@@ -284,7 +284,7 @@ switch in.cv.type
                 listcond = {in.class(ic).group(1).subj(1).modality(1).conds(:).cond_name}; %only conditions common to all subjects are presented
                 lmod=[];
                 for i=1:length(in.class(ic).group(1).subj(1).modality)
-                    lmod = [lmod,in.class(ic).group(1).subj(1).modality(i).mod_name(1)];
+                    lmod = [lmod,{in.class(ic).group(1).subj(1).modality(i).mod_name}];
                 end
                 ids = in.class(ic).group(1).subj(1).num;
                 gnames = {PRT.group(:).gr_name};
@@ -302,10 +302,19 @@ switch in.cv.type
                                     (ID(:,2)==in.class(ic).group(ng(ig)).subj(is).num) + ...
                                     (ID(:,3)==nm(im)) + ...
                                     (ID(:,4)==nc(icond)))/4);
-                                vcl(find(idx),1) = ic;
-                                vcl(find(idx),2) = ID(find(idx),5) + nbc;
+                                indcond = find(idx);
+                                vcl(indcond,1) = ic;
+                                nbl = unique(ID(indcond,5));
+                                cnt = 1;
+                                for ibl =1:length(nbl)
+                                    indbl = find(ID(indcond,5)== nbl(ibl));
+                                    vcl(indcond(indbl),2) = cnt + nbc;
+                                    cnt = cnt+1;
+                                end
+                                    
+%                                 vcl(find(idx),2) = ID(find(idx),5) + nbc;
                                 nbc = nbc + length(unique(ID(find(idx),5)));
-                            end
+                            end                                    
                         end
                     end
                 end

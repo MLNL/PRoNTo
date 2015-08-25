@@ -49,12 +49,12 @@ use_kernel.val     = {1};
 % ---------------------------------------------------------------------
 % all_features All features
 % ---------------------------------------------------------------------
-all_features         = cfg_const;
-all_features.tag     = 'all_features';
-all_features.name    = 'All Features';
-all_features.val     = {1};
-all_features.help    = {...
-    'Include all features from all modalities in this feature set'};
+% all_features         = cfg_const;
+% all_features.tag     = 'all_features';
+% all_features.name    = 'All Features';
+% all_features.val     = {1};
+% all_features.help    = {...
+%     'Include all features from all modalities in this feature set'};
 
 % ---------------------------------------------------------------------
 % fs_name Feature set name
@@ -62,41 +62,67 @@ all_features.help    = {...
 fs_name         = cfg_entry;
 fs_name.tag     = 'fs_name';
 fs_name.name    = 'Name';
-fs_name.help    = {'Name of a feature set. Must match design specification'};
+fs_name.help    = {['Enter the name of a feature set to include in this model. ',...
+                  'This can be kernel or a feature matrix. ', ...
+                  ]};
 fs_name.strtype = 's';
 fs_name.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
-% mod_name Modality name
+% indmodels Flag to perform one model per kernel
 % ---------------------------------------------------------------------
-mod_name         = cfg_entry;
-mod_name.tag     = 'mod_name';
-mod_name.name    = 'Modality name';
-mod_name.help    = {'Name of modality. Example: ''BOLD''. Must match design specification'};
-mod_name.strtype = 's';
-mod_name.num     = [1 Inf];
+indmodels         = cfg_menu;
+indmodels.tag     = 'indmodels';
+indmodels.name    = 'One model per kernel?';
+indmodels.help    = {...
+    ['Do you want to estimate one model per kernel? ', ...
+     'If ''No'' is selected, the kernels will be considered jointly. ',...
+     'If ''Yes'' is selected, the kernels will be considered independently.']};
+indmodels.labels  = {
+               'Yes'
+               'No'
+}';
+indmodels.values  = {0 1};
+indmodels.val     = {1};
 
 % ---------------------------------------------------------------------
-% fset Feature set
+% mod_name Modality name
 % ---------------------------------------------------------------------
+% mod_name         = cfg_entry;
+% mod_name.tag     = 'mod_name';
+% mod_name.name    = 'Modality name';
+% mod_name.help    = {'Name of modality. Example: ''BOLD''. Must match design specification'};
+% mod_name.strtype = 's';
+% mod_name.num     = [1 Inf];
+
+% % ---------------------------------------------------------------------
+% % fset Feature set
+% % ---------------------------------------------------------------------
 % fset         = cfg_branch;
 % fset.tag     = 'fset';
 % fset.name    = 'Feature set';
-% fset.help    = {'Feature set to include in this model'};
+% fset.help    = {'New feature set'};
 % fset.val     = {fs_name};
-            
+
 % ---------------------------------------------------------------------
-% fsets Feature sets
+% featureset Feature set names (v3.0: multiple allowed)
 % ---------------------------------------------------------------------
-fsets         = cfg_entry;
+featureset         = cfg_repeat;
+featureset.tag     = 'featureset';
+featureset.name    = 'Feature set name';
+featureset.help    = {['Add onefeature set to this model. Click ''new'' '...
+                    'or ''repeat'' to add another feature set.']};
+featureset.num     = [1 Inf];
+featureset.values     = {fs_name};
+
+% ---------------------------------------------------------------------
+% fsets Feature set(s)
+% ---------------------------------------------------------------------
+fsets         = cfg_branch;
 fsets.tag     = 'fsets';
 fsets.name    = 'Feature sets';
-fsets.help    = {['Enter the name of a feature set to include in this model. ',...
-                  'This can be kernel or a feature matrix. ', ...
-                  ]};
-fsets.num     = [1 Inf];
-%fsets.values  = {fsets};
-fsets.strtype  = 's';
+fsets.help    = {'Feature set(s) to include in this model.'};
+fsets.val     = {featureset, indmodels};
 
 % ---------------------------------------------------------------------
 % gr_name Group name
@@ -360,6 +386,28 @@ cv_lkbo.help    = {...
      'Appropriate for single subject designs.']};
  
 % ---------------------------------------------------------------------
+% cv_locbo Leave-one-block per class out
+% ---------------------------------------------------------------------
+cv_locbo         = cfg_const;
+cv_locbo.tag     = 'cv_locbo';
+cv_locbo.name    = 'Leave one block per class out';
+cv_locbo.val     = {1};
+cv_locbo.help    = {...
+    ['Leave out a single block or event from each class each iteration. ', ...
+     'Appropriate for single subject designs.']};
+
+% ---------------------------------------------------------------------
+% cv_lkcbo K-fold CV on blocks per class
+% ---------------------------------------------------------------------
+cv_lkcbo         = cfg_branch;
+cv_lkcbo.tag     = 'cv_lkcbo';
+cv_lkcbo.name    = 'k-folds CV on block per class';
+cv_lkcbo.val     = {k_args};
+cv_lkcbo.help    = {...
+    ['k-partitioning on blocks or events from each class each iteration. ', ...
+     'Appropriate for single subject designs.']};
+ 
+% ---------------------------------------------------------------------
 % cv_loro Leave--one-run-per-subject-out (leave one modality out per
 % subject)
 % ---------------------------------------------------------------------
@@ -390,7 +438,7 @@ cv_type        = cfg_choice;
 cv_type.tag    = 'cv_type';
 cv_type.name   = 'Cross-validation type';
 cv_type.values = {cv_loso, cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
-    cv_lkbo, cv_loro, cv_custom};
+    cv_lkbo, cv_locbo, cv_lkcbo, cv_loro, cv_custom};
 cv_type.val    = {cv_loso};
 cv_type.help   = {'Choose the type of cross-validation to be used'};
 
@@ -767,6 +815,24 @@ regression.name    = 'Regression';
 regression.help    = {'Add group data and machine for regression.'};
 regression.val     = {reggroups, machine_rg};
 
+
+% ---------------------------------------------------------------------
+% subsample : flag whether to subsample classes
+% ---------------------------------------------------------------------
+subsample         = cfg_menu;
+subsample.tag     = 'subsample';
+subsample.name    = 'Subsample examples based on class definition';
+subsample.help    = {['Whether to subsample the example, or not. '...
+    'If Yes, the code will match the number of examples in each class '...
+    'as close as possible. This operation takes the duration of the examples' ...
+    'into account (i.e. will not cut an event).']};
+subsample .labels  = {
+    'No'
+    'Yes'
+    }';
+subsample.values  = {0 1};
+subsample.val     = {0};
+
 % ---------------------------------------------------------------------
 % classes Classes
 % ---------------------------------------------------------------------
@@ -785,7 +851,7 @@ classification         = cfg_branch;
 classification.tag     = 'classification';
 classification.name    = 'Classification';
 classification.help    = {'Specify classes and machine for classification.'};
-classification.val     = {classes, machine_cl};
+classification.val     = {classes,subsample, machine_cl};
 
 % ---------------------------------------------------------------------
 % model_type Model type

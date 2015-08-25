@@ -7,8 +7,6 @@ function [outfile]=prt_cv_model(PRT,in)
 % PRT:             data structure
 % in.fname:        filename for PRT.mat (string)
 % in.model_name:   name for this model (string)
-% in.f_ind_models: compute models using the kernels independently (1) or
-%                  not (0, default)
 %
 % Outputs:
 % --------
@@ -68,21 +66,21 @@ else
 end
 fdata.nc = nc;
 
-if ~isfield(in,'f_ind_models')
-    flag = 0;
+if ~isfield(PRT.model(mid).input,'indmodels')
+    indmodels = 0;
 else
-    flag = in.f_ind_models;
+    indmodels = PRT.model(mid).input.indmodels;
 end
 
 
 %load kernels and get the used sample in this model
-[Phi_all,ID] = prt_getKernelModel(PRT,prt_dir,mid,flag);
+[Phi_all,ID] = prt_getKernelModel(PRT,prt_dir,mid,indmodels);
 
 
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
 PRT.model(mid).output=struct();
-if flag %loop over the kernels and output accuracy for each kernel only
+if indmodels %loop over the kernels and output accuracy for each kernel only
     nk = length(Phi_all);
 else
     nk = 1;
@@ -90,6 +88,9 @@ end
 
 % For each model
 for k = 1:nk
+    if nk>1
+        disp([' > Estimating model: ',num2str(k),' of ',num2str(nk),' ...'])
+    end
     PRT.model(mid).output(k).fold = struct();
     for f = 1:n_folds
         disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
@@ -97,7 +98,11 @@ for k = 1:nk
         fdata.ID      = ID;
         fdata.mid     = mid; %index of model
         fdata.CV      = CV(:,f);
-        fdata.Phi_all = Phi_all; %kernel(s)
+        if nk>1
+            fdata.Phi_all = Phi_all(k); %selected kernel for independent modelling
+        else
+            fdata.Phi_all = Phi_all; %all kernels
+        end
         fdata.t       = t; %targets
         if ~isempty(cov)
             fdata.cov = cov;

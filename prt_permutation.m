@@ -69,8 +69,13 @@ else
     t = PRT.model(modelid).input.targets;
     
     % load data files and configure ID matrix
-    [Phi_all,ID,fid] = prt_getKernelModel(PRT,prt_dir,modelid);
-
+    if ~isfield(PRT.model(modelid).input,'indmodels')
+        indmodels = 0;
+    else
+        indmodels = PRT.model(modelid).input.indmodels;
+    end
+    [Phi_all,ID,fid] = prt_getKernelModel(PRT,prt_dir,modelid,indmodels);
+    
     %get number of classes
     if strcmpi(PRT.model(modelid).input.type,'classification')
         nc=max(unique(t));
@@ -118,13 +123,13 @@ else
         end
     end
     
- 
+    
     
     % Initialize counts
     % -------------------------------------------------------------------------
-    switch PRT.model(modelid).output.fold(1).type
+    switch PRT.model(modelid).output(1).fold(1).type
         case 'classifier'
-            n_class = length(PRT.model(modelid).output.fold(1).stats.c_acc);
+            n_class = length(PRT.model(modelid).output(1).fold(1).stats.c_acc);
             total_greater_c_acc = zeros(n_class,1);
             total_greater_b_acc = 0;
             
@@ -137,151 +142,167 @@ else
     
     % Run model with permuted labels
     % -------------------------------------------------------------------------
-    if ~isfield(PRT.model(modelid).output,'permutation') || ...
-        (isfield(PRT.model(modelid).output,'permutation') && flag) %Back to empty to save other perm param
-        PRT.model(modelid).output.permutation=struct('fold',[]);
+    if indmodels %loop over the kernels and output accuracy for each kernel only
+        nk = length(Phi_all);
+    else
+        nk = 1;
     end
-    for p=1:n_perm
-        
-        disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
-        
-        % permute
-        chunkperm=randperm(length(chunks));
-        CVperm = zeros(size(CV));
-        t_perm = zeros(length(t),1);
-        for i=1:length(chunks)
-            t_perm(chunks{i},1)= unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)})); 
-            CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
+    
+    % For each model
+    for k = 1:nk
+        if nk>1
+            disp([' > Computing permutations for model: ',num2str(k),' of ',num2str(nk),' ...'])
         end
-                
-        for f = 1:n_folds
-            % configure data structure for prt_cv_fold
-            fdata.ID      = ID;
-            fdata.mid     = modelid;
-            fdata.CV      = CVperm(:,f);
-            fdata.Phi_all = Phi_all;
-            fdata.t       = t_perm;
+        if ~isfield(PRT.model(modelid).output(k),'permutation') || ...
+                (isfield(PRT.model(modelid).output(k),'permutation') && flag) %Back to empty to save other perm param
+            PRT.model(modelid).output(k).permutation=struct('fold',[]);
+        end
+        for p=1:n_perm
             
-            % Nested CV for hyper-parameter optimisation or feature selection
-            if isfield(PRT.model(modelid).input,'use_nested_cv')
-                if PRT.model(modelid).input.use_nested_cv
-                    [out] = prt_nested_cv(PRT, fdata);
-                    PRT.model(modelid).output.fold(f).param_effect = out;
-                    PRT.model(modelid).input.machine.args = out.opt_param;
-                end
+            disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
+            
+            % permute
+            chunkperm=randperm(length(chunks));
+            CVperm = zeros(size(CV));
+            t_perm = zeros(length(t),1);
+            for i=1:length(chunks)
+                t_perm(chunks{i},1)= unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)}));
+                CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
             end
             
-            [temp_model, targets] = prt_cv_fold(PRT,fdata);
-            
-            % save the weights per fold to further compute ranking distance
-            if flag
-                PRT.model(modelid).output.permutation(p).fold(f).alpha=temp_model.alpha;
-                PRT.model(modelid).output.permutation(p).fold(f).pred=temp_model.predictions;
-            end
-            
-            model.output.fold(f).predictions = temp_model.predictions;
-            model.output.fold(f).targets     = targets.test;
-            
-        end
-        
-        % Model level statistics (across folds)
-        t             = vertcat(model.output.fold(:).targets);
-        m.type        = PRT.model(modelid).output.fold(1).type;
-        m.predictions = vertcat(model.output.fold(:).predictions);
-        perm_stats         = prt_stats(m,t,t);
-        
-        
-        switch PRT.model(modelid).output.fold(1).type
-            
-            case 'classifier'
-                
-                permutation.b_acc(p)=perm_stats.b_acc;
-                n_class = length(PRT.model(modelid).output.fold(1).stats.c_acc);
-                
-                if (perm_stats.b_acc >= PRT.model(modelid).output.stats.b_acc)
-                    total_greater_b_acc=total_greater_b_acc+1;
+            for f = 1:n_folds
+                % configure data structure for prt_cv_fold
+                fdata.ID      = ID;
+                fdata.mid     = modelid;
+                fdata.CV      = CVperm(:,f);
+                if nk>1
+                    fdata.Phi_all = Phi_all(k); %selected kernel for independent modelling
+                else
+                    fdata.Phi_all = Phi_all; %all kernels
                 end
+                fdata.t       = t_perm;
                 
-                for c=1:n_class
-                    permutation.c_acc(c,p)=perm_stats.c_acc(c);
-                    if (perm_stats.c_acc(c) >= PRT.model(modelid).output.stats.c_acc(c))
-                        total_greater_c_acc(c)=total_greater_c_acc(c)+1;
+                % Nested CV for hyper-parameter optimisation or feature selection
+                if isfield(PRT.model(modelid).input,'use_nested_cv')
+                    if PRT.model(modelid).input.use_nested_cv
+                        [out] = prt_nested_cv(PRT, fdata);
+                        PRT.model(modelid).output(k).fold(f).param_effect = out;
+                        PRT.model(modelid).input.machine.args = out.opt_param;
                     end
                 end
                 
-            case 'regression'
-                permutation.corr(p)=perm_stats.corr;
-                if (perm_stats.corr >= PRT.model(modelid).output.stats.corr)
-                    total_greater_corr=total_greater_corr+1;
-                end
-                permutation.mse(p)=perm_stats.mse;
-                if (perm_stats.mse <= PRT.model(modelid).output.stats.mse)
-                    total_greater_mse=total_greater_mse+1;
-                end
-                permutation.nmse(p)=perm_stats.nmse;
-                if (perm_stats.nmse <= PRT.model(modelid).output.stats.nmse)
-                    total_greater_nmse=total_greater_nmse+1;
-                end
-                permutation.r2(p)=perm_stats.r2;
-                if (perm_stats.r2 >= PRT.model(modelid).output.stats.r2)
-                    total_greater_r2=total_greater_r2+1;
+                [temp_model, targets] = prt_cv_fold(PRT,fdata);
+                
+                % save the weights per fold to further compute ranking distance
+                if flag
+                    PRT.model(modelid).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
+                    PRT.model(modelid).output(k).permutation(p).fold(f).pred=temp_model.predictions;
                 end
                 
+                model.output.fold(f).predictions = temp_model.predictions;
+                model.output.fold(f).targets     = targets.test;
                 
+            end
+            
+            % Model level statistics (across folds)
+            t             = vertcat(model.output.fold(:).targets);
+            m.type        = PRT.model(modelid).output(k).fold(1).type;
+            m.predictions = vertcat(model.output.fold(:).predictions);
+            perm_stats         = prt_stats(m,t,t);
+            
+            
+            switch PRT.model(modelid).output(k).fold(1).type
+                
+                case 'classifier'
+                    
+                    permutation.b_acc(p)=perm_stats.b_acc;
+                    n_class = length(PRT.model(modelid).output(k).fold(1).stats.c_acc);
+                    
+                    if (perm_stats.b_acc >= PRT.model(modelid).output(k).stats.b_acc)
+                        total_greater_b_acc=total_greater_b_acc+1;
+                    end
+                    
+                    for c=1:n_class
+                        permutation.c_acc(c,p)=perm_stats.c_acc(c);
+                        if (perm_stats.c_acc(c) >= PRT.model(modelid).output(k).stats.c_acc(c))
+                            total_greater_c_acc(c)=total_greater_c_acc(c)+1;
+                        end
+                    end
+                    
+                case 'regression'
+                    permutation.corr(p)=perm_stats.corr;
+                    if (perm_stats.corr >= PRT.model(modelid).output(k).stats.corr)
+                        total_greater_corr=total_greater_corr+1;
+                    end
+                    permutation.mse(p)=perm_stats.mse;
+                    if (perm_stats.mse <= PRT.model(modelid).output(k).stats.mse)
+                        total_greater_mse=total_greater_mse+1;
+                    end
+                    permutation.nmse(p)=perm_stats.nmse;
+                    if (perm_stats.nmse <= PRT.model(modelid).output(k).stats.nmse)
+                        total_greater_nmse=total_greater_nmse+1;
+                    end
+                    permutation.r2(p)=perm_stats.r2;
+                    if (perm_stats.r2 >= PRT.model(modelid).output(k).stats.r2)
+                        total_greater_r2=total_greater_r2+1;
+                    end
+                    
+                    
+            end
         end
-    end
-    
-    switch PRT.model(modelid).output.fold(1).type
-        case 'classifier'
-            
-            pval_b_acc = total_greater_b_acc / n_perm;
-            if pval_b_acc == 0
-                pval_b_acc = 1./n_perm;
-            end
-            
-            pval_c_acc=zeros(n_class,1);
-            for c=1:n_class
-                pval_c_acc(c) = total_greater_c_acc(c) / n_perm;
-                if pval_c_acc(c) == 0
-                    pval_c_acc(c) = 1./n_perm;
+        
+        switch PRT.model(modelid).output(k).fold(1).type
+            case 'classifier'
+                
+                pval_b_acc = total_greater_b_acc / n_perm;
+                if pval_b_acc == 0
+                    pval_b_acc = 1./n_perm;
                 end
-            end
-            
-            permutation.pvalue_b_acc = pval_b_acc;
-            permutation.pvalue_c_acc = pval_c_acc;
-            
-        case 'regression'
-            
-            pval_corr = total_greater_corr / n_perm;
-            if pval_corr == 0
-                pval_corr = 1./n_perm;
-            end
-            
-            pval_mse = total_greater_mse / n_perm;
-            if pval_mse == 0
-                pval_mse = 1./n_perm;
-            end
-            
-            pval_nmse = total_greater_nmse / n_perm;
-            if pval_nmse == 0
-                pval_nmse = 1./n_perm;
-            end
-            
-            pval_r2 = total_greater_r2 / n_perm;
-            if pval_r2 == 0
-                pval_r2 = 1./n_perm;
-            end
-            
-            permutation.pval_corr = pval_corr;
-            permutation.pval_mse = pval_mse;
-            permutation.pval_nmse = pval_nmse;
-            permutation.pval_r2 = pval_r2;
+                
+                pval_c_acc=zeros(n_class,1);
+                for c=1:n_class
+                    pval_c_acc(c) = total_greater_c_acc(c) / n_perm;
+                    if pval_c_acc(c) == 0
+                        pval_c_acc(c) = 1./n_perm;
+                    end
+                end
+                
+                permutation.pvalue_b_acc = pval_b_acc;
+                permutation.pvalue_c_acc = pval_c_acc;
+                
+            case 'regression'
+                
+                pval_corr = total_greater_corr / n_perm;
+                if pval_corr == 0
+                    pval_corr = 1./n_perm;
+                end
+                
+                pval_mse = total_greater_mse / n_perm;
+                if pval_mse == 0
+                    pval_mse = 1./n_perm;
+                end
+                
+                pval_nmse = total_greater_nmse / n_perm;
+                if pval_nmse == 0
+                    pval_nmse = 1./n_perm;
+                end
+                
+                pval_r2 = total_greater_r2 / n_perm;
+                if pval_r2 == 0
+                    pval_r2 = 1./n_perm;
+                end
+                
+                permutation.pval_corr = pval_corr;
+                permutation.pval_mse = pval_mse;
+                permutation.pval_nmse = pval_nmse;
+                permutation.pval_r2 = pval_r2;
+        end
+        
+        
+        
+        %update PRT
+        PRT.model(modelid).output(k).stats.permutation = permutation;
     end
-    
-    
-    
-    %update PRT
-    PRT.model(modelid).output.stats.permutation = permutation;
     
     % Save PRT containing machine output
     % -------------------------------------------------------------------------
