@@ -27,7 +27,7 @@ for m = models
         error('Models must be of the same type (classification or regression).');
     end
     if length(PRT.model(models(1)).output.fold) ~= length(PRT.model(m).output.fold)
-        error('Models must be of the same number of folds.');
+        error('Models must have the same number of folds.');
     end
 end
 
@@ -56,8 +56,8 @@ if strcmp(PRT.model(models(1)).input.type, 'classification')
         end
     end
     
-    p.acc = friedman(acc, size(acc,2), 'off');
-    p.b_acc = friedman(b_acc, size(b_acc,2), 'off');
+    p.acc = friedman(acc, 1, 'off');
+    p.b_acc = friedman(b_acc, 1, 'off');
     
 elseif strcmp(PRT.model(models(1)).input.type, 'regression')
     
@@ -75,14 +75,14 @@ elseif strcmp(PRT.model(models(1)).input.type, 'regression')
         end
     end
     
-    p.corr = friedman(corr, size(corr,2), 'off');
-    p.r2 = friedman(r2, size(r2,2), 'off');
-    p.mse = friedman(mse, size(mse,2), 'off');
-    p.nmse = friedman(nmse, size(nmse,2), 'off');
+    p.corr = friedman(corr, 1, 'off');
+    p.r2 = friedman(r2, 1, 'off');
+    p.mse = friedman(mse, 1, 'off');
+    p.nmse = friedman(nmse, 1, 'off');
     
     
 else
-    erro('Unknown model type.')
+    error('Unknown model type.')
 end
 
 
