@@ -70,7 +70,7 @@ else
     
     % load data files and configure ID matrix
     [Phi_all,ID,fid] = prt_getKernelModel(PRT,prt_dir,modelid);
-
+    
     %get number of classes
     if strcmpi(PRT.model(modelid).input.type,'classification')
         nc=max(unique(t));
@@ -118,7 +118,7 @@ else
         end
     end
     
- 
+    
     
     % Initialize counts
     % -------------------------------------------------------------------------
@@ -138,22 +138,36 @@ else
     % Run model with permuted labels
     % -------------------------------------------------------------------------
     if ~isfield(PRT.model(modelid).output,'permutation') || ...
-        (isfield(PRT.model(modelid).output,'permutation') && flag) %Back to empty to save other perm param
+            (isfield(PRT.model(modelid).output,'permutation') && flag) %Back to empty to save other perm param
         PRT.model(modelid).output.permutation=struct('fold',[]);
+    end
+    
+    if ~isfield(PRT.model(modelid).output,'perm_mat') || ...
+            size(PRT.model(modelid).output.perm_mat,2) ~= n_perm
+        PRT.model(modelid).output.perm_mat = nan(length(chunks), n_perm);
+        display('Creating new permutation matrix.');
     end
     for p=1:n_perm
         
         disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
         
         % permute
-        chunkperm=randperm(length(chunks));
+        if sum(isnan(PRT.model(modelid).output.perm_mat(:,p)))>0
+            chunkperm=randperm(length(chunks));
+            PRT.model(modelid).output.perm_mat(:,p) = chunkperm;
+        else
+            chunkperm = PRT.model(modelid).output.perm_mat(:,p);
+        end
+        
         CVperm = zeros(size(CV));
         t_perm = zeros(length(t),1);
         for i=1:length(chunks)
-            t_perm(chunks{i},1)= unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)})); 
+            t_perm(chunks{i},1)= unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)}));
             CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
         end
-                
+        
+
+        
         for f = 1:n_folds
             % configure data structure for prt_cv_fold
             fdata.ID      = ID;
