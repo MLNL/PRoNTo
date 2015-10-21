@@ -276,7 +276,7 @@ switch in.cv.type
         % leave-one-block-per-class-out
         %modify the ID to take the structure of the classes into account
         vcl=zeros(size(ID,1),2);
-        
+        perm = cell(length(in.class),1);
         % For each class, identify subjects and conditions selected
         if isfield(in,'class') 
             nsb=0;
@@ -310,11 +310,21 @@ switch in.cv.type
                                     indbl = find(ID(indcond,5)== nbl(ibl));
                                     vcl(indcond(indbl),2) = cnt + nbc;
                                     cnt = cnt+1;
-                                end
-                                    
+                                end 
 %                                 vcl(find(idx),2) = ID(find(idx),5) + nbc;
                                 nbc = nbc + length(unique(ID(find(idx),5)));
-                            end                                    
+                            end
+                            if length(nc)>1 % Want to shuffle sub-categories into the folds
+                                idxtk = find(vcl(:,1)==ic);
+                                idxb = unique(vcl(idxtk,2));
+                                perm{ic} = randperm(length(idxb));
+                                temp = zeros(length(idxtk),1);
+                                for ibl =1:length(idxb)
+                                    indbl = find(vcl(idxtk,2)== idxb(ibl));
+                                    temp(indbl,1) = perm{ic}(ibl);
+                                end
+                                vcl(idxtk,2) = temp;
+                            end
                         end
                     end
                 end
@@ -409,6 +419,12 @@ switch in.cv.type
             if length(unique(sk))<size(CV,2)  %smaller group, fill with 'train'
                 CV(is,length(unique(sk))+1:size(CV,2))= ...
                     ones(length(find(is)),length(length(unique(sk))+1:size(CV,2)));
+            end
+            if ~isempty(perm{g}) % Shuffling train-test across sub-categories 
+                isg = find(is);
+                %within a class to avoid (e.g.) 1st fold to be all faces as test, 
+                %2nd fold to be all buildings as test, ...
+                CV(isg,1:max(sk)) = CV(isg(vcl(is,2)),1:max(sk));
             end
             if flaghh
                 CV=CV(:,1);

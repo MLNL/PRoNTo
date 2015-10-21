@@ -149,7 +149,7 @@ else
     end
     
     % For each model
-    for k = 1:nk
+    for k = nk:-1:1
         if nk>1
             disp([' > Computing permutations for model: ',num2str(k),' of ',num2str(nk),' ...'])
         end
@@ -302,6 +302,16 @@ else
         
         %update PRT
         PRT.model(modelid).output(k).stats.permutation = permutation;
+        
+        % Save PRT containing machine output
+        % -------------------------------------------------------------------------
+        outfile = fullfile(path,'PRT.mat');
+        disp('Updating PRT.mat.......>>')
+        if spm_check_version('MATLAB','7') < 0
+            save(outfile,'-V6','PRT');
+        else
+            save(outfile,'PRT');
+        end
     end
     
     % Save PRT containing machine output

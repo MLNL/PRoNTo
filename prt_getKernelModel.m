@@ -90,14 +90,14 @@ for i = 1:length(PRT.model(mid).input.fs)
         for j=1:length(Phi_all)
             try
                 %add kernels
-                tp = Phi{j};
+                tp = Phi_all{j};
                 Phi_tmp=Phi_tmp + tp;
             catch
                 error('prt_cv_model:KernelsWithDifferentDimensions', ...
                     'Kernels cannot be added since they have different dimensions')
             end
         end
-        Phi_all{1} = Phi_tmp;
+        Phi_all = {Phi_tmp};
         clear Phi_tmp
     end  
 end

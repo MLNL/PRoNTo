@@ -82,8 +82,8 @@ indmodels.labels  = {
                'Yes'
                'No'
 }';
-indmodels.values  = {0 1};
-indmodels.val     = {1};
+indmodels.values  = {1 0};
+indmodels.val     = {0};
 
 % ---------------------------------------------------------------------
 % mod_name Modality name
