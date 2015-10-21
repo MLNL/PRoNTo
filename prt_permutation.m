@@ -186,7 +186,6 @@ else
                 if isfield(PRT.model(modelid).input,'use_nested_cv')
                     if PRT.model(modelid).input.use_nested_cv
                         [out] = prt_nested_cv(PRT, fdata);
-                        PRT.model(modelid).output(k).fold(f).param_effect = out;
                         PRT.model(modelid).input.machine.args = out.opt_param;
                     end
                 end
