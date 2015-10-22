@@ -160,16 +160,7 @@ else
         for p=1:n_perm
             
 
- %           disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
-
-            % Nested CV for hyper-parameter optimisation or feature selection
-            if isfield(PRT.model(modelid).input,'use_nested_cv')
-                if PRT.model(modelid).input.use_nested_cv
-                    [out] = prt_nested_cv(PRT, fdata);
-                    PRT.model(modelid).input.machine.args = out.opt_param;
-                end
-            end
-
+            disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
             
             % permute
             chunkperm=randperm(length(chunks));
