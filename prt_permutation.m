@@ -3,11 +3,12 @@ function [] = prt_permutation(PRT, n_perm, modelid, path, flag)
 %
 % Inputs:
 % -------
-% PRT:     PRT structured including model
+% PRT:     PRT structure including model
 % n_perm:  number of permutations
-% modelid: model ID
+% modelid: model ID for model to test and model to copy permutations from
+%         (optional). Can hence be of size 1x1 or 1x2.
 % path:    path
-% flag:    boolean variable. set to 1 to save the weights for each
+% flag:    boolean variable. set to 1 to save the outputs for each
 %          permutation. default: 0
 %
 % Outputs:
@@ -53,7 +54,7 @@ else
     end
     
     % configure some variables
-    CV       = PRT.model(modelid).input.cv_mat;     % CV matrix
+    CV       = PRT.model(modelid(1)).input.cv_mat;     % CV matrix
     n_folds  = size(CV,2);                      % number of CV folds
     
     % parralel code?
@@ -66,18 +67,18 @@ else
     end
     
     % targets
-    t = PRT.model(modelid).input.targets;
+    t = PRT.model(modelid(1)).input.targets;
     
     % load data files and configure ID matrix
-    if ~isfield(PRT.model(modelid).input,'indmodels')
+    if ~isfield(PRT.model(modelid(1)).input,'indmodels')
         indmodels = 0;
     else
-        indmodels = PRT.model(modelid).input.indmodels;
+        indmodels = PRT.model(modelid(1)).input.indmodels;
     end
-    [Phi_all,ID,fid] = prt_getKernelModel(PRT,prt_dir,modelid,indmodels);
+    [Phi_all,ID,fid] = prt_getKernelModel(PRT,prt_dir,modelid(1),indmodels);
     
     %get number of classes
-    if strcmpi(PRT.model(modelid).input.type,'classification')
+    if strcmpi(PRT.model(modelid(1)).input.type,'classification')
         nc=max(unique(t));
     else
         nc=[];
@@ -87,7 +88,7 @@ else
     % Find chunks in the data (e.g. temporal correlated samples)
     % -------------------------------------------------------------------------
     
-    ids = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
+    ids = PRT.fs(fid).id_mat(PRT.model(modelid(1)).input.samp_idx,:);
     i=1;
     samp_g=unique(ids(:,1));%number of groups
     for gid = 1: length(samp_g)
@@ -127,9 +128,9 @@ else
     
     % Initialize counts
     % -------------------------------------------------------------------------
-    switch PRT.model(modelid).output(1).fold(1).type
+    switch PRT.model(modelid(1)).output(1).fold(1).type
         case 'classifier'
-            n_class = length(PRT.model(modelid).output(1).fold(1).stats.c_acc);
+            n_class = length(PRT.model(modelid(1)).output(1).fold(1).stats.c_acc);
             total_greater_c_acc = zeros(n_class,1);
             total_greater_b_acc = 0;
             
@@ -149,42 +150,62 @@ else
     end
     
     % For each model
-    for k = nk:-1:1
+    flag_use_perms = 0;
+    for k = 1:nk
         if nk>1
             disp([' > Computing permutations for model: ',num2str(k),' of ',num2str(nk),' ...'])
         end
-        if ~isfield(PRT.model(modelid).output(k),'permutation') || ...
-                (isfield(PRT.model(modelid).output(k),'permutation') && flag) %Back to empty to save other perm param
-            PRT.model(modelid).output(k).permutation=struct('fold',[]);
+        if ~isfield(PRT.model(modelid(1)).output(k),'permutation') || ...
+                (isfield(PRT.model(modelid(1)).output(k),'permutation') && flag) %Back to empty to save other perm param
+            PRT.model(modelid(1)).output(k).permutation=struct('fold',[],...
+                'perm_stats',[],'perm_mat',[]);
+            if length(modelid) == 2 % model specified to copy permutations from
+                if isfield(PRT.model(modelid(2)).output(1),'permutation') &&...
+                        isfield(PRT.model(modelid(2)).output(1).permutation,'perm_mat')
+                    if length(PRT.model(modelid(2)).output(1).permutation(1).perm_mat) == size(ids,1)
+                        if length(PRT.model(modelid(2)).output(1).permutation) ~= n_perm
+                            fprintf('Number of permutations %d replaced by number of permutations in model %s',n_perm,PRT.model(modelid(2)).model_name)
+                            n_perm = length(PRT.model(modelid(2)).output(1).permutation);
+                        end
+                        flag_use_perms = 1;
+                    else
+                        warning('prt_permutation:CannotCopyPermutations',...
+                            'Number of selected samples is not consistent between the 2 models to compare')
+                        disp('Performing permutations without copying from selected model')
+                    end
+                end
+            end                  
         end
-        if ~isfield(PRT.model(modelid).output(k),'perm_mat') || ...
-                size(PRT.model(modelid).output(k).perm_mat,2) ~= n_perm
-            PRT.model(modelid).output(k).perm_mat = nan(length(chunks), n_perm);
-            display('Creating new permutation matrix.');
-        end
+        
+        fprintf(['Permutation (out of %d):',repmat(' ',1,log10(n_perm)),'%d'],n_perm, 1);
         for p=1:n_perm
             
-
-            disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
+            % Counter of permutations to be updated
+            if p>1
+                for idisp = 1:ceil(log10(p)) % delete previous counter display
+                    fprintf('\b');
+                end
+                fprintf('%d',p);
+            end
             
             % permute
-            if sum(isnan(PRT.model(modelid).output(k).perm_mat(:,p)))>0
+            if ~flag_use_perms
                 chunkperm=randperm(length(chunks));
-                PRT.model(modelid).output(k).perm_mat(:,p) = chunkperm;
             else
-                chunkperm = PRT.model(modelid).output(k).perm_mat(:,p);
+                chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
             end
+            
             CVperm = zeros(size(CV));
             t_perm = zeros(length(t),1);
             for i=1:length(chunks)
-                t_perm(chunks{i},1)= unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)}));
+                t_perm(chunks{i},1)= unique(PRT.model(modelid(1)).input.targets(chunks{chunkperm(i)}));
                 CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
             end
             
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
                 fdata.ID      = ID;
-                fdata.mid     = modelid;
+                fdata.mid     = modelid(1);
                 fdata.CV      = CVperm(:,f);
                 if nk>1
                     fdata.Phi_all = Phi_all(k); %selected kernel for independent modelling
@@ -194,10 +215,10 @@ else
                 fdata.t       = t_perm;
                 
                 % Nested CV for hyper-parameter optimisation or feature selection
-                if isfield(PRT.model(modelid).input,'use_nested_cv')
-                    if PRT.model(modelid).input.use_nested_cv
+                if isfield(PRT.model(modelid(1)).input,'use_nested_cv')
+                    if PRT.model(modelid(1)).input.use_nested_cv
                         [out] = prt_nested_cv(PRT, fdata);
-                        PRT.model(modelid).input.machine.args = out.opt_param;
+                        PRT.model(modelid(1)).input.machine.args = out.opt_param;
                     end
                 end
                 
@@ -205,8 +226,8 @@ else
                 
                 % save the weights per fold to further compute ranking distance
                 if flag
-                    PRT.model(modelid).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
-                    PRT.model(modelid).output(k).permutation(p).fold(f).pred=temp_model.predictions;
+                    PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
+                    PRT.model(modelid(1)).output(k).permutation(p).fold(f).pred=temp_model.predictions;
                 end
                 
                 model.output.fold(f).predictions = temp_model.predictions;
@@ -216,52 +237,58 @@ else
             
             % Model level statistics (across folds)
             t             = vertcat(model.output.fold(:).targets);
-            m.type        = PRT.model(modelid).output(k).fold(1).type;
+            m.type        = PRT.model(modelid(1)).output(k).fold(1).type;
             m.predictions = vertcat(model.output.fold(:).predictions);
             perm_stats         = prt_stats(m,t,t);
             
             
-            switch PRT.model(modelid).output(k).fold(1).type
+            switch PRT.model(modelid(1)).output(k).fold(1).type
                 
                 case 'classifier'
                     
                     permutation.b_acc(p)=perm_stats.b_acc;
-                    n_class = length(PRT.model(modelid).output(k).fold(1).stats.c_acc);
+                    n_class = length(PRT.model(modelid(1)).output(k).fold(1).stats.c_acc);
                     
-                    if (perm_stats.b_acc >= PRT.model(modelid).output(k).stats.b_acc)
+                    if (perm_stats.b_acc >= PRT.model(modelid(1)).output(k).stats.b_acc)
                         total_greater_b_acc=total_greater_b_acc+1;
                     end
                     
                     for c=1:n_class
                         permutation.c_acc(c,p)=perm_stats.c_acc(c);
-                        if (perm_stats.c_acc(c) >= PRT.model(modelid).output(k).stats.c_acc(c))
+                        if (perm_stats.c_acc(c) >= PRT.model(modelid(1)).output(k).stats.c_acc(c))
                             total_greater_c_acc(c)=total_greater_c_acc(c)+1;
                         end
                     end
                     
                 case 'regression'
                     permutation.corr(p)=perm_stats.corr;
-                    if (perm_stats.corr >= PRT.model(modelid).output(k).stats.corr)
+                    if (perm_stats.corr >= PRT.model(modelid(1)).output(k).stats.corr)
                         total_greater_corr=total_greater_corr+1;
                     end
                     permutation.mse(p)=perm_stats.mse;
-                    if (perm_stats.mse <= PRT.model(modelid).output(k).stats.mse)
+                    if (perm_stats.mse <= PRT.model(modelid(1)).output(k).stats.mse)
                         total_greater_mse=total_greater_mse+1;
                     end
                     permutation.nmse(p)=perm_stats.nmse;
-                    if (perm_stats.nmse <= PRT.model(modelid).output(k).stats.nmse)
+                    if (perm_stats.nmse <= PRT.model(modelid(1)).output(k).stats.nmse)
                         total_greater_nmse=total_greater_nmse+1;
                     end
                     permutation.r2(p)=perm_stats.r2;
-                    if (perm_stats.r2 >= PRT.model(modelid).output(k).stats.r2)
+                    if (perm_stats.r2 >= PRT.model(modelid(1)).output(k).stats.r2)
                         total_greater_r2=total_greater_r2+1;
                     end
                     
                     
             end
+            
+            if flag
+                PRT.model(modelid(1)).output(k).permutation(p).perm_mat = chunkperm';
+                PRT.model(modelid(1)).output(k).permutation(p).perm_stats = perm_stats;
+            end
         end
+        fprintf('\n') % new line after each model
         
-        switch PRT.model(modelid).output(k).fold(1).type
+        switch PRT.model(modelid(1)).output(k).fold(1).type
             case 'classifier'
                 
                 pval_b_acc = total_greater_b_acc / n_perm;
@@ -311,7 +338,7 @@ else
         
         
         %update PRT
-        PRT.model(modelid).output(k).stats.permutation = permutation;
+        PRT.model(modelid(1)).output(k).stats.permutation = permutation;
         
         % Save PRT containing machine output
         % -------------------------------------------------------------------------
