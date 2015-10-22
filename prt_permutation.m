@@ -157,13 +157,23 @@ else
                 (isfield(PRT.model(modelid).output(k),'permutation') && flag) %Back to empty to save other perm param
             PRT.model(modelid).output(k).permutation=struct('fold',[]);
         end
+        if ~isfield(PRT.model(modelid).output(k),'perm_mat') || ...
+                size(PRT.model(modelid).output(k).perm_mat,2) ~= n_perm
+            PRT.model(modelid).output(k).perm_mat = nan(length(chunks), n_perm);
+            display('Creating new permutation matrix.');
+        end
         for p=1:n_perm
             
 
             disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
             
             % permute
-            chunkperm=randperm(length(chunks));
+            if sum(isnan(PRT.model(modelid).output(k).perm_mat(:,p)))>0
+                chunkperm=randperm(length(chunks));
+                PRT.model(modelid).output(k).perm_mat(:,p) = chunkperm;
+            else
+                chunkperm = PRT.model(modelid).output(k).perm_mat(:,p);
+            end
             CVperm = zeros(size(CV));
             t_perm = zeros(length(t),1);
             for i=1:length(chunks)
