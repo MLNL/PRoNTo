@@ -80,7 +80,7 @@ for i = 1: length(modelid)-1
         model2 = [perm(:,j);true_vals(j)];
         diffmodperm = abs(model1 - model2);
         diffmod = abs(true_vals(i) - true_vals(j));
-        p_values(idxpval) = length(find(diffmodperm>=diffmod))/(length(diffmodperm)+1);
+        p_values(idxpval) = length(find(diffmodperm>=diffmod))/(length(diffmodperm));
         idxpval = idxpval + 1;
     end
 end
