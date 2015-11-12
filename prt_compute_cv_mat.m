@@ -284,7 +284,7 @@ switch in.cv.type
                 listcond = {in.class(ic).group(1).subj(1).modality(1).conds(:).cond_name}; %only conditions common to all subjects are presented
                 lmod=[];
                 for i=1:length(in.class(ic).group(1).subj(1).modality)
-                    lmod = [lmod,{in.class(ic).group(1).subj(1).modality(i).mod_name}];
+                    lmod = [lmod,in.class(ic).group(1).subj(1).modality(i).mod_name];
                 end
                 ids = in.class(ic).group(1).subj(1).num;
                 gnames = {PRT.group(:).gr_name};
