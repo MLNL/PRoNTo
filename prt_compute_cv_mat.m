@@ -276,9 +276,9 @@ switch in.cv.type
         % leave-one-block-per-class-out
         %modify the ID to take the structure of the classes into account
         vcl=zeros(size(ID,1),2);
-        perm = cell(length(in.class),1);
         % For each class, identify subjects and conditions selected
         if isfield(in,'class') 
+            perm = cell(length(in.class),1);
             nsb=0;
             for ic=1:length(in.class)
                 listcond = {in.class(ic).group(1).subj(1).modality(1).conds(:).cond_name}; %only conditions common to all subjects are presented
@@ -348,6 +348,7 @@ switch in.cv.type
 %             end
         elseif isfield(in,'t')
             ntar = unique(in.t);
+            perm = cell(numel(ntar),1);
             ns=zeros(length(ntar),1);
             for ic = 1:length(ntar)
                 nsb = 1;
@@ -366,6 +367,17 @@ switch in.cv.type
                             vcl(inds(imi(igi(inss))),2) = nsb;
                             nsb = nsb + 1;
                         end
+                    end
+                    if length(ngi)>1 % Want to shuffle sub-categories into the folds
+                        idxtk = find(vcl(:,1)==ic);
+                        idxb = unique(vcl(idxtk,2));
+                        perm{ic} = randperm(length(idxb));
+                        temp = zeros(length(idxtk),1);
+                        for ibl =1:length(idxb)
+                            indbl = find(vcl(idxtk,2)== idxb(ibl));
+                            temp(indbl,1) = perm{ic}(ibl);
+                        end
+                        vcl(idxtk,2) = temp;
                     end
                 end
             end
