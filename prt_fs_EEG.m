@@ -230,13 +230,13 @@ if spm_check_version('matlab','7') < 0
     save(outfile,'-V6','PRT');
     save(fs_file,'-V6','Phi');
 else
-    try
-        save(outfile,'PRT');
-        save(fs_file,'Phi');
-    catch
+%     try
+%         save(outfile,'PRT');
+%         save(fs_file,'Phi');
+%     catch
         save(outfile,'-v7.3','PRT');
         save(fs_file,'-v7.3','Phi');
-    end
+%     end
 end
 disp('Done.')
 
