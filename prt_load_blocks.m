@@ -38,8 +38,8 @@ if strcmpi(ext,'.mat')
             dm = [dm(1) 1 dm(2) dm(3)];
             flagi = 1;
         end % handling non t-f
-        n_vol = dm(4) - length(D.badtrials);
-        isgood = setdiff([1:dm(4)],badtrials(D));
+        n_vol = dm(4); % - length(D.badtrials)
+%         isgood = setdiff([1:dm(4)],badtrials(D));
     catch
         error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
     end 
@@ -53,7 +53,7 @@ else
         else
             n_vol = dm(4);
         end
-        isgood = 1:n_vol;
+%         isgood = 1:n_vol;
     catch
         error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
     end
@@ -73,8 +73,8 @@ if n_vol==1 && ~isempty(N) && isempty(D)
         block(:,i) = N(i).dat(data_range);
     end
 else
-    cnt = 1;
-    for i=isgood        
+%     cnt = 1;
+    for i=1:n_vol%isgood        
         if ~isempty(N)            
             dat_r = N(1).dat(:,:,:,i);            
         elseif ~isempty(D) && flagi
@@ -82,8 +82,8 @@ else
         elseif ~isempty(D) && ~flagi
             dat_r = D(:,:,:,i); %igt(i)
         end
-        block(:,cnt) = dat_r(data_range);
-        cnt = cnt+1;
+        block(:,i) = dat_r(data_range);
+%         cnt = cnt+1;
     end
 end
 return
