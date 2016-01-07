@@ -44,7 +44,7 @@ end
 
 for i=1:length(PRT.masks)
     if any(strcmpi(modchos,allmod{i}))
-        mod(i).mod_name=allmod{i};
+        mod(i).mod_name=allmod(i);
         ind=find(strcmpi(modchos,allmod{i}));
         
         %mod(i).detrend=job.modality(ind).detrend;
