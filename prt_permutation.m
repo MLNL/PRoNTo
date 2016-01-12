@@ -61,7 +61,11 @@ else
         try
             matlabpool(def_par.ncore)
         catch
-            warning('Could not use pool of Matlab processes!')
+            try
+                parpool(def_par.ncore)
+            catch
+                warning('Could not use pool of Matlab processes!')
+            end
         end
     end
     
@@ -79,44 +83,44 @@ else
     end
     fdata.nc = nc;
     
-    % Find chunks in the data (e.g. temporal correlated samples)
-    % -------------------------------------------------------------------------
-    
-    ids = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
-    i=1;
-    samp_g=unique(ids(:,1));%number of groups
-    for gid = 1: length(samp_g)
-        
-        samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
-        
-        for sid = 1: length(samp_s)
-            
-            samp_m=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid),3)); %number of modality for specific group & subject
-            
-            for mid = 1:length(samp_m)
-                
-                samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
-                
-                for cid = 1:length(samp_c)
-                    
-                    samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
-                    
-                    for bid = 1:length(samp_b)
-                        
-                        rg = find((ids(:,1) == samp_g(gid)) & ...
-                            (ids(:,2) == samp_s(sid)) & ...
-                            (ids(:,3) == samp_m(mid)) & ...
-                            (ids(:,4) == samp_c(cid)) & ...
-                            (ids(:,5) == samp_b(bid)));
-                        
-                        chunks{i} = rg;
-                        
-                        i=i+1;
-                    end
-                end
-            end
-        end
-    end
+%     % Find chunks in the data (e.g. temporal correlated samples)
+%     % -------------------------------------------------------------------------
+%     
+%     ids = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
+%     i=1;
+%     samp_g=unique(ids(:,1));%number of groups
+%     for gid = 1: length(samp_g)
+%         
+%         samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
+%         
+%         for sid = 1: length(samp_s)
+%            
+%             samp_m=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid),3)); %number of modality for specific group & subject
+%             
+%             for mid = 1:length(samp_m)
+%                 
+%                 samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
+%                 j=1;
+%                 for cid = 1:length(samp_c)
+%                     
+%                     samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
+%                  
+%                     for bid = 1:length(samp_b)
+%                         
+%                         rg = find((ids(:,1) == samp_g(gid)) & ...
+%                             (ids(:,2) == samp_s(sid)) & ...
+%                             (ids(:,3) == samp_m(mid)) & ...
+%                             (ids(:,4) == samp_c(cid)) & ...
+%                             (ids(:,5) == samp_b(bid)));
+%                         
+%                         chunks{i} = rg;
+%                         i=i+1;
+%                        
+%                     end
+%                 end
+%             end
+%         end
+%     end
     
  
     
@@ -145,14 +149,70 @@ else
         
         disp(sprintf('Permutation %d out of %d >>>>>>',p,n_perm));
         
-        % permute
-        chunkperm=randperm(length(chunks));
         CVperm = zeros(size(CV));
         t_perm = zeros(length(t),1);
-        for i=1:length(chunks)
-            t_perm(chunks{i},1)= unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)})); 
-            CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
+        
+        % permute
+            
+        % Find chunks in the data (e.g. temporal correlated samples)
+        % -------------------------------------------------------------------------
+        
+        ids = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
+        
+        samp_g=unique(ids(:,1));%number of groups
+        for gid = 1: length(samp_g)
+            
+            samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
+            
+            for sid = 1: length(samp_s)
+                
+                samp_m=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid),3)); %number of modality for specific group & subject
+                
+                for mid = 1:length(samp_m)
+                    
+                    samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
+                    
+                    ism = find((ids(:,1) == samp_g(gid)) & ...
+                                (ids(:,2) == samp_s(sid)) & ...
+                                (ids(:,3) == samp_m(mid)));
+                    i=1;
+                    for cid = 1:length(samp_c)
+                        
+                        samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
+                        
+                        for bid = 1:length(samp_b)
+                            
+                        
+
+                            rg = find((ids(ism,4) == samp_c(cid)) & ...
+                                (ids(ism,5) == samp_b(bid)));
+                            
+                            chunks{i} = rg;
+                            
+                            i=i+1;
+                        end
+                    end
+                    
+                    
+
+                    chunkperm=randperm(length(chunks));
+                    chunkpermcv = [];
+                    for i=1:length(chunks)
+                        t_perm(ism(chunks{i}),1) = unique(PRT.model(modelid).input.targets(ism(chunks{chunkperm(i)})));
+                        chunkpermcv = [chunkpermcv; repmat(chunkperm(i),numel(chunks{i}),1)]; % get permuted indexes for each image in the chunk
+                    end
+                    pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
+                    CVperm(ism(pchunks),:) = CV(ism(pchunk(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
+                end
+            end
         end
+        
+%         chunkperm=randperm(length(chunks));
+%       
+%         for i=1:length(chunks)
+%             t_perm(chunks{i},1) = unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)})); 
+%             CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
+%         end
                 
         for f = 1:n_folds
             % configure data structure for prt_cv_fold
