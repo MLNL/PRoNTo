@@ -689,7 +689,7 @@ masklist = get(handles.mask_list,'String');
 if size(masklist,1)==1 && strcmpi(masklist,'none')
     masklist = {};
 end
-if strcmpi(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).type,'Neuroimaging')
+if strcmpi(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).type,'nifti')
     masklist = union(masklist,{mod.name});
 end
 if ~isempty(masklist) 
@@ -735,7 +735,7 @@ if length(handles.modlist)==length(handles.dat.masks)
     for i=1:length(handles.modlist)
         if (isfield(handles.dat.masks(i),'fname') && ...
                 ~isempty(handles.dat.masks(i).fname)) || ...
-                ~strcmpi(handles.dat.masks(i).type,'Neuroimaging')
+                ~strcmpi(handles.dat.masks(i).type,'nifti')
             f=f+1;
         end
     end
@@ -827,7 +827,7 @@ if ~strcmpi(list{val},mod.name)
     end
     masklist = []; % Update list of modalities for which a mask is needed
     for i=1:length(handles.dat.masks)
-        if strcmpi(handles.dat.masks(i).type,'Neuroimaging')
+        if strcmpi(handles.dat.masks(i).type,'nifti')
             masklist = [masklist;{handles.dat.masks(i).mod_name}];
         end
     end
@@ -926,7 +926,7 @@ if isfield(handles.dat.masks,'mod_name')
     end
     masklist = []; % Update list of modalities for which a mask is needed
     for i=1:length(handles.dat.masks)
-        if strcmpi(handles.dat.masks(i).type,'Neuroimaging')
+        if strcmpi(handles.dat.masks(i).type,'nifti')
             masklist = [masklist;{handles.dat.masks(i).mod_name}];
         end
     end
@@ -974,7 +974,7 @@ catch
     prevlist={};
 end
 if isfield(handles.dat.group(cgr).subject(cs).modality(cm),'type') && ...
-        ~strcmpi(handles.dat.group(cgr).subject(cs).modality(cm).type,'Neuroimaging')
+        ~strcmpi(handles.dat.group(cgr).subject(cs).modality(cm).type,'nifti')
     fnames=spm_select([1 1],'mat','Select files for the modality',prevlist);
     % update the design automatically loaded from the file
     if size(fnames,1)>1
@@ -1062,7 +1062,7 @@ if length(handles.modlist)==length(handles.dat.masks)
     for i=1:length(handles.modlist)
         if (isfield(handles.dat.masks(i),'fname') && ...
                 ~isempty(handles.dat.masks(i).fname)) || ...
-                ~strcmpi(handles.dat.masks(i).type,'Neuroimaging')
+                ~strcmpi(handles.dat.masks(i).type,'nifti')
             f=f+1;
         end
     end
@@ -1166,7 +1166,7 @@ if ~flagmask==1
 end
 masklist = []; % Create list of modalities for which a mask is needed
 for i=1:length(handles.dat.masks)
-    if strcmpi(handles.dat.masks(i).type,'Neuroimaging')
+    if strcmpi(handles.dat.masks(i).type,'nifti')
         masklist = [masklist;{handles.dat.masks(i).mod_name}];
     end
 end
@@ -1306,7 +1306,7 @@ end
 %check that one mask was entered for each modality
 nmimg = 0;
 for i = 1:length(handles.dat.masks)
-    if strcmpi(handles.dat.masks(i).type,'Neuroimaging') && ...
+    if strcmpi(handles.dat.masks(i).type,'nifti') && ...
             isfield(handles.dat.masks(i),'fname') && ...
             ~isempty(handles.dat.masks(i).fname)
         nmimg = nmimg+1;

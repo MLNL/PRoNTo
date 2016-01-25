@@ -12,7 +12,7 @@ function out = prt_run_design(varargin)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
-% Written by M.J.Rosa
+% Written by M.J.Rosa & J. Schrouff
 % $Id$
 
 
@@ -42,7 +42,17 @@ nmasks     = length(job.mask);
 for i = 1:nmasks
     mod_names{i}      = job.mask(i).mod_name;
     masks(i).mod_name = mod_names{i};
-    masks(i).fname    = char(job.mask(i).fmask);
+    masks(i).type     = job.mask(i).tmask;
+    if isfield(masks(i).type, 'niftimask')
+        masks(i).type     = 'nifti';
+        masks(i).fname    = char(job.mask(i).tmask.niftimask.fmask);
+    elseif isfield(masks(i).type, 'MEEGmask')
+        masks(i).type     = 'MEEG';
+        masks(i).fname    = [];
+    elseif isfield(masks(i).type, 'matmask')
+        masks(i).type     = '.mat';
+        masks(i).fname    = [];
+    end
 end
 
 mod_names_uniq = unique(mod_names);
@@ -58,6 +68,7 @@ end
 % -------------------------------------------------------------------------
 
 % Data type
+datformat = {'nifti','MEEG','.mat'};
 if isfield(job.group(1).select,'modality')
     % selection by "images" in a modality
     nmod_scans = length(job.group(1).select.modality);
@@ -152,6 +163,7 @@ if isfield(job.group(1).select,'modality')
                             PRT.group(g).subject(s).modality(m).mod_name = job.group(g).select.modality(m).mod_name;
                             PRT.group(g).subject(s).modality(m).design   = 0;
                             PRT.group(g).subject(s).modality(m).scans    = char(job.group(g).select.modality(m).subjects{s});
+                            PRT.group(g).subject(s).modality(m).type     = datformat{job.group(g).select.modality(m).format};
                         end
                     end
                     if nmod ~= length(unique(mod_names_mod));
@@ -200,6 +212,7 @@ else
                         modnm    = job.group(g).select.subject{j}(k).mod_name;
                         TR       = job.group(g).select.subject{j}(k).TR;
                         mod_names_subj{k} = modnm;
+                        modtype  = datformat{job.group(g).select.subject{j}(k).format};
                         if isempty(intersect(mod_names_uniq,modnm)),
                             out.files{1} = [];
                             beep
@@ -208,7 +221,8 @@ else
                             return
                         end
                         clear design
-                        if isfield(job.group(g).select.subject{j}(k).design,'load_SPM')
+                        if strcmpi(modtype,'nifti') && ...
+                                isfield(job.group(g).select.subject{j}(k).design,'load_SPM')
                             % Load SPM.mat design
                             try
                                 load(job.group(g).select.subject{j}(k).design.load_SPM{1});
@@ -250,7 +264,15 @@ else
                                     design.conds(l).blocks = design.conds(l).blocks(inser);
                                 end
                             end
-                        else
+                        elseif (~strcmpi(modtype,'nifti') && ...
+                                isfield(job.group(g).select.subject{j}(k).design,'load_SPM')) || ...
+                                (~strcmpi(modtype,'nifti') && ...
+                                isfield(job.group(g).select.subject{j}(k).design,'new_design'))
+                            beep
+                            disp('Design options can only be specified for nifti inputs')
+                            out.files{1} = [];
+                            return
+                        elseif ~strcmpi(modtype,'MEEG')
                             if isfield(job.group(g).select.subject{j}(k).design,'no_design')
                                 % No design
                                 design = 0;
@@ -369,6 +391,12 @@ else
                                     end
                                 end
                             end
+                        elseif strcmpi(modtype,'MEEG')
+                            scan = char(job.group(g).select.subject{j}(k).scans);
+                            D = spm_eeg_load(scan(1,:));
+                            desn = prt_get_design_MEEG(D);
+                            desn.covar = [];
+                            design=desn;
                         end
                         % Create PRT.mat modalities
                         PRT.group(g).gr_name                        = job.group(g).gr_name;
@@ -377,7 +405,20 @@ else
                         PRT.group(g).subject(j).modality(k).TR      = job.group(g).select.subject{j}(k).TR;
                         PRT.group(g).subject(j).modality(k).design  = design;
                         PRT.group(g).subject(j).modality(k).scans   = char(job.group(g).select.subject{j}(k).scans);
-                   
+                        PRT.group(g).subject(j).modality(k).type    = modtype;
+                        % For .mat and MEEG inputs, only one file allowed
+                        % per subject and modality
+                        if strcmpi(modtype,'.mat') || strcmpi(modtype,'MEEG')
+                            nscans = size(PRT.group(g).subject(j).modality(k).scans,1);
+                            if nscans>1
+                                beep
+                                disp('Only one MEEG or .mat input file per subject and per modality is allowed')
+                                disp('Please correct.')
+                                out.files{1} = [];
+                                return
+                            end
+                        end
+                        
                     end
                 end
             end

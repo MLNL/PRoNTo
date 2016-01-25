@@ -149,8 +149,8 @@ scans.tag     = 'scans';
 scans.name    = 'Scans';
 scans.help    = {['Select scans (images) for this modality. They must '...
     'all have the same image dimensions, orientation, '...
-    'voxel size etc.']};
-scans.filter = 'image';
+    'voxel size etc. Only one file allowed for MEEG and for .mat input formats.']};
+scans.filter = {'image','mat'};
 scans.ufilter = '.*';
 scans.num     = [1 Inf];
 
@@ -162,9 +162,25 @@ subjects.tag     = 'subjects';
 subjects.name    = 'Files';
 subjects.help    = {['Select scans (images) for this modality. They must '...
     'all have the same image dimensions, orientation, '...
-    'voxel size etc.']};
-subjects.filter  = 'image';
+    'voxel size etc. Only one file allowed for MEEG and for .mat input formats.']};
+subjects.filter  = {'image','mat'};
 subjects.num     = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Data format
+% ---------------------------------------------------------------------
+format         = cfg_menu;
+format.tag     = 'format';
+format.name    = 'Data format';
+format.help    = {['Data format for this modality. The different input '...
+    'files should be in either nifti, SPM MEEG object or .mat format']};
+format.labels  = {
+    'nifti'
+    'MEEG'
+    '.mat'
+    }';
+format.values  = {1 2 3};
+format.val     = {1};
 
 % ---------------------------------------------------------------------
 % modality Modality
@@ -172,7 +188,7 @@ subjects.num     = [0 Inf];
 modality      = cfg_branch;
 modality.tag  = 'modality';
 modality.name = 'Modality';
-modality.val  = {mod_name, subjects, rt_subj, covar };
+modality.val  = {mod_name, format, subjects, rt_subj, covar };
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
@@ -207,16 +223,54 @@ fmask.help   = {['Select one first-level mask (image) for each modality. ',...
     'In ''specify model'' there is an option to enter a ',...
     'second-level mask, which might be used to select only ',...
     'a few areas of the brain for subsequent analyses.']};
+
+% ---------------------------------------------------------------------
+% niftimask
+% ---------------------------------------------------------------------
+niftimask         = cfg_branch;
+niftimask.tag     = 'niftimask';
+niftimask.name    = 'Nifti';
+niftimask.help    = {['Specify name of mask file for nifti modality.']};
+niftimask.val     = {fmask};
+
+% ---------------------------------------------------------------------
+% MEEGmask
+% ---------------------------------------------------------------------
+MEEGmask         = cfg_const;
+MEEGmask.tag     = 'MEEGmask';
+MEEGmask.name    = 'MEEG';
+MEEGmask.val     = {0};
+MEEGmask.help    = {['No mask for MEEG object files']};
+
+% ---------------------------------------------------------------------
+% matmask
+% ---------------------------------------------------------------------
+matmask         = cfg_const;
+matmask.tag     = 'matmask';
+matmask.name    = '.mat';
+matmask.val     = {0};
+matmask.help    = {['No mask for .mat files']};
+
+% ---------------------------------------------------------------------
+% tmask Modality - type of mask
+% ---------------------------------------------------------------------
+tmask         = cfg_choice;
+tmask.tag     = 'tmask';
+tmask.name    = 'Data format';
+tmask.help    = {['Data format input. Either nifti, MEEG or .mat']};
+tmask.values  = {niftimask, MEEGmask, matmask};
+tmask.val     = {niftimask};
+
 % ---------------------------------------------------------------------
 % mask Modality
 % ---------------------------------------------------------------------
 mask         = cfg_branch;
 mask.tag     = 'mask';
 mask.name    = 'Modality';
-mask.help    = {['Specify name of modality and file for each mask. ',...
+mask.help    = {['Specify name of modality and file format for each mask. ',...
     'The name should be consistent with the names chosen ',...
     'for the modalities (subjects/scans).']};
-mask.val     = {mod_name, fmask };
+mask.val     = {mod_name, tmask };
 
 % ---------------------------------------------------------------------
 % masks Masks
@@ -225,7 +279,7 @@ masks         = cfg_repeat;
 masks.tag     = 'masks';
 masks.name    = 'Masks';
 masks.help    = {['Select first-level (pre-processing) mask for each ',...
-    'modality. The name of the modalities should be the same ',...
+    'modality format. The name of the modalities should be the same ',...
     'as the ones entered for subjects/scans.']};
 masks.num     = [1 Inf];
 masks.values  = {mask };
@@ -235,9 +289,10 @@ masks.values  = {mask };
 % ---------------------------------------------------------------------
 load_SPM         = cfg_files;
 load_SPM.tag     = 'load_SPM';
-load_SPM.name    = 'Load SPM.mat';
+load_SPM.name    = 'Load SPM.mat (for nifti inputs only)';
 load_SPM.help    = {['Load design from SPM.mat (if you have previously '...
-    'specified the experimental design with SPM).']};
+    'specified the experimental design with SPM).This option is available '...
+    'for nifti inputs only. Not available for MEEG or .mat input formats.']};
 load_SPM.filter  = '^SPM\.mat$';
 load_SPM.num     = [1 1];
 
@@ -294,7 +349,9 @@ conds.val     = {cond_name, onsets, durations};
 conditions         = cfg_repeat;
 conditions.tag     = 'conditions';
 conditions.name    = 'Conditions';
-conditions.help    = {['Specify conditions. You are allowed to combine '...
+conditions.help    = {['Specify conditions. This option is available '...
+    'for nifti inputs only. Not available for MEEG or .mat input formats. '...
+    'You are allowed to combine '...
     'both event- and epoch-related responses in '...
     'the same model and/or regressor. Any number of '...
     'condition (event or epoch) types can be '...
@@ -356,7 +413,7 @@ multi_conds.num     = [0 1];
 % ---------------------------------------------------------------------
 new_design         = cfg_branch;
 new_design.tag     = 'new_design';
-new_design.name    = 'Specify design';
+new_design.name    = 'Specify design (for nifti inputs only)';
 new_design.help    = {'Specify design: scans (data), onsets and durations.'};
 new_design.val     = {unit conditions multi_conds}; %covar for covar per trial (v3)
 
@@ -369,7 +426,17 @@ no_design.name    = 'No design';
 no_design.val     = {0};
 no_design.help    = {['Do not specify design. This option can be used '...
     'for modalities (e.g. structural scans) that do not '...
-    'have an experimental design.']};
+    'have an experimental design. Data specified as .mat should use this option.']};
+
+% ---------------------------------------------------------------------
+% MEEGevents Events in MEEG file
+% ---------------------------------------------------------------------
+MEEGevents         = cfg_const;
+MEEGevents.tag     = 'MEEGevents';
+MEEGevents.name    = 'Events in MEEG file (for MEEG inputs only)';
+MEEGevents.val     = {0};
+MEEGevents.help    = {['Events already in MEEG file. This option should be used '...
+    'for MEEG object inputs.']};
 
 % ---------------------------------------------------------------------
 % design Data & Design
@@ -378,7 +445,7 @@ design        = cfg_choice;
 design.tag    = 'design';
 design.name   = 'Data & Design';
 design.help   = {'Specify data and design.'};
-design.values = {load_SPM, new_design, no_design };
+design.values = {load_SPM, new_design, no_design, MEEGevents };
 design.val    = {load_SPM };
 
 % ---------------------------------------------------------------------
@@ -387,7 +454,7 @@ design.val    = {load_SPM };
 subject      = cfg_branch;
 subject.tag  = 'subject';
 subject.name = 'Modality';
-subject.val  = {mod_name, TR, scans, design };
+subject.val  = {mod_name, format, TR, scans, design };
 subject.help = {'Add new modality.'};
 
 % ---------------------------------------------------------------------
