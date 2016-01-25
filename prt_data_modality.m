@@ -144,13 +144,13 @@ else
     handles.mod.name={};
     handles.mod.covar=[];
     handles.mod.rt_subj=[];
-    handles.mod.type = 'Neuroimaging';
+    handles.mod.type = 'nifti';
     handles.subj1=0;
     set(handles.design_menu,...
         'String',{'Load SPM.mat','Specify design','No design'},...
         'Value',3);
     set(handles.type,...
-        'String',{'Neuroimaging','MEEG','Non-imaging'},...
+        'String',{'nifti','MEEG','.mat'},...
         'Value',1);
 
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
@@ -207,7 +207,7 @@ else
                             'String',{'Events in file'},...
                             'Value',1);
                     else
-                        if strcmpi(modsel.type,'Non-imaging')
+                        if strcmpi(modsel.type,'.mat')
                             set(handles.type,'Value',3)
                             set(handles.design_menu,'Enable','off')
                         else
@@ -372,7 +372,7 @@ if choice==0
     choice=handles.desnmenu;
     set(handles.design_menu,'Value')
 end
-if strcmpi(handles.mod.type,'Neuroimaging') && choice==1 %Neuroimaging data
+if strcmpi(handles.mod.type,'nifti') && choice==1 %Neuroimaging data
     desn=spm_select(1,'mat','Select SPM.mat file',[],[],'SPM.mat');
     try
         load(desn);
@@ -448,15 +448,15 @@ if strcmpi(handles.mod.type,'Neuroimaging') && choice==1 %Neuroimaging data
     end
     desn=prt_check_design(conds,SPM.xX.K(1).RT,units,overl,del);
     desn.covar = [];
-elseif strcmpi(handles.mod.type,'Neuroimaging') && choice==2
+elseif strcmpi(handles.mod.type,'nifti') && choice==2
     if isstruct(handles.mod.design)
         desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT,0});
     else
         desn=prt_data_conditions;
     end
-elseif strcmpi(handles.mod.type,'Neuroimaging') && choice ==3
+elseif strcmpi(handles.mod.type,'nifti') && choice ==3
     desn=[];
-elseif strcmpi(handles.mod.type,'Neuroimaging') && choice==4        % replicate design of 1st subject
+elseif strcmpi(handles.mod.type,'nifti') && choice==4        % replicate design of 1st subject
     desn=handles.subj1(handles.indmods1).design;
 elseif strcmpi(handles.mod.type,'MEEG')         %load design from D object if file was selected
     if isempty(handles.mod.scans)

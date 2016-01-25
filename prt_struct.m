@@ -46,7 +46,7 @@ if ~all(cg) % missing fields
                     if ita(i)==1
                         PRT.group(j).subject(k).modality(l).mod_name = '';
                     elseif ita(i)==7
-                        PRT.group(j).subject(k).modality(l).type = 'Neuroimaging';
+                        PRT.group(j).subject(k).modality(l).type = 'nifti';
                     end
                 end
             end
@@ -66,7 +66,7 @@ if ~all(cg) % missing fields
         for j=1:length(PRT.masks)
             PRT.masks(j).(ng{ita(i)}) = [];
             if ita(i)==3
-                PRT.masks(j).type = 'Neuroimaging';
+                PRT.masks(j).type = 'nifti';
             end
         end
     end

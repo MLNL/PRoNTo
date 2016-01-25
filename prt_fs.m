@@ -225,7 +225,7 @@ for m = 1:n_mods
     % get mask for the within-brain voxels (from data and design)  
     if isfield(PRT.masks(mid), 'fname')
         ddmask = PRT.masks(mid).fname;
-        if strcmp(PRT.masks(mid).type,'Neuroimaging')
+        if strcmp(PRT.masks(mid).type,'nifti')
             try
                 M = nifti(ddmask);
             catch %#ok<*CTCH>
@@ -262,7 +262,7 @@ for m = 1:n_mods
     end
     
     % get header of the first scan of that modality
-    if strcmp(PRT.masks(mid).type,'Neuroimaging')
+    if strcmp(PRT.masks(mid).type,'nifti')
         if isfield(PRT,'fas') && mid<=length(PRT.fas) && ...
                 ~isempty(PRT.fas(mid).dat)
             N = PRT.fas(mid).hdr;
@@ -299,7 +299,7 @@ for m = 1:n_mods
             'Multiple modalities specified, but have variable numbers of features');
     end
     
-    if strcmp(PRT.masks(mid).type,'Neuroimaging')
+    if strcmp(PRT.masks(mid).type,'nifti')
         % resize the different masks if needed
         if N.dim(3)==1, Npdim = N.dim(1:2); else Npdim = N.dim; end % handling case of 2D images
         if any(size(M.dat(:,:,:,1)) ~= Npdim)
