@@ -150,7 +150,7 @@ else
         'String',{'Load SPM.mat','Specify design','No design'},...
         'Value',3);
     set(handles.type,...
-        'String',{'Neuroimaging','MEEG'},...
+        'String',{'Neuroimaging','MEEG','Non-imaging'},...
         'Value',1);
 
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
@@ -207,7 +207,12 @@ else
                             'String',{'Events in file'},...
                             'Value',1);
                     else
-                        set(handles.type,'Value',1)
+                        if strcmpi(modsel.type,'Non-imaging')
+                            set(handles.type,'Value',3)
+                            set(handles.design_menu,'Enable','off')
+                        else
+                            set(handles.type,'Value',1)
+                        end
                     end
                     handles.mod.type = modsel.type;
                 else
@@ -539,15 +544,19 @@ if val==2
         'String',{'Events in file'},...
         'Value',1);
 else
-    set(handles.design_menu,...
+    if val==3
+        set(handles.design_menu,'Enable','off')  
+    else
+        set(handles.design_menu,...
             'String',{'Load SPM.mat','Specify design','No design'},...
             'Value',3);
-    if isstruct(handles.subj1)
-        if any(strcmpi(modname, {handles.subj1(:).mod_name}))
-            handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
-            list=get(handles.design_menu,'String');
-            list=[list;{'Replicate design of subject 1'}];
-            set(handles.design_menu,'String',list);
+        if isstruct(handles.subj1)
+            if any(strcmpi(modname, {handles.subj1(:).mod_name}))
+                handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
+                list=get(handles.design_menu,'String');
+                list=[list;{'Replicate design of subject 1'}];
+                set(handles.design_menu,'String',list);
+            end
         end
     end
 end
