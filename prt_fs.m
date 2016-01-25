@@ -222,15 +222,19 @@ ratl     = cell(1,n_mods);
 for m = 1:n_mods
     mid = mids(m);
     
-    % get mask for the within-brain voxels (from data and design)
-    ddmask = PRT.masks(mid).fname;
-    try
-        M = nifti(ddmask);
-    catch %#ok<*CTCH>
-        error('prt_fs:CouldNotLoadFile',...
-            'Could not load mask file');
+    % get mask for the within-brain voxels (from data and design)  
+    if isfield(PRT.masks(mid), 'fname')
+        ddmask = PRT.masks(mid).fname;
+        if strcmp(PRT.masks(mid).type,'Neuroimaging')
+            try
+                M = nifti(ddmask);
+            catch %#ok<*CTCH>
+                error('prt_fs:CouldNotLoadFile',...
+                    'Could not load mask file');
+            end
+        end
     end
-    
+   
     % get mask for the kernel if one was specified
     mfile = in.mod(mid).mask;
     if ~isempty(mfile) %&&  mfile ~= 0
@@ -258,110 +262,133 @@ for m = 1:n_mods
     end
     
     % get header of the first scan of that modality
-    if isfield(PRT,'fas') && mid<=length(PRT.fas) && ...
-            ~isempty(PRT.fas(mid).dat)
-        N = PRT.fas(mid).hdr;
+    if strcmp(PRT.masks(mid).type,'Neuroimaging')
+        if isfield(PRT,'fas') && mid<=length(PRT.fas) && ...
+                ~isempty(PRT.fas(mid).dat)
+            N = PRT.fas(mid).hdr;
+        else
+            N = spm_vol(PRT.group(1).subject(1).modality(mid).scans(1,:));
+        end
+        headers{m}=N;
     else
-        N = spm_vol(PRT.group(1).subject(1).modality(mid).scans(1,:));
+        if strcmp(PRT.masks(mid).type,'Non-imaging')
+            try
+                tmp1 = load(char(PRT.group(1).subject(1).modality(mid).scans(1,:)));
+            catch
+                error('prt_fs:CouldNotLoadFile',...
+                    'Could not load data for preprocessing');
+            end
+            tmp2 = fieldnames(tmp1);
+            tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
+            mat_data = tmp1.(tmp2);
+            N.dim = size(mat_data);
+            headers{m}=N;
+        end
     end
     headers{m}=N;
     
     % compute voxel dimensions and check for equality if n_mod > 1
     if m == 1
-        n_vox = prod(N.dim(1:3));
+        if length(N.dim) > 2
+            n_vox = prod(N.dim(1:3));
+        else
+            n_vox = N.dim(2);
+        end
     elseif n_mods > 1 && n_vox ~= prod(N.dim(1:3))
         error('prt_fs:multipleModatlitiesVariableFeatures',...
             'Multiple modalities specified, but have variable numbers of features');
     end
     
-    % resize the different masks if needed
-    if N.dim(3)==1, Npdim = N.dim(1:2); else Npdim = N.dim; end % handling case of 2D images
-    if any(size(M.dat(:,:,:,1)) ~= Npdim)
-        warning('prt_fs:maskAndImagesDifferentDim',...
-            'Mask has different dimensions to the image files. Resizing...');
-        
-        V2 = spm_vol(char(ddmask));
-        % reslicing V2
-        fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
-        spm_reslice([N V2],fl_res)
-        % now renaming the file
-        [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
-        rV2_fn = [fl_res.prefix,V2_fn];
-        if strcmp(V2_ext,'.nii')
-            % turn .nii into .img/.hdr image!
-            V_in = spm_vol(fullfile(V2_pth,[rV2_fn,'.nii']));
-            V_out = V_in; V_out.fname = fullfile(V2_pth,[rV2_fn,'.img']);
-            spm_imcalc(V_in,V_out,'i1');
+    if strcmp(PRT.masks(mid).type,'Neuroimaging')
+        % resize the different masks if needed
+        if N.dim(3)==1, Npdim = N.dim(1:2); else Npdim = N.dim; end % handling case of 2D images
+        if any(size(M.dat(:,:,:,1)) ~= Npdim)
+            warning('prt_fs:maskAndImagesDifferentDim',...
+                'Mask has different dimensions to the image files. Resizing...');
+            
+            V2 = spm_vol(char(ddmask));
+            % reslicing V2
+            fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
+            spm_reslice([N V2],fl_res)
+            % now renaming the file
+            [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
+            rV2_fn = [fl_res.prefix,V2_fn];
+            if strcmp(V2_ext,'.nii')
+                % turn .nii into .img/.hdr image!
+                V_in = spm_vol(fullfile(V2_pth,[rV2_fn,'.nii']));
+                V_out = V_in; V_out.fname = fullfile(V2_pth,[rV2_fn,'.img']);
+                spm_imcalc(V_in,V_out,'i1');
+            end
+            mfile_new = ['updated_1stlevel_mask_m',num2str(mid)];
+            movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
+                fullfile(prt_dir,[mfile_new,'.img']));
+            movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
+                fullfile(prt_dir,[mfile_new,'.hdr']));
+            PRT.masks(mid).fname = fullfile(prt_dir,[mfile_new,'.img']);
+            mask{m} = PRT.masks(mid).fname;
+        else
+            mask{m} = ddmask;
         end
-        mfile_new = ['updated_1stlevel_mask_m',num2str(mid)];
-        movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
-            fullfile(prt_dir,[mfile_new,'.img']));
-        movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
-            fullfile(prt_dir,[mfile_new,'.hdr']));
-        PRT.masks(mid).fname = fullfile(prt_dir,[mfile_new,'.img']);
-        mask{m} = PRT.masks(mid).fname;
-    else
-        mask{m} = ddmask;
+        if ~isempty(mfile) && any((precM.dim~= N.dim)) % && mfile ~= 0
+            warning('prt_fs:maskAndImagesDifferentDim',...
+                'Preprocessing mask has different dimensions to the image files. Resizing...');
+            V2 = spm_vol(char(mfile));
+            % reslicing V2
+            fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
+            spm_reslice([N V2],fl_res)
+            % now renaming the file
+            [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
+            rV2_fn = [fl_res.prefix,V2_fn];
+            if strcmp(V2_ext,'.nii')
+                % turn .nii into .img/.hdr image!
+                V_in = spm_vol(fullfile(V2_pth,[rV2_fn,'.nii']));
+                V_out = V_in; V_out.fname = fullfile(V2_pth,[rV2_fn,'.img']);
+                spm_imcalc(V_in,V_out,'i1');
+            end
+            % if more than one 2nd level mask to resize
+            nummask = 1;
+            while exist(fullfile( ...
+                    prt_dir,['updated_2ndlevel_mask_m',num2str(mid),'_',...
+                    num2str(nummask),'.img']),'file')
+                nummask = nummask+1;
+            end
+            mfile_new = ['updated_2ndlevel_mask_m',num2str(mid),...
+                '_',num2str(nummask)];
+            movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
+                fullfile(prt_dir,[mfile_new,'.img']));
+            movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
+                fullfile(prt_dir,[mfile_new,'.hdr']));
+            precmask{m} = fullfile(prt_dir,[mfile_new,'.img']);
+        else
+            precmask{m} = mfile;
+        end
+        if ~isempty(alfile) && any((precA.dim~= N.dim))
+            warning('prt_fs:atlasAndImagesDifferentDim',...
+                'Atlas has different dimensions to the image files. Resizing...');
+            V2 = spm_vol(char(alfile));
+            % reslicing V2
+            fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
+            spm_reslice([N V2],fl_res)
+            % now renaming the file
+            [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
+            rV2_fn = [fl_res.prefix,V2_fn];
+            if strcmp(V2_ext,'.nii')
+                % turn .nii into .img/.hdr image!
+                V_in = spm_vol(fullfile(V2_pth,[rV2_fn,'.nii']));
+                V_out = V_in; V_out.fname = fullfile(V2_pth,[rV2_fn,'.img']);
+                spm_imcalc(V_in,V_out,'i1');
+            end
+            alfile_new = ['updated_atlas_',V2_fn];
+            movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
+                fullfile(prt_dir,[alfile_new,'.img']));
+            movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
+                fullfile(prt_dir,[alfile_new,'.hdr']));
+            ratl{m} = fullfile(prt_dir,[alfile_new,'.img']);
+        else
+            ratl{m} = alfile;
+        end
+        clear M N precM V1 V2 mfile mfile_new
     end
-    if ~isempty(mfile) && any((precM.dim~= N.dim)) % && mfile ~= 0
-        warning('prt_fs:maskAndImagesDifferentDim',...
-            'Preprocessing mask has different dimensions to the image files. Resizing...');
-        V2 = spm_vol(char(mfile));
-        % reslicing V2
-        fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
-        spm_reslice([N V2],fl_res)
-        % now renaming the file
-        [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
-        rV2_fn = [fl_res.prefix,V2_fn];
-        if strcmp(V2_ext,'.nii')
-            % turn .nii into .img/.hdr image!
-            V_in = spm_vol(fullfile(V2_pth,[rV2_fn,'.nii']));
-            V_out = V_in; V_out.fname = fullfile(V2_pth,[rV2_fn,'.img']);
-            spm_imcalc(V_in,V_out,'i1');
-        end
-        % if more than one 2nd level mask to resize
-        nummask = 1;
-        while exist(fullfile( ...
-                prt_dir,['updated_2ndlevel_mask_m',num2str(mid),'_',...
-                num2str(nummask),'.img']),'file')
-            nummask = nummask+1;
-        end
-        mfile_new = ['updated_2ndlevel_mask_m',num2str(mid),...
-            '_',num2str(nummask)];
-        movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
-            fullfile(prt_dir,[mfile_new,'.img']));
-        movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
-            fullfile(prt_dir,[mfile_new,'.hdr']));
-        precmask{m} = fullfile(prt_dir,[mfile_new,'.img']);
-    else
-        precmask{m} = mfile;
-    end
-    if ~isempty(alfile) && any((precA.dim~= N.dim))
-        warning('prt_fs:atlasAndImagesDifferentDim',...
-            'Atlas has different dimensions to the image files. Resizing...');
-        V2 = spm_vol(char(alfile));
-        % reslicing V2
-        fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
-        spm_reslice([N V2],fl_res)
-        % now renaming the file
-        [V2_pth,V2_fn,V2_ext] = spm_fileparts(V2.fname);
-        rV2_fn = [fl_res.prefix,V2_fn];
-        if strcmp(V2_ext,'.nii')
-            % turn .nii into .img/.hdr image!
-            V_in = spm_vol(fullfile(V2_pth,[rV2_fn,'.nii']));
-            V_out = V_in; V_out.fname = fullfile(V2_pth,[rV2_fn,'.img']);
-            spm_imcalc(V_in,V_out,'i1');
-        end
-        alfile_new = ['updated_atlas_',V2_fn];
-        movefile(fullfile(V2_pth,[rV2_fn,'.img']), ...
-            fullfile(prt_dir,[alfile_new,'.img']));
-        movefile(fullfile(V2_pth,[rV2_fn,'.hdr']), ...
-            fullfile(prt_dir,[alfile_new,'.hdr']));
-        ratl{m} = fullfile(prt_dir,[alfile_new,'.img']);
-    else
-        ratl{m} = alfile;
-    end
-    clear M N precM V1 V2 mfile mfile_new
 end
 
 

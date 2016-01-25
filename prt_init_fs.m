@@ -103,22 +103,25 @@ else
         PRT.fs(fid).modality(m).detrend  = in.mod(mids(m)).detrend;
         PRT.fs(fid).modality(m).param_dt = in.mod(mids(m)).param_dt;
         PRT.fs(fid).modality(m).mode     = in.mod(mids(m)).mode;
+
         %get indexes from mask specified in the data and design step
-        vm = spm_vol(mask{m});
-        vm = spm_read_vols(vm);
-        if ~any(vm(:)>0)
-            error('prt_init_fs:NoVoxelinMask',...
-                ['Mask of modality ',num2str(m),' does not contain any voxel >0'])
-        else
-            PRT.fs(fid).modality(m).feat_idx_img = find(vm>0);
-        end
-        mid = mids(m);
-        if m==1
-            n_vox = sum(vm(:)>0);
-        end
-        if n_vox ~= sum(vm(:)>0)
-            error('prt_init_fs:MasksNotConsistent',...
-                'Masks access areas of different sizes across modalities')
+        if ~isempty(mask{m})
+            vm = spm_vol(mask{m});
+            vm = spm_read_vols(vm);
+            if ~any(vm(:)>0)
+                error('prt_init_fs:NoVoxelinMask',...
+                    ['Mask of modality ',num2str(m),' does not contain any voxel >0'])
+            else
+                PRT.fs(fid).modality(m).feat_idx_img = find(vm>0);
+            end
+            mid = mids(m);
+            if m==1
+                n_vox = sum(vm(:)>0);
+            end
+            if n_vox ~= sum(vm(:)>0)
+                error('prt_init_fs:MasksNotConsistent',...
+                    'Masks access areas of different sizes across modalities')
+            end
         end
         %get subindexes from mask specified in the data prepare step
         if ~isempty(precmask{m})
@@ -137,7 +140,7 @@ else
     
     indm = zeros(n_mods,1);
     szm = zeros(n_mods,1);
-    
+
     % First count the total number of samples. Loops are needed since each
     % subject may have a variable number of scans
     n = 0;
@@ -161,6 +164,7 @@ else
             end  % modality
         end  % subject
     end  % group
+
     PRT.fs(fid).id_mat = zeros(n,length(PRT.fs(fid).id_col_names));
     PRT.fs(fid).fas.im = zeros(n,1);
     PRT.fs(fid).fas.ifa= zeros(n,1); 
@@ -248,6 +252,7 @@ else
         end  % subject
     end  % group
     
+
     %initialize the file arrays if they do not exist already or if the
     %detrending parameters were modified
     if ~isfield(PRT,'fas');
@@ -258,6 +263,7 @@ else
             PRT.fas(m).mod_name = PRT.masks(m).mod_name;
         end
     end
+    
     tocomp=zeros(1,length(in.mod));
     prt_dir=fileparts(in.fname);
     for i=1:n_mods
