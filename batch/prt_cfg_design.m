@@ -4,7 +4,7 @@ function data = prt_cfg_design
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M.J.Rosa
+% Written by M.J.Rosa and J. Schrouff
 % $Id$
 
 % ---------------------------------------------------------------------
@@ -480,14 +480,53 @@ condsMEEG.help    = {'Specify condition: name, onsets and duration.'};
 condsMEEG.val     = {0};
 
 % ---------------------------------------------------------------------
+% noreg No regression targets or covariates to add
+% ---------------------------------------------------------------------
+noreg         = cfg_const;
+noreg.tag     = 'noreg';
+noreg.name    = 'No regression targets/covariates';
+noreg.help    = {'No regression targets/covariates for this subject/modality.'};
+noreg.val     = {0};
+
+% ---------------------------------------------------------------------
+% condsadd Condition
+% ---------------------------------------------------------------------
+condsadd         = cfg_branch;
+condsadd.tag     = 'condsadd';
+condsadd.name    = 'Condition';
+condsadd.help    = {'Specify condition: name, regression targets and covariates.'};
+condsadd.val     = {cond_name, cov_trial,rt_trial};
+
+% ---------------------------------------------------------------------
+% addregcov Conditions for which to add regression targets/covariates
+% ---------------------------------------------------------------------
+addcond         = cfg_repeat;
+addcond.tag     = 'addcond';
+addcond.name    = 'Conditions';
+addcond.help    = {['Specify conditions for which to add regression '...
+    'targets and/or covariates.']};
+addcond.values  = {condsadd};
+
+% ---------------------------------------------------------------------
+% addregcov  Add regression targets or covariates per trial in MEEG
+% ---------------------------------------------------------------------
+addregcov         = cfg_choice;
+addregcov.tag     = 'addregcov';
+addregcov.name    = 'Add regression targets/covariates';
+addregcov.values  = {noreg,addcond};
+addregcov.help    = {['Events already in MEEG file. This option should be used '...
+    'to add covariates or regression targets for MEEG object inputs.']};
+addregcov.val     = {noreg};
+
+% ---------------------------------------------------------------------
 % MEEGevents Events in MEEG file
 % ---------------------------------------------------------------------
 MEEGevents         = cfg_branch;
 MEEGevents.tag     = 'MEEGevents';
 MEEGevents.name    = 'Events in MEEG file (for MEEG inputs only)';
-MEEGevents.val     = {condsMEEG};
+MEEGevents.val     = {condsMEEG,addregcov};
 MEEGevents.help    = {['Events already in MEEG file. This option should be used '...
-    'for MEEG object inputs. POssibility to add covariates or regression targets']};
+    'for MEEG object inputs. Possibility to add covariates or regression targets']};
 
 
 % ---------------------------------------------------------------------

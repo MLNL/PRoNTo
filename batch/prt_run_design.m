@@ -487,7 +487,60 @@ else
                             desn = prt_get_design_MEEG(D);
                             desn.covar = [];
                             design=desn;
-                            
+                            clist = {design.conds(:).cond_name};
+                            % Add regression targets or covariates for each
+                            % class if user specified
+                            if isfield(job.group(g).select.subject{j}(k).design,'MEEGevents') && ...  % All the way down to each class
+                                isfield(job.group(g).select.subject{j}(k).design.MEEGevents,'addregcov') && ...
+                                  isfield(job.group(g).select.subject{j}(k).design.MEEGevents.addregcov,'condsadd') && ...
+                                   isstruct(job.group(g).select.subject{j}(k).design.MEEGevents.addregcov.condsadd)
+                               addconds = job.group(g).select.subject{j}(k).design.MEEGevents.addregcov;
+                               for c = 1:length(addconds)
+                                   cond_name = addconds.condsadd(c).cond_name;
+                                   ic = find(ismember(clist,cond_name));
+                                   if isfield(addconds.condsadd(c),'rt_trial') && ~isempty(addconds.condsadd(c).rt_trial)
+                                       % Check that regression targets were
+                                       % entered for every onset
+                                       reg = addconds.condsadd(c).rt_trial;
+                                       if length(design.conds(ic).onsets) == length(reg)
+                                           design.conds(ic).rt_trial = reg;
+                                       else
+                                            out.files{1} = [];
+                                            beep
+                                            sprintf('Number of regression targets must be the number of trials, including bad trials!')
+                                            disp('Please correct')
+                                       end
+                                   end
+                                    if isfield(addconds.condsadd(c),'cov_trial') && ~isempty(addconds.condsadd(c).cov_trial)
+                                        try
+                                            load(addconds.condsadd.cov_trial{1});
+                                            if exist('R','var')
+                                                % Take out 'bad trials' from regression targets
+                                                if length(design.conds(ic).onsets) == size(R,1)
+                                                    design.conds(ic).cov_trial  = R;
+                                                else
+                                                    out.files{1} = [];
+                                                    beep
+                                                    sprintf('Number of covariates must be the number of trials, including bad trials! ')
+                                                    disp('Please correct!')
+                                                    return
+                                                end
+                                            else
+                                                out.files{1} = [];
+                                                beep
+                                                sprintf('Covariates file must contain ''R'' variable! ')
+                                                disp('Please correct!')
+                                                return
+                                            end
+                                        catch
+                                            beep
+                                            sprintf('Could not load %s file!',char(addconds.condsadd.cov_trial))
+                                            out.files{1} = [];
+                                            return
+                                        end
+                                    end
+                               end
+                            end
                         end
                         % Create PRT.mat modalities
                         PRT.group(g).gr_name                        = job.group(g).gr_name;

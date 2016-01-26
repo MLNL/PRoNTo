@@ -908,8 +908,8 @@ else % Regression
             list=[list;{'k-folds CV on Block'}];
         end
         set(handles.pop_cv,'String',list)
-        handles.cv.type     = 'loso';
-        handles.cv.type_nested='loso';
+        handles.cv.type     = 'lobo';
+        handles.cv.type_nested='lobo';
         set(handles.pop_cv,'Value',length(list)-1)
     end
     list = setdiff(list,'Custom'); %No custom for inner CV

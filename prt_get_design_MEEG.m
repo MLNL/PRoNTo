@@ -24,16 +24,19 @@ alldisc = [];
 allscans = [];
 for c=1:ncond
     conds(c).cond_name = cname{c};
-    indcond = setdiff(indtrial(D,cname{c}),badtrials(D));
-    conds(c).onsets = trialonset(D,indcond);
+    indt = indtrial(D,cname{c});
+%     indcond = setdiff(indtrial(D,cname{c}),badtrials(D));
+    conds(c).onsets = trialonset(D,indt);
 %     allons = [allons, trialonset(D,indcond)];
-    conds(c).durations = repmat(D.nsamples/D.fsample,1,length(indcond));
+    conds(c).durations = repmat(D.nsamples/D.fsample,1,length(indt));
     conds(c).scans = [indtrial(D,cname{c},'good')];
     allscans = [allscans, conds(c).scans];
     conds(c).blocks = 1:length(conds(c).scans);
     conds(c).discardedscans = [indtrial(D,cname{c},'bad')]';
     alldisc = [alldisc, conds(c).discardedscans];
     conds(c).hrfdiscardedscans = [];
+    conds(c).rt_trial = [];
+    conds(c).cov_trial = [];
 end
 stats = struct();
 % Compute overlap between events in seconds
