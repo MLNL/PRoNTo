@@ -276,6 +276,52 @@ else
                             if isfield(job.group(g).select.subject{j}(k).design,'no_design')
                                 % No design
                                 design = 0;
+                                
+                                % One covariate vector per subject?
+                                if isfield(job.group(g).select.subject{j}(k).design.no_design,'covarcond') && ...
+                                        ~isempty(job.group(g).select.subject{j}(k).design.no_design.cov_trial)
+                                    try
+                                        load(job.group(g).select.subject{j}(k).design.no_design.cov_trial{1});
+                                        if exist('R','var')
+                                            if size(R,1)==1
+                                                PRT.group(g).subject(j).modality(k).covar  = R(1,:);
+                                            else
+                                                out.files{1} = [];
+                                                beep
+                                                sprintf('Number of covariates must be the number of subjects/scans! ')
+                                                disp('Please correct!')
+                                                return
+                                            end
+                                        else
+                                            out.files{1} = [];
+                                            beep
+                                            sprintf('Covariates file must contain ''R'' variable! ')
+                                            disp('Please correct!')
+                                            return
+                                        end
+                                    catch
+                                        beep
+                                        sprintf('Could not load %s file!',char(job.group(g).select.subject{j}(k).design.no_design.cov_trial))
+                                        out.files{1} = [];
+                                        return
+                                    end
+                                end
+                                % One regression target per subject?
+                                if ~isempty(job.group(g).select.subject{j}(k).design.no_design.rt_trial)
+                                    rt_cond = job.group(g).select.subject{j}(k).design.no_design.rt_trial;
+                                    if length(rt_cond) ~= 1
+                                        out.files{1} = [];
+                                        beep
+                                        sprintf('Number of regression targets must be the number of subjects, i.e. 1! ')
+                                        disp('Please correct!')
+                                        return
+                                    else
+                                        PRT.group(g).subject(j).modality(k).rt_subj = rt_cond;
+                                    end
+                                else
+                                    PRT.group(g).subject(j).modality(k).rt_subj = [];
+                                end
+                                
                             else
                                 % Manual design
                                 nscans = length(job.group(g).select.subject{j}(k).scans);
@@ -321,19 +367,36 @@ else
                                     catch
                                         multicond.rt_trial = cell(length(multicond.onsets),1);
                                     end
+                                    try
+                                        multicond.cov_trial = cov_trial;
+                                    catch
+                                        multicond.cov_trial = cell(length(multicond.onsets),1);
+                                    end
                                     for mc = 1:length(multicond.onsets)
                                         conds(mc).cond_name  = multicond.names{mc};
                                         conds(mc).onsets     = multicond.onsets{mc};
                                         conds(mc).durations  = multicond.durations{mc};
                                         conds(mc).rt_trial   = multicond.rt_trial{mc};
+                                        conds(mc).cov_trial  = multicond.cov_trial{mc};
+                                        lons = length(conds(mc).onsets);
                                         if isfield(conds(mc),'rt_trial') && ...
                                                 ~isempty(conds(mc).rt_trial)
-                                            lons = length(conds(mc).onsets);
                                             lreg = length(conds(mc).rt_trial);
                                             if  lreg ~= lons
                                                 out.files{1} = [];
                                                 beep
                                                 sprintf('Number of regression targets must be the number of trials!')
+                                                disp('Please correct')
+                                                return
+                                            end
+                                        end
+                                        if isfield(conds(mc),'cov_trial') && ...
+                                                ~isempty(conds(mc).cov_trial)
+                                            lcov = size(conds(mc).cov_trial,1);
+                                            if  lcov ~= lons
+                                                out.files{1} = [];
+                                                beep
+                                                sprintf('Number of covariates must be the number of trials!')
                                                 disp('Please correct')
                                                 return
                                             end
@@ -371,6 +434,33 @@ else
                                     elseif ~isfield(design.conds(c),'rt_trial')
                                         design.conds(c).rt_trial=[];
                                     end
+                                    if isfield(design.conds(c),'cov_trial') && ~isempty(design.conds(c).cov_trial)
+                                        try
+                                            load(design.conds.cov_trial{1});
+                                            if exist('R','var')
+                                                if size(R,1)== lons
+                                                    design.conds(c).cov_trial  = R;
+                                                else
+                                                    out.files{1} = [];
+                                                    beep
+                                                    sprintf('Number of covariates must be the number of trials! ')
+                                                    disp('Please correct!')
+                                                    return
+                                                end
+                                            else
+                                                out.files{1} = [];
+                                                beep
+                                                sprintf('Covariates file must contain ''R'' variable! ')
+                                                disp('Please correct!')
+                                                return
+                                            end
+                                        catch
+                                            beep
+                                            sprintf('Could not load %s file!',char(design.conds(c).cov_trial))
+                                            out.files{1} = [];
+                                            return
+                                        end
+                                    end
                                 end
                                 checked_conds = prt_check_design(design.conds,TR,unit,job.fmri_des.hrfover,job.fmri_des.hrfdel);
                                 design.conds  = checked_conds.conds;
@@ -397,6 +487,7 @@ else
                             desn = prt_get_design_MEEG(D);
                             desn.covar = [];
                             design=desn;
+                            
                         end
                         % Create PRT.mat modalities
                         PRT.group(g).gr_name                        = job.group(g).gr_name;

@@ -17,7 +17,7 @@ covar.help    = {['Select a .mat file containing '...
     'your covariates (i.e. any other data/information '...
     'you would like to include in your design). This file '...
     'should contain a variable ''R'' with a matrix of '...
-    'covariates. On covariate per image is expected.']};
+    'covariates. One covariate per image is expected.']};
 covar.val{1}  = {''};
 covar.filter  = 'mat';
 covar.ufilter = '.*';
@@ -335,13 +335,44 @@ durations.strtype = 'e';
 durations.num     = [Inf 1];
 
 % ---------------------------------------------------------------------
+% cov_trial Covariates per condition
+% ---------------------------------------------------------------------
+cov_trial         = cfg_files;
+cov_trial.tag     = 'covarcond';
+cov_trial.name    = 'Covariates';
+cov_trial.help    = {['Select a .mat file containing '...
+    'your covariates (i.e. any other data/information '...
+    'you would like to include in your design). This file '...
+    'should contain a variable ''R'' with a matrix of '...
+    'covariates. One covariate per trial onset is expected.']};
+cov_trial.val{1}  = {''};
+cov_trial.filter  = 'mat';
+cov_trial.ufilter = '.*';
+cov_trial.num     = [0 1];
+
+% ---------------------------------------------------------------------
+% rt_trial One per event
+% ---------------------------------------------------------------------
+rt_trial         = cfg_entry;
+rt_trial.tag     = 'rt_trial';
+rt_trial.name    = 'Regression targets (per trial)';
+rt_trial.help    = {['Enter one regression target per trial onset. '...
+    'or enter the name of a variable. '...
+    ' This variable should be a vector '...
+    '[Ntrials x 1], where Ntrials is the number of '...
+    'events for the selected condition.']};
+rt_trial.strtype = 'e';
+rt_trial.val     = {[]};
+rt_trial.num     = [Inf 0];
+
+% ---------------------------------------------------------------------
 % conds Condition
 % ---------------------------------------------------------------------
 conds         = cfg_branch;
 conds.tag     = 'conds';
 conds.name    = 'Condition';
 conds.help    = {'Specify condition: name, onsets and duration.'};
-conds.val     = {cond_name, onsets, durations};
+conds.val     = {cond_name, onsets, durations,cov_trial,rt_trial};
 
 % ---------------------------------------------------------------------
 % conditions Conditions
@@ -418,25 +449,46 @@ new_design.help    = {'Specify design: scans (data), onsets and durations.'};
 new_design.val     = {unit conditions multi_conds}; %covar for covar per trial (v3)
 
 % ---------------------------------------------------------------------
+% condsnodesign  Conditions for the no-design option (i.e. empty)
+% ---------------------------------------------------------------------
+condsnodesign     = cfg_const;
+condsnodesign.tag     = 'condsnodesign';
+condsnodesign.name    = 'No conditions';
+condsnodesign.help    = {'No conditions to specify for this subject.'};
+condsnodesign.val     = {0};
+
+% ---------------------------------------------------------------------
 % no_design No design
 % ---------------------------------------------------------------------
-no_design         = cfg_const;
+no_design         = cfg_branch;
 no_design.tag     = 'no_design';
 no_design.name    = 'No design';
-no_design.val     = {0};
+no_design.val     = {condsnodesign,cov_trial,rt_trial};
 no_design.help    = {['Do not specify design. This option can be used '...
     'for modalities (e.g. structural scans) that do not '...
-    'have an experimental design. Data specified as .mat should use this option.']};
+    'have an experimental design. Data specified as .mat should use this'...
+    'option. Possibility to specify one regression target and/or covariate'...
+    'for the considered subject.']};
+
+% ---------------------------------------------------------------------
+% condsMEEG Conditions for the MEEG design
+% ---------------------------------------------------------------------
+condsMEEG         = cfg_const;
+condsMEEG.tag     = 'condsMEEG';
+condsMEEG.name    = 'Events in file';
+condsMEEG.help    = {'Specify condition: name, onsets and duration.'};
+condsMEEG.val     = {0};
 
 % ---------------------------------------------------------------------
 % MEEGevents Events in MEEG file
 % ---------------------------------------------------------------------
-MEEGevents         = cfg_const;
+MEEGevents         = cfg_branch;
 MEEGevents.tag     = 'MEEGevents';
 MEEGevents.name    = 'Events in MEEG file (for MEEG inputs only)';
-MEEGevents.val     = {0};
+MEEGevents.val     = {condsMEEG};
 MEEGevents.help    = {['Events already in MEEG file. This option should be used '...
-    'for MEEG object inputs.']};
+    'for MEEG object inputs. POssibility to add covariates or regression targets']};
+
 
 % ---------------------------------------------------------------------
 % design Data & Design
