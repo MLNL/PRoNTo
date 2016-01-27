@@ -126,7 +126,9 @@ if any(in.tocomp)
 end
 %average across one or multiple dimensions
 flagav = zeros(n_mods,3);
+
 for b = 1:n_block
+
     if nargin<3 || ~flag
         disp ([' > preparing block: ', num2str(b),' of ',num2str(n_block),' ...'])
     end
@@ -139,6 +141,7 @@ for b = 1:n_block
         %-------------------------------------------------------------------
         % get the indices of the voxels within the file array mask (data &
         % design step)
+
         if ~iscell(PRT.fas(mid).idfeat_img) &&...
                 ~isempty(PRT.fas(mid).idfeat_img) %i.e. specified neuroimaging mask
             ind_ddmask = PRT.fas(mid).idfeat_img(vox_range);            

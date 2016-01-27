@@ -30,6 +30,7 @@ flagi = 0;
 N = [];
 D = [];
 [d,dd,ext] = fileparts(filenames(1,:));
+
 if strcmpi(ext,'.mat')
     try
         D = spm_eeg_load(filenames); % read an MEEG object
@@ -39,10 +40,22 @@ if strcmpi(ext,'.mat')
             flagi = 1;
         end % handling non t-f
         n_vol = dm(4); % - length(D.badtrials)
-%         isgood = setdiff([1:dm(4)],badtrials(D));
+        %         isgood = setdiff([1:dm(4)],badtrials(D));
     catch
-        error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
-    end 
+        nmats = size(filenames,1);
+        for fimat = 1:nmats;
+            try
+                tmp1 = load(filenames(fimat,:));
+            catch
+                error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
+            end
+            tmp2 = fieldnames(tmp1);
+            tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
+            N(fimat).dat = tmp1.(tmp2);
+        end
+        dm = [size(N(1).dat) 1];
+        n_vol = dm(end);
+    end
 else
     try
         N  = nifti(filenames); % read the image dimensions from the header
@@ -58,6 +71,7 @@ else
         error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
     end
 end
+
 n_vox = prod(dm(1:3));  
 
 % get the data

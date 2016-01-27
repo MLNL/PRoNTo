@@ -103,35 +103,56 @@ else
         PRT.fs(fid).modality(m).detrend  = in.mod(mids(m)).detrend;
         PRT.fs(fid).modality(m).param_dt = in.mod(mids(m)).param_dt;
         PRT.fs(fid).modality(m).mode     = in.mod(mids(m)).mode;
-
-        %get indexes from mask specified in the data and design step
-        if ~isempty(mask{m})
-            vm = spm_vol(mask{m});
-            vm = spm_read_vols(vm);
-            if ~any(vm(:)>0)
-                error('prt_init_fs:NoVoxelinMask',...
-                    ['Mask of modality ',num2str(m),' does not contain any voxel >0'])
-            else
-                PRT.fs(fid).modality(m).feat_idx_img = find(vm>0);
+        
+        mid = mids(m);
+        if strcmp(PRT.group(1).subject(1).modality(mid).type,'nifti')
+            
+            %get indexes from mask specified in the data and design step
+            if ~isempty(mask{m})
+                
+                vm = spm_vol(mask{m});
+                vm = spm_read_vols(vm);
+                
+                if ~any(vm(:)>0)
+                    error('prt_init_fs:NoVoxelinMask',...
+                        ['Mask of modality ',num2str(m),' does not contain any voxel >0'])
+                else
+                    PRT.fs(fid).modality(m).feat_idx_img = find(vm>0);
+                end
+                
+                if m==1
+                    n_vox = sum(vm(:)>0);
+                end
+                if n_vox ~= sum(vm(:)>0)
+                    error('prt_init_fs:MasksNotConsistent',...
+                        'Masks access areas of different sizes across modalities')
+                end
             end
-            mid = mids(m);
-            if m==1
-                n_vox = sum(vm(:)>0);
-            end
-            if n_vox ~= sum(vm(:)>0)
-                error('prt_init_fs:MasksNotConsistent',...
-                    'Masks access areas of different sizes across modalities')
+        else
+            if strcmp(PRT.group(1).subject(1).modality(mid).type,'Non-imaging')
+                n_vox = prod(headers{m}.dim(1:2));
+                PRT.fs(fid).modality(m).feat_idx_img = 1:n_vox;
             end
         end
+        
         %get subindexes from mask specified in the data prepare step
         if ~isempty(precmask{m})
-            vm = spm_vol(precmask{m});
-            vm = spm_read_vols(vm);
-            if ~any(vm(:)>0)
-                error('prt_init_fs:NoVoxelinMask',...
-                    ['2nd level mask of modality ',num2str(m),' does not contain any voxel >0'])
+            
+            mid = mids(m);
+            if strcmp(PRT.group(1).subject(1).modality(mid).type,'nifti')
+                
+                vm = spm_vol(precmask{m});
+                vm = spm_read_vols(vm);
+                if ~any(vm(:)>0)
+                    error('prt_init_fs:NoVoxelinMask',...
+                        ['2nd level mask of modality ',num2str(m),' does not contain any voxel >0'])
+                end
+                [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0));
+            else
+                if strcmp(PRT.group(1).subject(1).modality(mid).type,'Non-imaging')
+                    PRT.fs(fid).modality(m).idfeat_fas = 1:prod(headers{m}.dim(1:2));
+                end
             end
-            [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0));
         else
             PRT.fs(fid).modality(m).idfeat_fas=[];
         end
@@ -263,7 +284,7 @@ else
             PRT.fas(m).mod_name = PRT.masks(m).mod_name;
         end
     end
-    
+
     tocomp=zeros(1,length(in.mod));
     prt_dir=fileparts(in.fname);
     for i=1:n_mods
@@ -296,8 +317,10 @@ else
             PRT.fas(mids(i)).detrend = in.mod(mids(i)).detrend;
             PRT.fas(mids(i)).param_dt = in.mod(mids(i)).param_dt;
             PRT.fas(mids(i)).hdr = headers{i};
+            
             PRT.fas(mids(i)).idfeat_img = PRT.fs(fid).modality(i).feat_idx_img;                % index of voxels in the full image (nifti)
             datname=[prt_dir,filesep,'Feature_set_',char(in.mod(mids(i)).mod_name),'.dat'];
+
             PRT.fas(mids(i)).dat = file_array(...
                 datname, ...                 % fname     - filename
                 [szm(i),n_vox],...           % dim       - dimensions (default = [0 0] )

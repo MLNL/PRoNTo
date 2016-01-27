@@ -173,6 +173,7 @@ else
         kerns = reshape(kerns,1,length(kerns));
         Phi = kerns;
     else % Simply concatenate the modalities in samples
+
         [PRT,Phim] = prt_fs_modality(PRT,in,0,[]);
         PRT.fs(fid).multkernel = 0;
         PRT.fs(fid).atlas_name = {};
@@ -232,17 +233,21 @@ for m = 1:n_mods
                 error('prt_fs:CouldNotLoadFile',...
                     'Could not load mask file');
             end
+            % TO DO: DEAL WITH NON-IMAGING MASKS!!!
         end
     end
    
     % get mask for the kernel if one was specified
     mfile = in.mod(mid).mask;
     if ~isempty(mfile) %&&  mfile ~= 0
-        try
-            precM = spm_vol(char(mfile));
-        catch
-            error('prt_fs:CouldNotLoadFile',...
-                'Could not load mask file for preprocessing');
+        if strcmp(PRT.masks(mid).type,'nifti')
+            try
+                precM = spm_vol(char(mfile));
+            catch
+                error('prt_fs:CouldNotLoadFile',...
+                    'Could not load mask file for preprocessing');
+            end
+            % TO DO: DEAL WITH NON-IMAGING MASKS!!!
         end
     end
     
@@ -250,11 +255,14 @@ for m = 1:n_mods
     if isfield(in.mod(mid),'atlasroi')
         alfile = in.mod(mid).atlasroi;
         if ~isempty(alfile) %&&  mfile ~= 0
-            try
-                precA = spm_vol(char(alfile));
-            catch
-                error('prt_fs:CouldNotLoadFile',...
-                    'Could not load mask file for preprocessing');
+            if strcmp(PRT.masks(mid).type,'nifti')
+                try
+                    precA = spm_vol(char(alfile));
+                catch
+                    error('prt_fs:CouldNotLoadFile',...
+                        'Could not load mask file for preprocessing');
+                end
+                % TO DO: DEAL WITH NON-IMAGING MASKS!!!
             end
         end
     else
@@ -285,14 +293,13 @@ for m = 1:n_mods
             headers{m}=N;
         end
     end
-    headers{m}=N;
     
     % compute voxel dimensions and check for equality if n_mod > 1
     if m == 1
-        if length(N.dim) > 2
+        if length(N.dim) > 2 % imaging case
             n_vox = prod(N.dim(1:3));
-        else
-            n_vox = N.dim(2);
+        else                 % .mat case
+            n_vox = prod(N.dim(1:2));
         end
     elseif n_mods > 1 && n_vox ~= prod(N.dim(1:3))
         error('prt_fs:multipleModatlitiesVariableFeatures',...
