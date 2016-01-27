@@ -221,7 +221,12 @@ function br_mask_Callback(hObject, eventdata, handles)
 % hObject    handle to br_mask (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.mod.mask=spm_select(1,'image','Select mask for the considered modality');
+
+if strcmp(handles.PRT.group(1).subject(1).modality(handles.indmod).type, 'Non-imaging')
+    handles.mod.mask=spm_select(1,'mat','Select mask for the considered modality');
+else
+    handles.mod.mask=spm_select(1,'image','Select mask for the considered modality');
+end
 set(handles.edit_mask,'String',handles.mod.mask);
 % Update handles structure
 guidata(hObject, handles);
@@ -471,7 +476,11 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.mod.atlasroi=spm_select(1,'image','Select atlas to build one kernel per region');
+if strcmp(handles.PRT.group(1).subject(1).modality(handles.indmod).type, 'Non-imaging')
+    handles.mod.mask=spm_select(1,'mat','Select atlas to build one kernel per region');
+else
+    handles.mod.atlasroi=spm_select(1,'image','Select atlas to build one kernel per region');
+end
 set(handles.edit_atlas,'String',handles.mod.atlasroi);
 % Update handles structure
 guidata(hObject, handles);
