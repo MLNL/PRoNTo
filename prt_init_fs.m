@@ -129,7 +129,7 @@ else
                 end
             end
         else
-            if strcmp(PRT.group(1).subject(1).modality(mid).type,'Non-imaging')
+            if strcmp(PRT.group(1).subject(1).modality(mid).type,'.mat')
                 n_vox = prod(headers{m}.dim(1:2));
                 PRT.fs(fid).modality(m).feat_idx_img = 1:n_vox;
             end
@@ -149,7 +149,7 @@ else
                 end
                 [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0));
             else
-                if strcmp(PRT.group(1).subject(1).modality(mid).type,'Non-imaging')
+                if strcmp(PRT.group(1).subject(1).modality(mid).type,'.mat')
                     PRT.fs(fid).modality(m).idfeat_fas = 1:prod(headers{m}.dim(1:2));
                 end
             end

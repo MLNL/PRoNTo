@@ -279,7 +279,7 @@ for m = 1:n_mods
         end
         headers{m}=N;
     else
-        if strcmp(PRT.masks(mid).type,'Non-imaging')
+        if strcmp(PRT.masks(mid).type,'.mat')
             try
                 tmp1 = load(char(PRT.group(1).subject(1).modality(mid).scans(1,:)));
             catch
