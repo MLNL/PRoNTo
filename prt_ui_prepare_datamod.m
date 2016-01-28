@@ -341,6 +341,7 @@ function pop_mod_Callback(hObject, eventdata, handles)
 
 % Hints: contents = get(hObject,'String') returns pop_mod contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_mod
+
 warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 list=get(handles.pop_mod,'String');
 %handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
@@ -354,8 +355,23 @@ end
 val=get(handles.pop_mod,'Value');
 handles.mod.mod_name=list(val);
 
-% if only one modality and no design, suppress the "all conditions" option
+% if modality chosen is '.mat' disable some options
 im=find(strcmpi(list(val),{handles.PRT.group(1).subject(1).modality(:).mod_name}));
+
+if strcmp(handles.PRT.group(1).subject(1).modality(im).type, '.mat')
+        set(handles.pop_det,'Visible','on')
+    set(handles.pop_norm,'Visible','on')
+    set(handles.pop_det,'Enable','off')
+    set(handles.pop_norm,'Enable','off');
+    set(handles.froi, 'Value',0)
+    set(handles.froi,'Enable','off')
+    set(handles.edit_atlas,'Visible','on')
+    set(handles.br_atlas,'Visible','on')
+    set(handles.edit_atlas,'Enable','off')
+    set(handles.br_atlas,'Enable','off')
+end
+
+% if only one modality and no design, suppress the "all conditions" option
 if isempty(handles.PRT.group(1).subject(1).modality(im).design) ...
         || ~isstruct(handles.PRT.group(1).subject(1).modality(im).design)
     set(handles.pop_cond,'String',{'All scans'})

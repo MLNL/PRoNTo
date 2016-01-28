@@ -55,6 +55,7 @@ function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
 % Written by A Marquand
 % $Id$
 
+
 % find index for the new feature set
 fs_exists = false;
 if ~(prt_checkAlphaNumUnder(in.fs_name))
@@ -150,7 +151,29 @@ else
                 [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0));
             else
                 if strcmp(PRT.group(1).subject(1).modality(mid).type,'.mat')
-                    PRT.fs(fid).modality(m).idfeat_fas = 1:prod(headers{m}.dim(1:2));
+                    try 
+                        tmp1 = load(char(precmask{m}));
+                    catch
+                        error('prt_init_fs:NoMatMask',...
+                            'Could not load .mat mask')
+                    end
+                    tmp2 = fieldnames(tmp1);
+                    tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
+                    mat_data = tmp1.(tmp2);
+                    vm = mat_data(:);
+                    
+                    if ~any(vm>0)
+                        error('prt_init_fs:NoVarinMask',...
+                            ['2nd level mask of modality ',num2str(m),' does not contain any variable >0'])
+                    end
+                    
+                    if sum(size(mat_data) == headers{m}.dim) ~= 2
+                                                error('prt_init_fs:WrongDimMask',...
+                            ['2nd level mask of modality ',num2str(m),' does not have correct data dimensions'])
+                    end
+                        
+                    [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0)); 
+                    
                 end
             end
         else

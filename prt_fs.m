@@ -236,7 +236,7 @@ for m = 1:n_mods
             % TO DO: DEAL WITH NON-IMAGING MASKS!!!
         end
     end
-   
+    
     % get mask for the kernel if one was specified
     mfile = in.mod(mid).mask;
     if ~isempty(mfile) %&&  mfile ~= 0
@@ -247,7 +247,6 @@ for m = 1:n_mods
                 error('prt_fs:CouldNotLoadFile',...
                     'Could not load mask file for preprocessing');
             end
-            % TO DO: DEAL WITH NON-IMAGING MASKS!!!
         end
     end
     
@@ -394,6 +393,10 @@ for m = 1:n_mods
             ratl{m} = alfile;
         end
         clear M N precM V1 V2 mfile mfile_new
+    else
+        if strcmp(PRT.masks(mid).type,'.mat')
+            precmask{m} = char(mfile); 
+        end
     end
 end
 

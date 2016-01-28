@@ -144,13 +144,6 @@ nmeeg = 0;
 indmeeg = [];
 indimg = [];
 
-% if all modalities are .mat
-if length(unique({handles.dat.masks(:).type}))==1 ...
-        && strcmp(unique({handles.dat.masks(:).type}),'.mat')
-   set(handles.multkernflag,'Enable','off')
-   set(handles.multkernflag,'Value',0)
-end
-
 for i = 1:n_mod
     if isfield(handles.dat.masks(i),'type') && ...
             strcmpi(handles.dat.masks(i).type,'MEEG')
