@@ -157,6 +157,22 @@ if length(mod_n)==1 && (isempty(handles.PRT.group(1).subject(1).modality(handles
 else
     set(handles.pop_cond,'String',{'All scans','All conditions'})
 end
+
+% if all modalities are .mat
+if length(unique({handles.PRT.group(1).subject(1).modality(:).type}))==1 ...
+        && strcmp(unique({handles.PRT.group(1).subject(1).modality(:).type}),'.mat')
+    set(handles.pop_det,'Visible','on')
+    set(handles.pop_norm,'Visible','on')
+    set(handles.pop_det,'Enable','off')
+    set(handles.pop_norm,'Enable','off');
+    set(handles.froi, 'Value',0)
+    set(handles.froi,'Enable','off')
+    set(handles.edit_atlas,'Visible','on')
+    set(handles.br_atlas,'Visible','on')
+    set(handles.edit_atlas,'Enable','off')
+    set(handles.br_atlas,'Enable','off')
+end
+
 set(handles.pop_cond,'Value',1)
 handles.mod=struct('mod_name',[],'mode',[],'mask',[],'detrend',[], ...
         'param_dt',[],'normalise',[],'matnorm',[]);
@@ -222,7 +238,7 @@ function br_mask_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if strcmp(handles.PRT.group(1).subject(1).modality(handles.indmod).type, 'Non-imaging')
+if strcmp(handles.PRT.group(1).subject(1).modality(handles.indmod).type, '.mat')
     handles.mod.mask=spm_select(1,'mat','Select mask for the considered modality');
 else
     handles.mod.mask=spm_select(1,'image','Select mask for the considered modality');
@@ -476,11 +492,8 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if strcmp(handles.PRT.group(1).subject(1).modality(handles.indmod).type, 'Non-imaging')
-    handles.mod.mask=spm_select(1,'mat','Select atlas to build one kernel per region');
-else
-    handles.mod.atlasroi=spm_select(1,'image','Select atlas to build one kernel per region');
-end
+
+handles.mod.atlasroi=spm_select(1,'image','Select atlas to build one kernel per region');
 set(handles.edit_atlas,'String',handles.mod.atlasroi);
 % Update handles structure
 guidata(hObject, handles);

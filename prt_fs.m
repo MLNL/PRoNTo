@@ -262,7 +262,6 @@ for m = 1:n_mods
                     error('prt_fs:CouldNotLoadFile',...
                         'Could not load mask file for preprocessing');
                 end
-                % TO DO: DEAL WITH NON-IMAGING MASKS!!!
             end
         end
     else

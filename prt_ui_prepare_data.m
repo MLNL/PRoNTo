@@ -136,12 +136,21 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     handles.flagMEEG = varargin{2}{2};
     handles.fname = varargin{2}{3};
 end
+
 % Fill some fields automatically if only one modality in dataset
 n_mod=length(handles.dat.masks);
 handles.modnames={handles.dat.masks(:).mod_name};
 nmeeg = 0;
 indmeeg = [];
 indimg = [];
+
+% if all modalities are .mat
+if length(unique({handles.dat.masks(:).type}))==1 ...
+        && strcmp(unique({handles.dat.masks(:).type}),'.mat')
+   set(handles.multkernflag,'Enable','off')
+   set(handles.multkernflag,'Value',0)
+end
+
 for i = 1:n_mod
     if isfield(handles.dat.masks(i),'type') && ...
             strcmpi(handles.dat.masks(i).type,'MEEG')
