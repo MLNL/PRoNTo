@@ -596,7 +596,7 @@ sMKL_cla_cv_type_nested        = cfg_choice;
 sMKL_cla_cv_type_nested.tag    = 'cv_type_nested';
 sMKL_cla_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
 sMKL_cla_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
-    cv_lkbo, cv_loro,cv_custom};
+    cv_lkbo, cv_loro};
 sMKL_cla_cv_type_nested.val    = {cv_loso};
 sMKL_cla_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
 
@@ -666,7 +666,7 @@ sMKL_reg_cv_type_nested        = cfg_choice;
 sMKL_reg_cv_type_nested.tag    = 'cv_type_nested';
 sMKL_reg_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
 sMKL_reg_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
-    cv_lkbo, cv_loro,cv_custom};
+    cv_lkbo, cv_loro};
 sMKL_reg_cv_type_nested.val    = {cv_loso};
 sMKL_reg_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
 
@@ -715,7 +715,7 @@ krr_cv_type_nested        = cfg_choice;
 krr_cv_type_nested.tag    = 'cv_type_nested';
 krr_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
 krr_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
-    cv_lkbo, cv_loro,cv_custom};
+    cv_lkbo, cv_loro};
 krr_cv_type_nested.val    = {cv_loso};
 krr_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
 
