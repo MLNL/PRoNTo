@@ -167,7 +167,7 @@ else
                             ['2nd level mask of modality ',num2str(m),' does not contain any variable >0'])
                     end
                     
-                    if sum(size(mat_data) == headers{m}.dim) ~= 2
+                    if sum(size(mat_data) == headers{m}.dim(1:2)) ~= 2
                                                 error('prt_init_fs:WrongDimMask',...
                             ['2nd level mask of modality ',num2str(m),' does not have correct data dimensions'])
                     end
