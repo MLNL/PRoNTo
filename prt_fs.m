@@ -296,7 +296,7 @@ for m = 1:n_mods
     if m == 1
         n_vox = prod(N.dim(1:3));
          
-    elseif n_mods > 1 && n_vox ~= prod(N.dim(1:3))
+    elseif (n_mods > 1 && n_vox ~= prod(N.dim(1:3))) && (in.flag_mm==0)
         error('prt_fs:multipleModatlitiesVariableFeatures',...
             'Multiple modalities specified, but have variable numbers of features');
     end
