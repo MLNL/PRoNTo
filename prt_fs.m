@@ -287,19 +287,16 @@ for m = 1:n_mods
             tmp2 = fieldnames(tmp1);
             tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
             mat_data = tmp1.(tmp2);
-            N.dim = size(mat_data);
+            N.dim = [size(mat_data), 1];
             headers{m}=N;
         end
     end
     
     % compute voxel dimensions and check for equality if n_mod > 1
     if m == 1
-        if length(N.dim) > 2 % imaging case
-            n_vox = prod(N.dim(1:3));
-        else                 % .mat case
-            n_vox = prod(N.dim(1:2));
-        end
-    elseif n_mods > 1 && n_vox ~= prod(N.dim(1:3))
+        n_vox = prod(N.dim(1:3));
+         
+    elseif (n_mods > 1 && n_vox ~= prod(N.dim(1:3))) && (in.flag_mm==0)
         error('prt_fs:multipleModatlitiesVariableFeatures',...
             'Multiple modalities specified, but have variable numbers of features');
     end

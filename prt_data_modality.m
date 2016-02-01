@@ -172,10 +172,12 @@ else
             set(handles.edit_regt,'Enable','off')
             set(handles.edit_regt,'Visible','off')
         end
+        
 
         if ~isempty(varargin{2}{2}) && isfield(varargin{2}{2},'modality') && ...
                 ~isempty(varargin{2}{2}.modality)
             handles.subjmod={varargin{2}{2}.modality(:).mod_name};
+            
             if length(varargin{2})>=3 && ~isempty(varargin{2}{3})
                 nlist=varargin{2}{1};
                 modsel=varargin{2}{2}.modality(varargin{2}{3});
@@ -278,6 +280,7 @@ function modname_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from modname
 warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 list=get(handles.modname,'String');
+
 %handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
 if length(list)==1
     set(handles.modname,'Value',1)
@@ -331,6 +334,7 @@ else
     end         
 end
 
+ 
 %if a subject was previously entered, then propose to replicate its design
 %if the modality is the same
 if isstruct(handles.subj1)
@@ -550,7 +554,12 @@ else
         set(handles.design_menu,...
             'String',{'Load SPM.mat','Specify design','No design'},...
             'Value',3);
+
         if isstruct(handles.subj1)
+            
+            list=get(handles.modname,'String');
+            modname=list{get(handles.modname,'Value')};
+            
             if any(strcmpi(modname, {handles.subj1(:).mod_name}))
                 handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
                 list=get(handles.design_menu,'String');

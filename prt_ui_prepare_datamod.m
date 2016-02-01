@@ -238,7 +238,9 @@ function br_mask_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if strcmp(handles.PRT.group(1).subject(1).modality(handles.indmod).type, '.mat')
+modindx = 1:length(handles.indmod);
+modindx = modindx(strcmp({handles.PRT.masks(:).mod_name},handles.mod.mod_name));
+if strcmp(handles.PRT.group(1).subject(1).modality(modindx).type, '.mat')
     handles.mod.mask=spm_select(1,'mat','Select mask for the considered modality');
 else
     handles.mod.mask=spm_select(1,'image','Select mask for the considered modality');
