@@ -293,17 +293,17 @@ else
     switch PRT.model(modelid).output.fold(1).type
         case 'classifier'
             
-            pval_b_acc = total_greater_b_acc / n_perm;
-            if pval_b_acc == 0
-                pval_b_acc = 1./n_perm;
-            end
+            pval_b_acc = (total_greater_b_acc+1) / (n_perm+1);
+%             if pval_b_acc == 0
+%                 pval_b_acc = 1./n_perm;
+%             end
             
             pval_c_acc=zeros(n_class,1);
             for c=1:n_class
-                pval_c_acc(c) = total_greater_c_acc(c) / n_perm;
-                if pval_c_acc(c) == 0
-                    pval_c_acc(c) = 1./n_perm;
-                end
+                pval_c_acc(c) = (total_greater_c_acc(c)+1) / (n_perm+1);
+%                 if pval_c_acc(c) == 0
+%                     pval_c_acc(c) = 1./n_perm;
+%                 end
             end
             
             permutation.pvalue_b_acc = pval_b_acc;
@@ -311,25 +311,25 @@ else
             
         case 'regression'
             
-            pval_corr = total_greater_corr / n_perm;
-            if pval_corr == 0
-                pval_corr = 1./n_perm;
-            end
+            pval_corr = (total_greater_corr+1) / (n_perm+1);
+%             if pval_corr == 0
+%                 pval_corr = 1./n_perm;
+%             end
             
-            pval_mse = total_greater_mse / n_perm;
-            if pval_mse == 0
-                pval_mse = 1./n_perm;
-            end
+            pval_mse = (total_greater_mse+1) / (n_perm+1);
+%             if pval_mse == 0
+%                 pval_mse = 1./n_perm;
+%             end
             
-            pval_nmse = total_greater_nmse / n_perm;
-            if pval_nmse == 0
-                pval_nmse = 1./n_perm;
-            end
+            pval_nmse = (total_greater_nmse+1) / (n_perm+1);
+%             if pval_nmse == 0
+%                 pval_nmse = 1./n_perm;
+%             end
             
-            pval_r2 = total_greater_r2 / n_perm;
-            if pval_r2 == 0
-                pval_r2 = 1./n_perm;
-            end
+            pval_r2 = (total_greater_r2+1) / (n_perm+1);
+%             if pval_r2 == 0
+%                 pval_r2 = 1./n_perm;
+%             end
             
             permutation.pval_corr = pval_corr;
             permutation.pval_mse = pval_mse;
