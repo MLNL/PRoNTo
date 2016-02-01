@@ -202,7 +202,7 @@ else
                         chunkpermcv = [chunkpermcv; repmat(chunkperm(i),numel(chunks{i}),1)]; % get permuted indexes for each image in the chunk
                     end
                     pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                    CVperm(ism(pchunks),:) = CV(ism(pchunk(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
+                    CVperm(ism(pchunk),:) = CV(ism(pchunk(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
                 end
             end
         end
