@@ -96,6 +96,7 @@ end
     
 % Copy model
 PRT.model(mid) = PRT.model(midtc);
+PRT.model(mid).output = [];
 PRT.model(mid).model_name = model.model_name;
 
 % Get fields for which the user wants to make a change
@@ -198,8 +199,23 @@ for i = 1:length(job.modchoices)
             end
         else
             [pat, nam] = fileparts(char(job.modchoices{i}.model_type.machine.custom_machine.machine_func));
-            PRT.model(mid).input.machine.function = nam;
-            PRT.model(mid).input.machine.args = job.modchoices{i}.model_type.machine.custom_machine.machine_args;
+            PRT.model(mid).input.machine.function = nam;            
+            if isfield(job.modchoices{i}.model_type.machine.custom_machine, 'machine_opt')
+                if job.modchoices{i}.model_type.machine.custom_machine.machine_opt
+                    PRT.model(mid).input.use_nested_cv = 1;
+                    PRT.model(mid).input.nested_param = eval(job.modchoices{i}.model_type.machine.custom_machine.machine_args);
+                else
+                    PRT.model(mid).input.use_nested_cv = 0;
+                    PRT.model(mid).input.nested_param = [];
+                end
+            else
+                PRT.model(mid).input.machine.args = job.modchoices{i}.model_type.machine.custom_machine.machine_args;
+            end
+            if isfield(job.modchoices{i}.model_type.machine.custom_machine, 'machine_cv_type_nested')
+                [cv_tmp] = get_cv_type(job.modchoices{i}.model_type.machine.custom_machine.machine_cv_type_nested);
+                PRT.model(mid).input.cv_type_nested = cv_tmp.type;
+                PRT.model(mid).input.cv_k_nested = cv_tmp.k;
+            end
         end
     elseif isfield(job.modchoices{i},'sel_ops')
         % specify operations to apply to the data prior to prediction

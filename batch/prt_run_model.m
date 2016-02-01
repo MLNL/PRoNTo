@@ -208,7 +208,22 @@ if isfield(job.model_type,'classification')
     else
         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
         model.machine.function = nam;
-        model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
+        if isfield(job.model_type.classification.machine_cl.custom_machine, 'machine_opt')
+            if job.model_type.classification.machine_cl.custom_machine.machine_opt
+                PRT.model(mid).input.use_nested_cv = 1;
+                PRT.model(mid).input.nested_param = eval(job.model_type.classification.machine_cl.custom_machine.machine_args);
+            else
+                PRT.model(mid).input.use_nested_cv = 0;
+                PRT.model(mid).input.nested_param = [];
+            end
+        else
+            PRT.model(mid).input.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
+        end
+        if isfield(job.model_type.classification.machine_cl.custom_machine, 'machine_cv_type_nested')
+            [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.custom_machine.machine_cv_type_nested);
+            PRT.model(mid).input.cv_type_nested = cv_tmp.type;
+            PRT.model(mid).input.cv_k_nested = cv_tmp.k;
+        end
     end
     
     % Flag to subsample the classes according to lowest number of examples

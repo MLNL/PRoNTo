@@ -1,4 +1,4 @@
-function model = prt_cfg_copy_model
+function copymodel = prt_cfg_copy_model
 % Copies a model and allows to change a few field
 % This is particularly useful with random subsampling.
 %_______________________________________________________________________
@@ -72,35 +72,6 @@ fsets.name    = 'Feature sets';
 fsets.help    = {'Feature set(s) to include in this model.'};
 fsets.val     = {featureset};
 % fsets.val     = {featureset, indmodels};
-
-% ---------------------------------------------------------------------
-% machine_func Filename(s) of data
-% ---------------------------------------------------------------------
-machine_func        = cfg_files;
-machine_func.tag    = 'machine_func';
-machine_func.name   = 'Function';
-machine_func.ufilter = '^*.m';
-machine_func.num    = [1 1];
-machine_func.help   = {'Choose a function that will perform prediction.'};
-
-% ---------------------------------------------------------------------
-% machine_args Regression Targets
-% ---------------------------------------------------------------------
-machine_args         = cfg_entry;
-machine_args.tag     = 'machine_args';
-machine_args.name    = 'Arguments';
-machine_args.help    = {['Arguments for prediction machine.']};
-machine_args.strtype = 's';
-machine_args.num     = [1 Inf];
-
-% ---------------------------------------------------------------------
-% custom_machine Regression group
-% ---------------------------------------------------------------------
-custom_machine         = cfg_branch;
-custom_machine.tag     = 'custom_machine';
-custom_machine.name    = 'Custom machine';
-custom_machine.help    = {'Choose another prediction machine'};
-custom_machine.val     = {machine_func, machine_args};
 
 % ---------------------------------------------------------------------
 % k_args Define k for partioning
@@ -212,6 +183,64 @@ cv_loro.help    = {...
      'Appropriate for single subject designs with multiple runs/sessions.']};
 
 % ---------------------------------------------------------------------
+% machine_func Filename(s) of data
+% ---------------------------------------------------------------------
+machine_func        = cfg_files;
+machine_func.tag    = 'machine_func';
+machine_func.name   = 'Function';
+machine_func.ufilter = '^*.m';
+machine_func.num    = [1 1];
+machine_func.help   = {'Choose a function that will perform prediction.'};
+
+% ---------------------------------------------------------------------
+% machine_args Custom machine arguments
+% ---------------------------------------------------------------------
+machine_args         = cfg_entry;
+machine_args.tag     = 'machine_args';
+machine_args.name    = 'Arguments';
+machine_args.help    = {['Arguments for prediction machine.']};
+machine_args.strtype = 's';
+machine_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% cv_type Cross-validation type for custom machine
+% ---------------------------------------------------------------------
+machine_cv_type_nested        = cfg_choice;
+machine_cv_type_nested.tag    = 'machine_cv_type_nested';
+machine_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
+machine_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
+    cv_lkbo, cv_locbo, cv_lkcbo, cv_loro};
+machine_cv_type_nested.val    = {cv_loso};
+machine_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
+
+% ---------------------------------------------------------------------
+% machine_opt custom : flag whether to optimize hyperparameters
+% ---------------------------------------------------------------------
+machine_opt         = cfg_menu;
+machine_opt.tag     = 'machine_opt';
+machine_opt.name    = 'Optimize hyper-parameter';
+machine_opt.help    = {['Whether to optimize the machine hyper-parameter(s), or not. '...
+    'If Yes, than provide a range of possible values, in the form '...
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. ' ...
+    'Multiple hyperparameters should be entered as a cell array, e.g. '...
+    '{[0.1 1 10],[0.1:0.1:0.9]}. If not, provide a default value.']};
+machine_opt.labels  = {
+    'No'
+    'Yes'
+    }';
+machine_opt.values  = {0 1};
+machine_opt.val     = {0};
+
+% ---------------------------------------------------------------------
+% custom_machine Custom machine settings
+% ---------------------------------------------------------------------
+custom_machine         = cfg_branch;
+custom_machine.tag     = 'custom_machine';
+custom_machine.name    = 'Custom machine';
+custom_machine.help    = {'Choose another prediction machine'};
+custom_machine.val     = {machine_func, machine_opt,machine_args,machine_cv_type_nested};
+
+% ---------------------------------------------------------------------
 % svm_opt SVM : flag whether to optimize C
 % ---------------------------------------------------------------------
 svm_opt         = cfg_menu;
@@ -247,7 +276,7 @@ svm_cv_type_nested        = cfg_choice;
 svm_cv_type_nested.tag    = 'cv_type_nested';
 svm_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
 svm_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
-    cv_lkbo, cv_loro};
+    cv_lkbo, cv_locbo, cv_lkcbo, cv_loro};
 svm_cv_type_nested.val    = {cv_loso};
 svm_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
 
@@ -336,7 +365,7 @@ sMKL_cla_cv_type_nested        = cfg_choice;
 sMKL_cla_cv_type_nested.tag    = 'cv_type_nested';
 sMKL_cla_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
 sMKL_cla_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
-    cv_lkbo, cv_loro};
+    cv_lkbo, cv_locbo, cv_lkcbo, cv_loro};
 sMKL_cla_cv_type_nested.val    = {cv_loso};
 sMKL_cla_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
 
@@ -657,12 +686,12 @@ modify.help    = {'Choose one or more fields to modify in copied model.'};
 modify.val     = {tochange};
 
 % ---------------------------------------------------------------------
-% model Model
+% copymodel Model
 % ---------------------------------------------------------------------
-model        = cfg_exbranch;
-model.tag    = 'model';
-model.name   = 'Copy model';
-model.val    = {infile, ...
+copymodel        = cfg_exbranch;
+copymodel.tag    = 'model';
+copymodel.name   = 'Copy model';
+copymodel.val    = {infile, ...
                 model_name, ...
                 copymodel_name, ...
                 tochange};
@@ -674,9 +703,9 @@ model.val    = {infile, ...
 %     cv_type,...
 %     include_allscans,...
 %     sel_ops};
-model.help   = {'Copy model and change a few fields.'};
-model.prog   = @prt_run_copy_model;
-model.vout   = @vout_data;
+copymodel.help   = {'Copy model and change a few fields.'};
+copymodel.prog   = @prt_run_copy_model;
+copymodel.vout   = @vout_data;
 
 %------------------------------------------------------------------------
 %% Output function
