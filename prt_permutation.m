@@ -187,7 +187,7 @@ else
                             rg = find((ids(ism,4) == samp_c(cid)) & ...
                                 (ids(ism,5) == samp_b(bid)));
                             
-                            chunks{i} = rg;
+                            chunks{i} = rg';
                             
                             i=i+1;
                         end
