@@ -62,7 +62,11 @@ else
         try
             matlabpool(def_par.ncore)
         catch
-            warning('Could not use pool of Matlab processes!')
+            try
+                parpool(def_par.ncore)
+            catch
+                warning('Could not use pool of Matlab processes!')
+            end
         end
     end
     
@@ -84,48 +88,8 @@ else
         nc=[];
     end
     fdata.nc = nc;
-    
-    % Find chunks in the data (e.g. temporal correlated samples)
-    % -------------------------------------------------------------------------
-    
-    ids = PRT.fs(fid).id_mat(PRT.model(modelid(1)).input.samp_idx,:);
-    i=1;
-    samp_g=unique(ids(:,1));%number of groups
-    for gid = 1: length(samp_g)
+
         
-        samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
-        
-        for sid = 1: length(samp_s)
-            
-            samp_m=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid),3)); %number of modality for specific group & subject
-            
-            for mid = 1:length(samp_m)
-                
-                samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
-                
-                for cid = 1:length(samp_c)
-                    
-                    samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
-                    
-                    for bid = 1:length(samp_b)
-                        
-                        rg = find((ids(:,1) == samp_g(gid)) & ...
-                            (ids(:,2) == samp_s(sid)) & ...
-                            (ids(:,3) == samp_m(mid)) & ...
-                            (ids(:,4) == samp_c(cid)) & ...
-                            (ids(:,5) == samp_b(bid)));
-                        
-                        chunks{i} = rg;
-                        
-                        i=i+1;
-                    end
-                end
-            end
-        end
-    end
-    
-    
-    
     % Initialize counts
     % -------------------------------------------------------------------------
     switch PRT.model(modelid(1)).output(1).fold(1).type
@@ -148,6 +112,7 @@ else
     else
         nk = 1;
     end
+    
     
     % For each model
     flag_use_perms = 0;
@@ -174,11 +139,12 @@ else
                         disp('Performing permutations without copying from selected model')
                     end
                 end
-            end                  
+            end
         end
         
         fprintf(['Permutation (out of %d):',repmat(' ',1,ceil(log10(n_perm))),'%d'],n_perm, 1);
         for p=1:n_perm
+            
             
             % Counter of permutations to be updated
             if p>1
@@ -188,24 +154,69 @@ else
                 fprintf('%d',p);
             end
             
-            % permute
-            if ~flag_use_perms
-                chunkperm=randperm(length(chunks));
-            else
-                chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
-            end
             
             CVperm = zeros(size(CV));
             t_perm = zeros(length(t),1);
-            for i=1:length(chunks)
-                t_perm(chunks{i},1)= unique(PRT.model(modelid(1)).input.targets(chunks{chunkperm(i)}));
-                CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
+            
+            
+            % Find chunks in the data (e.g. temporal correlated samples)
+            % -------------------------------------------------------------------------
+
+            ids = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
+            samp_g=unique(ids(:,1));%number of groups
+            for gid = 1: length(samp_g)
+                
+                samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
+                
+                for sid = 1: length(samp_s)
+                    
+                    samp_m=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid),3)); %number of modality for specific group & subject
+                    
+                    for mid = 1:length(samp_m)
+                        
+                        samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
+                        
+                        ism = find((ids(:,1) == samp_g(gid)) & ...
+                            (ids(:,2) == samp_s(sid)) & ...
+                            (ids(:,3) == samp_m(mid)));
+                        i=1;
+                        for cid = 1:length(samp_c)
+                            
+                            samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
+                            
+                            for bid = 1:length(samp_b)
+
+                                rg = find((ids(ism,4) == samp_c(cid)) & ...
+                                    (ids(ism,5) == samp_b(bid)));
+                                
+                                chunks{i} = rg';
+                                
+                                i=i+1;
+                            end
+                        end
+                        
+                        if ~flag_use_perms
+                            chunkperm=randperm(numel(chunks));
+                        else
+                            chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
+                        end
+                        
+                        chunkpermcv = [];
+                        for i=1:numel(chunks)
+                            t_perm(ism(chunks{i}),1) = unique(PRT.model(modelid).input.targets(ism(chunks{chunkperm(i)})));
+                            chunkpermcv = [chunkpermcv; repmat(chunkperm(i),numel(chunks{i}),1)]; % get permuted indexes for each image in the chunk
+                        end
+                        pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
+                        CVperm(ism(pchunks),:) = CV(ism(pchunk(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
+                    end
+                end
             end
+            
             
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
                 fdata.ID      = ID;
-                fdata.mid     = modelid(1);
+                fdata.mid     = modelid;
                 fdata.CV      = CVperm(:,f);
                 if nk>1
                     fdata.Phi_all = Phi_all(k); %selected kernel for independent modelling
@@ -213,6 +224,7 @@ else
                     fdata.Phi_all = Phi_all; %all kernels
                 end
                 fdata.t       = t_perm;
+                
                 
                 % Nested CV for hyper-parameter optimisation or feature selection
                 if isfield(PRT.model(modelid(1)).input,'use_nested_cv')
@@ -288,20 +300,15 @@ else
         end
         fprintf('\n') % new line after each model
         
-        switch PRT.model(modelid(1)).output(k).fold(1).type
+        
+        switch PRT.model(modelid).output(k).fold(1).type
             case 'classifier'
                 
-                pval_b_acc = total_greater_b_acc / n_perm;
-                if pval_b_acc == 0
-                    pval_b_acc = 1./n_perm;
-                end
+                pval_b_acc = (total_greater_b_acc+1) / (n_perm+1);
                 
                 pval_c_acc=zeros(n_class,1);
                 for c=1:n_class
-                    pval_c_acc(c) = total_greater_c_acc(c) / n_perm;
-                    if pval_c_acc(c) == 0
-                        pval_c_acc(c) = 1./n_perm;
-                    end
+                    pval_c_acc(c) = (total_greater_c_acc(c)+1) / (n_perm+1);
                 end
                 
                 permutation.pvalue_b_acc = pval_b_acc;
@@ -309,25 +316,14 @@ else
                 
             case 'regression'
                 
-                pval_corr = total_greater_corr / n_perm;
-                if pval_corr == 0
-                    pval_corr = 1./n_perm;
-                end
+                pval_corr = (total_greater_corr+1) / (n_perm+1);
                 
-                pval_mse = total_greater_mse / n_perm;
-                if pval_mse == 0
-                    pval_mse = 1./n_perm;
-                end
+                pval_mse = (total_greater_mse+1) / (n_perm+1);
                 
-                pval_nmse = total_greater_nmse / n_perm;
-                if pval_nmse == 0
-                    pval_nmse = 1./n_perm;
-                end
+                pval_nmse = (total_greater_nmse+1) / (n_perm+1);
                 
-                pval_r2 = total_greater_r2 / n_perm;
-                if pval_r2 == 0
-                    pval_r2 = 1./n_perm;
-                end
+                pval_r2 = (total_greater_r2+1) / (n_perm+1);
+
                 
                 permutation.pval_corr = pval_corr;
                 permutation.pval_mse = pval_mse;
@@ -338,7 +334,7 @@ else
         
         
         %update PRT
-        PRT.model(modelid(1)).output(k).stats.permutation = permutation;
+        PRT.model(modelid).output(k).stats.permutation = permutation;
         
         % Save PRT containing machine output
         % -------------------------------------------------------------------------
@@ -349,19 +345,8 @@ else
         else
             save(outfile,'PRT');
         end
+        disp('Permutation test done.')
     end
     
-    % Save PRT containing machine output
-    % -------------------------------------------------------------------------
-    outfile = fullfile(path,'PRT.mat');
-    disp('Updating PRT.mat.......>>')
-    if spm_check_version('MATLAB','7') < 0
-        save(outfile,'-V6','PRT');
-    else
-        save(outfile,'PRT');
-    end
-    disp('Permutation test done.')
-end
-
 end
 
