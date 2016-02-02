@@ -88,8 +88,8 @@ else
         nc=[];
     end
     fdata.nc = nc;
-
-        
+    
+    
     % Initialize counts
     % -------------------------------------------------------------------------
     switch PRT.model(modelid(1)).output(1).fold(1).type
@@ -112,7 +112,7 @@ else
     else
         nk = 1;
     end
- 
+    
     % For each model
     flag_use_perms = 0;
     for k = 1:nk
@@ -143,7 +143,7 @@ else
         
         fprintf(['Permutation (out of %d):',repmat(' ',1,ceil(log10(n_perm))),'%d'],n_perm, 1);
         for p=1:n_perm
-
+            
             % Counter of permutations to be updated
             if p>1
                 for idisp = 1:ceil(log10(p)) % delete previous counter display
@@ -151,15 +151,15 @@ else
                 end
                 fprintf('%d',p);
             end
-
-        CVperm = zeros(size(CV));
-        t_perm = zeros(length(t),1);
-        IDperm = zeros(size(ID));
+            
+            CVperm = zeros(size(CV));
+            t_perm = zeros(length(t),1);
+            IDperm = zeros(size(ID));
             
             
             % Find chunks in the data (e.g. temporal correlated samples)
             % -------------------------------------------------------------------------
-
+            
             ids = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
             samp_g=unique(ids(:,1));%number of groups
             for gid = 1: length(samp_g)
@@ -172,58 +172,50 @@ else
                     
                     for mid = 1:length(samp_m)
                         
-                    ism = find((ids(:,1) == samp_g(gid)) & ...
-                                (ids(:,2) == samp_s(sid)) & ...
-                                (ids(:,3) == samp_m(mid)));
-                    i=1;
-                    chunks = {};
-                    for cid = 1:length(samp_c)
-                        
-                        samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
-                        
-                        for bid = 1:length(samp_b)
-
-                            rg = find((ids(ism,4) == samp_c(cid)) & ...
-                                (ids(ism,5) == samp_b(bid)));
+                        ism = find((ids(:,1) == samp_g(gid)) & ...
+                            (ids(:,2) == samp_s(sid)) & ...
+                            (ids(:,3) == samp_m(mid)));
+                        i=1;
+                        chunks = {};
+                        for cid = 1:length(samp_c)
                             
-                            chunks{i} = rg';
+                            samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
                             
-                            i=i+1;
+                            for bid = 1:length(samp_b)
+                                
+                                rg = find((ids(ism,4) == samp_c(cid)) & ...
+                                    (ids(ism,5) == samp_b(bid)));
+                                
+                                chunks{i} = rg';
+                                
+                                i=i+1;
+                            end
                         end
-                    end
-
-                    
-                    if ~flag_use_perms
+                        
+                        
+                        if ~flag_use_perms
                             chunkperm=randperm(numel(chunks));
                         else
                             chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
                         end
-
-                    chunkpermcv = [];
-                    for i=1:length(chunks)
-                        t_perm(ism(chunks{i}),1) = unique(PRT.model(modelid).input.targets(ism(chunks{chunkperm(i)})));
-                        chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
+                        
+                        chunkpermcv = [];
+                        for i=1:length(chunks)
+                            t_perm(ism(chunks{i}),1) = unique(PRT.model(modelid).input.targets(ism(chunks{chunkperm(i)})));
+                            chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
+                        end
+                        pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
+                        CVperm(ism(pchunk),:) = CV(ism(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
+                        IDperm(ism(pchunk),:) = ID(ism(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
                     end
-                    pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                    CVperm(ism(pchunk),:) = CV(ism(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
-                    IDperm(ism(pchunk),:) = ID(ism(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
                 end
             end
-        end
-        
-                
-        for f = 1:n_folds
-            % configure data structure for prt_cv_fold
-            fdata.ID      = IDperm; %IDperm
-            fdata.mid     = modelid;
-            fdata.CV      = CVperm(:,f);
-            fdata.Phi_all = Phi_all;
-            fdata.t       = t_perm;
+            
             
             
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
-                fdata.ID      = ID; %IDperm
+                fdata.ID      = IDperm; %IDperm
                 fdata.mid     = modelid;
                 fdata.CV      = CVperm(:,f);
                 if nk>1
@@ -331,7 +323,7 @@ else
                 pval_nmse = (total_greater_nmse+1) / (n_perm+1);
                 
                 pval_r2 = (total_greater_r2+1) / (n_perm+1);
-
+                
                 
                 permutation.pval_corr = pval_corr;
                 permutation.pval_mse = pval_mse;
