@@ -158,8 +158,15 @@ else
                             'Could not load .mat mask')
                     end
                     tmp2 = fieldnames(tmp1);
+                    if length(tmp2) > 1
+                        error('Mask .mat file contains more than one variable. First variable will be read, rest will be ignored!');
+                    end
                     tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
                     mat_data = tmp1.(tmp2);
+                    if length(size(mat_data)) > 2
+                        error('prt_fs:MatrixWrongDims',...
+                            'Mask .mat contains more than 2 dimensions. Mask should be matrix or vector.');
+                    end
                     vm = mat_data(:);
                     
                     if ~any(vm>0)
