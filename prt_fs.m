@@ -285,8 +285,15 @@ for m = 1:n_mods
                     'Could not load data for preprocessing');
             end
             tmp2 = fieldnames(tmp1);
+            if length(tmp2) > 1
+                error('.mat file contains more than one variable. First variable will be read, rest will be ignored!');
+            end
             tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
             mat_data = tmp1.(tmp2);
+            if length(size(mat_data)) > 2
+                error('prt_fs:MatrixWrongDims',...
+                    '.mat data contains more than 2 dimensions. Data should be matrix or vector.');
+            end
             N.dim = [size(mat_data), 1];
             headers{m}=N;
         end
