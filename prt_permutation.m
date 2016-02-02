@@ -112,8 +112,7 @@ else
     else
         nk = 1;
     end
-    
-    
+ 
     % For each model
     flag_use_perms = 0;
     for k = 1:nk
@@ -144,8 +143,7 @@ else
         
         fprintf(['Permutation (out of %d):',repmat(' ',1,ceil(log10(n_perm))),'%d'],n_perm, 1);
         for p=1:n_perm
-            
-            
+
             % Counter of permutations to be updated
             if p>1
                 for idisp = 1:ceil(log10(p)) % delete previous counter display
@@ -157,6 +155,7 @@ else
             
             CVperm = zeros(size(CV));
             t_perm = zeros(length(t),1);
+ %         IDperm = zeros(size(ID));
             
             
             % Find chunks in the data (e.g. temporal correlated samples)
@@ -174,27 +173,26 @@ else
                     
                     for mid = 1:length(samp_m)
                         
+                    ism = find((ids(:,1) == samp_g(gid)) & ...
+                                (ids(:,2) == samp_s(sid)) & ...
+                                (ids(:,3) == samp_m(mid)));
+                    i=1;
+                    chunks = {};
+                    for cid = 1:length(samp_c)
+                        
                         samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
                         
-                        ism = find((ids(:,1) == samp_g(gid)) & ...
-                            (ids(:,2) == samp_s(sid)) & ...
-                            (ids(:,3) == samp_m(mid)));
-                        i=1;
-                        for cid = 1:length(samp_c)
-                            
-                            samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
-                            
-                            for bid = 1:length(samp_b)
+                        for bid = 1:length(samp_b)
 
-                                rg = find((ids(ism,4) == samp_c(cid)) & ...
-                                    (ids(ism,5) == samp_b(bid)));
-                                
-                                chunks{i} = rg';
-                                
-                                i=i+1;
-                            end
+                            rg = find((ids(ism,4) == samp_c(cid)) & ...
+                                (ids(ism,5) == samp_b(bid)));
+                            
+                            chunks{i} = rg';
+                            
+                            i=i+1;
                         end
-                        
+                    end
+                                           
                         if ~flag_use_perms
                             chunkperm=randperm(numel(chunks));
                         else
@@ -207,15 +205,17 @@ else
                             chunkpermcv = [chunkpermcv; repmat(chunkperm(i),numel(chunks{i}),1)]; % get permuted indexes for each image in the chunk
                         end
                         pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                        CVperm(ism(pchunks),:) = CV(ism(pchunk(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
+                        CVperm(ism(pchunk),:) = CV(ism(pchunk(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
+%                         IDperm(ism(pchunk),:) = ID(ism(pchunk(chunkpermcv)),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
                     end
+
                 end
             end
             
             
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
-                fdata.ID      = ID;
+                fdata.ID      = ID; %IDperm
                 fdata.mid     = modelid;
                 fdata.CV      = CVperm(:,f);
                 if nk>1
