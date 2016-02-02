@@ -151,7 +151,7 @@ else
         
         CVperm = zeros(size(CV));
         t_perm = zeros(length(t),1);
-        
+%         IDperm = zeros(size(ID));
         % permute
             
         % Find chunks in the data (e.g. temporal correlated samples)
@@ -176,13 +176,12 @@ else
                                 (ids(:,2) == samp_s(sid)) & ...
                                 (ids(:,3) == samp_m(mid)));
                     i=1;
+                    chunks = {};
                     for cid = 1:length(samp_c)
                         
                         samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
                         
                         for bid = 1:length(samp_b)
-                            
-                        
 
                             rg = find((ids(ism,4) == samp_c(cid)) & ...
                                 (ids(ism,5) == samp_b(bid)));
@@ -203,6 +202,7 @@ else
                     end
                     pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
                     CVperm(ism(pchunk),:) = CV(ism(pchunk(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
+%                     IDperm(ism(pchunk),:) = ID(ism(pchunk(chunkpermcv)),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
                 end
             end
         end
@@ -216,7 +216,7 @@ else
                 
         for f = 1:n_folds
             % configure data structure for prt_cv_fold
-            fdata.ID      = ID;
+            fdata.ID      = ID; %IDperm
             fdata.mid     = modelid;
             fdata.CV      = CVperm(:,f);
             fdata.Phi_all = Phi_all;
