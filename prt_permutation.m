@@ -151,11 +151,10 @@ else
                 end
                 fprintf('%d',p);
             end
-            
-            
-            CVperm = zeros(size(CV));
-            t_perm = zeros(length(t),1);
- %         IDperm = zeros(size(ID));
+
+        CVperm = zeros(size(CV));
+        t_perm = zeros(length(t),1);
+        IDperm = zeros(size(ID));
             
             
             % Find chunks in the data (e.g. temporal correlated samples)
@@ -192,25 +191,34 @@ else
                             i=i+1;
                         end
                     end
-                                           
-                        if ~flag_use_perms
+
+                    
+                    if ~flag_use_perms
                             chunkperm=randperm(numel(chunks));
                         else
                             chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
                         end
-                        
-                        chunkpermcv = [];
-                        for i=1:numel(chunks)
-                            t_perm(ism(chunks{i}),1) = unique(PRT.model(modelid).input.targets(ism(chunks{chunkperm(i)})));
-                            chunkpermcv = [chunkpermcv; repmat(chunkperm(i),numel(chunks{i}),1)]; % get permuted indexes for each image in the chunk
-                        end
-                        pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                        CVperm(ism(pchunk),:) = CV(ism(pchunk(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
-%                         IDperm(ism(pchunk),:) = ID(ism(pchunk(chunkpermcv)),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
-                    end
 
+                    chunkpermcv = [];
+                    for i=1:length(chunks)
+                        t_perm(ism(chunks{i}),1) = unique(PRT.model(modelid).input.targets(ism(chunks{chunkperm(i)})));
+                        chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
+                    end
+                    pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
+                    CVperm(ism(pchunk),:) = CV(ism(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
+                    IDperm(ism(pchunk),:) = ID(ism(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
                 end
             end
+        end
+        
+                
+        for f = 1:n_folds
+            % configure data structure for prt_cv_fold
+            fdata.ID      = IDperm; %IDperm
+            fdata.mid     = modelid;
+            fdata.CV      = CVperm(:,f);
+            fdata.Phi_all = Phi_all;
+            fdata.t       = t_perm;
             
             
             for f = 1:n_folds
