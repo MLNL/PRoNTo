@@ -222,17 +222,18 @@ for p=0:maxp
             % delete hdr if neuroimaging, dat if MEEG
             [pth,nam] = fileparts(finimg_name{c});
             if ~flagmeeg
-                hdr_name  = [pth,filesep,nam,'.hdr'];
-            else
                 if flagmat
-                    hdr_name  = [pth,filesep,nam,'.mat']; 
+                    hdr_name  = [pth,filesep,nam,'.mat'];
                 else
-                    hdr_name  = [pth,filesep,nam,'.dat'];
+                    hdr_name  = [pth,filesep,nam,'.hdr'];
                 end
+            else
+                hdr_name  = [pth,filesep,nam,'.dat'];
                 if exist(img_nam{1},'file')
                     delete(img_nam{c});
                 end
-                endl
+            end
+
             delete(hdr_name)
         end
     end
