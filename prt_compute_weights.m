@@ -68,6 +68,7 @@ PRT.model(model_idx).output.weight_idfeatroi =[];
 PRT.model(model_idx).output.weight_atlas =[];
 PRT.model(model_idx).output.weight_img =[];
 im_name = cell(length(PRT.model(model_idx).input.fs),1);
+
 for ifs=1:length(PRT.model(model_idx).input.fs)
     if ~isempty(in.img_name)
         if ~(prt_checkAlphaNumUnder(in.img_name))
@@ -191,6 +192,7 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
         PRT.fs(fs_idx).id_mat(:,3) = in.fas_idx * ones(size(PRT.fs(fs_idx).id_mat,1),1);
         PRT.fs(fs_idx).fas.im = im_all(im_all == fas_idx(i));
         PRT.fs(fs_idx).fas.ifa = ifa_all(im_all == fas_idx(i));
+
         switch mtype
             case 'classification'
                 

@@ -333,9 +333,11 @@ if isfield(handles.dat.fs(fid),'atlas_name') && ...
 else
     set(handles.edit_atlas,'String','Load atlas');
 end
-im_name = ['weights_',handles.dat.model(im).model_name,'.img'];
+%im_name = ['weights_',handles.dat.model(im).model_name,'.img'];
+im_name = ['weights_',handles.dat.model(im).model_name];
 set(handles.edit_imgname,'String',im_name)
 handles.selmod=handles.indm(val);
+
 % Update handles structure
 guidata(hObject, handles);
 

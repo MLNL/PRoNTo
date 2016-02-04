@@ -35,6 +35,7 @@ mname = PRT.fs(fs_idx).modality(mm(1)).mod_name;
 allmods = {PRT.masks(:).mod_name};
 im = find(strcmpi(mname,allmods));
 flagmeeg = 0;
+
 if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG')
     ext = '.mat';
     hdr = PRT.fas(fas_idx(1)).hdr;
@@ -51,11 +52,26 @@ if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG')
     idfeat = 1:size(PRT.fas(fas_idx(1)).dat,2);
     appendn = 'tmp';
 else
-    ext = '.img';
-    hdr        = PRT.fas(fas_idx(1)).hdr.private;
-    dat_dim    = hdr.dat.dim;
-    idfeat = PRT.fas(fas_idx(1)).idfeat_img;
-    appendn=[];
+    
+    if strcmpi(PRT.masks(im).type,'.mat')
+        
+        ext = '.mat';
+        hdr        = PRT.fas(fas_idx(1)).hdr;
+        dat_dim    = hdr.dim;
+        idfeat = PRT.fas(fas_idx(1)).idfeat_img;
+        flagmat = 1;
+        appendn=[];
+        
+    else
+        
+        ext = '.img';
+        hdr        = PRT.fas(fas_idx(1)).hdr.private;
+        dat_dim    = hdr.dat.dim;
+        idfeat = PRT.fas(fas_idx(1)).idfeat_img;
+        appendn=[];
+        
+    end
+    
 end
 
 % Find machine
@@ -101,10 +117,10 @@ switch mfunc
             'Error: weights computation not supported for this machine!');
     case 'prt_machine_sMKL_reg'
         m.function = 'prt_weights_sMKL_reg';
-        img_mach{1} = ['weights_',mname,'.img'];
+        img_mach{1} = ['weights_',mname,ext];
     otherwise
         m.function  = 'prt_weights_bin_linkernel';
-        img_mach{1} = ['weights_',mname,'.img'];
+        img_mach{1} = ['weights_',mname,ext];
 end
 
 nimage = length(img_mach);
@@ -208,11 +224,15 @@ for p=0:maxp
             if ~flagmeeg
                 hdr_name  = [pth,filesep,nam,'.hdr'];
             else
-                hdr_name  = [pth,filesep,nam,'.dat'];
+                if flagmat
+                    hdr_name  = [pth,filesep,nam,'.mat']; 
+                else
+                    hdr_name  = [pth,filesep,nam,'.dat'];
+                end
                 if exist(img_nam{1},'file')
                     delete(img_nam{c});
                 end
-            end
+                endl
             delete(hdr_name)
         end
     end
@@ -335,7 +355,7 @@ for p=0:maxp
                 
                 % COMPUTE WEIGHTS
                 wimg      = prt_weights(d,m);
-                
+
                 for c = 1:nimage,
                     img3d              = zeros(1,xydim);
                     indi               = mask_train(feat_slc)-xydim*(z-1);
@@ -348,6 +368,7 @@ for p=0:maxp
                         img4d{c}(:,:,z,f)  = reshape(img3d,dat_dim(1),dat_dim(2),1,1);
                     end
                 end
+               
                 
             end
             
@@ -360,6 +381,7 @@ for p=0:maxp
                 norm4dav{c}(z,:)           = sum(img3dav{c}(isfinite(img3dav{c})).^2); %afm
             end
         end
+
     end
     
     for c =1:nimage
@@ -383,7 +405,7 @@ for p=0:maxp
     for c = 1:nimage %afm
         img4d{c}(:,:,:,folds_comp) = img4d{c}(:,:,:,folds_comp)./norm4dav{c}; %afm
     end %afm
-    
+
     % Create weigths file
     %-------------------------------------------------------------------------
     clear No
@@ -426,10 +448,15 @@ for p=0:maxp
             end
             save(weightD);
         else
-            No         = hdr;              % copy header
-            No.dat     = img4d{c};         % change file_array
-            No.descrip = 'Pronto weigths'; % description
-            create(No);                    % write header
+            if flagmat
+                weights     = img4d{c}(:,:,:,:);
+                save(img4d{c}.fname,'weights');
+            else
+                No         = hdr;              % copy header
+                No.dat     = img4d{c};         % change file_array
+                No.descrip = 'Pronto weigths'; % description
+                create(No);                    % write header
+            end
         end 
         img_name{c} = finimg_name{c};
     end  
