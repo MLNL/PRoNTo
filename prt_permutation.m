@@ -172,6 +172,8 @@ else
                     
                     for mid = 1:length(samp_m)
                         
+                        samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
+                        
                         ism = find((ids(:,1) == samp_g(gid)) & ...
                             (ids(:,2) == samp_s(sid)) & ...
                             (ids(:,3) == samp_m(mid)));
@@ -179,7 +181,8 @@ else
                         chunks = {};
                         for cid = 1:length(samp_c)
                             
-                            samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
+                            
+                            samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
                             
                             for bid = 1:length(samp_b)
                                 
@@ -210,7 +213,6 @@ else
                     end
                 end
             end
-            
             
             
             for f = 1:n_folds
