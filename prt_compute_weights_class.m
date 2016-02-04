@@ -35,6 +35,7 @@ mname = PRT.fs(fs_idx).modality(mm(1)).mod_name;
 allmods = {PRT.masks(:).mod_name};
 im = find(strcmpi(mname,allmods));
 flagmeeg = 0;
+flagmat = 0;
 
 if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG')
     ext = '.mat';

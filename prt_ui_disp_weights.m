@@ -202,6 +202,7 @@ else
         mi  = [];
         nmi = 0;
         nmroi = 0;
+
         for m = 1:nmodels
             if isfield(PRT.model(m),'input') && ~isempty(PRT.model(m).input)
                 if isfield(PRT.model(m),'output') && ~isempty(PRT.model(m).output)
@@ -459,6 +460,7 @@ function handles = weightbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 disp('Loading weights...>>')
+
 % Select results (.img) for weight map
 % -------------------------------------------------------------------------
 if ~isfield(handles,'wmap') || ~handles.noloadw
