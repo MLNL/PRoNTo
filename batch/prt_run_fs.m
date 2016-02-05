@@ -26,22 +26,33 @@ load(fname);
 fs_name = job.k_file;
 
 % Check for multimodal MKL flag
-if isfield(job, 'flag_mm')
-    flag_mm = job.flag_mm;
-else
-    flag_mm = 0;
-end
+% if isfield(job, 'flag_mm')
+%     flag_mm = job.flag_mm;
+% else
+%     flag_mm = 0;
+% end
 
 mod      = struct();
 allmod   = {PRT.masks(:).mod_name};
-modchos  = {job.modality(:).mod_name};
-% maskchos = {job.mask(:).mod_name};
-maskchos = {job.modality(:).mod_name};
+
+if isfield(job.format,'modality')
+    modchos  = {job.format.modality(:).mod_name};
+    maskchos = {job.format.modality(:).mod_name};
+    format =1; % nifti
+elseif isfield(job.format,'MEEGmodality')
+    modchos  = {job.format.MEEGmodality(:).mod_name};
+    format =2; % MEEG
+elseif isfield(job.format,'matmodality')
+    modchos  = {job.format.matmodality(:).mod_name};
+    maskchos = {job.format.matmodality(:).mod_name};
+    format =3; % mat
+end
 
 if ~isempty(setdiff(modchos,allmod))
     error(['Couldn''t find modality "',cell2mat(modchos),'" in PRT.mat']);
 end
 
+flagMEEG = 0;
 for i=1:length(PRT.masks)
     if any(strcmpi(modchos,allmod{i}))
         mod(i).mod_name=allmod(i);
@@ -49,53 +60,123 @@ for i=1:length(PRT.masks)
         
         %mod(i).detrend=job.modality(ind).detrend;
         %mod(i).param_dt=job.modality(ind).param_dt;
-        if isfield(job.modality(ind).detrend,'linear_dt')
-            mod(i).detrend=1;
-            mod(i).param_dt=job.modality(ind).detrend.linear_dt.paramPoly_dt;
-        elseif isfield(job.modality(ind).detrend,'no_dt')
-            mod(i).detrend=0;
-            mod(i).param_dt=[];
-        else
-            mod(i).detrend=2;
-            mod(i).param_dt=job.modality(ind).detrend.dct_dt.param_dt;
-        end        
-        
-        if isfield(job.modality(ind).normalise,'no_gms')
-            mod(i).normalise = 0;
-            mod(i).matnorm = [];
-        elseif isfield(job.modality(ind).normalise,'mat_gms')
-            mod(i).normalise=2;
-            mod(i).matnorm = char(job.modality(ind).normalise.mat_gms);
-        end
-        
-        if isfield(job.modality(ind).conditions,'all_cond')
-            mod(i).mode='all_cond';
-        elseif isfield(job.modality(ind).conditions,'all_scans')
-            mod(i).mode='all_scans';
-        else
-            error('Wrong mode selected: choose either all scans or all conditions')
-        end            
-        indm=find(strcmpi(maskchos,allmod{i}));
-%         if isempty(indm)
-%             error(['No mask selected for ',allmod{i}])
-%         else
-%             mod(i).mask=char(job.modality(indm).fmask);
-%         end
-        if isfield(job.modality(indm).voxels,'fmask')
-            mod(i).mask = char(job.modality(indm).voxels.fmask);
-        else
-            mod(i).mask = [];
-        end
-        
-        if isfield(job.modality(ind),'atlasroi')
-            mod(i).atlasroi = job.modality(ind).atlasroi{1};
-            if ~isempty(mod(i).atlasroi)
-                mod(i).multroi = 1;
-            else
-                mod(i).multroi = 0;
-            end
-        else
-            mod(i).multroi = 0;
+        switch format
+            case 1% nifti
+                if isfield(job.format.modality(ind).detrend,'linear_dt')
+                    mod(i).detrend=1;
+                    mod(i).param_dt=job.format.modality(ind).detrend.linear_dt.paramPoly_dt;
+                elseif isfield(job.format.modality(ind).detrend,'no_dt')
+                    mod(i).detrend=0;
+                    mod(i).param_dt=[];
+                else
+                    mod(i).detrend=2;
+                    mod(i).param_dt=job.format.modality(ind).detrend.dct_dt.param_dt;
+                end
+                
+                if isfield(job.format.modality(ind).normalise,'no_gms')
+                    mod(i).normalise = 0;
+                    mod(i).matnorm = [];
+                elseif isfield(job.format.modality(ind).normalise,'mat_gms')
+                    mod(i).normalise=2;
+                    mod(i).matnorm = char(job.format.modality(ind).normalise.mat_gms);
+                end
+                
+                if isfield(job.format.modality.conditions,'all_cond')
+                    mod(i).mode='all_cond';
+                elseif isfield(job.format.modality(ind).conditions,'all_scans')
+                    mod(i).mode='all_scans';
+                else
+                    error('Wrong mode selected: choose either all scans or all conditions')
+                end
+                indm=find(strcmpi(maskchos,allmod{i}));
+                %         if isempty(indm)
+                %             error(['No mask selected for ',allmod{i}])
+                %         else
+                %             mod(i).mask=char(job.modality(indm).fmask);
+                %         end
+                if isfield(job.format.modality(indm).voxels,'fmask')
+                    mod(i).mask = char(job.format.modality(indm).voxels.fmask);
+                else
+                    mod(i).mask = [];
+                end
+                
+                if isfield(job.format.modality(ind),'atlasroi')
+                    mod(i).atlasroi = job.format.modality(ind).atlasroi{1};
+                    if ~isempty(mod(i).atlasroi)
+                        mod(i).multroi = 1;
+                    else
+                        mod(i).multroi = 0;
+                    end
+                else
+                    mod(i).multroi = 0;
+                end
+            case 2 % MEEG
+                flagMEEG = 1;
+                % Options not available for MEEG modalities
+                mod(i).detrend=0;
+                mod(i).param_dt=[];
+                mod(i).normalise = 0;
+                mod(i).matnorm = [];
+                mod(i).mode='all_scans';
+                % Specific for MEEG
+                mod(i).aver = [0 0 0];
+                mod(i).multkern = [0 0 0];
+                mod(i).multkernparam = {};
+                sc = [];
+                % Load the first file for that modality to get info
+                for g = 1:length(PRT.group)
+                    for s = 1:length(PRT.group(g).subject)
+                        mnames={PRT.group(g).subject(s).modality(:).mod_name};
+                        indmod = find(ismember(mnames,mod(i).mod_name));
+                        if ~isempty(indmod)
+                            sc = PRT.group(g).subject(s).modality(indmod).scans(1,:);
+                            break
+                        end
+                    end
+                    if ~isempty(sc)
+                        break
+                    end
+                end
+                try
+                    D = spm_eeg_load(sc);
+                catch
+                    error('prt_ui_prepare_dataMEEG:CouldNotLoadFile',...
+                        'Could not load MEEG file, please correct in data and design.');
+                end
+                % channel selection and options
+                chanind = D.selectchannels(job.format.MEEGmodality.channels.channels);
+                mod(i).ich = chanind;
+                if job.format.MEEGmodality.channels.average
+                    mod(i).aver(1) = 1;
+                end
+                if job.format.MEEGmodality.channels.multkern
+                    mod(i).multkern(1) = 1;
+                end
+                
+                
+                
+            case 3 % .mat (similar to nifti but less options for now)
+                % To un-comment when 'design' will be allowed for mat
+                % modalities
+%                 if isfield(job.format.matmod.conditions,'all_cond')
+%                     mod(i).mode='all_cond';
+%                 elseif isfield(job.format.matmod(ind).conditions,'all_scans')
+%                     mod(i).mode='all_scans';
+%                 else
+%                     error('Wrong mode selected: choose either all scans or all conditions')
+%                 end
+                indm=find(strcmpi(maskchos,allmod{i}));
+                if isfield(job.format.matmodality(indm).features,'matmask')
+                    mod(i).mask = char(job.format.matmodality(indm).features.matmask);
+                else
+                    mod(i).mask = [];
+                end
+                % Options not (yet) available for .mat modalities
+                mod(i).detrend=0;
+                mod(i).param_dt=[];
+                mod(i).normalise = 0;
+                mod(i).matnorm = [];
+                mod(i).mode='all_scans';
         end
         
     else
@@ -107,13 +188,22 @@ for i=1:length(PRT.masks)
 end
 
 input = struct( ...
-            'fname',fname, ...
-            'fs_name',fs_name, ...
-            'mod',mod, ...
-            'flag_mm', flag_mm);
-        
-    
-prt_fs(PRT,input);
+    'fname',fname, ...
+    'fs_name',fs_name, ...
+    'mod',mod, ...
+    'flag_mm', 0); % Do not allow for MKL at feature set level
+
+% input = struct( ...
+%     'fname',fname, ...
+%     'fs_name',fs_name, ...
+%     'mod',mod, ...
+%     'flag_mm', flag_mm);
+
+if flagMEEG
+    prt_fs_EEG(PRT,input);
+else
+    prt_fs(PRT,input);
+end
 
 out.fname{1} = fname;
 out.fs_name  = fs_name;

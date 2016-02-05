@@ -45,16 +45,16 @@ k_file.num     = [1 Inf];
 % ---------------------------------------------------------------------
 % multkernflag Use multiple modality kernels
 % ---------------------------------------------------------------------
-flag_mm         = cfg_menu;
-flag_mm.tag     = 'flag_mm';
-flag_mm.name    = 'Use one kernel per modality';
-flag_mm.help    = {'Select "Yes" to use one kernel per modality.'};
-flag_mm.labels  = {
-    'Yes'
-    'No'
-    }';
-flag_mm.values  = {1 0};
-flag_mm.val     = {0};
+% flag_mm         = cfg_menu;
+% flag_mm.tag     = 'flag_mm';
+% flag_mm.name    = 'Use one kernel per modality';
+% flag_mm.help    = {'Select "Yes" to use one kernel per modality.'};
+% flag_mm.labels  = {
+%     'Yes'
+%     'No'
+%     }';
+% flag_mm.values  = {1 0};
+% flag_mm.val     = {0};
 
 % ---------------------------------------------------------------------
 % atlasroi Filename(s) of atlas for ROI MKL
@@ -200,8 +200,7 @@ detrend.help   = {...
 fmask        = cfg_files;
 fmask.tag    = 'fmask';
 fmask.name   = 'Specify mask file';
-%fmask.filter = '';  % Allow .mat masks as well as .img/.nii
-fmask.ufilter = '.*';
+fmask.filter = 'image';
 fmask.num    = [1 1];
 fmask.help   = {'Select a mask for the selected modality.'};
 
@@ -269,7 +268,181 @@ voxels.help   = {...
     ['Specify which voxels from the current modality you would like to include']};
 
 % ---------------------------------------------------------------------
-% modality Modality
+% all_features All features for .mat
+% ---------------------------------------------------------------------
+all_features         = cfg_const;
+all_features.tag     = 'all_features';
+all_features.name    = 'All features';
+all_features.val     = {1};
+all_features.help    = {'Use all features in the matrix for this modality'};
+
+% ---------------------------------------------------------------------
+% fmask File name
+% ---------------------------------------------------------------------
+matmask        = cfg_files;
+matmask.tag    = 'matmask';
+matmask.name   = 'Specify mask file';
+matmask.filter = 'mat';
+matmask.num    = [1 1];
+matmask.help   = {'Select a mask for the selected modality.'};
+
+% ---------------------------------------------------------------------
+% features 
+% ---------------------------------------------------------------------
+features        = cfg_choice;
+features.tag    = 'features';
+features.name   = 'Features to include';
+features.values = {all_features, matmask};
+features.val    = {all_features};
+features.help   = {...
+    ['Specify which features from the current modality you would like to include']};
+
+% ---------------------------------------------------------------------
+% modality Modality for .mat
+% ---------------------------------------------------------------------
+matmodality      = cfg_branch;
+matmodality.tag  = 'matmodality';
+matmodality.name = 'Modality';
+matmodality.val  = {mod_name, features};
+% matmodality.val  = {mod_name, conditions, voxels, detrend, normalise, atlasroi};
+% to update when design will be available
+matmodality.help = {'Specify modality, such as name and data.'};
+
+% ---------------------------------------------------------------------
+% multkern Average across channels
+% ---------------------------------------------------------------------
+multkern         = cfg_menu;
+multkern.tag     = 'multkern';
+multkern.name    = 'Multiple kernels';
+multkern.help    = {'Build one kernel per selected feature in this dimension.'...
+    ' This will result in e.g. one kernel per channel, per time point, or '...
+    'per frequency bin. Choosing multiple kernels on one dimension does not '...
+    'exclude the computation of multiple kernels on other dimensions.'};
+multkern.labels  = {
+               'Yes'
+               'No'
+}';
+multkern.values  = {1 0};
+multkern.val     = {0};
+
+% ---------------------------------------------------------------------
+% nomult No multiple kernels for time dimension
+% ---------------------------------------------------------------------
+nomult         = cfg_const;
+nomult.tag     = 'nomult';
+nomult.name    = 'No';
+nomult.val     = {1};
+nomult.help    = {'Do not build multiple kernels'};
+
+% ---------------------------------------------------------------------
+% multkernonetp Multiple kernels per time point
+% ---------------------------------------------------------------------
+multkernonetp         = cfg_const;
+multkernonetp.tag     = 'multkernonetp';
+multkernonetp.name    = 'One kernel per time point';
+multkernonetp.val     = {1};
+multkernonetp.help    = {'Build one kernel per time point'};
+
+% ---------------------------------------------------------------------
+% kerntpwin Window of time for multiple kernels
+% ---------------------------------------------------------------------
+kerntpwin         = cfg_entry;
+kerntpwin.tag     = 'kerntpwin';
+kerntpwin.name    = 'Time window (ms)';
+kerntpwin.help    = {'Length of time window to consider (in ms). E.g. 10'};
+kerntpwin.strtype = 'e';
+kerntpwin.num     = [1 1];
+
+% ---------------------------------------------------------------------
+% multkernwin Multiple kernels per time point
+% ---------------------------------------------------------------------
+multkernwin         = cfg_branch;
+multkernwin.tag     = 'multkernwin';
+multkernwin.name    = 'One kernel per time window';
+multkernwin.val     = {kerntpwin};
+multkernwin.help    = {'Build one kernel per time window'};
+
+% ---------------------------------------------------------------------
+% multkerntp Multiple kernels for time dimension
+% ---------------------------------------------------------------------
+multkerntp         = cfg_choice;
+multkerntp.tag     = 'multkerntp';
+multkerntp.name    = 'Multiple kernels';
+multkerntp.help    = {'Build one kernel per selected dimension.'};
+multkerntp.values  = {nomult,multkernonetp, multkernwin};
+multkerntp.val     = {multkern};
+
+% ---------------------------------------------------------------------
+% average Average across channels
+% ---------------------------------------------------------------------
+average         = cfg_menu;
+average.tag     = 'average';
+average.name    = 'Average';
+average.help    = {'Average across selected.'};
+average.labels  = {
+               'Yes'
+               'No'
+}';
+average.values  = {1 0};
+average.val     = {0};
+
+% ---------------------------------------------------------------------
+% channels Channel definition for MEEG objects
+% ---------------------------------------------------------------------
+channels      = cfg_branch;
+channels.tag  = 'channels';
+channels.name = 'Channels';
+channels.val  = {spm_cfg_eeg_channel_selector, average, multkern};
+
+%--------------------------------------------------------------------------
+% timewin
+%--------------------------------------------------------------------------
+timewin         = cfg_entry;
+timewin.tag     = 'timewin';
+timewin.name    = 'Time window';
+timewin.help    = {'Start and stop of the time window (ms).'};
+timewin.strtype = 'r';
+timewin.num     = [1 2];
+timewin.val     = {[-Inf Inf]};
+
+% ---------------------------------------------------------------------
+% tp Time point selection for MEEG objects
+% ---------------------------------------------------------------------
+tp      = cfg_branch;
+tp.tag  = 'tp';
+tp.name = 'Time points';
+tp.val  = {timewin, average, multkerntp};
+
+%--------------------------------------------------------------------------
+% freqwin
+%--------------------------------------------------------------------------
+freqwin         = cfg_entry;
+freqwin.tag     = 'freqwin';
+freqwin.name    = 'Frequency window';
+freqwin.help    = {'Start and stop of the frequency window (Hz).'};
+freqwin.strtype = 'r';
+freqwin.num     = [1 2];
+freqwin.val     = {[-Inf Inf]};
+
+% ---------------------------------------------------------------------
+% freq Frequency selection for MEEG objects
+% ---------------------------------------------------------------------
+freq      = cfg_branch;
+freq.tag  = 'freq';
+freq.name = 'Frequencies';
+freq.val  = {freqwin, average, multkern};
+
+% ---------------------------------------------------------------------
+% modality Modality for MEEG objects
+% ---------------------------------------------------------------------
+MEEGmodality      = cfg_branch;
+MEEGmodality.tag  = 'MEEGmodality';
+MEEGmodality.name = 'Modality';
+MEEGmodality.val  = {mod_name, channels, tp, freq};
+MEEGmodality.help = {'Specify modality, such as name and data.'};
+
+% ---------------------------------------------------------------------
+% modality Modality for nifti
 % ---------------------------------------------------------------------
 modality      = cfg_branch;
 modality.tag  = 'modality';
@@ -278,14 +451,45 @@ modality.val  = {mod_name, conditions, voxels, detrend, normalise, atlasroi};
 modality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------
-% modalities Groups
+% modalities for nifti
 % ---------------------------------------------------------------------
-modalities         = cfg_repeat;
-modalities.tag     = 'modalities';
-modalities.name    = 'Modalities';
-modalities.help    = {'Add modalities'};
-modalities.num     = [1 Inf];
-modalities.values  = {modality};
+niftimod         = cfg_repeat;
+niftimod.tag     = 'niftimod';
+niftimod.name    = 'Nifti';
+niftimod.help    = {'Add modalities in nifti format'};
+niftimod.num     = [1 Inf];
+niftimod.values  = {modality};
+
+% ---------------------------------------------------------------------
+% modalities for MEEG
+% ---------------------------------------------------------------------
+MEEGmod         = cfg_repeat;
+MEEGmod.tag     = 'MEEGmod';
+MEEGmod.name    = 'MEEG';
+MEEGmod.help    = {'Add modalities in SPM MEEG format'};
+MEEGmod.num     = [1 Inf];
+MEEGmod.values  = {MEEGmodality};
+
+% ---------------------------------------------------------------------
+% modalities for .mat
+% ---------------------------------------------------------------------
+matmod         = cfg_repeat;
+matmod.tag     = 'matmod';
+matmod.name    = '.mat';
+matmod.help    = {'Add modalities in .mat format'};
+matmod.num     = [1 Inf];
+matmod.values  = {matmodality};
+
+% ---------------------------------------------------------------------
+% Data format
+% ---------------------------------------------------------------------
+format         = cfg_choice;
+format.tag     = 'format';
+format.name    = 'Data format';
+format.help    = {['Data format for selected modalities. The different input '...
+    'files should be in either nifti, SPM MEEG object or .mat format']};
+format.values  = {niftimod, MEEGmod, matmod};
+format.val     = {niftimod};
 
 % ---------------------------------------------------------------------
 % Configure Feature set
@@ -294,7 +498,7 @@ fs        = cfg_exbranch;
 fs.tag    = 'fs';
 fs.name   = 'Feature set/Kernel';
 % fs.val    = {infile, k_file, modalities, use_mkl, flag_mm};
-fs.val    = {infile, k_file, modalities, flag_mm};
+fs.val    = {infile, k_file, format};
 fs.help   = {'Compute feature set according to the design specified'};
 fs.prog   = @prt_run_fs;
 fs.vout   = @vout_data;

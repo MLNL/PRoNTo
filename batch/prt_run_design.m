@@ -550,13 +550,13 @@ else
                         PRT.group(g).subject(j).modality(k).design  = design;
                         PRT.group(g).subject(j).modality(k).scans   = char(job.group(g).select.subject{j}(k).scans);
                         PRT.group(g).subject(j).modality(k).type    = modtype;
-                        % For .mat and MEEG inputs, only one file allowed
+                        % For MEEG inputs, only one file allowed
                         % per subject and modality
-                        if strcmpi(modtype,'.mat') || strcmpi(modtype,'MEEG')
+                        if strcmpi(modtype,'MEEG')
                             nscans = size(PRT.group(g).subject(j).modality(k).scans,1);
                             if nscans>1
                                 beep
-                                disp('Only one MEEG or .mat input file per subject and per modality is allowed')
+                                disp('Only one MEEG input file per subject and per modality is allowed')
                                 disp('Please correct.')
                                 out.files{1} = [];
                                 return

@@ -149,7 +149,7 @@ scans.tag     = 'scans';
 scans.name    = 'Scans';
 scans.help    = {['Select scans (images) for this modality. They must '...
     'all have the same image dimensions, orientation, '...
-    'voxel size etc. Only one file allowed for MEEG and for .mat input formats.']};
+    'voxel size etc. Only one file allowed for MEEG input format.']};
 scans.filter = {'image','mat'};
 scans.ufilter = '.*';
 scans.num     = [1 Inf];

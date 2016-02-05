@@ -14,7 +14,11 @@ function [outfile] = prt_fs_EEG(PRT,in)
 % in.mod(m).mask:      mask file used to create the kernel
 % in.mod(m).normalise: 0 = none, 1 = normalise_kernel, 2 = scale modality
 % in.mod(m).matnorm:   filename for scaling matrix
-% in.mod(m).multkern    1 if one kernel per region required
+% in.mod(m).aver:       average across one or multiple dimensions
+% in.mod(m).multkern:   multiple kernels across one or multiple dimensions
+% in.mod(m).multkernparam:   multiple kernels over time window - length of
+%                            window
+
 %
 % in.flag_mm:   Perform multi-kernel learning (1) or not (0)? If yes, the
 % kernel is saved as a cell vector, with one kernel per modality

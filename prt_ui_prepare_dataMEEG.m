@@ -187,7 +187,7 @@ for i = 1:length(handles.dat.group)
         mnames={handles.dat.group(i).subject(j).modality(:).mod_name};
         indm = find(ismember(mnames,list(val)));
         if ~isempty(indm)
-            sc = handles.dat.group(i).subject(j).modality(indm).scans(1,:);
+            sc = handles.dat.group(1).subject(1).modality(indm).scans(1,:);
             break
         end
     end

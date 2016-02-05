@@ -14,6 +14,8 @@ function [fid,PRT,tocomp,n_vols_s] = prt_init_fs_EEG(PRT, in, mids)
 % in.mod(m).param_dt:  parameters used for detrending (if any)
 % in.mod(m).normalise: scale the input scans or not
 % in.mod(m).matnorm:   mat file used to scale the input scans
+% in.mod(m).aver:       average across one or multiple dimensions
+% in.mod(m).multkern:   multiple kernels across one or multiple dimensions
 %
 %MEEG:
 %in.mod(m).op.aver: vector of binary values to average along the
