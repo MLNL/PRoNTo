@@ -132,7 +132,7 @@ else
     n_vols_s=cell(length(PRT.group),n_mods);
     n_vox=zeros(n_mods,1);
     dims=zeros(n_mods,3);
-    idn = 1;
+%     idn = 1;
     n=0;
     hdr=cell(n_mods,3);
     
@@ -141,30 +141,39 @@ else
         for m = 1:n_mods
             n_vols_s{gid,m} = cell(length(PRT.group(gid).subject),1);
             for sid = 1:length(PRT.group(gid).subject);  % subject            
-                mid = mids(m);
-                dnames = PRT.group(gid).subject(sid).modality(mid).scans(1,:);
-                try
-                    D = spm_eeg_load(dnames);
-                catch
-                    error('prt_init_fs_EEG:CouldNotLoadFile',...
-                        'Could not load MEEG file');
-                end                    
-                ndim = size(D);
-%                 n_vols_s{gid,m}{sid} = ndim(end); 
-                n_vols_s{gid,m}{sid} = ndim(end); %-length(D.badtrials) remove bad trials
+                mid = mids(m);              
+
+                if tocomp(mid) % Do not have an hdr yet
+                    dnames = PRT.group(gid).subject(sid).modality(mid).scans(1,:);
+                    try
+                        D = spm_eeg_load(dnames);
+                    catch
+                        error('prt_init_fs_EEG:CouldNotLoadFile',...
+                            'Could not load MEEG file');
+                    end
+                    if gid==1 && sid==1 % Keep channel,time,frequency info for later
+                        hdr{m} = D;
+                    end
+                    % Check that all files have the same channels, time points
+                    % and frequencies
+                    check_MEEG_consistency(D,hdr{m},in.mod(mids(m)));
+                    ndim = size(D); 
+                    clear D
+                else
+                    ndim = size(PRT.fas(mid).hdr);
+                    ndim(end) = numel([PRT.group(gid).subject(sid).modality(mid).design.conds(:).onsets]); % gather all events for file
+                end
+                n_vols_s{gid,m}{sid} = ndim(end);
                 n = n+n_vols_s{gid,m}{sid};
-                if length(size(D))==4
+                if length(ndim)==4
                     n_vox(m) = ndim(1)*ndim(2)*ndim(3);  %channels*frequency*time
                     dims(m,:) = ndim(1:end-1);
-                elseif length(size(D))==3
+                elseif length(ndim)==3
                     n_vox(m) = ndim(1)*ndim(2); %channels*time
                     dims(m,:) = [ndim(1),1,ndim(2)];
                 end
-                if gid==1 && sid==1 % Keep channel,time,frequency info for later
-                    hdr{m} = D;
-                end
-                idn = idn+1;
-                clear D
+%                 idn = idn+1;
+                
 
 %                 n_vox(m) = size(PRT.fas(mid).dat,2);
 %                 hdr(mid,:) = PRT.fas(mid).hdr;
@@ -231,4 +240,59 @@ else
 end
 
 
+% -------------------------------------------------------------------------
+% Subfunction to check that all files have the same dimensions
+% -------------------------------------------------------------------------
+function []=check_MEEG_consistency(D,ref,selection)
+
+% check channels
+if ~isempty(selection.ich)
+    labs_ref = chanlabels(ref,selection.ich);
+    try
+        labs_D = chanlabels(D,selection.ich);
+    catch
+        error('check_MEEG_consistency:BadChanSelection',...
+            'Channel selection not consistent for all files')
+    end
+    for i=1:numel(labs_ref)
+        % check that the labels are the same and in the same order
+        if ~strcmpi(labs_ref{i},labs_D{i})
+            error('check_MEEG_consistency:BadChanOrder',...
+            'Order of channels is not consistent in all files')
+        end
+    end
+end
+
+% check time points
+if ~isempty(selection.itp)
+    tim_ref = time(ref,selection.itp);
+    try
+        tim_D = time(D,selection.itp);
+    catch
+        error('check_MEEG_consistency:BadTimeSelection',...
+            'Selection of time window not consistent for all files')
+    end
+    if ~all(tim_ref == tim_D)
+        error('check_MEEG_consistency:BadTimeSelection',...
+            'Selection of time window not consistent for all files')
+    end
+end
+
+% check frequency bins
+if ~isempty(selection.ifr)
+    freq_ref = frequencies(ref,selection.ifr);
+    try
+        freq_D = frequencies(D,selection.ifr);
+    catch
+        error('check_MEEG_consistency:BadFrequencySelection',...
+            'Selection of frequency range not consistent for all files')
+    end
+    if ~all(freq_ref == freq_D)
+        error('check_MEEG_consistency:BadFrequencySelection',...
+            'Selection of frequency range not consistent for all files')
+    end
+end
+    
+    
+    
 

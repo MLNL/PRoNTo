@@ -181,25 +181,32 @@ list = get(handles.pop_mod,'String');
 val = get(handles.pop_mod,'Value');
 handles.mod.mod_name = list(val);
 sc = [];
-% Load the first file for that modality to get info
-for i = 1:length(handles.dat.group)
-    for j = 1:length(handles.dat.group(i).subject)
-        mnames={handles.dat.group(i).subject(j).modality(:).mod_name};
-        indm = find(ismember(mnames,list(val)));
-        if ~isempty(indm)
-            sc = handles.dat.group(1).subject(1).modality(indm).scans(1,:);
+% Load the first file for that modality to get info or hdr in file array if
+% already built.
+faslist = {handles.fas(:).mod_name};
+indfas = find(ismember(faslist,handles.mod.mod_name));
+if ~isempty(indfas)
+    D = handles.fas(indfas).hdr;
+else
+    for i = 1:length(handles.dat.group)
+        for j = 1:length(handles.dat.group(i).subject)
+            mnames={handles.dat.group(i).subject(j).modality(:).mod_name};
+            indm = find(ismember(mnames,list(val)));
+            if ~isempty(indm)
+                sc = handles.dat.group(1).subject(1).modality(indm).scans(1,:);
+                break
+            end
+        end
+        if ~isempty(sc)
             break
         end
     end
-    if ~isempty(sc)
-        break
+    try
+        D = spm_eeg_load(sc);
+    catch
+        error('prt_ui_prepare_dataMEEG:CouldNotLoadFile',...
+            'Could not load MEEG file, please correct in data and design.');
     end
-end
-try
-    D = spm_eeg_load(sc);
-catch
-    error('prt_ui_prepare_dataMEEG:CouldNotLoadFile',...
-        'Could not load MEEG file, please correct in data and design.');
 end
 % get channels
 lchan = D.chanlabels;
