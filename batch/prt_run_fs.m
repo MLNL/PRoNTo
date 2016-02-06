@@ -112,7 +112,7 @@ for i=1:length(PRT.masks)
                 end
             case 2 % MEEG
                 flagMEEG = 1;
-                % Options not available for MEEG modalities
+                % Options not available for MEEG modalities - defaults
                 mod(i).detrend=0;
                 mod(i).param_dt=[];
                 mod(i).normalise = 0;
@@ -123,48 +123,103 @@ for i=1:length(PRT.masks)
                 mod(i).multkern = [0 0 0];
                 mod(i).multkernparam = {};
                 sc = [];
-                % Load the first file for that modality to get info
-                for g = 1:length(PRT.group)
-                    for s = 1:length(PRT.group(g).subject)
-                        mnames={PRT.group(g).subject(s).modality(:).mod_name};
-                        indmod = find(ismember(mnames,mod(i).mod_name));
-                        if ~isempty(indmod)
-                            sc = PRT.group(g).subject(s).modality(indmod).scans(1,:);
+                % Load the first file for that modality to get info or load
+                % hdr from fas if present
+                faslist = {PRT.fas(:).mod_name};
+                indfas = find(ismember(faslist,mod(i).mod_name));
+                if ~isempty(indfas) % file array already built
+                    D = handles.fas(indfas).hdr;
+                else
+                    for g = 1:length(PRT.group)
+                        for s = 1:length(PRT.group(g).subject)
+                            mnames={PRT.group(g).subject(s).modality(:).mod_name};
+                            indmod = find(ismember(mnames,mod(i).mod_name));
+                            if ~isempty(indmod)
+                                sc = PRT.group(g).subject(s).modality(indmod).scans(1,:);
+                                break
+                            end
+                        end
+                        if ~isempty(sc)
                             break
                         end
                     end
-                    if ~isempty(sc)
-                        break
+                    try
+                        D = spm_eeg_load(sc);
+                    catch
+                        error('prt_ui_prepare_dataMEEG:CouldNotLoadFile',...
+                            'Could not load MEEG file, please correct in data and design.');
                     end
-                end
-                try
-                    D = spm_eeg_load(sc);
-                catch
-                    error('prt_ui_prepare_dataMEEG:CouldNotLoadFile',...
-                        'Could not load MEEG file, please correct in data and design.');
                 end
                 % channel selection and options
                 chanind = D.selectchannels(job.format.MEEGmodality.channels.channels);
                 mod(i).ich = chanind;
                 if job.format.MEEGmodality.channels.average
                     mod(i).aver(1) = 1;
+                    if job.format.MEEGmodality.channels.multkern
+                        beep
+                        disp('Averaging and multiple kernels cannot be selected together.')
+                        return
+                    end
                 end
                 if job.format.MEEGmodality.channels.multkern
                     mod(i).multkern(1) = 1;
+                end
+                % time point selection and options
+                t_start = job.format.MEEGmodality.tp.timewin(1)/1000;
+                t_stop = job.format.MEEGmodality.tp.timewin(2)/1000;
+                mod(i).itp = indsample(D,t_start):indsample(D,t_stop); 
+                if job.format.MEEGmodality.tp.average
+                    mod(i).aver(2) = 1;
+                    if ~job.format.MEEGmodality.tp.nomult
+                        beep
+                        disp('Averaging and multiple kernels cannot be selected together.')
+                        return
+                    end
+                end
+                if isfield(job.format.MEEGmodality.tp,'multkernonetp') ||...
+                        isfield(job.format.MEEGmodality.tp,'multkernwin')
+                    mod(i).multkern(3) = 1;
+                    if isfield(job.format.MEEGmodality.tp,'multkernwin') && ...
+                            isfield(job.format.MEEGmodality.tp.multkernwin,'kerntpwin') && ...
+                            ~isempty(job.format.MEEGmodality.tp.multkernwin.kerntpwin)
+                        mod(i).multkernparam{3} = (job.format.MEEGmodality.tp.multkernwin.kerntpwin / 1000) *...
+                            D.fsample;
+                    else
+                        mod(i).multkernparam{3} = 1;
+                    end
+                end
+                % frequency band selection and options
+                if numel(size(D))==3
+                    % No frequency in this dataset
+                    mod(i).ifr = [];
+                elseif numel(size(D)) == 4
+                    f_start = job.format.MEEGmodality.freq.freqwin(1);
+                    f_stop = job.format.MEEGmodality.freq.freqwin(2);
+                    mod(i).ifr = indfrequency(D,f_start):indfrequency(D,f_stop);
+                    if job.format.MEEGmodality.freq.average
+                        mod(i).aver(2) = 1;
+                        if job.format.MEEGmodality.freq.multkern
+                            beep
+                            disp('Averaging and multiple kernels cannot be selected together.')
+                            return
+                        end
+                    end
+                    if job.format.MEEGmodality.freq.multkern
+                        mod(i).multkern(2) = 1;
+                    end
                 end
                 
                 
                 
             case 3 % .mat (similar to nifti but less options for now)
-                % To un-comment when 'design' will be allowed for mat
-                % modalities
-%                 if isfield(job.format.matmod.conditions,'all_cond')
-%                     mod(i).mode='all_cond';
-%                 elseif isfield(job.format.matmod(ind).conditions,'all_scans')
-%                     mod(i).mode='all_scans';
-%                 else
-%                     error('Wrong mode selected: choose either all scans or all conditions')
-%                 end
+                
+                if isfield(job.format.matmod(ind).conditions,'all_cond')
+                    mod(i).mode='all_cond';
+                elseif isfield(job.format.matmod(ind).conditions,'all_scans')
+                    mod(i).mode='all_scans';
+                else
+                    mod(i).mode='all_scans';
+                end
                 indm=find(strcmpi(maskchos,allmod{i}));
                 if isfield(job.format.matmodality(indm).features,'matmask')
                     mod(i).mask = char(job.format.matmodality(indm).features.matmask);
@@ -176,7 +231,7 @@ for i=1:length(PRT.masks)
                 mod(i).param_dt=[];
                 mod(i).normalise = 0;
                 mod(i).matnorm = [];
-                mod(i).mode='all_scans';
+                
         end
         
     else
