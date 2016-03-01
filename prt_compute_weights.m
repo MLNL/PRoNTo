@@ -107,7 +107,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
     ibeta_mod = cell(length(fas_idx),1);
     if PRT.fs(fs_idx).multkernelROI   %multiple ROI kernels in feature set
         mult_kern_ROI = 1;
-        if PRT.fs(fs_idx).multkernel % Multiple modalities treated separately
+        if PRT.fs(fs_idx).multkernel || length(PRT.model(model_idx).input.fs)>1 % Multiple modalities treated separately
             % get the indexes of the betas for each modality
             for i=1:length(fas_idx)
                 numk = length(PRT.fs(fs_idx).modality(i).igood_kerns);
@@ -120,7 +120,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
         end
         nim = length(fas_idx);
     else
-        if PRT.fs(fs_idx).multkernel % Multiple modalities treated separately
+        if PRT.fs(fs_idx).multkernel || length(PRT.model(model_idx).input.fs)>1 % Multiple modalities treated separately
             for i=1:length(fas_idx)
                 ibeta_mod{i} = count + i;
             end
@@ -274,7 +274,7 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
     if (PRT.fs(fs_idx).multkernel || length(fs_name)>1) ...
         && ~summroi && ~added    %create one image per modality, from MKL learning
         for i=1:length(name_fin)
-            if ~mult_kern_ROI
+            if ~mult_kern_ROI && length(fs_name)==1
                 idb = 1:length(fas_idx);
             else
                 idb = ibeta_mod{i};

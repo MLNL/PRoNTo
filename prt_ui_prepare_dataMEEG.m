@@ -183,11 +183,11 @@ handles.mod.mod_name = list(val);
 sc = [];
 % Load the first file for that modality to get info or hdr in file array if
 % already built.
-faslist = {handles.fas(:).mod_name};
+faslist = {handles.dat.fas(:).mod_name};
 indfas = find(ismember(faslist,handles.mod.mod_name));
-if ~isempty(indfas)
-    D = handles.fas(indfas).hdr;
-else
+if ~isempty(indfas) && ~isempty(handles.dat.fas(indfas).dat) %feature set already built
+    D = handles.dat.fas(indfas).hdr;
+else % or not
     for i = 1:length(handles.dat.group)
         for j = 1:length(handles.dat.group(i).subject)
             mnames={handles.dat.group(i).subject(j).modality(:).mod_name};

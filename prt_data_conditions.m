@@ -482,7 +482,7 @@ if ind(2)>1
     end
     % vect is a vector - need to compute a scalar to be able to use ||
     %if isnan(vect) || vect>10^6 || ~any(size(vect)==1)
-    if any(isnan(vect)) || any(vect>10^6) || ~any(size(vect)==1)
+    if ~any(size(vect)==1)|| any(isnan(vect)) || any(vect>10^6) 
         beep
         disp('Bad formatting of values found!')
         sprintf('Please review and correct condition %d, column %d', ind(1), ind(2))
@@ -500,6 +500,7 @@ if ind(2)==2  %check the unicity of the onsets
 end
 if ind(2)==1
     handles.cond(ind(1)).cond_name=eventdata.EditData;
+    vect = [];
 elseif ind(2)==2
     handles.cond(ind(1)).onsets=vect;
 elseif ind(2)==3
@@ -510,8 +511,12 @@ elseif ind(2)==5
     handles.cond(ind(1)).cov_trial=vect;
 end
 temp=[];
+if ~isempty(vect)
 for j=1:length(vect)
     temp=[temp, ' ',num2str(vect(j),3)];
+end
+else
+    temp = handles.cond(ind(1)).cond_name;
 end
 dat = get(handles.condtable,'Data');
 dat{ind(1),ind(2)} = temp;
