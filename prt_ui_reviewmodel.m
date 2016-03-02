@@ -159,8 +159,11 @@ if indm==0
     set(handles.pop_model,'Value',1)
     indm=1;
 end
-in.fs_name=handles.PRT.model(indm).input.fs.fs_name;
-indf=prt_init_fs(handles.PRT,in);
+indf = zeros(length(handles.PRT.model(indm).input.fs),1);
+for i = 1:length(handles.PRT.model(indm).input.fs)
+    in.fs_name=handles.PRT.model(indm).input.fs(i).fs_name;
+    indf(i)=prt_init_fs(handles.PRT,in);
+end
 handles.indm=indm;
 handles.indf=indf;
 end
@@ -201,8 +204,11 @@ if indm==0
     set(handles.pop_model,'Value',1)
     indm=1;
 end
-in.fs_name=handles.PRT.model(indm).input.fs.fs_name;
-indf=prt_init_fs(handles.PRT,in);
+indf = zeros(length(handles.PRT.model(indm).input.fs),1);
+for i = 1:length(handles.PRT.model(indm).input.fs)
+    in.fs_name=handles.PRT.model(indm).input.fs(i).fs_name;
+    indf(i)=prt_init_fs(handles.PRT,in);
+end
 handles.indm=indm;
 handles.indf=indf;
 if ~isfield(handles.PRT.model(handles.indm).input,'class')
@@ -234,7 +240,7 @@ function modelbutt_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % --- Executes on button press in cvbutt.
 if isfield(handles.PRT.model(handles.indm).input,'class')
-    prt_ui_select_class('UserData',{handles.PRT,handles.indf,handles.indm})
+    prt_ui_select_class('UserData',{handles.PRT,handles.indf(1),handles.indm})
 end
 
 
@@ -243,7 +249,7 @@ function cvbutt_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 prt_ui_reviewCV('UserData',{handles.PRT,handles.indm,...
-    handles.indf,handles.prtdir})
+    handles.indf(1),handles.prtdir})
 
 
 % --- Executes on button press in kernbutt.
@@ -251,7 +257,8 @@ function kernbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to kernbutt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-kername=handles.PRT.fs(handles.indf).k_file;
+listfs = {handles.PRT.fs(handles.indf).fs_name};
+kername=handles.PRT.fs(handles.indf(1)).k_file;
 try
     load([handles.prtdir,filesep,kername])
 catch
@@ -272,11 +279,15 @@ S0= spm('WinSize','0',1);
 tmp  = [S0(3)/1280 (S0(4))/800];
 ratio=min(tmp)*[1 1 1 1];
 set(hf,'Resize','on')
-set(hf,'Position',ratio.*[360 278 560 420])
+set(hf,'Position',ratio.*[360 278 560 520])
 set(hf,'Units','normalized')
+fs = uicontrol(hf,'Style','popupmenu',...
+    'String',listfs,...
+    'Position', ratio.*[170 455 220 50],...
+    'Callback',@changefs);
 c = uicontrol(hf,'Style','popupmenu',...
     'String',list,...
-    'Position', ratio.*[170 365 220 50],...
+    'Position', ratio.*[170 425 220 50],...
     'Callback',@dispkern);
 top = uicontrol(hf,'Style','text',...
     'String','Selected operations',...
@@ -297,6 +308,7 @@ lop = uicontrol(hf,'Style','listbox',...
 set(c,'Units','normalized')
 set(top,'Units','normalized')
 set(lop,'Units','normalized')
+set(fs,'Units','normalized')
 FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts 
 if ispc
     PF='MS Sans Serif';
@@ -326,7 +338,8 @@ for i=1:length(aa)
     set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
         'Units','normalized')
 end
-axes('Position',[0.15 0.2 0.7 0.7]);
+axes('Position',[0.15 0.15 0.7 0.7]);
+set(fs,'UserData',{handles.PRT,handles.indf,handles.prtdir,c})
 set(c,'UserData',Phi)
 imagesc(Phi{1})
 colormap(jet)
@@ -338,3 +351,24 @@ Phi = get(source,'UserData');
 imagesc(Phi{ind})
 colormap(jet)
 colorbar
+
+function changefs(source,callbackdata)
+ind = get(source,'Value');
+dat = get(source,'UserData');
+kername=dat{1}.fs(dat{2}(ind)).k_file;
+try
+    load([dat{3},filesep,kername])
+catch
+    beep
+    disp('Could not load kernel file')
+    return
+end
+list = {};
+for i=1:length(Phi)
+    list = [list;{['Kernel ',num2str(i)]}];
+end
+set(dat{4},'UserData',Phi)
+imagesc(Phi{1})
+colormap(jet)
+colorbar
+

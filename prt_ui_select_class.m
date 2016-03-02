@@ -30,7 +30,7 @@ function varargout = prt_ui_select_class(varargin)
 
 % Edit the above text to modify the response to help prt_ui_select_class
 
-% Last Modified by GUIDE v2.5 01-Nov-2011 16:35:44
+% Last Modified by GUIDE v2.5 01-Mar-2016 17:10:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -187,6 +187,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     else
         %review the model
         handles.flagrev=1;
+        set(handles.subsamp_flag,'Enable','off');
         indm=varargin{2}{3};
         mod=handles.dat.model(indm).input;
         %classification case
@@ -249,6 +250,11 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
                 end
             end
             handles.class(i).class_name=mod.class(i).class_name;            
+        end
+        if isfield(mod,'subsample') && mod.subsample
+            set(handles.subsamp_flag,'Value',1);
+        else
+            set(handles.subsamp_flag,'Value',0);
         end
         set(handles.group_list,'Enable','on');
         % Update handles structure
@@ -874,9 +880,23 @@ legends.lgi=lgi;
 legends.lci=lci;
 legends.lc=lc;
 aa.legends=legends;
+aa.subsample = get(handles.subsamp_flag,'Value');
 handles.output=aa;
 % Update handles structure
 guidata(hObject, handles);
 if ~handles.flagrev
     uiresume(handles.figure1)
 end
+
+
+% --- Executes on button press in subsamp_flag.
+function subsamp_flag_Callback(hObject, eventdata, handles)
+% hObject    handle to subsamp_flag (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of subsamp_flag
+val = get(hObject,'Value');
+set(handles.subsamp_flag,'Value',val);
+guidata(hObject, handles);
+    

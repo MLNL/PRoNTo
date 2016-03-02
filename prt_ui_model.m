@@ -159,6 +159,7 @@ set(handles.pop_machine,'String',{'Binary support vector machine',...
 set(handles.pop_machine,'Value',1)
 handles.machine.function='prt_machine_svm_bin';
 handles.machine.args=handles.def.svmargs;
+handles.subsample = 0;
 % list={'Sample averaging (within block)',...
 %     'Sample averaging (within subject/condition)',...
 %     'Mean centre features using training data',...
@@ -797,6 +798,7 @@ if strcmpi(handles.type,'classification')
 %     handles.listnames=speccl.condm;
     handles.legs=speccl.legends;
     handles.class=speccl.class;
+    handles.subsample = speccl.subsample;
     ns=zeros(length(speccl.class),1);
     ng1=1;
     ng2=1;
@@ -1301,6 +1303,7 @@ in.operations=handles.operations;
 in.fs=handles.fs;
 in.fs = rmfield(in.fs,'indfs');
 in.cv=handles.cv;
+in.subsample = 0;
 %check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')
     if ~isfield(handles,'class')
@@ -1320,6 +1323,7 @@ if strcmpi(in.type,'classification')
         end
         in.class=handles.class;
     end
+    in.subsample = handles.subsample;
 else
     if ~isfield(handles,'group')
         beep
@@ -1411,6 +1415,7 @@ in.operations=handles.operations;
 in.fs=handles.fs;
 in.fs = rmfield(in.fs,'indfs');
 in.cv=handles.cv;
+in.subsample = 0;
 %check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')
     if ~isfield(handles,'class')
@@ -1430,6 +1435,7 @@ if strcmpi(in.type,'classification')
         end
         in.class=handles.class;
     end
+    in.subsample = handles.subsample;
 else
     if ~isfield(handles,'group')
         beep

@@ -159,9 +159,11 @@ elseif strcmpi(tcv,'loro')
 elseif strcmpi(tcv,'loso')
     cv = [cv, 'Subject Out'];
 elseif strcmpi(tcv,'losgo')
-    cv = [cv, 'Subject per Group Out'];
+    cv = [cv, 'Subject per Class Out'];
 elseif strcmpi(tcv,'custom')
     cv = 'Custom';
+elseif strcmpi(tcv,'locbo')
+    cv = [cv, 'Block per Class Out'];
 end
 set(handles.selCV,'String',cv);
 % Update handles structure
