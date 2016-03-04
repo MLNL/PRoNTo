@@ -1,4 +1,4 @@
-function A = meanConst(hyp, x, i)
+function A = meanConstcell(hyp, x, i)
 
 % Constant mean function. The mean function is parameterized as:
 %

@@ -1154,7 +1154,7 @@ if ~isfield(in,'class')
         disp('Please correct')
     end
 end
-PRT=prt_model(handles.dat,in);
+PRT = prt_model(handles.dat,in);
 clear in
 in.fname      = get(handles.edit_prt,'String');
 in.model_name = handles.model_name;
