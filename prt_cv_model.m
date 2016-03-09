@@ -1,4 +1,4 @@
-function [outfile]=prt_cv_model(PRT,in)
+function [outfile] = prt_cv_model(PRT,in)
 % Function to run a cross-validation structure on a given model
 %
 % Inputs:
@@ -140,13 +140,18 @@ PRT.model(mid).output.stats=stats;
 
 % Save PRT containing machine output
 % -------------------------------------------------------------------------
-outfile = [prt_dir, filesep,'PRT.mat'];
-disp('Updating PRT.mat.......>>')
-if spm_check_version('MATLAB','7') < 0
-    save(outfile,'-V6','PRT');
+if ~isfield(in,'savePRT') || in.savePRT
+    outfile = [prt_dir, filesep,'PRT.mat'];
+    disp('Updating PRT.mat.......>>')
+    if spm_check_version('MATLAB','7') < 0
+        save(outfile,'-V6','PRT');
+    else
+        save(outfile,'PRT');
+    end
 else
-    save(outfile,'PRT');
+    outfile = PRT;
 end
+
 end
 
 

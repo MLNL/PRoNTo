@@ -24,7 +24,9 @@ function [PRT, CV, ID] = prt_model(PRT,in)
 %   OR:     in.class(c).group(g).subj(s).modality(m).all_cond
 %
 %   in.cv.type:     type of cross-validation ('loso','losgo','custom')
-%   in.cv.mat_file: file specifying CV matrix (if type='custom');
+%   in.cv.mat_file: file specifying CV matrix (if type='custom')
+%   in.savePRT:     flag specifying if PRT is saved at the end, if omited 
+%                   save by default (to ensure back compatibility)
 %
 % Output:
 % -------
@@ -110,11 +112,13 @@ PRT.model(modelid).input.operations = in.operations;
 
 % Save PRT.mat
 % -------------------------------------------------------------------------
-disp('Updating PRT.mat.......>>')
-if spm_check_version('MATLAB','7') >= 0
-    save(in.fname,'-V7','PRT');
-else
-    save(in.fname,'-V6','PRT');
+if ~isfield(in,'savePRT') || in.savePRT 
+    disp('Updating PRT.mat.......>>')
+    if spm_check_version('MATLAB','7') >= 0
+        save(in.fname,'-V7','PRT');
+    else
+        save(in.fname,'-V6','PRT');
+    end
 end
 
 end
@@ -123,7 +127,7 @@ end
 % Private Functions
 % -------------------------------------------------------------------------
 
-function [targets, samp_idx, t_all samp_all,covar,cov_all] = compute_targets(PRT, in)
+function [targets,samp_idx,t_all,samp_all,covar,cov_all] = compute_targets(PRT, in)
 % Function to compute the prediction targets. Also does some error checking
 
 % Set the reference feature set
@@ -287,7 +291,8 @@ for g = 1:length(in.group)
                 else
                     error('prt_model:NoRegressionTarget','No regression target found, correct');
                 end
-                samp_idx=[samp_idx; find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)];
+                samp_idx = [samp_idx ; ...
+                    find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)]; %#ok<*AGROW>
                 if any(ismember(in.operations, 5)) %Get covariates
                     cov(m,s) = PRT.group(gid).subject(idx).modality(mid).covar;
                 end
