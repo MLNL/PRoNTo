@@ -29,6 +29,7 @@ function output = prt_machine_krr(d,args)
 
 
 output.type=d.pred_type;
+K=d.train{1};
 
 SANITYCHECK=true; % can turn off for "speed". Expert only.
 
@@ -39,24 +40,26 @@ if SANITYCHECK==true
             ' regularization should be a number. ' ...
             ' SOLUTION: Please use a number']);
     end
-    K=d.train{1};
+    
     [n m]=size(K);
     if n~=m
         error('prt_machine_krr:kernelSize',['Error: krr'...
             ' training kernel should be square ' ...
             ' SOLUTION: do the right thing']);
     end
-    
-    % Run KRR
-    %----------------------------------------------------------------------
-    m = mean(d.tr_targets);                     % mean of the training data
-    t = d.tr_targets - m;                             % mean centre targets
-    w = prt_KRR(K,t,args);
-       
-    output.predictions=d.test{1}*w + m;    % add mean from the training set 
-    output.func_val=output.predictions;
-    output.alpha=w;
-  
 end
+
+
+% Run KRR
+%----------------------------------------------------------------------
+m = mean(d.tr_targets);                     % mean of the training data
+t = d.tr_targets - m;                             % mean centre targets
+w = prt_KRR(K,t,args);
+
+output.predictions=d.test{1}*w + m;    % add mean from the training set
+output.func_val=output.predictions;
+output.alpha=w;
+
+
 
 end
