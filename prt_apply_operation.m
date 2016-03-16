@@ -81,7 +81,7 @@ for d = 1:length(in.train)
             % sample averaging
             % ----------------
             % Training data
-            Ptr = compute_sa_mat(in.tr_id);
+            Ptr = compute_sa_mat(in.tr_id,in.tr_targets);
             if in.use_kernel
                 out.train{d} = Ptr*in.train{d}*Ptr';
             else
@@ -97,7 +97,7 @@ for d = 1:length(in.train)
             
             % Test data
             if isfield(in,'test')
-                Pte = compute_sa_mat(in.te_id);
+                Pte = compute_sa_mat(in.te_id, in.te_targets);
                 if in.use_kernel
                     out.test{d}     = Pte*in.test{d}*Ptr';
                     out.testcov{d}  = Pte*in.testcov{d}*Pte';
@@ -290,7 +290,7 @@ end
 P = blkdiag(C{:});
 end
 
-function P = compute_sa_mat(ID)
+function P = compute_sa_mat(ID,targets)
 % function to compute the block averaging matrix (P) necessary to apply
 % temporal compression
 
@@ -312,9 +312,9 @@ subs = unique(IDs);
 P = [];
 for s = 1:length(subs)
     sidx = IDs == subs(s);
-    conds = unique(ID(sidx,4));
-    for c = 1:length(conds)
-        p = (IDs == s & ID(:,4) == conds(c))';
+    classes = unique(targets(sidx));
+    for c = 1:length(classes)
+        p = (IDs == s & targets == classes(c))';
         P = [P; 1./sum(p) * double(p)];
     end
 end
