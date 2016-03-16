@@ -156,7 +156,6 @@ else
             t_perm = zeros(length(t),1);
             IDperm = zeros(size(ID));
             
-            
             % Find chunks in the data (e.g. temporal correlated samples)
             % -------------------------------------------------------------------------
             
@@ -174,45 +173,68 @@ else
                         
                         samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
                         
+                        
                         ism = find((ids(:,1) == samp_g(gid)) & ...
                             (ids(:,2) == samp_s(sid)) & ...
                             (ids(:,3) == samp_m(mid)));
-                        i=1;
-                        chunks = {};
-                        for cid = 1:length(samp_c)
-                            
-                            
-                            samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
-                            
-                            for bid = 1:length(samp_b)
+                        
+                        if samp_c ~=0 && ism>1 % i.e. there is a design and more than one image per subject
+                            exchange_subjects = 0;
+                            i=1;
+                            chunks = {};
+                            for cid = 1:length(samp_c)
                                 
-                                rg = find((ids(ism,4) == samp_c(cid)) & ...
-                                    (ids(ism,5) == samp_b(bid)));
+                                samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
                                 
-                                chunks{i} = rg';
-                                
-                                i=i+1;
+                                for bid = 1:length(samp_b)
+                                    
+                                    rg = find((ids(ism,4) == samp_c(cid)) & ...
+                                        (ids(ism,5) == samp_b(bid)));
+                                    
+                                    chunks{i} = rg';
+                                    
+                                    i=i+1;
+                                end
                             end
+                            
+                            if ~flag_use_perms
+                                chunkperm=randperm(numel(chunks));
+                            else
+                                chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
+                            end
+                            
+                            chunkpermcv = [];
+                            for i=1:length(chunks)
+                                t_perm(ism(chunks{i}),1) = unique(PRT.model(modelid).input.targets(ism(chunks{chunkperm(i)})));
+                                chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
+                            end
+                            pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
+                            CVperm(ism(pchunk),:) = CV(ism(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
+                            IDperm(ism(pchunk),:) = ID(ism(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
+                            
+                        else %Typically one image per subject selected for model, need to permute across subjects instead
+                            exchange_subjects = 1;
                         end
-                        
-                        
-                        if ~flag_use_perms
-                            chunkperm=randperm(numel(chunks));
-                        else
-                            chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
-                        end
-                        
-                        chunkpermcv = [];
-                        for i=1:length(chunks)
-                            t_perm(ism(chunks{i}),1) = unique(PRT.model(modelid).input.targets(ism(chunks{chunkperm(i)})));
-                            chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
-                        end
-                        pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                        CVperm(ism(pchunk),:) = CV(ism(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
-                        IDperm(ism(pchunk),:) = ID(ism(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
                     end
                 end
             end
+            if exchange_subjects % randomly permute across the targets as no temporal structure
+                if ~flag_use_perms
+                    chunkperm=randperm(size(ID,1));
+                else
+                    chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
+                end
+                t_perm = PRT.model(modelid).input.targets(chunkperm);
+                CVperm = CV(chunkperm,:);
+                IDperm = ID(chunkperm,:);
+            end
+            
+            %         chunkperm=randperm(length(chunks));
+            %
+            %         for i=1:length(chunks)
+            %             t_perm(chunks{i},1) = unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)}));
+            %             CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
+            %         end
             
             
             for f = 1:n_folds
@@ -296,7 +318,7 @@ else
             end
             
             if flag
-                PRT.model(modelid(1)).output(k).permutation(p).perm_mat = chunkperm';
+                PRT.model(modelid(1)).output(k).permutation(p).perm_mat = reshape(chunkperm, numel(chunkperm),1); % put in column
                 PRT.model(modelid(1)).output(k).permutation(p).perm_stats = perm_stats;
             end
         end

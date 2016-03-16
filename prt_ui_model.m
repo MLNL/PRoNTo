@@ -1362,6 +1362,7 @@ if strcmpi(in.cv.type,'lobo')
         end
     end
 end
+
 % if ~isfield(in,'class')
 %     if ~strcmpi(in.cv.type,'loso')
 %         beep
@@ -1370,6 +1371,7 @@ end
 %     end
 % end
 PRT=prt_model(handles.dat,in);
+
 clear in
 in.fname      = get(handles.edit_prt,'String');
 in.model_name = handles.model_name;

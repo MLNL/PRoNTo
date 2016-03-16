@@ -46,7 +46,7 @@ end
 n_mods=length(mids);
 
 % Load mask(s) and resize if necessary
-%force second-level masking by atlas if provided
+% force second-level masking by atlas if provided
 for i=1:length(in.mod)
     if isfield(in.mod(i),'atlasroi')
         if ~isempty(in.mod(i).atlasroi) && isempty(in.mod(i).mask)
@@ -78,7 +78,7 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
         idtk = PRT.fs(fid).id_mat(:,3) == mids(i);
         nimm = length(unique(PRT.fs(fid).id_mat(:,3) == mids(i)));
         
-        %check that modalities have the same dimensions in terms of samples
+        % check that modalities have the same dimensions in terms of samples
         nim1 =length(unique(PRT.fs(fid).id_mat(:,3) == mids(1)));
         if nimm~= nim1
             error('prt_fs:MultKernMod_DifIm',...
@@ -102,7 +102,7 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
             [d1,idmax] = max(Phim);
             [d1,idmin] = min(Phim);
             min_max = find(idmax==idmin);
-            if isempty(min_max) || unique(Phim(:,min_max))~=0 %Kernel does not contain a whole line of zeros
+            if isempty(min_max) || unique(Phim(:,min_max))~=0 % Kernel does not contain a whole line of zeros
                 igd = i;
                 Phim = {Phim};
                 kerns = Phim;
@@ -121,8 +121,8 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
         Phi = [Phi, kerns];
         PRT.fs(fid).modality(i).igood_kerns = igd;
     end
-    %post-hoc: the ID mat should be the same for all modalities involved,
-    %so only the first one will be saved
+    % post-hoc: the ID mat should be the same for all modalities involved,
+    % so only the first one will be saved
     indm=PRT.fs(fid).fas.im==1;
     PRT.fs(fid).id_mat=PRT.fs(fid).id_mat(indm,:);
     PRT.fs(fid).multkernel = 1;
@@ -157,7 +157,7 @@ else
     
     atl=spm_vol(ratl{1});
     addin = struct();
-    %Initialize all fields and compute the feature sets if needed
+    % Initialize all fields and compute the feature sets if needed
     if isfield(in.mod(mids(1)),'multroi') ...
             && in.mod(mids(1)).multroi
         if any(in.tocomp)
@@ -169,7 +169,7 @@ else
             error('prt_fs:NoDataInMask',...
                 'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
         end
-        kerns = Phim(igd); % Makig sure the dimensions are consistent
+        kerns = Phim(igd); % Making sure the dimensions are consistent
         kerns = reshape(kerns,1,length(kerns));
         Phi = kerns;
     else % Simply concatenate the modalities in samples

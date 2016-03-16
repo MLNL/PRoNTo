@@ -405,8 +405,8 @@ else
                                     design.conds = conds;
                                 else
                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
-                                    covar = [];
-                                end                           
+                                end  
+                                covar = []; % No covariates if design, to be updated in v3.0
                                 ncond = length(design.conds);
                                 for c = 1:ncond
                                     lons = length(design.conds(c).onsets);

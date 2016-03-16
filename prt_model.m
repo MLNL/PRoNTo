@@ -24,7 +24,9 @@ function [PRT, CV, ID] = prt_model(PRT,in)
 %   OR:     in.class(c).group(g).subj(s).modality(m).all_cond
 %
 %   in.cv.type:     type of cross-validation ('loso','losgo','custom')
-%   in.cv.mat_file: file specifying CV matrix (if type='custom');
+%   in.cv.mat_file: file specifying CV matrix (if type='custom')
+%   in.savePRT:     flag specifying if PRT is saved at the end, if omited 
+%                   save by default (to ensure back compatibility)
 %
 % Output:
 % -------
@@ -118,11 +120,13 @@ PRT.model(modelid).input.operations = in.operations;
 
 % Save PRT.mat
 % -------------------------------------------------------------------------
-disp('Updating PRT.mat.......>>')
-if spm_check_version('MATLAB','7') >= 0
-    save(in.fname,'-V7','PRT');
-else
-    save(in.fname,'-V6','PRT');
+if ~isfield(in,'savePRT') || in.savePRT 
+    disp('Updating PRT.mat.......>>')
+    if spm_check_version('MATLAB','7') >= 0
+        save(in.fname,'-V7','PRT');
+    else
+        save(in.fname,'-V6','PRT');
+    end
 end
 
 end
@@ -131,6 +135,7 @@ end
 % Private Functions
 % -------------------------------------------------------------------------
 function [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PRT, in, flag,subsample)
+
 % Function to compute the prediction targets. Also does some error checking
 
 % Set the reference feature set
@@ -142,10 +147,19 @@ n   = size(ID,1);
 if length(in.fs) > 1
     for f = 1:length(in.fs)
         fid = prt_init_fs(PRT, in.fs(f));
+        if f==1
+            ID = PRT.fs(fid).id_mat;
+        end
         if size(PRT.fs(fid).id_mat,1) ~= n
             error('prt_model:sizeOfFeatureSetsDiffer',...
                 ['Multiple feature sets included, but they have different ',...
                 'numbers of samples']);
+        end
+        % Stronger constraint: ID matrices should be exactly equal
+        if any(any(PRT.fs(fid).id_mat~=ID))
+            error('prt_model:DesignOfFeatureSetsDiffer',...
+                ['Multiple feature sets included, but they have different ',...
+                'designs']);
         end
     end
 end
@@ -318,7 +332,6 @@ samp_all = find(samp_all);
 targets  = t_all(samp_idx);
 covar = cov_all(samp_idx);
 end
-
 
 % function [targets, samp_idx, targ_allscans,covar,cov_all]=compute_target_reg(PRT, in)
 % % Function to compute the prediction targets. Not much error checking yet
