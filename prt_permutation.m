@@ -175,7 +175,10 @@ else
                                 (ids(:,2) == samp_s(sid)) & ...
                                 (ids(:,3) == samp_m(mid)));
                     
-                    if samp_c ~=0 && ism>1 % i.e. there is a design and more than one image per subject
+                    if (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classifier') && ...
+                                numel(samp_c)>1 && numel(ism)>numel(samp_c)) ||... % i.e. there is a design and more than one image per subject in classification
+                                (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'regression') && ...
+                                numel(ism)>1 && all(samp_c~=0))  % i.e. there is more than one image for this subject, coming from a design
                         exchange_subjects = 0;
                         i=1;
                         chunks = {};
