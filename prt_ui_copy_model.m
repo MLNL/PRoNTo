@@ -384,6 +384,10 @@ if get(handles.pop_reg,'Value')==1 %for classification
 %             set(handles.pop_machine,'Value',val)
         set(handles.pop_machine,'String',list)
     end
+elseif get(handles.pop_reg,'Value') == 2
+    set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
+        'Relevance Vector Regression','Gaussian Process Regression', 'Multi-Kernel Regression'})
+    set(handles.pop_machine,'Value',1) 
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -474,6 +478,21 @@ if ~isempty(handles.fs)
             set(handles.pop_machine,'Value',val)
             set(handles.pop_machine,'String',list)
         end
+    elseif get(handles.pop_reg,'Value') == 2
+        set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
+            'Relevance Vector Regression','Gaussian Process Regression'})
+            if handles.multimod || handles.multiroi || length(handles.fs)>1
+                list = [list,{'Multi-Kernel Regression'}];%,...
+                    %'wip'}];
+            end
+            listmach = get(handles.pop_machine,'String');
+            if numel(listmach) ~= numel(list) %number of options is not the same
+                val = 1;
+            else
+                val = get(handles.pop_machine,'Value');
+            end
+            set(handles.pop_machine,'Value',val)
+            set(handles.pop_machine,'String',list)
     end
 else
     if get(handles.pop_reg,'Value')==1 %for classification
@@ -486,6 +505,12 @@ else
             handles.machine.function='prt_machine_svm_bin';
             handles.machine.args=handles.def.svmargs;
         end
+    elseif get(handles.pop_reg,'Value') == 2
+        set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
+            'Relevance Vector Regression','Gaussian Process Regression', 'Multi-Kernel Regression'})
+        set(handles.pop_machine,'Value',1)
+        handles.machine.function='prt_machine_krr';
+        handles.machine.args=handles.def.krrargs;
     end
 end   
 
@@ -1219,7 +1244,9 @@ function update_copy_model(handles,indmod)
 
 % Copy model
 handles.newmodel = handles.dat.model(indmod).input;
-set(handles.pop_reg,'String',handles.dat.model(indmod).input.type)
+set(handles.pop_reg,'String',{'Classification','Regression'})
+val = find(strcmpi({'Classification','Regression'},handles.dat.model(indmod).input.type));
+set(handles.pop_reg,'Value',val)  
 set(handles.pop_reg,'Enable','off')
 
 
@@ -1457,12 +1484,11 @@ if strcmpi(handles.type,'classification')
     end
     
 else % Regression
-    handles.group=d1.group;
-    handles.design = d1.design;
-    n=0;
-    for i=1:length(sel)
-        n=n+length(sel(i).subj);
-    end
+    % need to reverse the sample selection to know how many subjects and/or
+    % blocks were selected
+    id = handles.dat.fs(sel(1)).id_mat(handles.dat.model(indmod).input.samp_idx,:);
+    n = numel(unique(id(:,2)));
+    blocks = numel(unique(id(:,5)));
     list={};
     if n>1
         if ~any(ismember(list, 'Leave One Subject Out'))
@@ -1472,7 +1498,7 @@ else % Regression
             list=[list;{'k-folds CV on Subject Out'}];
         end
         set(handles.pop_cv_nested,'String',list)
-    elseif (d1.design) && n==1
+    elseif blocks>1 && n==1
         if ~any(ismember(list, 'Leave One Block Out'))
             list=[list;{'Leave One Block Out'}];
         end
@@ -1531,8 +1557,8 @@ if handles.dat.model(indmod).input.use_nested_cv
             listcv = {'k-folds CV on Block per Class'};
         end
     end
-    set(handles.pop_cv_nested,'String',listcv)
-    set(handles.pop_cv_nested,'Value',1)
+    val = strcmpi(list,listcv);
+    set(handles.pop_cv_nested,'Value',find(val))
 else
     set(handles.pop_cv_nested,'String',{})
     set(handles.pop_cv_nested,'Enable','off')
@@ -1573,7 +1599,7 @@ set(handles.sel_list,'Value',1)
 handles.model_name = [];
 set(handles.edit_modelname,'ForegroundColor',[1 0 0])
 % Update handles structure
-hObject = gcbo;
+hObject = gcf;
 guidata(hObject, handles);
 
 
