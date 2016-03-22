@@ -221,24 +221,29 @@ else
                     end
                 end
             end
-            if exchange_subjects % randomly permute across the targets as no temporal structure
+            if exchange_subjects % Permute the subjects based on their structure
+                i = 1;
+                samp_g=unique(ids(:,1));%number of groups
+                for gid = 1: length(samp_g) 
+                    samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
+                    for sid = 1: length(samp_s)
+                        chunks{i} = find(ids(:,1)==gid & ids(:,2)==sid); % get all the images for this subject
+                        i = i+1;
+                    end
+                end
                 if ~flag_use_perms
-                    chunkperm=randperm(size(ID,1));
+                    chunkperm=randperm(numel(chunks));
                 else
                     chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
                 end
-                t_perm = PRT.model(modelid).input.targets(chunkperm);
-                CVperm = CV(chunkperm,:);
-                IDperm = ID(chunkperm,:);
+                for i=1:length(chunks)
+                    t_perm(chunks{i},1) = unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)}));
+                    chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
+                end
+                pchunk = cell2mat(chunks);
+                CVperm(pchunk,:) = CV(chunkperm,:);
+                IDperm(pchunk,:) = ID(chunkperm,:);
             end
-            
-            %         chunkperm=randperm(length(chunks));
-            %
-            %         for i=1:length(chunks)
-            %             t_perm(chunks{i},1) = unique(PRT.model(modelid).input.targets(chunks{chunkperm(i)}));
-            %             CVperm(chunks{i},:) = CV(chunks{chunkperm(i)},:);
-            %         end
-            
             
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
