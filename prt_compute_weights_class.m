@@ -341,9 +341,7 @@ for p=0:maxp
                 d.datamat = cvdata.train{:};
                 
                 if strcmpi(mfunc,'prt_machine_sMKL_cla') || ...
-                        strcmpi(mfunc,'prt_machine_wip_cla') || ...
-                         strcmpi(mfunc,'prt_machine_sMKL_reg') || ...
-                          strcmpi(mfunc,'prt_machine_wip_reg')
+                        strcmpi(mfunc,'prt_machine_wip_cla')            
                     if isempty(ibe)
                         m.args.betas = PRT.model(model_idx).output.fold(f).beta;
                     else
