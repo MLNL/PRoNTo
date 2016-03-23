@@ -368,7 +368,7 @@ else
                                         multicond.rt_trial = cell(length(multicond.onsets),1);
                                     end
                                     try
-                                        multicond.cov_trial = cov_trial;
+                                        multicond.cov_trial = R;
                                     catch
                                         multicond.cov_trial = cell(length(multicond.onsets),1);
                                     end
@@ -403,10 +403,10 @@ else
                                         end
                                     end
                                     design.conds = conds;
+                                    covar = [];
                                 else
                                     design.conds = job.group(g).select.subject{j}(k).design.new_design.conds;
-                                end  
-                                covar = []; % No covariates if design, to be updated in v3.0
+                                    covar = []; % No covariates if design, to be updated in v3.0
                                 ncond = length(design.conds);
                                 for c = 1:ncond
                                     lons = length(design.conds(c).onsets);
@@ -462,6 +462,8 @@ else
                                         end
                                     end
                                 end
+                                end  
+                                
                                 checked_conds = prt_check_design(design.conds,TR,unit,job.fmri_des.hrfover,job.fmri_des.hrfdel);
                                 design.conds  = checked_conds.conds;
                                 design.stats  = checked_conds.stats;
@@ -545,7 +547,7 @@ else
                         % Create PRT.mat modalities
                         PRT.group(g).gr_name                        = job.group(g).gr_name;
                         PRT.group(g).subject(j).subj_name           = subj_name;
-                        PRT.group(g).subject(j).modality(k)         = job.group(g).select.subject{j}(k);
+                        PRT.group(g).subject(j).modality(k).mod_name= job.group(g).select.subject{j}(k).mod_name;
                         PRT.group(g).subject(j).modality(k).TR      = job.group(g).select.subject{j}(k).TR;
                         PRT.group(g).subject(j).modality(k).design  = design;
                         PRT.group(g).subject(j).modality(k).scans   = char(job.group(g).select.subject{j}(k).scans);
