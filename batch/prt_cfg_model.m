@@ -308,7 +308,7 @@ reg_group.name    = 'Group';
 reg_group.help    = {'Specify data and design for the group.'};
 %reg_group.val     = {gr_name, subj_nums, conditions, reg_targets};
 %reg_group.val     = {gr_name, subj_nums,mod_name2 };
-reg_group.val     = {gr_name, subj_nums};
+reg_group.val     = {gr_name, subj_nums, conditions};
 
 % ---------------------------------------------------------------------
 % k_args Define k for partioning

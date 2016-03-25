@@ -176,6 +176,13 @@ else
         
         % Load PRT.mat
         PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
+        if isempty(PRT)
+            disp('No PRT selected')
+            handles.output = [];
+            guidata(hObject,handles)
+            delete(handles.figure1)
+            return
+        end
         pathdir = regexprep(PRT,'PRT.mat', '');
         handles.pathdir = pathdir;
         handles.prtdir=fileparts(PRT);
@@ -277,7 +284,11 @@ function varargout = prt_ui_results_stats_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+if isfield(handles,'output')
+    varargout{1} = handles.output;
+else
+    varargout{1} = [];
+end
 
 % --- Executes on button press in helpbutton.
 function helpbutton_Callback(hObject, eventdata, handles)

@@ -396,7 +396,7 @@ for p=0:maxp
         norm4d{c}   = sqrt(sum(norm4d{c},1));
         norm4dav{c} = sqrt(sum(norm4dav{c},1)); %afm
     end
-    
+    fprintf('\n') % new line 
     disp('Normalising weights--------->>')
     if p==0
         for f = 1:nfold,

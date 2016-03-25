@@ -78,16 +78,14 @@ else
         model.fs(i).fs_name = job.fsets.fs_name{i};
     end
 end
-modalities = [];
-for ii=1:length(model.fs)
-    fid = prt_init_fs(PRT,model.fs(ii));
-    mods = [PRT.fs(fid).modality(:).mod_name];
-    if ~iscellstr(mods) % Compatibility with version 1
-        mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
-    end
-    modalities = [modalities,mods];
+
+% Select modalities in the model to define targets based on the first
+% feature set (they all have the same ID matrix)
+fid = prt_init_fs(PRT,model.fs(1));
+mods = [PRT.fs(fid).modality(:).mod_name];
+if ~iscellstr(mods) % Compatibility with version 1
+    mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
 end
-mods = modalities;
 
 if isstruct(job.fsets)
     model.indmodels = job.fsets.indmodels;
@@ -239,15 +237,33 @@ elseif isfield(job.model_type,'regression')
         sids   =  job.model_type.regression.reg_group(g).subj_nums;
         for s = 1:length(sids)
             model.group(g).subj(scount).num = sids(s);
-            if iscell(mods)
-                for m = 1:length(mods)
-                    model.group(g).subj(scount).modality(m).mod_name =  mods(m);
+            for m = 1: length(mods)
+                model.group(g).subj(scount).modality(m).mod_name=mods(m);
+                if isfield(job.model_type.regression.reg_group(g).conditions,'all_scans')
+                    model.group(g).subj(scount).modality(m).all_scans = true;
+                elseif isfield(job.model_type.regression.reg_group(g).conditions,'all_cond')
+                    model.group(g).subj(scount).modality(m).all_cond = true;
+                    if isempty(lcond)
+                        beep
+                        disp('All conditions selected while no conditions were common to all subjects')
+                        disp('Please review the selection and/or the data and design')
+                        return
+                    end
+                else
+                    model.group(g).subj(scount).modality(m).conds = ...
+                        job.model_type.regression.reg_group(g).conditions.conds;
+                    for cc=1:length(job.model_type.regression.reg_group(g).conditions.conds)
+                        cname=job.model_type.regression.reg_group(g).conditions.conds(cc).cond_name;
+                        if isempty(intersect(lower({cname}),lower(lcond)))
+                            beep
+                            disp('This condition is not common to all subjects')
+                            disp('Please remove it from the selection')
+                            return
+                        end
+                    end
                 end
-            else
-                model.group(g).subj(scount).modality.mod_name =  mods;
             end
-            
-            scount=scount+1;
+            scount = scount+1;
         end
     end
     

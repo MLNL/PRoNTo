@@ -104,6 +104,8 @@ PRT.model(mid).model_name = model.model_name;
 for i = 1:length(job.modchoices)
     
     if isfield(job.modchoices{i},'fsets')
+        % delete previous selection of feature sets
+        PRT.model(mid).input.fs = [];
         % insert feature set fields
         if ~isstruct(job.modchoices{i}.fsets)
             PRT.model(mid).input.fs(1).fs_name = job.modchoices{i}.fsets;
@@ -218,6 +220,8 @@ for i = 1:length(job.modchoices)
             end
         end
     elseif isfield(job.modchoices{i},'sel_ops')
+        % delete previous selection of operations
+        PRT.model(mid).input.operations = [];
         % specify operations to apply to the data prior to prediction
         if isfield(job.modchoices{i}.sel_ops.use_other_ops,'data_op')
             ops = [job.modchoices{i}.sel_ops.use_other_ops.data_op{:}];

@@ -159,9 +159,14 @@ if length(in.fs) > 1
                 'designs']);
         end
     end
+    % only choose the first one to define the targets as they have the same
+    % ID matrix
+    fid = prt_init_fs(PRT, in.fs(1));
+    modalities = [PRT.fs(fid).modality.mod_name];
+else
+    modalities = {PRT.masks(:).mod_name};
 end
 
-modalities = {PRT.masks(:).mod_name};
 groups     = {PRT.group(:).gr_name};
 
 t_all    = zeros(n,1);
