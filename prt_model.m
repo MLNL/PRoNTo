@@ -142,21 +142,18 @@ function [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PR
 fid = prt_init_fs(PRT, in.fs(1));
 ID  = PRT.fs(fid).id_mat;
 n   = size(ID,1);
-
+idtc = [1,2,4:6]; % check for all columns in ID matrix except modality
 % Check the feature sets have the same number of samples (eg for MKL).
 if length(in.fs) > 1
     for f = 1:length(in.fs)
         fid = prt_init_fs(PRT, in.fs(f));
-        if f==1
-            ID = PRT.fs(fid).id_mat;
-        end
         if size(PRT.fs(fid).id_mat,1) ~= n
             error('prt_model:sizeOfFeatureSetsDiffer',...
                 ['Multiple feature sets included, but they have different ',...
                 'numbers of samples']);
         end
         % Stronger constraint: ID matrices should be exactly equal
-        if any(any(PRT.fs(fid).id_mat~=ID))
+        if any(any(PRT.fs(fid).id_mat(:,idtc)~=ID(:,idtc)))
             error('prt_model:DesignOfFeatureSetsDiffer',...
                 ['Multiple feature sets included, but they have different ',...
                 'designs']);

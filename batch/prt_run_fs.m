@@ -125,12 +125,20 @@ for i=1:length(PRT.masks)
                 sc = [];
                 % Load the first file for that modality to get info or load
                 % hdr from fas if present
-                faslist = {PRT.fas(:).mod_name};
-                indfas = find(ismember(faslist,mod(i).mod_name));
-                if ~isempty(indfas) % file array already built
-                    D = handles.fas(indfas).hdr;
+                if isfield(PRT,'fas')
+                    faslist = {PRT.fas(:).mod_name};
+                    indfas = find(ismember(faslist,mod(i).mod_name));
+                    if ~isempty(indfas) && ~isempty(PRT.fas(indfas).hdr) % file array already built
+                        D = PRT.fas(indfas).hdr;
+                        getD = 0;
+                    else
+                        getD = 1;
+                    end
                 else
-                    for g = 1:length(PRT.group)
+                    getD = 1;
+                end
+                if getD
+                   for g = 1:length(PRT.group)
                         for s = 1:length(PRT.group(g).subject)
                             mnames={PRT.group(g).subject(s).modality(:).mod_name};
                             indmod = find(ismember(mnames,mod(i).mod_name));
@@ -151,7 +159,7 @@ for i=1:length(PRT.masks)
                     end
                 end
                 % channel selection and options
-                chanind = D.selectchannels(job.format.MEEGmodality.channels.channels);
+                chanind = D.selectchannels(spm_cfg_eeg_channel_selector(job.format.MEEGmodality.channels.channels));
                 mod(i).ich = chanind;
                 if job.format.MEEGmodality.channels.average
                     mod(i).aver(1) = 1;

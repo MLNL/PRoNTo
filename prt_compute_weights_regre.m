@@ -236,9 +236,16 @@ for p=0:maxp
     
     disp('Computing weights.......>>')
     
-    for z = 1:zdim
+    fprintf(['Slice (out of %d):',repmat(' ',1,ceil(log10(zdim))),'%d'],zdim, 1);
         
-        fprintf('Slice: %d of %d \n',z,zdim);
+    for z = 1:zdim
+        % Counter of slices to be updated
+        if z>1
+            for idisp = 1:ceil(log10(z)) % delete previous counter display
+                fprintf('\b');
+            end
+            fprintf('%d',z);
+        end
         
         img3dav = cell(1,nimage);
         for c = 1:nimage

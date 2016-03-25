@@ -99,9 +99,9 @@ for i=1:nm
     flag=1;
     for j=1:length(PRT.group)
         for k=1:length(PRT.group(j).subject)
-            m2= find(strcmpi(PRT.fs(fid).modality(i).mod_name,mods));
+            m2= find(strcmpi(mods{i},{PRT.group(j).subject(k).modality(:).mod_name}));
             if isempty(m2)
-                m2= find(strcmpi(PRT.fs(fid).modality(i).mod_name,mods{1}));
+                m2= find(strcmpi(mods{1},{PRT.group(j).subject(k).modality(:).mod_name}));
             end
             des=PRT.group(j).subject(k).modality(m2).design;
             if isstruct(des) && flag
@@ -136,7 +136,7 @@ if isfield(job.model_type,'classification')
             for s = 1:length(sids)
                 model.class(c).group(g).subj(scount).num = sids(s);
                 for m = 1: length(mods)
-                    model.class(c).group(g).subj(scount).modality(m).mod_name=mods{m};
+                    model.class(c).group(g).subj(scount).modality(m).mod_name=mods(m);
                     if isfield(job.model_type.classification.class(c).group(g).conditions,'all_scans')
                         model.class(c).group(g).subj(scount).modality(m).all_scans = true;
                     elseif isfield(job.model_type.classification.class(c).group(g).conditions,'all_cond')
@@ -241,7 +241,7 @@ elseif isfield(job.model_type,'regression')
             model.group(g).subj(scount).num = sids(s);
             if iscell(mods)
                 for m = 1:length(mods)
-                    model.group(g).subj(scount).modality(m).mod_name =  mods{m};
+                    model.group(g).subj(scount).modality(m).mod_name =  mods(m);
                 end
             else
                 model.group(g).subj(scount).modality.mod_name =  mods;

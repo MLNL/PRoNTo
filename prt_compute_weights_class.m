@@ -258,8 +258,16 @@ for p=0:maxp
     zdim    = dat_dim(3);
     xydim   = dat_dim(1)*dat_dim(2);
     % Build by z-slices
+    fprintf(['Slice (out of %d):',repmat(' ',1,ceil(log10(zdim))),'%d'],zdim, 1);
+        
     for z = 1:zdim
-        fprintf('Slice: %d of %d \n',z,zdim);
+        % Counter of slices to be updated
+        if z>1
+            for idisp = 1:ceil(log10(z)) % delete previous counter display
+                fprintf('\b');
+            end
+            fprintf('%d',z);
+        end
         img3dav = cell(1,nimage);
         for c = 1:nimage
             img3dav{c}  = zeros(1,xydim); % average weight map
