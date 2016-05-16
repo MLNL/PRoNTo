@@ -109,6 +109,9 @@ for i = 1:size(par, 2)
         fold.Phi_all = in.Phi_all;
         fold.t       = in.t;
         fold.mid     = in.mid;
+        if isfield(in, 'cov')
+            fold.cov     = in.cov;
+        end
         
         [model, targets] = prt_cv_fold(PRT,fold);
         
