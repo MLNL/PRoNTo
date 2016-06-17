@@ -217,10 +217,11 @@ for d = 1:length(in.train)
                     out.train{d} = prt_remove_confounds(in.train{d},...
                         [in.tr_cov,ones(size(in.tr_cov,1),1)]);
                 else
-                    error('prt_apply_operation:GLMnonKernel',...
-                'GLM not implemented for non-kernel methods');
+                    trainonly = 1;
+                    outreg = prt_regconf(PRT, in, trainonly,d);
+                    out.train{d}    = outreg.train;
                 end
-            else % Test data: for now does NOT take train/test division
+            else 
                 Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
                  if in.use_kernel
                     C = [in.tr_cov;in.te_cov];
@@ -231,11 +232,13 @@ for d = 1:length(in.train)
                     out.train{d}    = Phi(tr,tr);
                     out.test{d}     = Phi(te,tr);
                     out.testcov{d}  = Phi(te,te);
-                else
-                    error('prt_apply_operation:GLMnonKernel',...
-                     'GLM not implemented for non-kernel methods');
-                end
-                out.te_id = in.te_id;
+                 else
+                     trainonly = 0;
+                     outreg = prt_regconf(PRT, in, trainonly,d);
+                     out.train{d}    = outreg.train;
+                     out.test{d}     = outreg.test;
+                 end
+                 out.te_id = in.te_id;
             end
             out.tr_id = in.tr_id;
             if isfield(in,'tr_targets')
