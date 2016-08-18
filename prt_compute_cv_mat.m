@@ -281,7 +281,8 @@ switch in.cv.type
             perm = cell(length(in.class),1);
             nsb=0;
             for ic=1:length(in.class)
-                listcond = {in.class(ic).group(1).subj(1).modality(1).conds(:).cond_name}; %only conditions common to all subjects are presented
+                listcond = {in.class(ic).group(1).subj(1).modality(1).conds(:).cond_name};
+                listcond = unique(lower(listcond));
                 lmod=[];
                 for i=1:length(in.class(ic).group(1).subj(1).modality)
                     lmod = [lmod,in.class(ic).group(1).subj(1).modality(i).mod_name];
@@ -291,53 +292,34 @@ switch in.cv.type
                 [d,ng]=ismember(in.class(ic).group(:).gr_name,gnames);
                 lm = {PRT.group(ng(1)).subject(ids).modality(:).mod_name};
                 [d,nm] = ismember(lmod,lm);
-                lc = {PRT.group(ng(1)).subject(ids).modality(nm(1)).design.conds(:).cond_name};
-                [d,nc] = ismember(listcond,lc);
-                nbc = 0;
+                nbc = zeros(length(listcond),1);
                 for ig=1:length(ng)
                     for is=1:length(in.class(ic).group(ng(ig)).subj)
                         for im = 1:length(nm)
-                            for icond=1:length(nc)
-                                idx=floor(((ID(:,1)==ng(ig)) + ...
-                                    (ID(:,2)==in.class(ic).group(ng(ig)).subj(is).num) + ...
-                                    (ID(:,3)==nm(im)) + ...
-                                    (ID(:,4)==nc(icond)))/4);
-                                indcond = find(idx);
-                                vcl(indcond,1) = ic;
-                                nbl = unique(ID(indcond,5));
-                                cnt = 1;
-                                for ibl =1:length(nbl)
-                                    indbl = find(ID(indcond,5)== nbl(ibl));
-                                    vcl(indcond(indbl),2) = cnt + nbc;
-                                    cnt = cnt+1;
-                                end 
-%                                 vcl(find(idx),2) = ID(find(idx),5) + nbc;
-                                nbc = nbc + length(unique(ID(find(idx),5)));
-                            end
-                            if length(nc)>1 % Want to shuffle sub-categories into the folds
-                                idxtk = find(vcl(:,1)==ic);
-                                idxb = unique(vcl(idxtk,2));
-                                perm{ic} = randperm(length(idxb));
-                                temp = zeros(length(idxtk),1);
-                                for ibl =1:length(idxb)
-                                    indbl = find(vcl(idxtk,2)== idxb(ibl));
-                                    temp(indbl,1) = perm{ic}(ibl);
+                            lc = {PRT.group(ng(1)).subject(ids).modality(nm(im)).design.conds(:).cond_name};
+                            [d,nc] = ismember(lower(listcond),lower(lc));
+                            if sum(nc)>0
+                                for icond=1:length(nc)
+                                    idx=floor(((ID(:,1)==ng(ig)) + ...
+                                        (ID(:,2)==in.class(ic).group(ng(ig)).subj(is).num) + ...
+                                        (ID(:,3)==nm(im)) + ...
+                                        (ID(:,4)==nc(icond)))/4);
+                                    indcond = find(idx);
+                                    vcl(indcond,1) = ic;
+                                    nbl = unique(ID(indcond,5));
+                                    cnt = 1;
+                                    for ibl =1:length(nbl)
+                                        indbl = find(ID(indcond,5)== nbl(ibl));
+                                        vcl(indcond(indbl),2) = cnt + nbc(icond);
+                                        cnt = cnt+1;
+                                    end
+                                    %                                 vcl(find(idx),2) = ID(find(idx),5) + nbc;
+                                    nbc(icond) = nbc(icond) + length(unique(ID(find(idx),5)));
                                 end
-                                vcl(idxtk,2) = temp;
                             end
                         end
                     end
                 end
-            end
-            % leave-one-subject-per-group-out
-            cids = unique(vcl(:,1));        
-            gc = 0;
-            ns=zeros(length(cids),1);
-            cidx = cell(length(cids),1);
-            for c = 1:length(cids)
-                cidx{c} = vcl(:,1) == cids(c);
-                ns(c)=length(unique(vcl(cidx{c},2)));            
-                gc = gc + ns(c);
             end
 %             [gids,d1] = unique(vcl(:,1), 'last');
 %             [gids,d2] = unique(vcl(:,1),'first');
@@ -346,81 +328,83 @@ switch in.cv.type
 %             for ig= 1:length(gids)
 %                 ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
 %             end
-        elseif isfield(in,'t')
+        elseif ~isfield(in,'class') && isfield(in,'t')
             ntar = unique(in.t);
-            perm = cell(numel(ntar),1);
-            ns=zeros(length(ntar),1);
             for ic = 1:length(ntar)
-                nsb = 1;
+                nsb = [];
                 inds = find(in.t == ic);
-                ns(ic) = length(inds);
                 vcl(inds,1) = ic;
-                nmi = unique(ID(inds,3));
-                for im=1:length(nmi)
-                    imi = find(ID(inds,3)==nmi(im));
-                    ngi = unique(ID(inds(imi),4));
-                    for ig = 1:length(ngi)
-                        igi = find(ID(inds(imi),4)==ngi(ig));
-                        indss = unique(ID(inds(imi(igi)),5));
-                        for is = 1:length(indss)
-                            inss = find(ID(inds(imi(igi)),5) == indss(is));
-                            vcl(inds(imi(igi(inss))),2) = nsb;
-                            nsb = nsb + 1;
+                ngi = unique(ID(inds,1));
+                for ig = 1:length(ngi)
+                    igi = find(ID(inds,1)==ngi(ig));
+                    iss = unique(ID(inds(igi),2));
+                    for is = 1:length(iss)
+                        isi = find(ismember(find(ID(inds,2)==iss(is)),igi));
+                        nmi = unique(ID(inds(isi),3));
+                        for im=1:length(nmi)
+                            imi = find(ismember(find(ID(inds,3)==nmi(im)),isi));
+                            nci = unique(ID(inds(imi),4));
+                            for icond = 1:length(nci)
+                                ici = find(ismember(find(ID(inds,4)==nci(icond)),imi));
+                                indb = unique(ID(inds(ici),5));
+                                for ib = 1:length(indb)
+                                    inb = ismember(find(ID(inds,5) == indb(ib)),ici);
+                                    nsb(icond) = nsb(icond) + 1;
+                                    vcl(inds(inb),2) = nsb(icond);
+                                end
+                            end
                         end
-                    end
-                    if length(ngi)>1 % Want to shuffle sub-categories into the folds
-                        idxtk = find(vcl(:,1)==ic);
-                        idxb = unique(vcl(idxtk,2));
-                        perm{ic} = randperm(length(idxb));
-                        temp = zeros(length(idxtk),1);
-                        for ibl =1:length(idxb)
-                            indbl = find(vcl(idxtk,2)== idxb(ibl));
-                            temp(indbl,1) = perm{ic}(ibl);
-                        end
-                        vcl(idxtk,2) = temp;
                     end
                 end
             end
-        end 
+        end
+        cids = unique(vcl(:,1));
+        gc = 0;
+        ns=zeros(length(cids),1);
+        cidx = cell(length(cids),1);
+        for c = 1:length(cids)
+            cidx{c} = vcl(:,1) == cids(c);
+            ns(c)=length(unique(vcl(cidx{c},2)));
+            gc = gc + ns(c);
+        end
         sids=max(ns);
         if sids == 1
             error('prt_model:locboSelectedWithOneBlock',...
                 'LOCBO CV selected but only one block is included');
         end
-        [nsf]=floor(min(ns/k));
         if k==0
             CV = zeros(size(ID,1),sids);
         else
             CV = zeros(size(ID,1),k);
         end
-        if k>1 && nsf==1
-            disp('Performing Leave-One Subject per Group-Out')
-        end
-        snums=[];
+%         if k>1 && nsf==1
+%             disp('Performing Leave-One Block per Class-Out')
+%         end
         for g=1:length(ns)
             is=vcl(:,1)==g;
+            [nsf]=floor(ns(g)/k);
             if k>1 && nsf>1 %k-fold CV
-                nsfg=floor(ns(g)/k);
-                if nsfg<1
+                if nsf<1
                     error('prt_model:losgoSelectedWithTooLargeK',...
-                        ['Number of subjects in group ',num2str(g),' smaller than k']);
-                elseif nsfg*2>ns(g)
+                        ['Number of blocks in class ',num2str(g),' smaller than k']);
+                elseif nsf*2>ns(g)
                     error('prt_model:losgoSelectedWithTooLargeK2',...
-                        ['Leaving more than 50%% of subjects in group ',num2str(g),' out']);
+                        ['Leaving more than 50%% of blocks in class ',num2str(g),' out']);
                 end
-                mns=mod(ns(g),nsfg);
-                dk=nsfg*ones(1,floor(length(unique(vcl(is,2)))/nsfg));
-                if mns>0
-                    dk(end)=dk(end)+length(unique(vcl(is,2)))-sum(dk);
-                end
-                inds=1;
-                sk=[];
-                for ii=1:length(dk)
-                    sk=[sk,inds*ones(1,dk(ii))];
-                    inds=inds+1;
-                end
-            else %Leave-One-Subject per Group-Out
-                sk=1:ns(g);
+                mns=mod(ns(g),nsf);
+                dk=nsf*ones(1,floor(length(unique(vcl(is,2)))/nsf));
+            else %Leave-One-Block per Class-Out
+                mns = ns(g)-k;
+                dk=nsf*ones(1,k);
+            end
+            if mns>0 %Last fold comprises left overs from floor
+                dk(end)=dk(end)+length(unique(vcl(is,2)))-sum(dk);
+            end
+            inds=1;
+            sk=[];
+            for ii=1:length(dk)
+                sk=[sk,inds*ones(1,dk(ii))];
+                inds=inds+1;
             end
             snums = histc(vcl(is,2),unique(vcl(is,2)));
             G = cell(length(unique(sk)),1);
@@ -428,6 +412,11 @@ switch in.cv.type
                 G{s} = ones(sum(snums(sk==s)),1);
             end
             CV(is,1:max(sk)) = blkdiag(G{:}) + 1;
+            %If categories are pooled together, vcl is not sorted, so need
+            %to re-arrange CV to take this into account
+            [dumb,isort] = sort(vcl(is,2));
+            icli = find(is);
+            CV(icli(isort),:) = CV(is,:);
             if length(unique(sk))<size(CV,2)  %smaller group, fill with 'train'
                 CV(is,length(unique(sk))+1:size(CV,2))= ...
                     ones(length(find(is)),length(length(unique(sk))+1:size(CV,2)));

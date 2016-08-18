@@ -98,6 +98,7 @@ for k = 1:nk
         fdata.ID      = ID;
         fdata.mid     = mid; %index of model
         fdata.CV      = CV(:,f);
+        fdata.class   = PRT.model(mid).input.class; %to build inner CV
         if nk>1
             fdata.Phi_all = Phi_all(k); %selected kernel for independent modelling
         else
