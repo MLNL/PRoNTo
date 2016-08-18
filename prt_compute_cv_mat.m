@@ -331,7 +331,6 @@ switch in.cv.type
         elseif ~isfield(in,'class') && isfield(in,'t')
             ntar = unique(in.t);
             for ic = 1:length(ntar)
-                nsb = [];
                 inds = find(in.t == ic);
                 vcl(inds,1) = ic;
                 ngi = unique(ID(inds,1));
@@ -344,6 +343,9 @@ switch in.cv.type
                         for im=1:length(nmi)
                             imi = find(ismember(find(ID(inds,3)==nmi(im)),isi));
                             nci = unique(ID(inds(imi),4));
+                            if ig ==1 && is ==1 && im==1
+                                nsb = zeros(length(nci),1);
+                            end
                             for icond = 1:length(nci)
                                 ici = find(ismember(find(ID(inds,4)==nci(icond)),imi));
                                 indb = unique(ID(inds(ici),5));
@@ -421,12 +423,12 @@ switch in.cv.type
                 CV(is,length(unique(sk))+1:size(CV,2))= ...
                     ones(length(find(is)),length(length(unique(sk))+1:size(CV,2)));
             end
-            if ~isempty(perm{g}) % Shuffling train-test across sub-categories 
-                isg = find(is);
-                %within a class to avoid (e.g.) 1st fold to be all faces as test, 
-                %2nd fold to be all buildings as test, ...
-                CV(isg,1:max(sk)) = CV(isg(vcl(is,2)),1:max(sk));
-            end
+%             if ~isempty(perm{g}) % Shuffling train-test across sub-categories 
+%                 isg = find(is);
+%                 %within a class to avoid (e.g.) 1st fold to be all faces as test, 
+%                 %2nd fold to be all buildings as test, ...
+%                 CV(isg,1:max(sk)) = CV(isg(vcl(is,2)),1:max(sk));
+%             end
             if flaghh
                 CV=CV(:,1);
             end
