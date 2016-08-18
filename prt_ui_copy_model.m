@@ -229,7 +229,7 @@ while isempty(handles.dat.model(indmod).input)
     indmod = indmod +1;
 end
 update_copy_model(handles,indmod)
-
+handles = guidata(gcf);
 % Update handles structure
 guidata(hObject, handles);
 
@@ -273,7 +273,7 @@ while isempty(handles.dat.model(indmod).input)
     indmod = indmod +1;
 end
 update_copy_model(handles,indmod)
-
+handles = guidata(gcf);
 % Update handles structure
 guidata(hObject, handles);
 
