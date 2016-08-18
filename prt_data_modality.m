@@ -523,6 +523,29 @@ end
 typ = get(handles.type,'Value');
 if typ>1 % either MEEG or .mat with data matrix (v3.1)
     t=spm_select([1 Inf],'mat','Select files for the modality',sel);
+    if typ==2 %MEEG, load events in file
+        if isempty(t)
+            beep
+            disp('Select .mat for subject first')
+            return
+        elseif size(t,1)>1
+            beep
+            disp('Select only one file per modality for MEEG')
+            return
+        end
+        if ~isstruct(handles.mod.design)
+            D = spm_eeg_load(t(1,:));
+            desn = prt_get_design_MEEG(D);
+            desn.covar = [];
+            handles.mod.design=desn;
+        end
+    end
+    handles.mod.design=desn;
+    if isfield(desn,'covar') && ~isempty(desn.covar)
+        set(handles.edit_covar,'String','Entered');
+        set(handles.edit_covar,'Visible','on');
+        set(handles.text7, 'Visible','on')
+    end
 else
     t=spm_select([1 Inf],'image','Select files for the modality',sel);
 end

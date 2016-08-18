@@ -22,7 +22,7 @@ function varargout = prt_ui_prepare_dataMEEG(varargin)
 
 % Edit the above text to modify the response to help prt_ui_prepare_dataMEEG
 
-% Last Modified by GUIDE v2.5 25-Nov-2014 11:44:54
+% Last Modified by GUIDE v2.5 18-Aug-2016 10:20:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -184,7 +184,7 @@ sc = [];
 % Load the first file for that modality to get info or hdr in file array if
 % already built.
 if isfield(handles.dat,'fas')
-    faslist = {handles.dat.fas(:).mod_name};
+    faslist = [handles.dat.fas(:).mod_name];
     indfas = find(ismember(faslist,handles.mod.mod_name));
     if ~isempty(indfas) && ~isempty(handles.dat.fas(indfas).dat) %feature set already built
         D = handles.dat.fas(indfas).hdr;
@@ -255,6 +255,7 @@ set(handles.av_chan,'Enable','on');
 set(handles.mult_chan,'Value',0);
 set(handles.mult_chan,'Enable','on');
 handles.lchan = lchan;
+handles.goodchans = chanlabels(D,indchantype(D,'All','good'));
 %get freq info
 if length(size(D))== 4 
     handles.mod.ifr = 1:size(D,2);
@@ -430,6 +431,30 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
+% --- Executes on button press in goodchans.
+function goodchans_Callback(hObject, eventdata, handles)
+% hObject    handle to goodchans (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.selindx = find(ismember(handles.lchan,handles.goodchans));
+handles.unsindx = find(~ismember(handles.lchan,handles.goodchans));
+if ~ isempty(handles.selindx)
+    set(handles.sel_chan,'String',handles.goodchans);
+    set(handles.sel_chan,'Value',length(handles.goodchans));
+else
+    set(handles.sel_chan,'Value',1);
+    set(handles.sel_chan,'String',{});
+end
+if ~ isempty(handles.unsindx)
+    set(handles.uns_chan,'String',handles.lchan(handles.unsindx)); 
+    set(handles.uns_chan,'Value',length(handles.unsindx));
+else
+    set(handles.uns_chan,'Value',1);
+    set(handles.uns_chan,'String',{});
+end
+% Update handles structure
+guidata(hObject, handles);
+   
 
 % --- Executes on button press in av_chan.
 function av_chan_Callback(hObject, eventdata, handles)

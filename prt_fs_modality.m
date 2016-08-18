@@ -59,7 +59,7 @@ if nargin>=3 && flag
     if isfield(addin,'idvox_fas')
         idvox = addin.idvox_fas;
     else
-        if in.tocomp(mids(1)) % build everything
+        if any(in.tocomp(mids)) % build everything
             idvox = 1:PRT.fas(mids(1)).dat.dim(2); %n_vox has to be the same for all concatenated modalities (version 1.1)
         else
             if ~isempty(PRT.fs(fid).modality(1).idfeat_fas)
@@ -284,7 +284,7 @@ end
 % closing feature file(s)
 if exist('fpd_clean','var')
     for ii=1:numel(fpd_clean)
-        if fpd_clean>0
+        if fpd_clean(ii)>0
             fclose(fpd_clean(ii));
         end
     end

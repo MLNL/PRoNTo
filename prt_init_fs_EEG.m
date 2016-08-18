@@ -101,7 +101,7 @@ else
         % initialise all modalities (not just those we're working on)
         for m = 1:length(PRT.masks)
             PRT.fas(m)=struct('mod_name',[],'dat',[],'hdr',[]);
-            PRT.fas(m).mod_name = PRT.masks(m).mod_name;
+            PRT.fas(m).mod_name = {PRT.masks(m).mod_name};
         end
     end
     
@@ -134,7 +134,7 @@ else
     dims=zeros(n_mods,3);
 %     idn = 1;
     n=0;
-    hdr=cell(n_mods,3);
+    hdr=cell(n_mods,1);
     
     
     for gid = 1:length(PRT.group) % group
@@ -154,15 +154,20 @@ else
                     if gid==1 && sid==1 % Keep channel,time,frequency info for later
                         hdr{m} = D;
                     end
-                    % Check that all files have the same channels, time points
-                    % and frequencies
-                    check_MEEG_consistency(D,hdr{m},in.mod(mids(m)));
                     ndim = size(D); 
                     clear D
                 else
                     ndim = size(PRT.fas(mid).hdr);
                     ndim(end) = numel([PRT.group(gid).subject(sid).modality(mid).design.conds(:).onsets]); % gather all events for file
+                    if m == 1
+                        hdr{1} = PRT.fas(mids(1)).hdr;
+                    else
+                        hdr{m} = PRT.fas(mid).hdr;
+                    end
                 end
+                % Check that all files have the same channels, time points
+                % and frequencies
+                check_MEEG_consistency(hdr{m},hdr{1},in.mod(mids(m)));
                 n_vols_s{gid,m}{sid} = ndim(end);
                 n = n+n_vols_s{gid,m}{sid};
                 if length(ndim)==4
