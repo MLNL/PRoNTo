@@ -126,7 +126,7 @@ for i=1:length(PRT.masks)
                 % Load the first file for that modality to get info or load
                 % hdr from fas if present
                 if isfield(PRT,'fas')
-                    faslist = {PRT.fas(:).mod_name};
+                    faslist = [PRT.fas(:).mod_name];
                     indfas = find(ismember(faslist,mod(i).mod_name));
                     if ~isempty(indfas) && ~isempty(PRT.fas(indfas).hdr) % file array already built
                         D = PRT.fas(indfas).hdr;
@@ -159,38 +159,38 @@ for i=1:length(PRT.masks)
                     end
                 end
                 % channel selection and options
-                chanind = D.selectchannels(spm_cfg_eeg_channel_selector(job.format.MEEGmodality.channels.channels));
+                chanind = D.selectchannels(spm_cfg_eeg_channel_selector(job.format.MEEGmodality(ind).channels.channels));
                 mod(i).ich = chanind;
-                if job.format.MEEGmodality.channels.average
+                if job.format.MEEGmodality(ind).channels.average
                     mod(i).aver(1) = 1;
-                    if job.format.MEEGmodality.channels.multkern
+                    if job.format.MEEGmodality(ind).channels.multkern
                         beep
                         disp('Averaging and multiple kernels cannot be selected together.')
                         return
                     end
                 end
-                if job.format.MEEGmodality.channels.multkern
+                if job.format.MEEGmodality(ind).channels.multkern
                     mod(i).multkern(1) = 1;
                 end
                 % time point selection and options
-                t_start = job.format.MEEGmodality.tp.timewin(1)/1000;
-                t_stop = job.format.MEEGmodality.tp.timewin(2)/1000;
+                t_start = job.format.MEEGmodality(ind).tp.timewin(1)/1000;
+                t_stop = job.format.MEEGmodality(ind).tp.timewin(2)/1000;
                 mod(i).itp = indsample(D,t_start):indsample(D,t_stop); 
-                if job.format.MEEGmodality.tp.average
+                if job.format.MEEGmodality(ind).tp.average
                     mod(i).aver(2) = 1;
-                    if ~job.format.MEEGmodality.tp.nomult
+                    if ~job.format.MEEGmodality(ind).tp.nomult
                         beep
                         disp('Averaging and multiple kernels cannot be selected together.')
                         return
                     end
                 end
-                if isfield(job.format.MEEGmodality.tp,'multkernonetp') ||...
-                        isfield(job.format.MEEGmodality.tp,'multkernwin')
+                if isfield(job.format.MEEGmodality(ind).tp,'multkernonetp') ||...
+                        isfield(job.format.MEEGmodality(ind).tp,'multkernwin')
                     mod(i).multkern(3) = 1;
-                    if isfield(job.format.MEEGmodality.tp,'multkernwin') && ...
-                            isfield(job.format.MEEGmodality.tp.multkernwin,'kerntpwin') && ...
-                            ~isempty(job.format.MEEGmodality.tp.multkernwin.kerntpwin)
-                        mod(i).multkernparam{3} = (job.format.MEEGmodality.tp.multkernwin.kerntpwin / 1000) *...
+                    if isfield(job.format.MEEGmodality(ind).tp,'multkernwin') && ...
+                            isfield(job.format.MEEGmodality(ind).tp.multkernwin,'kerntpwin') && ...
+                            ~isempty(job.format.MEEGmodality(ind).tp.multkernwin.kerntpwin)
+                        mod(i).multkernparam{3} = (job.format.MEEGmodality(ind).tp.multkernwin.kerntpwin / 1000) *...
                             D.fsample;
                     else
                         mod(i).multkernparam{3} = 1;
@@ -201,18 +201,18 @@ for i=1:length(PRT.masks)
                     % No frequency in this dataset
                     mod(i).ifr = [];
                 elseif numel(size(D)) == 4
-                    f_start = job.format.MEEGmodality.freq.freqwin(1);
-                    f_stop = job.format.MEEGmodality.freq.freqwin(2);
+                    f_start = job.format.MEEGmodality(ind).freq.freqwin(1);
+                    f_stop = job.format.MEEGmodality(ind).freq.freqwin(2);
                     mod(i).ifr = indfrequency(D,f_start):indfrequency(D,f_stop);
-                    if job.format.MEEGmodality.freq.average
+                    if job.format.MEEGmodality(ind).freq.average
                         mod(i).aver(2) = 1;
-                        if job.format.MEEGmodality.freq.multkern
+                        if job.format.MEEGmodality(ind).freq.multkern
                             beep
                             disp('Averaging and multiple kernels cannot be selected together.')
                             return
                         end
                     end
-                    if job.format.MEEGmodality.freq.multkern
+                    if job.format.MEEGmodality(ind).freq.multkern
                         mod(i).multkern(2) = 1;
                     end
                 end
