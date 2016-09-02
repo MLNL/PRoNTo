@@ -1009,9 +1009,15 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
                if isfield(handles.PRT.fs(fid),'multkernelROI') && ...
                        handles.PRT.fs(fid).multkernelROI && ...
                        ~handles.summed
-                    if length(handles.PRT.fs(fid).modality(i).igood_kerns)==length(num_roi)
-                        label = handles.labels{mi(m)}{i}(handles.PRT.fs(fid).modality(i).igood_kerns); %take 0 kernels out
-                        handles.num_roi{i} = handles.PRT.fs(fid).modality(i).igood_kerns;
+                   if isfield(handles.PRT.fs(fid).modality(i),'igood_kerns')
+                       good_kerns = handles.PRT.fs(fid).modality(i).igood_kerns;
+                   elseif isfield(handles.PRT.fs(fid),'igood_kerns') && ...
+                         ~isfield(handles.PRT.fs(fid).modality(i),'igood_kerns')  
+                        good_kerns = handles.PRT.fs(fid).igood_kerns;
+                   end
+                    if length(good_kerns)==length(num_roi)
+                        label = handles.labels{mi(m)}{i}(good_kerns); %take 0 kernels out
+                        handles.num_roi{i} = good_kerns;
                     end
                else
                    try
