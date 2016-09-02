@@ -1121,7 +1121,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
        erwn=zeros(length(num_roi),1);
        for i=1:length(num_roi)
            for j=1:length(num_roi)
-               tmp=length(find(dwn(i,1:end-1)==j));
+               tmp=length(find(dwn(i,1:end)==j));
                erwn(i)=erwn(i)+j*tmp;
            end
        end
