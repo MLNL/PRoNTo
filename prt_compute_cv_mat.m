@@ -1,5 +1,5 @@
 function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)
-% Function to compute the cross-validation matrix. 
+% Function to compute the cross-validation matrix.
 % Also does error checking
 %__________________________________________________________________________
 % Copyright (C) 2015 Machine Learning & Neuroimaging Laboratory
@@ -34,7 +34,7 @@ if ~use_nested_cv
         PRT.model(modelid).input.cv_k = k;
     end
 else
-    k = in.cv.k;    
+    k = in.cv.k;
 end
 
 if k==1 %half-half
@@ -47,7 +47,7 @@ end
 
 if isfield(in,'include_allscans') && in.include_allscans
     % use the full id matrix if not user-provided (nested CV)
-    if use_nested_cv == false 
+    if use_nested_cv == false
         ID = PRT.fs(fid).id_mat;
     else
         ID = in.ID;
@@ -64,7 +64,7 @@ switch in.cv.type
     case 'loso'
         % leave-one-subject-out
         % give each subject a unique id
-
+        
         gids = unique(ID(:,1));
         gc = 0;
         ns=zeros(length(gids),1);
@@ -127,7 +127,7 @@ switch in.cv.type
                     for is=1:length(in.class(ic).group(ig).subj)
                         inds=find(ID(:,1)==ng);
                         indss=find(ID(inds,2)==in.class(ic).group(ig).subj(is).num);
-%                         indss=find(ID(inds,2)==is); correction?
+                        %                         indss=find(ID(inds,2)==is); correction?
                         vcl(inds(indss),1)=ic;
                         vcl(inds(indss),2)=nsg;
                         nsg=nsg+1;
@@ -218,20 +218,20 @@ switch in.cv.type
                 CV=CV(:,1);
             end
         end
-
+        
         
         
     case 'lobo'
         % leave-one-block-out - limited to one single subject for the
-        % moment       
-        cids = unique(ID(:,4));        
+        % moment
+        cids = unique(ID(:,4));
         gc = 0;
         nb=zeros(length(cids),1);
         dID = ID;
         cidx = cell(length(cids),1);
         for c = 1:length(cids)
             cidx{c} = ID(:,4) == cids(c);
-            nb(c)=length(unique(ID(cidx{c},5)));            
+            nb(c)=length(unique(ID(cidx{c},5)));
             dID(cidx{c},5) = dID(cidx{c},5) + gc;
             gc = gc + nb(c);
         end
@@ -275,9 +275,9 @@ switch in.cv.type
     case 'locbo'
         % leave-one-block-per-class-out
         %modify the ID to take the structure of the classes into account
-        vcl=zeros(size(ID,1),2);
+        vcl=zeros(size(ID,1),3);
         % For each class, identify subjects and conditions selected
-        if isfield(in,'class') 
+        if isfield(in,'class')
             perm = cell(length(in.class),1);
             nsb=0;
             for ic=1:length(in.class)
@@ -311,6 +311,7 @@ switch in.cv.type
                                     for ibl =1:length(nbl)
                                         indbl = find(ID(indcond,5)== nbl(ibl));
                                         vcl(indcond(indbl),2) = cnt + nbc(icond);
+                                        vcl(indcond(indbl),3) = icond;
                                         cnt = cnt+1;
                                     end
                                     %                                 vcl(find(idx),2) = ID(find(idx),5) + nbc;
@@ -321,13 +322,13 @@ switch in.cv.type
                     end
                 end
             end
-%             [gids,d1] = unique(vcl(:,1), 'last');
-%             [gids,d2] = unique(vcl(:,1),'first');
-%             %compute the number of subjects per class
-%             ns=zeros(length(gids),1);
-%             for ig= 1:length(gids)
-%                 ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
-%             end
+            %             [gids,d1] = unique(vcl(:,1), 'last');
+            %             [gids,d2] = unique(vcl(:,1),'first');
+            %             %compute the number of subjects per class
+            %             ns=zeros(length(gids),1);
+            %             for ig= 1:length(gids)
+            %                 ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
+            %             end
         elseif ~isfield(in,'class') && isfield(in,'t')
             ntar = unique(in.t);
             for ic = 1:length(ntar)
@@ -365,9 +366,31 @@ switch in.cv.type
         ns=zeros(length(cids),1);
         cidx = cell(length(cids),1);
         for c = 1:length(cids)
-            cidx{c} = vcl(:,1) == cids(c);
-            ns(c)=length(unique(vcl(cidx{c},2)));
-            gc = gc + ns(c);
+            cidx{c} = find(vcl(:,1) == cids(c));
+            ncic = unique(vcl(cidx{c},3));
+            for i=1:length(ncic)
+                idcc = find(vcl(cidx{c},3)==ncic(i));
+                ns(c)=ns(c)+length(unique(vcl(cidx{c}(idcc),2)));
+                gc = gc + ns(c);
+            end
+            if length(ncic)>1 % need to re-arrange vcl to include trials from different conditions in each fold
+                [dumb,isort] = sort(vcl(cidx{c},2));
+                tmp = vcl(cidx{c},2);
+                count = 1;
+                [dumb2] = unique(tmp);
+                for i=1:numel(dumb2)
+                    idcc = find(vcl(cidx{c},2)== dumb2(i));
+                    vcts = vcl(cidx{c}(idcc),3);
+                    for j = 1:length(ncic)
+                        idd = find(vcts == ncic(j));
+                        if ~isempty(idd)
+                            tmp(idcc(idd)) = count*ones(numel(idd),1);
+                            count = count+1;
+                        end
+                    end
+                end 
+                vcl(cidx{c},2) = tmp;
+            end
         end
         sids=max(ns);
         if sids == 1
@@ -379,12 +402,12 @@ switch in.cv.type
         else
             CV = zeros(size(ID,1),k);
         end
-%         if k>1 && nsf==1
-%             disp('Performing Leave-One Block per Class-Out')
-%         end
+        %         if k>1 && nsf==1
+        %             disp('Performing Leave-One Block per Class-Out')
+        %         end
         for g=1:length(ns)
             is=vcl(:,1)==g;
-            [nsf]=floor(ns(g)/k);
+            [nsf]=max(1,floor(length(find(is))/k));
             if k>1 && nsf>1 %k-fold CV
                 if nsf<1
                     error('prt_model:losgoSelectedWithTooLargeK',...
@@ -396,7 +419,7 @@ switch in.cv.type
                 mns=mod(ns(g),nsf);
                 dk=nsf*ones(1,floor(length(unique(vcl(is,2)))/nsf));
             else %Leave-One-Block per Class-Out
-                mns = ns(g)-k;
+                mns = nsf-k;
                 dk=nsf*ones(1,k);
             end
             if mns>0 %Last fold comprises left overs from floor
@@ -408,8 +431,11 @@ switch in.cv.type
                 sk=[sk,inds*ones(1,dk(ii))];
                 inds=inds+1;
             end
-            snums = histc(vcl(is,2),unique(vcl(is,2)));
             G = cell(length(unique(sk)),1);
+            
+            
+            snums = histc(vcl(is,2),unique(vcl(is,2)));
+            
             for s = 1:length(unique(sk))
                 G{s} = ones(sum(snums(sk==s)),1);
             end
@@ -423,17 +449,18 @@ switch in.cv.type
                 CV(is,length(unique(sk))+1:size(CV,2))= ...
                     ones(length(find(is)),length(length(unique(sk))+1:size(CV,2)));
             end
-%             if ~isempty(perm{g}) % Shuffling train-test across sub-categories 
-%                 isg = find(is);
-%                 %within a class to avoid (e.g.) 1st fold to be all faces as test, 
-%                 %2nd fold to be all buildings as test, ...
-%                 CV(isg,1:max(sk)) = CV(isg(vcl(is,2)),1:max(sk));
-%             end
+            %             if ~isempty(perm{g}) % Shuffling train-test across sub-categories
+            %                 isg = find(is);
+            %                 %within a class to avoid (e.g.) 1st fold to be all faces as test,
+            %                 %2nd fold to be all buildings as test, ...
+            %                 CV(isg,1:max(sk)) = CV(isg(vcl(is,2)),1:max(sk));
+            %             end
+            
             if flaghh
                 CV=CV(:,1);
             end
         end
-
+        
         
     case 'loro'
         % leave-one-run-out
