@@ -115,6 +115,7 @@ else
     
     % For each model
     flag_use_perms = 0;
+    ids = PRT.fs(fid).id_mat(PRT.model(modelid(1)).input.samp_idx,:);
     for k = 1:nk
         if nk>1
             disp([' > Computing permutations for model: ',num2str(k),' of ',num2str(nk),' ...'])
@@ -159,7 +160,6 @@ else
             % Find chunks in the data (e.g. temporal correlated samples)
             % -------------------------------------------------------------------------
             
-            ids = PRT.fs(fid).id_mat(PRT.model(modelid).input.samp_idx,:);
             samp_g=unique(ids(:,1));%number of groups
             
             for gid = 1: length(samp_g)
@@ -285,7 +285,7 @@ else
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
                 fdata.ID      = IDperm; %IDperm
-                fdata.mid     = modelid;
+                fdata.mid     = modelid(1);
                 fdata.CV      = CVperm(:,f);
                 if nk>1
                     fdata.Phi_all = Phi_all(k); %selected kernel for independent modelling
@@ -370,7 +370,7 @@ else
         fprintf('\n') % new line after each model
         
         
-        switch PRT.model(modelid).output(k).fold(1).type
+        switch PRT.model(modelid(1)).output(k).fold(1).type
             case 'classifier'
                 
                 pval_b_acc = (total_greater_b_acc+1) / (n_perm+1);
@@ -403,7 +403,7 @@ else
         
         
         %update PRT
-        PRT.model(modelid).output(k).stats.permutation = permutation;
+        PRT.model(modelid(1)).output(k).stats.permutation = permutation;
         
         % Save PRT containing machine output
         % -------------------------------------------------------------------------
