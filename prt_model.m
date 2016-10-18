@@ -152,7 +152,11 @@ groups     = {PRT.group(:).gr_name};
 
 t_all    = zeros(n,1);
 samp_all = zeros(n,1);
-cov_all = zeros(n,1);
+if ~isempty(PRT.group(1).subject(1).modality(1).covar);
+    cov_all = zeros(n,size(PRT.group(1).subject(1).modality(1).covar,2));
+else
+    cov_all = zeros(n,1);
+end
 for c = 1:length(in.class)
     
     % groups
@@ -195,7 +199,7 @@ for c = 1:length(in.class)
                     idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
                     t_all(idx) = c;
                     if any(ismember(in.operations, 5)) %Get covariates
-                        cov_all(idx) = PRT.group(gid).subject(sid).modality(mid).covar;
+                        cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
                     end
                 else % conditions have been specified
                     % check whether conditions were specified in the design
@@ -242,7 +246,7 @@ end
 samp_idx = find(t_all);
 samp_all = find(samp_all);
 targets  = t_all(samp_idx);
-covar = cov_all(samp_idx);
+covar = cov_all(samp_idx,:);
 end
 
 
@@ -258,7 +262,11 @@ modalities = {PRT.masks(:).mod_name};
 groups     = {PRT.group(:).gr_name};
 %t_all = zeros(n,1);
 targ_allscans=zeros(n,1);
-cov_all = zeros(n,1);
+if ~isempty(PRT.group(1).subject(1).modality(1).covar);
+    cov_all = zeros(n,size(PRT.group(1).subject(1).modality(1).covar,2));
+else
+    cov_all = zeros(n,1);
+end
 samp_idx=[];
 targ_g=[];
 covar = [];
@@ -270,9 +278,13 @@ for g = 1:length(in.group)
         error('prt_model:groupNotFoundInPRT',...
             ['Group ',gr_name,' not found in PRT.mat']);
     end
-%     nmod=length(in.group(g).subj(1).modality);
+    %     nmod=length(in.group(g).subj(1).modality);
     targets=zeros(1,length(in.group(g).subj)); %replace by nmod for multiple targets per subject
-    cov=zeros(1,length(in.group(g).subj));
+    if ~isempty(PRT.group(1).subject(1).modality(1).covar);
+        cov = zeros(length(in.group(g).subj),size(PRT.group(1).subject(1).modality(1).covar,2));
+    else
+        cov = zeros(length(in.group(g).subj),1);
+    end
     % subjects
     for s = 1:length(in.group(g).subj)
         %modalities
@@ -294,15 +306,15 @@ for g = 1:length(in.group)
                 samp_idx = [samp_idx ; ...
                     find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)]; %#ok<*AGROW>
                 if any(ismember(in.operations, 5)) %Get covariates
-                    cov(m,s) = PRT.group(gid).subject(idx).modality(mid).covar;
+                    cov(s,:) = PRT.group(gid).subject(idx).modality(mid).covar;
                 end
             end
         end        
     end
     targ_g=[targ_g;targets(:)];
-    covar = [covar;cov(:)];
+    covar = [covar;cov];
 end
 targ_allscans(samp_idx)=targ_g;
 targets=targ_g;
-cov_all(samp_idx)=covar;
+cov_all(samp_idx,:)=covar;
 end
