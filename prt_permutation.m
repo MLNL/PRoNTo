@@ -237,6 +237,7 @@ else
             fdata.CV      = CVperm(:,f);
             fdata.Phi_all = Phi_all;
             fdata.t       = t_perm;
+            fdata.cov     = PRT.model(modelid).input.covar;
             
             % Nested CV for hyper-parameter optimisation or feature selection
             if isfield(PRT.model(modelid).input,'use_nested_cv')
