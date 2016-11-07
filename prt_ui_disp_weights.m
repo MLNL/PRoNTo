@@ -992,9 +992,15 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
                if isfield(handles.PRT.fs(fid),'multkernelROI') && ...
                        handles.PRT.fs(fid).multkernelROI && ...
                        ~handles.summed
-                    if length(handles.PRT.fs(fid).modality(i).igood_kerns)==length(num_roi)
-                        label = handles.labels{mi(m)}{i}(handles.PRT.fs(fid).modality(i).igood_kerns); %take 0 kernels out
-                        handles.num_roi{i} = handles.PRT.fs(fid).modality(i).igood_kerns;
+                   if isfield(handles.PRT.fs(fid).modality(i),'igood_kerns')
+                       good_kerns = handles.PRT.fs(fid).modality(i).igood_kerns;
+                   elseif isfield(handles.PRT.fs(fid),'igood_kerns') && ...
+                         ~isfield(handles.PRT.fs(fid).modality(i),'igood_kerns')  
+                        good_kerns = handles.PRT.fs(fid).igood_kerns;
+                   end
+                    if length(good_kerns)==length(num_roi)
+                        label = handles.labels{mi(m)}{i}(good_kerns); %take 0 kernels out
+                        handles.num_roi{i} = good_kerns;
                     end
                else
                    try
@@ -1083,35 +1089,41 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    end 
    
    % Compute Expected Ranking for model
-   w_all = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,1:handles.nfold)*100;
-   %take 0 columns out of the computation
-   mw = min(w_all);
-   mxw = max(w_all);
-   id0 = find(mw==mxw);
-   id0 = id0(mw(id0)==0);
-   id = 1:size(w_all,2);
-   idtr = setdiff(id,id0);
-   if isempty(idtr)   % if a modality has always 0 weights
-       erwn=NaN*ones(length(num_roi),1);
-   else
-       w_all = w_all(:,idtr);
-       %deal with NaNs
-       [d1,d2]=sort(w_all,1,'descend');
-       isn=find(isnan(w_all(:,1)));
-       d3=1:length(isn);
-       d4=length(isn)+1:size(d1,1);
-       ihn=[d2(d4,:);d2(d3,:)];
-       [d1,dwn]=sort(ihn);
-       erwn=zeros(length(num_roi),1);
-       for i=1:length(num_roi)
-           for j=1:length(num_roi)
-               tmp=length(find(dwn(i,1:end-1)==j));
-               erwn(i)=erwn(i)+j*tmp;
+   erwn=zeros(size(handles.PRT.model(mi(m)).output.weight_ROI{handles.class},1),handles.nfold);
+   for fold = 1:handles.nfold
+       w_all = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,fold)*100;
+       %take 0 columns out of the computation
+       mw = min(w_all);
+       mxw = max(w_all);
+       id0 = find(mw==mxw);
+       id0 = id0(mw(id0)==0);
+       id = 1:size(w_all,2);
+       idtr = setdiff(id,id0);
+       if isempty(idtr)   % if a modality has always 0 weights
+           erwn=NaN*ones(length(num_roi),1);
+       else
+           w_all = w_all(:,idtr);
+           %deal with NaNs
+           [d1,d2]=sort(w_all,1,'ascend');
+           isn=find(isnan(w_all(:,1)));
+           d3=size(d1,1)-length(isn)+1:size(d1,1);
+           d4=1:size(d1,1)-length(isn);
+           ihn=[d2(d3,:);d2(d4,:)];
+           [d1,dwn]=sort(ihn);
+           dwn(isn)=0;
+           isnu=find((w_all(:,1)==0));
+           dwn(isnu)=0;
+           for i=1:size(w_all,1)
+               for j=1:size(w_all,1)
+                   tmp=length(find(dwn(i)==j));
+                   erwn(i,fold)=erwn(i,fold)+j*tmp;
+               end
            end
+           erwn(:,fold)=erwn(:,fold)/length(idtr);
        end
-       erwn=erwn/length(idtr);
+       
    end
-   
+   erwn = mean(erwn,2);
    dat = [dat, num2cell(erwn)]; 
    lc = [lc,{'Exp. Ranking'}];
    handles.dattable = dat;
@@ -1762,12 +1774,12 @@ path = fileparts(handles.pathdir);
 weightname=fullfile(path,modelname);
 disp(weightname);
 fid=fopen(weightname,'w');
-fprintf(fid,'%23s %20s %20s %23s\r\n','"ROI Label"','"ROI weight (%)"','"ROI size (vox)"','"Exp. Ranking"');
+fprintf(fid,'%s\t%s\t%s\t%s\r\n','"ROI Label"','"ROI weight (%)"','"ROI size (vox)"','"Exp. Ranking"');
 dat = handles.dattable;
 dat = dat(handles.sort_roi,:);
 for i = 1:size(num_roi)
     cellvalue= dat(i,:);
-    fprintf(fid, '%22s %19f %20d %23f\r\n', cellvalue{:});
+    fprintf(fid,'%s\t%.2f\t%.2f\t%.2f\r\n', cellvalue{:});
 end
 fclose(fid);
 disp('Save Done!');

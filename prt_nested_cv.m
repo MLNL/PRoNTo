@@ -112,7 +112,7 @@ for i = 1:size(par, 2)
         if isfield(in, 'cov')
             fold.cov     = in.cov;
         end
-        
+
         [model, targets] = prt_cv_fold(PRT,fold);
         
         %for classification check that for each fold, the test targets have been trained

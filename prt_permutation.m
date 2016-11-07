@@ -281,6 +281,7 @@ else
                 IDperm(pchunk,:) = ID(chunkperm,:);
                 t_perm(pchunk)   = t(chunkperm);
             end
+
             
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
@@ -293,7 +294,8 @@ else
                     fdata.Phi_all = Phi_all; %all kernels
                 end
                 fdata.t       = t_perm;
-                
+                fdata.cov     = PRT.model(modelid).input.covar;
+            
                 
                 % Nested CV for hyper-parameter optimisation or feature selection
                 if isfield(PRT.model(modelid(1)).input,'use_nested_cv')
