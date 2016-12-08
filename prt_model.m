@@ -219,6 +219,7 @@ for c = 1:nc
                             'Please use ''All Scans'' or adjust design.']);
                     end
                     conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
+                    blocks=1;
                     for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
                         cond_name = in.class(c).group(g).subj(s).modality(m).conds(cond).cond_name;
                         
@@ -254,6 +255,7 @@ for c = 1:nc
                     
                 elseif isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
                     conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
+                    blocks=1;
                     % all conditions
                     for cid = 1:length(conds)
                         idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
@@ -277,6 +279,7 @@ for c = 1:nc
                     samp_all(s_idx_mod) = 1;
                     
                 else
+                    blocks=0;
                     % check whether this was included in the feature set
                     % using 'all conditions' (which is invalid)
                     if strcmpi(PRT.fs(fid).modality(m).mode,'all_cond')
@@ -319,14 +322,19 @@ if nargin>=4 && subsample
         % Randomly select BLOCKS of trials to match the number of lowest
         % sample as close as possible, balancing the sub-categories.
         if length(indnc) > ntk
-            indb = unique(ID(indnc,5));
-            nbcount = hist(ID(indnc,5),indb);
+            if blocks
+                id_ID=5;
+            else
+                id_ID=2;
+            end
+            indb = unique(ID(indnc,id_ID));
+            nbcount = hist(ID(indnc,id_ID),indb);
             rs = randperm(length(indb));
             [minrs,pivot] = min(abs(cumsum(nbcount(rs))-ntk));
             disp(['Imbalanced for class ',num2str(i),':',num2str(minrs)])
             if pivot<length(rs)
                 for j = pivot+1:length(indb)
-                    ii = find(ID(indnc,5)==rs(j));
+                    ii = find(ID(indnc,id_ID)==rs(j));
                     t_all(indnc(ii)) = 0;
                     samp_all(indnc(ii)) = 0;
                 end

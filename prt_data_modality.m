@@ -521,6 +521,7 @@ else
     sel=[];
 end
 typ = get(handles.type,'Value');
+desn=[];
 if typ>1 % either MEEG or .mat with data matrix (v3.1)
     t=spm_select([1 Inf],'mat','Select files for the modality',sel);
     if typ==2 %MEEG, load events in file
