@@ -31,7 +31,7 @@ N = [];
 D = [];
 [d,dd,ext] = fileparts(filenames(1,:));
 
-if strcmpi(ext,'.mat') || strfind(ext,'.mat')
+if strcmpi(ext,'.mat') || ~isempty(strfind(ext,'.mat'))
     try
         D = spm_eeg_load(filenames); % read an MEEG object
         dm = size(D);
