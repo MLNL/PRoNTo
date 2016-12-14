@@ -72,7 +72,9 @@ else
     indmodels = PRT.model(mid).input.indmodels;
 end
 
-
+if ~isfield(in,'opt_Rep')
+    opt_Rep = 1;
+end
 %load kernels and get the used sample in this model
 [Phi_all,ID] = prt_getKernelModel(PRT,prt_dir,mid,indmodels);
 
@@ -108,6 +110,7 @@ for k = 1:nk
         if ~isempty(cov)
             fdata.cov = cov;
         end
+        fdata.opt_Rep = opt_Rep;
         
         % Nested CV for hyper-parameter optimisation or feature selection
         if isfield(PRT.model(mid).input,'use_nested_cv')
