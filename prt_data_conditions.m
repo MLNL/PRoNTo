@@ -550,8 +550,18 @@ ncond=length(handles.cond);
 for i=1:ncond
     szon=length(handles.cond(i).onsets);
     szdur=length(handles.cond(i).durations);
-    szrt=length(handles.cond(i).rt_trial);
-    szcov=length(handles.cond(i).cov_trial);
+    if isfield(handles.cond(i),'rt_trial')
+        szrt=length(handles.cond(i).rt_trial);
+        handles.cond(i).rt_trial = [];
+    else
+        szrt = 0;
+    end
+    if isfield(handles.cond(i),'cov_trial')
+        szcov=length(handles.cond(i).cov_trial);
+        handles.cond(i).cov_trial = [];
+    else
+        szcov=0;
+    end
     if szdur==1
         handles.cond(i).durations=repmat(handles.cond(i).durations, 1, szon);
         szdur=length(handles.cond(i).durations);

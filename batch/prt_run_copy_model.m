@@ -111,7 +111,7 @@ for i = 1:length(job.modchoices)
             PRT.model(mid).input.fs(1).fs_name = job.modchoices{i}.fsets;
         else
             for j = 1:length(job.modchoices{i}.fsets.fs_name)
-                PRT.model(mid).input.fs(i).fs_name = job.modchoices{i}.fsets.fs_name{i};
+                PRT.model(mid).input.fs(j).fs_name = job.modchoices{i}.fsets.fs_name{j};
             end
         end
     elseif isfield(job.modchoices{i},'model_type')

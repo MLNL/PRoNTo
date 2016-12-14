@@ -1256,7 +1256,7 @@ sel = find(ismember(listall,listfs));
 unsel = find(~ismember(listall,listfs));
 
 % Set feature set lists
-handles.fslist = listfs;
+handles.fslist = listall;
 set(handles.fs_uns,'String',listall(unsel))
 set(handles.fs_uns,'Value',1)
 set(handles.fs_sel,'String',listall(sel))
