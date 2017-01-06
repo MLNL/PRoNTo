@@ -277,7 +277,7 @@ if ~isempty(selection.itp)
         error('check_MEEG_consistency:BadTimeSelection',...
             'Selection of time window not consistent for all files')
     end
-    if ~all(tim_ref == tim_D)
+    if ~all(length(tim_ref) == length(tim_D))
         error('check_MEEG_consistency:BadTimeSelection',...
             'Selection of time window not consistent for all files')
     end

@@ -150,7 +150,8 @@ for i = 1:size(par, 2)
     
     % Reproducibility of the weights if MKL
     if isfield(f_stats,'beta') && opt_Rep
-        cosang(i) = compute_reproducibility_ER(f_stats);
+%         cosang(i) = compute_reproducibility_ER(f_stats);
+        cosang(i) = compute_reproducibility_betas(f_stats);
     end
     
     switch PRT.model(in.mid).input.type
@@ -203,8 +204,8 @@ if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_wip_cla')
 else
     
     if opt_Rep && isfield(f_stats,'beta')
-        w1=1;
-        w2=0;
+        w1=0;
+        w2=1;
     else
         w1=1;
         w2=0;
@@ -364,6 +365,27 @@ end
 
 mer = mean(erwn,2);
 
+cosang =zeros(size(erwn,2),1);
+for i = 1:length(cosang)
+    cosang(i) = (erwn(:,i)'*mer)/ (norm(erwn(:,i)) * norm(mer));
+end
+cosang = mean(cosang);
+
+end
+
+function [cosang] = compute_reproducibility_betas(betas)
+% Compute 'reproducibility' value from MKL beta weights
+
+
+% Extract beta values for each fold
+erwn=zeros(numel(betas(1).beta),length(betas));
+for fold = 1:length(betas)
+    erwn(:,fold) =[betas(fold).beta]';
+end
+
+mer = mean(erwn,2);
+
+%Compute reproducibility for model
 cosang =zeros(size(erwn,2),1);
 for i = 1:length(cosang)
     cosang(i) = (erwn(:,i)'*mer)/ (norm(erwn(:,i)) * norm(mer));
