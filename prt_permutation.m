@@ -319,10 +319,10 @@ else
             end
             
             % Model level statistics (across folds)
-            t             = vertcat(model.output.fold(:).targets);
+            tp             = vertcat(model.output.fold(:).targets);
             m.type        = PRT.model(modelid(1)).output(k).fold(1).type;
             m.predictions = vertcat(model.output.fold(:).predictions);
-            perm_stats         = prt_stats(m,t,t);
+            perm_stats         = prt_stats(m,tp,tp);
             
             
             switch PRT.model(modelid(1)).output(k).fold(1).type
