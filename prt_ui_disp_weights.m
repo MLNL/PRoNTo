@@ -1799,7 +1799,11 @@ clear F
 
 function get_feature_set_idx(hObject,eventdata,handles,m)
 nfs = length(handles.PRT.model(m).input.fs);
-nim = cell(length(handles.PRT.model(m).output.weight_MOD),1);
+if isfield(handles.PRT.model(m).output,'weight_MOD')
+    nim = cell(length(handles.PRT.model(m).output.weight_MOD),1);
+else
+    nim=1;
+end
 if (~isempty(strfind(handles.PRT.model(m).input.machine.function,'MKL'))  ||...
         ~isempty(strfind(handles.PRT.model(m).input.machine.function,'wip')))
     handles.summed = 0;
