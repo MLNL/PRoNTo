@@ -7,6 +7,7 @@ function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)
 % Written by J. Schrouff
 % $Id$
 
+
 % Check if the use_nested_cv varible has been inputed
 if ~exist('use_nested_cv', 'var')
     use_nested_cv = false;
@@ -481,7 +482,12 @@ switch in.cv.type
                 error('No CV variable found in the mat file provided')
             else
                 if size(CV,1) ~= size(ID,1)
-                    error('CV does not comprise the same number of samples as selected')
+                    if size(CV,1) ~= size(PRT.fs(fid).id_mat,1)
+                        error('CV does not comprise the same number of samples as selected')
+                    else
+                        disp('Subsampling CV matrix according to selected samples in model')
+                        CV = CV(samp_idx,:);
+                    end
                 else
                     nfo = size(CV,2);
                     macv = max(CV);
@@ -504,6 +510,11 @@ switch in.cv.type
         elseif isfield(PRT.model(modelid).input,'cv_mat') && ...
                 ~isempty(PRT.model(modelid).input.cv_mat) % custom CV specified by GUI
             CV = PRT.model(modelid).input.cv_mat;
+            if size(CV,1) ~= size(ID,1)
+                if size(CV,1) ~= size(PRT.fs(fid).id_mat,1)
+                    error('CV does not comprise the same number of samples as selected')
+                end
+            end
         else
             % custom CV with only number of folds specified
             if isfield(in.cv,'k')

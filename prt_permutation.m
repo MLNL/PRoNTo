@@ -220,7 +220,7 @@ else
                                     i=i+1;
                                 end
                             end
-                            offrg = max(rg);
+                            offrg = offrg + max(rg);
 
                             if ~ Acrossmod
                                 if ~flag_use_perms
@@ -234,8 +234,13 @@ else
                                 end
                                 pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
                                 t_perm(ism(pchunk))   = t(ism(chunkpermcv));
-                                CVperm(ism(pchunk),:) = CV(ism(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
-                                IDperm(ism(pchunk),:) = ID(ism(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
+                                if ~strcmpi(PRT.model(modelid(1)).input.cv_type,'custom')
+                                    CVperm(ism(pchunk),:) = CV(ism(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
+                                    IDperm(ism(pchunk),:) = ID(ism(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
+                                else
+                                    CVperm = CV;
+                                    IDperm = ID;
+                                end
                             end
                         end
                     end
@@ -253,8 +258,13 @@ else
                         end
                         pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
                         t_perm(iss(pchunk)) = t(iss(chunkpermcv));
-                        CVperm(iss(pchunk),:) = CV(iss(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
-                        IDperm(iss(pchunk),:) = ID(iss(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
+                        if ~strcmpi(PRT.model(modelid(1)).input.cv_type,'custom')
+                            CVperm(iss(pchunk),:) = CV(iss(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
+                            IDperm(iss(pchunk),:) = ID(iss(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
+                        else
+                            CVperm = CV;
+                            IDperm = ID;
+                        end
                     end
                 end
             end
@@ -277,9 +287,14 @@ else
                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                 end
                 pchunk = cell2mat(chunks);
-                CVperm(pchunk,:) = CV(chunkperm,:);
-                IDperm(pchunk,:) = ID(chunkperm,:);
                 t_perm(pchunk)   = t(chunkperm);
+                if ~strcmpi(PRT.model(modelid(1)).input.cv_type,'custom')
+                    CVperm(pchunk,:) = CV(chunkperm,:);
+                    IDperm(pchunk,:) = ID(chunkperm,:);
+                else
+                    CVperm = CV;
+                    IDperm = ID;
+                end
             end
 
             

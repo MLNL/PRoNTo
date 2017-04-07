@@ -1119,6 +1119,7 @@ else
     in.operations=handles.operations;
     in.fs(1).fs_name=handles.fs(1).fs_name;
     in.cv=handles.cv;
+    in.subsample = handles.subsample;
     %check that classes/subjects/scans were defined
     if strcmpi(in.type,'classification')
         if ~isfield(handles,'class')

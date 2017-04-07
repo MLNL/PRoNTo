@@ -91,22 +91,30 @@ else
     n_mods=length(mids);
     ID= PRT.fs(fid).id_mat;
     nfa = zeros(n_mods,1);
+    n_vox = zeros(n_mods,1);
     for m = 1:n_mods
         nfa(m)  = PRT.fas(mids(m)).dat.dim(1);
         if in.tocomp(mids(m))
-            n_vox = PRT.fas(mids(m)).dat.dim(2); %n_vox has to be the same for all concatenated modalities (version 1.1)
+            n_vox(m) = PRT.fas(mids(m)).dat.dim(2); 
         else
             if ~isempty(PRT.fs(fid).modality(m).idfeat_fas)
                 idvox = PRT.fs(fid).modality(m).idfeat_fas;
             else
                 idvox = 1:PRT.fas(mids(m)).dat.dim(2);
             end
-            n_vox = numel(idvox);
+            n_vox(m) = numel(idvox);
         end
     end
     buildkern = 1;
 end
-
+%n_vox needs to be the same for different modalities
+if ~(length(unique(n_vox))==1)
+    beep
+    disp('Concatenated modalities must have the same dimensions')
+    return
+else
+    n_vox = unique(n_vox);
+end
 
 
 % -------------------------------------------------------------------------
@@ -117,9 +125,9 @@ Phi = zeros(n);
 % set memory limit
 mem         = def.mem_limit;
 block_size  = floor(mem/(8*3)/max([sum(nfa), n])); % Block size (double = 8 bytes)
-n_block     = ceil(n_vox/block_size);
+n_block     = ceil(max(n_vox)/block_size);
 
-bstart = 1; bend = min(block_size,n_vox);
+bstart = 1; bend = min(block_size,max(n_vox));
 if any(in.tocomp)
     h = waitbar(0,'Please wait while preparing feature set');
     step=1;
