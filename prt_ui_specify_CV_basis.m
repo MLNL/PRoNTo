@@ -338,7 +338,7 @@ if isfield(handles.cv,'mat_file')
 else
     in.cv.mat_file=[];
 end
-[d, CV, ID]=prt_model(handles.prt, in);
+[handles.prt, CV, ID]=prt_model(handles.prt, in);
 handles.flagdone=1;
 delete(handles.figure1)
 prt_ui_custom_CV(CV,ID,in,handles.prt,handles.legs);

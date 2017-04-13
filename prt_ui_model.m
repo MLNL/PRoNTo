@@ -1081,6 +1081,7 @@ function pop_cv_Callback(hObject, eventdata, handles)
 val=get(handles.pop_cv,'Value');
 mach=get(handles.pop_cv,'String');
 handles.cv.k=0; %by default, Leave-One-Out options
+handles.flagguicv=0; %by default, not custom CV
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_cv,'Value',1)
@@ -1371,7 +1372,34 @@ end
 %         disp('Please correct')
 %     end
 % end
-PRT=prt_model(handles.dat,in);
+
+% Subsampled the trials and built a custom CV, so the model has already
+% been specified but needs to be amended with the latest options
+if handles.subsample && handles.flagguicv
+    [mid] = prt_init_model(PRT,in);
+    % Should only be missing operations and details on the machine
+    % Deal with nested CV parameters
+    if isfield(in.cv,'type_nested') && ~isempty(in.cv.type_nested)
+        PRT.model(mid).input.cv_type_nested = in.cv.type_nested;
+    end
+    if isfield(in.cv,'k_nested') && ~isempty(in.cv.k_nested)
+        PRT.model(mid).input.cv_k_nested = in.cv.k_nested;
+    end
+    if isfield(in.cv,'nested_param') && ~isempty(in.cv.nested_param)
+        PRT.model(mid).input.nested_param = in.cv.nested_param;
+    end
+    PRT.model(mid).input.operations = in.operations;
+    if ~isfield(in,'savePRT') || in.savePRT
+        disp('Updating PRT.mat.......>>')
+        if spm_check_version('MATLAB','7') >= 0
+            save(in.fname,'-V7','PRT');
+        else
+            save(in.fname,'-V6','PRT');
+        end
+    end
+else
+    PRT=prt_model(handles.dat,in);
+end
 
 clear in
 in.fname      = get(handles.edit_prt,'String');

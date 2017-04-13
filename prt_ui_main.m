@@ -178,7 +178,8 @@ function fs_Callback(hObject, eventdata, handles)
 
 PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
 if isempty(PRT)
-    error('prt_ui_main:NoPRT','No PRT file selected')
+    disp('No PRT selected')
+    return
 end
 fname = PRT;
 pathdir = regexprep(PRT,'PRT.mat', '');

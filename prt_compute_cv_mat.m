@@ -408,7 +408,8 @@ switch in.cv.type
         %         end
         for g=1:length(ns)
             is=vcl(:,1)==g;
-            [nsf]=max(1,floor(length(find(is))/k));
+%             [nsf]=max(1,floor(length(find(is))/k));
+            nsf = max(1,floor(ns(g)/k));
             if k>1 && nsf>1 %k-fold CV
                 if nsf<1
                     error('prt_model:losgoSelectedWithTooLargeK',...

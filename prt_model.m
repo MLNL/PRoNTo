@@ -39,7 +39,7 @@ function [PRT, CV, ID] = prt_model(PRT,in)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by A Marquand
+% Written by A Marquand, modified by J. Schrouff
 % $Id$
 
 % Populate basic fields in PRT.mat
