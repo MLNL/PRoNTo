@@ -80,7 +80,7 @@ prt_def.model.wipargs   = [1 0.5];
 
 % Parralelization of the code
 %--------------------------------------------------
-prt_def.paral.allow     = false; % use (or not) 'parfor' loops
-prt_def.paral.ncore     = 3;     % number of cores that can be used.
+prt_def.paral.allow     = true; % use (or not) 'parfor' loops
+prt_def.paral.ncore     = 6;     % number of cores that can be used.
 
 return

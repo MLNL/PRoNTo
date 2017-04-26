@@ -1,4 +1,4 @@
-function [] = prt_permutation(PRT, n_perm, modelid, path, flag)
+function [] = prt_permutation(PRT, n_perm, modelid, path, flag, flag_test)
 % Function to compute permutation test
 %
 % Inputs:
@@ -37,6 +37,9 @@ prt_dir = path;
 def_par = prt_get_defaults('paral');
 if nargin<5
     flag=0;
+end
+if nargin<6
+    flag_test = 0;
 end
 
 % % prt_dir = char(regexprep(in.fname,'PRT.mat', ''));
@@ -116,6 +119,10 @@ else
     % For each model
     flag_use_perms = 0;
     ids = PRT.fs(fid).id_mat(PRT.model(modelid(1)).input.samp_idx,:);
+    if flag_test
+        itrain = find(PRT.model(modelid(1)).input.cv_mat(:,1)==1);
+        ids = ids(itrain,:);
+    end
     for k = 1:nk
         if nk>1
             disp([' > Computing permutations for model: ',num2str(k),' of ',num2str(nk),' ...'])
@@ -151,11 +158,20 @@ else
                     fprintf('\b');
                 end
                 fprintf('%d',p);
-            end
+            end            
             
-            CVperm = zeros(size(CV));
-            t_perm = zeros(length(t),1);
-            IDperm = zeros(size(ID));
+            if flag_test %Only set to 0 the train set
+                CVperm = CV;
+                t_perm = t;
+                IDperm = ID;
+                CVperm(itrain,:) = 0;
+                t_perm(itrain) = 0;
+                IDperm(itrain,:) = 0;
+            else
+                CVperm = zeros(size(CV));
+                t_perm = zeros(length(t),1);
+                IDperm = zeros(size(ID));
+            end
             
             % Find chunks in the data (e.g. temporal correlated samples)
             % -------------------------------------------------------------------------
@@ -233,14 +249,12 @@ else
                                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                                 end
                                 pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                                t_perm(ism(pchunk))   = t(ism(chunkpermcv));
-                                if ~strcmpi(PRT.model(modelid(1)).input.cv_type,'custom')
-                                    CVperm(ism(pchunk),:) = CV(ism(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
-                                    IDperm(ism(pchunk),:) = ID(ism(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
-                                else
-                                    CVperm = CV;
-                                    IDperm = ID;
+                                if ~flag_test
+                                    itrain = 1:length(ism);
                                 end
+                                t_perm(itrain(ism(pchunk)))   = t(itrain(ism(chunkpermcv)));
+                                CVperm(itrain(ism(pchunk)),:) = CV(itrain(ism(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
+                                IDperm(itrain(ism(pchunk)),:) = ID(itrain(ism(chunkpermcv)),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
                             end
                         end
                     end
@@ -257,14 +271,13 @@ else
                             chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                         end
                         pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                        t_perm(iss(pchunk)) = t(iss(chunkpermcv));
-                        if ~strcmpi(PRT.model(modelid(1)).input.cv_type,'custom')
-                            CVperm(iss(pchunk),:) = CV(iss(chunkpermcv),:); % permute the CV lines corresponding to the subject and modality
-                            IDperm(iss(pchunk),:) = ID(iss(chunkpermcv),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
-                        else
-                            CVperm = CV;
-                            IDperm = ID;
+                        if ~flag_test
+                            itrain = 1:length(iss);
                         end
+                        t_perm(itrain(iss(pchunk))) = t(itrain(iss(chunkpermcv)));                        
+                        CVperm(itrain(iss(pchunk)),:) = CV(itrain(iss(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
+                        IDperm(itrain(iss(pchunk)),:) = ID(itrain(iss(chunkpermcv)),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
+                        
                     end
                 end
             end
@@ -287,14 +300,12 @@ else
                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                 end
                 pchunk = cell2mat(chunks);
-                t_perm(pchunk)   = t(chunkperm);
-                if ~strcmpi(PRT.model(modelid(1)).input.cv_type,'custom')
-                    CVperm(pchunk,:) = CV(chunkperm,:);
-                    IDperm(pchunk,:) = ID(chunkperm,:);
-                else
-                    CVperm = CV;
-                    IDperm = ID;
+                if ~flag_test
+                    itrain = 1:length(ism);
                 end
+                t_perm(itrain(pchunk))   = t(itrain(chunkperm));
+                CVperm(itrain(pchunk),:) = CV(itrain(chunkperm),:);
+                IDperm(itrain(pchunk),:) = ID(itrain(chunkperm),:);
             end
 
             
@@ -326,6 +337,7 @@ else
                 if flag
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).pred=temp_model.predictions;
+                    PRT.model(modelid(1)).output(k).permutation(p).fold(f).func_val=temp_model.func_val;
                 end
                 
                 model.output.fold(f).predictions = temp_model.predictions;
@@ -429,7 +441,11 @@ else
         if spm_check_version('MATLAB','7') < 0
             save(outfile,'-V6','PRT');
         else
-            save(outfile,'PRT');
+            try %For files larger than 2Gb
+                save(outfile,'PRT','-v7.3','-nocompression'); 
+            catch %For older versions of Matlab
+                save(outfile,'PRT');
+            end
         end
         disp('Permutation test done.')
     end
