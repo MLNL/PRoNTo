@@ -421,7 +421,7 @@ switch in.cv.type
                 mns=mod(ns(g),nsf);
                 dk=nsf*ones(1,floor(length(unique(vcl(is,2)))/nsf));
             else %Leave-One-Block per Class-Out
-                mns = nsf-k;
+                mns = ns(g)-k;
                 dk=nsf*ones(1,k);
             end
             if mns>0 %Last fold comprises left overs from floor
