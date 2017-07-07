@@ -3,7 +3,7 @@ function cv_model = prt_cfg_cv_model
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by A. Marquand
+% Written by A. Marquand and J. Schrouff
 % $Id$
 
 % ---------------------------------------------------------------------
@@ -62,13 +62,55 @@ flag_sw.labels  = {
 flag_sw.values  = {1 0};
 flag_sw.val     = {0};
 
+
 % ---------------------------------------------------------------------
-% perm_t Do permuatation test
+% copy_model_name Name of model to copy permutations from
+% ---------------------------------------------------------------------
+copy_model_name         = cfg_entry;
+copy_model_name.tag     = 'copy_model_name';
+copy_model_name.name    = 'Mdel name';
+copy_model_name.help    = {'Name of a model. Must match your entry in the '...
+                      '''Specify model'' batch module.'};
+copy_model_name.strtype = 's';
+copy_model_name.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% copy_perm Do permuatation test
+% ---------------------------------------------------------------------
+copy_perm         = cfg_branch;
+copy_perm.tag     = 'copy_perm';
+copy_perm.name    = 'Copy from';
+copy_perm.val     = {copy_model_name};
+copy_perm.help    = {'Yes, copy permutations from a previous model.'};
+
+% ---------------------------------------------------------------------
+% no_copy_perm Do not copy permutations (default)
+% ---------------------------------------------------------------------
+no_copy_perm         = cfg_const;
+no_copy_perm.tag     = 'no_copy_perm';
+no_copy_perm.name    = 'No';
+no_copy_perm.val     = {1};
+no_copy_perm.help    = {'Do not copy permutation from another model.'};
+
+% ---------------------------------------------------------------------
+% use_model Copy permutations from another model
+% ---------------------------------------------------------------------
+use_model         = cfg_choice;
+use_model.tag     = 'use_model';
+use_model.name    = 'Copy permutations from model';
+use_model.help    = {['Set to Yes to copy the permutations from another' ...
+    'model. This option should be selected to correct for multiple '...
+    'comparisons. The 2 models should contain the exact same samples.']};
+use_model.values  = {no_copy_perm copy_perm};
+use_model.val     = {no_copy_perm};
+
+% ---------------------------------------------------------------------
+% perm_t Do permutation test
 % ---------------------------------------------------------------------
 perm_t         = cfg_branch;
 perm_t.tag     = 'perm_t';
 perm_t.name    = 'Permutation test';
-perm_t.val     = {N_perm, flag_sw};
+perm_t.val     = {N_perm, flag_sw, use_model};
 perm_t.help    = {'Perform a permutation test.'};
 
 % ---------------------------------------------------------------------

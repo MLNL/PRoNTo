@@ -140,6 +140,7 @@ else
                             n_perm = length(PRT.model(modelid(2)).output(1).permutation);
                         end
                         flag_use_perms = 1;
+                        disp('Permutations copied from selected model')
                     else
                         warning('prt_permutation:CannotCopyPermutations',...
                             'Number of selected samples is not consistent between the 2 models to compare')
@@ -320,7 +321,7 @@ else
                     fdata.Phi_all = Phi_all; %all kernels
                 end
                 fdata.t       = t_perm;
-                fdata.cov     = PRT.model(modelid).input.covar;
+                fdata.cov     = PRT.model(modelid(1)).input.covar;
             
                 
                 % Nested CV for hyper-parameter optimisation or feature selection

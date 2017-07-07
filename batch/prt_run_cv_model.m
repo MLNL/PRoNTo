@@ -30,7 +30,7 @@ load(fname);
 
 in.fname      = job.infile;
 in.model_name = job.model_name;
-mid = prt_init_model(PRT, in);
+mid(1) = prt_init_model(PRT, in);
 
 % Special cross-validation for MCKR
 if strcmp(PRT.model(mid).input.machine.function,'prt_machine_mckr')
@@ -47,6 +47,14 @@ if isfield(job,'perm_test') % to ensure back compatibility with older batch
             flag = job.perm_test.perm_t.flag_sw;
         else
             flag = 0;
+        end
+        if isfield(job.perm_test.perm_t,'use_model')
+            try
+                in.model_name=job.perm_test.perm_t.use_model.copy_perm.copy_model_name;
+                mid(2) = prt_init_model(PRT, in);
+            catch
+                mid = mid(1);
+            end
         end
         prt_permutation(PRT, job.perm_test.perm_t.N_perm, mid, ...
             spm_str_manip(fname,'h'),flag);

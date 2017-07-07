@@ -37,8 +37,13 @@ if isfield(PRT,'fas') && ~isempty(PRT.fas)
         % get the name of the file array
         if ~isempty(PRT.fas(i).dat)
             fa_name=PRT.fas(i).dat.fname;
+            % Transfer PRT from Mac to Windows or convertly
             if ~ispc
                 fname = strrep(fname,'\',filesep); 
+                fa_name = strrep(fa_name,'\',filesep);
+            else
+                fname = strrep(fname,'/',filesep); 
+                fa_name = strrep(fa_name,'/',filesep);
             end 
             [fadir,fan,faext] = fileparts(fa_name);    
             if ~strcmpi(fadir,prtdir) % directories of PRT and feature set are different

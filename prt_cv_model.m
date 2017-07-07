@@ -156,14 +156,29 @@ for k = 1:nk
     end
     
     
-    % Model level statistics (across folds)
-    ttt             = vertcat(PRT.model(mid).output(k).fold(:).targets);
-    m.type        = PRT.model(mid).output(k).fold(1).type;
-    m.predictions = vertcat(PRT.model(mid).output(k).fold(:).predictions);
-    %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
-    stats         = prt_stats(m,ttt(:),nc);
+    % Model level statistics (across folds) - average across folds
+    fnamestats = fieldnames(stats);
+    gstats = struct;
+    for i=1:length(fnamestats)
+        size_stats = size(PRT.model(mid).output(k).fold(1).stats.(fnamestats{i}));
+        val = zeros(prod(size_stats),n_folds);
+        for j = 1:n_folds
+            val(:,j) = PRT.model(mid).output(k).fold(j).stats.(fnamestats{i})(:);
+        end
+        av_stats = reshape(nanmean(val,2),size_stats);
+        gstats = setfield(gstats,fnamestats{i},av_stats);
+    end
+    % If classifier, get confusion matrix globally
+     m.type        = PRT.model(mid).output(k).fold(1).type;
+     if strcmpi(m.type,'classifier')
+         ttt             = vertcat(PRT.model(mid).output(k).fold(:).targets);
+         m.predictions = vertcat(PRT.model(mid).output(k).fold(:).predictions);
+         %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
+         temp_stats         = prt_stats(m,ttt(:),nc);
+         gstats.con_mat = temp_stats.con_mat;
+     end
     
-    PRT.model(mid).output(k).stats=stats;
+    PRT.model(mid).output(k).stats=gstats;
 end
 
 % Save PRT containing machine output
