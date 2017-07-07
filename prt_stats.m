@@ -27,7 +27,7 @@ function stats = prt_stats(model, tte, nk)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by A. Marquand
+% Written by A. Marquand and J. Schrouff
 % $Id$
 
 % FIXME: is any code using the 'flags' input argument? 
@@ -70,16 +70,18 @@ end
 
 Cc = diag(stats.con_mat);   % correct predictions for each class
 Zc = sum(stats.con_mat)';   % total samples for each class (cols)
-nz = Zc ~= 0;               % classes with nonzero totals (cols)
+% nz = Zc ~= 0;               % classes with nonzero totals (cols)
 Zcr = sum(stats.con_mat,2); % total predictions for each class (rows)
-nzr = Zcr ~= 0;             % classes with nonzero totals (rows)
+% nzr = Zcr ~= 0;             % classes with nonzero totals (rows)
 
 stats.acc       = sum(Cc) ./ sum(Zc);
 stats.c_acc     = zeros(k,1);
-stats.c_acc(nz) = Cc(nz) ./ Zc(nz);
-stats.b_acc     = mean(stats.c_acc);
+stats.c_acc = Cc ./ Zc;
+% stats.c_acc(nz) = Cc(nz) ./ Zc(nz);
+stats.b_acc     = nanmean(stats.c_acc);
 stats.c_pv      = zeros(k,1);
-stats.c_pv(nzr) = Cc(nzr) ./ Zcr(nzr); 
+% stats.c_pv(nzr) = Cc(nzr) ./ Zcr(nzr); 
+stats.c_pv = Cc ./ Zcr;
 
 % confidence interval
 % TODO: check IID assumption here (chunks in run_permutation.m)
