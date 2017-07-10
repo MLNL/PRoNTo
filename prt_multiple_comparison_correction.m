@@ -92,7 +92,11 @@ end
 p_values = zeros(length(modelid),1);
 
 %max distribution
-null = max(perm,[],2);
+if ~isempty(strfind(value,'mse'))
+    null = min(perm,[],2);
+else
+    null = max(perm,[],2);
+end
 for i = 1: length(modelid)
     if ~isempty(strfind(value,'mse'))
         p_values(i) = (length(find(null<=true_vals(i)))+1)/(numel(null)+1);

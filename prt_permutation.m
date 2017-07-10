@@ -291,7 +291,7 @@ else
                 for gid = 1: length(samp_g) 
                     samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
                     for sid = 1: length(samp_s)
-                        chunks{i} = find(ids(:,1)==gid & ids(:,2)==sid); % get all the images for this subject
+                        chunks{i} = find(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid)); % get all the images for this subject
                         i = i+1;
                     end
                 end
@@ -325,7 +325,9 @@ else
                     fdata.Phi_all = Phi_all; %all kernels
                 end
                 fdata.t       = t_perm;
-                fdata.cov     = PRT.model(modelid(1)).input.covar;
+                if isfield(PRT.model(modelid(1)).input,'covar')
+                    fdata.cov     = PRT.model(modelid(1)).input.covar;
+                end
             
                 
                 % Nested CV for hyper-parameter optimisation or feature selection
