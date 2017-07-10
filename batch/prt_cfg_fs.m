@@ -4,7 +4,7 @@ function fs = prt_cfg_fs
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by Andre Marquand
+% Written by Andre Marquand and J. Schrouff
 % $Id$
 
 % ---------------------------------------------------------------------

@@ -22,6 +22,7 @@ function stats = prt_stats(model, tte, nk)
 %
 % Regression:
 % stats.mse:     Mean square error between test and prediction
+% stats.nmse:    Normalized mean square error between test and prediction
 % stats.corr:    Correlation between test and prediction
 % stats.r2:      Squared correlation
 %__________________________________________________________________________

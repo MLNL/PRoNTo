@@ -77,6 +77,10 @@ switch lower(Action)
             ft_default.trackcallinfo = 'no';
             ft_default.showcallinfo = 'no';
         end
+        % Special MEEG batches
+        if ~exist('spm_cfg_channel_selector','file')
+            addpath(fullfile(spm('Dir'),'config'));
+        end
         
         % intialize the matlabbatch system
         cfg_get_defaults('cfg_util.genscript_run', @genscript_run);
