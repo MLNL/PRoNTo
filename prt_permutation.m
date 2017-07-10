@@ -91,7 +91,9 @@ else
         nc=[];
     end
     fdata.nc = nc;
-    fdata.class   = PRT.model(modelid(1)).input.class;
+    if isfield(PRT.model(modelid(1)).input,'class')
+        fdata.class   = PRT.model(modelid(1)).input.class;
+    end
     
     % Initialize counts
     % -------------------------------------------------------------------------
@@ -215,6 +217,7 @@ else
                         % selected for model, need to permute across subjects
                         else 
                             exchange_subjects = 1;
+                            Acrossmod = 0;
                         end
                         if ~ exchange_subjects
                             if ~Acrossmod || (Acrossmod && mid == 1)
@@ -259,7 +262,7 @@ else
                             end
                         end
                     end
-                    if Acrossmod
+                    if Acrossmod && ~exchange_subjects
                         if ~flag_use_perms
                             chunkperm=randperm(numel(chunks));
                         else
@@ -297,12 +300,13 @@ else
                 else
                     chunkperm = PRT.model(modelid(2)).output(k).permutation(p).perm_mat;
                 end
+                chunkpermcv = [];
                 for i=1:length(chunks)
                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                 end
                 pchunk = cell2mat(chunks);
                 if ~flag_test
-                    itrain = 1:length(ism);
+                    itrain = 1:size(ids,1);
                 end
                 t_perm(itrain(pchunk))   = t(itrain(chunkperm));
                 CVperm(itrain(pchunk),:) = CV(itrain(chunkperm),:);

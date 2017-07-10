@@ -799,9 +799,11 @@ for j=1:size(d,1)
     end
 end
 %get which conditions
-d=handles.clas{1,4};
-if ~isempty(d) && any(d~=0)
-    lci=[lci,d];
+if size(handles.clas,2)>2
+    d=handles.clas{1,4};
+    if ~isempty(d) && any(d~=0)
+        lci=[lci,d];
+    end
 end
 
 lg=handles.condm{1}(lgi);
