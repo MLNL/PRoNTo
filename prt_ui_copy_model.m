@@ -644,6 +644,7 @@ end
 if isnumeric(p)
     handles.newmodel.nested_param = p;
 elseif iscell(p)
+    handles.newmodel.nested_param = {};
     for i=1:length(p)
         if isnumeric(p{i})
             handles.newmodel.nested_param{i} = p{i};

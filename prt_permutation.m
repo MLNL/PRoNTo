@@ -66,7 +66,7 @@ else
             matlabpool(def_par.ncore)
         catch
             try
-                parpool(def_par.ncore)
+                parpool;
             catch
                 warning('Could not use pool of Matlab processes!')
             end

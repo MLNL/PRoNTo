@@ -370,7 +370,7 @@ multkerntp.tag     = 'multkerntp';
 multkerntp.name    = 'Multiple kernels';
 multkerntp.help    = {'Build one kernel per selected dimension.'};
 multkerntp.values  = {nomult,multkernonetp, multkernwin};
-multkerntp.val     = {multkern};
+multkerntp.val     = {nomult};
 
 % ---------------------------------------------------------------------
 % average Average across channels
