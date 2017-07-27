@@ -435,7 +435,7 @@ if get(handles.pop_reg,'Value')==1 %for classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi || length(handles.fs)>1
-            list = [list,{'L1- Multi-Kernel Learning';'wip'}];
+            list = [list,{'L1- Multi-Kernel Learning';'wip';'G- Multi-Kernel Learning'}];
 %             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
@@ -519,7 +519,8 @@ if get(handles.pop_reg,'Value')==1 %for classification
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi || length(handles.fs)>1
 %             list = [list,{'L1- Multi-Kernel Learning'}];
-            list = [list,{'L1- Multi-Kernel Learning'},{'wip'}];
+            %list = [list,{'L1- Multi-Kernel Learning'},{'wip'}];
+            list = [list,{'L1- Multi-Kernel Learning';'wip';'G- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -624,8 +625,10 @@ if ~isempty(handles.fs)
                 'Binary Gaussian Process Classification',...
                 'Multiclass GPC'};
             if handles.multimod || handles.multiroi || length(handles.fs)>1
-                list = [list,{'L1- Multi-Kernel Learning',...
-                    'wip'}];
+                %list = [list,{'L1- Multi-Kernel Learning',...
+                    %'wip'}];
+                list = [list,{'L1- Multi-Kernel Learning';'wip';...
+                    'G- Multi-Kernel Learning'}];
             end
             set(handles.pop_machine,'String',list)
             set(handles.pop_machine,'Value',1)
@@ -703,8 +706,10 @@ if get(handles.pop_reg,'Value')==1 %for classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
-            list = [list,{'L1- Multi-Kernel Learning',...
-                    'wip'}];
+           % list = [list,{'L1- Multi-Kernel Learning',...
+           %         'wip'}];
+           list = [list,{'L1- Multi-Kernel Learning';'wip';...
+               'G- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -739,8 +744,10 @@ if val==1 %Classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
-            list = [list,{'L1- Multi-Kernel Learning',...
-                    'wip'}];
+            %list = [list,{'L1- Multi-Kernel Learning',...
+             %       'wip'}];
+             list = [list,{'L1- Multi-Kernel Learning';'wip';...
+                 'G- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -968,6 +975,9 @@ elseif any(strfind(mach{val},'L1- Multi-Kernel'))
     handles.machine.args=handles.def.l1MKLargs;
 elseif any(strfind(mach{val},'wip'))
     handles.machine.function='prt_machine_wip_cla';
+    handles.machine.args=handles.def.wipargs;
+elseif any(strfind(mach{val},'G- Multi-Kernel'))
+    handles.machine.function='prt_machine_GMKL_cla';
     handles.machine.args=handles.def.wipargs;
 elseif any(strfind(mach{val},'Multi-Kernel Regression'))
     handles.machine.function='prt_machine_sMKL_reg';

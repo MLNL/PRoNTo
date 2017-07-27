@@ -38,7 +38,7 @@ function output = prt_machine(d,m)
 
 % TODO: make tr_targets a cell array (?)
 % TODO: fix 80-cols limit in source code
-% TODO: Multi-kernel learning
+
 
 SANITYCHECK = true; % can turn off for "speed"
 
@@ -170,7 +170,7 @@ if SANITYCHECK==true
             if ~any(strcmp(m.function,{'prt_machine_krr','prt_machine_rvr',...
                                        'prt_machine_gpml','prt_machine_gpr', 'prt_machine_sMKL_reg'}))
                 error('prt_machine:RgressionMachineSupport',...
-                    'Error: Regresion can only chose use KRR or RVR machines');
+                    'Error: Regression machine not supported');
             end
         end
         

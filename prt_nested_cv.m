@@ -60,7 +60,7 @@ switch PRT.model(in.mid).input.machine.function
             d1 = -2 : 3;
             par = 10 .^(d1);
         end
-    case 'prt_machine_wip_cla'
+    case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
         if ~isempty(PRT.model(in.mid).input.nested_param)
             % Get parameter ranges from PRT
             c = PRT.model(in.mid).input.nested_param{1};
@@ -99,7 +99,7 @@ for i = 1:size(par, 2)
             PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'regression';
             
-        case 'prt_machine_wip_cla'
+        case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
             PRT.model(in.mid).input.machine.args = par(:,i)';
             m.type = 'classifier';
             
@@ -170,7 +170,8 @@ end
 % Get optimal parameter
 
 
-if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_wip_cla')
+if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_wip_cla') || ...
+        strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_GMKL_cla')
     
     % Reshape the stats vector into a matrix
     stats_mat = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';
