@@ -256,11 +256,15 @@ switch n_par
                 [L,nconn] = bwlabel(accmap);
                 stats = regionprops(L,{'centroid','area'});
                 maxar = stats(1).Area;
-                for i = 2:nconn
-                    if stats(i).Area>maxar
-                        maxar = stats(i).Area;
-                        indmax = i;
+                if nconn>1
+                    for i = 2:nconn
+                        if stats(i).Area>maxar
+                            maxar = stats(i).Area;
+                            indmax = i;
+                        end
                     end
+                else
+                    indmax = 1;
                 end
                 opt_stats_ind = floor(stats(indmax).Centroid(1));
             catch
