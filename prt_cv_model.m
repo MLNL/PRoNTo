@@ -73,7 +73,7 @@ else
 end
 
 if ~isfield(in,'opt_Rep')
-    opt_Rep = 1;
+    opt_Rep = 0;
 end
 %load kernels and get the used sample in this model
 [Phi_all,ID] = prt_getKernelModel(PRT,prt_dir,mid,indmodels);

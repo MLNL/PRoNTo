@@ -146,7 +146,7 @@ for i = 1:size(par, 2)
     % Model level statistics (across folds)
     ttt           = vertcat(f_stats(:).targets);
     m.predictions = vertcat(f_stats(:).predictions);
-    stats         = prt_stats(m, ttt(:), in.nc);
+    tstats         = prt_stats(m, ttt(:), in.nc);
     
     % Reproducibility of the weights if MKL
     if isfield(f_stats,'beta') && opt_Rep
@@ -156,9 +156,9 @@ for i = 1:size(par, 2)
     
     switch PRT.model(in.mid).input.type
         case 'classification'
-            stats_vec(i) = stats.b_acc;
+            stats_vec(i) = tstats.b_acc;
         case 'regression'
-            stats_vec(i) = stats.mse;
+            stats_vec(i) = tstats.mse;
         otherwise
             error('Type of model not recognised');
     end
