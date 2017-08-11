@@ -168,7 +168,8 @@ handles.subsample = 0;
 list={'Sample averaging (within block)',...
     'Sample averaging (within subject/condition)',...
     'Mean centre features using training data',...
-    'Normalize samples'};
+    'Normalize samples',...
+    'Regress out covariates'};
 
 handles.indop{1}=1:length(list);
 handles.indop{2}=0;
@@ -435,7 +436,7 @@ if get(handles.pop_reg,'Value')==1 %for classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi || length(handles.fs)>1
-            list = [list,{'L1- Multi-Kernel Learning';'wip';'G- Multi-Kernel Learning'}];
+            list = [list,{'L1- Multi-Kernel Learning','wip','G- Multi-Kernel Learning'}];
 %             list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
@@ -520,7 +521,7 @@ if get(handles.pop_reg,'Value')==1 %for classification
         if handles.multimod || handles.multiroi || length(handles.fs)>1
 %             list = [list,{'L1- Multi-Kernel Learning'}];
             %list = [list,{'L1- Multi-Kernel Learning'},{'wip'}];
-            list = [list,{'L1- Multi-Kernel Learning';'wip';'G- Multi-Kernel Learning'}];
+            list = [list,{'L1- Multi-Kernel Learning','wip','G- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -627,7 +628,7 @@ if ~isempty(handles.fs)
             if handles.multimod || handles.multiroi || length(handles.fs)>1
                 %list = [list,{'L1- Multi-Kernel Learning',...
                     %'wip'}];
-                list = [list,{'L1- Multi-Kernel Learning';'wip';...
+                list = [list,{'L1- Multi-Kernel Learning','wip',...
                     'G- Multi-Kernel Learning'}];
             end
             set(handles.pop_machine,'String',list)
@@ -708,7 +709,7 @@ if get(handles.pop_reg,'Value')==1 %for classification
         if handles.multimod || handles.multiroi
            % list = [list,{'L1- Multi-Kernel Learning',...
            %         'wip'}];
-           list = [list,{'L1- Multi-Kernel Learning';'wip';...
+           list = [list,{'L1- Multi-Kernel Learning','wip',...
                'G- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
@@ -746,7 +747,7 @@ if val==1 %Classification
         if handles.multimod || handles.multiroi
             %list = [list,{'L1- Multi-Kernel Learning',...
              %       'wip'}];
-             list = [list,{'L1- Multi-Kernel Learning';'wip';...
+             list = [list,{'L1- Multi-Kernel Learning','wip',...
                  'G- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
