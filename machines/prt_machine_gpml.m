@@ -71,6 +71,8 @@ else
     likfunc   = @likGauss;
     inffunc   = @prt_infExact;
     mtr       = mean(d.tr_targets);      % mean of the training data
+    covfunc   = @covLINsimplekcell; % AR change so that Onans function is called only if its regression
+    args=strrep(args,'covLINkcell','covLINsimplekcell'); % AR hack so that Onans functions is called
 end
 
 % Error checks
