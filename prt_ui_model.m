@@ -1012,7 +1012,7 @@ if v
     switch handles.machine.function
         case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
                 'prt_machine_wip_cla','prt_machine_krr',...
-                'prt_machine_sMKL_reg'}
+                'prt_machine_sMKL_reg','prt_machine_GMKL_cla'}
             set(handles.edit_param_range,'Enable','on')
             set(handles.pop_cv_nested,'Enable','on')
             handles.cv.nested = 1;
