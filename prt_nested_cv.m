@@ -33,6 +33,9 @@ train_entries = find(in.CV == 1);
 in.ID      = in.ID(train_entries, :);
 in.t       = in.t(train_entries);
 in.fs      = PRT.fs;
+if isfield(in, 'cov')
+    in.cov     = in.cov(train_entries,:);
+end
 if isfield(PRT.model(in.mid).input,'cv_type_nested')
     in.cv.type = PRT.model(in.mid).input.cv_type_nested;
     in.cv.k = PRT.model(in.mid).input.cv_k_nested;
@@ -158,7 +161,7 @@ for i = 1:size(par, 2)
         case 'classification'
             stats_vec(i) = tstats.b_acc;
         case 'regression'
-            stats_vec(i) = tstats.mse;
+            stats_vec(i) = tstats.nmse;
         otherwise
             error('Type of model not recognised');
     end

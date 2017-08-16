@@ -44,7 +44,7 @@ switch PRT.model(model).input.machine.function
         
     case 'prt_machine_sMKL_reg'
         x_label = 'Args';
-        y_label = 'MSE';
+        y_label = 'NMSE';
         
         %If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
@@ -63,7 +63,7 @@ switch PRT.model(model).input.machine.function
         
     case 'prt_machine_krr'
         x_label = 'Args';
-        y_label = 'MSE';
+        y_label = 'NMSE';
         
         %If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
@@ -243,7 +243,7 @@ else % It's a 1 parameter optimisation problem
         f_std = std(f);
         
         % get frequencies of optimal values
-        x_opt = hist(x_opt, x)./size(f,1);
+        hx_opt = hist(x_opt, x)./size(f,1);
         
         
          % Plot
@@ -254,14 +254,15 @@ else % It's a 1 parameter optimisation problem
         % general properties of the plots
         markersize = 10;
         f_min = 0;
-        f_max = 108;
+        f_max = 1.1*max(hx_opt*100);
 
         hold on
-        [hax,hbar,hline] = plotyy(x,x_opt*100,x,mean(f),'bar','plot');
-        errorbar(axes_handle, x, f_mean, f_std, '.k', 'linewidth', 2);
+        [hax,hbar,hline] = plotyy(x,hx_opt*100,x,f_mean,'bar','plot');
+        %errorbar(hax(1), x, f_mean, f_std, '.k', 'linewidth', 2);
         set(hbar,'BarWidth',0.5,'FaceColor',[0.5 0.8 0.5])
         set(hline,'Color','k','Linewidth',1)
         set(hax(1),'YColor',[0.1,0.6,0.1])
+        box(hax(1),'off')
         set(hax(2),'YColor',[0,0,0])
         hold off
         
@@ -275,32 +276,26 @@ else % It's a 1 parameter optimisation problem
              xlabel(axes_handle, x_label,'FontWeight','bold');
         end
         axis(hax(1), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
-        axis(hax(2), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
-        set(hax(2),'XTickLabel',{})      
-        set(hax(2),'YTickLabel',{})
-        a=get(hax(1),'YTick');
-        b=get(hax(1),'YTickLabel');
-        set(hax(2),'YTick',a);
-        set(hax(2),'YTickLabel',b);         
+        axis(hax(2), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) min(min(f)) max(max(f))]);
+%         set(hax(2),'XTickLabel',{})      
+%         set(hax(2),'YTickLabel',{})
+%         a=get(hax(1),'YTick');
+%         b=get(hax(1),'YTickLabel');
+%         set(hax(2),'YTick',a);
+%         set(hax(2),'YTickLabel',b);         
         
     else
         
         % Get all function values
         x = PRT.model(model).output.fold(fold-1).param_effect.param;
         f = PRT.model(model).output.fold(fold-1).param_effect.vary_param;
+        x_opt = PRT.model(model).output.fold(fold-1).param_effect.opt_param;
         if strcmp(PRT.model(model).input.type, 'classification')
             f = 100.*f; % Convert to percentage
         end
         
         % Get optimal function values
-        switch PRT.model(model).input.type
-            case 'classification'
-                x_opt = find(f==max(f));
-            case 'regression'
-                x_opt = find(f==min(f));
-            otherwise
-                error('Type of model not recognised');
-        end
+        x_opt = find(x==x_opt);
         
         % general properties of the plots
         markersize = 10;
