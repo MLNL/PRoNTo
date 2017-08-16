@@ -308,6 +308,7 @@ for c = 1:nc
                                 'Number of regression targets does not correspond to number of images')
                         end
                     end
+                    samp_all(idx) = 1;
                 end
             end
         end
@@ -344,7 +345,7 @@ if nargin>=4 && subsample
     end
 end
     
-samp_idx = find(t_all);
+samp_idx = find(samp_all);
 samp_all = find(samp_all);    
 targets  = t_all(samp_idx);
 covar = cov_all(samp_idx,:);
