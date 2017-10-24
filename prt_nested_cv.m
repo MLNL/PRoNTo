@@ -33,6 +33,11 @@ train_entries = find(in.CV == 1);
 in.ID      = in.ID(train_entries, :);
 in.t       = in.t(train_entries);
 in.fs      = PRT.fs;
+%%% Get covariates
+if isfield(in, 'cov')
+    in.cov     = in.cov(train_entries,:);
+end
+%%%
 if isfield(PRT.model(in.mid).input,'cv_type_nested')
     in.cv.type = PRT.model(in.mid).input.cv_type_nested;
     in.cv.k = PRT.model(in.mid).input.cv_k_nested;

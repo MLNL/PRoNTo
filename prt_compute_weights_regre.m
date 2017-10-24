@@ -22,7 +22,7 @@ function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag, ibe, flag2)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M.J.Rosa
+% Written by M.J.Rosa. Modified by J.Mourao-Miranda and T Wu. 
 % $Id$
 
 % Find machine
@@ -252,8 +252,25 @@ for p=0:maxp
                 
                 % Apply any operations specified during training
                 ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
+                %%%% If GLM is one operation, set it to be the first. 
+                if any(ismember(ops,5))
+                    posglm = find(ops==5);
+                    if posglm~=1 % GLM should be the first
+                        idxops = 1:length(ops);
+                        newidx = setdiff(idxops,posglm);
+                        ops=[5,ops(newidx)];
+                    end
+                end
+                %%%%
                 cvdata.train      = {d.datamat};
                 cvdata.tr_id      = ID(train_idx,:);
+                %%%
+%                 cvdata.tr_cov    = PRT.model(model_idx).input.covar(indm); %confirm that indm is the training index. Yes. 
+                %%%%
+                cvdata.tr_cov    = PRT.model(model_idx).input.covar(indm,:);% Pass all covariates, i.e. all columns
+                %%%%
+               % cvdata.te_cov    = PRT.model(model_idx).input.covar(); missing test index
+                %%% Pass covariates 
                 cvdata.use_kernel = false; % need to apply the operation to the data
                 for o = 1:length(ops)
                     cvdata = prt_apply_operation(PRT, cvdata, ops(o));
