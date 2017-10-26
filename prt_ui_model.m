@@ -30,7 +30,7 @@ function varargout = prt_ui_model(varargin)
 
 % Edit the above text to modify the response to help prt_ui_kernel_construction
 
-% Last Modified by GUIDE v2.5 05-Jan-2015 10:43:20
+% Last Modified by GUIDE v2.5 05-Nov-2014 15:07:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -143,8 +143,8 @@ set(handles.kernel_methods,'Enable','off')
 handles.use_kernel=1;
 set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
-% set(handles.pop_cv_nested,'String',{'Custom'})
-% set(handles.pop_cv_nested,'Value',1)
+set(handles.pop_cv_nested,'String',{'Custom'})
+set(handles.pop_cv_nested,'Value',1)
 handles.cv.type='custom';
 handles.cv.mat_file=[];
 handles.cv.nested_mat_file=[];
@@ -159,7 +159,6 @@ set(handles.pop_machine,'String',{'Binary support vector machine',...
 set(handles.pop_machine,'Value',1)
 handles.machine.function='prt_machine_svm_bin';
 handles.machine.args=handles.def.svmargs;
-handles.subsample = 0;
 % list={'Sample averaging (within block)',...
 %     'Sample averaging (within subject/condition)',...
 %     'Mean centre features using training data',...
@@ -169,7 +168,7 @@ list={'Sample averaging (within block)',...
     'Sample averaging (within subject/condition)',...
     'Mean centre features using training data',...
     'Normalize samples',...
-    'Regress out covariates'};
+    'Regress out covariates (subject level)'};% The function of regressing out covariates has been fixed. 
 
 handles.indop{1}=1:length(list);
 handles.indop{2}=0;
@@ -245,19 +244,46 @@ for i=1:length(PRT.fs)
         list=[list; {PRT.fs(i).fs_name}];
     end
 end
-handles.fslist = list;
-set(handles.fs_uns,'String',list)
-set(handles.fs_uns,'Value',1)
-set(handles.fs_sel,'String',{})
-set(handles.fs_sel,'Value',1)
-handles.fsidx = {[1:length(list)],[]};
-handles.fs = [];
+set(handles.pop_featset,'String',list)
+set(handles.pop_featset,'Value',1)
+if length(handles.dat.fs(1).modality)>1
+    list=get(handles.pop_cv,'String');
+    list=[list;{'Leave One Run/Session Out'}];
+    set(handles.pop_cv,'String',list)
+    set(handles.pop_cv,'Value',length(list))
+    handles.cv.type = 'loro';
+    handles.multimod = 1;
+end
+if length(handles.dat.fs(1).modality)>2
+    list=get(handles.pop_cv_nested,'String');
+    list=[list;{'Leave One Run/Session Out'}];
+    set(handles.pop_cv_nested,'String',list)
+    set(handles.pop_cv_nested,'Value',length(list))
+    handles.cv.type_nested='loro';
+end
+list=get(handles.pop_featset,'String');
+handles.fs(1).fs_name=list{1};
+handles.fs(1).indfs=1;
+if isfield(handles.dat.fs(1),'multkernel') && handles.dat.fs(1).multkernel %allowing for multi-kernel learning (
+    handles.multimod = 1;
+else
+    handles.multimod = 0;
+end
+if isfield(handles.dat.fs(1),'multkernelROI') && handles.dat.fs(1).multkernelROI %allowing for multi-kernel learning
+    handles.multiroi = 1;
+else
+    handles.multiroi = 0;
+end
+
 handles.use_kernel=get(handles.kernel_methods,'Value');
 if get(handles.pop_reg,'Value')==1 %for classification
     if handles.use_kernel
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
+        if handles.multimod || handles.multiroi
+            list = [list,{'L1- Multi-Kernel Learning'}];
+        end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
         handles.machine.function='prt_machine_svm_bin';
@@ -304,19 +330,45 @@ for i=1:length(PRT.fs)
         list=[list; {PRT.fs(i).fs_name}];
     end
 end
-handles.fslist = list;
-set(handles.fs_uns,'String',list)
-set(handles.fs_uns,'Value',1)
-set(handles.fs_sel,'String',{})
-set(handles.fs_sel,'Value',1)
-handles.fsidx = {[1:length(list)],[]};
-handles.fs = [];
+set(handles.pop_featset,'String',list)
+set(handles.pop_featset,'Value',1)
+if length(handles.dat.fs(1).modality)>1
+    list=get(handles.pop_cv,'String');
+    list=[list;{'Leave One Run/Session Out'}];
+    set(handles.pop_cv,'String',list)
+    set(handles.pop_cv,'Value',length(list))
+    handles.cv.type = 'loro';
+    handles.multimod = 1;
+end
+if length(handles.dat.fs(1).modality)>2
+    list=get(handles.pop_cv_nested,'String');
+    list=[list;{'Leave One Run/Session Out'}];
+    set(handles.pop_cv_nested,'String',list)
+    set(handles.pop_cv_nested,'Value',length(list))
+    handles.cv.type_nested = 'loro';
+end
+list=get(handles.pop_featset,'String');
+handles.fs(1).fs_name=list{1};
+handles.fs(1).indfs=1;
+if handles.dat.fs(1).multkernel %allowing for multi-kernel learning
+    handles.multimod = 1;
+else
+    handles.multimod = 0;
+end
+if handles.dat.fs(1).multkernelROI %allowing for multi-kernel learning
+    handles.multiroi = 1;
+else
+    handles.multiroi = 0;
+end
 handles.use_kernel=get(handles.kernel_methods,'Value');
 if get(handles.pop_reg,'Value')==1 %for classification
     if handles.use_kernel
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
+        if handles.multimod || handles.multiroi
+            list = [list,{'L1- Multi-Kernel Learning'}];
+        end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
         handles.machine.function='prt_machine_svm_bin';
@@ -435,9 +487,8 @@ if get(handles.pop_reg,'Value')==1 %for classification
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod || handles.multiroi || length(handles.fs)>1
-            list = [list,{'L1- Multi-Kernel Learning','wip','G- Multi-Kernel Learning'}];
-%             list = [list,{'L1- Multi-Kernel Learning'}];
+        if handles.multimod || handles.multiroi
+            list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -447,234 +498,6 @@ if get(handles.pop_reg,'Value')==1 %for classification
 end
 % Update handles structure
 guidata(hObject, handles);
-
-% --- Executes on selection change in fs_uns.
-function fs_uns_Callback(hObject, eventdata, handles)
-% hObject    handle to fs_uns (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns fs_uns contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from fs_uns
-list = get(handles.fs_uns,'String');
-val = get(handles.fs_uns,'Value');
-fsname = list{val};
-fsidx = find(strcmpi(fsname,handles.fslist));
-if ~isfield(handles,'fs') || ~isfield(handles.fs,'fs_name')
-    id = 1;
-else
-    id = length(handles.fs)+1;
-end
-% Update lists
-idu = setdiff(handles.fsidx{1},fsidx);
-handles.fsidx{1} = idu;
-if isempty(idu)
-    set(handles.fs_uns,'String',{});
-else
-    set(handles.fs_uns,'String',handles.fslist(idu));
-end
-set(handles.fs_uns,'Value',1);
-sdu = [handles.fsidx{2},fsidx];
-handles.fsidx{2} = sdu;
-set(handles.fs_sel,'String',handles.fslist(sdu));
-set(handles.fs_sel,'Value',length(sdu));
-handles.fs(id).fs_name=fsname;
-handles.fs(id).indfs=fsidx;
-% Set CV and machine options
-list=get(handles.pop_cv,'String');
-if length(handles.dat.fs(fsidx).modality)>1 %LOO Run if not in list
-    if ~any(strcmpi(list,'Leave One Run/Session Out'))
-        list=[list;{'Leave One Run/Session Out'}];
-        set(handles.pop_cv,'String',list)
-        set(handles.pop_cv,'Value',length(list))
-        handles.cv.type = 'loro';
-        handles.multimod = 1;
-    end
-else                                    %delete LOO Run if not available for the selected feature set
-    if any(strcmpi(list,'Leave One Run/Session Out'))
-        idlist = find(strcmpi(list,'Leave One Run/Session Out'));
-        tidl = 1:length(list);
-        idtk = setdiff(tidl,idlist);
-        set(handles.pop_cv,'String',list(idtk))
-        set(handles.pop_cv,'Value',1)
-        handles.cv.type = 'custom';
-        handles.multimod = 0;
-    end
-end
-% Add multi-kernel learning if flag to 1
-if isfield(handles.dat.fs(fsidx),'multkernel')&& handles.dat.fs(fsidx).multkernel %allowing for multi-kernel learning
-    handles.multimod = 1;
-else
-    handles.multimod = 0;
-end
-if isfield(handles.dat.fs(fsidx),'multkernelROI')&& handles.dat.fs(fsidx).multkernelROI %allowing for multi-kernel learning
-    handles.multiroi = 1;
-else
-    handles.multiroi = 0;
-end
-handles.use_kernel=get(handles.kernel_methods,'Value');
-if get(handles.pop_reg,'Value')==1 %for classification
-    if handles.use_kernel
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
-        if handles.multimod || handles.multiroi || length(handles.fs)>1
-%             list = [list,{'L1- Multi-Kernel Learning'}];
-            %list = [list,{'L1- Multi-Kernel Learning'},{'wip'}];
-            list = [list,{'L1- Multi-Kernel Learning','wip','G- Multi-Kernel Learning'}];
-        end
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_svm_bin';
-        handles.machine.args=handles.def.svmargs;
-    end
-end
-% Update handles structure
-guidata(hObject, handles);
-
-% --- Executes during object creation, after setting all properties.
-function fs_uns_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fs_uns (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in fs_sel.
-function fs_sel_Callback(hObject, eventdata, handles)
-% hObject    handle to fs_sel (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns fs_sel contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from fs_sel
-list = get(handles.fs_sel,'String');
-val = get(handles.fs_sel,'Value');
-fsname = list{val};
-fsidx = find(strcmpi(fsname,handles.fslist));
-if ~isfield(handles,'fs') || ~isfield(handles.fs,'fs_name')
-    return
-else
-    for i = 1:length(handles.fs)
-        if strcmpi(fsname,handles.fs(i).fs_name)
-            id = i;
-        end
-    end
-end
-idtc = setdiff([1:length(handles.fs)],id);
-if isempty(idtc)
-    handles.fs = [];
-else
-    handles.fs = handles.fs(idtc);
-end
-% Update lists
-sdu = setdiff(handles.fsidx{2},fsidx);
-handles.fsidx{2} = sdu;
-if isempty(sdu)
-    set(handles.fs_sel,'String',{});
-else
-    set(handles.fs_sel,'String',handles.fslist(sdu));
-end
-set(handles.fs_sel,'Value',1);
-idu = [handles.fsidx{1},fsidx];
-handles.fsidx{1} = idu;
-set(handles.fs_uns,'String',handles.fslist(idu));
-set(handles.fs_uns,'Value',length(idu));
-% Update CV and machine options
-list=get(handles.pop_cv,'String');
-if ~isempty(handles.fs)
-    fsidx = handles.fs(1).indfs;
-    if length(handles.dat.fs(fsidx).modality)>1 %LOO Run if not in list
-        if ~any(strcmpi(list,'Leave One Run/Session Out'))
-            list=[list;{'Leave One Run/Session Out'}];
-            set(handles.pop_cv,'String',list)
-            set(handles.pop_cv,'Value',length(list))
-            handles.cv.type = 'loro';
-            handles.multimod = 1;
-        end
-    else                                    %delete LOO Run if not available for the selected feature set
-        if any(strcmpi(list,'Leave One Run/Session Out'))
-            idlist = find(strcmpi(list,'Leave One Run/Session Out'));
-            tidl = 1:length(list);
-            idtk = setdiff(tidl,idlist);
-            set(handles.pop_cv,'String',list(idtk))
-            set(handles.pop_cv,'Value',1)
-            handles.cv.type = 'custom';
-            handles.multimod = 0;
-        end
-    end
-    % Add multi-kernel learning if flag to 1
-    if isfield(handles.dat.fs(fsidx),'multkernel')&& handles.dat.fs(fsidx).multkernel %allowing for multi-kernel learning
-        handles.multimod = 1;
-    else
-        handles.multimod = 0;
-    end
-    if isfield(handles.dat.fs(fsidx),'multkernelROI')&& handles.dat.fs(fsidx).multkernelROI %allowing for multi-kernel learning
-        handles.multiroi = 1;
-    else
-        handles.multiroi = 0;
-    end
-    handles.use_kernel=get(handles.kernel_methods,'Value');
-    if get(handles.pop_reg,'Value')==1 %for classification
-        if handles.use_kernel
-            list = {'Binary support vector machine',...
-                'Binary Gaussian Process Classification',...
-                'Multiclass GPC'};
-            if handles.multimod || handles.multiroi || length(handles.fs)>1
-                %list = [list,{'L1- Multi-Kernel Learning',...
-                    %'wip'}];
-                list = [list,{'L1- Multi-Kernel Learning','wip',...
-                    'G- Multi-Kernel Learning'}];
-            end
-            set(handles.pop_machine,'String',list)
-            set(handles.pop_machine,'Value',1)
-            handles.machine.function='prt_machine_svm_bin';
-            handles.machine.args=handles.def.svmargs;
-        end
-    end
-else
-    if get(handles.pop_reg,'Value')==1 %for classification
-        if handles.use_kernel
-            list = {'Binary support vector machine',...
-                'Binary Gaussian Process Classification',...
-                'Multiclass GPC'};
-            set(handles.pop_machine,'String',list)
-            set(handles.pop_machine,'Value',1)
-            handles.machine.function='prt_machine_svm_bin';
-            handles.machine.args=handles.def.svmargs;
-        end
-    end
-    if any(strcmpi(list,'Leave One Run/Session Out'))
-        idlist = find(strcmpi(list,'Leave One Run/Session Out'));
-        tidl = 1:length(list);
-        idtk = setdiff(tidl,idlist);
-        set(handles.pop_cv,'String',list(idtk))
-        set(handles.pop_cv,'Value',1)
-        handles.cv.type = 'custom';
-        handles.multimod = 0;
-    end
-end
-    
-
-% Update handles structure
-guidata(hObject, handles);
-
-% --- Executes during object creation, after setting all properties.
-function fs_sel_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to fs_sel (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 % --- Executes during object creation, after setting all properties.
 function pop_featset_CreateFcn(hObject, eventdata, handles)
@@ -707,10 +530,7 @@ if get(handles.pop_reg,'Value')==1 %for classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
-           % list = [list,{'L1- Multi-Kernel Learning',...
-           %         'wip'}];
-           list = [list,{'L1- Multi-Kernel Learning','wip',...
-               'G- Multi-Kernel Learning'}];
+            list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -745,10 +565,7 @@ if val==1 %Classification
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
-            %list = [list,{'L1- Multi-Kernel Learning',...
-             %       'wip'}];
-             list = [list,{'L1- Multi-Kernel Learning','wip',...
-                 'G- Multi-Kernel Learning'}];
+            list = [list,{'L1- Multi-Kernel Learning'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -797,16 +614,15 @@ function butt_defclass_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 if strcmpi(handles.type,'classification')
     speccl=prt_ui_select_class('UserData',{handles.dat,handles.fs(1).indfs});
+    handles.design=speccl.design;
+%     handles.listnames=speccl.condm;
+    handles.legs=speccl.legends;
     if isempty(speccl)
         beep
         disp('No class specified')
         return
-    end        
-    handles.design=speccl.design;
-%     handles.listnames=speccl.condm;
-    handles.legs=speccl.legends;
+    end
     handles.class=speccl.class;
-    handles.subsample = speccl.subsample;
     ns=zeros(length(speccl.class),1);
     ng1=1;
     ng2=1;
@@ -839,13 +655,6 @@ if strcmpi(handles.type,'classification')
         end
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
-        if ~any(ismember(list, 'Leave One Block per Class Out'))
-            list=[list;{'Leave One Block per Class Out'}];
-        end
-        if ~any(ismember(list, 'k-folds CV on Block per Class'))
-            list=[list;{'k-folds CV on Block per Class'}];
-        end
-        set(handles.pop_cv,'String',list)
         handles.cv.type     = 'lobo';
         handles.cv.type_nested='lobo';
     end
@@ -863,11 +672,11 @@ if strcmpi(handles.type,'classification')
         handles.cv.type_nested='loso';
         if ~ng1 || ~ng2
             list=get(handles.pop_cv,'String');
-            if ~any(ismember(list, 'Leave One Subject per Class Out'))
-                list=[list;{'Leave One Subject per Class Out'}];
+            if ~any(ismember(list, 'Leave One Subject per Group Out'))
+                list=[list;{'Leave One Subject per Group Out'}];
             end
-            if ~any(ismember(list, 'k-folds CV on Subject per Class'))
-                list=[list;{'k-folds CV on Subject per Class'}];
+            if ~any(ismember(list, 'k-folds CV on Subject per Group'))
+                list=[list;{'k-folds CV on Subject per Group'}];
             end
             set(handles.pop_cv,'String',list)
         end
@@ -875,26 +684,28 @@ if strcmpi(handles.type,'classification')
     
     
     % Options for the inner CV
+    % TODO: This should be checked to see if it's correct
+    %       It's practically copy/paste from above (code for the outter CV)
+    %       some special restrictions might be applied for the inner CV
     list = setdiff(list,'Custom'); %No custom for inner CV
     if isempty(list)
         list={''};
     end
     set(handles.pop_cv_nested,'String',list);
     val = get(handles.pop_cv,'Value');
-    set(handles.pop_cv_nested,'Value',max(1,val-1));
+    set(handles.pop_cv_nested,'Value',max(1,val-1)); 
     
-else % Regression
-    d1=prt_ui_select_reg_new('UserData',{handles.dat,handles.fs(1).indfs});
-    try
-        sel=d1.group;
-    catch
+  
+else %Regression
+    d1=prt_ui_select_reg('UserData',{handles.dat,handles.fs(1).indfs});
+    sel=d1.group;
+    handles.legs=d1.legends;
+    if isempty(sel)
         beep
-        disp('No subjects selected for regression')
+        disp('No subject selected for regression')
         return
     end
-    handles.legs=d1.legends;
-    handles.group=d1.group;
-    handles.design = d1.design;
+    handles.group=sel;
     n=0;
     for i=1:length(sel)
         n=n+length(sel(i).subj);
@@ -910,25 +721,15 @@ else % Regression
         set(handles.pop_cv,'String',list)
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
-    elseif (d1.design) && n==1
-        if ~any(ismember(list, 'Leave One Block Out'))
-            list=[list;{'Leave One Block Out'}];
+        handles.cv.type_nested='loso';
+        list = setdiff(list,'Custom'); %No custom for inner CV
+        if isempty(list)
+            list={''};
         end
-        if ~any(ismember(list, 'k-folds CV on Block'))
-            list=[list;{'k-folds CV on Block'}];
-        end
-        set(handles.pop_cv,'String',list)
-        handles.cv.type     = 'lobo';
-        handles.cv.type_nested='lobo';
-        set(handles.pop_cv,'Value',length(list)-1)
+        set(handles.pop_cv_nested,'String',list);
+        val = get(handles.pop_cv,'Value');
+        set(handles.pop_cv_nested,'Value',max(1,val-1)); 
     end
-    list = setdiff(list,'Custom'); %No custom for inner CV
-    if isempty(list)
-        list={''};
-    end
-    set(handles.pop_cv_nested,'String',list);
-    val = get(handles.pop_cv,'Value');
-    set(handles.pop_cv_nested,'Value',max(1,val-1));
 end
 set(handles.butt_defclass,'ForegroundColor',[0 0 0])
 % Update handles structure
@@ -974,12 +775,6 @@ elseif any(strfind(mach{val},'Random'))
 elseif any(strfind(mach{val},'L1- Multi-Kernel'))
     handles.machine.function='prt_machine_sMKL_cla';
     handles.machine.args=handles.def.l1MKLargs;
-elseif any(strfind(mach{val},'wip'))
-    handles.machine.function='prt_machine_wip_cla';
-    handles.machine.args=handles.def.wipargs;
-elseif any(strfind(mach{val},'G- Multi-Kernel'))
-    handles.machine.function='prt_machine_GMKL_cla';
-    handles.machine.args=handles.def.wipargs;
 elseif any(strfind(mach{val},'Multi-Kernel Regression'))
     handles.machine.function='prt_machine_sMKL_reg';
     handles.machine.args=handles.def.l1MKLargs; %TODO: Check if this is correct
@@ -1010,9 +805,7 @@ function flag_opt_param_Callback(hObject, eventdata, handles)
 v = get(handles.flag_opt_param,'Value');
 if v
     switch handles.machine.function
-        case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
-                'prt_machine_wip_cla','prt_machine_krr',...
-                'prt_machine_sMKL_reg','prt_machine_GMKL_cla'}
+        case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr','prt_machine_sMKL_reg'}
             set(handles.edit_param_range,'Enable','on')
             set(handles.pop_cv_nested,'Enable','on')
             handles.cv.nested = 1;
@@ -1051,15 +844,6 @@ catch
 end
 if isnumeric(p)
     handles.cv.nested_param = p;
-elseif iscell(p)
-    for i=1:length(p)
-        if isnumeric(p{i})
-            handles.cv.nested_param{i} = p{i};
-        else
-           beep
-            disp('Parameter range is not numeric, please enter as min:step:max')
-        end
-    end
 else
     beep
     disp('Parameter range is not numeric, please enter as min:step:max')
@@ -1092,7 +876,6 @@ function pop_cv_Callback(hObject, eventdata, handles)
 val=get(handles.pop_cv,'Value');
 mach=get(handles.pop_cv,'String');
 handles.cv.k=0; %by default, Leave-One-Out options
-handles.flagguicv=0; %by default, not custom CV
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_cv,'Value',1)
@@ -1100,19 +883,14 @@ if val==0
 end
 if any(strfind(mach{val},'Subject Out'))
     handles.cv.type = 'loso';
-elseif any(strfind(mach{val},'Subject per Class')) || ...
-        any(strfind(mach{val},'Subject per Group')) % Backwards compatibility
+elseif any(strfind(mach{val},'Subject per Group'))
     if ~handles.loospg
         beep
         disp('Warning: Subjects are not balanced across classes!')
     end
     handles.cv.type = 'losgo';
 elseif any(strfind(mach{val},'Block'))
-    if any(strfind(mach{val},'Block per Class'))
-        handles.cv.type = 'locbo';
-    else
-        handles.cv.type = 'lobo';
-    end 
+    handles.cv.type = 'lobo';
 elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type = 'loro';
 else
@@ -1131,7 +909,6 @@ else
     in.operations=handles.operations;
     in.fs(1).fs_name=handles.fs(1).fs_name;
     in.cv=handles.cv;
-    in.subsample = handles.subsample;
     %check that classes/subjects/scans were defined
     if strcmpi(in.type,'classification')
         if ~isfield(handles,'class')
@@ -1178,7 +955,6 @@ if any(strfind(mach{val},'k-fold'))
 end
 % Update handles structure
 guidata(hObject, handles);
-
 
 % --- Executes during object creation, after setting all properties.
 function pop_cv_CreateFcn(hObject, eventdata, handles)
@@ -1313,10 +1089,8 @@ in.type=handles.type;
 in.machine=handles.machine;
 in.use_kernel=handles.use_kernel;
 in.operations=handles.operations;
-in.fs=handles.fs;
-in.fs = rmfield(in.fs,'indfs');
+in.fs(1).fs_name=handles.fs(1).fs_name;
 in.cv=handles.cv;
-in.subsample = 0;
 %check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')
     if ~isfield(handles,'class')
@@ -1336,7 +1110,6 @@ if strcmpi(in.type,'classification')
         end
         in.class=handles.class;
     end
-    in.subsample = handles.subsample;
 else
     if ~isfield(handles,'group')
         beep
@@ -1357,12 +1130,12 @@ end
 
 %checks on the CV framework compared to the model entered
 if strcmpi(in.cv.type,'lobo')
-    if isfield(in,'class')
-%         beep
-%         disp('Leave One Block Out cross-validation only allowed for classification')
-%         disp('Please correct')
-%         return
-%     else
+    if ~isfield(in,'class')
+        beep
+        disp('Leave One Block Out cross-validation only allowed for classification')
+        disp('Please correct')
+        return
+    else
         for c=1:length(in.class)
             for i=1:length(in.class(c).group)
                 if length(in.class(c).group(i).subj)>1
@@ -1375,43 +1148,14 @@ if strcmpi(in.cv.type,'lobo')
         end
     end
 end
-
-% if ~isfield(in,'class')
-%     if ~strcmpi(in.cv.type,'loso')
-%         beep
-%         disp('Regression only allows a Leave (One) Subject Out cross-validation')
-%         disp('Please correct')
-%     end
-% end
-
-% Subsampled the trials and built a custom CV, so the model has already
-% been specified but needs to be amended with the latest options
-if handles.subsample && handles.flagguicv
-    [mid] = prt_init_model(PRT,in);
-    % Should only be missing operations and details on the machine
-    % Deal with nested CV parameters
-    if isfield(in.cv,'type_nested') && ~isempty(in.cv.type_nested)
-        PRT.model(mid).input.cv_type_nested = in.cv.type_nested;
+if ~isfield(in,'class')
+    if ~strcmpi(in.cv.type,'loso')
+        beep
+        disp('Regression only allows a Leave (One) Subject Out cross-validation')
+        disp('Please correct')
     end
-    if isfield(in.cv,'k_nested') && ~isempty(in.cv.k_nested)
-        PRT.model(mid).input.cv_k_nested = in.cv.k_nested;
-    end
-    if isfield(in.cv,'nested_param') && ~isempty(in.cv.nested_param)
-        PRT.model(mid).input.nested_param = in.cv.nested_param;
-    end
-    PRT.model(mid).input.operations = in.operations;
-    if ~isfield(in,'savePRT') || in.savePRT
-        disp('Updating PRT.mat.......>>')
-        if spm_check_version('MATLAB','7') >= 0
-            save(in.fname,'-V7','PRT');
-        else
-            save(in.fname,'-V6','PRT');
-        end
-    end
-else
-    PRT=prt_model(handles.dat,in);
 end
-
+PRT = prt_model(handles.dat,in);
 clear in
 in.fname      = get(handles.edit_prt,'String');
 in.model_name = handles.model_name;
@@ -1454,10 +1198,8 @@ in.type=handles.type;
 in.machine=handles.machine;
 in.use_kernel=handles.use_kernel;
 in.operations=handles.operations;
-in.fs=handles.fs;
-in.fs = rmfield(in.fs,'indfs');
+in.fs(1).fs_name=handles.fs(1).fs_name;
 in.cv=handles.cv;
-in.subsample = 0;
 %check that classes/subjects/scans were defined
 if strcmpi(in.type,'classification')
     if ~isfield(handles,'class')
@@ -1477,7 +1219,6 @@ if strcmpi(in.type,'classification')
         end
         in.class=handles.class;
     end
-    in.subsample = handles.subsample;
 else
     if ~isfield(handles,'group')
         beep
@@ -1498,12 +1239,12 @@ end
 
 %checks on the CV framework compared to the model entered
 if strcmpi(in.cv.type,'lobo')
-    if isfield(in,'class')
-%         beep
-%         disp('Leave One Block Out cross-validation only allowed for classification')
-%         disp('Please correct')
-%         return
-%     else
+    if ~isfield(in,'class')
+        beep
+        disp('Leave One Block Out cross-validation only allowed for classification')
+        disp('Please correct')
+        return
+    else
         for c=1:length(in.class)
             for i=1:length(in.class(c).group)
                 if length(in.class(c).group(i).subj)>1
@@ -1516,13 +1257,13 @@ if strcmpi(in.cv.type,'lobo')
         end
     end
 end
-% if ~isfield(in,'class')
-%     if ~strcmpi(in.cv.type,'loso')
-%         beep
-%         disp('Regression only allows a Leave One Subject Out cross-validation')
-%         disp('Please correct')
-%     end
-% end
+if ~isfield(in,'class')
+    if ~strcmpi(in.cv.type,'loso')
+        beep
+        disp('Regression only allows a Leave One Subject Out cross-validation')
+        disp('Please correct')
+    end
+end
 
 prt_model(handles.dat,in);
 
@@ -1549,18 +1290,14 @@ if val==0
 end
 if any(strfind(mach{val},'Subject Out'))
     handles.cv.type_nested = 'loso';
-elseif any(strfind(mach{val},'Subject per Class'))
+elseif any(strfind(mach{val},'Subject per Group'))
     if ~handles.loospg
         beep
         disp('Warning: Subjects are not balanced across classes!')
     end
     handles.cv.type_nested = 'losgo';
 elseif any(strfind(mach{val},'Block'))
-    if any(strfind(mach{val},'Block per Class'))
-        handles.cv.type_nested = 'locbo';
-    else
-        handles.cv.type_nested = 'lobo';
-    end   
+    handles.cv.type_nested = 'lobo';
 elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
     handles.cv.type_nested = 'loro';
 else
