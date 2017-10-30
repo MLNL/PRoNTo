@@ -9,7 +9,6 @@ function [model, targets] = prt_cv_fold(PRT, in)
 % in.CV:         Cross-validation matrix (current fold only)
 % in.Phi_all:    Cell array of data matri(ces) (training and test)
 % in.t           prediction targets
-% in.cov         covariates 
 %
 % Outputs:
 % --------
@@ -70,6 +69,7 @@ end
 for o = 1:length(ops)    
     cvdata = prt_apply_operation(PRT, cvdata, ops(o));
 end
+
 
 % train the prediction model
 try

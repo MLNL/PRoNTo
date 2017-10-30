@@ -33,11 +33,9 @@ train_entries = find(in.CV == 1);
 in.ID      = in.ID(train_entries, :);
 in.t       = in.t(train_entries);
 in.fs      = PRT.fs;
-%%% Get covariates
 if isfield(in, 'cov')
     in.cov     = in.cov(train_entries,:);
 end
-%%%
 if isfield(PRT.model(in.mid).input,'cv_type_nested')
     in.cv.type = PRT.model(in.mid).input.cv_type_nested;
     in.cv.k = PRT.model(in.mid).input.cv_k_nested;
@@ -50,6 +48,12 @@ for i=1:length(in.Phi_all)
     in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
 end
 
+if ~isfield(in,'opt_Rep')
+    opt_Rep = 0;
+else
+    opt_Rep = in.opt_Rep;
+end
+
 % Set range of the hyper parameters
 switch PRT.model(in.mid).input.machine.function
     case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr', 'prt_machine_sMKL_reg'}
@@ -59,7 +63,7 @@ switch PRT.model(in.mid).input.machine.function
             d1 = -2 : 3;
             par = 10 .^(d1);
         end
-    case 'prt_machine_wip'
+    case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
         if ~isempty(PRT.model(in.mid).input.nested_param)
             % Get parameter ranges from PRT
             c = PRT.model(in.mid).input.nested_param{1};
@@ -82,7 +86,7 @@ end
 
 out.param = par;
 stats_vec = zeros(1, size(par, 2));
-
+cosang = zeros(1,size(par, 2));
 % generate new CV matrix
 in.CV = prt_compute_cv_mat(PRT, in, in.mid, use_nested_cv);
 
@@ -98,7 +102,7 @@ for i = 1:size(par, 2)
             PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'regression';
             
-        case 'prt_machine_wip'
+        case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
             PRT.model(in.mid).input.machine.args = par(:,i)';
             m.type = 'classifier';
             
@@ -135,6 +139,9 @@ for i = 1:size(par, 2)
         f_stats(f).targets     = targets.test;
         f_stats(f).predictions = model.predictions(:);
         f_stats(f).stats       = stats;
+        if isfield(model,'beta') && ~isempty(model.beta)
+            f_stats(f).beta = model.beta;
+        end
         
         
     end
@@ -142,14 +149,19 @@ for i = 1:size(par, 2)
     % Model level statistics (across folds)
     ttt           = vertcat(f_stats(:).targets);
     m.predictions = vertcat(f_stats(:).predictions);
-    stats         = prt_stats(m, ttt(:), in.nc);
+    tstats         = prt_stats(m, ttt(:), in.nc);
     
+    % Reproducibility of the weights if MKL
+    if isfield(f_stats,'beta') && opt_Rep
+%         cosang(i) = compute_reproducibility_ER(f_stats);
+        cosang(i) = compute_reproducibility_betas(f_stats);
+    end
     
     switch PRT.model(in.mid).input.type
         case 'classification'
-            stats_vec(i) = stats.b_acc;
+            stats_vec(i) = tstats.b_acc;
         case 'regression'
-            stats_vec(i) = stats.mse;
+            stats_vec(i) = tstats.nmse;
         otherwise
             error('Type of model not recognised');
     end
@@ -159,27 +171,57 @@ end
 
 % For now, only parameter optimisation. Add flag for feature selection
 % Get optimal parameter
-if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_wip')
+
+
+if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_wip_cla') || ...
+        strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_GMKL_cla')
     
     % Reshape the stats vector into a matrix
     stats_mat = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';
     
-    % Find max
-    opt_stats_ind = get_opt_stats_ind(stats_mat, 2, true);
+    cos_mat = reshape(cosang, length(unique(par(2,:))), length(unique(par(1,:))))';
+    if opt_Rep && isfield(f_stats,'beta')        
+        w1=1;
+        w2=1;
+    else
+        w1=1;
+        w2=0;
+    end
+    
+    switch PRT.model(in.mid).input.type
+        case 'classification'
+            % Find max
+            st = (stats_mat*w1 + cos_mat*w2) / (w1+w2);
+            opt_stats_ind = get_opt_stats_ind(st, 2, true);
+        case 'regression'
+            % Find min
+            st = (stats_mat*w1 + (1-cos_mat)*w2) / (w1+w2);
+            opt_stats_ind = get_opt_stats_ind(st, 2, false);
+    end
     c_max = c(opt_stats_ind(1));
     mu_max = mu(opt_stats_ind(2));
     
     out.opt_param = [c_max, mu_max];
     out.vary_param = stats_mat;
-    
+    out.vary_cos = cos_mat;
     
 else
     
+    if opt_Rep && isfield(f_stats,'beta')
+        w1=0;
+        w2=1;
+    else
+        w1=1;
+        w2=0;
+    end
+    
     switch PRT.model(in.mid).input.type
         case 'classification'
-            opt_stats_ind = get_opt_stats_ind(stats_vec, 1, true);
+            st = (stats_vec*w1 + cosang*w2) / (w1+w2);
+            opt_stats_ind = get_opt_stats_ind(st, 1, true);
         case 'regression'
-            opt_stats_ind = get_opt_stats_ind(stats_vec, 1, false);
+            st = (stats_vec*w1 + (1-cosang)*w2) / (w1+w2);
+            opt_stats_ind = get_opt_stats_ind(st, 1, false);
         otherwise
             error('Type of model not recognised');
     end
@@ -188,7 +230,7 @@ else
     
     out.opt_param = par_opt;
     out.vary_param = stats_vec;
-    
+    out.vary_cos = cosang;
 end
 
 end
@@ -210,7 +252,34 @@ switch n_par
         end
         
         ind = find(stats == opt_stats);
-        opt_stats_ind = round(median(ind));
+        if length(ind)>1
+            try % if user has the image processing toolbox
+                accmap = zeros(size(stats));
+                accmap(ind) = 1;
+                [L,nconn] = bwlabel(accmap);
+                stats = regionprops(L,{'centroid','area'});
+                maxar = stats(1).Area;
+                if nconn>1
+                    for i = 2:nconn
+                        if stats(i).Area>maxar
+                            maxar = stats(i).Area;
+                            indmax = i;
+                        end
+                    end
+                else
+                    indmax = 1;
+                end
+                opt_stats_ind = floor(stats(indmax).Centroid(1));
+            catch
+                iopt = floor(median(1:length(ind)));
+                opt_stats_ind = ind(iopt);
+            end
+        else % if only one maximum, report it
+            opt_stats_ind = ind;
+        end
+        
+%         opt_stats_ind = ind(1);
+%         opt_stats_ind = round(median(ind));
         
     case 2
         if classification
@@ -220,13 +289,115 @@ switch n_par
         end
         
         [ind_c, ind_mu] = find(stats==opt_stats);
+        indopt = find(stats==opt_stats);
         
-        opt_stats_ind(1) = round(median(ind_c));
-        opt_stats_ind(2) = round(median(ind_mu));
+        if length(indopt)>1
+            try % if user has the image processing toolbox
+                accmap = zeros(size(stats));
+                accmap(indopt) = 1;
+                [L,nconn] = bwlabel(accmap);
+                stats = regionprops(L,{'centroid','area'});
+                maxar = stats(1).Area;
+                indmax = 1;
+                for i = 2:nconn
+                    if stats(i).Area>maxar
+                        maxar = stats(i).Area;
+                        indmax = i;
+                    end
+                end
+                opt_stats_ind(1) = floor(stats(indmax).Centroid(2));
+                opt_stats_ind(2) = floor(stats(indmax).Centroid(1));
+            catch
+                iopt = floor(median(1:length(indopt)));
+                opt_stats_ind(1) = ind_c(iopt);
+                opt_stats_ind(2) = ind_mu(iopt);
+            end
+        else % if only one maximum, report it
+            opt_stats_ind(1) = ind_c;
+            opt_stats_ind(2) = ind_mu;
+        end
+        
+        
+%         opt_stats_ind(1) = ind_c(1); %smallest value
+%         opt_stats_ind(2) = ind_mu(1);
+        
+%         opt_stats_ind(1) = round(median(ind_c));
+%         opt_stats_ind(2) = round(median(ind_mu));
         
     otherwise
         error('The number of parameters to optimise must be <=2')
 end
 
+
+end
+
+function [cosang] = compute_reproducibility_ER(betas)
+% Compute 'reproducibility' value from MKL beta weights
+
+
+% Compute Expected Ranking for model
+erwn=zeros(numel(betas(1).beta),length(betas));
+for fold = 1:length(betas)
+    w_all =[betas(fold).beta]'*100;
+    %take 0 columns out of the computation
+    mw = min(w_all);
+    mxw = max(w_all);
+    id0 = find(mw==mxw);
+    id0 = id0(mw(id0)==0);
+    id = 1:size(w_all,2);
+    idtr = setdiff(id,id0);
+    if isempty(idtr)   % if a modality has always 0 weights
+        erwn=NaN*ones(length(w_all),1);
+    else
+        w_all = w_all(:,idtr);
+        %deal with NaNs
+        [d1,d2]=sort(w_all,1,'ascend');
+        isn=find(isnan(w_all(:,1)));
+        d3=size(d1,1)-length(isn)+1:size(d1,1);
+        d4=1:size(d1,1)-length(isn);
+        ihn=[d2(d3,:);d2(d4,:)];
+        [d1,dwn]=sort(ihn);
+        dwn(isn)=0;
+        isnu=find((w_all(:,1)==0));
+        dwn(isnu)=0;
+        erwn(:,fold) = dwn;
+%         for i=1:size(w_all,1)
+%             for j=1:size(w_all,1)
+%                 tmp=length(find(dwn(i,1:end)==j));
+%                 erwn(i,fold)=erwn(i,fold)+j*tmp;
+%             end
+%         end
+%         erwn(:,fold)=erwn(:,fold)/length(idtr);
+    end   
+end
+
+mer = mean(erwn,2);
+
+cosang =zeros(size(erwn,2),1);
+for i = 1:length(cosang)
+    cosang(i) = (erwn(:,i)'*mer)/ (norm(erwn(:,i)) * norm(mer));
+end
+cosang = mean(cosang);
+
+end
+
+function [cosang] = compute_reproducibility_betas(betas)
+% Compute 'reproducibility' value from MKL beta weights
+
+
+% Extract beta values for each fold
+erwn=zeros(numel(betas(1).beta),length(betas));
+for fold = 1:length(betas)
+    erwn(:,fold) =[betas(fold).beta]';
+end
+
+mer = mean(erwn,2);
+
+%Compute reproducibility for model
+cosang =zeros(size(erwn,2),1);
+for i = 1:length(cosang)
+    cosang(i) = (erwn(:,i)'*mer)/ (norm(erwn(:,i)) * norm(mer));
+end
+cosang = mean(cosang);
 
 end
