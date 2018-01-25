@@ -274,9 +274,14 @@ for p=0:maxp
                 cvdata.train      = {d.datamat};
                 cvdata.tr_id      = ID(train_idx,:);
                 %%%
-%                 cvdata.tr_cov    = PRT.model(model_idx).input.covar(indm); %confirm that indm is the training index. Yes.
+%                 cvdata.tr_cov    = PRT.model(model_idx).input.covar(train_idx); %confirm that indm is the training index. No.
                 %%%% Pass all covariates (all columns)
-                cvdata.tr_cov    = PRT.model(model_idx).input.covar(indm,:);
+                if ~isfield(PRT.model(model_idx).input,'covar') || ...
+                        isempty(PRT.model(model_idx).input.covar)
+                    cvdata.tr_cov = [];
+                else
+                    cvdata.tr_cov = PRT.model(model_idx).input.covar(train_idx,:);
+                end
                 %%%%
                 % cvdata.te_cov    = PRT.model(model_idx).input.covar(); missing test index
                 %%% Pass the convariates 
