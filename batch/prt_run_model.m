@@ -208,19 +208,19 @@ if isfield(job.model_type,'classification')
         model.machine.function = nam;
         if isfield(job.model_type.classification.machine_cl.custom_machine, 'machine_opt')
             if job.model_type.classification.machine_cl.custom_machine.machine_opt
-                PRT.model(mid).input.use_nested_cv = 1;
-                PRT.model(mid).input.nested_param = eval(job.model_type.classification.machine_cl.custom_machine.machine_args);
+                model.cv.nested = 1;
+                model.cv.nested_param = eval(job.model_type.classification.machine_cl.custom_machine.machine_args);
             else
-                PRT.model(mid).input.use_nested_cv = 0;
-                PRT.model(mid).input.nested_param = [];
+                model.cv.nested = 0;
+                model.cv.nested_param = [];
             end
         else
-            PRT.model(mid).input.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
+            model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
         end
         if isfield(job.model_type.classification.machine_cl.custom_machine, 'machine_cv_type_nested')
             [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.custom_machine.machine_cv_type_nested);
-            PRT.model(mid).input.cv_type_nested = cv_tmp.type;
-            PRT.model(mid).input.cv_k_nested = cv_tmp.k;
+            model.cv.type_nested = cv_tmp.type;
+            model.cv.k_nested = cv_tmp.k;
         end
     end
     
