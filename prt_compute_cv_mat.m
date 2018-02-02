@@ -191,10 +191,14 @@ switch in.cv.type
                     error('prt_model:losgoSelectedWithTooLargeK2',...
                         ['Leaving more than 50%% of subjects in group ',num2str(g),' out']);
                 end
-                mns=mod(ns(g),nsfg);
-                dk=nsfg*ones(1,floor(length(unique(vcl(is,2)))/nsfg));
+                mns=mod(ns(g),size(CV,2));
+                dk=nsfg*ones(1,size(CV,2));
                 if mns>0
-                    dk(end)=dk(end)+mns;
+                    ib = 1;
+                    while sum(dk)<length(unique(vcl(is,2)))
+                        dk(ib)=dk(ib)+1;
+                        ib=ib+1;
+                    end
                 end
                 inds=1;
                 sk=[];
@@ -225,7 +229,7 @@ switch in.cv.type
     case 'lobo'
         % leave-one-block-out - limited to one single subject for the
         % moment
-        cids = unique(ID(:,4));
+        cids = unique(ID(ID(:,4)>0,4));
         gc = 0;
         nb=zeros(length(cids),1);
         dID = ID;
@@ -418,14 +422,18 @@ switch in.cv.type
                     error('prt_model:losgoSelectedWithTooLargeK2',...
                         ['Leaving more than 50%% of blocks in class ',num2str(g),' out']);
                 end
-                mns=mod(ns(g),nsf);
-                dk=nsf*ones(1,floor(length(unique(vcl(is,2)))/nsf));
+                mns=mod(ns(g),size(CV,2));
+                dk=nsf*ones(1,size(CV,2));
             else %Leave-One-Block per Class-Out
                 mns = ns(g)-k;
                 dk=nsf*ones(1,k);
             end
-            if mns>0 %Last fold comprises left overs from floor
-                dk(end)=dk(end)+length(unique(vcl(is,2)))-sum(dk);
+            if mns>0 %Last fold comprises left overs from floor - redistribute
+                ib = 1;
+                while sum(dk)<length(unique(vcl(is,2)))
+                    dk(ib)=dk(ib)+1;
+                    ib=ib+1;
+                end
             end
             inds=1;
             sk=[];
