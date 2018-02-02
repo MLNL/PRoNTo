@@ -289,6 +289,17 @@ else
     disp('GP not compiled: routines will work but be slower')
 end
 
+% GMKL solver CVX
+solv = which('cvx_setup');
+if ~isempty(solv)
+    [pathsolv,solvname] = fileparts(solv);
+    cd(pathsolv)
+    cvx_setup
+else
+    disp('GMKL solver not found')
+    disp('Check CVX distribution and installation')
+end
+
 % NOTE:
 % Tree-based methods not available in this version. 
 % So no need to check for it!
