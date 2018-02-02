@@ -108,6 +108,7 @@ else
             total_greater_mse = 0;
             total_greater_nmse = 0;
             total_greater_r2 = 0;
+            n_class = [];
     end
     
     % Run model with permuted labels
@@ -346,17 +347,39 @@ else
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).pred=temp_model.predictions;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).func_val=temp_model.func_val;
                 end
-                
+                stats = prt_stats(temp_model, targets.test, n_class);
                 model.output.fold(f).predictions = temp_model.predictions;
                 model.output.fold(f).targets     = targets.test;
+                model.output.fold(f).stats       = stats;
                 
             end
             
             % Model level statistics (across folds)
-            tp             = vertcat(model.output.fold(:).targets);
+%             tp             = vertcat(model.output.fold(:).targets);
+%             m.type        = PRT.model(modelid(1)).output(k).fold(1).type;
+%             m.predictions = vertcat(model.output.fold(:).predictions);
+%             perm_stats         = prt_stats(m,tp,tp);
+            % Model level statistics (across folds) - Average
+            fnamestats = fieldnames(stats);
+            perm_stats = struct;
+            for i=1:length(fnamestats)
+                size_stats = size(model.output.fold(1).stats.(fnamestats{i}));
+                val = zeros(prod(size_stats),n_folds);
+                for j = 1:n_folds
+                    val(:,j) = model.output.fold(j).stats.(fnamestats{i})(:);
+                end
+                av_stats = reshape(nanmean(val,2),size_stats);
+                perm_stats = setfield(perm_stats,fnamestats{i},av_stats);
+            end
+            % If classifier, get confusion matrix globally
             m.type        = PRT.model(modelid(1)).output(k).fold(1).type;
-            m.predictions = vertcat(model.output.fold(:).predictions);
-            perm_stats         = prt_stats(m,tp,tp);
+            if strcmpi(m.type,'classifier')
+                tp             = vertcat(model.output.fold(:).targets);
+                m.predictions  = vertcat(model.output.fold(:).predictions);
+                %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
+                t_stats     = prt_stats(m,tp,n_class);
+                perm_stats.con_mat = t_stats.con_mat;
+            end
             
             
             switch PRT.model(modelid(1)).output(k).fold(1).type
@@ -364,7 +387,7 @@ else
                 case 'classifier'
                     
                     permutation.b_acc(p)=perm_stats.b_acc;
-                    n_class = length(PRT.model(modelid(1)).output(k).fold(1).stats.c_acc);
+%                     n_class = length(PRT.model(modelid(1)).output(k).fold(1).stats.c_acc);
                     
                     if (perm_stats.b_acc >= PRT.model(modelid(1)).output(k).stats.b_acc)
                         total_greater_b_acc=total_greater_b_acc+1;

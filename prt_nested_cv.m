@@ -135,6 +135,7 @@ for i = 1:size(par, 2)
         end
         
         % Compute stats
+        model.type = m.type;
         stats = prt_stats(model, targets.test, in.nc);
         f_stats(f).targets     = targets.test;
         f_stats(f).predictions = model.predictions(:);
@@ -147,9 +148,29 @@ for i = 1:size(par, 2)
     end
     
     % Model level statistics (across folds)
-    ttt           = vertcat(f_stats(:).targets);
-    m.predictions = vertcat(f_stats(:).predictions);
-    tstats         = prt_stats(m, ttt(:), in.nc);
+%     ttt           = vertcat(f_stats(:).targets);
+%     m.predictions = vertcat(f_stats(:).predictions);
+%     tstats         = prt_stats(m, ttt(:), in.nc);
+    % Model statistics, averaged across folds
+    fnamestats = fieldnames(stats);
+    tstats = struct;
+    for s=1:length(fnamestats)
+        size_stats = size(stats.(fnamestats{s}));
+        val = zeros(prod(size_stats),size(in.CV, 2));
+        for j = 1:size(in.CV, 2)
+            val(:,j) = f_stats(j).stats.(fnamestats{s})(:);
+        end
+        av_stats = reshape(nanmean(val,2),size_stats);
+        tstats = setfield(tstats,fnamestats{s},av_stats);
+    end
+    % If classifier, get confusion matrix globally
+     if strcmpi(m.type,'classifier')
+         ttt             = vertcat(f_stats(:).targets);
+         m.predictions   = vertcat(f_stats(:).predictions);
+         %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
+         temp_stats         = prt_stats(m,ttt(:),in.nc);
+         tstats.con_mat = temp_stats.con_mat;
+     end
     
     % Reproducibility of the weights if MKL
     if isfield(f_stats,'beta') && opt_Rep
