@@ -242,17 +242,15 @@ for c = 1:nc
                                 idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
                                 cov_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial(idb);
                             end
+                            samp_all(idx) = 1;
                         else
                             continue
                             %                             error('prt_model:groupNotFoundInPRT',...
                             %                                 ['Condition ',cond_name,' not found in PRT.mat']);
                         end
-                        
-                        
+ 
                     end
                     
-                    s_idx_mod = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
-                    samp_all(s_idx_mod) = 1;
                     
                 elseif isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
                     conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
@@ -275,9 +273,8 @@ for c = 1:nc
                             idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
                             cov_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial(idb);
                         end
+                        samp_all(idx) = 1;
                     end
-                    s_idx_mod = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
-                    samp_all(s_idx_mod) = 1;
                     
                 else
                     blocks=0;
