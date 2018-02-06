@@ -88,7 +88,14 @@ switch in.cv.type
             end
             mns=mod(gc,k);
             dk=nsf*ones(1,k);
-            dk(end)=dk(end)+mns;
+            if mns>0
+                ib = 1;
+                while sum(dk)<gc
+                    dk(ib)=dk(ib)+1;
+                    ib=ib+1;
+                end
+            end
+%             dk(end)=dk(end)+mns;
             inds=1;
             sk=[];
             for ii=1:length(dk)
@@ -250,7 +257,14 @@ switch in.cv.type
             end
             mns=mod(gc,k);
             dk=nsb*ones(1,k);
-            dk(end)=dk(end)+mns;
+            if mns>0
+                ib = 1;
+                while sum(dk)<gc
+                    dk(ib)=dk(ib)+1;
+                    ib=ib+1;
+                end
+            end
+%             dk(end)=dk(end)+mns;
             inds=1;
             sk=[];
             for ii=1:length(dk)
