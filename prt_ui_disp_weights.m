@@ -585,8 +585,8 @@ xax = BB(1,1):abs(vx(1)):BB(2,1);
 yax = BB(1,2):abs(vx(2)):BB(2,2);
 zax = BB(1,3):abs(vx(3)):BB(2,3);
 
-%h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08]);
-h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08],handles.weightspanel); %to change when spm_orthviews will be
+h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08]);
+%h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08],handles.weightspanel); %to change when spm_orthviews will be
 % updated, Matlab 2014b issue
 handles.wimgh = h;
 spm_orthviews('AddContext', h);
@@ -595,9 +595,10 @@ if ~isempty(xyz_above)
     spm_orthviews('AddBlobs', h, XYZ, Z, M);
     %cmap = get(gcf,'Colormap');
    % if size(cmap,1)~=128
-    spm_figure('Colormap','jet');
+   %    spm_figure('Colormap','gray-jet');
    % end
     spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
+    spm_figure('Colormap','gray-jet');
     % spm_orthviews('Zoom',(xfov*abs(vx(1))))
     spm_orthviews('Redraw');
 end
