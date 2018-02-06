@@ -87,7 +87,14 @@ switch in.cv.type
             end
             mns=mod(gc,k);
             dk=nsf*ones(1,k);
-            dk(end)=dk(end)+mns;
+            if mns>0
+                ib = 1;
+                while sum(dk)<gc
+                    dk(ib)=dk(ib)+1;
+                    ib=ib+1;
+                end
+            end
+%             dk(end)=dk(end)+mns;
             inds=1;
             sk=[];
             for ii=1:length(dk)
@@ -189,10 +196,14 @@ switch in.cv.type
                     error('prt_model:losgoSelectedWithTooLargeK2',...
                         ['Leaving more than 50%% of subjects in group ',num2str(g),' out']);
                 end
-                mns=mod(ns(g),nsfg);
-                dk=nsfg*ones(1,floor(length(unique(vcl(is,2)))/nsfg));
+                mns=mod(ns(g),size(CV,2));
+                dk=nsfg*ones(1,size(CV,2));
                 if mns>0
-                    dk(end)=dk(end)+mns;
+                    ib = 1;
+                    while sum(dk)<length(unique(vcl(is,2)))
+                        dk(ib)=dk(ib)+1;
+                        ib=ib+1;
+                    end
                 end
                 inds=1;
                 sk=[];
@@ -247,7 +258,14 @@ switch in.cv.type
             end
             mns=mod(gc,k);
             dk=nsb*ones(1,k);
-            dk(end)=dk(end)+mns;
+            if mns>0
+                ib = 1;
+                while sum(dk)<gc
+                    dk(ib)=dk(ib)+1;
+                    ib=ib+1;
+                end
+            end
+%             dk(end)=dk(end)+mns;
             inds=1;
             sk=[];
             for ii=1:length(dk)
@@ -275,8 +293,8 @@ switch in.cv.type
         end
         
     case 'locbo'
-        % leave-one-condition-per-block-out
-        error('leave-one-condition-per-block-out not yet implemented');
+        % leave-one-block-per-class-out
+        error('leave-one-block-per-class-out not yet implemented');
         
     case 'loro'
         % leave-one-run-out
