@@ -228,7 +228,7 @@ for m = 1:n_mods
         ddmask = PRT.masks(mid).fname;
         if strcmp(PRT.masks(mid).type,'nifti')
             try
-                M = nifti(ddmask);
+                M = spm_vol(ddmask);
             catch %#ok<*CTCH>
                 error('prt_fs:CouldNotLoadFile',...
                     'Could not load mask file');
@@ -311,7 +311,7 @@ for m = 1:n_mods
     if strcmp(PRT.masks(mid).type,'nifti')
         % resize the different masks if needed
         if N.dim(3)==1, Npdim = N.dim(1:2); else Npdim = N.dim; end % handling case of 2D images
-        if any(size(M.dat(:,:,:,1)) ~= Npdim)
+        if any(size(N.dim(:,:,:,1)) ~= Npdim)
             warning('prt_fs:maskAndImagesDifferentDim',...
                 'Mask has different dimensions to the image files. Resizing...');
             
