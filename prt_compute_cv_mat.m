@@ -309,7 +309,8 @@ switch in.cv.type
                 ids = in.class(ic).group(1).subj(1).num;
                 gnames = {PRT.group(:).gr_name};
                 [d,ng]=ismember(in.class(ic).group(:).gr_name,gnames);
-                lm = [PRT.fs(fid).modality(:).mod_name];
+%                 lm = [PRT.fs(fid).modality(:).mod_name];
+                lm = {PRT.masks(:).mod_name};
                 [d,nm] = ismember(lmod,lm);
                 nbc = zeros(length(listcond),1);
                 for ig=1:length(ng)
