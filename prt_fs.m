@@ -311,7 +311,8 @@ for m = 1:n_mods
     if strcmp(PRT.masks(mid).type,'nifti')
         % resize the different masks if needed
         if N.dim(3)==1, Npdim = N.dim(1:2); else Npdim = N.dim; end % handling case of 2D images
-        if any(size(N.dim(:,:,:,1)) ~= Npdim)
+        if numel(N.dim)==4, Npdim = N.dim(1:3); else Npdim = N.dim; end % handling case of 4D images
+        if any((M.dim ~= Npdim))
             warning('prt_fs:maskAndImagesDifferentDim',...
                 'Mask has different dimensions to the image files. Resizing...');
             
