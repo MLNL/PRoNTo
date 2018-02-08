@@ -105,7 +105,11 @@ else
             n_vox(m) = numel(idvox);
         end
     end
-    buildkern = 1;
+    if isfield(addin,'buildkern')
+        buildkern = addin.buildkern;
+    else
+        buildkern = 1;
+    end
 end
 %n_vox needs to be the same for different modalities
 if ~(length(unique(n_vox))==1)

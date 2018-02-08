@@ -73,7 +73,7 @@ PRT.fs(fid).multkernelROI = 0; % Multiple kernels with an atlas
 PRT.fs(fid).multkernel = 0;    % Multiple kernels from different modalities
 
 if in.flag_mm   % One kernel per modality so need to treat them independently
-    for i = 1:n_mods  % multiple modalitiestt
+    for i = 1:n_mods  % multiple modalities
         % For each modality, get the corresponding ID mat and sample index
         idtk = PRT.fs(fid).id_mat(:,3) == mids(i);
         nimm = length(unique(PRT.fs(fid).id_mat(:,3) == mids(i)));
