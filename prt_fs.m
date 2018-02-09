@@ -226,7 +226,7 @@ for m = 1:n_mods
     % get mask for the within-brain voxels (from data and design)
     ddmask = PRT.masks(mid).fname;
     try
-        M = nifti(ddmask);
+        M = spm_vol(ddmask);
     catch %#ok<*CTCH>
         error('prt_fs:CouldNotLoadFile',...
             'Could not load mask file');
@@ -277,7 +277,8 @@ for m = 1:n_mods
     
     % resize the different masks if needed
     if N.dim(3)==1, Npdim = N.dim(1:2); else Npdim = N.dim; end % handling case of 2D images
-    if any(size(M.dat(:,:,:,1)) ~= Npdim)
+    if numel(N.dim)==4, Npdim = N.dim(1:3); else Npdim = N.dim; end % handling case of 4D images
+    if any((M.dim ~= Npdim))
         warning('prt_fs:maskAndImagesDifferentDim',...
             'Mask has different dimensions to the image files. Resizing...');
         
