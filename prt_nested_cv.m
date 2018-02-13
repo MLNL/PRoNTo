@@ -45,7 +45,11 @@ else
 end
 
 for i=1:length(in.Phi_all)
-    in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
+    if PRT.model(in.mid).input.use_kernel %Kernel method
+        in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
+    else %Non-kernel
+        in.Phi_all{i} = in.Phi_all{i}(train_entries, :);
+    end
 end
 
 if ~isfield(in,'opt_Rep')
@@ -56,7 +60,7 @@ end
 
 % Set range of the hyper parameters
 switch PRT.model(in.mid).input.machine.function
-    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr', 'prt_machine_sMKL_reg'}
+    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr', 'prt_machine_sMKL_reg','prt_machine_L1svm'}
         if ~isempty(PRT.model(in.mid).input.nested_param)
             par = PRT.model(in.mid).input.nested_param;
         else
@@ -94,7 +98,8 @@ in.CV = prt_compute_cv_mat(PRT, in, in.mid, use_nested_cv);
 for i = 1:size(par, 2)
     
     switch PRT.model(in.mid).input.machine.function
-        case {'prt_machine_svm_bin','prt_machine_sMKL_cla'}
+        case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
+                'prt_machine_L1svm'}
             PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'classifier';
             

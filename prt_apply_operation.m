@@ -189,7 +189,7 @@ for d = 1:length(in.train)
                     for r = 1:size(in.train{d})
                         out.train{d}(r,:) = in.train{d}(r,:) / norm(in.train{d}(r,:));
                     end
-                    out.train{d} = zeros(size(in.test{d}));
+                    out.test{d} = zeros(size(in.test{d}));
                     for r = 1:size(in.test{d})
                         out.test{d}(r,:) = in.test{d}(r,:) / norm(in.test{d}(r,:));
                     end

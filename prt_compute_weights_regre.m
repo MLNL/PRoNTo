@@ -22,7 +22,7 @@ function img_name = prt_compute_weights_regre(PRT,in,model_idx,flag, ibe, flag2)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M.J.Rosa
+% Written by M.J.Rosa and J. Schrouff
 % $Id$
 
 % Find type of data (nifti, MEEG or .mat) from feature set
@@ -45,9 +45,11 @@ if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG')
     if isempty(nfreq); dat_dim(2) = 1; else dat_dim(2) = nfreq; end
     ntp = nsamples(hdr);
     if isempty(ntp); dat_dim(3) = 1; else dat_dim(3) = ntp; end
-    fin_dim(1) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{1});
-    fin_dim(2) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{2});
-    fin_dim(3) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{3});
+    ndim = numel(PRT.fs(fs_idx).modality(mm(1)).dim_m);
+    fin_dim = ones(1,ndim);
+    for idim = 1:ndim
+        fin_dim(idim) = length(PRT.fs(fs_idx).modality(mm(1)).dim_m{idim});
+    end
     flagmeeg = 1;
     idfeat = 1:size(PRT.fas(fas_idx(1)).dat,2);
     appendn = 'tmp';
@@ -308,12 +310,12 @@ for p=0:maxp
                 if isfield(PRT.fs(fs_idx).modality(mm(1)),'aver') && ...
                         any(PRT.fs(fs_idx).modality(mm(1)).aver)
                     tmp = d.datamat';
-                    tmp = reshape(tmp,[fin_dim(1) fin_dim(2) length(train)]);
+                    tmp = reshape(tmp,[fin_dim length(train)]);
                     dimta = find(PRT.fs(fs_idx).modality(mm(1)).aver); %dimensions to average
                     for iav = 1:length(dimta)
                         tmp = mean(tmp, dimta(iav));
                     end
-                    dimav = fin_dim(1:2);
+                    dimav = fin_dim;
                     dimav(find(PRT.fs(fs_idx).modality(mm(1)).aver)) = 1;
                     tmp = reshape(tmp,prod(dimav),length(train));
                     d.datamat = tmp';

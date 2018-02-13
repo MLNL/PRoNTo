@@ -80,7 +80,7 @@ if PRT.model(mid).input.use_kernel
     %load kernels and get the used sample in this model
     [Phi_all,ID] = prt_getKernelModel(PRT,prt_dir,mid,indmodels);
 else
-    [Phi_all,ID] = prt_getFeatureModel(PRT,prt_dir,mid,indmodels);
+    [Phi_all,ID] = prt_getFeatureModel(PRT,mid);
 end
 
 

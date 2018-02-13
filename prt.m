@@ -56,6 +56,7 @@ switch lower(Action)
         end
         
         % check installation of machines and that of SPM8/12
+        warning('OFF')
         ok = check_installation;
         if ~ok
             beep
@@ -290,14 +291,75 @@ else
 end
 
 % GMKL solver CVX
-solv = which('cvx_setup');
-if ~isempty(solv)
-    [pathsolv,solvname] = fileparts(solv);
-    cd(pathsolv)
-    cvx_setup
-else
-    disp('GMKL solver not found')
-    disp('Check CVX distribution and installation')
+% solv = which('cvx_setup');
+% if ~isempty(solv)
+%     [pathsolv,solvname] = fileparts(solv);
+%     cd(pathsolv)
+%     cvx_setup
+% else
+%     disp('GMKL solver not found')
+%     disp('Check CVX distribution and installation')
+% end
+
+% - LIBLINEAR
+dumb = which('train');
+if ~isempty(strfind(dumb,'liblinear'))          % svm found in libsvm folder, OK
+    disp('SVM path: OK')
+    flag=1;
+elseif ~isempty(strfind(dumb,'nnet')) % svm found in the Matlab toolbox
+    flag=0;
+else                                         % svm not found at all, so need to compile
+    flag=2;
+end
+
+% in case PRoNTo was installed with all subfolders under the biostats
+if ~flag
+    pth_machines = fullfile(prt('Dir'),'machines');
+    addpath(pth_machines);
+    % add each machine's sub-directory
+    % and ALL its subdirectories recursively
+    ls_machinedir = list_subdir(pth_machines);
+    for ii=1:numel(ls_machinedir)
+        gpath_ii = genpath(fullfile(pth_machines,ls_machinedir{ii}));
+        gpath_ii = clean_gpath(gpath_ii);
+        addpath(gpath_ii)
+    end
+    dumb = which('train');
+    if isempty(strfind(dumb,'liblinear'))
+        flag=2; %s till not working, need to recompile
+    elseif ~isempty(strfind(dumb,'nnet'))
+        flag = 2;
+        disp('PRoNTo was found under the Neural Net toolbox, please correct path')
+        disp('SVM path: OK')
+    else
+        flag =1;
+    end
+end
+
+if flag ==2 % need to recompile for the OS
+    pth_machines = fullfile(prt('Dir'),'machines');
+    ls_machinedir = list_subdir(pth_machines);
+    for i=1:length(ls_machinedir)
+        if ~isempty(strfind(ls_machinedir{i},'liblinear'))
+            pfn= fullfile(pth_machines,ls_machinedir{i});
+            dirtorem=cd;
+            cd(pfn)
+            cd matlab
+            make;
+            cd(dirtorem)
+        end
+    end
+    dumb = which('train');
+    if isempty(strfind(dumb,'liblinear'))
+        %could not recompile
+        beep
+        warning('PRoNTo:L1-SVMcompilation', ...
+        ['LIBLINEAR path not recognized. Please check that: \n', ...
+        '- PRoNTo''directory was added *without* all subfolders \n',...
+        '- PRoNTo is above the Neural Net Matlab toolbox \n',...
+        'Otherwise, the routines surely need to be re-compiled for your OS \n',...
+        'Please look on the web or ask on the mailing list for assistance'])
+    end
 end
 
 % NOTE:
