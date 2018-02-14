@@ -449,7 +449,8 @@ for p=0:maxp
                 weightD = chantype(weightD,1,chantype(hdr,aa{1}(1)));
             end
             weightD = timeonset(weightD,time(hdr,min(aa{3})));
-            if ~isempty(nfrequencies(hdr))
+            if ~isempty(nfrequencies(hdr)) && ...
+                    strncmpi(transformtype(weightD), 'TF',2)
                 if PRT.fs(fs_idx).modality(mm(1)).aver(2) ~= 1
                     weightD = frequencies(weightD,1:length(aa{2}),frequencies(hdr,aa{2}));
                 else
