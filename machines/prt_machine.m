@@ -166,16 +166,16 @@ if SANITYCHECK==true
         
         %6: Check validity of machines chosen.(e.g. use SVM to do
         %regression is not valid
-        if  strcmp(d.pred_type,'regression') 
-            if ~any(strcmp(m.function,{'prt_machine_krr','prt_machine_rvr',...
-                                       'prt_machine_gpml','prt_machine_gpr', 'prt_machine_sMKL_reg'}))
-                error('prt_machine:RgressionMachineSupport',...
-                    'Error: Regression machine not supported');
-            end
-        end
+%         if  strcmp(d.pred_type,'regression') 
+%             if ~any(strcmp(m.function,{'prt_machine_krr','prt_machine_rvr',...
+%                                        'prt_machine_gpml','prt_machine_gpr', 'prt_machine_sMKL_reg'}))
+%                 error('prt_machine:RegressionMachineSupport',...
+%                     'Error: Regression machine not supported');
+%             end
+%         end
         
         % 7: Check datasets properties (within cells)
-        for k = 1:Nk_train,
+        for k = 1:Nk_train
             if ~isempty(d.train{k}) && ~isempty(d.test{k})
                 if (~prt_ismatrix(d.train{k}) && ~isvector(d.train{k}) ) || ...
                         (~prt_ismatrix(d.test{k}) && ~isvector(d.test{k}) )

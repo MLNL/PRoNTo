@@ -11,8 +11,8 @@ function output = prt_machine_L1svm(d,args)
 %                   [Nte x D])
 %     .tr_targets - training labels (for classification) or values (for
 %                   regression) (column vector, [Ntr x 1])
-%     .use_kernel - flag, is data in form of kernel matrices (true) of in 
-%                form of features (false)
+%     .te_targets - testing labels (for classification) or values (for
+%                   regression) (column vector, [Ntr x 1])
 %    args     - libSVM arguments
 % Output:
 %    output  - output of machine (struct).
@@ -97,7 +97,11 @@ end
 nlbs  = length(d.tr_targets);
 allids_tr = (1:nlbs)';
 
-model = train(d.tr_targets,sparse(d.train{:}),args);
+if contains(args,'-s 5')
+    model = train(d.tr_targets,sparse(d.train{:}),args);
+else
+    model = train(d.tr_targets,d.train{:},args);
+end
 % model = train(d.tr_targets,[allids_tr d.train{:}],args);
 
 % check if training succeeded:
@@ -113,7 +117,11 @@ if isempty(model)
         ' ' args_str '']);
 end
 
-[predictions, ~, func_val] = predict(d.te_targets, sparse(d.test{:}),model,'-q');
+if contains(args,'-s 5')
+    [predictions,~,func_val] = predict(d.te_targets,sparse(d.test{:}),model,'-q');
+else
+    [predictions,~,func_val] = predict(d.te_targets,d.test{:},model,'-q');
+end
 % Get SV coefficients (alpha) in the original order and the bias term (b) 
 % sgn   = -1*(2 * model.Label(1) - 3); %variable to account for label convention in PRoNTo
 % alpha = get_alpha(model,nlbs,sgn);
@@ -132,17 +140,16 @@ end
 % func_val = model.w*cell2mat(d.test)'+model.bias;
 % % compute hard decisions
 % predictions = sign(func_val);
-
-
-% Outputs
-%--------------------------------------------------------------------------
-% change predictions from 1/-1 to 1/2 
+% % change predictions from 1/-1 to 1/2 
 % c1PredIdx               = predictions==1; 
 % predictions(c1PredIdx)  = 1; %positive values = 1 
 % predictions(~c1PredIdx) = 2; %negative values = 2 
 
+
+% Outputs
+%--------------------------------------------------------------------------
 output.predictions = predictions;
-output.func_val    = func_val;
+output.func_val    = func_val';
 output.type        = 'classifier';
 output.w           = model.w';
 output.b           = model.bias;
