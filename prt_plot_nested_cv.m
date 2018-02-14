@@ -24,7 +24,7 @@ function prt_plot_nested_cv(PRT, model, fold, axes_handle)
 % Check machine and set the labels an axes
 logscale = 0;
 switch PRT.model(model).input.machine.function
-    case {'prt_machine_svm_bin','prt_machine_sMKL_cla'}
+    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_L1svm'}
         x_label = 'C';
         y_label = 'Balanced Accuracy (%)';
         
@@ -95,7 +95,20 @@ switch PRT.model(model).input.machine.function
         end
         
     otherwise
-        error('Machine not currently supported for nested CV');
+        x_label = 'Args';
+        y_label = 'Performance';
+        
+        %If no axes_handle is given, create a new window
+        if ~exist('axes_handle', 'var')
+            figure;
+            axes_handle = axes;
+            logscale = 1;
+        else
+            % Clear EVERYTHING in the UI before defining the axes
+            cla(axes_handle, 'reset');
+            logscale = 1;
+        end
+        %error('Machine not currently supported for nested CV');
 end
 
 

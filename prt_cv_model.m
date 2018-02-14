@@ -83,6 +83,13 @@ else
     [Phi_all,ID] = prt_getFeatureModel(PRT,mid);
 end
 
+% Gather machine string parameters if any
+if ~ isempty(PRT.model(mid).input.machine.args) && ...
+        ischar(PRT.model(mid).input.machine.args)
+    stringpar = PRT.model(mid).input.machine.args;
+else
+    stringpar = [];
+end
 
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
@@ -126,9 +133,16 @@ for k = 1:nk
                     beep
                     warning('No parameter range specified for optimization, using defaults.')
                 end
+                if ~isempty(stringpar) %Reset to string before optimization
+                    PRT.model(mid).input.machine.args = stringpar;
+                end
                 [out] = prt_nested_cv(PRT, fdata);
                 PRT.model(mid).output(k).fold(f).param_effect = out;
-                PRT.model(mid).input.machine.args = out.opt_param;
+                if isempty(stringpar)
+                    PRT.model(mid).input.machine.args = out.opt_param;
+                else
+                    PRT.model(mid).input.machine.args = [stringpar, num2str(out.opt_param)];
+                end
             end
         end
         

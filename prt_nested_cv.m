@@ -84,7 +84,11 @@ switch PRT.model(in.mid).input.machine.function
         end
         
     otherwise
-        error('Machine not currently supported for nested CV');
+        if ~isempty(PRT.model(in.mid).input.nested_param)
+            par = PRT.model(in.mid).input.nested_param;
+        else
+            error('Machine not currently supported for nested CV');
+        end
         
 end
 
@@ -94,25 +98,56 @@ cosang = zeros(1,size(par, 2));
 % generate new CV matrix
 in.CV = prt_compute_cv_mat(PRT, in, in.mid, use_nested_cv);
 
+% If string parameters were entered for the machine, gather them before
+% adding the nested parameter to optimize. This assumes that the last
+% string corresponds to which parameter to optimize!
+if ~ isempty(PRT.model(in.mid).input.machine.args) && ...
+        ischar(PRT.model(in.mid).input.machine.args)
+    stringpar = PRT.model(in.mid).input.machine.args;
+else
+    stringpar = [];
+end
+
 % compute model performance based on hyper-parameter range
 for i = 1:size(par, 2)
     
     switch PRT.model(in.mid).input.machine.function
         case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
                 'prt_machine_L1svm'}
-            PRT.model(in.mid).input.machine.args = par(i);
+            if ~isempty(stringpar)    
+                PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
+            else
+                PRT.model(in.mid).input.machine.args = par(i);
+            end
             m.type = 'classifier';
             
         case {'prt_machine_krr', 'prt_machine_sMKL_reg'}
-            PRT.model(in.mid).input.machine.args = par(i);
+            if ~isempty(stringpar)    
+                PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
+            else
+                PRT.model(in.mid).input.machine.args = par(i);
+            end
             m.type = 'regression';
             
         case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
+            if ~isempty(stringpar)    
+                disp('Using default parameters for EN-MKL')
+            end
             PRT.model(in.mid).input.machine.args = par(:,i)';
             m.type = 'classifier';
             
         otherwise
-            error('Machine not currently supported for nested CV');
+            if ~isempty(stringpar)    
+                PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
+            else
+                PRT.model(in.mid).input.machine.args = par(i);
+            end
+            if strcmpi(PRT.model(in.mid).input.type,'classification')
+                m.type = 'classifier';
+            elseif strcmpi(PRT.model(in.mid).input.type,'regression')
+                m.type = PRT.model(in.mid).input.type;
+            end
+            %error('Machine not currently supported for nested CV');
     end
     
     % compute the model for each fold of the inner CV
