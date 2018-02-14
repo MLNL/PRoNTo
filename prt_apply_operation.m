@@ -1,5 +1,5 @@
 function out = prt_apply_operation(PRT, in, opid)
-% function to apply a data operation to the training, test and 
+% function to apply a data operation to the training, test and
 % in.train:      training data
 % in.tr_id:      id matrix for training data
 % in.use_kernel: are the data in kernelised form
@@ -26,7 +26,7 @@ function out = prt_apply_operation(PRT, in, opid)
 %        of operation 3.
 %
 % References:
-% Chu, C et al. (2011) Utilizing temporal information in fMRI decoding: 
+% Chu, C et al. (2011) Utilizing temporal information in fMRI decoding:
 % classifier using kernel regression methods. Neuroimage. 58(2):560-71.
 % Shawe-Taylor, J. and Cristianini, N. (2004). Kernel methods for Pattern
 % analysis. Cambridge University Press.
@@ -41,7 +41,7 @@ out = in;
 
 for d = 1:length(in.train)
     switch opid
-        case 1 
+        case 1
             % temporal compression
             % --------------------
             % Training data
@@ -59,7 +59,7 @@ for d = 1:length(in.train)
                 end
             end
             
-            % Test data 
+            % Test data
             if isfield(in,'test')
                 Pte = compute_tc_mat(in.te_id);
                 if in.use_kernel
@@ -77,7 +77,7 @@ for d = 1:length(in.train)
                 end
             end
             
-        case 2  
+        case 2
             % sample averaging
             % ----------------
             % Training data
@@ -113,10 +113,10 @@ for d = 1:length(in.train)
                 end
             end
             
-        case 3 
+        case 3
             % mean centre features over subjects
             % ----------------------------------
-            if ~isfield(in,'test') 
+            if ~isfield(in,'test')
                 % No test data
                 if in.use_kernel
                     out.train{d} = prt_centre_kernel(in.train{d});
@@ -129,7 +129,7 @@ for d = 1:length(in.train)
                     end
                 end
             else % Test data supplied
-                 if in.use_kernel
+                if in.use_kernel
                     [out.train{d}, out.test{d}, out.testcov{d}] = ...
                         prt_centre_kernel(in.train{d},in.test{d},in.testcov{d});
                 else
@@ -155,8 +155,8 @@ for d = 1:length(in.train)
                 out.te_targets = in.te_targets;
             end
             
-        case 4 
-            % divide each feature vector by its norm
+        case 4
+            % divide each sample by its norm
             % --------------------------------------
             % in this case, the operation is applied independently to
             % each data vector, so it is safe (and convenient) to apply
@@ -204,14 +204,14 @@ for d = 1:length(in.train)
                 out.te_targets = in.te_targets;
             end
             
-        case 5 
+        case 5
             % perform a GLM
             % -------------
             if ~isfield(in,'tr_cov')
                 error('prt_apply_operation:NoCovariates',...
-                'No covariates found to perform requested GLM');
+                    'No covariates found to perform requested GLM');
             end
-            if ~isfield(in,'test') 
+            if ~isfield(in,'test')
                 % No test data
                 if in.use_kernel
                     out.train{d} = prt_remove_confounds(in.train{d},...
@@ -221,9 +221,9 @@ for d = 1:length(in.train)
                     outreg = prt_regconf(PRT, in, trainonly,d);
                     out.train{d}    = outreg.train;
                 end
-            else 
+            else
                 Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
-                 if in.use_kernel
+                if in.use_kernel
                     C = [in.tr_cov;in.te_cov];
                     C = [C, ones(size(C,1),1)];
                     [Phi] = prt_remove_confounds(Phi,C);
@@ -232,13 +232,13 @@ for d = 1:length(in.train)
                     out.train{d}    = Phi(tr,tr);
                     out.test{d}     = Phi(te,tr);
                     out.testcov{d}  = Phi(te,te);
-                 else
-                     trainonly = 0;
-                     outreg = prt_regconf(PRT, in, trainonly,d);
-                     out.train{d}    = outreg.train;
-                     out.test{d}     = outreg.test;
-                 end
-                 out.te_id = in.te_id;
+                else
+                    trainonly = 0;
+                    outreg = prt_regconf(PRT, in, trainonly,d);
+                    out.train{d}    = outreg.train;
+                    out.test{d}     = outreg.test;
+                end
+                out.te_id = in.te_id;
             end
             out.tr_id = in.tr_id;
             if isfield(in,'tr_targets')
@@ -248,7 +248,73 @@ for d = 1:length(in.train)
                 out.te_targets = in.te_targets;
             end
             
-                        
+        case 6
+            % normalize each feature
+            % --------------------------------------
+            % Unlike option 4, this should take the train-test separation
+            % into account
+            if ~isfield(in,'test')
+                % No test data
+                if in.use_kernel
+                    error('Feature normalization not implemented for kernels')
+                else
+                    out.train{d} = in.train{d} ./ ...
+                        repmat(norm(in.train{d}),size(in.train{d},1),1);
+                end
+            else % Test data
+                if in.use_kernel
+                    error('Feature normalization not implemented for kernels')
+                else
+                    try
+                        normtrain = vecnorm(in.train{d});
+                    catch
+                        normtrain = zeros(1,size(in.train{d},2));
+                        for feat = 1:size(in.train{d},2)
+                            normtrain(feat) = norm(in.train{d}(:,feat));
+                        end
+                    end
+                    out.train{d} = in.train{d} ./ repmat(normtrain,size(in.train{d},1),1);
+                    out.test{d} = in.test{d} ./ repmat(normtrain,size(in.test{d},1),1);
+                end
+                out.te_id = in.te_id;
+            end
+            out.tr_id = in.tr_id;
+            if isfield(in,'tr_targets')
+                out.tr_targets = in.tr_targets;
+            end
+            if isfield(in,'te_targets')
+                out.te_targets = in.te_targets;
+            end
+        case 7
+            % Z-score each feature
+            % --------------------------------------
+            % Unlike option 4, this should take the train-test separation
+            % into account
+            if ~isfield(in,'test')
+                % No test data
+                if in.use_kernel
+                    error('Feature z-scoring not implemented for kernels')
+                else
+                    out.train{d} = zscore(in.train{d});
+                end
+            else % Test data
+                if in.use_kernel
+                    error('Feature z-scoring not implemented for kernels')
+                else
+                    [out.train{d},mu,sig] = zscore(in.train{d});
+                    out.test{d} = (in.test{d}-repmat(mu,size(in.test{d},1),1)) ./...
+                        repmat(sig,size(in.test{d},1),1);
+                end
+                out.te_id = in.te_id;
+            end
+            out.tr_id = in.tr_id;
+            if isfield(in,'tr_targets')
+                out.tr_targets = in.tr_targets;
+            end
+            if isfield(in,'te_targets')
+                out.te_targets = in.te_targets;
+            end
+            
         otherwise
             error('prt_apply_operation:UnknownOperationSpecified',...
                 'Unknown operation requested');
@@ -271,11 +337,11 @@ function P = compute_tc_mat(ID)
 
 % give each block a unique id
 IDc = zeros(size(ID,1),1);
-C = {}; 
-ccount = 0; 
+C = {};
+ccount = 0;
 lastid = zeros(1,5);
 for c = 1:size(ID,1)
-    currid = ID(c,1:5);  
+    currid = ID(c,1:5);
     if any(lastid ~= currid)
         ccount = ccount + 1;
     end
@@ -299,10 +365,10 @@ function P = compute_sa_mat(ID,targets)
 
 % give each subject a unique id
 IDs = zeros(size(ID,1),1);
-ccount = 0; 
+ccount = 0;
 lastid = zeros(1,2);
 for s = 1:size(ID,1)
-    currid = ID(s,1:2);  
+    currid = ID(s,1:2);
     if any(lastid ~= currid)
         ccount = ccount + 1;
     end
