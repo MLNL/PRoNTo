@@ -17,7 +17,7 @@ function [out] = prt_nested_cv(PRT, in)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by J.M. Monteiro
+% Written by J.M. Monteiro and J. Schrouff
 % $Id$
 
 

@@ -151,8 +151,8 @@ end
 output.predictions = predictions;
 output.func_val    = func_val';
 output.type        = 'classifier';
-output.w           = model.w';
-output.b           = model.bias;
+output.w           = model.w(1:end-1)';
+output.b           = model.w(end);
 % output.totalSV     = model.totalSV;
 
 end
