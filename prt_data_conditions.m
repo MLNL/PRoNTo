@@ -524,7 +524,11 @@ end
 %the width of the HRF into account
 conds=prt_check_design(handles.cond,handles.trval,handles.unit,...
     handles.hrfover,handles.hrfdel);
-conds.covar=handles.covar;
+if isfield(handles,'covar')
+    conds.covar=handles.covar;
+else
+    conds.covar='';
+end
 handles.output=conds;
 
 % Update handles structure
