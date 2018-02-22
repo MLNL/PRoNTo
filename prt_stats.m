@@ -40,12 +40,18 @@ end
 
 switch model.type
     case 'classifier'
-        
-        stats = compute_stats_classifier(model, tte, nk);
+        if iscell(tte) && numel(tte)>1
+            stats = compute_stats_classifier_MTL(model, tte, nk);
+        else
+            stats = compute_stats_classifier(model, tte, nk);
+        end
         
     case 'regression'
-        
-        stats = compute_stats_regression(model, tte);
+        if iscell(tte) && numel(tte)>1
+            stats = compute_stats_regression_MTL(model, tte);
+        else
+            stats = compute_stats_regression(model, tte);
+        end
         
     otherwise
         error('prt_stats:unknownTypeSpecified',...
@@ -106,6 +112,44 @@ stats.mse  = mean((model.predictions-tte).^2);
 stats.nmse = mean((model.predictions-tte).^2)/(max(tte)-min(tte));
 end
 
+function stats = compute_stats_classifier_MTL(model, tte, k)
+
+nt = numel(tte); % Number of tasks
+for t = 1: nt
+    model_task.predictions = model.predictions{t};
+    targets = tte{t};
+    task_stats(t) = compute_stats_classifier(model_task, targets, k{t});
+end
+
+stats.acc       = mean([task_stats(:).acc]);
+stats.b_acc     = mean([task_stats(:).b_acc]);
+stats.c_acc     = NaN;
+stats.c_pv      = NaN;
+stats.acc_lb    = NaN;
+stats.acc_ub    = NaN;
+stats.task_stats= task_stats;
+stats.task_bacc = [task_stats(:).b_acc];
+
+end
+
+function stats = compute_stats_regression_MTL(model, tte)
+
+nt = numel(tte); % Number of tasks
+for t = 1: nt
+    model_task.predictions = model.predictions{t};
+    targets = tte{t};
+    task_stats(t) = compute_stats_regression(model_task, targets);
+end
+
+stats.mse       = mean([task_stats(:).mse]);
+stats.nmse      = mean([task_stats(:).nmse]);
+stats.corr      = mean([task_stats(:).corr]);
+stats.r2        = mean([task_stats(:).r2]);
+stats.task_stats= task_stats;
+stats.task_r2   = [task_stats(:).r2];
+
+end
+
 function [lb,ub] = computeWilsonBinomialCI(k,n)
 % Compute upper and lower 5% confidence interval bounds
 % for a binomial distribution using Wilson's 'score interval'
@@ -140,3 +184,5 @@ lb=firstTerm-secondTerm;
 ub=firstTerm+secondTerm;
 
 end
+
+

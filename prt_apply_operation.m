@@ -54,7 +54,7 @@ for d = 1:length(in.train)
             out.tr_id = round(Ptr*in.tr_id);
             if isfield(in,'tr_targets')
                 out.tr_targets = Ptr*in.tr_targets;
-                if strcmpi(in.pred_type,'classification');
+                if strcmpi(in.pred_type,'classification')
                     out.tr_targets = round(out.tr_targets);
                 end
             end
@@ -71,7 +71,7 @@ for d = 1:length(in.train)
                 out.te_id = round(Pte*in.te_id);
                 if isfield(in,'te_targets')
                     out.te_targets = Pte*in.te_targets;
-                    if strcmpi(in.pred_type,'classification');
+                    if strcmpi(in.pred_type,'classification')
                         out.te_targets = round(out.te_targets);
                     end
                 end

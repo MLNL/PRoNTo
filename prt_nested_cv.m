@@ -178,7 +178,7 @@ for i = 1:size(par, 2)
         model.type = m.type;
         stats = prt_stats(model, targets.test, in.nc);
         f_stats(f).targets     = targets.test;
-        f_stats(f).predictions = model.predictions(:);
+        f_stats(f).predictions = model.predictions;
         f_stats(f).stats       = stats;
         if isfield(model,'beta') && ~isempty(model.beta)
             f_stats(f).beta = model.beta;
@@ -187,7 +187,7 @@ for i = 1:size(par, 2)
         
     end
     
-    % Model level statistics (across folds)
+%     % Model level statistics (across folds)
 %     ttt           = vertcat(f_stats(:).targets);
 %     m.predictions = vertcat(f_stats(:).predictions);
 %     tstats         = prt_stats(m, ttt(:), in.nc);

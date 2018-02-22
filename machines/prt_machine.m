@@ -107,11 +107,11 @@ if SANITYCHECK==true
         
         
         % 2: BASIC: check datatype of train/test sets
-        if isempty(d.train) || isempty(d.test),
+        if isempty(d.train) || isempty(d.test)
             error('prt_machine:TrAndTeEmpty',...
                 'Error: training and testing data cannot be empty!');
         else
-            if ~iscell(d.train) || ~iscell(d.test),
+            if ~iscell(d.train) || ~iscell(d.test)
                 error('prt_machine:TrAndTeEmpty',...
                     'Error: training and testing data should be cell arrays!');
             end
@@ -119,10 +119,15 @@ if SANITYCHECK==true
         
         % 3: BASIC: check datatypes of labels
         if ~isempty(d.tr_targets)
-            if isvector(d.tr_targets)
+            if ~iscell(d.tr_targets) && isvector(d.tr_targets)
                 % force targets to column vectors
                 d.tr_targets   = d.tr_targets(:);
-                Ntrain_lbs = length(d.tr_targets);
+%                 Ntrain_lbs = length(d.tr_targets);
+            elseif iscell(d.tr_targets)
+                for t=1:length(d.tr_targets)
+                    % force targets to column vectors
+                    d.tr_targets{t}   = d.tr_targets{t}(:);
+                end
             else
                 error('prt_machine:trainingLabelsNotVector',...
                     'Error: training labels should be a vector!');
@@ -134,35 +139,6 @@ if SANITYCHECK==true
         
         % 4: Check data properties (over cells)
         Nk_train   = length(d.train);
-        
-        % 5: Check if data has more than one cell
-%         if (isempty(strfind(char(fnch),'MKL')) &&...
-%               isempty(strfind(char(fnch),'wip')))  && Nk_train > 1
-%             %Check that if multiple kernels, MKL was selected,
-%             %otherwise add the kernels
-%             tr_tmp = zeros(size(d.train{1}));
-%             te_tmp = zeros(size(d.test{1}));
-%             tecov_tmp = zeros(size(d.testcov{1}));
-%             for j=1:Nk_train
-%                 try
-%                     %add kernels
-%                     tp = d.train{j}; %train set
-%                     tr_tmp=tr_tmp + tp;
-%                     tp = d.test{j}; %test set
-%                     te_tmp=te_tmp + tp;
-%                     tp = d.testcov{j}; %test set covariance matrix for GP
-%                     tecov_tmp=tecov_tmp + tp;
-%                 catch
-%                     error('prt_cv_model:KernelsWithDifferentDimensions', ...
-%                         'Kernels cannot be added since they have different dimensions')
-%                 end
-%             end
-%             d.train = {tr_tmp};
-%             d.test = {te_tmp};
-%             d.testcov = {tecov_tmp};
-%             Nk_train = 1;
-%             clear tr_tmp te_tmp tecov_tmp     
-%         end
         
         %6: Check validity of machines chosen.(e.g. use SVM to do
         %regression is not valid
@@ -196,12 +172,12 @@ if SANITYCHECK==true
                     'dimensions should match, but Dtrain=%d and Dtest=%d for '...
                     'dataset %d!'],Dtrain,Dtest,k);
             end
-            % b: check we have as many training labels as examples
-            if ~(Ntrain_lbs==Ntrain)
-                error('prt_machine:NtrlbsNotEqNtr',['Error: Number of training '...
-                    'examples and training labels should match, but Ntrain_lbs=%d '...
-                    'and Ntrain=%d for dataset %d!'],Ntrain_lbs,Ntrain,k);
-            end
+%             % b: check we have as many training labels as examples
+%             if ~(Ntrain_lbs==Ntrain)
+%                 error('prt_machine:NtrlbsNotEqNtr',['Error: Number of training '...
+%                     'examples and training labels should match, but Ntrain_lbs=%d '...
+%                     'and Ntrain=%d for dataset %d!'],Ntrain_lbs,Ntrain,k);
+%             end
             % c: if kernel check for kernel properties
             if d.use_kernel
                 if ~(Ntrain==Dtrain)
