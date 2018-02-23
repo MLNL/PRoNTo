@@ -61,8 +61,8 @@ if iscell(in.CV) && iscell(in.t)
         % Apply any operations specified
         ops = PRT.model(m(t)).input.operations(PRT.model(m(t)).input.operations ~=0 );
         if any(ismember(ops,5))
-            cvdata.tr_cov = in.cov{t}(tr_idx,:);
-            cvdata.te_cov = in.cov{t}(te_idx,:);
+            opsdata.tr_cov = in.cov{t}(tr_idx,:);
+            opsdata.te_cov = in.cov{t}(te_idx,:);
             posglm = find(ops==5);
             if posglm~=1 % GLM should be first
                 idxops = 1:length(ops);
@@ -110,10 +110,10 @@ else
     end
     
     % Apply any operations specified
-    ops = PRT.model(m(t)).input.operations(PRT.model(m(t)).input.operations ~=0 );
+    ops = PRT.model(in.mid).input.operations(PRT.model(in.mid).input.operations ~=0 );
     if any(ismember(ops,5))
-        cvdata.tr_cov = in.cov{t}(tr_idx,:);
-        cvdata.te_cov = in.cov{t}(te_idx,:);
+        cvdata.tr_cov = in.cov(tr_idx,:);
+        cvdata.te_cov = in.cov(te_idx,:);
         posglm = find(ops==5);
         if posglm~=1 % GLM should be first
             idxops = 1:length(ops);
