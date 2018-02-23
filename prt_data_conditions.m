@@ -527,7 +527,7 @@ conds=prt_check_design(handles.cond,handles.trval,handles.unit,...
 if isfield(handles,'covar')
     conds.covar=handles.covar;
 else
-    conds.covar='';
+    conds.covar=[];
 end
 handles.output=conds;
 
