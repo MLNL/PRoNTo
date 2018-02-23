@@ -133,7 +133,7 @@ switch in.cv.type
                     [d,ng]=ismember(in.class(ic).group(ig).gr_name,gnames);
                     for is=1:length(in.class(ic).group(ig).subj)
                         inds=find(ID(:,1)==ng);
-                        indss=find(ID(inds,2)==is);
+                        indss=find(ID(inds,2)==in.class(ic).group(ig).subj(is).num);
                         vcl(inds(indss),1)=ic;
                         vcl(inds(indss),2)=nsg;
                         nsg=nsg+1;
@@ -236,7 +236,7 @@ switch in.cv.type
         % moment
         % blocks already have a unique ID
         
-        cids = unique(ID(:,4));        
+        cids = unique(ID(ID(:,4)>0,4));       
         gc = 0;
         nb=zeros(length(cids),1);
         dID = ID;
@@ -315,7 +315,12 @@ switch in.cv.type
                 error('No CV variable found in the mat file provided')
             else
                 if size(CV,1) ~= size(ID,1)
-                    error('CV does not comprise the same number of samples as selected')
+                    if size(CV,1) ~= size(PRT.fs(fid).id_mat,1)
+                        error('CV does not comprise the same number of samples as selected')
+                    else
+                        disp('Subsampling CV matrix according to selected samples in model')
+                        CV = CV(samp_idx,:);
+                    end
                 else
                     nfo = size(CV,2);
                     macv = max(CV);
@@ -338,6 +343,11 @@ switch in.cv.type
         elseif isfield(PRT.model(modelid).input,'cv_mat') && ...
                 ~isempty(PRT.model(modelid).input.cv_mat) % custom CV specified by GUI
             CV = PRT.model(modelid).input.cv_mat;
+            if size(CV,1) ~= size(ID,1)
+                if size(CV,1) ~= size(PRT.fs(fid).id_mat,1)
+                    error('CV does not comprise the same number of samples as selected')
+                end
+            end
         else
             % custom CV with only number of folds specified
             if isfield(in.cv,'k')
