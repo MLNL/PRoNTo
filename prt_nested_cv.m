@@ -27,31 +27,6 @@ if use_nested_cv == false
     error('prt_nested_cv function called with use_nested_cv = false');
 end
 
-train_entries = find(in.CV == 1);
-
-% Change fdata
-in.ID      = in.ID(train_entries, :);
-in.t       = in.t(train_entries);
-in.fs      = PRT.fs;
-if isfield(in, 'cov')
-    in.cov     = in.cov(train_entries,:);
-end
-if isfield(PRT.model(in.mid).input,'cv_type_nested')
-    in.cv.type = PRT.model(in.mid).input.cv_type_nested;
-    in.cv.k = PRT.model(in.mid).input.cv_k_nested;
-else
-    in.cv.type = PRT.model(in.mid).input.cv_type;
-    in.cv.k = PRT.model(in.mid).input.cv_k;
-end
-
-for i=1:length(in.Phi_all)
-    if PRT.model(in.mid).input.use_kernel %Kernel method
-        in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
-    else %Non-kernel
-        in.Phi_all{i} = in.Phi_all{i}(train_entries, :);
-    end
-end
-
 if ~isfield(in,'opt_Rep')
     opt_Rep = 0;
 else
@@ -92,11 +67,19 @@ switch PRT.model(in.mid).input.machine.function
         
 end
 
+% Gather task info:
+% Multiple tasks?
+if isfield(in,'midMTL')
+    MTLflag = 1;
+    in = gather_task_info_MTL(PRT,in);
+else
+    MTLflag = 0;
+    in = gather_task_info_STL(PRT,in);
+end
+
 out.param = par;
 stats_vec = zeros(1, size(par, 2));
 cosang = zeros(1,size(par, 2));
-% generate new CV matrix
-in.CV = prt_compute_cv_mat(PRT, in, in.mid, use_nested_cv);
 
 % If string parameters were entered for the machine, gather them before
 % adding the nested parameter to optimize. This assumes that the last
@@ -390,6 +373,81 @@ switch n_par
 end
 
 
+end
+
+function [in] = gather_task_info_STL(PRT,in)
+
+% Set flag
+use_nested_cv = PRT.model(in.mid).input.use_nested_cv;
+if use_nested_cv == false
+    error('prt_nested_cv function called with use_nested_cv = false');
+end
+
+train_entries = find(in.CV == 1);
+in.ID      = in.ID(train_entries, :);
+in.t       = in.t(train_entries);
+% in.fs      = PRT.fs;
+if isfield(in, 'cov')
+    in.cov     = in.cov(train_entries,:);
+end
+if isfield(PRT.model(in.mid).input,'cv_type_nested')
+    in.cv.type = PRT.model(in.mid).input.cv_type_nested;
+    in.cv.k = PRT.model(in.mid).input.cv_k_nested;
+else
+    in.cv.type = PRT.model(in.mid).input.cv_type;
+    in.cv.k = PRT.model(in.mid).input.cv_k;
+end
+
+for i=1:length(in.Phi_all)
+    if PRT.model(in.mid).input.use_kernel %Kernel method
+        in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
+    else %Non-kernel
+        in.Phi_all{i} = in.Phi_all{i}(train_entries, :);
+    end
+end
+% generate new CV matrix
+in.CV = prt_compute_cv_mat(PRT, in, in.mid, use_nested_cv);
+end
+
+function [in] = gather_task_info_MTL(PRT,in)
+
+n_tasks = length(in.midMTL);
+% Set flag
+use_nested_cv = PRT.model(in.mid).input.use_nested_cv;
+if use_nested_cv == false
+    error('prt_nested_cv function called with use_nested_cv = false');
+end
+
+for t=1:n_tasks    
+    train_entries = find(in.CV{t} == 1);
+    in.ID{t}      = in.ID{t}(train_entries, :);
+    in.t{t}       = in.t{t}(train_entries);
+    if isfield(in, 'cov')
+        in.cov{t}     = in.cov{t}(train_entries,:);
+    end
+    if isfield(PRT.model(m(t)).input,'cv_type_nested')
+        in.cv.type = PRT.model(m(t)).input.cv_type_nested;
+        in.cv.k = PRT.model(m(t)).input.cv_k_nested;
+    else
+        in.cv.type = PRT.model(m(t)).input.cv_type;
+        in.cv.k = PRT.model(m(t)).input.cv_k;
+    end
+    
+    if PRT.model(in.mid).input.use_kernel %Kernel method
+        in.Phi_all{t} = in.Phi_all{t}(train_entries, train_entries);
+    else %Non-kernel
+        in.Phi_all{t} = in.Phi_all{t}(train_entries, :);
+    end
+
+    % generate new CV matrix
+    nested.ID = in.ID{t};
+    nested.t = in.t{t};
+    nested.cv = in.cv;
+    if isfield(in,'class')
+        nested.class = in.class{t};
+    end
+    in.CV{t} = prt_compute_cv_mat(PRT, nested, m(t), use_nested_cv);
+end
 end
 
 function [cosang] = compute_reproducibility_ER(betas)
