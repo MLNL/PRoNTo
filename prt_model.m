@@ -155,7 +155,8 @@ samp_all = zeros(n,1);
 if ~isempty(PRT.group(1).subject(1).modality(1).covar);
     cov_all = zeros(n,size(PRT.group(1).subject(1).modality(1).covar,2));
 else
-    cov_all = zeros(n,1);
+%     cov_all = zeros(n,1);
+    cov_all = [];
 end
 for c = 1:length(in.class)
     
@@ -246,7 +247,13 @@ end
 samp_idx = find(t_all);
 samp_all = find(samp_all);
 targets  = t_all(samp_idx);
-covar = cov_all(samp_idx,:);
+
+if ~isempty(cov_all)
+    covar = cov_all(samp_idx,:);
+else
+    covar = [];
+end
+
 end
 
 
@@ -265,7 +272,8 @@ targ_allscans=zeros(n,1);
 if ~isempty(PRT.group(1).subject(1).modality(1).covar);
     cov_all = zeros(n,size(PRT.group(1).subject(1).modality(1).covar,2));
 else
-    cov_all = zeros(n,1);
+%     cov_all = zeros(n,1);
+    cov_all = []; 
 end
 samp_idx=[];
 targ_g=[];
@@ -283,7 +291,8 @@ for g = 1:length(in.group)
     if ~isempty(PRT.group(1).subject(1).modality(1).covar);
         cov = zeros(length(in.group(g).subj),size(PRT.group(1).subject(1).modality(1).covar,2));
     else
-        cov = zeros(length(in.group(g).subj),1);
+%         cov = zeros(length(in.group(g).subj),1);
+        cov = []; 
     end
     % subjects
     for s = 1:length(in.group(g).subj)
@@ -316,5 +325,9 @@ for g = 1:length(in.group)
 end
 targ_allscans(samp_idx)=targ_g;
 targets=targ_g;
-cov_all(samp_idx,:)=covar;
+
+if ~isempty(cov_all)
+    cov_all(samp_idx,:)=covar;
+end
+    
 end
