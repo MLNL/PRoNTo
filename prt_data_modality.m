@@ -157,8 +157,15 @@ else
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         %Particular options if you select by 'scans'
         if ~isempty(varargin{2}{2})
+            if ~isempty(varargin{2}{3})
+                openmod = 1;
+            else
+                openmod = 0;
+            end
             if strcmpi(varargin{2}{2}.subj_name,'Scans') || ...
-                    (isfield(varargin{2}{2},'modality') && varargin{2}{2}.modality.design==0) %No design, One image per subject
+                    (isfield(varargin{2}{2},'modality') && ...
+                    (openmod && ~isstruct(varargin{2}{2}.modality(varargin{2}{3}).design)) && ...
+                    varargin{2}{2}.modality(varargin{2}{3}).design==0) %No design, One image per subject
                 set(handles.design_menu,'Enable','off')
                 set(handles.edit_regt,'Enable','on')
                 set(handles.edit_regt,'Visible','on')
@@ -166,6 +173,13 @@ else
                 set(handles.edit_covar,'Visible','on')
                 set(handles.text7,'Visible','on') % Covariates
                 set(handles.text6,'Visible','on') %Regression targets
+            else
+                set(handles.edit_regt,'Enable','off')
+                set(handles.edit_regt,'Visible','off')
+                set(handles.edit_covar,'Enable','off')
+                set(handles.edit_covar,'Visible','off')
+                set(handles.text7,'Visible','off')
+                set(handles.text6,'Visible','off')
             end
         else
             set(handles.design_menu,'Enable','on')
@@ -193,7 +207,7 @@ else
                 end
                 handles.mod.design=modsel.design;
                 if ~isempty(modsel.design)
-                    if modsel.design== 0
+                    if ~isstruct(modsel.design) && modsel.design== 0
                         set(handles.design_menu,'Value',3)
                         handles.desnmenu = 3;
                     else

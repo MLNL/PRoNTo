@@ -255,7 +255,7 @@ end
 guidata(hObject, handles);
 
 % UIWAIT makes prt_data_review wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -280,6 +280,7 @@ function figure1_DeleteFcn(hObject,eventdata,handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 delete(handles.figure1);
+uiresume(handles.figure1);
 
 % --- Executes on selection change in modlist.
 function modlist_Callback(hObject, eventdata, handles)
