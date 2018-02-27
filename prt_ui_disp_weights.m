@@ -582,10 +582,11 @@ xax = BB(1,1):abs(vx(1)):BB(2,1);
 yax = BB(1,2):abs(vx(2)):BB(2,2);
 zax = BB(1,3):abs(vx(3)):BB(2,3);
 
-h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08]);
-% h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95
-% 1.08],handles.weightspanel); %to change when spm_orthviews will be
-% updated, Matlab 2014b issue
+try 
+    h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08],handles.weightspanel); 
+catch
+    h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08]);
+end
 handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
