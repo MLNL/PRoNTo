@@ -146,7 +146,7 @@ else
 
 
     handles.mod=[];
-    handles.mod.detrend=1;
+    handles.mod.detrend=0;
     handles.mod.design=0;
     handles.mod.scans=[];
     handles.mod.name={};
@@ -156,14 +156,17 @@ else
 
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         %Particular options if you select by 'scans'
-        if ~isempty(varargin{2}{2}) && strcmpi(varargin{2}{2}.subj_name,'Scans')
-            set(handles.design_menu,'Enable','off')
-            set(handles.edit_regt,'Enable','on')
-            set(handles.edit_regt,'Visible','on')
-            set(handles.edit_covar,'Enable','on')
-            set(handles.edit_covar,'Visible','on')
-            set(handles.text7,'Visible','on') % Covariates
-            set(handles.text6,'Visible','on') %Regression targets
+        if ~isempty(varargin{2}{2})
+            if strcmpi(varargin{2}{2}.subj_name,'Scans') || ...
+                    (isfield(varargin{2}{2},'modality') && varargin{2}{2}.modality.design==0) %No design, One image per subject
+                set(handles.design_menu,'Enable','off')
+                set(handles.edit_regt,'Enable','on')
+                set(handles.edit_regt,'Visible','on')
+                set(handles.edit_covar,'Enable','on')
+                set(handles.edit_covar,'Visible','on')
+                set(handles.text7,'Visible','on') % Covariates
+                set(handles.text6,'Visible','on') %Regression targets
+            end
         else
             set(handles.design_menu,'Enable','on')
             set(handles.edit_regt,'Enable','off')
@@ -190,8 +193,13 @@ else
                 end
                 handles.mod.design=modsel.design;
                 if ~isempty(modsel.design)
-                    set(handles.design_menu,'Value',2)
-                    handles.desnmenu=2;
+                    if modsel.design== 0
+                        set(handles.design_menu,'Value',3)
+                        handles.desnmenu = 3;
+                    else
+                        set(handles.design_menu,'Value',2)
+                        handles.desnmenu=2;
+                    end
                 end
                 handles.mod.scans=modsel.scans;
                 handles.mod.name=modsel.mod_name;
@@ -200,14 +208,22 @@ else
                     set(handles.edit_covar,'Enable','on')
                     set(handles.edit_covar,'Visible','on')
                     set(handles.text7,'Visible','on')
-                    set(handles.edit_covar,'String',num2str(modsel.covar(:)))
+                    if size(modsel.covar,1)==1 %Review numbers for only one subject
+                        set(handles.edit_covar,'String',num2str(modsel.covar))
+                    else
+                        set(handles.edit_covar,'String','Entered','FontAngle','Italic')
+                    end
                 end
                 handles.mod.rt_subj=modsel.rt_subj;
                 if ~isempty(modsel.rt_subj)
                     set(handles.edit_regt,'Enable','on')
                     set(handles.edit_regt,'Visible','on')
                     set(handles.text6,'Visible','on')
-                    set(handles.edit_regt,'String',num2str(modsel.rt_subj(:)))
+                    if numel(modsel.rt_subj)==1  %Review numbers for only one subject
+                        set(handles.edit_regt,'String',num2str(modsel.rt_subj))
+                    else
+                        set(handles.edit_regt,'String','Entered','FontAngle','Italic')
+                    end
                 end
             else
                 nlist=[varargin{2}{1}, {'Enter new'}];
