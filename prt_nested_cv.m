@@ -35,9 +35,7 @@ in.t       = in.t(train_entries);
 in.fs      = PRT.fs;
 %%% Get covariates
 if isfield(in, 'cov')
-    if ~isempty(in.cov)
-        in.cov     = in.cov(train_entries,:);
-    end
+    in.cov     = in.cov(train_entries,:);
 end
 %%%
 if isfield(PRT.model(in.mid).input,'cv_type_nested')
