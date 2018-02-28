@@ -1274,24 +1274,26 @@ for i=1:ng
         end
     end
 end
-def=prt_get_defaults('datad');
-%save the data structure
-disp('Saving the data.....>>')
 
-if ~isfield(PRT.group(1),'hrfoverlap')
-    for i=1:ng
-        PRT.group(i).hrfoverlap=def.hrfw;
-    end
-end
-if ~isfield(PRT.group(1),'hrfdelay')
-    for i=1:ng
-        PRT.group(i).hrfdelay=def.hrfd;
-    end
-end
+%Masks and HRF default parameters
+def=prt_get_defaults('datad');
+
 PRT.masks=handles.dat.masks;
+if ~isfield(PRT.masks(1),'hrfoverlap')
+    for i=1:length(PRT.masks)
+        PRT.masks(i).hrfoverlap=def.hrfw;
+    end
+end
+if ~isfield(PRT.masks(1),'hrfdelay')
+    for i=1:length(PRT.masks)
+        PRT.masks(i).hrfdelay=def.hrfd;
+    end
+end
 
 %Remove any field from previous computations if the PRT is loaded and then
 %modified
+%save the data structure
+disp('Saving the data.....>>')
 if isfield(PRT,'fs')
     PRT=rmfield(PRT,'fs');
     beep

@@ -91,6 +91,18 @@ if ~all(cg) % missing fields
         end
     end
 end
+% Do the same for HRF default parameters
+nadd = {'hrfdelay','hrfoverlap'};
+cg = ismember(nadd,np);
+if ~all(cg) % missing fields
+    flagch = 1;
+    ita = find(cg==0);
+    for i = 1:length(ita)
+        for j=1:length(PRT.masks)
+            PRT.masks(j).(nadd{ita(i)}) = 0;
+        end
+    end
+end
 
 % Feature set
 %--------------------------------------------------------------------------
