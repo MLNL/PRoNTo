@@ -34,7 +34,7 @@ in.ID      = in.ID(train_entries, :);
 in.t       = in.t(train_entries);
 in.fs      = PRT.fs;
 %%% Get covariates
-if isfield(in, 'cov')
+if isfield(in, 'cov') && ~isempty(in.cov)
     in.cov     = in.cov(train_entries,:);
 end
 %%%
