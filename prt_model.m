@@ -202,6 +202,7 @@ for c = 1:length(in.class)
                     if any(ismember(in.operations, 5)) %Get covariates
                         cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
                     end
+                    samp_all(idx) = 1;
                 else % conditions have been specified
                     % check whether conditions were specified in the design
                     if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
@@ -220,6 +221,7 @@ for c = 1:length(in.class)
                         for cid = 1:length(conds)
                             idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
                             t_all(idx) = c;
+                            samp_all(idx) = 1;
                         end
                     else % loop over conditions
                         for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
@@ -234,10 +236,9 @@ for c = 1:length(in.class)
                             
                             idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
                             t_all(idx) = c;
+                            samp_all(idx) = 1;
                         end
-                    end
-                    s_idx_mod = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
-                    samp_all(s_idx_mod) = 1;
+                    end                    
                 end
             end
         end
