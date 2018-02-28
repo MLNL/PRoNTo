@@ -83,7 +83,7 @@ switch in.cv.type
             % subjects
             if length(unique(dID(:,2)))<2*nsf
                 error('prt_model:losoSelectedWithTooLargeK',...
-                    'More than 50%% of data in testing set, reduce k');
+                    'More than 50%% of data in testing set, increase k');
             end
             mns=mod(gc,k);
             dk=nsf*ones(1,k);
