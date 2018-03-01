@@ -493,6 +493,8 @@ elseif choice ==3
         set(handles.edit_covar,'Visible','off')
         set(handles.text7,'Visible','off')
         set(handles.text6,'Visible','off')
+        handles.mod.covar=[];
+        handles.mod.rt_subj=[];
     end
 elseif choice==4
     desn=handles.subj1(handles.indmods1).design;
@@ -510,6 +512,8 @@ if choice ~= 3
     set(handles.edit_covar,'Visible','off')
     set(handles.text7,'Visible','off')
     set(handles.text6,'Visible','off')
+    handles.mod.covar=[];
+    handles.mod.rt_subj=[];
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -558,6 +562,8 @@ if ~handles.scans && size(handles.mod.scans,1)>1
     set(handles.edit_covar,'Visible','off')
     set(handles.text7,'Visible','off')
     set(handles.text6,'Visible','off')
+    handles.mod.covar=[];
+    handles.mod.rt_subj=[];
 end
 % Update handles structure
 guidata(hObject, handles);
