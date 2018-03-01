@@ -646,7 +646,7 @@ in2=handles.dat.group(handles.cgr).subject(handles.cs);
 in3=[];
 in5=handles.dat;
 mod=prt_data_modality('UserData',{in1,in2,in3,in4,in5});
-if isnumeric(mod)
+if isnumeric(mod) || ~isfield(mod,'name')
     return
 end
 if isempty(mod.name)
