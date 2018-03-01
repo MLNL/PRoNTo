@@ -279,9 +279,7 @@ for m = 1:n_mods
     if N.dim(3)==1, Npdim = N.dim(1:2); else Npdim = N.dim; end % handling case of 2D images
     if numel(N.dim)==4, Npdim = N.dim(1:3); else Npdim = N.dim; end % handling case of 4D images
     if any((M.dim ~= Npdim))
-        warning('prt_fs:maskAndImagesDifferentDim',...
-            'Mask has different dimensions to the image files. Resizing...');
-        
+        disp('Resizing 1st level mask...')        
         V2 = spm_vol(char(ddmask));
         % reslicing V2
         fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
@@ -306,8 +304,7 @@ for m = 1:n_mods
         mask{m} = ddmask;
     end
     if ~isempty(mfile) && any((precM.dim~= N.dim)) % && mfile ~= 0
-        warning('prt_fs:maskAndImagesDifferentDim',...
-            'Preprocessing mask has different dimensions to the image files. Resizing...');
+        disp('Resizing 2nd level mask...')
         V2 = spm_vol(char(mfile));
         % reslicing V2
         fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
@@ -339,8 +336,7 @@ for m = 1:n_mods
         precmask{m} = mfile;
     end
     if ~isempty(alfile) && any((precA.dim~= N.dim))
-        warning('prt_fs:atlasAndImagesDifferentDim',...
-            'Atlas has different dimensions to the image files. Resizing...');
+        disp('Resizing atlas...')
         V2 = spm_vol(char(alfile));
         % reslicing V2
         fl_res = struct('mean',false,'interp',0,'which',1,'prefix','tmp_');
