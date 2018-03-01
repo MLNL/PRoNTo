@@ -277,6 +277,10 @@ set(handles.disp_voxels,'Value',1)
 set(handles.disp_voxels,'Enable','off')
 set(handles.disp_regions,'Value',0)
 set(handles.disp_regions,'Enable','off')
+set(handles.loadweight,'Enable','off')
+set(handles.loadanatomical,'Enable','off')
+set(handles.weightbutton,'Enable','off')
+set(handles.weightbutton,'Visible','off')
 uistack(handles.weightspanel,'bottom')
 % Choose default command line output for prt_ui_disp_weights
 handles.output = hObject;
@@ -317,10 +321,10 @@ if isfield(handles,'img')
             count = [count, i];
         end
     end
-    if length(count)==4
-        pos = get(child(count(1)),'Position');
-        set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
-    end
+%     if length(count)==4
+%         pos = get(child(count(1)),'Position');
+%         set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+%     end
 end
 
 function mmedit_Callback(hObject, eventdata, handles)
@@ -348,10 +352,10 @@ if isfield(handles,'img')
             count = [count, i];
         end
     end
-    if length(count)==4
-        pos = get(child(count(1)),'Position');
-        set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
-    end
+%     if length(count)==4
+%         pos = get(child(count(1)),'Position');
+%         set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+%     end
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -394,10 +398,10 @@ if isfield(handles,'img')
             count = [count, i];
         end
     end
-    if length(count)==4
-        pos = get(child(count(1)),'Position');
-        set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
-    end
+%     if length(count)==4
+%         pos = get(child(count(1)),'Position');
+%         set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+%     end
 end
 
 
@@ -613,9 +617,9 @@ for i=1:length(st.vols) % Image was added to variable st
             set(st.vols{idxw}.ax{3}.ax,'parent',handles.weightspanel);
             if ~isempty(xyz_above)
                 set(st.vols{idxw}.blobs{1}.cbar,'parent',handles.weightspanel);
-                cbp = get(st.vols{idxw}.blobs{1}.cbar,'Position'); % Colorbar position
-                set(st.vols{idxw}.blobs{1}.cbar,'Position',...
-                    [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
+%                 cbp = get(st.vols{idxw}.blobs{1}.cbar,'Position'); % Colorbar position
+%                 set(st.vols{idxw}.blobs{1}.cbar,'Position',...
+%                     [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
                 handles.posaxe4 = get(st.vols{idxw}.blobs{1}.cbar,'Position');
             end
             handles.posaxe1 = get(st.vols{idxw}.ax{1}.ax,'Position');
@@ -631,7 +635,7 @@ end
 
 % Show positions
 % -------------------------------------------------------------------------
-prt_ui_disp_weights('showpos');
+% prt_ui_disp_weights('showpos');
 
 disp('Done');
 
@@ -938,6 +942,39 @@ end
 % Compare the name of the image with the name of the modalities to obtain
 % the index of the modality
 nim = get(handles.imagemenu,'String');
+if ~isfield(handles,'nmods')
+    m  = get(handles.classmenu,'Value');
+    if m==0
+        m=1;
+    end
+    mi = handles.mi;
+    
+    % Get the modalities in the model if multiple kernels and multiple
+    % modalities
+    in.fs_name = handles.PRT.model(mi(m)).input.fs(1).fs_name;
+    fid = prt_init_fs(handles.PRT,in);
+    handles.fid = fid;
+    if handles.PRT.fs(fid).multkernel
+        nmod = length(handles.PRT.fs(fid).modality);
+        mods = cell(nmod,1);
+        for i=1:nmod
+            mods{i} = handles.PRT.fs(fid).modality(i).mod_name;
+        end
+        if ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL'))
+            handles.summed = 0;
+        else
+            handles.summed = 1; % summed modalities
+        end
+    elseif ~isempty(strfind(handles.PRT.model(mi(m)).input.machine.function,'MKL')) && ...
+            ~handles.PRT.fs(fid).multkernel
+        mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
+        handles.summed = 0;
+    else
+        mods{1} = handles.PRT.fs(fid).modality(1).mod_name;
+        handles.summed = 1; % concatenated or one modality
+    end
+    handles.nmods = mods;
+end
 for i = 1:length(handles.nmods)
     if ~isempty(strfind(nim(handles.class),char(handles.nmods{i})))
         mids = i;
