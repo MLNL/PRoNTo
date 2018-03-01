@@ -510,8 +510,12 @@ if ~isempty(handles.mod.scans)
 else
     sel=[];
 end
-t=spm_select([1 Inf],'image','Select files for the modality',sel);
-handles.mod.scans=t;
+[t,status]=spm_select([1 Inf],'image','Select files for the modality',sel);
+if status
+    handles.mod.scans=t;
+else
+    handles.mod.scans=sel;
+end
 % Update handles structure
 guidata(hObject, handles);
 
