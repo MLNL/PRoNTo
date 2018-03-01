@@ -16,24 +16,20 @@ flagch = 0; % 1 if structure is updated
 % Data and Design
 %--------------------------------------------------------------------------
 % Group
-ng = {'gr_name','subject','hrfoverlap','hrfdelay'};
+ng = {'gr_name','subject'};
 np = fieldnames(PRT.group(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
     flag = 0;
-%     ita = find(cg==0);  Repair
-%     for i = 1:length(ita)
-%         for j=1:length(PRT.group)
-%             PRT.group(j).(ng{ita(i)}) = [];
-%             if ita(i)==1
-%                 PRT.group(j).gr_name = '';
-%             elseif ita(i)==3
-%                 PRT.group(j).hrfoverlap = 0;
-%             elseif ita(i)==4
-%                 PRT.group(j).hrfdelay = 0;
-%             end
-%         end
-%     end
+end
+ng = {'hrfdelay','hrfoverlap'};
+cg = ismember(ng,np);
+for i=1:numel(ng)
+    if all(cg)
+        d.(ng{i}) = PRT.group(1).(ng{i});
+    else
+        d.(ng{i}) = 0;
+    end
 end
 
 % Subject
@@ -42,17 +38,6 @@ np = fieldnames(PRT.group(1).subject(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
     flag = 0;
-%     ita = find(cg==0);
-%     for i = 1:length(ita)
-%         for j=1:length(PRT.group)
-%             for k  = 1:length(PRT.group(j).subject)
-%                 PRT.group(j).subject(k).(ng{ita(i)}) = [];
-%                 if ita(i)==1
-%                     PRT.group(j).subject(k).subj_name = '';
-%                 end
-%             end
-%         end
-%     end
 end
 
 %Modality
@@ -83,7 +68,7 @@ ng = {'mod_name','fname'};
 np = fieldnames(PRT.masks(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
-    flagch = 1;
+    flag = 0;
     ita = find(cg==0);
     for i = 1:length(ita)
         for j=1:length(PRT.masks)
@@ -99,7 +84,7 @@ if ~all(cg) % missing fields
     ita = find(cg==0);
     for i = 1:length(ita)
         for j=1:length(PRT.masks)
-            PRT.masks(j).(nadd{ita(i)}) = 0;
+            PRT.masks(j).(nadd{ita(i)}) = d.(nadd{ita(i)});
         end
     end
 end
