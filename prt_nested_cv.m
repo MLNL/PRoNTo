@@ -59,25 +59,13 @@ switch PRT.model(in.mid).input.machine.function
             d1 = -2 : 3;
             par = 10 .^(d1);
         end
-    case 'prt_machine_wip'
+        
+    otherwise %custom machine?
         if ~isempty(PRT.model(in.mid).input.nested_param)
-            % Get parameter ranges from PRT
-            c = PRT.model(in.mid).input.nested_param{1};
-            mu = PRT.model(in.mid).input.nested_param{2};
-            % Convert them to a matrix with all the combinations
-            [c_mesh,mu_mesh] = meshgrid(c, mu);
-            par = [c_mesh(:), mu_mesh(:)]';
-        else
-            d1 = -2 : 3;
-            c = 10 .^(d1);
-            mu = 0:0.1:1;
-            [c_mesh,mu_mesh] = meshgrid(c, mu);
-            par = [c_mesh(:), mu_mesh(:)]';
-        end
-        
-    otherwise
-        error('Machine not currently supported for nested CV');
-        
+            par = PRT.model(in.mid).input.nested_param;
+        else % cannot guess default parameters for custom
+            error('Machine not currently supported for nested CV');
+        end       
 end
 
 out.param = par;
@@ -98,12 +86,13 @@ for i = 1:size(par, 2)
             PRT.model(in.mid).input.machine.args = par(i);
             m.type = 'regression';
             
-        case 'prt_machine_wip'
-            PRT.model(in.mid).input.machine.args = par(:,i)';
-            m.type = 'classifier';
-            
-        otherwise
-            error('Machine not currently supported for nested CV');
+        otherwise %custom
+            try
+                PRT.model(in.mid).input.machine.args = par(i);
+                m.type = PRT.model(in.mid).input.type;
+            catch
+                error('Machine not currently supported for nested CV');
+            end
     end
     
     % compute the model for each fold of the inner CV
