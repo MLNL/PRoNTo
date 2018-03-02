@@ -12,20 +12,13 @@ function out = prt_run_design(varargin)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
-% Written by M.J.Rosa
+% Written by M.J.Rosa, modified by J. Schrouff
 % $Id$
 
 
 % Job variable
 % -------------------------------------------------------------------------
 job   = varargin{1};
-
-% Back compatibility (at least trying to...)
-% -------------------------------------------------------------------------
-if isfield(job,'hrfover') % old setup
-    job.fmri_des.hrfover = job.hrfover;
-    job.fmri_des.hrfdel  = job.hrfdel;
-end
 
 % Directory
 % -------------------------------------------------------------------------
@@ -39,15 +32,31 @@ ngroup    = length(job.group);
 % Masks
 % -------------------------------------------------------------------------
 nmasks     = length(job.mask);
+
+% Back compatibility (at least trying to...)
+if isfield(job,'hrfover')  % old setup, with HRF parameters in main branch
+    hrfover = job.hrfover;
+    hrfdel  = job.hrfdel;
+elseif isfield(job,'fmri_des')
+    hrfover = job.fmri_des.hrfover;
+    hrfdel = job.fmri_des.hrfdel;
+end
+
 for i = 1:nmasks
     mod_names{i}      = job.mask(i).mod_name;
     masks(i).mod_name = mod_names{i};
     masks(i).fname    = char(job.mask(i).fmask);
+    if isfield(job.mask(i),'hrfover')
+        hrfover = job.mask(i).hrfover;
+        hrfdel = job.mask(i).hrfdel;
+    end
+    masks(i).hrfoverlap = hrfover;
+    masks(i).hrfdelay = hrfdel;
 end
 
 mod_names_uniq = unique(mod_names);
 
-if nmasks ~= length(mod_names_uniq);
+if nmasks ~= length(mod_names_uniq)
     out.files{1} = [];
     beep;
     sprintf('Names of mask modalities repeated! Please correct!')
@@ -85,9 +94,9 @@ if isfield(job.group(1).select,'modality')
                 % Modalities
                 PRT.group(g).gr_name  = job.group(g).gr_name;
                 % Subjects
-                for s = 1:nsub,
+                for s = 1:nsub
                     subj_name = sprintf('S%d',s);
-                    for m = 1:nmod,
+                    for m = 1:nmod
                         modnm   = job.group(g).select.modality(m).mod_name;
                         ns      = length(job.group(g).select.modality(m).subjects);
                         if ~isempty(job.group(g).select.modality(m).rt_subj)
@@ -134,7 +143,7 @@ if isfield(job.group(1).select,'modality')
                             PRT.group(g).subject(s).modality(m).covar  = [];
                         end
                         mod_names_mod{m} = modnm;
-                        if isempty(intersect(mod_names_uniq,modnm)),
+                        if isempty(intersect(mod_names_uniq,modnm))
                             out.files{1} = [];
                             beep
                             sprintf('Incorrect modality name %s for subject %d group %d! ',modnm,s,g)
@@ -154,7 +163,7 @@ if isfield(job.group(1).select,'modality')
                             PRT.group(g).subject(s).modality(m).scans    = char(job.group(g).select.modality(m).subjects{s});
                         end
                     end
-                    if nmod ~= length(unique(mod_names_mod));
+                    if nmod ~= length(unique(mod_names_mod))
                         out.files{1} = [];
                         beep;
                         sprintf('Names of modalities in group %d repeated! Please correct!',g)
@@ -163,21 +172,21 @@ if isfield(job.group(1).select,'modality')
                 end
             end
         end
-        PRT.group(g).hrfoverlap = job.fmri_des.hrfover;
-        PRT.group(g).hrfdelay   = job.fmri_des.hrfdel;
+%         PRT.group(g).hrfoverlap = job.fmri_des.hrfover;
+%         PRT.group(g).hrfdelay   = job.fmri_des.hrfdel;
     end
 else
     % selection by subject
-    for g = 1:ngroup,  
+    for g = 1:ngroup  
         
         nmod_subjs = length(job.group(1).select.subject{1});
         nsubj  = length(job.group(g).select.subject);
         nsubj1 = length(job.group(1).select.subject);
         
-        if nsubj ~= nsubj1,
+        if nsubj ~= nsubj1
             disp('Warning: unbalanced groups.')
         end
-        for j = 1:nsubj,
+        for j = 1:nsubj
             clear mod_names_subj
             subj_name = sprintf('S%d',j);
             nmod = length(job.group(g).select.subject{j});
@@ -196,17 +205,18 @@ else
                     disp('Please correct!')
                     return
                 else
-                    for k = 1:nmod,
+                    for k = 1:nmod
                         modnm    = job.group(g).select.subject{j}(k).mod_name;
                         TR       = job.group(g).select.subject{j}(k).TR;
                         mod_names_subj{k} = modnm;
-                        if isempty(intersect(mod_names_uniq,modnm)),
+                        if isempty(intersect(mod_names_uniq,modnm))
                             out.files{1} = [];
                             beep
                             sprintf('Incorrect modality name %s for subject %d group %d! ',modnm,j,g)
                             disp('Please correct!')
                             return
                         end
+                        imask=ismember(mod_names,modnm); %get which mask for HRF info
                         clear design
                         if isfield(job.group(g).select.subject{j}(k).design,'load_SPM')
                             % Load SPM.mat design
@@ -233,7 +243,7 @@ else
                                 conds(c).onsets    = SPM.Sess(1).U(c).ons;
                                 conds(c).durations = SPM.Sess(1).U(c).dur;
                             end                        
-                            checked_conds = prt_check_design(conds,TR,unit,job.fmri_des.hrfover,job.fmri_des.hrfdel);
+                            checked_conds = prt_check_design(conds,TR,unit,masks(imask).hrfoverlap,masks(imask).hrfdelay);
                             design.conds  = checked_conds.conds;
                             design.stats  = checked_conds.stats;
                             design.TR     = TR;
@@ -350,7 +360,7 @@ else
                                         design.conds(c).rt_trial=[];
                                     end
                                 end
-                                checked_conds = prt_check_design(design.conds,TR,unit,job.fmri_des.hrfover,job.fmri_des.hrfdel);
+                                checked_conds = prt_check_design(design.conds,TR,unit,masks(imask).hrfoverlap,masks(imask).hrfdelay);
                                 design.conds  = checked_conds.conds;
                                 design.stats  = checked_conds.stats;
                                 design.TR     = checked_conds.TR;
@@ -377,19 +387,20 @@ else
                         PRT.group(g).subject(j).modality(k).TR      = job.group(g).select.subject{j}(k).TR;
                         PRT.group(g).subject(j).modality(k).design  = design;
                         PRT.group(g).subject(j).modality(k).scans   = char(job.group(g).select.subject{j}(k).scans);
+                        PRT.group(g).subject(j).modality(k).covar   = [];
                    
                     end
                 end
             end
-            if nmod ~= length(unique(mod_names_subj));
+            if nmod ~= length(unique(mod_names_subj))
                 out.files{1} = [];
                 beep;
                 sprintf('Names of modalities in subject %d group %d repeated! Please correct!',j,g)
                 return
             end
         end
-        PRT.group(g).hrfoverlap = job.fmri_des.hrfover;
-        PRT.group(g).hrfdelay   = job.fmri_des.hrfdel;
+%         PRT.group(g).hrfoverlap = job.fmri_des.hrfover;
+%         PRT.group(g).hrfdelay   = job.fmri_des.hrfdel;
     end
 end
 

@@ -4,7 +4,7 @@ function data = prt_cfg_design
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M.J.Rosa
+% Written by M.J.Rosa, modified by J. Schrouff
 % $Id$
 
 % ---------------------------------------------------------------------
@@ -84,7 +84,8 @@ review         = cfg_menu;
 review.tag     = 'review';
 review.name    = 'Review';
 review.help    = {['Choose ''Yes'' if you would like to review your '...
-    'data and design in a separate window.']};
+    'data and design in a separate window. This window needs to be closed'...
+    'before proceeding further.']};
 review.labels  = {
     'No'
     'Yes'
@@ -216,7 +217,7 @@ mask.name    = 'Modality';
 mask.help    = {['Specify name of modality and file for each mask. ',...
     'The name should be consistent with the names chosen ',...
     'for the modalities (subjects/scans).']};
-mask.val     = {mod_name, fmask };
+mask.val     = {mod_name, fmask, hrfover, hrfdel};
 
 % ---------------------------------------------------------------------
 % masks Masks
@@ -472,7 +473,8 @@ dir_name.num     = [1 1];
 data        = cfg_exbranch;
 data.tag    = 'data';
 data.name   = 'Data & Design';
-data.val    = {dir_name groups masks fmri_des review};
+data.val    = {dir_name groups masks review};
+% data.val    = {dir_name groups masks fmri_des review};
 data.help   = {'Specify the data and design for each group (minimum one group).'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;
