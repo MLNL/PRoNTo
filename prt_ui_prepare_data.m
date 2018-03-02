@@ -198,6 +198,7 @@ set(handles.multkernflag,'Enable','off')
 set(handles.multkernflag,'Value',0)
 handles.kname=[];
 handles.flag_mm = 0;
+handles.ouput = [];
 end
 % Update handles structure
 guidata(hObject, handles);

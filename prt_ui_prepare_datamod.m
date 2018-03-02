@@ -159,7 +159,8 @@ else
 end
 
 % if all modalities are .mat
-if length(unique({handles.PRT.group(1).subject(1).modality(:).type}))==1 ...
+if ~isempty(handles.PRT.group(1).subject(1).modality(1).type) && ... %Nifti if no type
+    length(unique({handles.PRT.group(1).subject(1).modality(:).type}))==1 ...
         && strcmp(unique({handles.PRT.group(1).subject(1).modality(:).type}),'.mat')
     set(handles.pop_det,'Visible','on')
     set(handles.pop_norm,'Visible','on')
