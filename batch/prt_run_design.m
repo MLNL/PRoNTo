@@ -380,15 +380,15 @@ else
                                 end
                             end
                         end
+                        
                         % Create PRT.mat modalities
                         PRT.group(g).gr_name                        = job.group(g).gr_name;
                         PRT.group(g).subject(j).subj_name           = subj_name;
-                        PRT.group(g).subject(j).modality(k)         = job.group(g).select.subject{j}(k);
+                        PRT.group(g).subject(j).modality(k).mod_name= job.group(g).select.subject{j}(k).mod_name;
                         PRT.group(g).subject(j).modality(k).TR      = job.group(g).select.subject{j}(k).TR;
                         PRT.group(g).subject(j).modality(k).design  = design;
                         PRT.group(g).subject(j).modality(k).scans   = char(job.group(g).select.subject{j}(k).scans);
                         PRT.group(g).subject(j).modality(k).covar   = [];
-                   
                     end
                 end
             end
