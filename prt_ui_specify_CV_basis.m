@@ -188,6 +188,8 @@ if a
         kt=prt_text_input('Title','Specify k, the number of folds');
         handles.cv.k=str2double(kt);
     end
+    set(handles.nfolds,'Enable','off')
+    set(handles.br_load,'Enable','off')
 else
     set(handles.basepop,'Enable','off')
     set(handles.basepop,'Value',1)
@@ -209,6 +211,8 @@ if a
     handles.spectype=3;
     set(handles.load,'Value',0)
     set(handles.base,'Value',0)
+    set(handles.basepop,'Enable','off')
+    set(handles.br_load,'Enable','off')
 else
     set(handles.nfolds,'Enable','off')
     set(handles.nfolds,'Value',0)
@@ -302,6 +306,8 @@ if a
     handles.spectype=1;
     set(handles.specnum,'Value',0)
     set(handles.base,'Value',0)
+    set(handles.nfolds,'Enable','off')
+    set(handles.basepop,'Enable','off')
 else
     set(handles.br_load,'Enable','off')
 end
