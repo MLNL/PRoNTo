@@ -176,6 +176,10 @@ else
         
         % Load PRT.mat
         PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
+        if isempty(PRT)
+            close(handles.figure1)
+            error('prt_ui_results_stats:NoInput','No PRT selected')
+        end
         pathdir = regexprep(PRT,'PRT.mat', '');
         handles.pathdir = pathdir;
         handles.prtdir=fileparts(PRT);
@@ -261,7 +265,6 @@ end
 set(handles.save_perm_weights,'Visible','off')
 % Choose default command line output for prt_ui_results_stats
 handles.output = hObject;
-
 % Update handles structure
 guidata(hObject, handles);
 
