@@ -221,13 +221,13 @@ for i=1:length(PRT.masks)
                 
             case 3 % .mat (similar to nifti but less options for now)
                 
-                if isfield(job.format.matmod(ind).conditions,'all_cond')
-                    mod(i).mode='all_cond';
-                elseif isfield(job.format.matmod(ind).conditions,'all_scans')
-                    mod(i).mode='all_scans';
-                else
-                    mod(i).mode='all_scans';
-                end
+%                 if isfield(job.format.matmodality(ind).conditions,'all_cond')
+%                     mod(i).mode='all_cond';
+%                 elseif isfield(job.format.matmodality(ind).conditions,'all_scans')
+%                     mod(i).mode='all_scans';
+%                 else
+                mod(i).mode='all_scans';
+%                 end
                 indm=find(strcmpi(maskchos,allmod{i}));
                 if isfield(job.format.matmodality(indm).features,'matmask')
                     mod(i).mask = char(job.format.matmodality(indm).features.matmask);
