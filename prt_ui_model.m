@@ -744,7 +744,8 @@ if val==1 %Classification
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
-        if handles.multimod || handles.multiroi
+        if handles.multimod || handles.multiroi || ...
+                numel(handles.fsidx{2})>1
             %list = [list,{'L1- Multi-Kernel Learning',...
              %       'wip'}];
              list = [list,{'L1- Multi-Kernel Learning','wip',...
@@ -808,27 +809,27 @@ if strcmpi(handles.type,'classification')
     handles.class=speccl.class;
     handles.subsample = speccl.subsample;
     ns=zeros(length(speccl.class),1);
-    ng1=1;
-    ng2=1;
+%     ng1=1;
+%     ng2=1;
     for ii=1:length(speccl.class)
         for jj=1:length(speccl.class(ii).group)
             ns(ii)=ns(ii)+length(speccl.class(ii).group(jj).subj);
         end
-        if jj==1
-            if ii==1
-                gname=speccl.class(ii).group(jj).gr_name;
-            else
-                if strcmpi(gname,speccl.class(ii).group(jj).gr_name)
-                    ng2=ng2+1;
-                end
-            end
-        else
-            ng1=0;
-        end
+%         if jj==1
+%             if ii==1
+%                 gname=speccl.class(ii).group(jj).gr_name;
+%             else
+%                 if strcmpi(gname,speccl.class(ii).group(jj).gr_name)
+%                     ng2=ng2+1;
+%                 end
+%             end
+%         else
+%             ng1=0;
+%         end
     end
     
     % Options for the outter CV
-    ng2=floor(ng2/length(speccl.class));
+%     ng2=floor(ng2/length(speccl.class));
     list=get(handles.pop_cv,'String');
     if (speccl.design) && max(ns)==1
         if ~any(ismember(list, 'Leave One Block Out'))
@@ -861,7 +862,7 @@ if strcmpi(handles.type,'classification')
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
         handles.cv.type_nested='loso';
-        if ~ng1 || ~ng2
+%         if ~ng1 || ~ng2
             list=get(handles.pop_cv,'String');
             if ~any(ismember(list, 'Leave One Subject per Class Out'))
                 list=[list;{'Leave One Subject per Class Out'}];
@@ -870,7 +871,7 @@ if strcmpi(handles.type,'classification')
                 list=[list;{'k-folds CV on Subject per Class'}];
             end
             set(handles.pop_cv,'String',list)
-        end
+%         end
     end
     
     
