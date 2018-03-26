@@ -595,6 +595,11 @@ else
     conds = handles.des;
     conds.conds = handles.cond;
 end
+if ~isfield(conds,'covar') && isfield(handles,'covar') %Gather subject's covariates, if not provided in table
+    conds.covar=handles.covar;
+else
+    conds.covar=[];
+end
 handles.output=conds;
 % Update handles structure
 guidata(hObject, handles);

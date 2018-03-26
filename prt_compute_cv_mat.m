@@ -38,7 +38,7 @@ else
     k = in.cv.k;
 end
 
-if k==1 %half-half
+if k==1 && ~strcmpi(in.cv.type,'custom') %half-half unless custom
     k=2;
     flaghh=1;
     PRT.model(modelid).input.cv_k = k;
@@ -84,7 +84,7 @@ switch in.cv.type
             % subjects
             if length(unique(dID(:,2)))<2*nsf
                 error('prt_model:losoSelectedWithTooLargeK',...
-                    'More than 50%% of data in testing set, reduce k');
+                    'More than 50%% of data in testing set, increase k');
             end
             mns=mod(gc,k);
             dk=nsf*ones(1,k);
@@ -253,7 +253,7 @@ switch in.cv.type
             % subjects
             if length(unique(dID(:,5)))<2*nsb
                 error('prt_model:loboSelectedWithTooLargeK',...
-                    'More than 50%% of data in testing set, reduce k');
+                    'More than 50%% of data in testing set, increase k');
             end
             mns=mod(gc,k);
             dk=nsb*ones(1,k);

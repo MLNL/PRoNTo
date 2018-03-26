@@ -84,7 +84,8 @@ review         = cfg_menu;
 review.tag     = 'review';
 review.name    = 'Review';
 review.help    = {['Choose ''Yes'' if you would like to review your '...
-    'data and design in a separate window.']};
+    'data and design in a separate window. This window needs to be closed'...
+    'before proceeding further.']};
 review.labels  = {
     'No'
     'Yes'
@@ -231,7 +232,7 @@ niftimask         = cfg_branch;
 niftimask.tag     = 'niftimask';
 niftimask.name    = 'Nifti';
 niftimask.help    = {['Specify name of mask file for nifti modality.']};
-niftimask.val     = {fmask};
+niftimask.val     = {fmask, hrfover, hrfdel};
 
 % ---------------------------------------------------------------------
 % MEEGmask
@@ -630,7 +631,7 @@ dir_name.num     = [1 1];
 data        = cfg_exbranch;
 data.tag    = 'data';
 data.name   = 'Data & Design';
-data.val    = {dir_name groups masks fmri_des review};
+data.val    = {dir_name groups masks review};
 data.help   = {'Specify the data and design for each group (minimum one group).'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;

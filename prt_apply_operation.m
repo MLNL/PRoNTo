@@ -218,15 +218,16 @@ for d = 1:length(in.train)
                         [in.tr_cov,ones(size(in.tr_cov,1),1)]);
                 else
                     trainonly = 1;
-                    outreg = prt_regconf(PRT, in, trainonly,d);
+                    outreg = prt_regconfTrData(PRT, in, trainonly,d);
                     out.train{d}    = outreg.train;
                 end
             else
                 Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
                 if in.use_kernel
-                    C = [in.tr_cov;in.te_cov];
-                    C = [C, ones(size(C,1),1)];
-                    [Phi] = prt_remove_confounds(Phi,C);
+                    %Remove confounds only in the training data, and keep
+                    %the updates in Phi
+                    [K_tr,K_te,K_trte] = prt_remove_confounds_TrKernel(in.train{d},in.testcov{d},in.test{d}',in.tr_cov,in.te_cov);
+                    Phi = [K_tr, K_trte; K_trte' K_te];
                     tr = 1:size(in.train{d},1);
                     te = (1:size(in.test{d},1))+max(tr);
                     out.train{d}    = Phi(tr,tr);

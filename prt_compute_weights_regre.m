@@ -323,9 +323,26 @@ for p=0:maxp
                 
                 % Apply any operations specified during training
                 ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
+                % If GLM is one operation, set it to be the first. 
+                if any(ismember(ops,5))
+                    posglm = find(ops==5);
+                    if posglm~=1 % GLM should be the first
+                        idxops = 1:length(ops);
+                        newidx = setdiff(idxops,posglm);
+                        ops=[5,ops(newidx)];
+                    end
+                end
+                
                 cvdata.train      = {d.datamat};
                 cvdata.tr_id      = ID(train_idx,:);
                 cvdata.use_kernel = false; % need to apply the operation to the data
+                % Get covariates (all columns) if any
+                if ~isfield(PRT.model(model_idx).input,'covar') || ...
+                        isempty(PRT.model(model_idx).input.covar)
+                    cvdata.tr_cov = [];
+                else
+                    cvdata.tr_cov = PRT.model(model_idx).input.covar(train_idx,:);
+                end
                 for o = 1:length(ops)
                     cvdata = prt_apply_operation(PRT, cvdata, ops(o));
                 end

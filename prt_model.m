@@ -174,7 +174,7 @@ samp_all = zeros(n,1);
 if ~isempty(PRT.group(1).subject(1).modality(1).covar)
     cov_all = zeros(n,size(PRT.group(1).subject(1).modality(1).covar,2));
 else
-    cov_all = zeros(n,1);
+    cov_all = [];
 end
 
 if ~flag
@@ -343,7 +343,11 @@ end
 samp_idx = find(samp_all);
 samp_all = find(samp_all);    
 targets  = t_all(samp_idx);
-covar = cov_all(samp_idx,:);
+if ~isempty(cov_all)
+    covar = cov_all(samp_idx,:);
+else
+    covar = [];
+end
 
 %     targ_g=[targ_g;targets(:)];
 %     covar = [covar;cov];
