@@ -120,17 +120,20 @@ for i = 1:size(par, 2)
             m.type = 'classifier';
             
         otherwise
-            if ~isempty(stringpar)    
-                PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
-            else
-                PRT.model(in.mid).input.machine.args = par(i);
+            try
+                if ~isempty(stringpar)    
+                    PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
+                else
+                    PRT.model(in.mid).input.machine.args = par(i);
+                end
+                if strcmpi(PRT.model(in.mid).input.type,'classification')
+                    m.type = 'classifier';
+                elseif strcmpi(PRT.model(in.mid).input.type,'regression')
+                    m.type = PRT.model(in.mid).input.type;
+                end
+            catch
+                error('Machine not currently supported for nested CV');
             end
-            if strcmpi(PRT.model(in.mid).input.type,'classification')
-                m.type = 'classifier';
-            elseif strcmpi(PRT.model(in.mid).input.type,'regression')
-                m.type = PRT.model(in.mid).input.type;
-            end
-            %error('Machine not currently supported for nested CV');
     end
     
     % compute the model for each fold of the inner CV
@@ -141,7 +144,7 @@ for i = 1:size(par, 2)
         fold.Phi_all = in.Phi_all;
         fold.t       = in.t;
         fold.mid     = in.mid;
-        if isfield(in, 'cov')
+        if isfield(in, 'cov') && ~ isempty(in.cov)
             fold.cov     = in.cov;
         end
 
@@ -387,7 +390,7 @@ train_entries = find(in.CV == 1);
 in.ID      = in.ID(train_entries, :);
 in.t       = in.t(train_entries);
 % in.fs      = PRT.fs;
-if isfield(in, 'cov')
+if isfield(in, 'cov') && ~isempty(in.cov)
     in.cov     = in.cov(train_entries,:);
 end
 if isfield(PRT.model(in.mid).input,'cv_type_nested')
@@ -422,7 +425,7 @@ for t=1:n_tasks
     train_entries = find(in.CV{t} == 1);
     in.ID{t}      = in.ID{t}(train_entries, :);
     in.t{t}       = in.t{t}(train_entries);
-    if isfield(in, 'cov')
+    if isfield(in, 'cov') && ~isempty(in.cov)
         in.cov{t}     = in.cov{t}(train_entries,:);
     end
     if isfield(PRT.model(m(t)).input,'cv_type_nested')

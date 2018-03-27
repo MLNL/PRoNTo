@@ -16,12 +16,22 @@ flagch = 0; % 1 if structure is updated
 % Data and Design
 %--------------------------------------------------------------------------
 % Group
-ng = {'gr_name','subject','hrfoverlap','hrfdelay'};
+ng = {'gr_name','subject'};
 np = fieldnames(PRT.group(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
     flag = 0;
 end
+
+ng = {'hrfdelay','hrfoverlap'};
+cg = ismember(ng,np);
+for i=1:numel(ng)
+    if all(cg)
+        d.(ng{i}) = PRT.group(1).(ng{i});
+    else
+        d.(ng{i}) = 0;
+    end
+ end
 
 % Subject
 ng = {'subj_name','modality'};
@@ -36,7 +46,7 @@ ng = {'mod_name','covar','rt_subj','design','scans'};
 np = fieldnames(PRT.group(1).subject(1).modality(1));
 cg = ismember(ng,np);
 if ~all(cg) % missing fields
-    flagch = 1;
+    flag = 0;
     ita = find(cg==0);
     for i = 1:length(ita)
         for j=1:length(PRT.group)
@@ -68,6 +78,19 @@ if ~all(cg) % missing fields
             if ita(i)==3
                 PRT.masks(j).type = 'nifti';
             end
+        end
+    end
+end
+
+% Do the same for HRF default parameters
+nadd = {'hrfdelay','hrfoverlap'};
+cg = ismember(nadd,np);
+if ~all(cg) % missing fields
+    flagch = 1;
+    ita = find(cg==0);
+    for i = 1:length(ita)
+        for j=1:length(PRT.masks)
+            PRT.masks(j).(nadd{ita(i)}) = d.(nadd{ita(i)});
         end
     end
 end

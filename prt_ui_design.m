@@ -975,7 +975,11 @@ catch
 end
 if isfield(handles.dat.group(cgr).subject(cs).modality(cm),'type') && ...
         ~strcmpi(handles.dat.group(cgr).subject(cs).modality(cm).type,'nifti')
-    fnames=spm_select([1 1],'mat','Select files for the modality',prevlist);
+    [fnames,status]=spm_select([1 1],'mat','Select files for the modality',prevlist);
+    if ~status
+       % Quitted, restor previous list
+        fnames = char(prevlist);
+    end
     % update the design automatically loaded from the file
     if size(fnames,1)>1
         error('prt_ui_design:OnlyOneMEEGFile',...
@@ -1050,7 +1054,11 @@ else
         indm=length(handles.dat.masks)+1;
     end
 end
-mname=spm_select(1,'image',['Select mask for ',val],cellstr(sel));
+[mname,status]=spm_select(1,'image',['Select mask for ',val],cellstr(sel));
+if ~status
+    % Quitted, restor previous list
+    mname = char(sel);
+end
 if ~isempty(mname)
     handles.dat.masks(indm).mod_name=val;
     handles.dat.masks(indm).fname=mname;
@@ -1254,6 +1262,8 @@ end
 
 %Rearrange the data structure if the "Scans" option was selected for one of
 %the groups
+PRT= handles.dat;
+PRT.group = handles.dat.group;
 for i=1:length(handles.ds)
     if ~isempty(strfind(lower(handles.dat.group(i).subject(1).subj_name),'scan'))
         subj=struct();
@@ -1288,7 +1298,7 @@ for i=1:length(handles.ds)
                 end
             end
         end
-        handles.dat.group(i).subject=subj;
+        PRT.group(i).subject=subj;
     end
 end
 
@@ -1342,9 +1352,9 @@ for i=1:ng
 %             return
         end
         for k=1:nm
-            m2=find(strcmpi({handles.dat.group(i).subject(j).modality(:).mod_name},{handles.dat.masks(k).mod_name}));
+            m2=find(strcmpi({PRT.group(i).subject(j).modality(:).mod_name},{handles.dat.masks(k).mod_name}));
             matdat(j,k)=handles.ds{i}{j}{m2};
-            if isstruct(handles.dat.group(i).subject(j).modality(m2).design)
+            if isstruct(PRT.group(i).subject(j).modality(m2).design)
                 des=handles.dat.group(i).subject(j).modality(m2).design;
                 maxcond=max([des.conds(:).scans]);
                 if matdat(j,k)>1 && matdat(j,k)<maxcond 
@@ -1358,33 +1368,21 @@ for i=1:ng
                         des.conds(l).scans=des.conds(l).scans(inser);
                         des.conds(l).blocks=des.conds(l).blocks(inser);
                     end
-                    handles.dat.group(i).subject(j).modality(m2).design=des;
+                    PRT.group(i).subject(j).modality(m2).design=des;
                 end
-            end
+            end        
+            PRT.group(i).subject(j).modality(k)=handles.dat.group(i).subject(j).modality(m2);
         end
-        handles.dat.group(i).subject(j).modality(k)=handles.dat.group(i).subject(j).modality(m2);
     end
 end
-def=prt_get_defaults('datad');
-%save the data structure
-disp('Saving the data.....>>')
-PRT=struct();
-PRT.group=handles.dat.group;
 
-if ~isfield(handles.dat.group(1),'hrfoverlap')
-    for i=1:ng
-        PRT.group(i).hrfoverlap=def.hrfw;
-    end
-end
-if ~isfield(handles.dat.group(1),'hrfdelay')
-    for i=1:ng
-        PRT.group(i).hrfdelay=def.hrfd;
-    end
-end
 PRT.masks=handles.dat.masks;
 
 %Remove any field from previous computations if the PRT is loaded and then
 %modified
+%save the data structure
+disp('Saving the data.....>>')
+
 if isfield(PRT,'fs')
     PRT=rmfield(PRT,'fs');
     beep
