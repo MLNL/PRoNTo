@@ -139,10 +139,7 @@ else
         end
     end
     handles.mod=[];
-<<<<<<< HEAD
-=======
     handles.mod.detrend=0;
->>>>>>> Flexible_CV
     handles.mod.design=0;
     handles.mod.scans=[];
     handles.mod.name={};
@@ -159,18 +156,6 @@ else
 
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         %Particular options if you select by 'scans'
-<<<<<<< HEAD
-        if ~isempty(varargin{2}{2}) 
-            if strcmpi(varargin{2}{2}.subj_name,'Scans') || ...
-                 (isfield(varargin{2}{2},'modality') && varargin{2}{2}.modality.design==0) %No design, One image per subject
-                    set(handles.design_menu,'Enable','off')
-                    set(handles.edit_regt,'Enable','on')
-                    set(handles.edit_regt,'Visible','on')
-                    set(handles.edit_covar,'Enable','on')
-                    set(handles.edit_covar,'Visible','on')
-                    set(handles.text7,'Visible','on') % Covariates
-                    set(handles.text6,'Visible','on') %Regression targets
-=======
         if ~isempty(varargin{2}{2})
             if ~isempty(varargin{2}{3})
                 openmod = 1;
@@ -198,7 +183,6 @@ else
                 set(handles.edit_covar,'Visible','off')
                 set(handles.text7,'Visible','off')
                 set(handles.text6,'Visible','off')
->>>>>>> Flexible_CV
             end
         else
             set(handles.design_menu,'Enable','on')
@@ -223,20 +207,12 @@ else
                 set(handles.modname,'Value',valsel);
                 handles.mod.design=modsel.design;
                 if ~isempty(modsel.design)
-<<<<<<< HEAD
-                    if modsel.design== 0
-=======
                     if ~isstruct(modsel.design) && modsel.design== 0
->>>>>>> Flexible_CV
                         set(handles.design_menu,'Value',3)
                         handles.desnmenu = 3;
                     else
                         set(handles.design_menu,'Value',2)
-<<<<<<< HEAD
                         handles.desnmenu = 2;
-=======
-                        handles.desnmenu=2;
->>>>>>> Flexible_CV
                     end
                 end
                 handles.mod.scans=modsel.scans;
@@ -254,12 +230,9 @@ else
                 end
                 handles.mod.rt_subj=modsel.rt_subj;
                 if ~isempty(modsel.rt_subj)
-<<<<<<< HEAD
-=======
                     set(handles.edit_regt,'Enable','on')
                     set(handles.edit_regt,'Visible','on')
                     set(handles.text6,'Visible','on')
->>>>>>> Flexible_CV
                     if numel(modsel.rt_subj)==1  %Review numbers for only one subject
                         set(handles.edit_regt,'String',num2str(modsel.rt_subj))
                     else
@@ -523,9 +496,6 @@ elseif strcmpi(handles.mod.type,'nifti') && choice==2
     end
 elseif strcmpi(handles.mod.type,'nifti') && choice ==3
     desn=[];
-<<<<<<< HEAD
-elseif strcmpi(handles.mod.type,'nifti') && choice==4        % replicate design of 1st subject
-=======
     if size(handles.mod.scans,1)==1 %If no design and one image, can enter covariates and RT
         set(handles.design_menu,'Value')
         set(handles.edit_regt,'Enable','on')
@@ -545,7 +515,6 @@ elseif strcmpi(handles.mod.type,'nifti') && choice==4        % replicate design 
         handles.mod.rt_subj=[];
     end
 elseif choice==4
->>>>>>> Flexible_CV
     desn=handles.subj1(handles.indmods1).design;
 elseif strcmpi(handles.mod.type,'MEEG')         %load design from D object if file was selected
     if isempty(handles.mod.scans)
@@ -571,16 +540,6 @@ if isfield(desn,'covar') && ~isempty(desn.covar)
     set(handles.edit_covar,'Visible','on');
     set(handles.text7, 'Visible','on')
 end
-<<<<<<< HEAD
-if isempty(desn)
-    set(handles.text6,'Visible','on') % Allow to enter RT, one per file
-    set(handles.edit_regt,'Enable','on')
-    set(handles.edit_regt,'Visible','on')
-else
-    set(handles.text6,'Visible','off')
-    set(handles.edit_regt,'Enable','off')
-    set(handles.edit_regt,'Visible','off')
-=======
 if choice ~= 3
     set(handles.edit_regt,'Enable','off')
     set(handles.edit_regt,'Visible','off')
@@ -590,7 +549,6 @@ if choice ~= 3
     set(handles.text6,'Visible','off')
     handles.mod.covar=[];
     handles.mod.rt_subj=[];
->>>>>>> Flexible_CV
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -617,7 +575,7 @@ if ~isempty(handles.mod.scans)
 else
     sel=[];
 end
-<<<<<<< HEAD
+
 typ = get(handles.type,'Value');
 desn=[];
 if typ>1 % either MEEG or .mat with data matrix (v3.1)
@@ -646,36 +604,35 @@ if typ>1 % either MEEG or .mat with data matrix (v3.1)
         set(handles.text7, 'Visible','on')
     end
 else
-    t=spm_select([1 Inf],'image','Select files for the modality',sel);
+    [t,status]=spm_select([1 Inf],'image','Select files for the modality',sel);
 end
-handles.mod.scans=t;
-=======
-[t,status]=spm_select([1 Inf],'image','Select files for the modality',sel);
 if status
     handles.mod.scans=t;
 else
     handles.mod.scans=sel;
 end
-choice=get(handles.design_menu,'Value');
-if choice==3 && size(handles.mod.scans,1)==1 %No design and only one image
-    set(handles.edit_regt,'Enable','on')
-    set(handles.edit_regt,'Visible','on')
-    set(handles.edit_covar,'Enable','on')
-    set(handles.edit_covar,'Visible','on')
-    set(handles.text7,'Visible','on')
-    set(handles.text6,'Visible','on')
-end
-if ~handles.scans && size(handles.mod.scans,1)>1
-    set(handles.edit_regt,'Enable','off')
-    set(handles.edit_regt,'Visible','off')
-    set(handles.edit_covar,'Enable','off')
-    set(handles.edit_covar,'Visible','off')
-    set(handles.text7,'Visible','off')
-    set(handles.text6,'Visible','off')
-    handles.mod.covar=[];
-    handles.mod.rt_subj=[];
-end
->>>>>>> Flexible_CV
+% =======
+% 
+% choice=get(handles.design_menu,'Value');
+% if choice==3 && size(handles.mod.scans,1)==1 %No design and only one image
+%     set(handles.edit_regt,'Enable','on')
+%     set(handles.edit_regt,'Visible','on')
+%     set(handles.edit_covar,'Enable','on')
+%     set(handles.edit_covar,'Visible','on')
+%     set(handles.text7,'Visible','on')
+%     set(handles.text6,'Visible','on')
+% end
+% if ~handles.scans && size(handles.mod.scans,1)>1
+%     set(handles.edit_regt,'Enable','off')
+%     set(handles.edit_regt,'Visible','off')
+%     set(handles.edit_covar,'Enable','off')
+%     set(handles.edit_covar,'Visible','off')
+%     set(handles.text7,'Visible','off')
+%     set(handles.text6,'Visible','off')
+%     handles.mod.covar=[];
+%     handles.mod.rt_subj=[];
+% end
+% >>>>>>> Flexible_CV
 % Update handles structure
 guidata(hObject, handles);
 
@@ -842,21 +799,11 @@ end
 %number of scans or as the number of events in design
 if ~isempty(handles.mod.rt_subj)
     szrt=length(handles.mod.rt_subj);
-<<<<<<< HEAD
-    if isempty(handles.mod.design)
-        if  size(handles.mod.scans,1)~=szrt
-            beep
-            disp('Number of regression targets must be the same as number of files selected! ')
-            disp('Please correct!')
-            return
-        end
-=======
     if  size(handles.mod.scans,1)~=szrt 
         beep
         disp('Number of regression targets must be the number of files selected! ')
         disp('Please correct!')
         return
->>>>>>> Flexible_CV
     end
     if ~handles.scans && size(handles.mod.scans,1)>1
         beep

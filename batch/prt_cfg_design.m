@@ -4,11 +4,8 @@ function data = prt_cfg_design
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-<<<<<<< HEAD
+
 % Written by M.J.Rosa and J. Schrouff
-=======
-% Written by M.J.Rosa, modified by J. Schrouff
->>>>>>> Flexible_CV
 % $Id$
 
 % ---------------------------------------------------------------------
@@ -275,11 +272,8 @@ mask.name    = 'Modality';
 mask.help    = {['Specify name of modality and file format for each mask. ',...
     'The name should be consistent with the names chosen ',...
     'for the modalities (subjects/scans).']};
-<<<<<<< HEAD
-mask.val     = {mod_name, tmask };
-=======
 mask.val     = {mod_name, fmask, hrfover, hrfdel};
->>>>>>> Flexible_CV
+
 
 % ---------------------------------------------------------------------
 % masks Masks
@@ -640,10 +634,6 @@ data        = cfg_exbranch;
 data.tag    = 'data';
 data.name   = 'Data & Design';
 data.val    = {dir_name groups masks review};
-<<<<<<< HEAD
-=======
-% data.val    = {dir_name groups masks fmri_des review};
->>>>>>> Flexible_CV
 data.help   = {'Specify the data and design for each group (minimum one group).'};
 data.prog   = @prt_run_design;
 data.vout   = @vout_data;
