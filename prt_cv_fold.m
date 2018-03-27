@@ -9,6 +9,7 @@ function [model, targets] = prt_cv_fold(PRT, in)
 % in.CV:         Cross-validation matrix (current fold only)
 % in.Phi_all:    Cell array of data matri(ces) (training and test)
 % in.t           prediction targets
+% in.cov         covariates 
 %
 % Outputs:
 % --------

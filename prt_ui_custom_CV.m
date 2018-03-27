@@ -60,146 +60,165 @@ function prt_ui_custom_CV_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_custom_CV (see VARARGIN)
 
-set(handles.figure1,'Name','PRoNTo :: Custom Cross-Validation')
-%set size of the window, taking screen resolution and platform into account
-S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
-if ispc
-    PF='MS Sans Serif';
+% Choose default command line output for prt_ui_design
+handles.output = hObject;
+%if window already exists, just put it as the current figure
+Tag='CustCV';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
 else
-    PF= spm_platform('fonts');     %-Font names (for this platform)
-    PF=PF.helvetica;
-end
-tmp  = [S0(3)/1280 (S0(4))/800];
-ratio=min(tmp)*[1 1 1 1];
-FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
-x=get(handles.figure1,'Position');
-set(handles.figure1,'DefaultTextFontSize',FS*12,...
-    'DefaultUicontrolFontSize',FS*12,...
-    'DefaultTextFontName',PF,...
-    'DefaultAxesFontName',PF,...
-    'DefaultUicontrolFontName',PF)
-set(handles.figure1,'Position',ratio.*x)
-set(handles.figure1,'Resize','on')
-
-% Choose the color of the different backgrounds and figure parameters
-color=prt_get_defaults('color');
-set(handles.figure1,'Color',color.bg1)
-aa=get(handles.figure1,'children');
-for i=1:length(aa)
-    if strcmpi(get(aa(i),'type'),'uipanel')
-        set(aa(i),'BackgroundColor',color.bg2)
-        bb=get(aa(i),'children');
-        if ~isempty(bb)
-            for j=1:length(bb)
-                if isfield(get(bb(j)),'Style')
-                if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
-                        'radiobutton','checkbox'}))) 
-                    set(bb(j),'BackgroundColor',color.bg2)
-                elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton'))) 
-                    set(bb(j),'BackgroundColor',color.fr)
-                end
-                set(bb(j),'FontUnits','pixel')
-                xf=get(bb(j),'FontSize');
-                set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
-                    'FontUnits','normalized','Units','normalized')
+    set(handles.figure1,'Tag',Tag)
+    set(handles.figure1,'Name','PRoNTo :: Custom Cross-Validation')
+    %set size of the window, taking screen resolution and platform into account
+    S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+    if ispc
+        PF='MS Sans Serif';
+    else
+        PF= spm_platform('fonts');     %-Font names (for this platform)
+        PF=PF.helvetica;
+    end
+    tmp  = [S0(3)/1280 (S0(4))/800];
+    ratio=min(tmp)*[1 1 1 1];
+    FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
+    x=get(handles.figure1,'Position');
+    set(handles.figure1,'DefaultTextFontSize',FS*12,...
+        'DefaultUicontrolFontSize',FS*12,...
+        'DefaultTextFontName',PF,...
+        'DefaultAxesFontName',PF,...
+        'DefaultUicontrolFontName',PF)
+    set(handles.figure1,'Position',ratio.*x)
+    set(handles.figure1,'Resize','on')
+    
+    % Choose the color of the different backgrounds and figure parameters
+    color=prt_get_defaults('color');
+    set(handles.figure1,'Color',color.bg1)
+    aa=get(handles.figure1,'children');
+    for i=1:length(aa)
+        if strcmpi(get(aa(i),'type'),'uipanel')
+            set(aa(i),'BackgroundColor',color.bg2)
+            bb=get(aa(i),'children');
+            if ~isempty(bb)
+                for j=1:length(bb)
+                    if isfield(get(bb(j)),'Style')
+                        if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                                'radiobutton','checkbox'})))
+                            set(bb(j),'BackgroundColor',color.bg2)
+                        elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
+                            set(bb(j),'BackgroundColor',color.fr)
+                        end
+                        set(bb(j),'FontUnits','pixel')
+                        xf=get(bb(j),'FontSize');
+                        set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                            'FontUnits','normalized','Units','normalized')
+                    end
                 end
             end
+        elseif strcmpi(get(aa(i),'type'),'uicontrol')
+            if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                    'radiobutton','checkbox','listbox'})))
+                set(aa(i),'BackgroundColor',color.bg1)
+            elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+                set(aa(i),'BackgroundColor',color.fr)
+            end
         end
-    elseif strcmpi(get(aa(i),'type'),'uicontrol')
-        if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
-                'radiobutton','checkbox','listbox'})))
-            set(aa(i),'BackgroundColor',color.bg1)
-        elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
-            set(aa(i),'BackgroundColor',color.fr)
+        set(aa(i),'FontUnits','pixel')
+        xf=get(aa(i),'FontSize');
+        if ispc
+            set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+                'FontUnits','normalized','Units','normalized')
+        else
+            set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+                'Units','normalized')
         end
     end
-    set(aa(i),'FontUnits','pixel')
-    xf=get(aa(i),'FontSize');
-    if ispc
-        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            'FontUnits','normalized','Units','normalized')
-    else
-        set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
-            'Units','normalized')
+    
+    
+    %get information from the PRT.mat
+    if ~isempty(varargin)
+        handles.CV=varargin{1};
+        dat=num2cell(handles.CV);
+        handles.ID=varargin{2};
+        handles.in=varargin{3};
+        handles.prt=varargin{4};
+        handles.leg=varargin{5};
     end
-end
-
-
-%get information from the PRT.mat
-if ~isempty(varargin)
-    handles.CV=varargin{1};
-    dat=num2cell(handles.CV);
-    handles.ID=varargin{2};
-    handles.in=varargin{3};
-    handles.prt=varargin{4};
-    handles.leg=varargin{5};
-end
-set(handles.editcv,'Data',dat);
-disp_CV(hObject,handles,handles.ID,handles.CV)
-set(handles.editcv,'ColumnEditable',true(1,size(handles.CV,2)));
-lc=cell(size(handles.CV,2),1);
-for i=1:size(handles.CV,2)
-    lc{i}=['fold ',num2str(i)];
-end
-set(handles.editcv,'ColumnName',lc)
-lr=cell(size(handles.CV,1),1);
-ID = handles.ID;
-ng = length(unique(ID(:,1)));
-if ng>1 % Labels of table contain the group names
-    for i = 1:length(lr)
-        lr{i}=[handles.prt.group(ID(i,1)).gr_name,' '];
+    set(handles.editcv,'Data',dat);
+    % Update handles structure
+    set(0,'CurrentFigure',handles.figure1)
+    guidata(hObject, handles);
+    disp_CV(hObject,handles,handles.ID,handles.CV)
+    handles=guidata(hObject);
+    set(handles.editcv,'ColumnEditable',true(1,size(handles.CV,2)));
+    lc=cell(size(handles.CV,2),1);
+    for i=1:size(handles.CV,2)
+        lc{i}=['fold ',num2str(i)];
     end
-end
-ns = length(unique(ID(:,2)));
-if ns>1  % Labels of table contain the subject names
-    for i = 1:length(lr)
-        lr{i}=[lr{i},...
-            handles.prt.group(ID(i,1)).subject(ID(i,2)).subj_name,' '];
+    set(handles.editcv,'ColumnName',lc)
+    lr=cell(size(handles.CV,1),1);
+    ID = handles.ID;
+    ng = length(unique(ID(:,1)));
+    if ng>1 % Labels of table contain the group names
+        for i = 1:length(lr)
+            lr{i}=[handles.prt.group(ID(i,1)).gr_name,' '];
+        end
     end
-end      
-nm = length(unique(ID(:,3)));
-if nm>1  % Labels of table contain the modality names
-    for i = 1:length(lr)
-        lr{i}=[lr{i},...
-            handles.prt.group(ID(i,1)).subject(ID(i,2)).modality(ID(i,3)).mod_name,...
-            ' '];
+    ns = length(unique(ID(:,2)));
+    if ns>1  % Labels of table contain the subject names
+        for i = 1:length(lr)
+            lr{i}=[lr{i},...
+                handles.prt.group(ID(i,1)).subject(ID(i,2)).subj_name,' '];
+        end
     end
-end
-            
-nc = length(unique(ID(:,4)));
-if nc>1  % Labels of table contain the modality names
-    for i = 1:length(lr)
-        lr{i}=[lr{i},...
-            handles.prt.group(ID(i,1)).subject(ID(i,2)).modality(ID(i,3)).design.conds(ID(i,4)).cond_name,...
-            ' '];
+    nm = length(unique(ID(:,3)));
+    if nm>1  % Labels of table contain the modality names
+        for i = 1:length(lr)
+            lr{i}=[lr{i},...
+                handles.prt.group(ID(i,1)).subject(ID(i,2)).modality(ID(i,3)).mod_name,...
+                ' '];
+        end
     end
+    
+    nc = length(unique(ID(:,4)));
+    if nc>1  % Labels of table contain the modality names
+        for i = 1:length(lr)
+            lr{i}=[lr{i},...
+                handles.prt.group(ID(i,1)).subject(ID(i,2)).modality(ID(i,3)).design.conds(ID(i,4)).cond_name,...
+                ' '];
+        end
+    end
+    
+    
+    % lg=unique(lg);
+    % lc=unique(lc);
+    % if isempty(lg)
+    %     nc=char([handles.leg.lc]);
+    %     [du1,loc]=ismember(lc,handles.leg.lci);
+    %     nc=nc(loc,:);
+    % elseif isempty(lc)
+    %     nc=char([handles.leg.lg]);
+    %     [du1,loc]=ismember(lg,handles.leg.lcg);
+    %     nc=nc(loc,:);
+    % else
+    %     [du1,loc]=ismember(lc,handles.leg.lci);
+    %     [du1,loc1]=ismember(lg,handles.leg.lcg);
+    %     nc=char([handles.leg.lg(loc1);handles.leg.lc(loc)]);
+    % end
+    % sg='c';
+    % lc=[repmat(sg,length(lc),1), num2str(lc),repmat('   ',length(lc),1)];
+    % sg='G';
+    % lg=[repmat(sg,length(lg),1), num2str(lg),repmat('   ',length(lg),1)];
+    % cc=strvcat(lg,lc);
+    set(handles.editcv,'RowName',lr)
+    % set(handles.tlegends,'String',[cc,nc])
+    handles.flagdone=0;
+    handles.selectedcells=[];
 end
-
-
-% lg=unique(lg);
-% lc=unique(lc);
-% if isempty(lg)
-%     nc=char([handles.leg.lc]);
-%     [du1,loc]=ismember(lc,handles.leg.lci);
-%     nc=nc(loc,:);
-% elseif isempty(lc)
-%     nc=char([handles.leg.lg]);
-%     [du1,loc]=ismember(lg,handles.leg.lcg);
-%     nc=nc(loc,:);
-% else
-%     [du1,loc]=ismember(lc,handles.leg.lci);
-%     [du1,loc1]=ismember(lg,handles.leg.lcg);
-%     nc=char([handles.leg.lg(loc1);handles.leg.lc(loc)]);
-% end
-% sg='c';
-% lc=[repmat(sg,length(lc),1), num2str(lc),repmat('   ',length(lc),1)];
-% sg='G';
-% lg=[repmat(sg,length(lg),1), num2str(lg),repmat('   ',length(lg),1)];
-% cc=strvcat(lg,lc);
-set(handles.editcv,'RowName',lr)
-% set(handles.tlegends,'String',[cc,nc])
-handles.flagdone=0;
-handles.selectedcells=[];
 % Update handles structure
 guidata(hObject, handles);
 
@@ -379,6 +398,7 @@ guidata(hObject, handles);
 %------------------------- Subfunctions -----------------------------------
 %--------------------------------------------------------------------------
 function disp_CV(hObject,handles,dat,CV)
+
 
 cla(handles.axes1)
 cla(handles.axes2)

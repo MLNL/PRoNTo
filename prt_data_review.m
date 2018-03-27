@@ -220,13 +220,13 @@ if isempty(ind)
     set(handles.text1,'Position',[x(1),(w(4)+x(4))*1.1,x(3),x(4)*3])
 else
     def=prt_get_defaults('datad');
-    if isfield(PRT.group,'hrfoverlap')
-        set(handles.hrfover_edit,'String',num2str(PRT.group(1).hrfoverlap))
+    if isfield(PRT.masks,'hrfoverlap')
+        set(handles.hrfover_edit,'String',num2str(PRT.masks(1).hrfoverlap))
     else
         set(handles.hrfover_edit,'String',num2str(def.hrfw))
     end
-    if isfield(PRT.group,'hrfdelay')
-        set(handles.edit_hrfdel,'String',num2str(PRT.group(1).hrfdelay))
+    if isfield(PRT.masks,'hrfdelay')
+        set(handles.edit_hrfdel,'String',num2str(PRT.masks(1).hrfdelay))
     else
         set(handles.edit_hrfdel,'String',num2str(def.hrfd))
     end
@@ -255,7 +255,7 @@ end
 guidata(hObject, handles);
 
 % UIWAIT makes prt_data_review wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -280,6 +280,7 @@ function figure1_DeleteFcn(hObject,eventdata,handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 delete(handles.figure1);
+uiresume(handles.figure1);
 
 % --- Executes on selection change in modlist.
 function modlist_Callback(hObject, eventdata, handles)
@@ -297,6 +298,22 @@ if length(list)==1
 end
 
 val=get(handles.modlist,'Value');
+mod = get(handles.modlist,'String');
+modn = mod{val};
+modall = {handles.PRT.masks(:).mod_name};
+im = find(ismember(modall,modn));
+def=prt_get_defaults('datad');
+if ~isfield(handles.PRT.masks,'hrfoverlap') || ...
+        isempty(handles.PRT.masks(im).hrfoverlap)
+    handles.PRT.masks(im).hrfoverlap = def.hrfw;
+end
+set(handles.hrfover_edit,'String',num2str(handles.PRT.masks(im).hrfoverlap))
+if ~isfield(handles.PRT.masks,'hrfdelay') || ...
+        isempty(handles.PRT.masks(im).hrfdelay)
+    handles.PRT.masks(im).hrfoverlap = def.hrfd;
+end
+set(handles.edit_hrfdel,'String',num2str(handles.PRT.masks(im).hrfdelay))
+
 set(handles.figure1,'CurrentAxes',handles.axes2)
 prt_disp_conditions(handles.PRT,handles.ind(val),handles,hObject);
 indm = find(strcmpi({handles.PRT.masks(:).mod_name},list(val)));
@@ -364,10 +381,9 @@ for i=1:length(PRT.group)
         PRT.group(i).subject(j).modality(m).design=desn;
     end
 end
-for g = 1:length(PRT.group)
-    PRT.group(g).hrfoverlap=val;
-    PRT.group(g).hrfdelay=del;
-end
+m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
+PRT.masks(m).hrfoverlap=val;
+PRT.masks(m).hrfdelay=del;
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
 disp('Design in PRT.mat updated')
 if isfield(PRT,'fs')
@@ -435,9 +451,10 @@ for i=1:length(PRT.group)
         end
         PRT.group(i).subject(j).modality(m).design=desn;
     end
-    PRT.group(i).hrfoverlap=val;
-    PRT.group(i).hrfdelay=del;
 end
+m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
+PRT.masks(m).hrfoverlap=val;
+PRT.masks(m).hrfdelay=del;
 save([handles.prtdir,filesep,'PRT.mat'],'PRT')
 disp('Design in PRT.mat updated')
 if isfield(PRT,'fs')
