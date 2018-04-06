@@ -264,7 +264,7 @@ tmask.values  = {niftimask, MEEGmask, matmask};
 tmask.val     = {niftimask};
 
 % ---------------------------------------------------------------------
-% mask Modality
+% mask Modality - Old version
 % ---------------------------------------------------------------------
 mask         = cfg_branch;
 mask.tag     = 'mask';
@@ -272,7 +272,7 @@ mask.name    = 'Modality';
 mask.help    = {['Specify name of modality and file format for each mask. ',...
     'The name should be consistent with the names chosen ',...
     'for the modalities (subjects/scans).']};
-mask.val     = {mod_name, fmask, hrfover, hrfdel};
+mask.val     = {mod_name, tmask};
 
 
 % ---------------------------------------------------------------------
