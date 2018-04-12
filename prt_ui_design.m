@@ -1302,6 +1302,7 @@ for i=1:length(handles.ds)
     end
 end
 
+
 %Check that the different groups have the same number of
 %modalities and that the different subjects have the same number of
 %modalities and files per modality
@@ -1329,6 +1330,8 @@ if nmask~=nmimg
     return
 end
 
+% Re-order all modalities based on masks order
+PRTcopy = PRT;
 for i=1:ng
     matdat=zeros(ns,nm);
     ns=length(handles.ds{i});
@@ -1352,9 +1355,9 @@ for i=1:ng
 %             return
         end
         for k=1:nm
-            m2=find(strcmpi({PRT.group(i).subject(j).modality(:).mod_name},{handles.dat.masks(k).mod_name}));
+            m2=find(strcmpi({PRTcopy.group(i).subject(j).modality(:).mod_name},{handles.dat.masks(k).mod_name}));
             matdat(j,k)=handles.ds{i}{j}{m2};
-            if isstruct(PRT.group(i).subject(j).modality(m2).design)
+            if isstruct(PRTcopy.group(i).subject(j).modality(m2).design)
                 des=handles.dat.group(i).subject(j).modality(m2).design;
                 maxcond=max([des.conds(:).scans]);
                 if matdat(j,k)>1 && matdat(j,k)<maxcond 
@@ -1371,10 +1374,11 @@ for i=1:ng
                     PRT.group(i).subject(j).modality(m2).design=des;
                 end
             end        
-            PRT.group(i).subject(j).modality(k)=handles.dat.group(i).subject(j).modality(m2);
+            PRT.group(i).subject(j).modality(k)=PRTcopy.group(i).subject(j).modality(m2);
         end
     end
 end
+clear PRTcopy
 
 PRT.masks=handles.dat.masks;
 
