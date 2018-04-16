@@ -51,7 +51,7 @@ fas_idx = find(fas);
 if ~ isempty(PRT.fs(fid).modality(1).idfeat_fas)
     ifeat = numel(PRT.fs(fid).modality(1).idfeat_fas); %all concatenated modalities have the same size
 else
-    ifeat = 1:PRT.fas(fas_idx(1)).dat.dim(2);
+    ifeat = PRT.fas(fas_idx(1)).dat.dim(2);
 end
 % % Get the indexes in the feature set and ID mat for each modality
 % ifa_all = PRT.fs(fid).fas.ifa;
@@ -63,7 +63,12 @@ d.datamat = zeros(length(samp_idx), ifeat);
 for i = 1:length(fas_idx)
 
     mf = find(mm(fas_idx(i),:));
-    feats = PRT.fs(fid).modality(mf(1)).idfeat_fas;
+    if ~ isempty(PRT.fs(fid).modality(mf(1)).idfeat_fas)
+        feats = PRT.fs(fid).modality(mf(1)).idfeat_fas; %all concatenated modalities have the same size
+    else
+        feats = 1:PRT.fas(fas_idx(i)).dat.dim(2);
+    end
+%     feats = PRT.fs(fid).modality(mf(1)).idfeat_fas;
 %     indm = im_all(im_all == fas_idx(i));
 %     ifa = ifa_all(im_all == fas_idx(i));
     indm = ID(:,3) == fas_idx(i);
