@@ -186,7 +186,7 @@ PRT.model(mid).output.stats=gstats;
 % Save PRT containing machine output
 % -------------------------------------------------------------------------
 if ~isfield(in,'savePRT') || in.savePRT
-    outfile = [prt_dir, filesep,'PRT.mat'];
+    outfile = fullfile(prt_dir, 'PRT.mat');
     disp('Updating PRT.mat.......>>')
     if spm_check_version('MATLAB','7') < 0
         save(outfile,'-V6','PRT');
