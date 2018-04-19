@@ -177,20 +177,21 @@ for i=1:length(PRT.masks)
                 t_stop = job.format.MEEGmodality(ind).tp.timewin(2)/1000;
                 mod(i).itp = indsample(D,t_start):indsample(D,t_stop); 
                 if job.format.MEEGmodality(ind).tp.average
-                    mod(i).aver(2) = 1;
-                    if ~job.format.MEEGmodality(ind).tp.nomult
+                    mod(i).aver(3) = 1;
+                    if ~isfield(job.format.MEEGmodality(ind).tp.multkerntp,'nomult') || ...
+                            ~job.format.MEEGmodality(ind).tp.multkerntp.nomult
                         beep
                         disp('Averaging and multiple kernels cannot be selected together.')
                         return
                     end
                 end
-                if isfield(job.format.MEEGmodality(ind).tp,'multkernonetp') ||...
-                        isfield(job.format.MEEGmodality(ind).tp,'multkernwin')
+                if isfield(job.format.MEEGmodality(ind).tp.multkerntp,'multkernonetp') ||...
+                        isfield(job.format.MEEGmodality(ind).tp.multkerntp,'multkernwin')
                     mod(i).multkern(3) = 1;
-                    if isfield(job.format.MEEGmodality(ind).tp,'multkernwin') && ...
-                            isfield(job.format.MEEGmodality(ind).tp.multkernwin,'kerntpwin') && ...
-                            ~isempty(job.format.MEEGmodality(ind).tp.multkernwin.kerntpwin)
-                        mod(i).multkernparam{3} = (job.format.MEEGmodality(ind).tp.multkernwin.kerntpwin / 1000) *...
+                    if isfield(job.format.MEEGmodality(ind).tp.multkerntp,'multkernwin') && ...
+                            isfield(job.format.MEEGmodality(ind).tp.multkerntp.multkernwin,'kerntpwin') && ...
+                            ~isempty(job.format.MEEGmodality(ind).tp.multkerntp.multkernwin.kerntpwin)
+                        mod(i).multkernparam{3} = (job.format.MEEGmodality(ind).tp.multkerntp.multkernwin.kerntpwin / 1000) *...
                             D.fsample;
                     else
                         mod(i).multkernparam{3} = 1;
