@@ -57,7 +57,18 @@ end
 % ifa_all = PRT.fs(fid).fas.ifa;
 % im_all = PRT.fs(fid).fas.im;
 
-
+% Averaging of the feature on onr or more dimensions?
+if isfield(PRT.fs(fid).modality(1),'aver') && ...
+        any(PRT.fs(fid).modality(1).aver)
+    ndim = numel(PRT.fs(fid).modality(1).dim_m);
+    fin_dim = ones(1,ndim);
+    for idim = 1:ndim
+        fin_dim(idim) = length(PRT.fs(fid).modality(1).dim_m{idim});
+    end
+    dimav = fin_dim;
+    dimav(find(PRT.fs(fid).modality(1).aver)) = 1;
+    ifeat = prod(dimav);
+end
 
 d.datamat = zeros(length(samp_idx), ifeat);
 for i = 1:length(fas_idx)
@@ -82,27 +93,27 @@ for i = 1:length(fas_idx)
     end  
     
     
-    % index for the target data matrix
-    d.datamat(indm,:) = PRT.fas(fas_idx(i)).dat(ifa,feats);
-    
     % Average data matrix along specified dimensions
     if isfield(PRT.fs(fid).modality(mf(1)),'aver') && ...
             any(PRT.fs(fid).modality(mf(1)).aver)
-        tmp = d.datamat';
-        ndim = numel(PRT.fs(fid).modality(mm(1)).dim_m);
+        tmp = PRT.fas(fas_idx(i)).dat(ifa,feats)';
+        ndim = numel(PRT.fs(fid).modality(mf(1)).dim_m);
         fin_dim = ones(1,ndim);
         for idim = 1:ndim
-            fin_dim(idim) = length(PRT.fs(fid).modality(mm(1)).dim_m{idim});
+            fin_dim(idim) = length(PRT.fs(fid).modality(mf(1)).dim_m{idim});
         end
-        tmp = reshape(tmp,[fin_dim length(samp_idx)]);
-        dimta = find(PRT.fs(fs_idx).modality(mm(1)).aver); %dimensions to average
+        tmp = reshape(tmp,[fin_dim length(ifa)]);
+        dimta = find(PRT.fs(fid).modality(mf(1)).aver); %dimensions to average
         for iav = 1:length(dimta)
             tmp = mean(tmp, dimta(iav));
         end
         dimav = fin_dim;
-        dimav(find(PRT.fs(fs_idx).modality(mm(1)).aver)) = 1;
-        tmp = reshape(tmp,prod(dimav),length(samp_idx));
-        d.datamat = tmp';
+        dimav(find(PRT.fs(fid).modality(mf(1)).aver)) = 1;
+        tmp = reshape(tmp,prod(dimav),length(ifa));
+        d.datamat(indm,:) = tmp';
+    else
+        % index for the target data matrix
+        d.datamat(indm,:) = PRT.fas(fas_idx(i)).dat(ifa,feats);
     end
 end
 
