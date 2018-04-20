@@ -72,9 +72,12 @@ end
 if isfield(in,'midMTL')
     MTLflag = 1;
     in = gather_task_info_MTL(PRT,in);
+    nt = numel(in.midMTL);
+    nfolds = size(in.CV{1},2);
 else
     MTLflag = 0;
     in = gather_task_info_STL(PRT,in);
+    nfolds = size(in.CV, 2);
 end
 
 out.param = par;
@@ -137,26 +140,50 @@ for i = 1:size(par, 2)
     end
     
     % compute the model for each fold of the inner CV
-    for f = 1:size(in.CV, 2)
+    for f = 1:nfolds
         
         fold.ID      = in.ID;
-        fold.CV      = in.CV(:,f);
+        if MTLflag
+            for t=1:nt        
+                fold.CV{t}      = in.CV{t}(:,f);
+            end
+            fold.midMTL = in.midMTL;
+        else
+            fold.CV      = in.CV(:,f);
+        end
         fold.Phi_all = in.Phi_all;
         fold.t       = in.t;
         fold.mid     = in.mid;
-        if isfield(in, 'cov') && ~ isempty(in.cov)
-            fold.cov     = in.cov;
+        if isfield(in, 'cov') 
+            if ~MTLflag && ~ isempty(in.cov)
+                fold.cov     = in.cov;
+            else
+                for t=1:nt
+                    if ~isempty(in.cov{t})
+                        fold.cov{t} = in.cov{t};
+                    end
+                end
+            end
         end
 
         [model, targets] = prt_cv_fold(PRT,fold);
         
         %for classification check that for each fold, the test targets have been trained
         if strcmpi(PRT.model(in.mid).input.type,'classification')
-            if ~all(ismember(unique(targets.test),unique(targets.train)))
+            if ~MTLflag && ~all(ismember(unique(targets.test),unique(targets.train)))
                 beep
                 disp('At least one class is in the test set but not in the training set')
                 disp('Abandoning modelling, please correct class selection/cross-validation')
                 return
+            elseif MTLflag
+                for t=1:nt
+                    if ~all(ismember(unique(targets.test{t}),unique(targets.train{t})))
+                        beep
+                        disp(['At least one class is in the test set but not in the training set for task ',num2str(t)])
+                        disp('Abandoning modelling, please correct class selection/cross-validation')
+                        return
+                    end
+                end 
             end
         end
         
@@ -180,17 +207,21 @@ for i = 1:size(par, 2)
     % Model statistics, averaged across folds
     fnamestats = fieldnames(stats);
     tstats = struct;
+    if ismember('task_stats',fnamestats)
+        its = ismember(fnamestats,'task_stats');
+        fnamestats = fnamestats(~its);
+    end
     for s=1:length(fnamestats)
         size_stats = size(stats.(fnamestats{s}));
-        val = zeros(prod(size_stats),size(in.CV, 2));
-        for j = 1:size(in.CV, 2)
+        val = zeros(prod(size_stats),nfolds);
+        for j = 1:nfolds
             val(:,j) = f_stats(j).stats.(fnamestats{s})(:);
         end
         av_stats = reshape(nanmean(val,2),size_stats);
         tstats = setfield(tstats,fnamestats{s},av_stats);
     end
     % If classifier, get confusion matrix globally
-     if strcmpi(m.type,'classifier')
+     if strcmpi(m.type,'classifier') && ~MTLflag
          ttt             = vertcat(f_stats(:).targets);
          m.predictions   = vertcat(f_stats(:).predictions);
          %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
@@ -382,9 +413,6 @@ function [in] = gather_task_info_STL(PRT,in)
 
 % Set flag
 use_nested_cv = PRT.model(in.mid).input.use_nested_cv;
-if use_nested_cv == false
-    error('prt_nested_cv function called with use_nested_cv = false');
-end
 
 train_entries = find(in.CV == 1);
 in.ID      = in.ID(train_entries, :);
@@ -417,15 +445,13 @@ function [in] = gather_task_info_MTL(PRT,in)
 n_tasks = length(in.midMTL);
 % Set flag
 use_nested_cv = PRT.model(in.mid).input.use_nested_cv;
-if use_nested_cv == false
-    error('prt_nested_cv function called with use_nested_cv = false');
-end
+m = in.midMTL;
 
 for t=1:n_tasks    
     train_entries = find(in.CV{t} == 1);
     in.ID{t}      = in.ID{t}(train_entries, :);
     in.t{t}       = in.t{t}(train_entries);
-    if isfield(in, 'cov') && ~isempty(in.cov)
+    if isfield(in, 'cov') && ~isempty(in.cov{t})
         in.cov{t}     = in.cov{t}(train_entries,:);
     end
     if isfield(PRT.model(m(t)).input,'cv_type_nested')
