@@ -102,8 +102,8 @@ for t = 1:nt
     c2 = d.tr_targets{t}==2;
     d.tr_targets{t}(c2) = -1;
     % Add bias
-    d.train{t} = [d.train{t}, ones(size(d.train{t},1),1)];
-    d.test{t} = [d.test{t}, ones(size(d.test{t},1),1)];
+%     d.train{t} = [d.train{t}, ones(size(d.train{t},1),1)];
+%     d.test{t} = [d.test{t}, ones(size(d.test{t},1),1)];
 end
 
 opts.init = 0; % compute start point from data.
