@@ -139,7 +139,7 @@ end
 %Set defaults for some subfields and popup menus
 handles.def=prt_get_defaults('model');
 set(handles.kernel_methods,'Value',1)
-set(handles.kernel_methods,'Enable','off')
+set(handles.kernel_methods,'Enable','on')
 handles.use_kernel=1;
 set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
@@ -188,6 +188,8 @@ handles.cv.nested = 0;
 handles.cv.nested_param = [];
 handles.cv.k_nested = 0;
 handles.cv.type_nested='';
+handles.multimod = 0;
+handles.multiroi = 0;
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -698,14 +700,18 @@ function kernel_methods_Callback(hObject, eventdata, handles)
 handles.use_kernel=get(handles.kernel_methods,'Value');
 if get(handles.pop_reg,'Value')==1 %for classification
     if ~handles.use_kernel
-        set(handles.pop_machine,'String',{'Random Forest'})
+        list = { 'L2 support vector machine',...
+           'L1 support vector machine',...
+            'Multiclass support vector machine'};
+        set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_RT_bin';
-        handles.machine.args=handles.def.rtargs;
+        handles.machine.function='prt_machine_liblinearsvm';
+        handles.machine.args=handles.def.libl2svmargs;
     else
         list = {'Binary support vector machine',...
             'Binary Gaussian Process Classification',...
             'Multiclass GPC'};
+ 
         if handles.multimod || handles.multiroi
            % list = [list,{'L1- Multi-Kernel Learning',...
            %         'wip'}];
@@ -757,10 +763,13 @@ if val==1 %Classification
         handles.machine.args=handles.def.svmargs;
     else
         %set the list of machines
-        set(handles.pop_machine,'String',{'Random Forest'})
+        list = {'L2 support vector machine',...
+            'L1 support vector machine',...
+            'Multiclass support vector machine'};
+        set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_RT_bin';
-        handles.machine.args=handles.def.rtargs;  
+        handles.machine.function='prt_machine_liblinearsvm';
+        handles.machine.args=handles.def.libl2svmargs;
     end
     set(handles.butt_defclass,'String','Define classes')
 elseif val==2
@@ -951,7 +960,7 @@ if val==0
     set(handles.pop_machine,'Value',1)
     val=1;
 end
-if any(strfind(mach{val},'support'))
+if any(strfind(mach{val},'Binary support'))
     handles.machine.function='prt_machine_svm_bin';
     handles.machine.args=handles.def.svmargs;
 elseif any(strfind(mach{val},'Binary Gaussian'))
@@ -984,6 +993,24 @@ elseif any(strfind(mach{val},'G- Multi-Kernel'))
 elseif any(strfind(mach{val},'Multi-Kernel Regression'))
     handles.machine.function='prt_machine_sMKL_reg';
     handles.machine.args=handles.def.l1MKLargs; %TODO: Check if this is correct
+elseif any(strfind(mach{val},'L1'))
+    handles.machine.function='prt_machine_liblinearsvm';
+% Hard coding handles.machine.args when optimizating hyperparameters are not selected in GUI, 
+% no matter how many times users click the machine button and/or the optimization flag. The '1'
+% is removed each time user click Optimize hyperparameter flag. 
+    if ~handles.cv.nested 
+        handles.machine.args=[handles.def.libl1svmargs '1'];
+    end
+elseif any(strfind(mach{val},'L2'))
+    handles.machine.function='prt_machine_liblinearsvm';
+    if ~handles.cv.nested 
+        handles.machine.args=[handles.def.libl2svmargs '1'];
+    end
+elseif any(strfind(mach{val},'Multiclass'))
+    handles.machine.function='prt_machine_liblinearsvm';
+    if ~handles.cv.nested 
+        handles.machine.args=[handles.def.libmulticlsvmargs '1'];
+    end
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -1013,7 +1040,12 @@ if v
     switch handles.machine.function
         case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
                 'prt_machine_wip_cla','prt_machine_krr',...
-                'prt_machine_sMKL_reg','prt_machine_GMKL_cla'}
+                'prt_machine_sMKL_reg','prt_machine_GMKL_cla','prt_machine_liblinearsvm'}
+            if strcmp(handles.machine.function,'prt_machine_liblinearsvm')
+                if ~isempty(regexp(handles.machine.args,'-s\s+[245]','once'))
+                    handles.machine.args = handles.machine.args(1:end-1);
+                end
+            end
             set(handles.edit_param_range,'Enable','on')
             set(handles.pop_cv_nested,'Enable','on')
             handles.cv.nested = 1;

@@ -35,9 +35,9 @@ end
 
 % Set range of the hyper parameters
 switch PRT.model(in.mid).input.machine.function
-    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr', 'prt_machine_sMKL_reg','prt_machine_L1svm'}
+    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr', 'prt_machine_sMKL_reg','prt_machine_liblinearsvm'}
         if ~isempty(PRT.model(in.mid).input.nested_param)
-            par = PRT.model(in.mid).input.nested_param;
+           par = PRT.model(in.mid).input.nested_param; 
         else
             d1 = -2 : 3;
             par = 10 .^(d1);
@@ -96,7 +96,7 @@ for i = 1:size(par, 2)
     
     switch PRT.model(in.mid).input.machine.function
         case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
-                'prt_machine_L1svm'}
+                'prt_machine_liblinearsvm'}
             if ~isempty(stringpar)    
                 PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
             else

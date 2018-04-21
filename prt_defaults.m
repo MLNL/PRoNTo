@@ -76,7 +76,9 @@ prt_def.model.rtargs        = 601;
 prt_def.model.l1MKLargs     = 1;
 prt_def.model.l1MKLmaxitr   = 250;
 prt_def.model.wipargs       = [1 0.5];
-prt_def.model.libl1svmargs  = '-q -s 5 -B 1 -c ';
+prt_def.model.libl1svmargs  = '-q -s 5 -B 1 -c '; % L1-regularized L2-loss support vector classification
+prt_def.model.libl2svmargs  = '-q -s 2 -B 1 -c '; % L2-regularized L2-loss support vector classification (primal)
+prt_def.model.libmulticlsvmargs  = '-q -s 4 -B 1 -c '; % Multiclass support vector classification by Crammer and Singer
 prt_def.model.MTLargs       = 1;
 
 

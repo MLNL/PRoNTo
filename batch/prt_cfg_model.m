@@ -46,6 +46,8 @@ use_kernel.labels  = {
 use_kernel.values  = {1 0};
 use_kernel.val     = {1};
 
+
+
 % ---------------------------------------------------------------------
 % all_features All features
 % ---------------------------------------------------------------------
@@ -550,6 +552,154 @@ svm.help    = {'Binary support vector machine.'};
 svm.val     = {svm_opt, svm_args, svm_cv_type_nested};
 
 % ---------------------------------------------------------------------
+% libl2svm_opt SVM : flag whether to optimize C
+% ---------------------------------------------------------------------
+libl2svm_opt         = cfg_menu;
+libl2svm_opt.tag     = 'svm_opt';
+libl2svm_opt.name    = 'Optimize hyper-parameter';
+libl2svm_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
+    'If Yes, than provide a range of possible values for C, in the form '...
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. ' ...
+    'If not, a default value will be used (C=1).']};
+libl2svm_opt.labels  = {
+    'No'
+    'Yes'
+    }';
+libl2svm_opt.values  = {0 1};
+libl2svm_opt.val     = {0};
+
+% ---------------------------------------------------------------------
+% l2rl2lsvm_args Regression Targets
+% ---------------------------------------------------------------------
+libl2svm_args         = cfg_entry;
+libl2svm_args.tag     = 'libl2svm_args';
+libl2svm_args.name    = 'Soft-margin hyper-parameter';
+libl2svm_args.help    = {['Value(s) for prt_machine_liblinearsvm: soft-margin C. ',...
+    'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.']};
+libl2svm_args.strtype = 'e';
+libl2svm_args.val     = {def.model.svmargs};
+libl2svm_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% cv_type Cross-validation type
+% ---------------------------------------------------------------------
+libl2svm_cv_type_nested        = cfg_choice;
+libl2svm_cv_type_nested.tag    = 'cv_type_nested';
+libl2svm_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
+libl2svm_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
+    cv_lkbo, cv_locbo, cv_lkcbo, cv_loro};
+libl2svm_cv_type_nested.val    = {cv_loso};
+libl2svm_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
+
+% ---------------------------------------------------------------------
+% libl2svm group
+% ---------------------------------------------------------------------
+libl2svm         = cfg_branch;
+libl2svm.tag     = 'libl2svm';
+libl2svm.name    = 'Binary L2 SVM classification';
+libl2svm.help    = {'Non-kernel L2-regularized L2-Loss support vector machine,can be used for multiclass problem.'};
+libl2svm.val     = {libl2svm_opt, libl2svm_args, libl2svm_cv_type_nested};
+
+% ---------------------------------------------------------------------
+% libl1svm_opt SVM : flag whether to optimize C
+% ---------------------------------------------------------------------
+libl1svm_opt         = cfg_menu;
+libl1svm_opt.tag     = 'svm_opt';
+libl1svm_opt.name    = 'Optimize hyper-parameter';
+libl1svm_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
+    'If Yes, than provide a range of possible values for C, in the form '...
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. ' ...
+    'If not, a default value will be used (C=1).']};
+libl1svm_opt.labels  = {
+    'No'
+    'Yes'
+    }';
+libl1svm_opt.values  = {0 1};
+libl1svm_opt.val     = {0};
+
+% ---------------------------------------------------------------------
+% libl1svm_args Regression Targets
+% ---------------------------------------------------------------------
+libl1svm_args         = cfg_entry;
+libl1svm_args.tag     = 'libl1svm_args';
+libl1svm_args.name    = 'Soft-margin hyper-parameter';
+libl1svm_args.help    = {['Value(s) for prt_machine_liblinearsvm: soft-margin C. ',...
+    'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.']};
+libl1svm_args.strtype = 'e';
+libl1svm_args.val     = {def.model.svmargs};
+libl1svm_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% cv_type Cross-validation type
+% ---------------------------------------------------------------------
+libl1svm_cv_type_nested        = cfg_choice;
+libl1svm_cv_type_nested.tag    = 'cv_type_nested';
+libl1svm_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
+libl1svm_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
+    cv_lkbo, cv_locbo, cv_lkcbo, cv_loro};
+libl1svm_cv_type_nested.val    = {cv_loso};
+libl1svm_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
+
+% ---------------------------------------------------------------------
+% libl1svm group
+% ---------------------------------------------------------------------
+libl1svm         = cfg_branch;
+libl1svm.tag     = 'libl1svm';
+libl1svm.name    = 'Binary L1 SVM Classification';
+libl1svm.help    = {'Non-kernel L1-regularized L2-Loss support vector machine, can be used for multiclass problem.'};
+libl1svm.val     = {libl1svm_opt, libl1svm_args, libl1svm_cv_type_nested};
+
+% ---------------------------------------------------------------------
+% libmulticlsvm_opt SVM : flag whether to optimize C
+% ---------------------------------------------------------------------
+libmulticlsvm_opt         = cfg_menu;
+libmulticlsvm_opt.tag     = 'svm_opt';
+libmulticlsvm_opt.name    = 'Optimize hyper-parameter';
+libmulticlsvm_opt.help    = {['Whether to optimize C, the SVM hyper-parameter, or not. '...
+    'If Yes, than provide a range of possible values for C, in the form '...
+    'min:step:max. Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100. ' ...
+    'If not, a default value will be used (C=1).']};
+libmulticlsvm_opt.labels  = {
+    'No'
+    'Yes'
+    }';
+libmulticlsvm_opt.values  = {0 1};
+libmulticlsvm_opt.val     = {0};
+
+% ---------------------------------------------------------------------
+% l2rl2lsvm_args Regression Targets
+% ---------------------------------------------------------------------
+libmulticlsvm_args         = cfg_entry;
+libmulticlsvm_args.tag     = 'libmulticlsvm_args';
+libmulticlsvm_args.name    = 'Soft-margin hyper-parameter';
+libmulticlsvm_args.help    = {['Value(s) for prt_machine_liblinearsvm: soft-margin C. ',...
+    'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.']};
+libmulticlsvm_args.strtype = 'e';
+libmulticlsvm_args.val     = {def.model.svmargs};
+libmulticlsvm_args.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% cv_type Cross-validation type
+% ---------------------------------------------------------------------
+libmulticlsvm_cv_type_nested        = cfg_choice;
+libmulticlsvm_cv_type_nested.tag    = 'cv_type_nested';
+libmulticlsvm_cv_type_nested.name   = 'Cross-validation type for hyper-parameter optimization';
+libmulticlsvm_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,...
+    cv_lkbo, cv_locbo, cv_lkcbo, cv_loro};
+libmulticlsvm_cv_type_nested.val    = {cv_loso};
+libmulticlsvm_cv_type_nested.help   = {'Choose the type of cross-validation to be used'};
+
+% ---------------------------------------------------------------------
+% libmulticlsvm group
+% ---------------------------------------------------------------------
+libmulticlsvm         = cfg_branch;
+libmulticlsvm.tag     = 'libmulticlsvm';
+libmulticlsvm.name    = 'Multiclass support vector classification';
+libmulticlsvm.help    = {'Multiclass support vector classification by Crammer and Singer, can also be used for binary classification and/or nonkernel problems.'};
+libmulticlsvm.val     = {libmulticlsvm_opt, libmulticlsvm_args, libmulticlsvm_cv_type_nested};
+
+
+% ---------------------------------------------------------------------
 % gpc_args GPC arguments
 % ---------------------------------------------------------------------
 gpc_args         = cfg_entry;
@@ -758,7 +908,7 @@ krr.help    = {'Kernel Ridge Regression.'};
 krr.val     = {krr_opt,krr_args,krr_cv_type_nested};
 
 % ---------------------------------------------------------------------
-% RVR group
+% RVR groupmod
 % ---------------------------------------------------------------------
 rvr         = cfg_branch;
 rvr.tag     = 'rvr';
@@ -806,12 +956,13 @@ rt.val     = {rt_args};
 machine_cl       = cfg_choice;
 machine_cl.tag    = 'machine_cl';
 machine_cl.name   = 'Machine';
-machine_cl.values = {svm, gpc, gpclap, sMKL_cla, custom_machine}; 
+machine_cl.values = {svm,libl1svm,libl2svm,libmulticlsvm,gpc, gpclap, sMKL_cla, custom_machine}; 
 machine_cl.val    =  {svm};
 machine_cl.help   = {...
     ['Choose a prediction machine for this model']};
 % Random Trees out since only kernel methods available for the moment
 % machine_cl.values = {svm,gpc,gpclap,rt,sMKL_cla,custom_machine};
+
 
 % ---------------------------------------------------------------------
 % machine_rg Select Machine
@@ -880,7 +1031,8 @@ classification         = cfg_branch;
 classification.tag     = 'classification';
 classification.name    = 'Classification';
 classification.help    = {'Specify classes and machine for classification.'};
-classification.val     = {classes,subsample, machine_cl};
+classification.val     = {classes,subsample,machine_cl};
+
 
 % ---------------------------------------------------------------------
 % model_type Model type

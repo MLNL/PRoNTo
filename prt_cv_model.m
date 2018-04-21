@@ -86,7 +86,7 @@ end
 % Gather machine string parameters if any
 if ~ isempty(PRT.model(mid).input.machine.args) && ...
         ischar(PRT.model(mid).input.machine.args)
-    stringpar = PRT.model(mid).input.machine.args;
+    stringpar = PRT.model(mid).input.machine.args;               
 else
     stringpar = [];
 end
@@ -143,7 +143,7 @@ for k = 1:nk
                 else
                     PRT.model(mid).input.machine.args = [stringpar, num2str(out.opt_param)];
                 end
-            end
+            end   
         end
         
         % compute the model for this CV fold

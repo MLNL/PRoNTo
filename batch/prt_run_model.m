@@ -40,6 +40,8 @@ function out = prt_run_model(varargin)
 % Written by A Marquand
 % $Id$
 
+def = prt_get_defaults;
+
 % Job variable
 % -------------------------------------------------------------------------
 job   = varargin{1};
@@ -179,6 +181,56 @@ if isfield(job.model_type,'classification')
            model.cv.type_nested = cv_tmp.type;
            model.cv.k_nested = cv_tmp.k;
         end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+    elseif isfield(job.model_type.classification.machine_cl,'libl1svm')
+        model.machine.function = 'prt_machine_liblinearsvm';
+        model.machine.args     = def.model.libl1svmargs;
+        if isfield(job.model_type.classification.machine_cl.libl1svm, 'svm_opt')
+            if job.model_type.classification.machine_cl.libl1svm.svm_opt
+                model.cv.nested = 1;
+                model.cv.nested_param = job.model_type.classification.machine_cl.libl1svm.libl1svm_args;
+            else
+                model.machine.args = [model.machine.args num2str(job.model_type.classification.machine_cl.libl1svm.libl1svm_args)];
+            end
+        end
+        if isfield(job.model_type.classification.machine_cl.libl1svm, 'cv_type_nested')
+           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.libl1svm.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
+        end
+    elseif isfield(job.model_type.classification.machine_cl,'libl2svm')
+        model.machine.function = 'prt_machine_liblinearsvm';
+        model.machine.args     = def.model.libl2svmargs;
+        if isfield(job.model_type.classification.machine_cl.libl2svm, 'svm_opt')
+            if job.model_type.classification.machine_cl.libl2svm.svm_opt
+                model.cv.nested = 1;
+                model.cv.nested_param = job.model_type.classification.machine_cl.libl2svm.libl2svm_args;
+            else
+                model.machine.args = [model.machine.args num2str(job.model_type.classification.machine_cl.libl2svm.libl2svm_args)];
+            end
+        end
+        if isfield(job.model_type.classification.machine_cl.libl2svm, 'cv_type_nested')
+           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.libl2svm.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
+        end
+    elseif isfield(job.model_type.classification.machine_cl,'libmulticlsvm')
+        model.machine.function = 'prt_machine_liblinearsvm';
+        model.machine.args     = def.model.libmulticlsvmargs;
+        if isfield(job.model_type.classification.machine_cl.libmulticlsvm, 'svm_opt')
+            if job.model_type.classification.machine_cl.libmulticlsvm.svm_opt
+                model.cv.nested = 1;
+                model.cv.nested_param = job.model_type.classification.machine_cl.libmulticlsvm.libmulticlsvm_args;
+            else
+                model.machine.args = [model.machine.args num2str(job.model_type.classification.machine_cl.libmulticlsvm.libmulticlsvm_args)];
+            end
+        end
+        if isfield(job.model_type.classification.machine_cl.libmulticlsvm, 'cv_type_nested')
+           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.libmulticlsvm.cv_type_nested);
+           model.cv.type_nested = cv_tmp.type;
+           model.cv.k_nested = cv_tmp.k;
+        end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
     elseif isfield(job.model_type.classification.machine_cl,'gpc')
         model.machine.function='prt_machine_gpml';
         model.machine.args=job.model_type.classification.machine_cl.gpc.gpc_args;
