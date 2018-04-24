@@ -107,11 +107,12 @@ for t = 1:nt
 end
 
 opts.init = 0; % compute start point from data.
-opts.tFlag = 0; % terminate after objective value does not changes much.
+opts.tFlag = 1; % terminate after objective value does not changes much.
 opts.tol = 10^-5; % tolerance.
 opts.maxIter = 1500; % maximum iteration number of optimization.
 
-[W,C] = Logistic_L21(d.train,d.tr_targets,args,opts);
+% [W,C] = Logistic_L21(d.train,d.tr_targets,args,opts);
+[W,C] = Logistic_Trace(d.train,d.tr_targets,args,opts);
 
 
 % check if training succeeded:
