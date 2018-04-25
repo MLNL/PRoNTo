@@ -113,6 +113,7 @@ opts.maxIter = 1500; % maximum iteration number of optimization.
 
 % [W,C] = Logistic_L21(d.train,d.tr_targets,args,opts);
 [W,C] = Logistic_Trace(d.train,d.tr_targets,args,opts);
+% [W,C] = Logistic_Lasso(d.train,d.tr_targets,args,opts);
 
 
 % check if training succeeded:
