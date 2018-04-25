@@ -995,22 +995,16 @@ elseif any(strfind(mach{val},'Multi-Kernel Regression'))
     handles.machine.args=handles.def.l1MKLargs; %TODO: Check if this is correct
 elseif any(strfind(mach{val},'L1'))
     handles.machine.function='prt_machine_liblinearsvm';
-% Hard coding handles.machine.args when optimizating hyperparameters are not selected in GUI, 
+% Set handles.machine.args wihe default C = 1 when optimizating hyperparameters are not selected in GUI, 
 % no matter how many times users click the machine button and/or the optimization flag. The '1'
 % is removed each time user click Optimize hyperparameter flag. 
-    if ~handles.cv.nested 
-        handles.machine.args=[handles.def.libl1svmargs '1'];
-    end
+    handles.machine.args=[handles.def.libl1svmargs num2str(handles.def.svmargs)];
 elseif any(strfind(mach{val},'L2'))
     handles.machine.function='prt_machine_liblinearsvm';
-    if ~handles.cv.nested 
-        handles.machine.args=[handles.def.libl2svmargs '1'];
-    end
+    handles.machine.args=[handles.def.libl2svmargs num2str(handles.def.svmargs)];
 elseif any(strfind(mach{val},'Multiclass'))
     handles.machine.function='prt_machine_liblinearsvm';
-    if ~handles.cv.nested 
-        handles.machine.args=[handles.def.libmulticlsvmargs '1'];
-    end
+    handles.machine.args=[handles.def.libmulticlsvmargs num2str(handles.def.svmargs)];
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -1042,7 +1036,8 @@ if v
                 'prt_machine_wip_cla','prt_machine_krr',...
                 'prt_machine_sMKL_reg','prt_machine_GMKL_cla','prt_machine_liblinearsvm'}
             if strcmp(handles.machine.function,'prt_machine_liblinearsvm')
-                if ~isempty(regexp(handles.machine.args,'-s\s+[245]','once'))
+                if ~isempty(regexp(handles.machine.args,'-s\s+[245]','once'))...
+                    && ~strcmp(handles.machine.args(end-1:end),'c ')% If there are multiple clicks on this flag,no more operations.
                     handles.machine.args = handles.machine.args(1:end-1);
                 end
             end
@@ -1062,6 +1057,13 @@ else
     handles.cv.nested_param = [];
     set(handles.edit_param_range,'Enable','off')
     set(handles.pop_cv_nested,'Enable','off')
+    
+    if strcmp(handles.machine.function,'prt_machine_liblinearsvm')
+       if ~isempty(regexp(handles.machine.args,'-s\s+[245]','once'))...
+          && strcmp(handles.machine.args(end-1:end),'c ')% If there are multiple clicks on this flag and user selects no optimization again.
+          handles.machine.args = [handles.machine.args num2str(handles.def.svmargs)];
+       end
+    end
 end
 
 % Update handles structure
