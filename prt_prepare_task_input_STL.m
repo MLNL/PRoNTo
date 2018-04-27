@@ -36,6 +36,8 @@ cvdata.tr_targets = in.t(tr_idx,:);
 cvdata.te_targets = in.t(te_idx,:);
 cvdata.tr_id      = in.ID(tr_idx,:);
 cvdata.te_id      = in.ID(te_idx,:);
+cvdata.use_kernel = PRT.model(in.mid).input.use_kernel;
+cvdata.pred_type  = PRT.model(in.mid).input.type;
 
 % configure additional CV parameters (e.g. needed to compute a GLM)
 cvdata.tr_param = prt_cv_opt_param(PRT, in.ID(tr_idx,:), in.mid);
