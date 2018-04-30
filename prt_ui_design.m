@@ -1105,7 +1105,7 @@ function load_butt_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-%get and laod PRT.mat
+%get and load PRT.mat
 prtname = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
 PRT=prt_load(prtname,1);
 if isempty(PRT)
