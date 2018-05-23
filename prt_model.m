@@ -198,11 +198,13 @@ for c = 1:length(in.class)
                     % otherwise add all scans for each subject
                     %[afm] idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid;
                     idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
-                    t_all(idx) = c;
-                    if any(ismember(in.operations, 5)) %Get covariates
-                        cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
+                    if any(idx)
+                        t_all(idx) = c;
+                        if any(ismember(in.operations, 5)) %Get covariates
+                            cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
+                        end
+                        samp_all(idx) = 1;
                     end
-                    samp_all(idx) = 1;
                 else % conditions have been specified
                     % check whether conditions were specified in the design
                     if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')

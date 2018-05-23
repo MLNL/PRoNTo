@@ -1172,10 +1172,9 @@ end
 
 %Rearrange the data structure if the "Scans" option was selected for one of
 %the groups
-PRT=handles.dat;
 PRT.group=handles.dat.group;
 for i=1:length(handles.ds)
-    if ~isempty(strfind(lower(handles.dat.group(i).subject(1).subj_name),'scan'))
+    if contains(lower(handles.dat.group(i).subject(1).subj_name),'scan')
         subj=struct();
         nsubj=handles.ds{i}{1}{1};
         for j=1:length(handles.dat.group(i).subject(1).modality)
