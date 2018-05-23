@@ -7,12 +7,9 @@ function varargout = prt(varargin)
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by Christophe Phillips
+% Written by Christophe Phillips and Jessica Schrouff
 % $Id$
 
-% TODO:
-% - fix which subdirectories from all the machines are necessary, and only
-%   add these to Matlab path.
 
 %-Format arguments
 %-----------------------------------------------------------------------
@@ -92,15 +89,15 @@ switch lower(Action)
     case 'asciiwelcome'                       %-ASCII PRoNTo banner welcome
         %==================================================================
         disp( '                                                             ');
-        disp( '     ____  ____        _   ________              ___    ____ ');
-        disp( '    / __ \/ __ \____  / | / /_  __/___     _   _|__ \  / __ \');
-        disp( '   / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / /_/ / / / / /');
-        disp( '  / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ / __/_/ /_/ / ');
-        disp( ' /_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/  ');
+        disp('    ____  ____        _   ________              ___    ___');
+        disp('   / __ \/ __ \____  / | / /_  __/___     _   _|__ \  <  /');
+        disp('  / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / /_/ /  / / ');
+        disp(' / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ / __/_ / /  ');
+        disp('/_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)_/ ');
         disp( '                                                             ');
-        disp( '      PRoNTo v2.0 - http://www.mlnl.cs.ucl.ac.uk/pronto      ');
+        disp( '      PRoNTo v2.1 - http://www.mlnl.cs.ucl.ac.uk/pronto      ');
         fprintf('\n');
-        
+        % Generated from ASCII Art Generator, slant font
         %==================================================================
     case 'dir'                          %-Identify specific (PRT) directory
         %==================================================================
