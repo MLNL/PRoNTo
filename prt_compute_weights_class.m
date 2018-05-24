@@ -56,7 +56,7 @@ if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG')
     appendn = 'tmp';
 else
     
-    if strcmpi(PRT.masks(im).type,'.mat')
+    if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'.mat')
         
         ext = '.mat';
         hdr        = PRT.fas(fas_idx(1)).hdr;

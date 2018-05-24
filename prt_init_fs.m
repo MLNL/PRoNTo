@@ -106,7 +106,7 @@ else
         PRT.fs(fid).modality(m).mode     = in.mod(mids(m)).mode;
         
         mid = mids(m);
-        if strcmp(PRT.group(1).subject(1).modality(mid).type,'nifti')
+        if strcmp(PRT.masks(mid).type,'nifti')
             
             %get indexes from mask specified in the data and design step
             if ~isempty(mask{m})
@@ -130,7 +130,7 @@ else
                 end
             end
         else
-            if strcmp(PRT.group(1).subject(1).modality(mid).type,'.mat')
+            if strcmp(PRT.masks(mid).type,'.mat')
                 n_vox = prod(headers{m}.dim(1:2));
                 PRT.fs(fid).modality(m).feat_idx_img = 1:n_vox;
             end
@@ -140,7 +140,7 @@ else
         if ~isempty(precmask{m})
             
             mid = mids(m);
-            if strcmp(PRT.group(1).subject(1).modality(mid).type,'nifti')
+            if strcmp(PRT.masks(mid).type,'nifti')
                 
                 vm = spm_vol(precmask{m});
                 vm = spm_read_vols(vm);
@@ -150,7 +150,7 @@ else
                 end
                 [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0));
             else
-                if strcmp(PRT.group(1).subject(1).modality(mid).type,'.mat')
+                if strcmp(PRT.masks(mid).type,'.mat')
                     try 
                         tmp1 = load(char(precmask{m}));
                     catch
