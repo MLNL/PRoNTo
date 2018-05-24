@@ -1001,19 +1001,27 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
        handles.num_roi{i} = num_roi;
        
        % Get the labels if they are stored in a .mat along the atlas file for
-       % MKL on regions and summarisation
+       % MKL on regions and summarisation: get labels for ROIs
        if ~isempty(atl_name)
-           [a,b]=fileparts(atl_name);
-           try
-               load(fullfile(a,['Labels_',b,'.mat']))
+           if isfield(handles.PRT.fs(fid),'atlas_label') && ... 
+                   ~isempty(handles.PRT.fs(fid).atlas_label)
                try
-                   handles.labels{mi(m)}{i}=ROI_names;
-               catch
-                   disp('No variable ROI_names found, generic names used')
+                   handles.labels{mi(m)}{i} = handles.PRT.fs(fid).atlas_label{i};
                end
-           catch
-                 disp('No file containing the names of the ROIs found, generic names used')
-           end
+           else
+              [a,b]=fileparts(atl_name);
+              try
+                  load(fullfile(a,['Labels_',b,'.mat']))
+                  try
+                      handles.labels{mi(m)}{i}=ROI_names;
+                  catch
+                      disp('No variable ROI_names found, generic names used')
+                  end
+              catch
+                  disp('No file containing the names of the ROIs found, generic names used')
+              end
+           end       
+           
            if ~isfield(handles,'labels') || ...
                    isempty(handles.labels{mi(m)}) || ...
                    i>length(handles.labels{mi(m)}) || ...

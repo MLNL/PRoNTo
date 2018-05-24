@@ -127,6 +127,7 @@ switch in.cv.type
         %modify the ID to take the structure of the classes into account
         vcl=zeros(size(ID,1),2);
         if isfield(in,'class')
+            ns = zeros(length(in.class),1);
             for ic=1:length(in.class)
                 nsg=1;
                 for ig=1:length(in.class(ic).group)
@@ -141,15 +142,16 @@ switch in.cv.type
                         nsg=nsg+1;
                     end
                 end
+                ns(ic) = nsg - 1;
             end
-            % leave-one-subject-per-group-out
-            [gids,d1] = unique(vcl(:,1), 'last');
-            [gids,d2] = unique(vcl(:,1),'first');
-            %compute the number of subjects per class
-            ns=zeros(length(gids),1);
-            for ig= 1:length(gids)
-                ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
-            end
+%             % leave-one-subject-per-group-out
+%             [gids,d1] = unique(sort(vcl(:,1)), 'last');
+%             [gids,d2] = unique(sort(vcl(:,1)),'first');
+%             %compute the number of subjects per class
+%             ns=zeros(length(gids),1);
+%             for ig= 1:length(gids)
+%                 ns(ig)=length(unique(vcl(d2(ig):d1(ig),2)));
+%             end
         elseif isfield(in,'t')
             ntar = unique(in.t);
             nsg = 1;
