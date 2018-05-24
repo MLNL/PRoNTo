@@ -55,7 +55,10 @@ for i=1:length(in.mod)
     end
 end
 
-[mask,precmask,headers,PRT,ratl] = load_masks(PRT, prt_dir, in, mids);
+[mask,precmask,headers,PRT,ratl, lab_atlas] = load_masks(PRT, prt_dir, in, mids);
+
+% Get Labels associated with atlas if specified
+
 
 % Initialize the file arrays, kernel and feature set parameters
 [fid,PRT,tocomp] = prt_init_fs(PRT,in,mids,mask,precmask,headers);
@@ -95,7 +98,8 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
                 [PRT] = prt_fs_modality(PRT,in,1,addin);
             end
             [PRT,Phim,igd] = prt_compute_ROI_kernels(PRT,in,fid,mids(i),atl,addin,i);
-            PRT.fs(fid).atlas_name = ratl;   
+            PRT.fs(fid).atlas_name = ratl;
+            PRT.fs(fid).atlas_label = lab_atlas;
             kerns = Phim(igd);
         else
             [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
@@ -116,6 +120,7 @@ if in.flag_mm   % One kernel per modality so need to treat them independently
                 PRT.fs(fid).modality = PRT.fs(fid).modality(igm);
             end
             PRT.fs(fid).atlas_name = {};
+            PRT.fs(fid).atlas_label = {};
         end
         kerns = reshape(kerns,1,length(kerns));
         Phi = [Phi, kerns];
@@ -165,6 +170,7 @@ else
         end
         [PRT,Phim,igd] = prt_compute_ROI_kernels(PRT,in,fid,mids(1),atl,addin,1);
         PRT.fs(fid).atlas_name{1} = ratl{1};
+        PRT.fs(fid).atlas_label{1} = lab_atlas{1};
         if isempty(igd)
             error('prt_fs:NoDataInMask',...
                 'No overlap between data and mask/atlas for at least one sample, cannot create kernel')
@@ -176,6 +182,7 @@ else
         [PRT,Phim] = prt_fs_modality(PRT,in,0,[]);
         PRT.fs(fid).multkernel = 0;
         PRT.fs(fid).atlas_name = {};
+        PRT.fs(fid).atlas_label = {};
         [d1,idmax] = max(Phim);
         [d1,idmin] = min(Phim);
         min_max = find(idmax==idmin);
@@ -217,7 +224,7 @@ disp('Done.')
 %------------------------- Private function -------------------------------
 %--------------------------------------------------------------------------
 
-function [mask, precmask, headers,PRT, ratl] = load_masks(PRT, prt_dir, in, mids)
+function [mask, precmask, headers,PRT, ratl, lab_atl] = load_masks(PRT, prt_dir, in, mids)
 % function to load the mask for each modality
 % -------------------------------------------
 n_mods   = length(mids);
@@ -225,6 +232,7 @@ mask     = cell(1,n_mods);
 precmask = cell(1,n_mods);
 headers  = cell(1,n_mods);
 ratl     = cell(1,n_mods);
+lab_atl  = cell(1,n_mods);
 for m = 1:n_mods
     mid = mids(m);
     
@@ -257,6 +265,15 @@ for m = 1:n_mods
             catch
                 error('prt_fs:CouldNotLoadFile',...
                     'Could not load mask file for preprocessing');
+            end
+            [a,b]=fileparts(alfile);
+            try
+                load(fullfile(a,['Labels_',b,'.mat']))
+                try
+                    lab_atl{mid}=ROI_names;
+                catch
+                    disp('No variable ROI_names found, generic names used')
+                end
             end
         end
     else
