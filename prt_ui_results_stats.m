@@ -645,23 +645,27 @@ if strcmp(PRT.model(mi(m)).input.type,'classification')
         mbacc = PRT.model(mi(m)).output.stats.b_acc;
         mcacc = PRT.model(mi(m)).output.stats.c_acc;
         mcpv  = PRT.model(mi(m)).output.stats.c_pv;
+        mauc  = PRT.model(mi(m)).output.stats.auc;
         if isfield(PRT.model(mi(m)).output.stats,'permutation') && ...
                 ~isempty(PRT.model(mi(m)).output.stats.permutation)
             stats.show_perm=1;
             stats.perm.pvalue_b_acc=PRT.model(mi(m)).output.stats.permutation.pvalue_b_acc;
             stats.perm.pvalue_c_acc=PRT.model(mi(m)).output.stats.permutation.pvalue_c_acc;
+            stats.perm.pvalue_auc=PRT.model(mi(m)).output.stats.permutation.pvalue_auc;
         end
     else
         macc  = PRT.model(mi(m)).output.fold(fold-1).stats.acc;
         mbacc = PRT.model(mi(m)).output.fold(fold-1).stats.b_acc;
         mcacc = PRT.model(mi(m)).output.fold(fold-1).stats.c_acc;
         mcpv  = PRT.model(mi(m)).output.fold(fold-1).stats.c_pv;
+        mauc  = PRT.model(mi(m)).output.fold(fold-1).stats.auc;
     end
     
     stats.macc  = macc;
     stats.mbacc = mbacc;
     stats.mcacc = mcacc;
     stats.mcpv  = mcpv;
+    stats.mauc  = mauc;
     stats.type  = 'class';
     
 else
@@ -729,17 +733,22 @@ switch stats.type
         set(handles.baccuracytext,'String','Balanced accuracy (BA):','Visible','on');
         set(handles.classaccuracytext,'String','Class accuracy (CA):','Visible','on');
         set(handles.ppvtext,'String','Class predictive value: ','Visible','on');
+        set(handles.auctext,'String','Area Under Curve: ','Visible','on');
         
-        set(handles.acctext,'String',sprintf('%3.2f %%',stats.macc*100),'Visible','on');
-        set(handles.bacctext,'String',sprintf('%3.2f %%',stats.mbacc*100),'Visible','on');
-        set(handles.cacctext,'String',sprintf('  %3.2f %%',stats.mcacc*100),'Visible','on');
-        set(handles.cpvval,'String',sprintf('  %3.2f %%',...
+        set(handles.acctext,'String',sprintf(' %3.2f %%',stats.macc*100),'Visible','on');
+        set(handles.bacctext,'String',sprintf(' %3.2f %%',stats.mbacc*100),'Visible','on');
+        set(handles.cacctext,'String',sprintf(' %3.2f %%',stats.mcacc*100),'Visible','on');
+        set(handles.cpvval,'String',sprintf(' %3.2f %%',...
             stats.mcpv*100),'Visible','on');
+        set(handles.aucval,'String',sprintf(' %3.2f %',...
+            stats.mauc),'Visible','on');
         
         set(handles.pvalbacc,'String','BA p-value:','Visible','on');
         set(handles.pvalcacc,'String','CA p-value:','Visible','on');
-        set(handles.pbacc,'String','N. A.','Visible','on');
-        set(handles.pcacc,'String','N. A.','Visible','on');
+        set(handles.pbacc,'String',' N. A.','Visible','on');
+        set(handles.pcacc,'String',' N. A.','Visible','on');
+        set(handles.pvalauc,'String','AUC p-value:','Visible','on');
+        set(handles.pauc,'String',' N. A.','Visible','on');
         
         if isfield(stats,'show_perm')
             
@@ -747,6 +756,7 @@ switch stats.type
 
                 set(handles.pbacc,'String',sprintf(' %3.4f',stats.perm.pvalue_b_acc));
                 set(handles.pcacc,'String',sprintf(' %3.4f',stats.perm.pvalue_c_acc));
+                set(handles.pauc,'String',sprintf(' %3.4f',stats.perm.pvalue_auc));
                 
             end
             

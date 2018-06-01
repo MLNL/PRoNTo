@@ -199,7 +199,7 @@ for k = 1:nk
      if strcmpi(m.type,'classifier')
          ttt             = vertcat(PRT.model(mid).output(k).fold(:).targets);
          m.predictions = vertcat(PRT.model(mid).output(k).fold(:).predictions);
-         %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
+         m.func_val    = vertcat(PRT.model(mid).output.fold(:).func_val);
          temp_stats         = prt_stats(m,ttt(:),nc);
          gstats.con_mat = temp_stats.con_mat;
      end

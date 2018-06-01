@@ -35,12 +35,9 @@ if fold == 1
                 PRT.model(model).output.fold(f).predictions];
         end
     end
-    targpos = targets == 1; 
-    
 else
     % if folds wise
     targets = PRT.model(model).output.fold(fold-1).targets;
-        targpos = targets == 1;
     if isfield(PRT.model(model).output.fold(fold-1),'func_val')
         fVals  = PRT.model(model).output.fold(fold-1).func_val;
         fVvals_exist = 1;
@@ -63,24 +60,18 @@ end
 
 rotate3d off
 cla(axes_handle, 'reset');
-[y,idx] = sort(fVals);
-targpos = targpos(idx);
 
-fp      = cumsum(single(targpos))/sum(single(targpos));
-tp      = cumsum(single(~targpos))/sum(single(~targpos));
+numClass = numel(unique(targets(:)));
+[tpr,fpr] = prt_tpr_fpr(targets,fVals,numClass);
 
-tp      = [0 ; tp ; 1];
-fp      = [0 ; fp ; 1];
 
-n       = size(tp, 1);
-A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
 %
 %                 axis xy
-plot(axes_handle,fp,tp,'--ks','LineWidth',1, 'MarkerEdgeColor','k',...
+plot(axes_handle,fpr,tpr,'--ks','LineWidth',1, 'MarkerEdgeColor','k',...
     'MarkerFaceColor','k',...
     'MarkerSize',2);
-title(axes_handle,sprintf('Receiver Operator Curve / Area Under Curve = %3.2f',A));
-xlabel(axes_handle,'False positives','FontWeight','bold')
-ylabel(axes_handle,'True positives','FontWeight','bold')
+title(axes_handle,sprintf('Receiver Operator Curve'));
+xlabel(axes_handle,'False positive rate','FontWeight','bold')
+ylabel(axes_handle,'True positive rate','FontWeight','bold')
 set(axes_handle,'Color',[1,1,1])
 

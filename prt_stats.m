@@ -19,6 +19,8 @@ function stats = prt_stats(model, tte, nk)
 % stats.b_acc:   Balanced accuracy (nClasses x 1 vector)
 % stats.c_acc:   Accuracy by class (nClasses x 1 vector)
 % stats.c_pv:    Predictive value for each class (nClasses x 1 vector)
+% stats.auc:     AUC under ROC curve for binary classification
+
 %
 % Regression:
 % stats.mse:     Mean square error between test and prediction
@@ -98,6 +100,26 @@ stats.c_pv = Cc ./ Zcr;
 [lb,ub] = computeWilsonBinomialCI(sum(Cc),sum(Zc));
 stats.acc_lb=lb;
 stats.acc_ub=ub;
+
+% AUC for binary classification
+if k==2 
+    % Prepare data for computation
+    if isfield(model,'func_val')
+        scores = model.func_val;
+    else
+        scores = model.predictions;
+    end
+    
+    % Compute tpr and fpr
+    [tpr,fpr] = prt_tpr_fpr(tte,scores,k);
+     
+    % Compute AUC
+    n = size(tpr, 1);
+    auc = sum((fpr(2:n) - fpr(1:n-1)).*(tpr(2:n)+tpr(1:n-1)))/2;
+
+    stats.auc = auc;
+end
+
 end
 
 function stats = compute_stats_regression(model, tte)

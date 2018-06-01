@@ -192,6 +192,7 @@ for i = 1:size(par, 2)
         stats = prt_stats(model, targets.test, in.nc);
         f_stats(f).targets     = targets.test;
         f_stats(f).predictions = model.predictions;
+        f_stats(f).func_val = model.func_val;
         f_stats(f).stats       = stats;
         if isfield(model,'beta') && ~isempty(model.beta)
             f_stats(f).beta = model.beta;
@@ -222,9 +223,10 @@ for i = 1:size(par, 2)
     end
     % If classifier, get confusion matrix globally
      if strcmpi(m.type,'classifier') && ~MTLflag
+         flag = 'model';
          ttt             = vertcat(f_stats(:).targets);
          m.predictions   = vertcat(f_stats(:).predictions);
-         %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
+         m.func_val    = vertcat(f_stats(:).func_val);
          temp_stats         = prt_stats(m,ttt(:),in.nc);
          tstats.con_mat = temp_stats.con_mat;
      end
@@ -237,7 +239,8 @@ for i = 1:size(par, 2)
     
     switch PRT.model(in.mid).input.type
         case 'classification'
-            stats_vec(i) = tstats.b_acc;
+              stats_vec_bacc(i) = tstats.b_acc;
+              stats_vec(i) = tstats.auc;
         case 'regression'
             stats_vec(i) = tstats.nmse;
         otherwise
@@ -332,9 +335,9 @@ switch n_par
         ind = find(stats == opt_stats);
         if length(ind)>1
             try % if user has the image processing toolbox
-                accmap = zeros(size(stats));
-                accmap(ind) = 1;
-                [L,nconn] = bwlabel(accmap);
+                metricmap = zeros(size(stats)); % The metric can be acc or auc
+                metricmap(ind) = 1;
+                [L,nconn] = bwlabel(metricmap);
                 stats = regionprops(L,{'centroid','area'});
                 maxar = stats(1).Area;
                 if nconn>1
@@ -371,9 +374,9 @@ switch n_par
         
         if length(indopt)>1
             try % if user has the image processing toolbox
-                accmap = zeros(size(stats));
-                accmap(indopt) = 1;
-                [L,nconn] = bwlabel(accmap);
+                metricmap = zeros(size(stats));
+                metricmap(indopt) = 1;
+                [L,nconn] = bwlabel(metricmap);
                 stats = regionprops(L,{'centroid','area'});
                 maxar = stats(1).Area;
                 indmax = 1;

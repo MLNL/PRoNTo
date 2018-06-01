@@ -17,8 +17,10 @@ function [] = prt_permutation(PRT, n_perm, modelid, path, flag, flag_test)
 % for classification
 % permutation.c_acc:        Permuted accuracy per class
 % permutation.b_acc:        Permuted balanced accuracy
+% permutation.b_auc:        Permuted area under curve
 % permutation.pvalue_b_acc: p-value for c_acc
 % permutation.pvalue_c_acc: p-value for b_acc
+% permutation.pvalue_auc: p-value for auc
 %
 % for regression
 % permutation.corr: Permuted correlation
@@ -102,6 +104,7 @@ else
             n_class = length(PRT.model(modelid(1)).output(1).fold(1).stats.c_acc);
             total_greater_c_acc = zeros(n_class,1);
             total_greater_b_acc = 0;
+            total_greater_auc = 0;
             
         case 'regression'
             total_greater_corr = 0;
@@ -211,9 +214,14 @@ else
                         % target: Need to permute within subject but across
                         % modalities
                         elseif strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classifier') && ...
-                                (numel(samp_c)==1 || length(unique(t(ism)))==1)
-                            exchange_subjects = 0;
-                            Acrossmod = 1;
+                                length(unique(t(ism)))==1
+                            if numel(samp_c)==1 && samp_c>0
+                                exchange_subjects = 0;
+                                Acrossmod = 1;
+                            else
+                                exchange_subjects = 1;
+                                Acrossmod = 0;
+                            end
                         % Other cases: Typically one image per subject 
                         % selected for model, need to permute across subjects
                         else 
@@ -326,8 +334,9 @@ else
                     fdata.Phi_all = Phi_all; %all kernels
                 end
                 fdata.t       = t_perm;
-                if isfield(PRT.model(modelid(1)).input,'covar')
-                    fdata.cov     = PRT.model(modelid(1)).input.covar;
+                if isfield(PRT.model(modelid(1)).input,'covar') && ...
+                    ~isempty(PRT.model(modelid(1)).input.covar)
+                        fdata.cov     = PRT.model(modelid(1)).input.covar;
                 end
             
                 
@@ -376,7 +385,7 @@ else
             if strcmpi(m.type,'classifier')
                 tp             = vertcat(model.output.fold(:).targets);
                 m.predictions  = vertcat(model.output.fold(:).predictions);
-                %m.func_val    = [PRT.model(mid).output.fold(:).func_val];
+                m.func_val    = vertcat(PRT.model(mid).output.fold(:).func_val);
                 t_stats     = prt_stats(m,tp,n_class);
                 perm_stats.con_mat = t_stats.con_mat;
             end
@@ -391,6 +400,11 @@ else
                     
                     if (perm_stats.b_acc >= PRT.model(modelid(1)).output(k).stats.b_acc)
                         total_greater_b_acc=total_greater_b_acc+1;
+                    end
+                    
+                    permutation.auc(p)=perm_stats.auc;      
+                    if (perm_stats.auc >= PRT.model(modelid(1)).output(k).stats.auc)
+                        total_greater_auc=total_greater_auc+1;
                     end
                     
                     for c=1:n_class
@@ -434,6 +448,8 @@ else
                 
                 pval_b_acc = (total_greater_b_acc+1) / (n_perm+1);
                 
+                pval_auc = (total_greater_auc+1) / (n_perm+1);
+                
                 pval_c_acc=zeros(n_class,1);
                 for c=1:n_class
                     pval_c_acc(c) = (total_greater_c_acc(c)+1) / (n_perm+1);
@@ -441,6 +457,7 @@ else
                 
                 permutation.pvalue_b_acc = pval_b_acc;
                 permutation.pvalue_c_acc = pval_c_acc;
+                permutation.pvalue_auc = pval_auc;
                 
             case 'regression'
                 
