@@ -191,8 +191,14 @@ for k = 1:nk
         for j = 1:n_folds
             val(:,j) = PRT.model(mid).output(k).fold(j).stats.(fnamestats{i})(:);
         end
-        av_stats = reshape(nanmean(val,2),size_stats);
-        gstats = setfield(gstats,fnamestats{i},av_stats);
+        if all(isnan(val(:))) % For auc=NaN
+            gstats = setfield(gstats,fnamestats{i},NaN);
+        elseif ~isempty(val)
+            av_stats = reshape(nanmean(val,2),size_stats);
+            gstats = setfield(gstats,fnamestats{i},av_stats);
+        else % For auc=[]
+            gstats = setfield(gstats,fnamestats{i},[]);
+        end
     end
     % If classifier, get confusion matrix globally
      m.type        = PRT.model(mid).output(k).fold(1).type;

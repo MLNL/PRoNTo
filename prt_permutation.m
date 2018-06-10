@@ -17,7 +17,7 @@ function [] = prt_permutation(PRT, n_perm, modelid, path, flag, flag_test)
 % for classification
 % permutation.c_acc:        Permuted accuracy per class
 % permutation.b_acc:        Permuted balanced accuracy
-% permutation.b_auc:        Permuted area under curve
+% permutation.auc:          Permuted area under curve
 % permutation.pvalue_b_acc: p-value for c_acc
 % permutation.pvalue_c_acc: p-value for b_acc
 % permutation.pvalue_auc: p-value for auc
@@ -377,8 +377,14 @@ else
                 for j = 1:n_folds
                     val(:,j) = model.output.fold(j).stats.(fnamestats{i})(:);
                 end
-                av_stats = reshape(nanmean(val,2),size_stats);
-                perm_stats = setfield(perm_stats,fnamestats{i},av_stats);
+                if all(isnan(val(:)))
+                    perm_stats = setfield(perm_stats,fnamestats{i},NaN);
+                elseif ~isempty(val)
+                    av_stats = reshape(nanmean(val,2),size_stats);
+                    perm_stats = setfield(perm_stats,fnamestats{i},av_stats);
+                else
+                    perm_stats = setfield(perm_stats,fnamestats{i},[]); 
+                end
             end
             % If classifier, get confusion matrix globally
             m.type        = PRT.model(modelid(1)).output(k).fold(1).type;
@@ -402,9 +408,25 @@ else
                         total_greater_b_acc=total_greater_b_acc+1;
                     end
                     
-                    permutation.auc(p)=perm_stats.auc;      
-                    if (perm_stats.auc >= PRT.model(modelid(1)).output(k).stats.auc)
-                        total_greater_auc=total_greater_auc+1;
+                    if isnan(perm_stats.auc)
+                        permutation.auc(p)=NaN;
+                    elseif ~isempty(perm_stats.auc)
+                        permutation.auc(p)=perm_stats.auc; 
+                    else
+                        permutation.auc(p)=NaN; % Initialize
+                        permutation.auc(p)=[];
+                    end
+                    % For backward compatibility of auc
+                    if isfield(PRT.model(modelid(1)).output(k).stats,'auc')
+                        if isnan(PRT.model(modelid(1)).output(k).stats.auc)
+                            total_greater_auc = NaN;
+                        elseif ~isempty(PRT.model(modelid(1)).output(k).stats.auc)
+                            if (perm_stats.auc >= PRT.model(modelid(1)).output(k).stats.auc)
+                                total_greater_auc=total_greater_auc+1;
+                            end
+                        else
+                            total_greater_auc = [];
+                        end        
                     end
                     
                     for c=1:n_class
@@ -448,7 +470,13 @@ else
                 
                 pval_b_acc = (total_greater_b_acc+1) / (n_perm+1);
                 
-                pval_auc = (total_greater_auc+1) / (n_perm+1);
+                if isnan(total_greater_auc)
+                    pval_auc = NaN;
+                elseif ~isempty(total_greater_auc)
+                    pval_auc = (total_greater_auc+1) / (n_perm+1);
+                else
+                    pval_auc = [];
+                end
                 
                 pval_c_acc=zeros(n_class,1);
                 for c=1:n_class
