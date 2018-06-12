@@ -1,35 +1,35 @@
-function varargout = prt_ui_fs_datatype(varargin)
-% PRT_UI_FS_DATATYPE MATLAB code for prt_ui_fs_datatype.fig
-%      PRT_UI_FS_DATATYPE, by itself, creates a new PRT_UI_FS_DATATYPE or raises the existing
+function varargout = prt_ui_fs_alldatatype(varargin)
+% PRT_UI_FS_ALLDATATYPE MATLAB code for prt_ui_fs_alldatatype.fig
+%      PRT_UI_FS_ALLDATATYPE, by itself, creates a new PRT_UI_FS_ALLDATATYPE or raises the existing
 %      singleton*.
 %
-%      H = PRT_UI_FS_DATATYPE returns the handle to a new PRT_UI_FS_DATATYPE or the handle to
+%      H = PRT_UI_FS_ALLDATATYPE returns the handle to a new PRT_UI_FS_ALLDATATYPE or the handle to
 %      the existing singleton*.
 %
-%      PRT_UI_FS_DATATYPE('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in PRT_UI_FS_DATATYPE.M with the given input arguments.
+%      PRT_UI_FS_ALLDATATYPE('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in PRT_UI_FS_ALLDATATYPE.M with the given input arguments.
 %
-%      PRT_UI_FS_DATATYPE('Property','Value',...) creates a new PRT_UI_FS_DATATYPE or raises the
+%      PRT_UI_FS_ALLDATATYPE('Property','Value',...) creates a new PRT_UI_FS_ALLDATATYPE or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before prt_ui_fs_datatype_OpeningFcn gets called.  An
+%      applied to the GUI before prt_ui_fs_alldatatype_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to prt_ui_fs_datatype_OpeningFcn via varargin.
+%      stop.  All inputs are passed to prt_ui_fs_alldatatype_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help prt_ui_fs_datatype
+% Edit the above text to modify the response to help prt_ui_fs_alldatatype
 
-% Last Modified by GUIDE v2.5 11-Jun-2018 16:37:41
+% Last Modified by GUIDE v2.5 11-Jun-2018 16:23:59
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @prt_ui_fs_datatype_OpeningFcn, ...
-                   'gui_OutputFcn',  @prt_ui_fs_datatype_OutputFcn, ...
+                   'gui_OpeningFcn', @prt_ui_fs_alldatatype_OpeningFcn, ...
+                   'gui_OutputFcn',  @prt_ui_fs_alldatatype_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,15 +44,15 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before prt_ui_fs_datatype is made visible.
-function prt_ui_fs_datatype_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before prt_ui_fs_alldatatype is made visible.
+function prt_ui_fs_alldatatype_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to prt_ui_fs_datatype (see VARARGIN)
+% varargin   command line arguments to prt_ui_fs_alldatatype (see VARARGIN)
 
-% Choose default command line output for prt_ui_fs_datatype
+% Choose default command line output for prt_ui_fs_alldatatype
 handles.output = hObject;
 
 Tag='FStype';
@@ -125,22 +125,19 @@ end
 % Get PRT structure from inputs
 if ~isempty(varargin{1}) && strcmpi(varargin{1},'UserData')
     handles.PRT=varargin{2}{1};
-    mod_type = {handles.PRT.masks.type};
-    for i = 1:length(aa)
-        set(aa(i),'String',char(mod_type(i)));
-    end
     handles.fname = varargin{2}{2};
 end 
 end
+
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes prt_ui_fs_datatype wait for user response (see UIRESUME)
+% UIWAIT makes prt_ui_fs_alldatatype wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = prt_ui_fs_datatype_OutputFcn(hObject, eventdata, handles) 
+function varargout = prt_ui_fs_alldatatype_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -150,40 +147,39 @@ function varargout = prt_ui_fs_datatype_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in pushbutton1.
-function pushbutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton1 (see GCBO)
+% --- Executes on button press in pbimages.
+function pbimages_Callback(hObject, eventdata, handles)
+% hObject    handle to pbimages (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Get the data type 
-mod_type = handles.pushbutton1.String;
 
 % The figure can be deleted now
 delete(handles.figure1);
 
-if strcmp(mod_type,'nifti')||strcmp(mod_type,'.mat')
-    prt_ui_prepare_data('UserData',{handles.PRT,0,handles.fname,mod_type});
-else
-    prt_ui_prepare_data('UserData',{handles.PRT,1,handles.fname});
-end
+mod_type = 'nifti';
+prt_ui_prepare_data('UserData',{handles.PRT,0,handles.fname,mod_type});
 
 
-% --- Executes on button press in pushbutton2.
-function pushbutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton2 (see GCBO)
+
+% --- Executes on button press in pbmeeg.
+function pbmeeg_Callback(hObject, eventdata, handles)
+% hObject    handle to pbmeeg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Get the data type 
-mod_type = handles.pushbutton2.String;
 
 % The figure can be deleted now
 delete(handles.figure1);
 
-if strcmp(mod_type,'nifti')||strcmp(mod_type,'.mat')
-    prt_ui_prepare_data('UserData',{handles.PRT,0,handles.fname,mod_type});
-else
-    prt_ui_prepare_data('UserData',{handles.PRT,1,handles.fname});
-end
+prt_ui_prepare_data('UserData',{handles.PRT,1,handles.fname});
 
+% --- Executes on button press in pbmat.
+function pbmat_Callback(hObject, eventdata, handles)
+% hObject    handle to pbmat (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% The figure can be deleted now
+delete(handles.figure1);
+
+mod_type = '.mat';
+prt_ui_prepare_data('UserData',{handles.PRT,0,handles.fname,mod_type});

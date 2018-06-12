@@ -143,14 +143,18 @@ handles.modnames={handles.dat.masks(:).mod_name};
 nmeeg = 0;
 indmeeg = [];
 indimg = [];
+indmat = [];
 
 for i = 1:n_mod
     if isfield(handles.dat.masks(i),'type') && ...
             strcmpi(handles.dat.masks(i).type,'MEEG')
         nmeeg = nmeeg + 1;
         indmeeg = [indmeeg,i];
-    else
+    elseif isfield(handles.dat.masks(i),'type') && ...
+            strcmpi(handles.dat.masks(i).type,'nifti')
         indimg = [indimg,i];
+    else
+        indmat = [indmat,i];
     end
 end
 if handles.flagMEEG
@@ -158,7 +162,24 @@ if handles.flagMEEG
     handles.indmod = indmeeg;
 else
     n_mod = n_mod - nmeeg;
-    handles.indmod = indimg;
+    if length(varargin{2})==4
+        mod_type = varargin{2}{4};
+        if strcmp(mod_type,'nifti')
+            handles.indmod = indimg;
+            n_mod = 1;
+        elseif strcmp(mod_type,'.mat')
+            handles.indmod = indmat;
+            n_mod = 1;
+        else 
+            error('The selected data type is not supported.');
+        end
+    else
+        if indimg
+            handles.indmod = indimg;
+        else indmat
+            handles.indmod = indmat;
+        end
+    end
 end
 
 if n_mod==1
