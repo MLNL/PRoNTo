@@ -138,7 +138,7 @@ for k = 1:nk
                 end
                 [out] = prt_nested_cv(PRT, fdata);
                 PRT.model(mid).output(k).fold(f).param_effect = out;
-                if isempty(stringpar)
+                if isempty(stringpar) || isvector(str2num(stringpar)) % For custome machine, stringpar may contain a vector.
                     PRT.model(mid).input.machine.args = out.opt_param;
                 else
                     PRT.model(mid).input.machine.args = [stringpar, num2str(out.opt_param)];

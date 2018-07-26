@@ -124,7 +124,7 @@ for i = 1:size(par, 2)
             
         otherwise
             try
-                if ~isempty(stringpar)    
+                if ~isempty(stringpar) && ~isvector(str2num(stringpar)) % For custome machine, stringpar may be the same as par.   
                     PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
                 else
                     PRT.model(in.mid).input.machine.args = par(i);

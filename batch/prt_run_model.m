@@ -258,6 +258,7 @@ if isfield(job.model_type,'classification')
     else
         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
         model.machine.function = nam;
+        model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
         if isfield(job.model_type.classification.machine_cl.custom_machine, 'machine_opt')
             if job.model_type.classification.machine_cl.custom_machine.machine_opt
                 model.cv.nested = 1;
