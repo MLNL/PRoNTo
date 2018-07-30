@@ -100,7 +100,7 @@ for i = 1:size(par, 2)
     switch PRT.model(in.mid).input.machine.function
         case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
                 'prt_machine_liblinearsvm'}
-            if ~isempty(stringpar)    
+            if ~isempty(stringpar)&& ~isvector(str2num(stringpar)) % For custome machine, stringpar may be the same as par.    
                 PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
             else
                 PRT.model(in.mid).input.machine.args = par(i);
@@ -108,7 +108,7 @@ for i = 1:size(par, 2)
             m.type = 'classifier';
             
         case {'prt_machine_krr', 'prt_machine_sMKL_reg'}
-            if ~isempty(stringpar)    
+            if ~isempty(stringpar)&& ~isvector(str2num(stringpar))   
                 PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
             else
                 PRT.model(in.mid).input.machine.args = par(i);
@@ -116,7 +116,7 @@ for i = 1:size(par, 2)
             m.type = 'regression';
             
         case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
-            if ~isempty(stringpar)    
+            if ~isempty(stringpar)&& ~isvector(str2num(stringpar))    
                 disp('Using default parameters for EN-MKL')
             end
             PRT.model(in.mid).input.machine.args = par(:,i)';
