@@ -42,16 +42,20 @@ end
 
 switch model.type
     case 'classifier'
-        if iscell(tte) && numel(tte)>1
+        if iscell(tte) && numel(tte)>1 
+            % Multi-Task Learning classifier
             stats = compute_stats_classifier_MTL(model, tte, nk);
         else
+            % Single task learning classifier
             stats = compute_stats_classifier(model, tte, nk);
         end
         
     case 'regression'
         if iscell(tte) && numel(tte)>1
+            % Multi-Task Learning regression
             stats = compute_stats_regression_MTL(model, tte);
         else
+            % Single task learning regression
             stats = compute_stats_regression(model, tte);
         end
         
@@ -83,15 +87,12 @@ Cc = diag(stats.con_mat);   % correct predictions for each class
 Zc = sum(stats.con_mat)';   % total samples for each class (cols)
 % nz = Zc ~= 0;               % classes with nonzero totals (cols)
 Zcr = sum(stats.con_mat,2); % total predictions for each class (rows)
-% nzr = Zcr ~= 0;             % classes with nonzero totals (rows)
 
 stats.acc       = sum(Cc) ./ sum(Zc);
 stats.c_acc     = zeros(k,1);
 stats.c_acc = Cc ./ Zc;
-% stats.c_acc(nz) = Cc(nz) ./ Zc(nz);
 stats.b_acc     = nanmean(stats.c_acc);
 stats.c_pv      = zeros(k,1);
-% stats.c_pv(nzr) = Cc(nzr) ./ Zcr(nzr); 
 stats.c_pv = Cc ./ Zcr;
 
 % confidence interval

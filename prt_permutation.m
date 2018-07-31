@@ -1,15 +1,14 @@
-function [] = prt_permutation(PRT, n_perm, modelid, path, flag, flag_test)
+function [] = prt_permutation(PRT, n_perm, modelid, path, save_perm)
 % Function to compute permutation test
 %
 % Inputs:
 % -------
-% PRT:     PRT structure including model
-% n_perm:  number of permutations
-% modelid: model ID for model to test and model to copy permutations from
-%         (optional). Can hence be of size 1x1 or 1x2.
-% path:    path
-% flag:    boolean variable. set to 1 to save the outputs for each
-%          permutation. default: 0
+% PRT:          PRT structure including model
+% n_perm:       number of permutations
+% modelid:      model ID for model to permute. Size is 1x1.
+% path:         path
+% save_perm:    boolean variable. set to 1 to save the outputs for each
+%               permutation. default: 0
 %
 % Outputs:
 % --------
@@ -17,34 +16,34 @@ function [] = prt_permutation(PRT, n_perm, modelid, path, flag, flag_test)
 % for classification
 % permutation.c_acc:        Permuted accuracy per class
 % permutation.b_acc:        Permuted balanced accuracy
-% permutation.b_auc:        Permuted area under curve
+% permutation.auc:          Permuted area under curve
 % permutation.pvalue_b_acc: p-value for c_acc
 % permutation.pvalue_c_acc: p-value for b_acc
-% permutation.pvalue_auc: p-value for auc
+% permutation.pvalue_auc:   p-value for auc
 %
 % for regression
-% permutation.corr: Permuted correlation
-% permutation.mse:  Permuted mean square error
-% permutation.pval_corr: p-value for corr
-% permutation.pval_r2: p-value for r2;
-% permutation.pval_mse:  p-value for mse
-% permutation.pval_nmse:  p-value for nmse
+% permutation.corr:        Permuted correlation
+% permutation.mse:         Permuted mean square error
+% permutation.pval_corr:   p-value for corr
+% permutation.pval_r2:     p-value for r2;
+% permutation.pval_mse:    p-value for mse
+% permutation.pval_nmse:   p-value for nmse
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Mourao-Miranda, modified by J. Schrouff
 % $Id$
 
+% Gather inputs
+% -------------------------------------------------------------------------
 prt_dir = path;
 def_par = prt_get_defaults('paral');
 if nargin<5
-    flag=0;
+    save_perm=0;
 end
 if nargin<6
-    flag_test = 0;
+    perm_train_only = 0;
 end
-
-% % prt_dir = char(regexprep(in.fname,'PRT.mat', ''));
 
 if ~isfield(PRT,'model')
     beep
@@ -93,12 +92,13 @@ else
         nc=[];
     end
     fdata.nc = nc;
+
     if isfield(PRT.model(modelid(1)).input,'class')
         fdata.class   = PRT.model(modelid(1)).input.class;
     end
     
-    % Initialize counts
-    % -------------------------------------------------------------------------
+% Initialize counts
+% -------------------------------------------------------------------------
     switch PRT.model(modelid(1)).output(1).fold(1).type
         case 'classifier'
             n_class = length(PRT.model(modelid(1)).output(1).fold(1).stats.c_acc);
@@ -114,8 +114,8 @@ else
             n_class = [];
     end
     
-    % Run model with permuted labels
-    % -------------------------------------------------------------------------
+% Set up permutations
+% -------------------------------------------------------------------------
     if indmodels %loop over the kernels and output accuracy for each kernel only
         nk = length(Phi_all);
     else
@@ -125,7 +125,7 @@ else
     % For each model
     flag_use_perms = 0;
     ids = PRT.fs(fid).id_mat(PRT.model(modelid(1)).input.samp_idx,:);
-    if flag_test
+    if perm_train_only %onyle permute the train set labels, not test set
         itrain = find(PRT.model(modelid(1)).input.cv_mat(:,1)==1);
         ids = ids(itrain,:);
     end
@@ -134,10 +134,12 @@ else
             disp([' > Computing permutations for model: ',num2str(k),' of ',num2str(nk),' ...'])
         end
         if ~isfield(PRT.model(modelid(1)).output(k),'permutation') || ...
-                (isfield(PRT.model(modelid(1)).output(k),'permutation') && flag) %Back to empty to save other perm param
+                (isfield(PRT.model(modelid(1)).output(k),'permutation') && save_perm) %Back to empty to save other perm param
             PRT.model(modelid(1)).output(k).permutation=struct('fold',[],...
                 'perm_stats',[],'perm_mat',[]);
-            if length(modelid) == 2 % model specified to copy permutations from
+            
+            %When another model was specified to copy permutations from
+            if length(modelid) == 2
                 if isfield(PRT.model(modelid(2)).output(1),'permutation') &&...
                         isfield(PRT.model(modelid(2)).output(1).permutation,'perm_mat')
                     if length(PRT.model(modelid(2)).output(1).permutation(1).perm_mat) == size(ids,1)
@@ -155,7 +157,7 @@ else
                 end
             end
         end
-        
+
         fprintf(['Permutation (out of %d):',repmat(' ',1,ceil(log10(n_perm))),'%d'],n_perm, 1);
         for p=1:n_perm
             
@@ -167,7 +169,7 @@ else
                 fprintf('%d',p);
             end            
             
-            if flag_test %Only set to 0 the train set
+            if perm_train_only %Only set to 0 the train set
                 CVperm = CV;
                 t_perm = t;
                 IDperm = ID;
@@ -203,7 +205,7 @@ else
                         
                         % Multiple images and conditions in the modality, across the
                         % multiple targets: Need to permute within subject
-                        % and modality
+                        % and modality, case 1
                         if (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classifier') && ...
                                 numel(samp_c)>1 && numel(ism)>numel(samp_c) && length(unique(t(ism)))>1 ) ||... % i.e. there is a design and more than one image per subject in classification
                                 (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'regression') && ...
@@ -212,7 +214,7 @@ else
                             Acrossmod = 0;
                         % Multiple images in the modality, but only one
                         % target: Need to permute within subject but across
-                        % modalities
+                        % modalities, case 2
                         elseif strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classifier') && ...
                                 length(unique(t(ism)))==1
                             if numel(samp_c)==1 && samp_c>0
@@ -223,7 +225,8 @@ else
                                 Acrossmod = 0;
                             end
                         % Other cases: Typically one image per subject 
-                        % selected for model, need to permute across subjects
+                        % selected for model, need to permute across
+                        % subjects, case 3
                         else 
                             exchange_subjects = 1;
                             Acrossmod = 0;
@@ -250,7 +253,7 @@ else
                                 end
                             end
                             offrg = offrg + max(rg);
-
+                            %Case 1: permute within subject and modality
                             if ~ Acrossmod
                                 if ~flag_use_perms
                                     chunkperm=randperm(numel(chunks));
@@ -262,7 +265,7 @@ else
                                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                                 end
                                 pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                                if ~flag_test
+                                if ~perm_train_only
                                     itrain = 1:length(ism);
                                 end
                                 t_perm(itrain(ism(pchunk)))   = t(itrain(ism(chunkpermcv)));
@@ -271,6 +274,9 @@ else
                             end
                         end
                     end
+                    % Case 2: conditions over multiple runs that were
+                    % concatenated, so needs to be exchanged within subject
+                    % but across runs
                     if Acrossmod && ~exchange_subjects
                         if ~flag_use_perms
                             chunkperm=randperm(numel(chunks));
@@ -284,7 +290,7 @@ else
                             chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                         end
                         pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                        if ~flag_test
+                        if ~perm_train_only
                             itrain = 1:length(iss);
                         end
                         t_perm(itrain(iss(pchunk))) = t(itrain(iss(chunkpermcv)));                        
@@ -294,7 +300,8 @@ else
                     end
                 end
             end
-            if exchange_subjects % Permute the subjects based on their structure
+            %Case 3: exchanging the samples across subjects
+            if exchange_subjects
                 i = 1;
                 samp_g=unique(ids(:,1));%number of groups
                 for gid = 1: length(samp_g) 
@@ -314,7 +321,7 @@ else
                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                 end
                 pchunk = cell2mat(chunks);
-                if ~flag_test
+                if ~perm_train_only
                     itrain = 1:size(ids,1);
                 end
                 t_perm(itrain(pchunk))   = t(itrain(chunkperm));
@@ -322,7 +329,8 @@ else
                 IDperm(itrain(pchunk),:) = ID(itrain(chunkperm),:);
             end
 
-            
+            % Run model with permuted data for each fold
+            % -------------------------------------------------------------
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
                 fdata.ID      = IDperm; %IDperm
@@ -348,10 +356,12 @@ else
                     end
                 end
                 
+                %Run model on permuted targets with optimal parameters if
+                %computed
                 [temp_model, targets] = prt_cv_fold(PRT,fdata);
                 
-                % save the weights per fold to further compute ranking distance
-                if flag
+                % save the weights per fold if requested
+                if save_perm
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).pred=temp_model.predictions;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).func_val=temp_model.func_val;
@@ -363,11 +373,6 @@ else
                 
             end
             
-            % Model level statistics (across folds)
-%             tp             = vertcat(model.output.fold(:).targets);
-%             m.type        = PRT.model(modelid(1)).output(k).fold(1).type;
-%             m.predictions = vertcat(model.output.fold(:).predictions);
-%             perm_stats         = prt_stats(m,tp,tp);
             % Model level statistics (across folds) - Average
             fnamestats = fieldnames(stats);
             perm_stats = struct;
@@ -390,13 +395,12 @@ else
                 perm_stats.con_mat = t_stats.con_mat;
             end
             
-            
+            % Update counts depending on permuted model performance
             switch PRT.model(modelid(1)).output(k).fold(1).type
                 
                 case 'classifier'
                     
                     permutation.b_acc(p)=perm_stats.b_acc;
-%                     n_class = length(PRT.model(modelid(1)).output(k).fold(1).stats.c_acc);
                     
                     if (perm_stats.b_acc >= PRT.model(modelid(1)).output(k).stats.b_acc)
                         total_greater_b_acc=total_greater_b_acc+1;
@@ -431,18 +435,17 @@ else
                     if (perm_stats.r2 >= PRT.model(modelid(1)).output(k).stats.r2)
                         total_greater_r2=total_greater_r2+1;
                     end
-                    
-                    
+         
             end
             
-            if flag
+            if save_perm
                 PRT.model(modelid(1)).output(k).permutation(p).perm_mat = reshape(chunkperm, numel(chunkperm),1); % put in column
                 PRT.model(modelid(1)).output(k).permutation(p).perm_stats = perm_stats;
             end
         end
         fprintf('\n') % new line after each model
         
-        
+        %Compute p-values
         switch PRT.model(modelid(1)).output(k).fold(1).type
             case 'classifier'
                 
@@ -468,20 +471,16 @@ else
                 pval_nmse = (total_greater_nmse+1) / (n_perm+1);
                 
                 pval_r2 = (total_greater_r2+1) / (n_perm+1);
-                
-                
+                                
                 permutation.pval_corr = pval_corr;
                 permutation.pval_mse = pval_mse;
                 permutation.pval_nmse = pval_nmse;
                 permutation.pval_r2 = pval_r2;
-        end
-        
-        
-        
+        end        
         %update PRT
         PRT.model(modelid(1)).output(k).stats.permutation = permutation;
         
-        % Save PRT containing machine output
+        % Save PRT containing permutation output
         % -------------------------------------------------------------------------
         outfile = fullfile(path,'PRT.mat');
         disp('Updating PRT.mat.......>>')

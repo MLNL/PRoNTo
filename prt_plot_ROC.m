@@ -24,7 +24,7 @@ if fold == 1
     fVals   = [];
     targets = [];
     
-    for f = 1:nfold,
+    for f = 1:nfold
         targets = [targets;PRT.model(model).output.fold(f).targets];
         if isfield(PRT.model(model).output.fold(f),'func_val')
             fVvals_exist = 1;
