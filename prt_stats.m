@@ -103,7 +103,12 @@ stats.acc_lb=lb;
 stats.acc_ub=ub;
 
 % AUC for binary classification
-if k==2 
+if k==1
+    tpr = NaN;
+    fpr = NaN;
+    auc = NaN;
+    stats.auc = auc;
+elseif k==2 
     % Prepare data for computation
     if isfield(model,'func_val')
         scores = model.func_val;
@@ -112,13 +117,18 @@ if k==2
     end
     
     % Compute tpr and fpr
-    [tpr,fpr] = prt_tpr_fpr(tte,scores,k);
+    [tpr,fpr] = prt_tpr_fpr(tte,scores);
      
     % Compute AUC
     n = size(tpr, 1);
     auc = sum((fpr(2:n) - fpr(1:n-1)).*(tpr(2:n)+tpr(1:n-1)))/2;
 
     stats.auc = auc;
+elseif k>2
+    tpr = [];
+    fpr = [];
+    auc = [];
+    stats.auc = auc; 
 end
 
 end

@@ -62,7 +62,15 @@ rotate3d off
 cla(axes_handle, 'reset');
 
 numClass = numel(unique(targets(:)));
-[tpr,fpr] = prt_tpr_fpr(targets,fVals,numClass);
+if numClass<2
+    tpr = NaN;
+    fpr = NaN;
+elseif numClass==2
+    [tpr,fpr] = prt_tpr_fpr(targets,fVals);
+else
+    tpr = [];
+    fpr = [];
+end
 
 
 %

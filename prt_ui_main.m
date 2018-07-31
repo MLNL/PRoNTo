@@ -190,15 +190,20 @@ load(PRT);
 nm = length(PRT.masks);
 flagim = 0;
 flagMEEG = 0;
+flagmat = 0;
 for i=1:nm
     if isfield(PRT.masks(i),'type') && strcmpi(PRT.masks(i).type,'MEEG')
         flagMEEG = flagMEEG + 1;
-    else
+    elseif isfield(PRT.masks(i),'type') && strcmpi(PRT.masks(i).type,'nifti')
         flagim = flagim + 1;
+    else isfield(PRT.masks(i),'type') && strcmpi(PRT.masks(i).type,'.mat')
+        flagmat = flagmat +1;
     end
 end
-if flagMEEG && flagim
-    prt_ui_fs_datatype('UserData',{PRT,fname}) % User chooses whether to build feature set for MEEG or images
+if flagMEEG && flagim && flagmat
+    prt_ui_fs_alldatatype('UserData',{PRT,fname}) % User chooses whether to build feature set for MEEG or images
+elseif (flagMEEG && flagim)||(flagMEEG && flagmat)||(flagim && flagmat)
+    prt_ui_fs_datatype('UserData',{PRT,fname})
 else
     prt_ui_prepare_data('UserData',{PRT,flagMEEG,fname})
 end

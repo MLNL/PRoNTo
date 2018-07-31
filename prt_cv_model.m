@@ -138,7 +138,7 @@ for k = 1:nk
                 end
                 [out] = prt_nested_cv(PRT, fdata);
                 PRT.model(mid).output(k).fold(f).param_effect = out;
-                if isempty(stringpar)
+                if isempty(stringpar) || isvector(str2num(stringpar)) % For custome machine, stringpar may contain a vector.
                     PRT.model(mid).input.machine.args = out.opt_param;
                 else
                     PRT.model(mid).input.machine.args = [stringpar, num2str(out.opt_param)];
@@ -191,8 +191,14 @@ for k = 1:nk
         for j = 1:n_folds
             val(:,j) = PRT.model(mid).output(k).fold(j).stats.(fnamestats{i})(:);
         end
-        av_stats = reshape(nanmean(val,2),size_stats);
-        gstats = setfield(gstats,fnamestats{i},av_stats);
+        if all(isnan(val(:))) % For auc=NaN
+            gstats = setfield(gstats,fnamestats{i},NaN);
+        elseif ~isempty(val)
+            av_stats = reshape(nanmean(val,2),size_stats);
+            gstats = setfield(gstats,fnamestats{i},av_stats);
+        else % For auc=[]
+            gstats = setfield(gstats,fnamestats{i},[]);
+        end
     end
     % If classifier, get confusion matrix globally
      m.type        = PRT.model(mid).output(k).fold(1).type;

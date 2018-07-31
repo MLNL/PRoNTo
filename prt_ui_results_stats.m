@@ -640,18 +640,85 @@ PRT   = handles.PRT;
 % Read stats
 % -------------------------------------------------------------------------
 if strcmp(PRT.model(mi(m)).input.type,'classification')
+    % For auc backward compatibility 
+    if ~isfield(PRT.model(mi(m)).output.stats,'auc')
+        fprintf('No auc found in PRT. PRT may be obtained in an earlier version of PRoNTo. Start computing auc...\n');
+        % Compute the fold-level auc
+        num_fold = length(PRT.model(mi(m)).output.fold); 
+        full_targets = vertcat(PRT.model(mi(m)).output.fold(:).targets);
+        num_class = unique(full_targets);
+        vec_auc = [];
+        
+        for i=1:num_fold
+            temp_tte = PRT.model(mi(m)).output.fold(i).targets;% Targets of test data within each fold
+            class_tte = unique(temp_tte);% True classes in the targets within each fold
+            if numel(class_tte)<2
+               PRT.model(mi(m)).output.fold(i).stats.auc = NaN; 
+               vec_auc = NaN;
+            elseif numel(class_tte)==2
+                if isfield(PRT.model(mi(m)).output.fold(i),'func_val')
+                    scores = PRT.model(mi(m)).output.fold(i).func_val;
+                else
+                    scores = PRT.model(mi(m)).output.fold(i).predictions;
+                end
+                % compute and store stats
+                [temp_tpr,temp_fpr] = prt_tpr_fpr(temp_tte,scores,num_class); 
+                n = size(temp_tpr, 1);
+                temp_auc = sum((temp_fpr(2:n) - temp_fpr(1:n-1)).*(temp_tpr(2:n)+temp_tpr(1:n-1)))/2;
+                PRT.model(mi(m)).output.fold(i).stats.auc = temp_auc; 
+                vec_auc = [vec_auc;PRT.model(mi(m)).output.fold(i).stats.auc];
+            else
+                PRT.model(mi(m)).output.fold(i).stats.auc = [];
+            end  
+        end
+
+        % Compute the model-level auc by averaging across folds
+        if isnan(vec_auc)
+            mean_auc = NaN;
+        elseif ~isempty(vec_auc)
+            mean_auc = mean(vec_auc);
+        else 
+            mean_auc = [];
+        end
+        PRT.model(mi(m)).output.stats.auc = mean_auc;
+        
+        % Compute the model-level auc by concatenating across folds
+        % To be added
+        
+        % Save PRT
+        % -------------------------------------------------------------------------
+        outfile = fullfile(handles.pathdir,'PRT.mat');
+        handles.PRT = PRT;
+        disp('Updating PRT.mat.......>>')
+        save(outfile,'PRT');
+        
+    end
+        
     if fold == 1
         macc  = PRT.model(mi(m)).output.stats.acc;  % overall acc
         mbacc = PRT.model(mi(m)).output.stats.b_acc;
         mcacc = PRT.model(mi(m)).output.stats.c_acc;
         mcpv  = PRT.model(mi(m)).output.stats.c_pv;
         mauc  = PRT.model(mi(m)).output.stats.auc;
+        
         if isfield(PRT.model(mi(m)).output.stats,'permutation') && ...
                 ~isempty(PRT.model(mi(m)).output.stats.permutation)
             stats.show_perm=1;
             stats.perm.pvalue_b_acc=PRT.model(mi(m)).output.stats.permutation.pvalue_b_acc;
             stats.perm.pvalue_c_acc=PRT.model(mi(m)).output.stats.permutation.pvalue_c_acc;
-            stats.perm.pvalue_auc=PRT.model(mi(m)).output.stats.permutation.pvalue_auc;
+            if isfield(PRT.model(mi(m)).output.stats.permutation,'pvalue_auc')
+                if isnan(PRT.model(mi(m)).output.stats.permutation.pvalue_auc)
+                    PRT.model(mi(m)).output.stats.permutation.pvalue_auc=NaN;
+                    stats.perm.pvalue_auc=NaN;
+                elseif ~isempty(PRT.model(mi(m)).output.stats.permutation.pvalue_auc)
+                    stats.perm.pvalue_auc=PRT.model(mi(m)).output.stats.permutation.pvalue_auc;
+                else
+                    PRT.model(mi(m)).output.stats.permutation.pvalue_auc=[];
+                    stats.perm.pvalue_auc=[];
+                end
+            else
+                stats.perm.pvalue_auc=[];
+            end
         end
     else
         macc  = PRT.model(mi(m)).output.fold(fold-1).stats.acc;
@@ -733,22 +800,36 @@ switch stats.type
         set(handles.baccuracytext,'String','Balanced accuracy (BA):','Visible','on');
         set(handles.classaccuracytext,'String','Class accuracy (CA):','Visible','on');
         set(handles.ppvtext,'String','Class predictive value: ','Visible','on');
-        set(handles.auctext,'String','Area Under Curve: ','Visible','on');
+        if ~isempty(stats.mauc)
+            set(handles.auctext,'String','Area Under Curve: ','Visible','on');
+        else
+            set(handles.auctext,'String','Area Under Curve: ','Visible','off');
+        end
         
         set(handles.acctext,'String',sprintf(' %3.2f %%',stats.macc*100),'Visible','on');
         set(handles.bacctext,'String',sprintf(' %3.2f %%',stats.mbacc*100),'Visible','on');
         set(handles.cacctext,'String',sprintf(' %3.2f %%',stats.mcacc*100),'Visible','on');
         set(handles.cpvval,'String',sprintf(' %3.2f %%',...
             stats.mcpv*100),'Visible','on');
-        set(handles.aucval,'String',sprintf(' %3.2f %',...
-            stats.mauc),'Visible','on');
+        if ~isempty(stats.mauc)
+            set(handles.aucval,'String',sprintf(' %3.2f %',...
+                stats.mauc),'Visible','on');
+        else
+            set(handles.aucval,'String',sprintf(' %3.2f %',...
+                stats.mauc),'Visible','off');
+        end
         
         set(handles.pvalbacc,'String','BA p-value:','Visible','on');
         set(handles.pvalcacc,'String','CA p-value:','Visible','on');
         set(handles.pbacc,'String',' N. A.','Visible','on');
         set(handles.pcacc,'String',' N. A.','Visible','on');
-        set(handles.pvalauc,'String','AUC p-value:','Visible','on');
-        set(handles.pauc,'String',' N. A.','Visible','on');
+        if ~isempty(stats.mauc)
+            set(handles.pvalauc,'String','AUC p-value:','Visible','on');
+            set(handles.pauc,'String',' N. A.','Visible','on');
+        else
+            set(handles.pvalauc,'String','AUC p-value:','Visible','off');
+            set(handles.pauc,'String',' N. A.','Visible','off');
+        end
         
         if isfield(stats,'show_perm')
             
@@ -756,7 +837,11 @@ switch stats.type
 
                 set(handles.pbacc,'String',sprintf(' %3.4f',stats.perm.pvalue_b_acc));
                 set(handles.pcacc,'String',sprintf(' %3.4f',stats.perm.pvalue_c_acc));
-                set(handles.pauc,'String',sprintf(' %3.4f',stats.perm.pvalue_auc));
+                if ~isempty(stats.perm.pvalue_auc)
+                    set(handles.pauc,'String',sprintf(' %3.4f',stats.perm.pvalue_auc));
+                else
+                    set(handles.pauc,'Visible','off');
+                end
                 
             end
             
