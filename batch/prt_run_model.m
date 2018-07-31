@@ -37,7 +37,7 @@ function out = prt_run_model(varargin)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by A Marquand
+% Written by A Marquand and J. Schrouff
 % $Id$
 
 def = prt_get_defaults;
@@ -89,9 +89,9 @@ if ~iscellstr(mods) % Compatibility with version 1
     mods = cellstr(char(PRT.fs(fid).modality(:).mod_name));
 end
 
-if isstruct(job.fsets)
-    model.indmodels = job.fsets.indmodels;
-end
+% if isstruct(job.fsets)
+%     model.indmodels = job.fsets.indmodels;
+% end
 
 % get the conditions which are common to all subjects from all groups
 nm = length(mods);
@@ -104,13 +104,23 @@ for i=1:nm
                 m2= find(strcmpi(mods{1},{PRT.group(j).subject(k).modality(:).mod_name}));
             end
             des=PRT.group(j).subject(k).modality(m2).design;
+            rt_subj=PRT.group(j).subject(k).modality(m2).rt_subj;
             if isstruct(des) && flag
-                if k==1 && j==1
+                if k==1 && j == 1
                     lcond={des.conds(:).cond_name};
                 else
                     tocmp={des.conds(:).cond_name};
                     lcond=intersect(lower(lcond),lower(tocmp));
                 end
+                handles.rt_subj = [];
+            elseif ~isstruct(des) && length(rt_subj)>=1 % regression per subject
+                if k==1 && j == 1
+                    lcond={rt_subj(:).name};
+                else
+                    tocmp={rt_subj(:).name};
+                    lcond=intersect(lower(lcond),lower(tocmp));
+                end
+                handles.rt_subj = rt_subj;
             else
                 flag=0;
                 lcond={};
@@ -118,12 +128,14 @@ for i=1:nm
         end
     end
 end
-% Insert fields for generating the labels (ie. translate the fields coming
-% from matlabbatch to something more consistent for the prt_model function)
-% Note that we cycle through the groups to flatten out the structure, since
-% we potentially specify multiple subjects per group
+
+
 if isfield(job.model_type,'classification')
     model.type = 'classification';
+    
+    % Build 'in.class' that accessess the requested subjects and
+    % conditions. It will be used by prt_model to compute samp_idx
+    %----------------------------------------------------------------------
     for c = 1:length(job.model_type.classification.class)
         model.class(c).class_name = job.model_type.classification.class(c).class_name;
 
@@ -147,16 +159,16 @@ if isfield(job.model_type,'classification')
                             disp('Please review the selection and/or the data and design')
                             return
                         end
+                    elseif isfield(job.model_type.classification.class(c).group(g).conditions,'target')
+                        beep
+                        disp('Target is not a valid option for classification')
+                        return
                     else
                         model.class(c).group(g).subj(scount).modality(m).conds = ...
                             job.model_type.classification.class(c).group(g).conditions.conds;
                         for cc=1:length(job.model_type.classification.class(c).group(g).conditions.conds)
                             cname=job.model_type.classification.class(c).group(g).conditions.conds(cc).cond_name;
                             if isempty(intersect(lower({cname}),lower(lcond)))
-%                                 beep
-%                                 disp('This condition is not common to all subjects')
-%                                 disp('Please remove it from the selection')
-%                                 return
                             end
                         end
                     end
@@ -166,7 +178,11 @@ if isfield(job.model_type,'classification')
         end
     end
     
-    % insert machine fields
+    % Gather machine (i.e. classification or regression algorithm)
+    % information
+    % ---------------------------------------------------------------------
+    
+    %SVM
     if isfield(job.model_type.classification.machine_cl,'svm')
         model.machine.function = 'prt_machine_svm_bin';
         model.machine.args     = job.model_type.classification.machine_cl.svm.svm_args;
@@ -181,7 +197,8 @@ if isfield(job.model_type,'classification')
            model.cv.type_nested = cv_tmp.type;
            model.cv.k_nested = cv_tmp.k;
         end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+        
+    % L1-SVM from Liblinear    
     elseif isfield(job.model_type.classification.machine_cl,'libl1svm')
         model.machine.function = 'prt_machine_liblinearsvm';
         model.machine.args     = def.model.libl1svmargs;
@@ -198,6 +215,7 @@ if isfield(job.model_type,'classification')
            model.cv.type_nested = cv_tmp.type;
            model.cv.k_nested = cv_tmp.k;
         end
+      % L2-SVM from Liblinear  
     elseif isfield(job.model_type.classification.machine_cl,'libl2svm')
         model.machine.function = 'prt_machine_liblinearsvm';
         model.machine.args     = def.model.libl2svmargs;
@@ -214,6 +232,7 @@ if isfield(job.model_type,'classification')
            model.cv.type_nested = cv_tmp.type;
            model.cv.k_nested = cv_tmp.k;
         end
+      % Multi-class SVM from Liblinear  
     elseif isfield(job.model_type.classification.machine_cl,'libmulticlsvm')
         model.machine.function = 'prt_machine_liblinearsvm';
         model.machine.args     = def.model.libmulticlsvmargs;
@@ -230,16 +249,19 @@ if isfield(job.model_type,'classification')
            model.cv.type_nested = cv_tmp.type;
            model.cv.k_nested = cv_tmp.k;
         end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%     
+    % Gaussian Processes
     elseif isfield(job.model_type.classification.machine_cl,'gpc')
         model.machine.function='prt_machine_gpml';
         model.machine.args=job.model_type.classification.machine_cl.gpc.gpc_args;
+    % Gaussian Processes
     elseif isfield(job.model_type.classification.machine_cl,'gpclap')
         model.machine.function='prt_machine_gpclap';
         model.machine.args=job.model_type.classification.machine_cl.gpclap.gpclap_args;
+    % Random Forest (currently not in use)
     elseif isfield(job.model_type.classification.machine_cl,'rt')
         model.machine.function='prt_machine_RT_bin';
         model.machine.args=job.model_type.classification.machine_cl.rt.rt_args;
+    % Simple-MKL
     elseif isfield(job.model_type.classification.machine_cl,'sMKL_cla')
         model.machine.function='prt_machine_sMKL_cla';
         model.machine.args=job.model_type.classification.machine_cl.sMKL_cla.sMKL_cla_args;
@@ -254,21 +276,17 @@ if isfield(job.model_type,'classification')
            model.cv.type_nested = cv_tmp.type;
            model.cv.k_nested = cv_tmp.k;
         end
-        
+     % Custom machine   
     else
         [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
         model.machine.function = nam;
         model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
-        if isfield(job.model_type.classification.machine_cl.custom_machine, 'machine_opt')
-            if job.model_type.classification.machine_cl.custom_machine.machine_opt
-                model.cv.nested = 1;
-                model.cv.nested_param = eval(job.model_type.classification.machine_cl.custom_machine.machine_args);
-            else
-                model.cv.nested = 0;
-                model.cv.nested_param = [];
-            end
+        if job.model_type.classification.machine_cl.custom_machine.machine_opt
+            model.cv.nested = 1;
+            model.cv.nested_param = eval(job.model_type.classification.machine_cl.custom_machine.machine_args);
         else
-            model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
+            model.cv.nested = 0;
+            model.cv.nested_param = [];
         end
         if isfield(job.model_type.classification.machine_cl.custom_machine, 'machine_cv_type_nested')
             [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.custom_machine.machine_cv_type_nested);
@@ -282,8 +300,13 @@ if isfield(job.model_type,'classification')
         model.subsample = job.model_type.classification.subsample;
     end
 
+% Regression    
 elseif isfield(job.model_type,'regression')
     model.type = 'regression';
+    
+    % Build 'in.group' to access selected subjects and targets in
+    % prt_model. 
+    % ---------------------------------------------------------------------
     for g = 1:length(job.model_type.regression.reg_group)
         scount = 1;
         model.group(g).gr_name = job.model_type.regression.reg_group(g).gr_name;
@@ -300,6 +323,16 @@ elseif isfield(job.model_type,'regression')
                         beep
                         disp('All conditions selected while no conditions were common to all subjects')
                         disp('Please review the selection and/or the data and design')
+                        return
+                    end
+                elseif isfield(job.model_type.regression.reg_group(g).conditions,'target')
+                    model.group(g).subj(scount).modality(m).conds.cond_name = ...
+                        job.model_type.regression.reg_group(g).conditions.target.target_name;
+                    cname=job.model_type.regression.reg_group(g).conditions.target(1).target_name;
+                    if isempty(intersect(lower({cname}),lower(lcond)))
+                        beep
+                        disp('This target cannot be found.')
+                        disp('Please correct!')
                         return
                     end
                 else
@@ -320,6 +353,9 @@ elseif isfield(job.model_type,'regression')
         end
     end
     
+    % Gather machine information
+    % ---------------------------------------------------------------------
+    % Kernel Ridge Regression
     if isfield(job.model_type.regression.machine_rg,'krr')
         model.machine.function = 'prt_machine_krr';
         model.machine.args=job.model_type.regression.machine_rg.krr.krr_args;
@@ -333,13 +369,16 @@ elseif isfield(job.model_type,'regression')
            [cv_tmp] = get_cv_type(job.model_type.regression.machine_rg.krr.cv_type_nested);
            model.cv.type_nested = cv_tmp.type;
            model.cv.k_nested = cv_tmp.k;
-        end
+         end
+    % Relevance Vector Regression     
     elseif isfield(job.model_type.regression.machine_rg,'rvr')
         model.machine.function='prt_machine_rvr';
         model.machine.args=[];
+    % Gaussian Processes regression
     elseif isfield(job.model_type.regression.machine_rg,'gpr')
         model.machine.function='prt_machine_gpr';
         model.machine.args=job.model_type.regression.machine_rg.gpr.gpr_args;
+    % Simple MKL regression
     elseif isfield(job.model_type.regression.machine_rg,'sMKL_reg')
         model.machine.function='prt_machine_sMKL_reg';
         model.machine.args=job.model_type.regression.machine_rg.sMKL_reg.sMKL_reg_args;
@@ -354,7 +393,7 @@ elseif isfield(job.model_type,'regression')
            model.cv.type_nested = cv_tmp.type;
            model.cv.k_nested = cv_tmp.k;
         end        
-        
+    % Custom machine    
     else
         [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
         model.machine.function = nam;
@@ -375,16 +414,12 @@ end
 model.include_allscans = job.include_allscans;
 
 % specify operations to apply to the data prior to prediction
-% if isfield(job.data_ops,'data_ops')
-%     model.operations = [job.data_ops.sel_ops.data_op{:}];
-% elseif isfield(job.data_ops,'no_op')
-%     model.operations = [];
-% end
 if isfield(job.sel_ops.use_other_ops,'data_op')
     ops = [job.sel_ops.use_other_ops.data_op{:}];
 elseif isfield(job.sel_ops.use_other_ops,'no_op')
     ops = [];
 end
+% Add mean centering in first position if requested
 if job.sel_ops.data_op_mc == 1
     model.operations = [3 ops];
 else
@@ -428,7 +463,6 @@ elseif isfield(cv_struct,'cv_loro') % currently implemented for MCKR only
 else
     cv = struct('type','custom','k',cv_struct.cv_custom{1},...
         'mat_file',cv_struct.cv_custom{1});
-    % Not sure if I should keep the field 'k' here...
 end
 
 end

@@ -1287,7 +1287,11 @@ for i=1:length(handles.ds)
                 subj(k).modality(j)=handles.dat.group(i).subject(1).modality(j);
                 subj(k).modality(j).scans=subj(k).modality(j).scans(k,:);
                 if ~isempty(handles.dat.group(i).subject(1).modality(j).rt_subj)
-                    subj(k).modality(j).rt_subj=subj(k).modality(j).rt_subj(k);
+                    ntar = length(handles.dat.group(i).subject(1).modality(j).rt_subj);
+                    for rt=1:ntar
+                        subj(k).modality(j).rt_subj(rt).name=subj(k).modality(j).rt_subj(rt).name;
+                        subj(k).modality(j).rt_subj(rt).tar=subj(k).modality(j).rt_subj(rt).tar(k);
+                    end
                 else
                     subj(k).modality(j).rt_subj=[];
                 end

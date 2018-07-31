@@ -27,7 +27,7 @@ function varargout = prt_data_modality(varargin)
 % $Id$
 
 % Edit the above text to modify the response to help prt_data_modality
-% Last Modified by GUIDE v2.5 13-Mar-2015 10:53:16
+% Last Modified by GUIDE v2.5 31-Jul-2018 11:19:33
 
 
 % Begin initialization code - DO NOT EDIT
@@ -150,6 +150,9 @@ else
     set(handles.design_menu,...
         'String',{'Load SPM.mat','Specify design','No design'},...
         'Value',3);
+    set(handles.target_menu,...
+        'String',{'Specify targets','No targets'},...
+        'Value',2);
     set(handles.type,...
         'String',{'nifti','MEEG','.mat'},...
         'Value',1);
@@ -157,10 +160,10 @@ else
     if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         %Particular options if you select by 'scans'
         if ~isempty(varargin{2}{2})
-            if ~isempty(varargin{2}{3})
+            if ~isempty(varargin{2}{3}) % Review or modify existing modality
                 openmod = 1;
                 set(handles.modname,'Enable','off')
-            else
+            else % Create new modality
                 openmod = 0;
                 set(handles.modname,'Enable','on')
             end
@@ -170,28 +173,22 @@ else
                     (openmod && ~isstruct(varargin{2}{2}.modality(varargin{2}{3}).design)) && ...
                     (openmod && isempty(varargin{2}{2}.modality(varargin{2}{3}).design))) %No design, One image per subject
                 set(handles.design_menu,'Enable','off')
-                set(handles.edit_regt,'Enable','on')
-                set(handles.edit_regt,'Visible','on')
+                set(handles.target_menu,'Enable','on')
                 set(handles.edit_covar,'Enable','on')
                 set(handles.edit_covar,'Visible','on')
                 set(handles.text7,'Visible','on') % Covariates
-                set(handles.text6,'Visible','on') %Regression targets
-            else
-                set(handles.edit_regt,'Enable','off')
-                set(handles.edit_regt,'Visible','off')
+            else % When more than one image per subject (i.e. design), only regression targets and covariates within trials
+                set(handles.target_menu,'Enable','off')
                 set(handles.edit_covar,'Enable','off')
                 set(handles.edit_covar,'Visible','off')
                 set(handles.text7,'Visible','off')
-                set(handles.text6,'Visible','off')
             end
         else
             set(handles.design_menu,'Enable','on')
             set(handles.edit_covar,'Enable','off')
             set(handles.edit_covar,'Visible','off')
             set(handles.text7,'Visible','off')
-            set(handles.text6,'Visible','off') % allow to edit RT when design specified
-            set(handles.edit_regt,'Enable','off')
-            set(handles.edit_regt,'Visible','off')
+            set(handles.target_menu,'Enable','off')
         end
         
 
@@ -230,14 +227,8 @@ else
                 end
                 handles.mod.rt_subj=modsel.rt_subj;
                 if ~isempty(modsel.rt_subj)
-                    set(handles.edit_regt,'Enable','on')
-                    set(handles.edit_regt,'Visible','on')
-                    set(handles.text6,'Visible','on')
-                    if numel(modsel.rt_subj)==1  %Review numbers for only one subject
-                        set(handles.edit_regt,'String',num2str(modsel.rt_subj))
-                    else
-                        set(handles.edit_regt,'String','Entered','FontAngle','Italic')
-                    end
+                    set(handles.target_menu,'Enable','on')
+                    set(handles.target_menu,'Value',1)
                 end
                 if isfield(modsel,'type')
                     if strcmpi(modsel.type,'MEEG')
@@ -498,19 +489,15 @@ elseif strcmpi(handles.mod.type,'nifti') && choice ==3
     desn=[];
     if size(handles.mod.scans,1)==1 %If no design and one image, can enter covariates and RT
         set(handles.design_menu,'Value')
-        set(handles.edit_regt,'Enable','on')
-        set(handles.edit_regt,'Visible','on')
+        set(handles.target_menu,'Enable','on')
         set(handles.edit_covar,'Enable','on')
         set(handles.edit_covar,'Visible','on')
         set(handles.text7,'Visible','on')
-        set(handles.text6,'Visible','on')
     elseif ~handles.scans && size(handles.mod.scans,1)>1
-        set(handles.edit_regt,'Enable','off')
-        set(handles.edit_regt,'Visible','off')
+        set(handles.target_menu,'Enable','off')
         set(handles.edit_covar,'Enable','off')
         set(handles.edit_covar,'Visible','off')
         set(handles.text7,'Visible','off')
-        set(handles.text6,'Visible','off')
         handles.mod.covar=[];
         handles.mod.rt_subj=[];
     end
@@ -541,12 +528,10 @@ if isfield(desn,'covar') && ~isempty(desn.covar)
     set(handles.text7, 'Visible','on')
 end
 if choice ~= 3
-    set(handles.edit_regt,'Enable','off')
-    set(handles.edit_regt,'Visible','off')
+    set(handles.target_menu,'Enable','off')
     set(handles.edit_covar,'Enable','off')
     set(handles.edit_covar,'Visible','off')
     set(handles.text7,'Visible','off')
-    set(handles.text6,'Visible','off')
     handles.mod.covar=[];
     handles.mod.rt_subj=[];
 end
@@ -611,28 +596,6 @@ if status
 else
     handles.mod.scans=sel;
 end
-% =======
-% 
-% choice=get(handles.design_menu,'Value');
-% if choice==3 && size(handles.mod.scans,1)==1 %No design and only one image
-%     set(handles.edit_regt,'Enable','on')
-%     set(handles.edit_regt,'Visible','on')
-%     set(handles.edit_covar,'Enable','on')
-%     set(handles.edit_covar,'Visible','on')
-%     set(handles.text7,'Visible','on')
-%     set(handles.text6,'Visible','on')
-% end
-% if ~handles.scans && size(handles.mod.scans,1)>1
-%     set(handles.edit_regt,'Enable','off')
-%     set(handles.edit_regt,'Visible','off')
-%     set(handles.edit_covar,'Enable','off')
-%     set(handles.edit_covar,'Visible','off')
-%     set(handles.text7,'Visible','off')
-%     set(handles.text6,'Visible','off')
-%     handles.mod.covar=[];
-%     handles.mod.rt_subj=[];
-% end
-% >>>>>>> Flexible_CV
 % Update handles structure
 guidata(hObject, handles);
 
@@ -679,54 +642,41 @@ handles.mod.type = typ{val};
 % Update handles structure
 guidata(hObject, handles);
 
-
-
-
-function edit_regt_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_regt (see GCBO)
+% --- Executes on selection change in target_menu.
+function target_menu_Callback(hObject, eventdata, handles)
+% hObject    handle to target_menu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit_regt as text
-%        str2double(get(hObject,'String')) returns contents of edit_regt as a double
+% Hints: contents = cellstr(get(hObject,'String')) returns target_menu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from target_menu
+choice=get(handles.target_menu,'Value');
+%Mac and Matlab versions strange things with popup menus
+if choice==0
+    choice=2;
+end
+switch choice
+    case 2
+        rte = [];
+    case 1
+        if isstruct(handles.mod.rt_subj)
+                rte=prt_data_targets('UserData',{handles.mod.rt_subj,handles.PRT,0});
+            else
+                rte=prt_data_targets;
+        end
+end
 
-%first option of loading: writing the values
-rt=get(handles.edit_regt,'String');
-if isempty(rt)
-    return
-end
-if strcmp(rt(1),'-'), nrt = 2; else nrt = 1; end
-try
-    eval(['rte=[',rt,'];'])
-catch
-    try
-        load(char(rt));
-    catch
-        beep
-        disp('Could not load file or read the regression targets')
-        disp('Please enter either a .mat file name or enter the values')
-        return
-    end
-    if ~exist('rt_subj','var')
-        beep
-        sprintf('Regression targets file must contain ''rt_subj'' variable! ')
-        disp('Please correct!')
-        return
-    else
-        rte=rt_subj;
-    end
-end
 handles.mod.rt_subj=rte;
 % Update handles structure
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
-function edit_regt_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_regt (see GCBO)
+function target_menu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to target_menu (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
+% Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
@@ -798,7 +748,7 @@ end
 %check that the regression targets have the same number of elements as the
 %number of scans or as the number of events in design
 if ~isempty(handles.mod.rt_subj)
-    szrt=length(handles.mod.rt_subj);
+    szrt=length(handles.mod.rt_subj(1).tar); %prt_data_targets already check all targets have the same number of values
     if  size(handles.mod.scans,1)~=szrt 
         beep
         disp('Number of regression targets must be the number of files selected! ')
@@ -849,10 +799,3 @@ function cancelbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 uiresume(handles.figure1);
-
-
-% --- Executes during object creation, after setting all properties.
-function text7_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to text7 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called

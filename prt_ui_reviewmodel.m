@@ -211,11 +211,7 @@ for i = 1:length(handles.PRT.model(indm).input.fs)
 end
 handles.indm=indm;
 handles.indf=indf;
-if ~isfield(handles.PRT.model(handles.indm).input,'class')
-    set(handles.modelbutt,'Enable','off')
-else
-    set(handles.modelbutt,'Enable','on')
-end
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -240,7 +236,9 @@ function modelbutt_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % --- Executes on button press in cvbutt.
 if isfield(handles.PRT.model(handles.indm).input,'class')
-    prt_ui_select_class('UserData',{handles.PRT,handles.indf(1),handles.indm})
+    prt_ui_select_class('UserData',{handles.PRT,handles.indf(1),handles.indm})    
+else
+    prt_ui_select_reg_new('UserData',{handles.PRT,handles.indf(1),handles.indm})
 end
 
 

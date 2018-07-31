@@ -25,19 +25,84 @@ covar.ufilter = '.*';
 covar.num     = [0 1];
 
 % ---------------------------------------------------------------------
+% rt_name Name of regression target to add
+% ---------------------------------------------------------------------
+rt_name         = cfg_entry;
+rt_name.tag     = 'rt_name';
+rt_name.name    = 'Name';
+rt_name.help    = {['Name of regression target. Example: ''Age''. The names '...
+    'should be consistent accross subjects/groups.']};
+rt_name.strtype = 's';
+rt_name.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% rt_tar Regression target values per subject when specified manually
+% ---------------------------------------------------------------------
+rt_tar         = cfg_entry;
+rt_tar.tag     = 'rt_tar';
+rt_tar.name    = 'Values';
+rt_tar.help    = {['Enter one regression target per subject. '...
+    'This vector should have the following dimensions: '...
+    '[Nsubjects x 1], where Nsubjects is the number of subjects in group.']
+    };
+rt_tar.strtype = 'e';
+rt_tar.val     = {[]};
+rt_tar.num     = [Inf 0];
+
+% ---------------------------------------------------------------------
+% rt_subj_tar Manually specify regression targets
+% ---------------------------------------------------------------------
+rt_subj_tar      = cfg_branch;
+rt_subj_tar.tag  = 'rt_subj_tar';
+rt_subj_tar.name = 'Target';
+rt_subj_tar.val  = {rt_name, rt_tar};
+rt_subj_tar.help = {['Subject regression targets. Specify name and '...
+    'values for each.']};
+
+% ---------------------------------------------------------------------
+% rt_subj_specify One per subject/scans
+% ---------------------------------------------------------------------
+rt_subj_specify         = cfg_repeat;
+rt_subj_specify.tag     = 'rt_subj_specify';
+rt_subj_specify.name    = 'Specify';
+rt_subj_specify.help    = {['Specify each regression target.']};
+rt_subj_specify.values     = {rt_subj_tar};
+
+% ---------------------------------------------------------------------
+% rt_subj_file One or multiple regression targets per scans
+% ---------------------------------------------------------------------
+rt_subj_file         = cfg_files;
+rt_subj_file.tag     = 'rt_subj_file';
+rt_subj_file.name    = 'From file';
+rt_subj_file.help    = {['Select .mat file containing regression targets.',...
+    ' It should contain the values in a matrix rt_subj of size number '...
+    'of subjects times number of regression targets. Additionally, if '...
+    'the variable names is a cell of size number of targets times 1 and '...
+    'contains strings, these strings will be associated with the targets '...
+    'as their names and referred as such later on.']};
+rt_subj_file.filter = {'mat'};
+rt_subj_file.ufilter = '.*';
+rt_subj_file.num     = [1 1];
+
+% ---------------------------------------------------------------------
+% rt_subj_none No RT per subject/scans
+% ---------------------------------------------------------------------
+rt_subj_none         = cfg_const;
+rt_subj_none.tag     = 'rt_subj_none';
+rt_subj_none.name    = 'No targets';
+rt_subj_none.val     = {0};
+rt_subj_none.help     = {'No regression targets.'};
+
+% ---------------------------------------------------------------------
 % rt_subj One per subject/scans
 % ---------------------------------------------------------------------
-rt_subj         = cfg_entry;
+rt_subj         = cfg_choice;
 rt_subj.tag     = 'rt_subj';
-rt_subj.name    = 'Regression targets (per scans)';
-rt_subj.help    = {['Enter one regression target per scan. '...
-    'or enter the name of a variable. '...
-    ' This variable should be a vector '...
-    '[Nscans x 1], where Nscans is the number of '...
-    'scans/images.']};
-rt_subj.strtype = 'e';
-rt_subj.val     = {[]};
-rt_subj.num     = [Inf 0];
+rt_subj.name    = 'Regression targets (subject)';
+rt_subj.help    = {['Add regression targets per subject. '...
+    'Only for nifti or .mat formats.']};
+rt_subj.values  = {rt_subj_none,rt_subj_file,rt_subj_specify};
+rt_subj.val     = {rt_subj_none};
 
 % ---------------------------------------------------------------------
 % regtrial One per trial

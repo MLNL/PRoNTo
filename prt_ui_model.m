@@ -813,32 +813,17 @@ if strcmpi(handles.type,'classification')
         return
     end        
     handles.design=speccl.design;
-%     handles.listnames=speccl.condm;
     handles.legs=speccl.legends;
     handles.class=speccl.class;
     handles.subsample = speccl.subsample;
     ns=zeros(length(speccl.class),1);
-%     ng1=1;
-%     ng2=1;
     for ii=1:length(speccl.class)
         for jj=1:length(speccl.class(ii).group)
             ns(ii)=ns(ii)+length(speccl.class(ii).group(jj).subj);
         end
-%         if jj==1
-%             if ii==1
-%                 gname=speccl.class(ii).group(jj).gr_name;
-%             else
-%                 if strcmpi(gname,speccl.class(ii).group(jj).gr_name)
-%                     ng2=ng2+1;
-%                 end
-%             end
-%         else
-%             ng1=0;
-%         end
     end
     
-    % Options for the outter CV
-%     ng2=floor(ng2/length(speccl.class));
+    % Options for the outer CV
     list=get(handles.pop_cv,'String');
     if (speccl.design) && max(ns)==1
         if ~any(ismember(list, 'Leave One Block Out'))
@@ -871,16 +856,14 @@ if strcmpi(handles.type,'classification')
         set(handles.pop_cv,'Value',length(list)-1)
         handles.cv.type     = 'loso';
         handles.cv.type_nested='loso';
-%         if ~ng1 || ~ng2
-            list=get(handles.pop_cv,'String');
-            if ~any(ismember(list, 'Leave One Subject per Class Out'))
-                list=[list;{'Leave One Subject per Class Out'}];
-            end
-            if ~any(ismember(list, 'k-folds CV on Subject per Class'))
-                list=[list;{'k-folds CV on Subject per Class'}];
-            end
-            set(handles.pop_cv,'String',list)
-%         end
+        list=get(handles.pop_cv,'String');
+        if ~any(ismember(list, 'Leave One Subject per Class Out'))
+            list=[list;{'Leave One Subject per Class Out'}];
+        end
+        if ~any(ismember(list, 'k-folds CV on Subject per Class'))
+            list=[list;{'k-folds CV on Subject per Class'}];
+        end
+        set(handles.pop_cv,'String',list)
     end
     
     
@@ -1393,11 +1376,6 @@ end
 %checks on the CV framework compared to the model entered
 if strcmpi(in.cv.type,'lobo')
     if isfield(in,'class')
-%         beep
-%         disp('Leave One Block Out cross-validation only allowed for classification')
-%         disp('Please correct')
-%         return
-%     else
         for c=1:length(in.class)
             for i=1:length(in.class(c).group)
                 if length(in.class(c).group(i).subj)>1
@@ -1410,14 +1388,6 @@ if strcmpi(in.cv.type,'lobo')
         end
     end
 end
-
-% if ~isfield(in,'class')
-%     if ~strcmpi(in.cv.type,'loso')
-%         beep
-%         disp('Regression only allows a Leave (One) Subject Out cross-validation')
-%         disp('Please correct')
-%     end
-% end
 
 % Subsampled the trials and built a custom CV, so the model has already
 % been specified but needs to be amended with the latest options

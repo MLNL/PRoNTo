@@ -54,11 +54,26 @@ if ~all(cg) % missing fields
                 for l = 1:length(PRT.group(j).subject(k).modality)
                     PRT.group(j).subject(k).modality(l).(ng{ita(i)}) = [];
                     if ita(i)==1
-                        PRT.group(j).subject(k).modality(l).mod_name = '';
+                        PRT.group(j).subject(k).modality(l).mod_name = ['mod',num2str(l)];
                     elseif ita(i)==7
                         PRT.group(j).subject(k).modality(l).type = 'nifti';
                     end
                 end
+            end
+        end
+    end
+end
+
+% Update regression target from vector to structure
+for j=1:length(PRT.group)
+    for k  = 1:length(PRT.group(j).subject)
+        for l = 1:length(PRT.group(j).subject(k).modality)
+            if ~isempty(PRT.group(j).subject(k).modality(l).rt_subj) && ...
+                    ~isstruct(PRT.group(j).subject(k).modality(l).rt_subj)
+                targets = PRT.group(j).subject(k).modality(l).rt_subj;
+                PRT.group(j).subject(k).modality(l).rt_subj = [];
+                PRT.group(j).subject(k).modality(l).rt_subj.name = 'Tar 1';
+                PRT.group(j).subject(k).modality(l).rt_subj.tar = targets;
             end
         end
     end

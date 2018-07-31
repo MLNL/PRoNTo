@@ -60,7 +60,7 @@ function prt_ui_select_reg_new_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to prt_ui_select_reg_new (see VARARGIN)
 
-set(handles.figure1,'Name','PRoNTo :: Select subjects/conditions for regression')
+set(handles.figure1,'Name','PRoNTo :: Select subjects/targets for regression')
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
 if ispc
@@ -151,6 +151,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             for k=1:length(handles.dat.group(j).subject)
                 m2= strcmpi(handles.dat.fs(indfs).modality(nm).mod_name,modnam);
                 des=handles.dat.group(j).subject(k).modality(m2).design;
+                rt_subj=handles.dat.group(j).subject(k).modality(m2).rt_subj;
                 if isstruct(des) && flag
                     if k==1 && j == 1 % [afm] && nm==1
                         lcond={des.conds(:).cond_name};
@@ -158,6 +159,15 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
                         tocmp={des.conds(:).cond_name};
                         lcond=intersect(lower(lcond),lower(tocmp));
                     end
+                    handles.rt_subj = [];
+                elseif ~isstruct(des) && length(rt_subj)>=1
+                    if k==1 && j == 1 % [afm] && nm==1
+                        lcond={rt_subj(:).name};
+                    else
+                        tocmp={rt_subj(:).name};
+                        lcond=intersect(lower(lcond),lower(tocmp));
+                    end
+                    handles.rt_subj = rt_subj;
                 else
                     flag=0;
                     lcond={};
@@ -167,8 +177,6 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     end
     handles.condm{1,2}=lcond;
     if isempty(handles.condm{1,2})
-        disp('No conditions were common to all subjects, all groups, all modalities within the feature set')
-        disp('Regression on subjects only')
         handles.flagcond=0;
         set(handles.uns_cond_list,'Enable','off')
         set(handles.sel_cond_list,'Enable','off')
@@ -299,132 +307,6 @@ if isfield(handles,'figure1') && ~handles.flagrev
 end
 
 
-
-function num_class_Callback(hObject, eventdata, handles)
-% hObject    handle to num_class (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of num_class as text
-%        str2double(get(hObject,'String')) returns contents of num_class as a double
-ncl=str2double(get(handles.num_class,'String'));
-if isnan(ncl)
-    return
-end
-%set the names of the classes in the pop_class
-cl={};
-for i=1:ncl
-    cl=[cl,{['Class ',num2str(i)]}];
-end
-set(handles.pop_class,'String',cl);
-set(handles.pop_class,'Value',1);
-%For each class, build a cell containing the indexes of
-%the selected groups and conditions
-handles.clas=cell(ncl,4);
-for i=1:ncl
-    handles.clas{i,1}=1:length(handles.condm{1,1});
-    handles.clas{i,2}=cell(length(handles.condm{1,1}),2);
-    for j=1:length(get(handles.group_list,'String'))
-        handles.clas{i,2}{j,1}=1:length(handles.condm{1,3}{j});
-        handles.clas{i,2}{j,2}=0;
-    end
-    if handles.flagcond
-        handles.clas{i,3}=1:length(handles.condm{1,2});
-        handles.clas{i,4}=0;
-    end
-    handles.class(i).class_name=cl{i};
-end
-set(handles.edit2,'String',handles.class(1).class_name)
-% Update handles structure
-guidata(hObject, handles);
-
-% --- Executes during object creation, after setting all properties.
-function num_class_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to num_class (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-%change the name of the classes
-function edit2_Callback(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit2 as text
-%        str2double(get(hObject,'String')) returns contents of edit2 as a double
-indc=get(handles.pop_class,'Value');
-handles.class(indc).class_name=get(handles.edit2,'String');
-% Update handles structure
-guidata(hObject, handles);
-
-% --- Executes during object creation, after setting all properties.
-function edit2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% --- Executes on selection change in pop_class.
-function pop_class_Callback(hObject, eventdata, handles)
-% hObject    handle to pop_class (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns pop_class contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from pop_class
-vc=get(handles.pop_class,'Value');
-if vc==0
-    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_class,'Value',1)
-    vc=1;
-end
-cg=get(handles.group_list,'Value');
-list=handles.condm{1,3}{cg};
-
-set(handles.edit2,'String',handles.class(vc).class_name)
-%set subjects lists
-if handles.clas{vc,2}{cg,1}~=0
-    set(handles.uns_list,'Value',1);
-    set(handles.uns_list,'String',list(handles.clas{vc,2}{cg,1}));
-else
-    set(handles.uns_list,'Value',0);
-    set(handles.uns_list,'String',{});
-end
-if handles.clas{vc,2}{cg,2}~=0
-    set(handles.sel_list,'Value',1);
-    set(handles.sel_list,'String',list(handles.clas{vc,2}{cg,2}));
-else
-    set(handles.sel_list,'Value',0);
-    set(handles.sel_list,'String',{});
-end
-
-% Update handles structure
-guidata(hObject, handles);
-
-% --- Executes during object creation, after setting all properties.
-function pop_class_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to pop_class (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 % --- Executes on selection change in group_list.
 function group_list_Callback(hObject, eventdata, handles)
 % hObject    handle to group_list (see GCBO)
@@ -451,6 +333,32 @@ else
     set(handles.sel_list,'Value',0);
     set(handles.sel_list,'String',{});
 end
+
+%set conditions lists
+clist=handles.condm{1,2};
+if handles.clas{cl,3}~=0
+    set(handles.uns_cond_list,'Value',1);
+    set(handles.uns_cond_list,'String',clist(handles.clas{cl,3}));
+else
+    set(handles.uns_cond_list,'Value',0);
+    set(handles.uns_cond_list,'String',{});
+end
+if handles.clas{cl,4}~=0
+    set(handles.sel_cond_list,'Value',1);
+    set(handles.sel_cond_list,'String',clist(handles.clas{cl,4}));
+else
+    set(handles.sel_cond_list,'Value',0);
+    set(handles.sel_cond_list,'String',{});
+end
+
+% If review mode, disable the lists
+if handles.flagrev
+    set(handles.sel_cond_list,'Enable','off');
+    set(handles.uns_cond_list,'Enable','off');
+    set(handles.sel_list,'Enable','off');
+    set(handles.uns_list,'Enable','off');
+end
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -753,6 +661,17 @@ for g=1:length(list)
                     if isempty(handles.clas{1,3}) || any(handles.clas{1,3}==0) %all conditions were selected
                         handles.group(g2).subj(scount).modality(m).all_cond=true;
                     else
+                        if ~isempty(handles.rt_subj) % Case of multiple regression targets
+                            % Can only select one Regression Target per
+                            % model
+                            if length(handles.clas{1,4})>1
+                                beep
+                                disp('Only one Regression Target can be selected')
+                                disp('Please correct')
+                            end
+                        end
+                        % Case of multiple conditions each with one
+                        % regression target
                         for ic=1:length(handles.clas{1,4})
                             handles.group(g2).subj(scount).modality(m).conds(ic).cond_name= ...
                                 handles.condm{1,2}{handles.clas{1,4}(ic)};
@@ -773,7 +692,7 @@ if ~flag  %for this class, no subjects were selected
     return
 end
 
-if ~any(ncc) %no conditions specified
+if ~any(ncc) || ~isempty(handles.rt_subj) %no conditions specified
     handles.design=0;
 else
     handles.design=1;

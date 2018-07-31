@@ -27,10 +27,8 @@ if fold == 1
     for f = 1:nfold
         targets = [targets;PRT.model(model).output.fold(f).targets];
         if isfield(PRT.model(model).output.fold(f),'func_val')
-            fVvals_exist = 1;
             fVals  = [fVals;PRT.model(model).output.fold(f).func_val];
         else
-            fVvals_exist = 0;
             fVals  = [fVals;...
                 PRT.model(model).output.fold(f).predictions];
         end
@@ -40,9 +38,7 @@ else
     targets = PRT.model(model).output.fold(fold-1).targets;
     if isfield(PRT.model(model).output.fold(fold-1),'func_val')
         fVals  = PRT.model(model).output.fold(fold-1).func_val;
-        fVvals_exist = 1;
     else
-        fVvals_exist = 0;
         fVals  = PRT.model(model).output.fold(fold-1).predictions;
     end
 end

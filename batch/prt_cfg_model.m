@@ -4,7 +4,7 @@ function model = prt_cfg_model
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by Andre Marquand
+% Written by Andre Marquand, modified by J. Schrouff
 % $Id$
 
 def = prt_get_defaults;
@@ -46,18 +46,6 @@ use_kernel.labels  = {
 use_kernel.values  = {1 0};
 use_kernel.val     = {1};
 
-
-
-% ---------------------------------------------------------------------
-% all_features All features
-% ---------------------------------------------------------------------
-% all_features         = cfg_const;
-% all_features.tag     = 'all_features';
-% all_features.name    = 'All Features';
-% all_features.val     = {1};
-% all_features.help    = {...
-%     'Include all features from all modalities in this feature set'};
-
 % ---------------------------------------------------------------------
 % fs_name Feature set name
 % ---------------------------------------------------------------------
@@ -73,38 +61,19 @@ fs_name.num     = [1 Inf];
 % ---------------------------------------------------------------------
 % indmodels Flag to perform one model per kernel
 % ---------------------------------------------------------------------
-indmodels         = cfg_menu;
-indmodels.tag     = 'indmodels';
-indmodels.name    = 'One model per kernel?';
-indmodels.help    = {...
-    ['Do you want to estimate one model per kernel? ', ...
-     'If ''No'' is selected, the kernels will be considered jointly. ',...
-     'If ''Yes'' is selected, the kernels will be considered independently.']};
-indmodels.labels  = {
-               'Yes'
-               'No'
-}';
-indmodels.values  = {1 0};
-indmodels.val     = {0};
-
-% ---------------------------------------------------------------------
-% mod_name Modality name
-% ---------------------------------------------------------------------
-% mod_name         = cfg_entry;
-% mod_name.tag     = 'mod_name';
-% mod_name.name    = 'Modality name';
-% mod_name.help    = {'Name of modality. Example: ''BOLD''. Must match design specification'};
-% mod_name.strtype = 's';
-% mod_name.num     = [1 Inf];
-
-% % ---------------------------------------------------------------------
-% % fset Feature set
-% % ---------------------------------------------------------------------
-% fset         = cfg_branch;
-% fset.tag     = 'fset';
-% fset.name    = 'Feature set';
-% fset.help    = {'New feature set'};
-% fset.val     = {fs_name};
+% indmodels         = cfg_menu;
+% indmodels.tag     = 'indmodels';
+% indmodels.name    = 'One model per kernel?';
+% indmodels.help    = {...
+%     ['Do you want to estimate one model per kernel? ', ...
+%      'If ''No'' is selected, the kernels will be considered jointly. ',...
+%      'If ''Yes'' is selected, the kernels will be considered independently.']};
+% indmodels.labels  = {
+%                'Yes'
+%                'No'
+% }';
+% indmodels.values  = {1 0};
+% indmodels.val     = {0};
 
 % ---------------------------------------------------------------------
 % featureset Feature set names (v3.0: multiple allowed)
@@ -124,7 +93,8 @@ fsets         = cfg_branch;
 fsets.tag     = 'fsets';
 fsets.name    = 'Feature sets';
 fsets.help    = {'Feature set(s) to include in this model.'};
-fsets.val     = {featureset, indmodels};
+fsets.val     = {featureset};
+% fsets.val     = {featureset, indmodels};
 
 % ---------------------------------------------------------------------
 % gr_name Group name
@@ -161,7 +131,7 @@ cond_name.num     = [1 Inf];
 conds         = cfg_branch;
 conds.tag     = 'conds';
 conds.name    = 'Condition';
-conds.help    = {'Specify condition:.'};
+conds.help    = {'Specify condition to use.'};
 conds.val     = {cond_name};
 
 % ---------------------------------------------------------------------
@@ -170,8 +140,28 @@ conds.val     = {cond_name};
 sel_cond         = cfg_repeat;
 sel_cond.tag     = 'sel_cond';
 sel_cond.name    = 'Specify Conditions';
-sel_cond.help    = {'Specify the name of conditions to be included '};
+sel_cond.help    = {'Specify the name of conditions or of the target to be '...
+    'included. Multiple conditions can be combined.'};
 sel_cond.values  = {conds};
+
+% ---------------------------------------------------------------------
+% target_name Target name
+% ---------------------------------------------------------------------
+target_name         = cfg_entry;
+target_name.tag     = 'target_name';
+target_name.name    = 'Name';
+target_name.help    = {'Name of target to include.'};
+target_name.strtype = 's';
+target_name.num     = [1 Inf];
+
+% ---------------------------------------------------------------------
+% target Target to model
+% ---------------------------------------------------------------------
+target         = cfg_branch;
+target.tag     = 'target';
+target.name    = 'Target';
+target.help    = {'Specify target to use.'};
+target.val     = {target_name};
 
 % ---------------------------------------------------------------------
 % all_scans All scans
@@ -191,7 +181,7 @@ all_scans.help    = {['No design specified. This option can be used '...
 conditions        = cfg_choice;
 conditions.tag    = 'conditions';
 conditions.name   = 'Conditions / Scans';
-conditions.values = {sel_cond, all_cond, all_scans};
+conditions.values = {sel_cond, all_cond, all_scans,target};
 conditions.help   = {...
     ['Which task conditions do you want to include? '...
     'Select conditions: select specific conditions from the timeseries. ', ...
@@ -199,32 +189,10 @@ conditions.help   = {...
     'All scans: include all scans for each subject. This may be used for ', ...
     'modalities with only one scan per subject (e.g. PET), ', ...
     'if you want to include all scans from an fMRI timeseries (assumes you ',...
-    'have not already detrended the timeseries and extracted task components)']};
-
-% ---------------------------------------------------------------------
-% modality Modality
-% ---------------------------------------------------------------------
-% modality      = cfg_branch;
-% modality.tag  = 'modality';
-% modality.name = 'Modality';
-% modality.val  = {mod_name conditions};
-% modality.help = {'Specify modality, such as name and data.'};
-
-% ---------------------------------------------------------------------
-% modalities Modalities
-% ---------------------------------------------------------------------
-% modalities         = cfg_repeat;
-% modalities.tag     = 'modalities';
-% modalities.name    = 'Modalities';
-% modalities.help    = {...
-%     ['Add modalities. Note that if multiple modalities are entered here, ',...
-%      'they will be added to the feature set as additional samples. ',...
-%      'In other words, modalities are concatenated along the sample ',...
-%      'dimension, not the feature dimension. For example, this is ',...
-%      'appropriate for accommodating multiple fMRI runs from identical ',...
-%      'subjects.']};
-% modalities.num     = [1 Inf];
-% modalities.values  = {modality};
+    'have not already detrended the timeseries and extracted task components)',...
+    'Target: to specify which regression target to use. This may be used ',...
+    'when multiple regression targets were specified while having only ',...
+    'one image per subject.']};
 
 % ---------------------------------------------------------------------
 % subj_num Subjects selected (per group)
@@ -280,26 +248,6 @@ class.help    = {...
      'be included in this class']};
 class.val     = {class_name, groups};
 
-% ---------------------------------------------------------------------
-% reg_targets Regression Targets
-% ---------------------------------------------------------------------
-reg_targets         = cfg_entry;
-reg_targets.tag     = 'reg_targets';
-reg_targets.name    = 'Regression targets';
-reg_targets.help    = {['Specify continuous valued target variables']};
-reg_targets.strtype = 'e';
-reg_targets.num     = [Inf 1];
-
-% % ---------------------------------------------------------------------
-% % mod_name Modality name
-% % ---------------------------------------------------------------------
-% mod_name2         = cfg_entry;
-% mod_name2.tag     = 'mod_name2';
-% mod_name2.name    = 'Modality name';
-% mod_name2.help    = {'Name of modality. We only allow one modality for regression model per group at this moment' ...
-%     'Example: ''BOLD''. Must match design specification'};
-% mod_name2.strtype = 's';
-% mod_name2.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
 % reg_group Regression group
@@ -308,8 +256,6 @@ reg_group         = cfg_branch;
 reg_group.tag     = 'reg_group';
 reg_group.name    = 'Group';
 reg_group.help    = {'Specify data and design for the group.'};
-%reg_group.val     = {gr_name, subj_nums, conditions, reg_targets};
-%reg_group.val     = {gr_name, subj_nums,mod_name2 };
 reg_group.val     = {gr_name, subj_nums, conditions};
 
 % ---------------------------------------------------------------------

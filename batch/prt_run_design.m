@@ -34,7 +34,7 @@ ngroup    = length(job.group);
 nmasks     = length(job.mask);
 dd = prt_get_defaults('datad');
 
-% Back compatibility (at least trying to...)
+% Backward compatibility for HRF delay and HRF overlap
 if isfield(job,'hrfover')  % old setup, with HRF parameters in main branch
     hrfover = job.hrfover;
     hrfdel  = job.hrfdel;
@@ -114,20 +114,67 @@ if isfield(job.group(1).select,'modality')
                     for m = 1:nmod
                         modnm   = job.group(g).select.modality(m).mod_name;
                         ns      = length(job.group(g).select.modality(m).subjects);
-                        if ~isempty(job.group(g).select.modality(m).rt_subj)
-                                rt_subj = job.group(g).select.modality(m).rt_subj(:);
-                                if length(rt_subj) ~= ns
+                        % Regression targets per subject manually specified
+                        if isfield(job.group(g).select.modality(m).rt_subj,'rt_subj_tar')
+                            ntar = length(job.group(g).select.modality(m).rt_subj.rt_subj_tar);
+                            for rt = 1:ntar  
+                                rt_val = job.group(g).select.modality(m).rt_subj.rt_subj_tar(rt).rt_tar(:);
+                                if length(rt_val) ~= ns
                                     out.files{1} = [];
                                     beep
                                     sprintf('Number of regression targets must be the number of subjects/scans! ')
                                     disp('Please correct!')
                                     return
                                 else
-                                    PRT.group(g).subject(s).modality(m).rt_subj = rt_subj(s);
+                                    PRT.group(g).subject(s).modality(m).rt_subj(rt).rt_tar = rt_val(s);
+                                    PRT.group(g).subject(s).modality(m).rt_subj(rt).rt_name = ...
+                                        job.group(g).select.modality(m).rt_subj.rt_subj_tar(rt).rt_name;
                                 end
+                            end
+                        % Regression targets specified by file
+                        elseif isfield(job.group(g).select.modality(m).rt_subj,'rt_subj_file')
+                            rtfile = job.group(g).select.modality(m).rt_subj.rt_subj_file{1};
+                            try %Try to load file
+                                tars = load(rtfile);
+                            catch
+                                beep
+                                sprintf('Cannot load regression target file')
+                                disp('Please correct!')
+                                return
+                            end
+                            if ~isfield(tars,'rt_subj') %rt_subj must be present, it's a matrix of n_subj*n_tar
+                                beep
+                                sprintf('No variable rt_subj found in .mat! ')
+                                disp('Please correct!')
+                                return
+                            end
+                            if size(tars.rt_subj,1) ~= ns %rt_subj must be size n_subjects in 1st dimension
+                                out.files{1} = [];
+                                beep
+                                sprintf('Number of regression targets must be the number of subjects/scans! ')
+                                disp('Please correct!')
+                                return
+                            end
+                            ntar = size(tars.rt_subj,2);
+                            if ~isfield(tars,'names') || length(tars.names)~=ntar
+                                tars.names = cell(ntar,1);
+                                sprintf('No names variable found in regression target file.')
+                                sprintf('Using default names for regression targets.')
+                                for rt=1:ntar
+                                    tars.names{rt}=['Tar ',num2str(rt)];
+                                end
+                            end
+                            for rt=1:ntar
+                                PRT.group(g).subject(s).modality(m).rt_subj(rt).rt_tar = tars.rt_subj(s,rt);
+                                PRT.group(g).subject(s).modality(m).rt_subj(rt).rt_name = tars.names{rt};
+                            end
+                            
+                        % No regression targets
                         else
                             PRT.group(g).subject(s).modality(m).rt_subj = [];
                         end
+                        
+                        %Covariates per subject
                         if ~isempty(job.group(g).select.modality(m).covar{1})
                             try
                                 load(char(job.group(g).select.modality(m).covar{1}));
@@ -580,7 +627,7 @@ else
                     end
                 end
             end
-            if nmod ~= length(unique(mod_names_subj));
+            if nmod ~= length(unique(mod_names_subj))
                 out.files{1} = [];
                 beep;
                 sprintf('Names of modalities in subject %d group %d repeated! Please correct!',j,g)
@@ -624,34 +671,3 @@ end
 disp('Done')
 
 return
-
-% Old code to deal with covariates per trial
-% if ~isempty(job.group(g).select.subject{j}(k).design.new_design.covar{1})
-%     try
-%         load(char(job.group(g).select.subject{j}(k).design.new_design.covar{1}));
-%         if exist('R','var')
-%             if size(R,1) == nscans
-%                 covar = R;
-%             else
-%                 out.files{1} = [];
-%                 beep
-%                 sprintf('Number of covariates must be the number of scans! ')
-%                 disp('Please correct!')
-%                 return
-%             end
-%         else
-%             out.files{1} = [];
-%             beep
-%             sprintf('Covariates file must contain ''R'' variable! ')
-%             disp('Please correct!')
-%             return
-%         end
-%     catch
-%         beep
-%         sprintf('Could not load %s file!',char(job.group(g).select.subject{j}(k).design.new_design.covar{1}))
-%         out.files{1} = [];
-%         return
-%     end
-% else
-%     
-% end

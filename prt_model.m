@@ -52,6 +52,8 @@ if strcmp(in.type,'classification')
     for c = 1:length(in.class)
         PRT.model(modelid).input.class(c) = in.class(c);
     end
+else
+    PRT.model(modelid).input.group = in.group;
 end
 
 if ~isfield(in,'subsample') % No subsampling of the trials by default
@@ -62,15 +64,7 @@ end
     
 
 for f = 1:length(in.fs)
-    fid = prt_init_fs(PRT,in.fs(f));
-    
-%     if length(PRT.fs(fid).modality) > 1 && length(in.fs) > 1
-%         error('prt_model:multipleFeatureSetsAppliedAsSamplesAndAsFeatures',...
-%             ['Feature set ',in.fs(f).fs_name,' contains multiple modalities ',...
-%             'and job specifies that multiple feature sets should be ',...
-%             'supplied to the machine. This usage is not supported.']);
-%     end
-    
+    fid = prt_init_fs(PRT,in.fs(f));    
     PRT.model(modelid).input.fs(f).fs_name = in.fs(f).fs_name;
 end
 
@@ -134,7 +128,7 @@ end
 %% ------------------------------------------------------------------------
 % Private Functions
 % -------------------------------------------------------------------------
-function [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PRT, in, flag,subsample)
+function [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PRT, in, regression,subsample)
 
 % Function to compute the prediction targets. Also does some error checking
 
@@ -147,11 +141,6 @@ idtc = [1,2,4:6]; % check for all columns in ID matrix except modality
 if length(in.fs) > 1
     for f = 1:length(in.fs)
         fid = prt_init_fs(PRT, in.fs(f));
-        if size(PRT.fs(fid).id_mat,1) ~= n
-            error('prt_model:sizeOfFeatureSetsDiffer',...
-                ['Multiple feature sets included, but they have different ',...
-                'numbers of samples']);
-        end
         % Stronger constraint: ID matrices should be exactly equal
         if any(any(PRT.fs(fid).id_mat(:,idtc)~=ID(:,idtc)))
             error('prt_model:DesignOfFeatureSetsDiffer',...
@@ -163,26 +152,30 @@ end
 % only choose the first one to define the targets as they have the same
 % ID matrix
 fid = prt_init_fs(PRT, in.fs(1));
-% modalities = [PRT.fs(fid).modality(:).mod_name];
-modalities = {PRT.masks(:).mod_name};
 
+modalities = {PRT.masks(:).mod_name};
 groups     = {PRT.group(:).gr_name};
 
+% Initialize output values
+% ------------------------
 t_all    = zeros(n,1);
 samp_all = zeros(n,1);
 
 if ~isempty(PRT.group(1).subject(1).modality(1).covar)
-    cov_all = zeros(n,size(PRT.group(1).subject(1).modality(1).covar,2));
+    cov_all = zeros(n,size(PRT.group(1).subject(1).modality(1).covar,2)); % Assume all subjects have the same number of covariates
 else
     cov_all = [];
 end
 
-if ~flag
+if ~regression
     nc = length(in.class);
 else
     nc = 1; %deal with regression
     in.class.group = in.group;
 end
+
+% Gather targets for each scan
+% ----------------------------
 
 for c = 1:nc
     % groups
@@ -208,15 +201,10 @@ for c = 1:nc
                         ['Modality ',mod_name,' not found in PRT.mat']);
                 end
                 
-                if isfield(in.class(c).group(g).subj(s).modality(m),'conds')
-                    % Conditions were specified
-                    if ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
-                        error('prt_model:conditionsSpecifiedButNoneInDesign',...
-                            ['Conditions selected for subject ',num2str(s),...
-                            ', class ',num2str(c),', group ',num2str(g), ...
-                            ', modality ', num2str(m),' but there are none in the design. ',...
-                            'Please use ''All Scans'' or adjust design.']);
-                    end
+                % Case 1: conditions were specified and there is a design
+                % (i.e. within-subject classification or regression)
+                if isfield(in.class(c).group(g).subj(s).modality(m),'conds') && ...
+                        isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
                     conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
                     blocks=1;
                     for cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
@@ -225,7 +213,7 @@ for c = 1:nc
                         if any(strcmpi(cond_name,conds))
                             cid = find(strcmpi(cond_name,conds));
                             idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
-                            if flag %regression
+                            if regression %regression
                                 try
                                     idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
                                     t_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).rt_trial(idb);
@@ -242,21 +230,19 @@ for c = 1:nc
                             end
                             samp_all(idx) = 1;
                         else
-                            continue
-                            %                             error('prt_model:groupNotFoundInPRT',...
-                            %                                 ['Condition ',cond_name,' not found in PRT.mat']);
+                            continue % Skip a subject/modality for which a condition is not found
                         end
- 
                     end
                     
-                    
-                elseif isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
+                % Case 2: all conditions were chosen and there is a design    
+                elseif isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond') && ...
+                        isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
                     conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
                     blocks=1;
                     % all conditions
                     for cid = 1:length(conds)
                         idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
-                        if flag % Regression
+                        if regression % Regression
                             try
                                 idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
                                 t_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).rt_trial(idb);
@@ -274,6 +260,28 @@ for c = 1:nc
                         samp_all(idx) = 1;
                     end
                     
+                % Case 3: multiple regression targets are present in the feature set but we only access one    
+                elseif isfield(in.class(c).group(g).subj(s).modality(m),'conds') && ...
+                        ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
+                    idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
+                    if any(ismember(in.operations, 5)) %Get covariates
+                        cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
+                    end
+                    try
+                        tars = {PRT.group(gid).subject(sid).modality(mid).rt_subj(:).name}; %Gather target names
+                        sel_tar = in.class(c).group(g).subj(s).modality(m).conds(1).cond_name; % Can only select one target
+                        rt = strcmpi(sel_tar,tars);
+                        rt_tar = PRT.group(gid).subject(sid).modality(mid).rt_subj(rt).tar;
+                        if ~isnan(rt_tar)
+                            t_all(idx) = rt_tar;
+                        else
+                            continue
+                        end
+                    catch
+                        error('prt_model:WrongNumberofTargets',...
+                            'Number of regression targets with specified name does not correspond to number of images')
+                    end
+                    samp_all(idx) = 1;
                 else
                     blocks=0;
                     % check whether this was included in the feature set
@@ -293,11 +301,14 @@ for c = 1:nc
                     if any(ismember(in.operations, 5)) %Get covariates
                         cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
                     end
-                    if ~flag
+                    if ~regression
                         t_all(idx) = c;
                     else
-                        try
-                            t_all(idx) = PRT.group(gid).subject(sid).modality(mid).rt_subj;
+                        try 
+                            tars = {PRT.group(gid).subject(sid).modality(mid).rt_subj(:).name}; %Gather target names
+                            sel_tar = in.class(c).group(g).subj(s).modality(m).conds(1).cond_name; % Can only select one target
+                            rt = strfind(tars,sel_tar);
+                            t_all(idx) = PRT.group(gid).subject(sid).modality(mid).rt_subj(rt).tar;
                         catch
                             error('prt_model:WrongNumberofTargets',...
                                 'Number of regression targets does not correspond to number of images')
@@ -349,70 +360,4 @@ else
     covar = [];
 end
 
-%     targ_g=[targ_g;targets(:)];
-%     covar = [covar;cov];
-% 
-% targ_allscans(samp_idx)=targ_g;
-% targets=targ_g;
-% cov_all(samp_idx,:)=covar;
 end
-
-% function [targets, samp_idx, targ_allscans,covar,cov_all]=compute_target_reg(PRT, in)
-% % Function to compute the prediction targets. Not much error checking yet
-% 
-% % Set the reference feature set
-% fid = prt_init_fs(PRT, in.fs(1));
-% ID  = PRT.fs(fid).id_mat;
-% n   = size(ID,1);
-% 
-% modalities = {PRT.masks(:).mod_name};
-% groups     = {PRT.group(:).gr_name};
-% %t_all = zeros(n,1);
-% targ_allscans=zeros(n,1);
-% cov_all = zeros(n,1);
-% samp_idx=[];
-% targ_g=[];
-% covar = [];
-% for g = 1:length(in.group)
-%     gr_name = in.group(g).gr_name;
-%     if any(strcmpi(gr_name,groups))
-%         gid = find(strcmpi(gr_name,groups));
-%     else
-%         error('prt_model:groupNotFoundInPRT',...
-%             ['Group ',gr_name,' not found in PRT.mat']);
-%     end
-% %     nmod=length(in.group(g).subj(1).modality);
-%     targets=zeros(1,length(in.group(g).subj)); %replace by nmod for multiple targets per subject
-%     cov=zeros(1,length(in.group(g).subj));
-%     % subjects
-%     for s = 1:length(in.group(g).subj)
-%         %modalities
-%         for m = 1:length(in.group(g).subj(s).modality)
-%             mod_name = in.group(g).subj(s).modality(m).mod_name;
-%             if any(strcmpi(mod_name,modalities))
-%                 mid = find(strcmpi(mod_name,modalities));
-%             else
-%                 error('prt_model:groupNotFoundInPRT',...
-%                     ['Modality ',mod_name,' not found in PRT.mat']);
-%             end
-%             if m==1 %only one regression target per subject, whatever the number of modalities
-%                 idx = in.group(g).subj(s).num;
-%                 if ~isempty(PRT.group(gid).subject(idx).modality(mid).rt_subj)
-%                     targets(m,s) = PRT.group(gid).subject(idx).modality(mid).rt_subj;
-%                 else
-%                     error('prt_model:NoRegressionTarget','No regression target found, correct');
-%                 end
-%                 samp_idx=[samp_idx; find(ID(:,1) == gid & ID(:,2) == idx & ID(:,3) == mid)];
-%                 if any(ismember(in.operations, 5)) %Get covariates
-%                     cov(m,s) = PRT.group(gid).subject(idx).modality(mid).covar;
-%                 end
-%             end
-%         end        
-%     end
-%     targ_g=[targ_g;targets(:)];
-%     covar = [covar;cov(:)];
-% end
-% targ_allscans(samp_idx)=targ_g;
-% targets=targ_g;
-% cov_all(samp_idx)=covar;
-% end
