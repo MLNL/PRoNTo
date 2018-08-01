@@ -185,6 +185,7 @@ end
 set(handles.numgr,'String',num2str(ng))
 set(handles.nummod,'String',num2str(nm));
 if isempty(ind)
+    % No design, need to cut the window
     set(handles.des,'String','No')
     set(handles.modlist,'String',{'None'})
     set(handles.modlist,'Visible','off')
@@ -209,26 +210,32 @@ if isempty(ind)
     set(handles.uipanel4,'Visible','off')
     %Only displays the number of subjects per group when no design:
     x=get(handles.axes3,'Position');
-    set(handles.axes1,'Position',[x(1),x(2)*1.5,x(3),3*x(4)]);
+    set(handles.axes1,'Position',[x(1),x(2)*2,x(3),3*x(4)]);
     x=get(handles.uipanel4,'Position');
     w=get(handles.uipanel3,'Position');
-    set(handles.uipanel3,'Position',[x(1),x(2)*1.5,w(3),2.7*w(4)]);
+    set(handles.uipanel3,'Position',[x(1),x(2)*2.5,w(3),2.5*w(4)]);
     w=get(handles.figure1,'Position');
-    set(handles.figure1,'Position',[w(1),w(2)+(2*w(4)/2.5),w(3),w(4)/2.5])
-    w=get(handles.axes1,'Position');
-    x=get(handles.text1,'Position');
-    set(handles.text1,'Position',[x(1),(w(4)+x(4))*1.1,x(3),x(4)*3])
+    set(handles.figure1,'Position',[w(1)*0.9,w(2)*1.5,w(3),w(4)/2.5])
+    handles.ind = [];
 else
+    % Display full window
     def=prt_get_defaults('datad');
-    if isfield(PRT.masks,'hrfoverlap')
-        set(handles.hrfover_edit,'String',num2str(PRT.masks(1).hrfoverlap))
-    else
-        set(handles.hrfover_edit,'String',num2str(def.hrfw))
-    end
-    if isfield(PRT.masks,'hrfdelay')
-        set(handles.edit_hrfdel,'String',num2str(PRT.masks(1).hrfdelay))
-    else
+    if strcmpi(PRT.masks(ind(1)).type,'nifti')
+        if isfield(PRT.masks,'hrfoverlap')
+            set(handles.hrfover_edit,'String',num2str(PRT.masks(1).hrfoverlap))
+        else
+            set(handles.hrfover_edit,'String',num2str(def.hrfw))
+        end
+        if isfield(PRT.masks,'hrfdelay')
+            set(handles.edit_hrfdel,'String',num2str(PRT.masks(1).hrfdelay))
+        else
+            set(handles.edit_hrfdel,'String',num2str(def.hrfd))
+        end
+    else % Disable HRF delay and overlap for non-nifti modalities
         set(handles.edit_hrfdel,'String',num2str(def.hrfd))
+        set(handles.edit_hrfdel,'Enable','off')
+        set(handles.hrfover_edit,'String',num2str(def.hrfw))
+        set(handles.hrfover_edit,'Enable','off')
     end
     set(handles.des,'String','Yes')
     set(handles.modlist,'String',list)
@@ -241,14 +248,7 @@ else
 end
 
 %Display the bar graph for the number of subjects/group
-set(handles.figure1,'CurrentAxes',handles.axes1)
-x=2:2:2*ng;
-bar(handles.axes1,x,ns);
-ylim([0 max(ns)+1])
-xlim([1 max(x)+1])
-set(handles.axes1,'XTickLabel',gname)
-h=ylabel('Number of subjects');
-set(h,'Rotation',90)
+prt_disp_groups(ng,ns,gname,handles,hObject)
 handles.PRT=PRT;
 end
 % Update handles structure
@@ -303,28 +303,28 @@ modn = mod{val};
 modall = {handles.PRT.masks(:).mod_name};
 im = find(ismember(modall,modn));
 def=prt_get_defaults('datad');
-if ~isfield(handles.PRT.masks,'hrfoverlap') || ...
-        isempty(handles.PRT.masks(im).hrfoverlap)
-    handles.PRT.masks(im).hrfoverlap = def.hrfw;
+if strcmpi(handles.PRT.masks(im).type,'nifti')
+    if isfield(handles.PRT.masks,'hrfoverlap')
+        set(handles.hrfover_edit,'String',num2str(handles.PRT.masks(im).hrfoverlap))
+    else
+        set(handles.hrfover_edit,'String',num2str(def.hrfw))
+        handles.PRT.masks(im).hrfoverlap = def.hrfw;
+    end
+    if isfield(handles.PRT.masks,'hrfdelay')
+        set(handles.edit_hrfdel,'String',num2str(handles.PRT.masks(im).hrfdelay))
+    else
+        set(handles.edit_hrfdel,'String',num2str(def.hrfd))
+        handles.PRT.masks(im).hrfdelay = def.hrfd;
+    end
+else % Disable HRF delay and overlap for non-nifti modalities
+    set(handles.edit_hrfdel,'String',num2str(def.hrfd))
+    set(handles.edit_hrfdel,'Enable','off')
+    set(handles.hrfover_edit,'String',num2str(def.hrfw))
+    set(handles.hrfover_edit,'Enable','off')
 end
-set(handles.hrfover_edit,'String',num2str(handles.PRT.masks(im).hrfoverlap))
-if ~isfield(handles.PRT.masks,'hrfdelay') || ...
-        isempty(handles.PRT.masks(im).hrfdelay)
-    handles.PRT.masks(im).hrfoverlap = def.hrfd;
-end
-set(handles.edit_hrfdel,'String',num2str(handles.PRT.masks(im).hrfdelay))
 
 set(handles.figure1,'CurrentAxes',handles.axes2)
 prt_disp_conditions(handles.PRT,handles.ind(val),handles,hObject);
-indm = find(strcmpi({handles.PRT.masks(:).mod_name},list(val)));
-if isfield(handles.PRT.masks(indm),'MEEG') && ...
-        handles.PRT.masks(indm).MEEG
-    set(handles.edit_hrfdel,'Enable','off')
-    set(handles.hrfover_edit, 'Enable','off')
-else
-    set(handles.edit_hrfdel,'Enable','on')
-    set(handles.hrfover_edit, 'Enable','on')
-end
 
 % Update handles structure
 guidata(hObject, handles);
@@ -486,6 +486,30 @@ end
 %--------------------------------------------------------------------------
 %---------------------- Subfunctions --------------------------------------
 %--------------------------------------------------------------------------
+
+function prt_disp_groups(ng,ns,gname,handles,hObject)
+set(handles.figure1,'CurrentAxes',handles.axes1)
+x=2:2:2*ng;
+% Plot multiple groups with different colors if no design
+if isempty(handles.ind)
+   cmap = cbrewer('qual','Set3',max(3,numel(x))); 
+    h = bar(handles.axes1,x,diag(ns),'stacked');
+    for i= 1:length(h)
+        set(h(i), 'FaceColor', cmap(i,:));
+    end 
+else
+    bar(handles.axes1,x,ns,'FaceColor',[0.4 0.4 0.4]);
+end
+ylim([0 max(ns)*1.1])
+xlim([1 max(x)+1])
+set(handles.axes1,'XTickLabel',gname)
+h=ylabel('Number of subjects');
+set(h,'FontWeight','bold')
+set(h,'Rotation',90)
+
+% Update handles structure
+guidata(hObject, handles);
+
 function prt_disp_conditions(dat,ind,handles,hObject)
 
 
@@ -568,24 +592,43 @@ if length(x)==1
 else
     xl=max(x)+ncond-1;
 end
+
+% Plot selected scans
+% ----------------------
 scmax=max(max(meantp(:)),max(meantpdisc(:)));
-bar(handles.axes2,x,meantp,0.9);
+%cbrewer Matlab exchange package by Charles Robert for better color maps
+cmap = cbrewer('qual','Set3',max(3,numel(x))); 
+h = bar(handles.axes2,x,meantp,0.9);
+for i= 1:length(h)
+    set(h(i), 'FaceColor', cmap(i,:));
+end
 hold on
-errorbar(handles.axes2,y,meantp,stdtp,'.k')
+if any(stdtp(:)>0)
+    errorbar(handles.axes2,y,meantp,stdtp,'.k')
+end
 ylim([0 1.1*scmax])
 xlim([1 xl])
 h=ylabel('Number of selected scans');
 set(h,'Rotation',90)
+set(h,'FontWeight','bold')
 set(handles.axes2,'XTickLabel',handles.gname)
 
+% Plot discarded scans, due to HRD parameters or 'bad' MEEG epochs
+%------------------------------------------------------------------
 set(handles.figure1,'CurrentAxes',handles.axes3)
 cla
-bar(handles.axes3,x,meantpdisc,0.9);
+h = bar(handles.axes3,x,meantpdisc,0.9);
+for i= 1:length(h)
+    set(h(i), 'FaceColor', cmap(i,:));
+end
 hold on
-errorbar(handles.axes3,y,meantpdisc,stdtpdisc,'.k')
+if any(stdtpdisc(:)>0)
+    errorbar(handles.axes3,y,meantpdisc,stdtpdisc,'.k')
+end
 ylim([0 1.1*scmax])
 xlim([1 xl])
 h=ylabel('Number of discarded scans');
+set(h,'FontWeight','bold')
 set(h,'Rotation',90)
 set(handles.axes3,'XTickLabel',handles.gname)
 legend({dat.group(1).subject(1).modality(ind).design.conds(:).cond_name},...
