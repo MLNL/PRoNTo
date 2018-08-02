@@ -148,8 +148,8 @@ else
     handles.mod.type = 'nifti';
     handles.subj1=0;
     set(handles.design_menu,...
-        'String',{'Load SPM.mat','Specify design','No design'},...
-        'Value',3);
+            'String',{'No design','Specify design','Load SPM.mat'},...
+            'Value',1);
     set(handles.target_menu,...
         'String',{'Specify targets','No targets'},...
         'Value',2);
@@ -205,7 +205,7 @@ else
                 handles.mod.design=modsel.design;
                 if ~isempty(modsel.design)
                     if ~isstruct(modsel.design) && modsel.design== 0
-                        set(handles.design_menu,'Value',3)
+                        set(handles.design_menu,'Value',1)
                         handles.desnmenu = 3;
                     else
                         set(handles.design_menu,'Value',2)
@@ -239,7 +239,7 @@ else
                     else
                         if strcmpi(modsel.type,'.mat')
                             set(handles.type,'Value',3)
-                            set(handles.design_menu,'Enable','off')
+                            set(handles.design_menu,'Enable','on')
                         else
                             set(handles.type,'Value',1)
                         end
@@ -362,12 +362,32 @@ else
     end         
 end
 
- 
-%if a subject was previously entered, then propose to replicate its design
-%if the modality is the same
+%if a subject was previously entered in this modality, extract info
 if isstruct(handles.subj1)
     if any(strcmpi(modname, {handles.subj1(:).mod_name}))
         handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
+        % Automatically set data type and design options
+        type = handles.subj1(handles.indmods1).type;
+        if strcmpi(type,'MEEG')
+            set(handles.type,'Value',2)
+            set(handles.design_menu,...
+                'String',{'Events in file'},...
+                'Value',1);
+        else
+            if strcmpi(type,'.mat')
+                set(handles.type,'Value',3)
+                set(handles.design_menu,...
+                    'String',{'No design','Specify design'},...
+                    'Value',1);
+            else
+                set(handles.type,'Value',1)
+                set(handles.design_menu,...
+                    'String',{'No design','Specify design','Load SPM.mat'},...
+                    'Value',1);
+            end
+        end
+        handles.mod.type = type;
+        % Allow to replicate subject 1 design
         list=get(handles.design_menu,'String');
         list=[list;{'Replicate design of subject 1'}];
         set(handles.design_menu,'String',list);
@@ -403,123 +423,129 @@ choice=get(handles.design_menu,'Value');
 if choice==0
     choice=handles.desnmenu;
 end
-if strcmpi(handles.mod.type,'nifti') && choice==1 %Neuroimaging data
-    desn=spm_select(1,'mat','Select SPM.mat file',[],[],'SPM.mat');
-    try
-        load(desn);
-    catch
-        beep
-        disp('Can not load SPM.mat file');
-        return
-    end
-    conds=struct();
-    list={};
-    for sspm=1:length(SPM.Sess)
-        ncond = length(SPM.Sess(sspm).U);
-        for c = 1:ncond
-            if sspm==1  %set the conditions
-                conds(c).cond_name = SPM.Sess(sspm).U(c).name{1};
-                list=[list, {conds(c).cond_name}];
-                conds(c).onsets = SPM.Sess(sspm).U(c).ons;
-                if length(SPM.Sess(sspm).U(c).dur)==1
-                    conds(c).durations=repmat(SPM.Sess(sspm).U(c).dur,...
-                        numel(conds(c).onsets),1);
-                else
-                    conds(c).durations = SPM.Sess(sspm).U(c).dur;
-                end
-                indcond=ncond;
-            else  %for other sessions, look if the conditions are the same
-                name_cond=SPM.Sess(sspm).U(c).name{1};
-                itoadd=find(strcmpi(name_cond,list));
-                if isempty(itoadd)  % if not, then add condition
-                    indcond=indcond+1;
-                    conds(indcond).cond_name = SPM.Sess(sspm).U(c).name{1};
-                    conds(indcond).onsets = SPM.Sess(sspm).U(c).ons;
+list = get(handles.design_menu,'String');
+chosen = list{choice};
+switch chosen
+    case 'Load SPM.mat' % for nifti only
+        desn=spm_select(1,'mat','Select SPM.mat file',[],[],'SPM.mat');
+        try
+            load(desn);
+        catch
+            beep
+            disp('Can not load SPM.mat file');
+            return
+        end
+        conds=struct();
+        list={};
+        for sspm=1:length(SPM.Sess) % Gather SPM.mat fields
+            ncond = length(SPM.Sess(sspm).U);
+            for c = 1:ncond
+                if sspm==1  %set the conditions
+                    conds(c).cond_name = SPM.Sess(sspm).U(c).name{1};
+                    list=[list, {conds(c).cond_name}];
+                    conds(c).onsets = SPM.Sess(sspm).U(c).ons;
                     if length(SPM.Sess(sspm).U(c).dur)==1
-                        conds(indcond).durations=repmat(SPM.Sess(sspm).U(c).dur,...
-                            numel(conds(indcond).onsets),1);
+                        conds(c).durations=repmat(SPM.Sess(sspm).U(c).dur,...
+                            numel(conds(c).onsets),1);
                     else
-                        conds(indcond).durations = SPM.Sess(sspm).U(c).dur;
+                        conds(c).durations = SPM.Sess(sspm).U(c).dur;
                     end
-                    list=[list, {name_cond}];
-                else               %if yes, then add the onsets
-                    conds(itoadd).onsets    = [conds(itoadd).onsets;SPM.Sess(sspm).U(c).ons];
-                    if length(SPM.Sess(sspm).U(c).dur)==1
-                        tmp=repmat(SPM.Sess(sspm).U(c).dur,...
-                            numel(SPM.Sess(sspm).U(c).ons),1);
-                    else
-                        tmp = SPM.Sess(sspm).U(c).dur;
+                    indcond=ncond;
+                else  %for other sessions, look if the conditions are the same
+                    name_cond=SPM.Sess(sspm).U(c).name{1};
+                    itoadd=find(strcmpi(name_cond,list));
+                    if isempty(itoadd)  % if not, then add condition
+                        indcond=indcond+1;
+                        conds(indcond).cond_name = SPM.Sess(sspm).U(c).name{1};
+                        conds(indcond).onsets = SPM.Sess(sspm).U(c).ons;
+                        if length(SPM.Sess(sspm).U(c).dur)==1
+                            conds(indcond).durations=repmat(SPM.Sess(sspm).U(c).dur,...
+                                numel(conds(indcond).onsets),1);
+                        else
+                            conds(indcond).durations = SPM.Sess(sspm).U(c).dur;
+                        end
+                        list=[list, {name_cond}];
+                    else               %if yes, then add the onsets
+                        conds(itoadd).onsets    = [conds(itoadd).onsets;SPM.Sess(sspm).U(c).ons];
+                        if length(SPM.Sess(sspm).U(c).dur)==1
+                            tmp=repmat(SPM.Sess(sspm).U(c).dur,...
+                                numel(SPM.Sess(sspm).U(c).ons),1);
+                        else
+                            tmp = SPM.Sess(sspm).U(c).dur;
+                        end
+                        conds(itoadd).durations = [conds(itoadd).durations;tmp];
                     end
-                    conds(itoadd).durations = [conds(itoadd).durations;tmp];
                 end
             end
+        end    
+        def=prt_get_defaults('datad'); % HRF parameters only for nifti
+        if isfield(handles.PRT.group,'hrfoverlap')
+            overl=handles.PRT.group.hrfoverlap;
+        else
+            overl=def.hrfw;
         end
-    end    
-    if strcmpi(SPM.xBF.UNITS,'scans')
-        units=0;
-    else
-        units=1;
-    end
-    def=prt_get_defaults('datad');
-    if isfield(handles.PRT.group,'hrfoverlap')
-        overl=handles.PRT.group.hrfoverlap;
-    else
-        overl=def.hrfw;
-    end
-    if isfield(handles.PRT.group,'hrfdelay')
-        del=handles.PRT.group.hrfdelay;
-    else
-        del=def.hrfd;
-    end
-    %check that TR is the same for all sessions
-    if length(unique([SPM.xX.K(:).RT])) ~=1
-        beep
-        disp('Differents TR found in SPM.mat, please separate sessions')
-        return
-    end
-    desn=prt_check_design(conds,SPM.xX.K(1).RT,units,overl,del);
-    desn.covar = [];
-elseif strcmpi(handles.mod.type,'nifti') && choice==2
-    if isstruct(handles.mod.design)
-        desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT,0});
-    else
-        desn=prt_data_conditions;
-    end
-elseif strcmpi(handles.mod.type,'nifti') && choice ==3
-    desn=[];
-    if size(handles.mod.scans,1)==1 %If no design and one image, can enter covariates and RT
-        set(handles.design_menu,'Value')
-        set(handles.target_menu,'Enable','on')
-        set(handles.edit_covar,'Enable','on')
-        set(handles.edit_covar,'Visible','on')
-        set(handles.text7,'Visible','on')
-    elseif ~handles.scans && size(handles.mod.scans,1)>1
-        set(handles.target_menu,'Enable','off')
-        set(handles.edit_covar,'Enable','off')
-        set(handles.edit_covar,'Visible','off')
-        set(handles.text7,'Visible','off')
-        handles.mod.covar=[];
-        handles.mod.rt_subj=[];
-    end
-elseif choice==4
-    desn=handles.subj1(handles.indmods1).design;
-elseif strcmpi(handles.mod.type,'MEEG')         %load design from D object if file was selected
-    if isempty(handles.mod.scans)
-        beep
-        disp('Select .mat for subject first')
-        return
-    elseif size(handles.mod.scans,1)>1
-        beep
-        disp('Select only one file per modality for MEEG')
-        return
-    end
-    if ~isstruct(handles.mod.design)
-        D = spm_eeg_load(handles.mod.scans(1,:));
-        desn = prt_get_design_MEEG(D);
+        if isfield(handles.PRT.group,'hrfdelay')
+            del=handles.PRT.group.hrfdelay;
+        else
+            del=def.hrfd;
+        end
+        if length(unique([])) ~=1
+            beep
+            disp('Differents TR found in SPM.mat, please separate sessions')
+            return
+        else
+            RT = SPM.xX.K(:).RT;
+        end
+        if strcmpi(SPM.xBF.UNITS,'scans') %units, TR or seconds
+            units=0;
+        else
+            units=1;
+        end
+
+        %check that TR is the same for all sessions    
+        desn=prt_check_design(conds,RT,units,overl,del);
         desn.covar = [];
-        handles.mod.design=desn;
-    end
-    desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT,1});
+    case 'Specify design'
+        if isstruct(handles.mod.design)
+            desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT,0});
+        else
+            desn=prt_data_conditions;
+        end
+    case 'No design'
+        desn=[];
+        if size(handles.mod.scans,1)==1 %If no design and one image, can enter covariates and RT
+            set(handles.design_menu,'Value')
+            set(handles.target_menu,'Enable','on')
+            set(handles.edit_covar,'Enable','on')
+            set(handles.edit_covar,'Visible','on')
+            set(handles.text7,'Visible','on')
+        elseif ~handles.scans && size(handles.mod.scans,1)>1
+            set(handles.target_menu,'Enable','off')
+            set(handles.edit_covar,'Enable','off')
+            set(handles.edit_covar,'Visible','off')
+            set(handles.text7,'Visible','off')
+            handles.mod.covar=[];
+            handles.mod.rt_subj=[];
+        end
+    case 'Replicate design of subject 1'
+        desn=handles.subj1(handles.indmods1).design;
+    case 'Events in file' % For MEEG only
+        if isempty(handles.mod.scans)
+            beep
+            disp('Select .mat for subject first')
+            return
+        elseif size(handles.mod.scans,1)>1
+            beep
+            disp('Select only one file per modality for MEEG')
+            return
+        end
+        if ~isstruct(handles.mod.design)
+            D = spm_eeg_load(handles.mod.scans(1,:));
+            desn = prt_get_design_MEEG(D);
+            desn.covar = [];
+            handles.mod.design=desn;
+        end
+        desn=prt_data_conditions('UserData',{handles.mod.design,handles.PRT,1});
 end
 handles.mod.design=desn;
 if isfield(desn,'covar') && ~isempty(desn.covar)
@@ -617,24 +643,25 @@ if val==2
         'String',{'Events in file'},...
         'Value',1);
 else
-    if val==3
-        set(handles.design_menu,'Enable','off')  
+    if val==1
+        set(handles.design_menu,...
+            'String',{'No design','Specify design','Load SPM.mat'},...
+            'Value',1);
     else
         set(handles.design_menu,...
-            'String',{'Load SPM.mat','Specify design','No design'},...
-            'Value',3);
-
-        if isstruct(handles.subj1)
-            
-            list=get(handles.modname,'String');
-            modname=list{get(handles.modname,'Value')};
-            
-            if any(strcmpi(modname, {handles.subj1(:).mod_name}))
-                handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
-                list=get(handles.design_menu,'String');
-                list=[list;{'Replicate design of subject 1'}];
-                set(handles.design_menu,'String',list);
-            end
+            'String',{'No design','Specify design'},...
+            'Value',1);
+    end
+    if isstruct(handles.subj1)
+        
+        list=get(handles.modname,'String');
+        modname=list{get(handles.modname,'Value')};
+        
+        if any(strcmpi(modname, {handles.subj1(:).mod_name}))
+            handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
+            list=get(handles.design_menu,'String');
+            list=[list;{'Replicate design of subject 1'}];
+            set(handles.design_menu,'String',list);
         end
     end
 end

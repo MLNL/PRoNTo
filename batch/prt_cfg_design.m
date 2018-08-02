@@ -512,7 +512,7 @@ multi_conds.num     = [0 1];
 % ---------------------------------------------------------------------
 new_design         = cfg_branch;
 new_design.tag     = 'new_design';
-new_design.name    = 'Specify design (for nifti inputs only)';
+new_design.name    = 'Specify design';
 new_design.help    = {'Specify design: scans (data), onsets and durations.'};
 new_design.val     = {unit conditions multi_conds}; %covar for covar per trial (v3)
 

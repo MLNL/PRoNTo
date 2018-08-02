@@ -652,7 +652,7 @@ mod=prt_data_modality('UserData',{in1,in2,in3,in4,in5});
 if isnumeric(mod)
     return
 end
-if isempty(mod.name)
+if isempty(mod) || isempty(mod.name)
     beep
     disp('A name should be given to the modality')
     return

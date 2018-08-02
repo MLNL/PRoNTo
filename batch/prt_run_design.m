@@ -323,14 +323,6 @@ else
                                     design.conds(l).blocks = design.conds(l).blocks(inser);
                                 end
                             end
-                        elseif (~strcmpi(modtype,'nifti') && ...
-                                isfield(job.group(g).select.subject{j}(k).design,'load_SPM')) || ...
-                                (~strcmpi(modtype,'nifti') && ...
-                                isfield(job.group(g).select.subject{j}(k).design,'new_design'))
-                            beep
-                            disp('Design options can only be specified for nifti inputs')
-                            out.files{1} = [];
-                            return
                         elseif ~strcmpi(modtype,'MEEG')
                             if isfield(job.group(g).select.subject{j}(k).design,'no_design')
                                 % No design
