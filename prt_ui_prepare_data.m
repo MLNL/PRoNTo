@@ -135,16 +135,18 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     handles.dat = varargin{2}{1};
     handles.flagMEEG = varargin{2}{2};
     handles.fname = varargin{2}{3};
+    handles.modtype = varargin{2}{4};
+else
+    handles.modtype = 'nifti';
 end
 
-% Fill some fields automatically if only one modality in dataset
+% Gather modalities of chosen type, based on the defined masks
 n_mod=length(handles.dat.masks);
 handles.modnames={handles.dat.masks(:).mod_name};
 nmeeg = 0;
 indmeeg = [];
 indimg = [];
 indmat = [];
-
 for i = 1:n_mod
     if isfield(handles.dat.masks(i),'type') && ...
             strcmpi(handles.dat.masks(i).type,'MEEG')
@@ -158,34 +160,19 @@ for i = 1:n_mod
     end
 end
 if handles.flagMEEG
-    n_mod = nmeeg;
     handles.indmod = indmeeg;
-else
-    n_mod = n_mod - nmeeg;
-    if length(varargin{2})==4
-        mod_type = varargin{2}{4};
-        if strcmp(mod_type,'nifti')
-            handles.indmod = indimg;
-            n_mod = 1;
-        elseif strcmp(mod_type,'.mat')
-            handles.indmod = indmat;
-            n_mod = 1;
-        else 
-            error('The selected data type is not supported.');
-        end
-    else
-        if indimg
-            handles.indmod = indimg;
-        else indmat
-            handles.indmod = indmat;
-        end
-    end
+elseif strcmpi(handles.modtype,'nifti')
+    handles.indmod = indimg;
+elseif strcmpi(handles.modtype,'.mat')
+    handles.indmod = indmat;
 end
 
-if n_mod==1
-    if ~handles.flagMEEG
+% If only one modality, open corresponding fs_modality directly, before
+% coming back to main window with pre-filled fields.
+if numel(handles.indmod)==1
+    if ~handles.flagMEEG % Window for MEEG is different
         try
-            tmp=prt_ui_prepare_datamod('UserData',{handles.dat,indimg,handles.indmod});
+            tmp=prt_ui_prepare_datamod('UserData',{handles.dat,handles.indmod});
             set(handles.num_mod,'Value',1)
             set(handles.num_mod,'String',1)
             set(handles.sel_mod,'String',{handles.dat.masks(indimg).mod_name})
@@ -193,9 +180,9 @@ if n_mod==1
             return
         end
         set(handles.edit_kname,'ForegroundColor',handles.color.high)
-    else
+    else % Window for images and .mat is the same
         try
-            tmp=prt_ui_prepare_dataMEEG('UserData',{handles.dat,indmeeg,handles.indmod});
+            tmp=prt_ui_prepare_dataMEEG('UserData',{handles.dat,handles.indmod});
             if isempty(tmp)
                 disp('No data selected for feature extraction')
                 beep
@@ -215,8 +202,6 @@ else
     set(handles.text8,'ForegroundColor',handles.color.high)
 end
 set(handles.sel_mod,'Enable','on')
-set(handles.multkernflag,'Enable','off')
-set(handles.multkernflag,'Value',0)
 handles.kname=[];
 handles.flag_mm = 0;
 handles.ouput = [];
@@ -283,9 +268,6 @@ function num_mod_Callback(hObject, eventdata, handles)
 val=str2double(get(handles.num_mod,'String'));
 set(handles.text8,'ForegroundColor',handles.color.high)
 n_mod=length(handles.indmod);
-if n_mod>1 && val>1
-    set(handles.multkernflag,'Enable','on')
-end
 if val>n_mod
     error('prt_ui_prepare_data:Toomanymodalities',...
         'Too many modalities specified for feature set, please correct')
@@ -314,13 +296,13 @@ end
 for i=1:val
     if ~handles.flagMEEG
         try
-            tmp=prt_ui_prepare_datamod('UserData',{handles.dat,val,handles.indmod});
+            tmp=prt_ui_prepare_datamod('UserData',{handles.dat,handles.indmod});
         catch
             error('prt_ui_prepare_data:NoModSpecified','No modality was specified')
         end
     else
         try
-            tmp=prt_ui_prepare_dataMEEG('UserData',{handles.dat,val,handles.indmod});
+            tmp=prt_ui_prepare_dataMEEG('UserData',{handles.dat,handles.indmod});
         catch
             error('prt_ui_prepare_data:NoModSpecified','No modality was specified')
         end
@@ -372,19 +354,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on button press in multkernflag.
-function multkernflag_Callback(hObject, eventdata, handles)
-% hObject    handle to multkernflag (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of multkernflag
-v=get(handles.multkernflag,'Value');
-handles.flag_mm=v;
-% Update handles structure
-guidata(hObject, handles);
-
 % --- Executes on button press in buildbutt.
 function buildbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to buildbutt (see GCBO)
@@ -393,7 +362,7 @@ function buildbutt_Callback(hObject, eventdata, handles)
 
 input=struct('fname',[],'kname',[],'mod',[],'flag_mm',[]);
 input.fname=handles.fname;
-input.flag_mm = handles.flag_mm;
+input.flag_mm = 0;
 if isempty(handles.kname)
     beep
     disp('Enter a name for the feature set to be saved')

@@ -43,7 +43,7 @@ if strcmpi(ext,'.mat') || ~isempty(strfind(ext,'.mat'))
         %         isgood = setdiff([1:dm(4)],badtrials(D));
     catch
         nmats = size(filenames,1);
-        for fimat = 1:nmats;
+        for fimat = 1:nmats
             try
                 tmp1 = load(filenames(fimat,:));
             catch
@@ -53,7 +53,9 @@ if strcmpi(ext,'.mat') || ~isempty(strfind(ext,'.mat'))
             tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
             N(fimat).dat = tmp1.(tmp2);
         end
-        dm = [size(N(1).dat) 1];
+        dm = size(N(1).dat);
+        if length(dm)==1, dm = [dm 1]; end % handling case of 1D matrix
+        if length(dm)==2, dm = [dm 1]; end % handling case of 2D matrix
         n_vol = dm(end);
     end
 else
@@ -64,9 +66,8 @@ else
         if length(dm) == 3
             n_vol = 1;
         else
-            n_vol = dm(4);
+            n_vol = dm(4); %4D nifti
         end
-%         isgood = 1:n_vol;
     catch
         error('prt_load_blocks:CouldNotReadFile','Not a recognized file');
     end
@@ -81,23 +82,21 @@ else
     data_range = bs;
 end
 
-block=zeros(length(data_range),n_vol);
+block=zeros(length(data_range),max(n_vol,numel(N)));
 if n_vol==1 && ~isempty(N) && isempty(D)
     for i=1:length(N)
         block(:,i) = N(i).dat(data_range);
     end
 else
-%     cnt = 1;
-    for i=1:n_vol%isgood        
+    for i=1:n_vol       
         if ~isempty(N)            
             dat_r = N(1).dat(:,:,:,i);            
-        elseif ~isempty(D) && flagi
-            dat_r = D(:,:,i); %igt(i)
-        elseif ~isempty(D) && ~flagi
-            dat_r = D(:,:,:,i); %igt(i)
+        elseif ~isempty(D) && flagi %MEEG 3D
+            dat_r = D(:,:,i); 
+        elseif ~isempty(D) && ~flagi %MEEG 4D
+            dat_r = D(:,:,:,i); 
         end
         block(:,i) = dat_r(data_range);
-%         cnt = cnt+1;
     end
 end
 return

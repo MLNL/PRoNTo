@@ -162,11 +162,14 @@ mod_type = handles.pushbutton1.String;
 % The figure can be deleted now
 delete(handles.figure1);
 
-if strcmp(mod_type,'nifti')||strcmp(mod_type,'.mat')
-    prt_ui_prepare_data('UserData',{handles.PRT,0,handles.fname,mod_type});
+% Gather which modality based on the button's name and pass it to
+% prepare_data
+if strcmpi(mod_type,'MEEG')
+    flagMEEG = 1;
 else
-    prt_ui_prepare_data('UserData',{handles.PRT,1,handles.fname});
+    flagMEEG = 0;
 end
+prt_ui_prepare_data('UserData',{handles.PRT,flagMEEG,handles.fname,mod_type});
 
 
 % --- Executes on button press in pushbutton2.
@@ -181,9 +184,13 @@ mod_type = handles.pushbutton2.String;
 % The figure can be deleted now
 delete(handles.figure1);
 
-if strcmp(mod_type,'nifti')||strcmp(mod_type,'.mat')
-    prt_ui_prepare_data('UserData',{handles.PRT,0,handles.fname,mod_type});
+% Gather which modality based on the button's name and pass it to
+% prepare_data
+if strcmpi(mod_type,'MEEG')
+    flagMEEG = 1;
 else
-    prt_ui_prepare_data('UserData',{handles.PRT,1,handles.fname});
+    flagMEEG = 0;
 end
+prt_ui_prepare_data('UserData',{handles.PRT,flagMEEG,handles.fname,mod_type});
+
 

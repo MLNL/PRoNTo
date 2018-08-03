@@ -169,8 +169,8 @@ function pbmeeg_Callback(hObject, eventdata, handles)
 
 % The figure can be deleted now
 delete(handles.figure1);
-
-prt_ui_prepare_data('UserData',{handles.PRT,1,handles.fname});
+mod_type = 'MEEG';
+prt_ui_prepare_data('UserData',{handles.PRT,1,handles.fname,mod_type});
 
 % --- Executes on button press in pbmat.
 function pbmat_Callback(hObject, eventdata, handles)

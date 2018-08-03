@@ -136,14 +136,13 @@ set(handles.edit_atlas,'Enable','off')
 set(handles.br_atlas,'Enable','off')
 if ~isempty(varargin{1}) && strcmpi(varargin{1},'UserData')
     handles.PRT=varargin{2}{1};
-    handles.nmtc=varargin{2}{2};
 else
     beep
     disp('Select a PRT.mat first')
     return
 end
-if length(varargin{2})==3
-    handles.indmod = varargin{2}{3};
+if length(varargin{2})==2
+    handles.indmod = varargin{2}{2};
 else
     handles.indmod = 1:length(handles.PRT.masks);
 end
@@ -158,7 +157,7 @@ else
     set(handles.pop_cond,'String',{'All scans','All conditions'})
 end
 
-% if all modalities are .mat
+% % if all modalities are .mat
 if isfield(handles.PRT.group(1).subject(1).modality(1),'type') && ...
     ~isempty(handles.PRT.group(1).subject(1).modality(1).type) && ... %Nifti if no type
     length(unique({handles.PRT.group(1).subject(1).modality(:).type}))==1 ...
@@ -168,11 +167,11 @@ if isfield(handles.PRT.group(1).subject(1).modality(1),'type') && ...
     set(handles.pop_det,'Enable','off')
     set(handles.pop_norm,'Enable','off');
     set(handles.froi, 'Value',0)
-    set(handles.froi,'Enable','off')
+%     set(handles.froi,'Enable','off')
     set(handles.edit_atlas,'Visible','on')
     set(handles.br_atlas,'Visible','on')
-    set(handles.edit_atlas,'Enable','off')
-    set(handles.br_atlas,'Enable','off')
+%     set(handles.edit_atlas,'Enable','off')
+%     set(handles.br_atlas,'Enable','off')
 end
 
 set(handles.pop_cond,'Value',1)
@@ -363,12 +362,12 @@ handles.mod.mod_name=list(val);
 im=find(strcmpi(list(val),{handles.PRT.group(1).subject(1).modality(:).mod_name}));
 
 if strcmp(handles.PRT.group(1).subject(1).modality(im).type, '.mat')
-        set(handles.pop_det,'Visible','on')
+    set(handles.pop_det,'Visible','on')
     set(handles.pop_norm,'Visible','on')
     set(handles.pop_det,'Enable','off')
-    set(handles.pop_norm,'Enable','off');
+%     set(handles.pop_norm,'Enable','off');
     set(handles.froi, 'Value',0)
-    set(handles.froi,'Enable','off')
+%     set(handles.froi,'Enable','off')
     set(handles.edit_atlas,'Visible','on')
     set(handles.br_atlas,'Visible','on')
     set(handles.edit_atlas,'Enable','off')
@@ -512,8 +511,13 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-handles.mod.atlasroi=spm_select(1,'image','Select atlas to build one kernel per region');
+modindx = 1:length(handles.indmod);
+modindx = modindx(strcmp({handles.PRT.masks(:).mod_name},handles.mod.mod_name));
+if strcmp(handles.PRT.group(1).subject(1).modality(modindx).type, '.mat')
+    handles.mod.mask=spm_select(1,'mat','Select atlas to build one kernel per region');
+else
+    handles.mod.atlasroi=spm_select(1,'image','Select atlas to build one kernel per region');
+end
 set(handles.edit_atlas,'String',handles.mod.atlasroi);
 % Update handles structure
 guidata(hObject, handles);

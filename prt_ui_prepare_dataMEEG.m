@@ -114,8 +114,7 @@ handles.mod=struct('mod_name',[],'ich',[],'itp',[],'ifr',[],...
             'multkernparam',[],'aver',[0 0 0],'multkern',[0 0 0]);
 if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     handles.dat = varargin{2}{1};
-    handles.ismeeg = varargin{2}{2};
-    handles.indmod = varargin{2}{3};
+    handles.indmod = varargin{2}{2};
     handles.nmods = length(handles.indmod);
     list = {handles.dat.masks(handles.indmod).mod_name};
     % Initialize handles structure

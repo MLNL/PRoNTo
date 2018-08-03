@@ -974,7 +974,7 @@ catch
     prevlist={};
 end
 if isfield(handles.dat.group(cgr).subject(cs).modality(cm),'type') && ...
-        ~strcmpi(handles.dat.group(cgr).subject(cs).modality(cm).type,'nifti')
+        strcmpi(handles.dat.group(cgr).subject(cs).modality(cm).type,'MEEG')
     [fnames,status]=spm_select([1 1],'mat','Select files for the modality',prevlist);
     if ~status
        % Quitted, restor previous list
@@ -994,6 +994,9 @@ if isfield(handles.dat.group(cgr).subject(cs).modality(cm),'type') && ...
     desn = prt_get_design_MEEG(D);
     desn.covar = [];
     handles.dat.group(cgr).subject(cs).modality(cm).design=desn;
+elseif isfield(handles.dat.group(cgr).subject(cs).modality(cm),'type') && ...
+        strcmpi(handles.dat.group(cgr).subject(cs).modality(cm).type,'.mat')
+    fnames=spm_select([1 Inf],'mat','Select files for the modality',prevlist);
 else
     fnames=spm_select([1 Inf],'image','Select files for the modality',prevlist);
 end

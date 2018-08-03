@@ -194,10 +194,13 @@ flagmat = 0;
 for i=1:nm
     if isfield(PRT.masks(i),'type') && strcmpi(PRT.masks(i).type,'MEEG')
         flagMEEG = flagMEEG + 1;
+        mod_type = 'MEEG';
     elseif isfield(PRT.masks(i),'type') && strcmpi(PRT.masks(i).type,'nifti')
         flagim = flagim + 1;
-    else isfield(PRT.masks(i),'type') && strcmpi(PRT.masks(i).type,'.mat')
+        mod_type = 'nifti';
+    elseif isfield(PRT.masks(i),'type') && strcmpi(PRT.masks(i).type,'.mat')
         flagmat = flagmat +1;
+        mod_type = 'mat';
     end
 end
 if flagMEEG && flagim && flagmat
@@ -205,7 +208,7 @@ if flagMEEG && flagim && flagmat
 elseif (flagMEEG && flagim)||(flagMEEG && flagmat)||(flagim && flagmat)
     prt_ui_fs_datatype('UserData',{PRT,fname})
 else
-    prt_ui_prepare_data('UserData',{PRT,flagMEEG,fname})
+    prt_ui_prepare_data('UserData',{PRT,flagMEEG,fname,mod_type})
 end
 
 
