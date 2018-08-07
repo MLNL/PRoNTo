@@ -385,7 +385,7 @@ for p=0:maxp
             %------------------------------------------------------------------
             for c = 1:nimage
                 norm4d{c}(z,:)             = norm3d{c};
-                img3dav{c}                 = img3dav{c}/nfold; %afm
+                img3dav{c}                 = img3dav{c}/nfold; %average across folds
                 img4d{c}(:,:,z,folds_comp) = reshape(img3dav{c},dat_dim(1),dat_dim(2),1,1); %afm
                 norm4dav{c}(z,:)           = sum(img3dav{c}(isfinite(img3dav{c})).^2); %afm
             end
@@ -400,19 +400,19 @@ for p=0:maxp
     fprintf('\n') % new line
     disp('Normalising weights--------->>')
     if p==0
-        for f = 1:nfold,
+        for f = 1:nfold
             for c = 1:nimage
-                if unique(norm4d{c}(1,f))~=0
+                if unique(norm4d{c}(1,f))~=0 % if not all weights at zero, normalize
                     img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f)./norm4d{c}(1,f);
-                else
-                    img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f);
                 end
             end
         end
     end
     
-    for c = 1:nimage %afm
-        img4d{c}(:,:,:,folds_comp) = img4d{c}(:,:,:,folds_comp)./norm4dav{c}; %afm
+    for c = 1:nimage %average across folds
+        if unique(norm4dav{c})~=0 % if not all weights at zero, normalize
+            img4d{c}(:,:,:,folds_comp) = img4d{c}(:,:,:,folds_comp)./norm4dav{c}; %afm
+        end
     end %afm
     
     % Create weigths file

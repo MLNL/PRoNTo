@@ -307,7 +307,7 @@ if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
         end
     end
     for i=1:length(name_fin)
-        [du,name_fin{i}] = spm_fileparts(name_fin{i}); %get rid of path
+        [du,name_fin{i},ext{i}] = spm_fileparts(name_fin{i}); %get rid of path
     end
     
  % Only one modality or they have been concatenated
@@ -330,7 +330,7 @@ else
             img_name = prt_compute_weights_class(PRT,in,model_idx,flag);
             name_fin = cell(length(img_name),1);
             for i=1:length(name_fin)
-                [du,name_fin{i}] = spm_fileparts(img_name{i}); 
+                [du,name_fin{i},ext{i}] = spm_fileparts(img_name{i}); 
             end
             if exist('flag2','var') && flag2 % Build image of weights per region
                 disp('Building image of weights per region')
@@ -375,7 +375,7 @@ else
             img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
             name_fin = cell(length(img_name),1);
             for i=1:length(name_fin)
-                [du,name_fin{i}] = spm_fileparts(img_name{i}); 
+                [du,name_fin{i},ext{i}] = spm_fileparts(img_name{i}); 
             end
              if exist('flag2','var') && flag2 % Build image of weights per region
                 if mult_kern_ROI && ...
@@ -405,9 +405,18 @@ else
              end
     end
 end
+
 if ~iscell(name_fin)
     name_fin = {name_fin};
 end
+
+for i = 1:length(name_fin)
+    if isempty(ext{i})
+        ext = '.img'; %For older PRTs, nifti is the default
+    end
+    name_fin{i} = [name_fin{i},ext{i}]; % Keep extension to have data format
+end
+
 if ifs == 1
     PRT.model(model_idx).output.weight_ROI = output.weight_ROI;
     PRT.model(model_idx).output.weight_MOD = output.weight_MOD;

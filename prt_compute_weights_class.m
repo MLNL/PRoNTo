@@ -37,7 +37,7 @@ im = find(strcmpi(mname,allmods));
 flagmeeg = 0;
 flagmat = 0;
 
-if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG')
+if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG') %MEEG data
     ext = '.mat';
     hdr = PRT.fas(fas_idx(1)).hdr;
     nchan = nchannels(hdr);
@@ -55,18 +55,16 @@ if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'MEEG')
     idfeat = 1:size(PRT.fas(fas_idx(1)).dat,2);
     appendn = 'tmp';
 else
-    
-    if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'.mat')
-        
+    %.mat data
+    if isfield(PRT.masks(im),'type') && strcmpi(PRT.masks(im).type,'.mat')        
         ext = '.mat';
         hdr        = PRT.fas(fas_idx(1)).hdr;
         dat_dim    = hdr.dim;
         idfeat = PRT.fas(fas_idx(1)).idfeat_img;
         flagmat = 1;
         appendn=[];
-        
-    else
-        
+    % nifti or img file    
+    else        
         ext = '.img';
         hdr        = PRT.fas(fas_idx(1)).hdr.private;
         dat_dim    = hdr.dat.dim;
@@ -367,8 +365,8 @@ for p=0:maxp
                 end
                 d.datamat = cvdata.train{:};
                 
-                if strcmpi(mfunc,'prt_machine_sMKL_cla') || ...
-                        strcmpi(mfunc,'prt_machine_wip_cla')            
+                if isfield(PRT.model(model_idx).output.fold(f),'beta') && ...
+                        ~isempty(PRT.model(model_idx).output.fold(f).beta)            
                     if isempty(ibe)
                         m.args.betas = PRT.model(model_idx).output.fold(f).beta;
                     else
@@ -413,24 +411,24 @@ for p=0:maxp
     
     for c =1:nimage
         norm4d{c}   = sqrt(sum(norm4d{c},1));
-        norm4dav{c} = sqrt(sum(norm4dav{c},1)); %afm
+        norm4dav{c} = sqrt(sum(norm4dav{c},1)); %average across folds
     end
     fprintf('\n') % new line 
     disp('Normalising weights--------->>')
     if p==0
-        for f = 1:nfold,
+        for f = 1:nfold
             for c = 1:nimage
-                if unique(norm4d{c}(1,f))~=0
+                if unique(norm4d{c}(1,f))~=0 % If not all weights at zero, normalize
                     img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f)./norm4d{c}(1,f);
-                else
-                    img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f);
                 end
             end
         end
     end
     
-    for c = 1:nimage %afm
-        img4d{c}(:,:,:,folds_comp) = img4d{c}(:,:,:,folds_comp)./norm4dav{c}; %afm
+    for c = 1:nimage % average across folds
+        if unique(norm4dav{c})~=0 % If not all weights at zero, normalize
+            img4d{c}(:,:,:,folds_comp) = img4d{c}(:,:,:,folds_comp)./norm4dav{c}; %afm
+        end
     end %afm
 
     % Create weigths file
