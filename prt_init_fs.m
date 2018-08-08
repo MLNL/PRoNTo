@@ -129,18 +129,16 @@ else
                         'Masks access areas of different sizes across modalities')
                 end
             end
-        else
-            if strcmp(PRT.masks(mid).type,'.mat')
-                n_vox = prod(headers{m}.dim(1:2));
-                PRT.fs(fid).modality(m).feat_idx_img = 1:n_vox;
-            end
+        elseif strcmp(PRT.masks(mid).type,'.mat')
+            n_vox = prod(headers{m}.dim(1:2));
+            PRT.fs(fid).modality(m).feat_idx_img = 1:n_vox;
         end
         
         %get subindexes from mask specified in the data prepare step
         if ~isempty(precmask{m})
             
             mid = mids(m);
-            if strcmp(PRT.masks(mid).type,'nifti')
+            if strcmp(PRT.masks(mid).type,'nifti') % Load nifti
                 
                 vm = spm_vol(precmask{m});
                 vm = spm_read_vols(vm);
@@ -148,40 +146,24 @@ else
                     error('prt_init_fs:NoVoxelinMask',...
                         ['2nd level mask of modality ',num2str(m),' does not contain any voxel >0'])
                 end
-                [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0));
-            else
-                if strcmp(PRT.masks(mid).type,'.mat')
-                    try 
-                        tmp1 = load(char(precmask{m}));
-                    catch
-                        error('prt_init_fs:NoMatMask',...
-                            'Could not load .mat mask')
-                    end
-                    tmp2 = fieldnames(tmp1);
-                    if length(tmp2) > 1
-                        error('Mask .mat file contains more than one variable. First variable will be read, rest will be ignored!');
-                    end
-                    tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
-                    mat_data = tmp1.(tmp2);
-                    if length(size(mat_data)) > 2
-                        error('prt_fs:MatrixWrongDims',...
-                            'Mask .mat contains more than 2 dimensions. Mask should be matrix or vector.');
-                    end
-                    vm = mat_data(:);
-                    
-                    if ~any(vm>0)
-                        error('prt_init_fs:NoVarinMask',...
-                            ['2nd level mask of modality ',num2str(m),' does not contain any variable >0'])
-                    end
-                    
-                    if sum(size(mat_data) == headers{m}.dim(1:2)) ~= 2
-                                                error('prt_init_fs:WrongDimMask',...
-                            ['2nd level mask of modality ',num2str(m),' does not have correct data dimensions'])
-                    end
-                        
-                    [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find(vm~=0)); 
-                    
+                [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find((vm~=0) & (~isnan(vm))));
+            
+            elseif strcmp(PRT.masks(mid).type,'.mat') % Load .mat mask
+                try 
+                    tmp1 = load(char(precmask{m}));
+                catch
+                    error('prt_init_fs:NoMatMask',...
+                        'Could not load .mat mask')
                 end
+                tmp2 = fieldnames(tmp1);
+                tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
+                mat_data = tmp1.(tmp2);
+                vm = mat_data(:);
+                if ~any(vm) || ~any(~isnan(vm)) %check it has values
+                    error('prt_init_fs:NoVarinMask',...
+                        ['2nd level mask of modality ',num2str(m),' does not contain any value different from 0 or NaN.'])
+                end
+                [d,PRT.fs(fid).modality(m).idfeat_fas] = intersect(PRT.fs(fid).modality(m).feat_idx_img, find((vm~=0) & (~isnan(vm))));
             end
         else
             PRT.fs(fid).modality(m).idfeat_fas=[];
@@ -224,7 +206,7 @@ else
     % Set fas for the file arrays
     sample_range = 0;
     for gid = 1:length(PRT.group) % group
-        for sid = 1:length(PRT.group(gid).subject);  % subject
+        for sid = 1:length(PRT.group(gid).subject)  % subject
             for m = 1:n_mods
                 mid = mids(m);
                 
@@ -284,15 +266,10 @@ else
                         end
                         
                         % configure indices
-%                         sample_range = (1:n_vol_s_c)+max(sample_range);
                         PRT.fs(fid).id_mat(sample_range,1) = gid;
                         PRT.fs(fid).id_mat(sample_range,2) = sid;
                         PRT.fs(fid).id_mat(sample_range,3) = mid;
-                        PRT.fs(fid).id_mat(sample_range,4) = cid;
-%                         PRT.fs(fid).id_mat(sample_range,5) = blocks;
-                        %PRT.fs(fid).id_mat(sample_range,6) = 1:length(sample_range);
-%                         PRT.fs(fid).id_mat(sample_range,6) = scans;
-                        
+                        PRT.fs(fid).id_mat(sample_range,4) = cid;                       
                         
                     end
                     %configure indices for the file array
@@ -306,10 +283,9 @@ else
 
     %initialize the file arrays if they do not exist already or if the
     %detrending parameters were modified
-    if ~isfield(PRT,'fas');
+    if ~isfield(PRT,'fas')
         % initialise all modalities (not just those we're working on)
-        for m = 1:length(PRT.masks)
-            
+        for m = 1:length(PRT.masks)            
             PRT.fas(m)=struct('mod_name',[],'dat',[],'detrend',[],'param_dt',[],'hdr',[]);
             PRT.fas(m).mod_name = PRT.masks(m).mod_name;
         end
@@ -343,7 +319,6 @@ else
             end
             
             tocomp(mids(i))=1;
-            %PRT.fas(mids(i)).mod_name = in.mod(mids(i)).mod_name;
             PRT.fas(mids(i)).detrend = in.mod(mids(i)).detrend;
             PRT.fas(mids(i)).param_dt = in.mod(mids(i)).param_dt;
             PRT.fas(mids(i)).hdr = headers{i};
@@ -358,7 +333,7 @@ else
                 0, ...                       % offset    - offset into file (default = 0)
                 1);                          % scl_slope - scalefactor (default = 1)
         else
-            disp(['Using existing file array for modality ''', ...
+            disp(['Using existing file array for modality ''', ... % Use existing file array
                 char(in.mod(mids(i)).mod_name),'''.'])
         end
         
@@ -374,7 +349,7 @@ else
                 szin=max(size(scaling));
             catch
                 error('prt_prepare_data:ScalingNotinFile',...
-                    'This file does not contain the "scaling" field required')
+                    'This file does not contain a "scaling" variable required')
             end
             if szin~=szm(i)
                 error('prt_prepare_data:Scalingdimensionwrong',...

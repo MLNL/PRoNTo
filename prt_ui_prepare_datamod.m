@@ -511,10 +511,9 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-modindx = 1:length(handles.indmod);
-modindx = modindx(strcmp({handles.PRT.masks(:).mod_name},handles.mod.mod_name));
+modindx = handles.indmod(strcmp({handles.PRT.masks(handles.indmod).mod_name},handles.mod.mod_name));
 if strcmp(handles.PRT.group(1).subject(1).modality(modindx).type, '.mat')
-    handles.mod.mask=spm_select(1,'mat','Select atlas to build one kernel per region');
+    handles.mod.atlasroi=spm_select(1,'mat','Select atlas to build one kernel per region');
 else
     handles.mod.atlasroi=spm_select(1,'image','Select atlas to build one kernel per region');
 end

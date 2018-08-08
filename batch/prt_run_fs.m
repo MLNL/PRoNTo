@@ -220,27 +220,45 @@ for i=1:length(PRT.masks)
                 
                 
                 
-            case 3 % .mat (similar to nifti but less options for now)
+            case 3 % .mat (similar to nifti but without detrend and other mask type)
                 
-%                 if isfield(job.format.matmodality(ind).conditions,'all_cond')
-%                     mod(i).mode='all_cond';
-%                 elseif isfield(job.format.matmodality(ind).conditions,'all_scans')
-%                     mod(i).mode='all_scans';
-%                 else
-                mod(i).mode='all_scans';
-%                 end
+                % Normalize options
+                 if isfield(job.format.matmodality(ind).normalise,'no_gms')
+                    mod(i).normalise = 0;
+                    mod(i).matnorm = [];
+                elseif isfield(job.format.matmodality(ind).normalise,'mat_gms')
+                    mod(i).normalise=2;
+                    mod(i).matnorm = char(job.format.matmodality(ind).normalise.mat_gms);
+                end
+                % Condition options
+                if isfield(job.format.matmodality.conditions,'all_cond')
+                    mod(i).mode='all_cond';
+                elseif isfield(job.format.matmodality(ind).conditions,'all_scans')
+                    mod(i).mode='all_scans';
+                else
+                    error('Wrong mode selected: choose either all scans or all conditions')
+                end
+                % 2nd level mask
                 indm=find(strcmpi(maskchos,allmod{i}));
                 if isfield(job.format.matmodality(indm).features,'matmask')
                     mod(i).mask = char(job.format.matmodality(indm).features.matmask);
                 else
                     mod(i).mask = [];
                 end
-                % Options not (yet) available for .mat modalities
+                % atlas
+                if isfield(job.format.matmodality(ind),'atlasmat')
+                    mod(i).atlasroi = job.format.modality(ind).atlasmat{1};
+                    if ~isempty(mod(i).atlasroi)
+                        mod(i).multroi = 1;
+                    else
+                        mod(i).multroi = 0;
+                    end
+                else
+                    mod(i).multroi = 0;
+                end
+                % Options not available for .mat modalities
                 mod(i).detrend=0;
-                mod(i).param_dt=[];
-                mod(i).normalise = 0;
-                mod(i).matnorm = [];
-                
+                mod(i).param_dt=[];             
         end
         
     else
@@ -256,12 +274,6 @@ input = struct( ...
     'fs_name',fs_name, ...
     'mod',mod, ...
     'flag_mm', 0); % Do not allow for MKL at feature set level
-
-% input = struct( ...
-%     'fname',fname, ...
-%     'fs_name',fs_name, ...
-%     'mod',mod, ...
-%     'flag_mm', flag_mm);
 
 if flagMEEG
     prt_fs_EEG(PRT,input);

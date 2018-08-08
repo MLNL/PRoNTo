@@ -28,36 +28,8 @@ k_file.help    = {['Target name for kernel matrix. This should contain' ...
 k_file.strtype = 's';
 k_file.num     = [1 Inf];
 
-% % ---------------------------------------------------------------------
-% % use_mkl Use MKL?
-% % ---------------------------------------------------------------------
-% use_mkl         = cfg_menu;
-% use_mkl.tag     = 'use_mkl';
-% use_mkl.name    = 'Generate Multiple Kernels?';
-% use_mkl.labels  = {
-%                'Yes'
-%                'No'
-% }';
-% use_mkl.values  = {1 0};
-% use_mkl.val     = {0};
-% use_mkl.help    = {'Do you wish to generate Multiple Kernels?'};
-
 % ---------------------------------------------------------------------
-% multkernflag Use multiple modality kernels
-% ---------------------------------------------------------------------
-% flag_mm         = cfg_menu;
-% flag_mm.tag     = 'flag_mm';
-% flag_mm.name    = 'Use one kernel per modality';
-% flag_mm.help    = {'Select "Yes" to use one kernel per modality.'};
-% flag_mm.labels  = {
-%     'Yes'
-%     'No'
-%     }';
-% flag_mm.values  = {1 0};
-% flag_mm.val     = {0};
-
-% ---------------------------------------------------------------------
-% atlasroi Filename(s) of atlas for ROI MKL
+% atlasroi Filename(s) of atlas for ROI MKL for nifti
 % ---------------------------------------------------------------------
 atlasroi         = cfg_files;
 atlasroi.tag     = 'atlasroi';
@@ -118,19 +90,6 @@ conditions.help   = {...
  'if you want to include all scans from an fMRI timeseries (assumes you ',...
  'have not already detrended the timeseries and extracted task components)']};
 
-% % ---------------------------------------------------------------------
-% % detrend Detrend
-% % ---------------------------------------------------------------------
-% detrend         = cfg_menu;
-% detrend.tag     = 'detrend';
-% detrend.name    = 'Detrend';
-% detrend.help    = {'Type of temporal detrending to apply'};
-% detrend.labels  = {
-%                'None'
-%                'Linear'
-% }';
-% detrend.values  = {0 1};
-% detrend.val     = {0};
 
 % ---------------------------------------------------------------------
 % param_dt Name
@@ -298,14 +257,25 @@ features.help   = {...
     ['Specify which features from the current modality you would like to include']};
 
 % ---------------------------------------------------------------------
+% atlasmat Filename(s) of atlas for ROI MKL for .mat
+% ---------------------------------------------------------------------
+atlasmat         = cfg_files;
+atlasmat.tag     = 'atlasmat';
+atlasmat.name    = 'Use atlas to build ROI specific kernels';
+atlasmat.ufilter = '.*';
+atlasmat.filter  = 'mat';
+atlasmat.num     = [0 1];
+atlasmat.val     = {{''}};
+atlasmat.help    = {['Select an atlas file to build one kernel per ROI. ', ...
+    'The atlas should have the same dimensions as the input .mat data.']};
+
+% ---------------------------------------------------------------------
 % modality Modality for .mat
 % ---------------------------------------------------------------------
 matmodality      = cfg_branch;
 matmodality.tag  = 'matmodality';
 matmodality.name = 'Modality';
-matmodality.val  = {mod_name, features};
-% matmodality.val  = {mod_name, conditions, voxels, detrend, normalise, atlasroi};
-% to update when design will be available
+matmodality.val  = {mod_name, conditions, normalise, features, atlasmat};
 matmodality.help = {'Specify modality, such as name and data.'};
 
 % ---------------------------------------------------------------------

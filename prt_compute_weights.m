@@ -53,15 +53,7 @@ if ~isempty(strfind(PRT.model(model_idx).input.machine.function,'MKL')) || ... %
 else
     added = 1;
 end
-% if isfield(PRT.model(model_idx).output,'weight_idfeatroi') && ...
-%         ~isempty(PRT.model(model_idx).output.weight_idfeatroi)
-%     PRT.model(model_idx).output.weight_idfeatroi =[];
-% end
-% 
-% if isfield(PRT.model(model_idx).output,'weight_atlas') && ...
-%         ~isempty(PRT.model(model_idx).output.weight_atlas)
-%     PRT.model(model_idx).output.weight_atlas ={};
-% end
+
 PRT.model(model_idx).output.weight_ROI = [];
 PRT.model(model_idx).output.weight_MOD = [];
 PRT.model(model_idx).output.weight_idfeatroi =[];
@@ -153,283 +145,279 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
     end
 
 
-% Build weights
-%--------------------------------------------------------------------------
-if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
-       length(fs_name)>1 % Need to loop over the features sets and/or modalities
-    summroi  = 0;
-    %get/set image names by appending the modality name at the end
-    im_namefs = cell(1,length(fas_idx));
-    if length(fas_idx)>1
-        for i = 1:length(fas_idx)
-            im_namefs{i} = [im_name{ifs},'_',PRT.fas(fas_idx(i)).mod_name];
+    % Build weights
+    %--------------------------------------------------------------------------
+    if (PRT.fs(fs_idx).multkernel && length(fas_idx)>1)||...
+            length(fs_name)>1 % Need to loop over the features sets and/or modalities
+        summroi  = 0;
+        %get/set image names by appending the modality name at the end
+        im_namefs = cell(1,length(fas_idx));
+        if length(fas_idx)>1
+            for i = 1:length(fas_idx)
+                im_namefs{i} = [im_name{ifs},'_',PRT.fas(fas_idx(i)).mod_name];
+            end
+        else
+            im_namefs{1} = im_name{ifs};
         end
-    else
-        im_namefs{1} = im_name{ifs};
-    end
-    
-    % Get the indexes in the feature set and ID mat for each modality
-    ifa_all = PRT.fs(fs_idx).fas.ifa;
-    im_all = PRT.fs(fs_idx).fas.im;
-    name_fin = [];
-    
-    % Prepare outputs
-    output.weight_ROI = cell(nim,1);
-    output.weight_idfeatroi = cell(nim,1);
-    output.weight_atlas = cell(nim,1);
-    if nc<=2
-        output.weight_MOD = cell(nim,1);
-    else
-        output.weight_MOD = cell(nim/nc,1);
-    end
-    imgcnt = 1;
-    
-    for i = 1:length(fas_idx)
-        in.img_name = im_namefs{i};
-        in.fas_idx = fas_idx(i);
-        in.mm = find(mm(fas_idx(i),:));
-        %Modify inputs according to file array and modality
-        PRT.fs(fs_idx).id_mat(:,3) = in.fas_idx * ones(size(PRT.fs(fs_idx).id_mat,1),1);
-        PRT.fs(fs_idx).fas.im = im_all(im_all == fas_idx(i));
-        PRT.fs(fs_idx).fas.ifa = ifa_all(im_all == fas_idx(i));
+        
+        % Get the indexes in the feature set and ID mat for each modality
+        ifa_all = PRT.fs(fs_idx).fas.ifa;
+        im_all = PRT.fs(fs_idx).fas.im;
+        name_fin = [];
+        
+        % Prepare outputs
+        output.weight_ROI = cell(nim,1);
+        output.weight_idfeatroi = cell(nim,1);
+        output.weight_atlas = cell(nim,1);
+        if nc<=2
+            output.weight_MOD = cell(nim,1);
+        else
+            output.weight_MOD = cell(nim/nc,1);
+        end
+        imgcnt = 1;
 
-        switch mtype
-            case 'classification'
-                
-                % Compute image of voxel weights
-                img_name = prt_compute_weights_class(PRT,in,model_idx,flag,ibeta_mod{i});
-                    
-                % Get the image names (multiple classes possible)
-                name_f = cell(length(img_name),1);
-                for j=1:size(name_f,1)
-                    [du,name_f{j}] = spm_fileparts(img_name{j});
-                end
-                
-                % Build image of weights per region if asked for (flag2==1)
-                if exist('flag2','var') && flag2 
-                    
-                    if mult_kern_ROI && ~added % Kernels built from an atlas directly
-                        disp('Building image of weights per region')
-                        if length(name_f)>1 % multiple classes
-                            in.img_name = ['ROI_',name_f{j}(1:end-2)];
-                        else
-                            in.img_name = ['ROI_',name_f{1}];
-                        end
-                        prt_compute_weights_class(PRT,in,model_idx,flag,ibeta_mod{i},1);
-                        
-                    else % Need to summarize the weights per region
-                        disp('Building image of weights per region')
-                        in.flag = flag;
-                        summroi  = 1;
-                        nimage = size(name_f,1); % Multiclass?
-                        for c = 1:nimage
-                            if c>1
-                                imgcnt = imgcnt + 1;
+        for i = 1:length(fas_idx)
+            in.img_name = im_namefs{i};
+            in.fas_idx = fas_idx(i);
+            in.mm = find(mm(fas_idx(i),:));
+            %Modify inputs according to file array and modality
+            tokeep = unique(PRT.fs(fs_idx).id_mat(:,3));
+            PRT.fs(fs_idx).id_mat(:,3) = in.fas_idx * ones(size(PRT.fs(fs_idx).id_mat,1),1);
+            PRT.fs(fs_idx).fas.im = im_all(im_all == fas_idx(i));
+            PRT.fs(fs_idx).fas.ifa = ifa_all(im_all == fas_idx(i));
+
+            switch mtype
+                case 'classification'
+
+                    % Compute image of voxel weights
+                    img_name = prt_compute_weights_class(PRT,in,model_idx,flag,ibeta_mod{i});
+
+                    % Get the image names (multiple classes possible)
+                    name_f = cell(length(img_name),1);
+                    for j=1:size(name_f,1)
+                        [du,name_f{j}] = spm_fileparts(img_name{j});
+                    end
+
+                    % Build image of weights per region if asked for (flag2==1)
+                    if exist('flag2','var') && flag2
+
+                        if mult_kern_ROI && ~added % Kernels built from an atlas directly
+                            disp('Building image of weights per region')
+                            if length(name_f)>1 % multiple classes
+                                in.img_name = ['ROI_',name_f{j}(1:end-2)];
+                            else
+                                in.img_name = ['ROI_',name_f{1}];
                             end
-                            [NW, idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
+                            prt_compute_weights_class(PRT,in,model_idx,flag,ibeta_mod{i},1);
+
+                        else % Need to summarize the weights per region
+                            disp('Building image of weights per region')
+                            in.flag = flag;
+                            summroi  = 1;
+                            nimage = size(name_f,1); % Multiclass?
+                            for c = 1:nimage
+                                if c>1
+                                    imgcnt = imgcnt + 1;
+                                end
+                                [NW, idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
+                                output.weight_ROI(imgcnt) = {NW};
+                                output.weight_idfeatroi(imgcnt) = {idfeatroi};
+                                output.weight_atlas{imgcnt} = in.atl_name;
+                            end
+                        end
+                    end
+                case 'regression'
+                    % Compute image of voxel weights
+                    img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,ibeta_mod{i});
+
+                    % Get the image names
+                    [du,name_f{1}] = spm_fileparts(img_name{1});
+
+                    % Build image of weights per region if asked for (flag2==1)
+                    if exist('flag2','var') && flag2
+
+                        if mult_kern_ROI  && ~added % Kernels built from an atlas directly
+                            disp('Building image of weights per region')
+                            in.img_name = ['ROI_',name_f{1}];
+                            prt_compute_weights_regre(PRT,in,model_idx,flag,ibeta_mod{i},1);
+
+                        else % Need to summarize the weights per region
+                            disp('Building image of weights per region')
+                            in.flag = flag;
+                            summroi = 1;
+                            [NW, idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
                             output.weight_ROI(imgcnt) = {NW};
                             output.weight_idfeatroi(imgcnt) = {idfeatroi};
                             output.weight_atlas{imgcnt} = in.atl_name;
                         end
                     end
-                end
-            case 'regression'
-                % Compute image of voxel weights
-                img_name = prt_compute_weights_regre(PRT,in,model_idx,flag,ibeta_mod{i});
-                    
-                % Get the image names 
-                [du,name_f{1}] = spm_fileparts(img_name{1});
-                
-                % Build image of weights per region if asked for (flag2==1)
-                if exist('flag2','var') && flag2 
-                    
-                    if mult_kern_ROI  && ~added % Kernels built from an atlas directly
-                        disp('Building image of weights per region')
-                        in.img_name = ['ROI_',name_f{1}];
-                        prt_compute_weights_regre(PRT,in,model_idx,flag,ibeta_mod{i},1);
-                        
-                    else % Need to summarize the weights per region
-                        disp('Building image of weights per region')
-                        in.flag = flag;
-                        summroi = 1;
-                        [NW, idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
-                        output.weight_ROI(imgcnt) = {NW};
-                        output.weight_idfeatroi(imgcnt) = {idfeatroi};
-                        output.weight_atlas{imgcnt} = in.atl_name;
-                    end
-                end
-        end
-        if ~iscell(img_name)
-            img_name={img_name};
-        end
-        name_fin = [name_fin, img_name];
-        imgcnt = imgcnt + 1;
-    end
-    PRT.fs(fs_idx).fas.ifa = ifa_all;
-    PRT.fs(fs_idx).fas.im = im_all;
-    PRT.fs(fs_idx).id_mat(:,3) = ones(size(PRT.fs(fs_idx).id_mat,1),1);
-    
-    % Used for the display of the weights per modality in
-    % prt_ui_disp_weights
-    if (PRT.fs(fs_idx).multkernel || length(fs_name)>1) ...
-        && ~summroi && ~added    %create one image per modality, from MKL learning
-        for i=1:length(name_fin)
-            if ~mult_kern_ROI && length(fs_name)==1
-                idb = 1:length(fas_idx);
-            else
-                idb = ibeta_mod{i};
             end
-            tmp = zeros(length(idb),length(PRT.model(model_idx).output.fold));
-            for j = 1:length(PRT.model(model_idx).output.fold)
-                tmp(:,j) = [PRT.model(model_idx).output.fold(j).beta(idb)]';
+            if ~iscell(img_name)
+                img_name={img_name};
             end
-            betas = [tmp, mean(tmp,2)];
-            if ~flag2 && ~mult_kern_ROI
-                output.weight_ROI(i) = {betas}; % for now, replicate the betas for each modality and fill table 
-                output.weight_MOD(i) = {betas};
-            elseif flag2 && mult_kern_ROI
-                output.weight_ROI(i) = {betas}; % for now, replicate the betas for each modality and fill table
-                output.weight_MOD(i) = {sum(betas,1)}; % sum the betas across regions for each modality
-            end
+            name_fin = [name_fin, img_name];
+            imgcnt = imgcnt + 1;
         end
-    else
-        if (PRT.fs(fs_idx).multkernel || length(fs_name)>1)...
-                && summroi && ~added
+        PRT.fs(fs_idx).fas.ifa = ifa_all;
+        PRT.fs(fs_idx).fas.im = im_all;
+        PRT.fs(fs_idx).id_mat(:,3) = tokeep* ones(size(PRT.fs(fs_idx).id_mat,1),1);
+
+        % Used for the display of the weights per modality in
+        % prt_ui_disp_weights
+        if (PRT.fs(fs_idx).multkernel || length(fs_name)>1) ...
+                && ~summroi && ~added    %create one image per modality, from MKL learning
             for i=1:length(name_fin)
-                idb = ibeta_mod{i};
+                if ~mult_kern_ROI && length(fs_name)==1
+                    idb = 1:length(fas_idx);
+                else
+                    idb = ibeta_mod{i};
+                end
                 tmp = zeros(length(idb),length(PRT.model(model_idx).output.fold));
                 for j = 1:length(PRT.model(model_idx).output.fold)
                     tmp(:,j) = [PRT.model(model_idx).output.fold(j).beta(idb)]';
                 end
-                betas = [tmp, mean(tmp,2)];                
-                output.weight_MOD(i) = {betas}; %average of a multiple kernel on modalities
+                betas = [tmp, mean(tmp,2)];
+                output.weight_ROI(i) = {betas}; 
+                output.weight_MOD(i) = {sum(betas,1)}; % sum the betas across regions for each modality
+            end
+        else
+            if (PRT.fs(fs_idx).multkernel || length(fs_name)>1)...
+                    && summroi && ~added
+                for i=1:length(name_fin)
+                    idb = ibeta_mod{i};
+                    tmp = zeros(length(idb),length(PRT.model(model_idx).output.fold));
+                    for j = 1:length(PRT.model(model_idx).output.fold)
+                        tmp(:,j) = [PRT.model(model_idx).output.fold(j).beta(idb)]';
+                    end
+                    betas = [tmp, mean(tmp,2)];
+                    output.weight_MOD(i) = {betas}; %average of a multiple kernel on modalities
+                end
             end
         end
-    end
-    for i=1:length(name_fin)
-        [du,name_fin{i},ext{i}] = spm_fileparts(name_fin{i}); %get rid of path
-    end
-    
- % Only one modality or they have been concatenated
-else
-    in.fas_idx=fas_idx;
-    in.mm = [];
-    for i=1:length(fas_idx)
-        in.mm = [in.mm, find(mm(fas_idx(i),:))];
-    end
-    output.weight_ROI = cell(nim,1);
-    output.weight_idfeatroi = cell(nim,1);
-    output.weight_atlas = cell(nim,1);
-    if nc<=2
-        output.weight_MOD = cell(nim,1);
+        for i=1:length(name_fin)
+            [du,name_fin{i},ext{i}] = spm_fileparts(name_fin{i}); %get rid of path
+        end
+
+        % Only one modality or they have been concatenated
     else
-        output.weight_MOD = cell(nim/nc,1);
-    end
-    switch mtype
-        case 'classification'
-            img_name = prt_compute_weights_class(PRT,in,model_idx,flag);
-            name_fin = cell(length(img_name),1);
-            for i=1:length(name_fin)
-                [du,name_fin{i},ext{i}] = spm_fileparts(img_name{i}); 
-            end
-            if exist('flag2','var') && flag2 % Build image of weights per region
-                disp('Building image of weights per region')
-
-                if mult_kern_ROI && ...
-                        isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
-                        ~isempty(PRT.model(model_idx).output.fold(1).beta)
-                    
-                    if length(name_fin)>1 % multiple classes
-                        in.img_name = ['ROI_',name_fin{j}(1:end-2)];
-                    else
-                        in.img_name = ['ROI_',name_fin{1}];
-                    end
-                    prt_compute_weights_class(PRT,in,model_idx,flag,[],1);
-                    % Get the weights per region, which are the same for
-                    % each class
-                    tmp = [PRT.model(model_idx).output.fold(:).beta];
-                    tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
-                        length(PRT.model(model_idx).output.fold));
-                    betas = [tmp, mean(tmp,2)];
-                    for i = 1:size(name_fin,1)
-                        output.weight_ROI(i) = {betas};
-                    end
-                else
-                    in.flag = flag;
-                    if isempty(in.atl_name) && mult_kern_ROI
-                        in.atl_name = PRT.fs(fs_idx).atlas_name;
-                    end                    
-                    nimage = size(name_fin,1); % Multiclass?
-                    PRT.model(model_idx).output.weight_ROI = cell(nimage,1);
-                    for c = 1:nimage
-                        [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
-                        output.weight_ROI(c) = {NW};
-                    end
-                    output.weight_idfeatroi{1} = idfeatroi;
-                    output.weight_atlas{1} = in.atl_name;
+        in.fas_idx=fas_idx;
+        in.mm = [];
+        for i=1:length(fas_idx)
+            in.mm = [in.mm, find(mm(fas_idx(i),:))];
+        end
+        output.weight_ROI = cell(nim,1);
+        output.weight_idfeatroi = cell(nim,1);
+        output.weight_atlas = cell(nim,1);
+        if nc<=2
+            output.weight_MOD = cell(nim,1);
+        else
+            output.weight_MOD = cell(nim/nc,1);
+        end
+        switch mtype
+            case 'classification'
+                img_name = prt_compute_weights_class(PRT,in,model_idx,flag);
+                name_fin = cell(length(img_name),1);
+                for i=1:length(name_fin)
+                    [du,name_fin{i},ext{i}] = spm_fileparts(img_name{i});
                 end
-%             else
-%                 PRT.model(model_idx).output.weight_ROI = [];
-            end
-        case 'regression'
-            img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
-            name_fin = cell(length(img_name),1);
-            for i=1:length(name_fin)
-                [du,name_fin{i},ext{i}] = spm_fileparts(img_name{i}); 
-            end
-             if exist('flag2','var') && flag2 % Build image of weights per region
-                if mult_kern_ROI && ...
-                        isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
-                        ~isempty(PRT.model(model_idx).output.fold(1).beta)
-                    disp('Building image of weights per region')                   
-                    in.img_name = ['ROI_',name_fin{1}];
-                    prt_compute_weights_regre(PRT,in,model_idx,flag,[],1);
-                    tmp = [PRT.model(model_idx).output.fold(:).beta];
-                    tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
-                        length(PRT.model(model_idx).output.fold));
-                    betas = [tmp, mean(tmp,2)];
-                    output.weight_ROI(1) = {betas}; %only one class for now
-                else
+                if exist('flag2','var') && flag2 % Build image of weights per region
                     disp('Building image of weights per region')
-                    in.flag = flag;
-                    if isempty(in.atl_name) && mult_kern_ROI
-                        in.atl_name = PRT.fs(fs_idx).atlas_name;
+
+                    if mult_kern_ROI && ...
+                            isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
+                            ~isempty(PRT.model(model_idx).output.fold(1).beta)
+
+                        if length(name_fin)>1 % multiple classes
+                            in.img_name = ['ROI_',name_fin{j}(1:end-2)];
+                        else
+                            in.img_name = ['ROI_',name_fin{1}];
+                        end
+                        prt_compute_weights_class(PRT,in,model_idx,flag,[],1);
+                        % Get the weights per region, which are the same for
+                        % each class
+                        tmp = [PRT.model(model_idx).output.fold(:).beta];
+                        tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
+                            length(PRT.model(model_idx).output.fold));
+                        betas = [tmp, mean(tmp,2)];
+                        for i = 1:size(name_fin,1)
+                            output.weight_ROI(i) = {betas};
+                        end
+                    else
+                        in.flag = flag;
+                        if isempty(in.atl_name) && mult_kern_ROI
+                            in.atl_name = PRT.fs(fs_idx).atlas_name;
+                        end
+                        nimage = size(name_fin,1); % Multiclass?
+                        PRT.model(model_idx).output.weight_ROI = cell(nimage,1);
+                        for c = 1:nimage
+                            [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
+                            output.weight_ROI(c) = {NW};
+                        end
+                        output.weight_idfeatroi{1} = idfeatroi;
+                        output.weight_atlas{1} = in.atl_name;
                     end
-                    [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
-                    output.weight_ROI(1) = {NW};
-                    output.weight_idfeatroi{1} = idfeatroi;
-                    output.weight_atlas{1} = in.atl_name;
+                    %             else
+                    %                 PRT.model(model_idx).output.weight_ROI = [];
                 end
-%              else
-%                  PRT.model(model_idx).output.weight_ROI = [];
-             end
+            case 'regression'
+                img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
+                name_fin = cell(length(img_name),1);
+                for i=1:length(name_fin)
+                    [du,name_fin{i},ext{i}] = spm_fileparts(img_name{i});
+                end
+                if exist('flag2','var') && flag2 % Build image of weights per region
+                    if mult_kern_ROI && ...
+                            isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
+                            ~isempty(PRT.model(model_idx).output.fold(1).beta)
+                        disp('Building image of weights per region')
+                        in.img_name = ['ROI_',name_fin{1}];
+                        prt_compute_weights_regre(PRT,in,model_idx,flag,[],1);
+                        tmp = [PRT.model(model_idx).output.fold(:).beta];
+                        tmp = reshape(tmp,length(PRT.model(model_idx).output.fold(1).beta),...
+                            length(PRT.model(model_idx).output.fold));
+                        betas = [tmp, mean(tmp,2)];
+                        output.weight_ROI(1) = {betas}; %only one class for now
+                    else
+                        disp('Building image of weights per region')
+                        in.flag = flag;
+                        if isempty(in.atl_name) && mult_kern_ROI
+                            in.atl_name = PRT.fs(fs_idx).atlas_name;
+                        end
+                        [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
+                        output.weight_ROI(1) = {NW};
+                        output.weight_idfeatroi{1} = idfeatroi;
+                        output.weight_atlas{1} = in.atl_name;
+                    end
+                    %              else
+                    %                  PRT.model(model_idx).output.weight_ROI = [];
+                end
+        end
     end
-end
 
-if ~iscell(name_fin)
-    name_fin = {name_fin};
-end
-
-for i = 1:length(name_fin)
-    if isempty(ext{i})
-        ext = '.img'; %For older PRTs, nifti is the default
+    if ~iscell(name_fin)
+        name_fin = {name_fin};
     end
-    name_fin{i} = [name_fin{i},ext{i}]; % Keep extension to have data format
-end
 
-if ifs == 1
-    PRT.model(model_idx).output.weight_ROI = output.weight_ROI;
-    PRT.model(model_idx).output.weight_MOD = output.weight_MOD;
-    PRT.model(model_idx).output.weight_idfeatroi = output.weight_idfeatroi;
-    PRT.model(model_idx).output.weight_atlas = output.weight_atlas;
-    PRT.model(model_idx).output.weight_img = name_fin;
-else
-    PRT.model(model_idx).output.weight_ROI = [PRT.model(model_idx).output.weight_ROI; output.weight_ROI];
-    PRT.model(model_idx).output.weight_MOD = [PRT.model(model_idx).output.weight_MOD; output.weight_MOD];
-    PRT.model(model_idx).output.weight_idfeatroi = [PRT.model(model_idx).output.weight_idfeatroi; output.weight_idfeatroi];
-    PRT.model(model_idx).output.weight_atlas = [PRT.model(model_idx).output.weight_atlas; output.weight_atlas];
-    PRT.model(model_idx).output.weight_img = [PRT.model(model_idx).output.weight_img; name_fin];
-end
+    for i = 1:length(name_fin)
+        if isempty(ext{i})
+            ext = '.img'; %For older PRTs, nifti is the default
+        end
+        name_fin{i} = [name_fin{i},ext{i}]; % Keep extension to have data format
+    end
+
+    if ifs == 1
+        PRT.model(model_idx).output.weight_ROI = output.weight_ROI;
+        PRT.model(model_idx).output.weight_MOD = output.weight_MOD;
+        PRT.model(model_idx).output.weight_idfeatroi = output.weight_idfeatroi;
+        PRT.model(model_idx).output.weight_atlas = output.weight_atlas;
+        PRT.model(model_idx).output.weight_img = name_fin;
+    else
+        PRT.model(model_idx).output.weight_ROI = [PRT.model(model_idx).output.weight_ROI; output.weight_ROI];
+        PRT.model(model_idx).output.weight_MOD = [PRT.model(model_idx).output.weight_MOD; output.weight_MOD];
+        PRT.model(model_idx).output.weight_idfeatroi = [PRT.model(model_idx).output.weight_idfeatroi; output.weight_idfeatroi];
+        PRT.model(model_idx).output.weight_atlas = [PRT.model(model_idx).output.weight_atlas; output.weight_atlas];
+        PRT.model(model_idx).output.weight_img = [PRT.model(model_idx).output.weight_img; name_fin];
+    end
 end
 
 

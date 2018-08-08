@@ -394,8 +394,9 @@ end
 
 % Initialize the table
 % -------------------------------------------------------------------------
-
-flagmodMKL = 0; % One weight per modality?
+handles.computeER=0;
+handles.sort_roi = [];
+handles.sort_mod=[];
 
 % chosen model has ROI values or weights per modality : create the table
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... 
@@ -547,7 +548,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
            end
        end
        set(handles.disp_regions,'Enable','on')
-       flagmodMKL = 0;
+       handles.computeER = 1;
    elseif isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') &&... % Summarizing the weights for ROI
            ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}) % Get the indexes of each ROI in the image
        lc = [lc,{'ROI size (vox)'}];
@@ -557,13 +558,14 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
            handles.idfeat_roi{i} = handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}{i};
        end
        set(handles.disp_regions,'Enable','on')
-       flagmodMKL = 0;
+       handles.computeER=1;
    else % if MKL on modalities, do not fill third column and do not display weights per region
        set(handles.disp_regions,'Enable','off')
-       flagmodMKL = 1;
+       handles.flagmodMKL = 1;
+       handles.computeER=0;
    end 
    
-   if ~flagmodMKL
+   if handles.computeER
        % Compute Expected Ranking for model
        erwn=zeros(size(handles.PRT.model(mi(m)).output.weight_ROI{handles.class},1),handles.nfold);
        for fold = 1:handles.nfold
@@ -608,6 +610,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    end
 else
     % Do not display the region or modality table
+    handles.sort_roi = [];
     set(handles.disp_regions,'Enable','off')
 end
 
@@ -620,10 +623,17 @@ if disp_vox
     fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
     set(handles.disp_voxels,'Value',1)
     set(handles.disp_regions,'Value',0)
-elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... % chosen model has ROI values
-         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
-    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
+    if isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') &&... % chosen model has ROI values
+         ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class})
+        set(handles.disp_regions,'Enable','on');
+    else
+        set(handles.disp_regions,'Enable','off');
+    end
+elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') &&... % chosen model has ROI values
+         ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class})
+    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get ROI image for the weights
     set(handles.disp_voxels,'Value',0)
     set(handles.disp_regions,'Value',1)
 else
@@ -637,7 +647,7 @@ end
 
 % Fill modality table in the case of multiple modalities and multiple ROIs
 % (whether summarized or MKL)
-if flagmodMKL
+if handles.flagmodMKL
     datmod = cell(length(handles.nmods),3);
     datmod(:,1) = {handles.nmods{:}};
     wemod = zeros(length(handles.nmods),handles.nfold+1);
@@ -678,9 +688,16 @@ if flagmodMKL
    [vald,idwmod] = sort(wemod(:,ffi),'descend');
    handles.sort_mod= idwmod;
 else
+    handles.sort_mod=[];
     datmod = [];
 end
 handles.datmod = datmod;  
+
+% Display weights, according to image type
+[a,b,c] = fileparts(fntl);
+handles.wmap = [handles.prtdir,filesep,b,c];
+weightdisp(hObject,eventdata,handles);
+handles = guidata(hObject);
 
 % Fill table and bar graph if needed
 if isfield(handles,'sort_roi') &&... % chosen model has ROI weight values
@@ -713,7 +730,7 @@ if ~isempty(datmod) % Chosen model has modality weight values
     set(handles.modtable,'Data',datmod(handles.sort_mod,:))
     set(handles.modtable,'ColumnEditable',false(1,size(datmod,2)));
     set(handles.modtable,'ColumnName',{'Modality','Weight (%)','Exp. Ranking'});
-    if flagmodMKL %only MKL across modalities, not across regions on top
+    if handles.flagmodMKL %only MKL across modalities, not across regions on top
         %Bar graph to show modality weights
         prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod));
 %         handles = guidata(hObject);
@@ -723,13 +740,6 @@ else
     set(handles.modtable,'Visible','off')
     set(handles.modtable,'Enable','off')
 end
-handles.flagmodMKL = flagmodMKL;
-
-% Display weights, according to image type
-[a,b,c] = fileparts(fntl);
-handles.wmap = [handles.prtdir,filesep,b,c];
-weightdisp(hObject,eventdata,handles);
-handles = guidata(hObject);
 
 handles.model_button = 0;
 guidata(hObject, handles);
@@ -802,7 +812,7 @@ end
 if ffi==0 % for average
     ffi=length(get(handles.foldmenu,'String'));
 end
-if isfield(handles,'sort_ROI') &&... % chosen model has ROI values
+if isfield(handles,'sort_roi') &&... % chosen model has ROI values
          ~isempty(handles.sort_roi) 
    dat = handles.dattable;
    weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
@@ -828,7 +838,7 @@ if ~isempty(handles.datmod)
     datmod= datmod(idwmod,:);
     set(handles.modtable,'Data',datmod)
     set(handles.modtable,'Visible','on')
-    if ~isfield(handles,'sort_ROI') ||... % chosen model has no ROI values
+    if ~isfield(handles,'sort_roi') ||... % chosen model has no ROI values
          isempty(handles.sort_roi) 
         %Bar graph to show modality weights
          prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod));
@@ -893,7 +903,7 @@ if disp_vox
     fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
     set(handles.disp_regions,'Value',0);
 else
-    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
+    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];
     set(handles.disp_regions,'Value',1);
     set(handles.disp_voxels,'Value',0);
 end
@@ -901,7 +911,7 @@ end
 %Load and display corresponding weight image if it exists
 [a,b,c] = fileparts(fntl);
 handles.wmap = [handles.prtdir,filesep,b,c];
-dispweight_Callback(hObject, eventdata, handles);
+weightdisp(hObject, eventdata, handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -935,7 +945,7 @@ if ~disp_reg
     set(handles.disp_regions,'Value',0);
     set(handles.disp_voxels,'Value',1);
 else
-    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get only first image for now
+    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];
     set(handles.disp_regions,'Value',1);
     set(handles.disp_voxels,'Value',0);
 end
@@ -943,7 +953,7 @@ end
 %Load and display corresponding weight image if it exists
 [a,b,c] = fileparts(fntl);
 handles.wmap = [handles.prtdir,filesep,b,c];
-dispweight_Callback(hObject, eventdata, handles);
+weightdisp(hObject, eventdata, handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -1450,9 +1460,9 @@ function disp_weights_CellSelectionCallback(hObject,eventdata,handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.selectedcell=eventdata.Indices;
-if ~isempty(handles.selectedcell) && handles.selectedcell(2)==1 && ...% ROI label selected
-    ~handles.flagmodMKL
-    weightbutton_Callback(hObject, eventdata, handles);
+if ~isempty(handles.selectedcell) && handles.selectedcell(2)==1 && ...
+        handles.computeER%ROI label selected
+    weightdisp(hObject, eventdata, handles);
 else
     handles.selectedcell = [];
 end
@@ -1491,10 +1501,11 @@ m = get(handles.classmenu,'Value');
 if m==0 % Mac weird error with popup menus
     m=1;
 end
-mim = get(handles.imagemenu,'Value');
-if mim==0
-    mim=1;
-end
+% mim = get(handles.imagemenu,'Value');
+% if mim==0
+%     mim=1;
+% end
+mim=1;
 fname=spm_select(1,'.mat','Select the file containing the names of the ROIs');
 if isempty(fname)
     disp('No file containing the names of the ROIs found, generic names used')
@@ -1873,6 +1884,12 @@ for i=1:nfs
         imod = [imod, 1];
     end
     ifs = [ifs,repmat(fid,1,length(nmod)*nc)];
+end
+
+if numel(nim)>1 && ~handles.summed
+    handles.flagmodMKL =1;
+else
+    handles.flagmodMKL =0;
 end
 
 handles.fid = ifs;
