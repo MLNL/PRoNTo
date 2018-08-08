@@ -14,7 +14,7 @@ function [tpr,fpr] = prt_tpr_fpr(targets,scores)
 % Compute tpr and fpr
 targpos = targets==1;
 [~,idx] = sort(scores,'descend');
-s_targpos = targpos(idx);
+s_targpos = targpos(idx);% Sorted targets
 
 tpr      = cumsum(single(s_targpos))/sum(single(s_targpos));
 fpr      = cumsum(single(~s_targpos))/sum(single(~s_targpos));

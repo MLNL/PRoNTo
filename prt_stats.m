@@ -108,23 +108,32 @@ if k==1
     fpr = NaN;
     auc = NaN;
     stats.auc = auc;
-elseif k==2 
-    % Prepare data for computation
-    if isfield(model,'func_val')
-        scores = model.func_val;
-    else
-        scores = model.predictions;
-    end
-    
-    % Compute tpr and fpr
-    [tpr,fpr] = prt_tpr_fpr(tte,scores);
-     
-    % Compute AUC
-    n = size(tpr, 1);
-    auc = sum((fpr(2:n) - fpr(1:n-1)).*(tpr(2:n)+tpr(1:n-1)))/2;
+elseif k==2 % If binary classidication
+    n_tte = length(tte);
+    k_tte = numel(unique(tte));
+    if n_tte==1 || (n_tte>1 && k_tte==1)  % Leave-one-subject-out or only one class in test targets
+        tpr = NaN;
+        fpr = NaN;
+        auc = NaN;
+        stats.auc = auc;
+    else 
+        % Prepare data for computation
+        if isfield(model,'func_val')
+            scores = model.func_val;
+        else
+            scores = model.predictions;
+        end
 
-    stats.auc = auc;
-elseif k>2
+        % Compute tpr and fpr
+        [tpr,fpr] = prt_tpr_fpr(tte,scores);
+
+        % Compute AUC
+        n = size(tpr, 1);
+        auc = sum((fpr(2:n) - fpr(1:n-1)).*(tpr(2:n)+tpr(1:n-1)))/2;
+
+        stats.auc = auc;
+    end
+else k>2 % If multiple classification
     tpr = [];
     fpr = [];
     auc = [];
