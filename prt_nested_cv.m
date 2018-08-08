@@ -100,7 +100,7 @@ for i = 1:size(par, 2)
     switch PRT.model(in.mid).input.machine.function
         case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
                 'prt_machine_liblinearsvm'}
-            if ~isempty(stringpar)&& ~isvector(str2num(stringpar)) % For custome machine, stringpar may be the same as par.    
+            if ~isempty(stringpar)&& ~isvector(str2num(stringpar)) % For custom machine, stringpar may be the same as par.    
                 PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
             else
                 PRT.model(in.mid).input.machine.args = par(i);
@@ -239,8 +239,13 @@ for i = 1:size(par, 2)
     
     switch PRT.model(in.mid).input.type
         case 'classification'
-              stats_vec_bacc(i) = tstats.b_acc;
-              stats_vec(i) = tstats.auc;
+              stats_vec(i) = tstats.b_acc;
+%               if isnan(tstats.auc)
+%                   stats_vec(i) = tstats.b_acc;
+%                   error('AUC is not a number. Balanced accuracy is used to optimize hyperparameters.');
+%               else
+%                   stats_vec(i) = tstats.auc;
+%               end
         case 'regression'
             stats_vec(i) = tstats.nmse;
         otherwise

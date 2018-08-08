@@ -651,18 +651,20 @@ if strcmp(PRT.model(mi(m)).input.type,'classification')
         
         for i=1:num_fold
             temp_tte = PRT.model(mi(m)).output.fold(i).targets;% Targets of test data within each fold
+            n_temp_tte = length(temp_tte);
             class_tte = unique(temp_tte);% True classes in the targets within each fold
-            if numel(class_tte)<2
+            k_class_tte = numel(class_tte);
+            if n_temp_tte ==1 || (n_temp_tte>1 && k_class_tte==1)
                PRT.model(mi(m)).output.fold(i).stats.auc = NaN; 
                vec_auc = NaN;
-            elseif numel(class_tte)==2
+            elseif k_class_tte==2
                 if isfield(PRT.model(mi(m)).output.fold(i),'func_val')
                     scores = PRT.model(mi(m)).output.fold(i).func_val;
                 else
                     scores = PRT.model(mi(m)).output.fold(i).predictions;
                 end
                 % compute and store stats
-                [temp_tpr,temp_fpr] = prt_tpr_fpr(temp_tte,scores,num_class); 
+                [temp_tpr,temp_fpr] = prt_tpr_fpr(temp_tte,scores); 
                 n = size(temp_tpr, 1);
                 temp_auc = sum((temp_fpr(2:n) - temp_fpr(1:n-1)).*(temp_tpr(2:n)+temp_tpr(1:n-1)))/2;
                 PRT.model(mi(m)).output.fold(i).stats.auc = temp_auc; 
@@ -673,17 +675,13 @@ if strcmp(PRT.model(mi(m)).input.type,'classification')
         end
 
         % Compute the model-level auc by averaging across folds
-        if isnan(vec_auc)
-            mean_auc = NaN;
-        elseif ~isempty(vec_auc)
-            mean_auc = mean(vec_auc);
+        if ~isempty(vec_auc)
+            mean_auc = nanmean(vec_auc);
         else 
             mean_auc = [];
         end
         PRT.model(mi(m)).output.stats.auc = mean_auc;
         
-        % Compute the model-level auc by concatenating across folds
-        % To be added
         
         % Save PRT
         % -------------------------------------------------------------------------
