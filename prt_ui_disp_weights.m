@@ -623,16 +623,16 @@ if disp_vox
     fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
     set(handles.disp_voxels,'Value',1)
     set(handles.disp_regions,'Value',0)
-    if isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') &&... % chosen model has ROI values
-         ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi) &&...
-       ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class})
+    if isfield(handles.PRT.model(mi(m)).output,'weight_atlas') &&... % chosen model has ROI values
+         ~isempty(handles.PRT.model(mi(m)).output.weight_atlas) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_atlas{handles.class})
         set(handles.disp_regions,'Enable','on');
     else
         set(handles.disp_regions,'Enable','off');
     end
-elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') &&... % chosen model has ROI values
-         ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi) &&...
-       ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class})
+elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_atlas') &&... % chosen model has ROI values
+         ~isempty(handles.PRT.model(mi(m)).output.weight_atlas) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_atlas{handles.class})
     fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get ROI image for the weights
     set(handles.disp_voxels,'Value',0)
     set(handles.disp_regions,'Value',1)
@@ -669,16 +669,19 @@ if handles.flagmodMKL
     else
        wem = wem(:,idtr);
        %deal with NaNs
-       [d1,d2]=sort(wem,1,'descend');
+       [d1,d2]=sort(wem,1,'ascend');
        isn=find(isnan(wem(:,1)));
-       d3=1:length(isn);
-       d4=length(isn)+1:size(d1,1);
-       ihn=[d2(d4,:);d2(d3,:)];
+       d3=size(d1,1)-length(isn)+1:size(d1,1);
+       d4=1:size(d1,1)-length(isn);
+       ihn=[d2(d3,:);d2(d4,:)];
        [d1,dwn]=sort(ihn);
+       dwn(isn)=0;
+       isnu=find((wem(:,1)==0));
+       dwn(isnu)=0;
        erwn2=zeros(length(handles.nmods),1);
        for i=1:size(wem,1)
            for j=1:size(wem,1)
-               tmp=length(find(dwn(i,1:end-1)==j));
+               tmp=length(find(dwn(i,:)==j));
                erwn2(i)=erwn2(i)+j*tmp;
            end
        end
@@ -1785,10 +1788,13 @@ mim = get(handles.imagemenu,'Value');
 if mim==0
     mim=1;
 end
-num_roi = handles.num_roi{mim};
+image_name = get(handles.imagemenu,'String');
+
+num_roi = handles.num_roi{1};
 
 disp('Saving the sorted list of regions to text file.....>>');
-modelname = char(strcat(handles.mnames(get(handles.classmenu,'value')),'_RegionList.txt'));
+[d,model_name] = spm_fileparts(image_name{mim}); 
+modelname = char(strcat(model_name,'_RegionList.txt'));
 path = fileparts(handles.pathdir);
 weightname=fullfile(path,modelname);
 disp(weightname);

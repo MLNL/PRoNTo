@@ -47,11 +47,10 @@ mname = PRT.model(model_idx).model_name;
 fs_name = cell(length(PRT.model(model_idx).input.fs),1);
 nfas = length(PRT.fas);
 count = 0;
-if ~isempty(strfind(PRT.model(model_idx).input.machine.function,'MKL')) || ... % MKL machine or kernels added?
-        ~isempty(strfind(PRT.model(model_idx).input.machine.function,'wip'))
+if isfield(PRT.model(model_idx).output.fold(1),'beta') % MKL type machine used
     added = 0;
 else
-    added = 1;
+    added = 1; % feature sets were added
 end
 
 PRT.model(model_idx).output.weight_ROI = [];
@@ -61,6 +60,8 @@ PRT.model(model_idx).output.weight_atlas =[];
 PRT.model(model_idx).output.weight_img =[];
 im_name = cell(length(PRT.model(model_idx).input.fs),1);
 
+atlas = in.atl_name;
+in.atl_name = cell(length(PRT.model(model_idx).input.fs),1);
 for ifs=1:length(PRT.model(model_idx).input.fs)
     if ~isempty(in.img_name)
         if ~(prt_checkAlphaNumUnder(in.img_name))
@@ -70,6 +71,9 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
         im_name{ifs} = [in.img_name,'_',PRT.model(model_idx).input.fs(ifs).fs_name];
     else
         im_name{ifs} = ['weights_',mname,'_',PRT.model(model_idx).input.fs(ifs).fs_name];
+    end
+    try
+        in.atl_name{ifs} = atlas{ifs};
     end
 end
 
@@ -124,6 +128,10 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
         end
         mult_kern_ROI = 0;
     end
+    
+    if isempty(in.atl_name{ifs}) && mult_kern_ROI
+        in.atl_name{ifs} = PRT.fs(fs_idx).atlas_name{1};
+    end
 
     % Compute the total number of images to be computed
     switch mtype
@@ -134,14 +142,6 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
     end
     if nc > 2
         nim = nim*nc;
-    end
-
-    % Check inputs for weights per region
-    if exist('flag2','var') && flag2
-        if isempty(in.atl_name) && ~mult_kern_ROI
-            error('prt_compute_weights:NoAtlas',...
-                'Error: Atlas should be provided to compute weights per region')
-        end
     end
 
 
@@ -210,7 +210,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                             end
                             prt_compute_weights_class(PRT,in,model_idx,flag,ibeta_mod{i},1);
 
-                        else % Need to summarize the weights per region
+                        elseif ~isempty(in.atl_name{ifs}) % Need to summarize the weights per region, if an atlas was provided
                             disp('Building image of weights per region')
                             in.flag = flag;
                             summroi  = 1;
@@ -219,12 +219,12 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                                 if c>1
                                     imgcnt = imgcnt + 1;
                                 end
-                                [NW, idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
+                                [NW, idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name{ifs},1,in.flag);
                                 output.weight_ROI(imgcnt) = {NW};
                                 output.weight_idfeatroi(imgcnt) = {idfeatroi};
-                                output.weight_atlas{imgcnt} = in.atl_name;
                             end
                         end
+                        output.weight_atlas{imgcnt} = in.atl_name{ifs};
                     end
                 case 'regression'
                     % Compute image of voxel weights
@@ -234,22 +234,22 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                     [du,name_f{1}] = spm_fileparts(img_name{1});
 
                     % Build image of weights per region if asked for (flag2==1)
-                    if exist('flag2','var') && flag2
+                    if exist('flag2','var') && flag2 
 
                         if mult_kern_ROI  && ~added % Kernels built from an atlas directly
                             disp('Building image of weights per region')
                             in.img_name = ['ROI_',name_f{1}];
                             prt_compute_weights_regre(PRT,in,model_idx,flag,ibeta_mod{i},1);
 
-                        else % Need to summarize the weights per region
+                        elseif ~isempty(in.atl_name{ifs}) % Need to summarize the weights per region
                             disp('Building image of weights per region')
                             in.flag = flag;
                             summroi = 1;
-                            [NW, idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
+                            [NW, idfeatroi] = prt_build_region_weights(img_name,in.atl_name{ifs},1,in.flag);
                             output.weight_ROI(imgcnt) = {NW};
                             output.weight_idfeatroi(imgcnt) = {idfeatroi};
-                            output.weight_atlas{imgcnt} = in.atl_name;
                         end
+                        output.weight_atlas{imgcnt} = in.atl_name{ifs};
                     end
             end
             if ~iscell(img_name)
@@ -298,7 +298,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
             [du,name_fin{i},ext{i}] = spm_fileparts(name_fin{i}); %get rid of path
         end
 
-        % Only one modality or they have been concatenated
+    % Only one modality or they have been concatenated
     else
         in.fas_idx=fas_idx;
         in.mm = [];
@@ -342,22 +342,17 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                         for i = 1:size(name_fin,1)
                             output.weight_ROI(i) = {betas};
                         end
-                    else
+                    elseif ~isempty(in.atl_name{ifs})
                         in.flag = flag;
-                        if isempty(in.atl_name) && mult_kern_ROI
-                            in.atl_name = PRT.fs(fs_idx).atlas_name;
-                        end
                         nimage = size(name_fin,1); % Multiclass?
                         PRT.model(model_idx).output.weight_ROI = cell(nimage,1);
                         for c = 1:nimage
-                            [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name,1,in.flag);
+                            [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name{ifs},1,in.flag);
                             output.weight_ROI(c) = {NW};
                         end
-                        output.weight_idfeatroi{1} = idfeatroi;
-                        output.weight_atlas{1} = in.atl_name;
+                        output.weight_idfeatroi{1} = idfeatroi;  
                     end
-                    %             else
-                    %                 PRT.model(model_idx).output.weight_ROI = [];
+                    output.weight_atlas{1} = in.atl_name{ifs};
                 end
             case 'regression'
                 img_name = prt_compute_weights_regre(PRT,in,model_idx,flag);
@@ -377,19 +372,14 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                             length(PRT.model(model_idx).output.fold));
                         betas = [tmp, mean(tmp,2)];
                         output.weight_ROI(1) = {betas}; %only one class for now
-                    else
+                    elseif ~isempty(in.atl_name{ifs})
                         disp('Building image of weights per region')
                         in.flag = flag;
-                        if isempty(in.atl_name) && mult_kern_ROI
-                            in.atl_name = PRT.fs(fs_idx).atlas_name;
-                        end
-                        [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name,1,in.flag);
+                        [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name{ifs},1,in.flag);
                         output.weight_ROI(1) = {NW};
-                        output.weight_idfeatroi{1} = idfeatroi;
-                        output.weight_atlas{1} = in.atl_name;
+                        output.weight_idfeatroi{1} = idfeatroi;                        
                     end
-                    %              else
-                    %                  PRT.model(model_idx).output.weight_ROI = [];
+                    output.weight_atlas{1} = in.atl_name{ifs};
                 end
         end
     end

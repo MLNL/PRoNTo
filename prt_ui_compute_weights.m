@@ -140,7 +140,7 @@ handles.flag = 0;
 set(handles.compbutt,'Enable','off')
 handles.img_name=[];
 handles.flag2 = 0;
-handles.atl_name = [];
+handles.atl_name = {};
 set(handles.edit_atlas,'Enable','off')
 set(handles.br_atlas,'Enable','off')
 set(handles.build_ROI_flag2,'Value',0)
@@ -215,20 +215,27 @@ handles.selmod=handles.indm(1);
 set(handles.compbutt,'Enable','on')
 in = struct();
 im = handles.indm(1);
-in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
-fid = prt_init_fs(handles.dat,in);
-if isfield(handles.dat.fs(fid),'atlas_name') && ...
-        ~isempty(handles.dat.fs(fid).atlas_name) && ...
-        (~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL')) || ...
-        ~isempty(strfind(handles.dat.model(im).input.machine.function,'wip')))
-    if iscell(handles.dat.fs(fid).atlas_name)
-        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+nfs = length(handles.dat.model(im).input.fs);
+set(handles.edit_atlas,'String','Load atlas');
+for i = 1:nfs
+    in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+    fid = prt_init_fs(handles.dat,in);
+    if isfield(handles.dat.fs(fid),'atlas_name') && ...
+            ~isempty(handles.dat.fs(fid).atlas_name) && ...
+            isfield(handles.dat.model(im).output.fold(1),'beta')
+        if iscell(handles.dat.fs(fid).atlas_name) && ...
+                ~isempty(handles.dat.fs(fid).atlas_name{1})
+            handles.atl_name{i} = handles.dat.fs(fid).atlas_name{1};
+            set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+        else
+            handles.atl_name{i} = handles.dat.fs(fid).atlas_name;
+            set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name);
+        end
     else
-        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name);
+        handles.atl_name{i} = [];
     end
-else
-    set(handles.edit_atlas,'String','Load atlas');
 end
+handles.nfs = nfs;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -285,20 +292,27 @@ handles.selmod=handles.indm(1);
 set(handles.compbutt,'Enable','on')
 in = struct();
 im = handles.indm(1);
-in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
-fid = prt_init_fs(handles.dat,in);
-if isfield(handles.dat.fs(fid),'atlas_name') && ...
-        ~isempty(handles.dat.fs(fid).atlas_name) && ...
-        (~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL')) || ...
-        ~isempty(strfind(handles.dat.model(im).input.machine.function,'wip')))
-    if iscell(handles.dat.fs(fid).atlas_name)
-        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+nfs = length(handles.dat.model(im).input.fs);
+set(handles.edit_atlas,'String','Load atlas');
+for i = 1:nfs
+    in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+    fid = prt_init_fs(handles.dat,in);
+    if isfield(handles.dat.fs(fid),'atlas_name') && ...
+            ~isempty(handles.dat.fs(fid).atlas_name) && ...
+            isfield(handles.dat.model(im).output.fold(1),'beta')
+        if iscell(handles.dat.fs(fid).atlas_name) && ...
+                ~isempty(handles.dat.fs(fid).atlas_name{1})
+            handles.atl_name{i} = handles.dat.fs(fid).atlas_name{1};
+            set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+        else
+            handles.atl_name{i} = handles.dat.fs(fid).atlas_name;
+            set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name);
+        end
     else
-        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name);
+        handles.atl_name{i} = [];
     end
-else
-    set(handles.edit_atlas,'String','Load atlas');
 end
+handles.nfs = nfs;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -319,20 +333,27 @@ if val==0
 end
 in = struct();
 im = handles.indm(val);
-in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
-fid = prt_init_fs(handles.dat,in);
-if isfield(handles.dat.fs(fid),'atlas_name') && ...
-        ~isempty(handles.dat.fs(fid).atlas_name) && ...
-        (~isempty(strfind(handles.dat.model(im).input.machine.function,'MKL')) || ...
-        ~isempty(strfind(handles.dat.model(im).input.machine.function,'wip')))
-    if iscell(handles.dat.fs(fid).atlas_name)
-        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+nfs = length(handles.dat.model(im).input.fs);
+set(handles.edit_atlas,'String','Load atlas');
+for i = 1:nfs
+    in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+    fid = prt_init_fs(handles.dat,in);
+    if isfield(handles.dat.fs(fid),'atlas_name') && ...
+            ~isempty(handles.dat.fs(fid).atlas_name) && ...
+            isfield(handles.dat.model(im).output.fold(1),'beta')
+        if iscell(handles.dat.fs(fid).atlas_name) && ...
+                ~isempty(handles.dat.fs(fid).atlas_name{1})
+            handles.atl_name{i} = handles.dat.fs(fid).atlas_name{1};
+            set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name{1});
+        else
+            handles.atl_name{i} = handles.dat.fs(fid).atlas_name;
+            set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name);
+        end
     else
-        set(handles.edit_atlas,'String',handles.dat.fs(fid).atlas_name);
+        handles.atl_name{i} = [];
     end
-else
-    set(handles.edit_atlas,'String','Load atlas');
 end
+handles.nfs = nfs;
 %im_name = ['weights_',handles.dat.model(im).model_name,'.img'];
 im_name = ['weights_',handles.dat.model(im).model_name];
 set(handles.edit_imgname,'String',im_name)
@@ -409,17 +430,17 @@ function build_ROI_flag2_Callback(hObject, eventdata, handles)
 val = get(handles.build_ROI_flag2,'Value');
 if val
     handles.flag2 = 1;
-    an = get(handles.edit_atlas,'String');
-    if ~strcmpi(an,'Load atlas')
-        handles.atl_name = an;
-    else
-        handles.atl_name = [];
-    end
+%     an = get(handles.edit_atlas,'String');
+%     if ~strcmpi(an,'Load atlas')
+%         handles.atl_name{1} = an;
+%     else
+%         handles.atl_name = {};
+%     end
     set(handles.edit_atlas,'Enable','on')
     set(handles.br_atlas,'Enable','on')
 else
     handles.flag2 = 0;
-    handles.atl_name = [];
+    handles.atl_name = {};
     set(handles.edit_atlas,'Enable','off')
     set(handles.br_atlas,'Enable','off')
 end
@@ -433,7 +454,7 @@ function edit_atlas_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of edit_atlas as text
 %        str2double(get(hObject,'String')) returns contents of edit_atlas as a double
-handles.atl_name=get(handles.edit_atlas,'String');
+handles.atl_name{1}=get(handles.edit_atlas,'String');
 if ~prt_checkAlphaNumUnder(handles.atl_name)
     beep
     disp('Name of the atlas should be in alphanumeric format (no extension)')
@@ -461,9 +482,12 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.atl_name=spm_select(1,'image','Select atlas to build weights per region',[],pwd);
-if ~isempty(handles.atl_name)
-    set(handles.edit_atlas,'String',handles.atl_name)
+atl_name=spm_select(inf,'image','Select atlas to build weights per region',[],pwd);
+if ~isempty(handles.atl_name) && size(atl_name,1) == handles.nfs % One atlas per feature set
+    for i = 1:size(atl_name,1)
+        handles.atl_name{i} = deblank(atl_name(i,:));
+    end
+    set(handles.edit_atlas,'String',handles.atl_name{1})
 else
     set(handles.edit_atlas,'String','Load atlas')
 end
