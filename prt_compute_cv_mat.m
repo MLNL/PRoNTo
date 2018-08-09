@@ -174,12 +174,16 @@ switch in.cv.type
                 end
             end
         end
-        
+        if length(unique(vcl(:,1)))==1
+            error('prt_model:losgoSelectedWithDesign',...
+                ['LOSCO Cross-Validation is only suited when classes are defined at the group level \n',...
+                'Use Leave-One-Subject-Out or k-folds on Subject Out instead'])
+        end
         
         sids=max(ns);
         if sids == 1
             error('prt_model:losgoSelectedWithOneSubject',...
-                'LOSGO CV selected but only one subject is included');
+                'LOSCO CV selected but only one subject is included');
         end
         [nsf]=floor(min(ns/k));
         if k==0
@@ -188,7 +192,7 @@ switch in.cv.type
             CV = zeros(size(ID,1),k);
         end
         if k>1 && nsf==1
-            disp('Performing Leave-One Subject per Group-Out')
+            disp('Performing Leave-One Subject per Class-Out')
         end
         snums=[];
         for g=1:length(ns)
@@ -217,7 +221,7 @@ switch in.cv.type
                     sk=[sk,inds*ones(1,dk(ii))];
                     inds=inds+1;
                 end
-            else %Leave-One-Subject per Group-Out
+            else %Leave-One-Subject per Class-Out
                 sk=1:ns(g);
             end
             snums = histc(vcl(is,2),unique(vcl(is,2)));
@@ -283,8 +287,8 @@ switch in.cv.type
             snums = [snums;histc(dID(cidx{g},5),unique(dID(cidx{g},5)))];
         end
         if length(snums) == 1
-            error('prt_model:logoSelectedWithOneSubject',...
-                'LOGO CV selected but only one block is included');
+            error('prt_model:loboSelectedWithOneBlock',...
+                'LOBO CV selected but only one block is included');
         end
         G = cell(length(unique(sk)),1);
         for s = 1:length(unique(sk))
@@ -435,10 +439,10 @@ switch in.cv.type
             nsf = max(1,floor(ns(g)/k));
             if k>1 && nsf>1 %k-fold CV
                 if nsf<1
-                    error('prt_model:losgoSelectedWithTooLargeK',...
+                    error('prt_model:lobcoSelectedWithTooLargeK',...
                         ['Number of blocks in class ',num2str(g),' smaller than k']);
                 elseif nsf*2>ns(g)
-                    error('prt_model:losgoSelectedWithTooLargeK2',...
+                    error('prt_model:lobcoSelectedWithTooLargeK2',...
                         ['Leaving more than 50%% of blocks in class ',num2str(g),' out']);
                 end
                 mns=mod(ns(g),size(CV,2));
