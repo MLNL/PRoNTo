@@ -185,6 +185,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
             PRT.fs(fs_idx).id_mat(:,3) = in.fas_idx * ones(size(PRT.fs(fs_idx).id_mat,1),1);
             PRT.fs(fs_idx).fas.im = im_all(im_all == fas_idx(i));
             PRT.fs(fs_idx).fas.ifa = ifa_all(im_all == fas_idx(i));
+            MEEGfound = 0;
 
             switch mtype
                 case 'classification'
@@ -211,17 +212,29 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                             prt_compute_weights_class(PRT,in,model_idx,flag,ibeta_mod{i},1);
 
                         elseif ~isempty(in.atl_name{ifs}) % Need to summarize the weights per region, if an atlas was provided
-                            disp('Building image of weights per region')
-                            in.flag = flag;
-                            summroi  = 1;
-                            nimage = size(name_f,1); % Multiclass?
-                            for c = 1:nimage
-                                if c>1
-                                    imgcnt = imgcnt + 1;
+                            % Option not available for MEEG files
+                            [a,b,ext] = spm_fileparts(img_name{1});
+                            if strcmpi(ext,'.mat')
+                                V = load(img_name{1});
+                                if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
+                                    beep('Summarization of weights not available for MEEG')
+                                    MEEGfound = 1;
+                                    in.atl_name{ifs} = [];
                                 end
-                                [NW, idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name{ifs},1,in.flag);
-                                output.weight_ROI(imgcnt) = {NW};
-                                output.weight_idfeatroi(imgcnt) = {idfeatroi};
+                            end
+                            if ~MEEGfound
+                                disp('Building image of weights per region')
+                                in.flag = flag;
+                                summroi  = 1;
+                                nimage = size(name_f,1); % Multiclass?
+                                for c = 1:nimage
+                                    if c>1
+                                        imgcnt = imgcnt + 1;
+                                    end
+                                    [NW, idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name{ifs},1,in.flag);
+                                    output.weight_ROI(imgcnt) = {NW};
+                                    output.weight_idfeatroi(imgcnt) = {idfeatroi};
+                                end
                             end
                         end
                         output.weight_atlas{imgcnt} = in.atl_name{ifs};
@@ -242,12 +255,24 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                             prt_compute_weights_regre(PRT,in,model_idx,flag,ibeta_mod{i},1);
 
                         elseif ~isempty(in.atl_name{ifs}) % Need to summarize the weights per region
-                            disp('Building image of weights per region')
-                            in.flag = flag;
-                            summroi = 1;
-                            [NW, idfeatroi] = prt_build_region_weights(img_name,in.atl_name{ifs},1,in.flag);
-                            output.weight_ROI(imgcnt) = {NW};
-                            output.weight_idfeatroi(imgcnt) = {idfeatroi};
+                            % Option not available for MEEG files
+                            [a,b,ext] = spm_fileparts(img_name{1});
+                            if strcmpi(ext,'.mat')
+                                V = load(img_name{1});
+                                if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
+                                    beep('Summarization of weights not available for MEEG')
+                                    MEEGfound = 1;
+                                    in.atl_name{ifs} = [];
+                                end
+                            end
+                            if ~MEEGfound
+                                disp('Building image of weights per region')
+                                in.flag = flag;
+                                summroi = 1;
+                                [NW, idfeatroi] = prt_build_region_weights(img_name,in.atl_name{ifs},1,in.flag);
+                                output.weight_ROI(imgcnt) = {NW};
+                                output.weight_idfeatroi(imgcnt) = {idfeatroi};
+                            end
                         end
                         output.weight_atlas{imgcnt} = in.atl_name{ifs};
                     end
@@ -343,14 +368,26 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                             output.weight_ROI(i) = {betas};
                         end
                     elseif ~isempty(in.atl_name{ifs})
-                        in.flag = flag;
-                        nimage = size(name_fin,1); % Multiclass?
-                        PRT.model(model_idx).output.weight_ROI = cell(nimage,1);
-                        for c = 1:nimage
-                            [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name{ifs},1,in.flag);
-                            output.weight_ROI(c) = {NW};
+                        % Option not available for MEEG files
+                        [a,b,ext] = spm_fileparts(img_name{1});
+                        if strcmpi(ext,'.mat')
+                            V = load(img_name{1});
+                            if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
+                                beep('Summarization of weights not available for MEEG')
+                                MEEGfound = 1;
+                                in.atl_name{ifs} = [];
+                            end
                         end
-                        output.weight_idfeatroi{1} = idfeatroi;  
+                        if ~MEEGfound
+                            in.flag = flag;
+                            nimage = size(name_fin,1); % Multiclass?
+                            PRT.model(model_idx).output.weight_ROI = cell(nimage,1);
+                            for c = 1:nimage
+                                [NW idfeatroi] = prt_build_region_weights(img_name(c),in.atl_name{ifs},1,in.flag);
+                                output.weight_ROI(c) = {NW};
+                            end
+                            output.weight_idfeatroi{1} = idfeatroi;
+                        end
                     end
                     output.weight_atlas{1} = in.atl_name{ifs};
                 end
@@ -373,11 +410,23 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                         betas = [tmp, mean(tmp,2)];
                         output.weight_ROI(1) = {betas}; %only one class for now
                     elseif ~isempty(in.atl_name{ifs})
-                        disp('Building image of weights per region')
-                        in.flag = flag;
-                        [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name{ifs},1,in.flag);
-                        output.weight_ROI(1) = {NW};
-                        output.weight_idfeatroi{1} = idfeatroi;                        
+                        % Option not available for MEEG files
+                        [a,b,ext] = spm_fileparts(img_name{1});
+                        if strcmpi(ext,'.mat')
+                            V = load(img_name{1});
+                            if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
+                                beep('Summarization of weights not available for MEEG')
+                                MEEGfound = 1;
+                                in.atl_name{ifs} = [];
+                            end
+                        end
+                        if ~MEEGfound
+                            disp('Building image of weights per region')
+                            in.flag = flag;
+                            [NW idfeatroi] = prt_build_region_weights(img_name,in.atl_name{ifs},1,in.flag);
+                            output.weight_ROI(1) = {NW};
+                            output.weight_idfeatroi{1} = idfeatroi;
+                        end
                     end
                     output.weight_atlas{1} = in.atl_name{ifs};
                 end

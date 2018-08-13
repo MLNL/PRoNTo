@@ -33,6 +33,14 @@ else
     f=weight_fname{1};
 end
 
+% check file extension
+[pathfile,namefile,extfile] = spm_fileparts(char(f));
+if strcmpi(extfile,'.mat')
+    flagmat = 1;
+else
+    flagmat = 0;
+end
+
 %select atlas
 if nargin<2
     gi=spm_select(1,'image','Select atlas');
@@ -42,6 +50,14 @@ if nargin<2
     end
 else
     gi=atlas_fname;
+end
+
+% check atlas extension
+[d1,d2,extatlas] = spm_fileparts(char(gi));
+if ~strcmpi(extfile,extatlas)
+    beep
+    disp('Atlas does not have the same format as selected file, Aborting.')
+    return
 end
 
 %set flag to 1 if not specified
@@ -64,7 +80,7 @@ if comp_perm
     if isdir(dirn)
         %get the names of the weight images
         cd(dirn)
-        files=dir('*perm*.img');
+        files=dir(['*perm*',extfile]);
         fp=char({files(:).name});
         fper={[repmat(dirn,length(files),1),repmat(filesep,length(files),1),fp]};
         fperm=char([fper;{f}]);    
@@ -80,54 +96,91 @@ else
 end
     
 
-%resize atlas if needed
+%resize atlas if needed for nifti
 %--------------------------------------------------------------------------
 
-%load images
-V=spm_vol(f);
-[xxx,bb]=fileparts(f);
-nfo=length(V);
-V1=spm_vol(gi);
-dumb=V(1);
-
-if ~any(dumb.dim == V1.dim)
-    disp('Resizing atlas--------->>')
-    %reslice
-    fl_res = struct('mean',false,'interp',0,'which',1,'prefix','resized_');
-    spm_reslice([dumb V1],fl_res);
-
-    %build updated atlas
-    [V1_pth,V1_fn,V1_ext] = spm_fileparts(V1.fname);
-    rV1_fn = [fl_res.prefix,V1_fn];
-
-    if strcmp(V1_ext,'.nii')
-        V_in = spm_vol(fullfile(V1_pth,[rV1_fn,'.nii']));
-        V_out = V_in; V_out.fname = fullfile(V1_pth,[rV1_fn,'.img']);
-        spm_imcalc(V_in,V_out,'i1');
+if flagmat % For mat files
+    %load atlas
+    try
+        tmp1 = load(gi);
+    catch
+        error('prt_build_region_weights:NoMatAtlas',...
+            'Could not load .mat atlas')
     end
+    tmp2 = fieldnames(tmp1);
+    if length(tmp2) > 1
+        warning('Atlas .mat file contains more than one variable. First variable will be read, rest will be ignored!');
+    end
+    tmp2 = tmp2{1}; % Assuming matrix is saved in the first variable of .mat!!!
+    h = tmp1.(tmp2);
+    % load file
+    V = load(f);
+    if ~isfield(V,'weights')
+        error('prt_build_region_weights:NoMatAtlas',...
+            'Could not load weights from selected file')
+    end
+    dim = size(V.weights);
+    dimf = squeeze(dim(1:end-1));
+    dimh = squeeze(size(h));
+    if any(dimf ~= dimh)
+        error('prt_build_region_weights:WrongDimensionsAtlas',...
+            'Atlas and weight file do not have the same dimensions')
+    end
+        
+else    
+    %load images, for nifti files
+    V=spm_vol(f);
+    [xxx,bb]=fileparts(f);
+    nfo=length(V);
+    V1=spm_vol(gi);
+    dumb=V(1);
 
-    %put the files into the PRT directory
-    mfile_new=['resized_',V1_fn];
-    pp=spm_fileparts(f);
-    movefile(fullfile(V1_pth,[rV1_fn,'.img']), ...
-    fullfile(pp,[mfile_new,'.img']));
-    movefile(fullfile(V1_pth,[rV1_fn,'.hdr']), ...
-    fullfile(pp,[mfile_new,'.hdr']));
-    g=spm_vol(fullfile(pp,[mfile_new,'.img']));
-    h=spm_read_vols(g);
-else
-    h=spm_read_vols(V1);
+    if ~any(dumb.dim == V1.dim)
+        disp('Resizing atlas--------->>')
+        %reslice
+        fl_res = struct('mean',false,'interp',0,'which',1,'prefix','resized_');
+        spm_reslice([dumb V1],fl_res);
+
+        %build updated atlas
+        [V1_pth,V1_fn,V1_ext] = spm_fileparts(V1.fname);
+        rV1_fn = [fl_res.prefix,V1_fn];
+
+        if strcmp(V1_ext,'.nii')
+            V_in = spm_vol(fullfile(V1_pth,[rV1_fn,'.nii']));
+            V_out = V_in; V_out.fname = fullfile(V1_pth,[rV1_fn,'.img']);
+            spm_imcalc(V_in,V_out,'i1');
+        end
+
+        %put the files into the PRT directory
+        mfile_new=['resized_',V1_fn];
+        pp=spm_fileparts(f);
+        movefile(fullfile(V1_pth,[rV1_fn,'.img']), ...
+        fullfile(pp,[mfile_new,'.img']));
+        movefile(fullfile(V1_pth,[rV1_fn,'.hdr']), ...
+        fullfile(pp,[mfile_new,'.hdr']));
+        g=spm_vol(fullfile(pp,[mfile_new,'.img']));
+        h=spm_read_vols(g);
+    else
+        h=spm_read_vols(V1);
+    end
 end
 
 %compute histogram
 %--------------------------------------------------------------------------
 
 for ii=1:size(fperm,1)
-    
-    %Get the volumes into matrices
-    V=spm_vol(fperm(ii,:));
-    w=zeros(V(1).dim(1)*V(1).dim(2)*V(1).dim(3),length(V));
-    VV=spm_read_vols(V);
+    % Load weight file
+    if flagmat
+        V = load(fperm(ii,:));
+        VV = V.weights;
+        dimf = size(VV);
+        w=zeros(dimf(1)*dimf(2)*dimf(3),dimf(4));
+    else        
+        %Get the volumes into matrices
+        V=spm_vol(fperm(ii,:));
+        w=zeros(V(1).dim(1)*V(1).dim(2)*V(1).dim(3),length(V));
+        VV=spm_read_vols(V);
+    end
     nfold=size(VV,4)-1;
     if nfold == 0 %when only the average across folds was computed
         w=VV(:);
@@ -183,20 +236,13 @@ for ii=1:size(fperm,1)
     %normalized sum of weights in each region
     inn= ~isnan(HN(:,1));
     shn=sum(HN(inn,:),1);
-    pHN=(HN./repmat(shn,size(HN,1),1))*100;
+    pHN=(HN./repmat(shn,size(HN,1),1));
     pHN(:,indnan)=0;
         
     
 end
+NW_roi=pHN;
 
-%save sorted H, HN and the list of corresponding ROIs for the 'true' image,
-%and the ranking of the average weights for each permutation
-W_roi=pH;
-NW_roi=pHN/100;
-SN=SN*100;
-[a,b,c]=fileparts(dumb.fname);
-% save(fullfile(a,['atlas_',b1,'_',b,'.mat']),'LR',...
-%     'W_roi','NW_roi','dwn','drwn','erwn','SN','ER','P_oth','oth_w');
 
 %build new image with the normalized weights and save values
 %--------------------------------------------------------------------------
@@ -206,12 +252,12 @@ if flag
     
     % if image exists, overwrite
     if exist(fullfile( ...
-            a,['ROI_',b,c]),'file')
+            pathfile,['ROI_',namefile,extfile]),'file')
         disp('Image of normalized weights per region already exists, overwriting...')
     end
     
-    %build image if flag
-    img_name=[a,filesep,'ROI_',b,c];
+    %build image
+    img_name=[pathfile,filesep,'ROI_',namefile,extfile];
     img4d = file_array(img_name,size(VV),'float32-le',0,1,0);
     for km=1:size(w,2)
         for r=r_min:R
@@ -224,31 +270,15 @@ if flag
     % Create weigths file
     %--------------------------------------------------------------------------
     disp('Creating image--------->>')
-    No         = V(1).private;     % copy header
-    No.dat     = img4d;            % change file_array
-    No.descrip = 'Pronto weigths'; % description
-    create(No);                    % write header
+    if flagmat %for .mat file
+        weights     = img4d{c}(:,:,:,:);
+        save(img4d{c}.fname,'weights');
+    else % for nifti file
+        No         = V(1).private;     % copy header
+        No.dat     = img4d;            % change file_array
+        No.descrip = 'Pronto weigths'; % description
+        create(No);                    % write header
+    end
     disp('Done.')
 end
 
-
-
-% Previous functions that were saving all results in a separate .mat file
-
-    %compute the rank of each region according to the weights
-%     [dub,ih]=sort(pH,1,'descend');
-%     [d1,dw]=sort(ih);
-%     %ranking distance between each fold and the "average" fold
-%     drw=zeros(1,nfold);
-%     for ifold=1:nfold
-%         drw(ifold)=prt_comp_ranking_dist(dw(:,ifold),dw(:,end));
-%     end
-%     %Expected value of the rank for each region
-%     rw=zeros(nr,1);
-%     for i=1:nr
-%         for j=1:nr
-%             tmp=length(find(dw(i,:)==j));
-%             rw(i)=rw(i)+j*tmp;
-%         end
-%     end
-%     rw=rw/nfold;
