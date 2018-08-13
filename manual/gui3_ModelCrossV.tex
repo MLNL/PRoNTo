@@ -143,16 +143,16 @@ During this part of the model specification, it is also possible to select one o
 \item \textbf{Sample averaging (within subjects):} constructs samples by computing the average of all scans within all blocks for each subject and condition.
 \item \textbf{Mean centre features using training data:} subtract the voxel-wise mean from each data vector.
 \item \textbf{Divide data vectors by their norm:} scales each data vector (i.e. each example) to lie on the unit hypersphere by dividing it by its Euclidean norm.
-\item \textbf{Regress out covariates:} regresses out the covariates entered for each subject/image (entered `by scans') from the kernel using training data only. If this operation is selected, PRoNTo will always remove confounds first before other data operations are performed. 
+%\item \textbf{Regressing out covariates:} regresses out the covariates entered for each subject/image (entered `by scans') from the kernel. \textbf{Note:} This operation is actually performed without taking into account the separation between training and test sets. A new formulation of this operation, taking into account the division of train and test, is currently in development and will be implemented as soon as possible.
 \end{enumerate}
 
 
 %(except for the GLM)
 A crucial point to note is that all operations are embedded within the cross-validation structure such that they are applied independently to training and testing sets. This prevents a very common mistake in pattern recognition from occurring, whereby parameters are computed using the whole data set prior to cross-validation. Observing a complete split between training and testing sets during all phases of analysis ensures that accuracy measures are an appropriate reflection of the true generalisation ability of the machine and are not biased because of improper applications of preprocessing operations to the entire dataset.
 
-Other points to note include: (i) the order of operations is potentially important. For example, subtracting the mean then dividing each data vector by its norm is not the same as performing the operations the other way around. (ii) operations (1) and (2) have no effect if no design is specified or for events with a length of one TR. 
+Other points to note include: (i) the order of operations is potentially important. For example, subtracting the mean then dividing each data vector by its norm is not the same as performing the operations the other way around. (ii) operations (1) and (2) have no effect if no design is specified or for events with a length of one TR.
 
-At a minimum, we recommend that features should be mean centred over scans during cross-validation. In addition, for multiple kernel learning, we advise the user to normalize each kernel. This will compensate for the fact that different kernels might be computed from examples/samples with different number of features (e.g. different regions contain different numbers of voxels). Note: mean centre features shall be applied before normalizing the kernels. 
+At a minimum, we recommend that features should be mean centered over scans during cross-validation. In addition, for multiple kernel learning, we advise the user to normalize each kernel. This will compensate for the fact that different kernels might be computed from examples/samples with different number of features (e.g. different regions contain different numbers of voxels).
 
 The different operations selected for a specific model can then be reviewed using the `Review Kernel and CV' (starting from version 2.0). The selected operations will be listed below the kernels (`Show kernel').
 

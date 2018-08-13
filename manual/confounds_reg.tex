@@ -31,7 +31,7 @@ We will first analyse the data using PRoNTo's GUI and then repeat the analysis u
 	
 	\item Load all the image files available in the directory (IXIdata/aged/Guys/). You can select all the files by using the right mouse button and clicking on the option `Select All'. When all the images are selected, click on the `Done' button;
 	
-	\item In the `Covariates' field, type the covariates you want to regress out. In this example, `Gender' is the one chosen. As in the previous chapter, covariates can be input to PRoNTo by directly copying values into the Covariate if there is only one confounding factor, or by typing the full path of the R matrix containing either one column or multiple columns. Note: removing a variable encoding for acquisition centres does not fully solve the problem of different data distributions across centres, potentially as this effect is not linear;
+	\item In the `Covariates' field, type the covariates you want to regress out. In this example, `Gender' is the one chosen. As in the previous chapter, covariates can be input to PRoNTo by directly copying values into the Covariate if there is only one confounding factor, or by typing the full path of the R matrix containing either one column or multiple columns;
 	
 	\item In the `Regression targets' field, write (or paste) the list of target values available in the `Age\_old\_Guys' file (IXIdata/aged/), or input the full path of a rt\_subj.mat file containing the target values in a column. The final window should look like to the Figure \ref{fig:covariates_reg}. Press `OK'; 
 	
@@ -217,7 +217,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 		
 		\item Provide a name for this modality, e.g. `MRI'; select the image files available in the `aged/Guys' directory of the IXI dataset and write (or paste) the regression targets\footnote{Available in the `Age\_old\_Guys' file (IXIdata/aged/)} in the `Regression targets (per scans)' field;
 		
-		\item Specify in the `Covariates' the file with the confounds you want to remove. Remember that this file should contain a variable `R' with a matrix of covariates (Data \& Design:Mod\#1 name) \footnote {It is possible to regress out more than one covariate just adding to the variable `R' as many columns as the number of covariates};
+		\item Specify in the `Covariates' the file with the confounds you want to remove. Remember that this file should contain a variable `R' with a matrix of covariates (Data \& Design:Mod\#1 name) \footnote {It is possible to regress out more than one covariate just adding to the variable `R' as many columns as the number of covariates }. The batch editor should look similar to the Figure \ref{fig:Data_and_design_reg_batch};
 		
 		\begin{figure}[h!]
 	\centering
