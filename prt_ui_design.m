@@ -875,7 +875,7 @@ elseif handles.cm==nmod
     handles.cm=handles.cm-1;
     handles.cf=1;
 else
-    nlist={list{1:handles.cm-1};list{handles.cm+1:end}};
+    nlist=[list(1:handles.cm-1);list(handles.cm+1:end)];
     handles.dat.group(cgr).subject(cs).modality=handles.dat.group(cgr).subject(cs).modality([1:handles.cm-1,handles.cm+1:end]);
     handles.ds{cgr}{cs}={handles.ds{cgr}{cs}{1:handles.cm-1},handles.ds{cgr}{cs}{handles.cm+1:end}};
     handles.cm=handles.cm-1;
@@ -899,7 +899,7 @@ if ~isempty(handles.modlist)
                 elseif i==length(handles.modlist)
                     handles.modlist={handles.modlist{1:end-1}};
                 else
-                    handles.modlist={handles.modlist{1:i-1}; handles.modlist{i+1:end}};
+                    handles.modlist=[handles.modlist(1:i-1), handles.modlist(i+1:end)];
                 end
                 break
             end
@@ -907,35 +907,37 @@ if ~isempty(handles.modlist)
     end
 end
 
-if isfield(handles.dat.masks,'mod_name')
-    for i=1:size(handles.dat.masks,2)
-        if strcmpi(handles.dat.masks(i).mod_name, list{get(handles.modality_list,'Value')})
-            indm=i;
+if ~flag % If modality removed for all subjects
+    if isfield(handles.dat.masks,'mod_name')
+        for i=1:size(handles.dat.masks,2)
+            if strcmpi(handles.dat.masks(i).mod_name, list{get(handles.modality_list,'Value')})
+                indm=i;
+            end
         end
-    end
-    if indm==1
-        if length(handles.dat.masks)==1
-            handles.dat.masks=[];
+        if indm==1
+            if length(handles.dat.masks)==1
+                handles.dat.masks=[];
+            else
+                handles.dat.masks=handles.dat.masks(2:end);
+            end
+        elseif indm==length(handles.dat.masks)
+            handles.dat.masks=handles.dat.masks(1:end-1);
         else
-            handles.dat.masks=handles.dat.masks(2:end);
+            handles.dat.masks=[handles.dat.masks(1:indm-1), handles.dat.masks(indm+1:end)];
         end
-    elseif indm==length(handles.dat.masks)
-        handles.dat.masks=handles.dat.masks(1:end-1);
-    else
-        handles.dat.masks=[handles.dat.masks(1:indm-1), handles.dat.masks(indm+1:end)];
-    end
-    masklist = []; % Update list of modalities for which a mask is needed
-    for i=1:length(handles.dat.masks)
-        if strcmpi(handles.dat.masks(i).type,'nifti')
-            masklist = [masklist;{handles.dat.masks(i).mod_name}];
+        masklist = []; % Update list of modalities for which a mask is needed
+        for i=1:length(handles.dat.masks)
+            if strcmpi(handles.dat.masks(i).type,'nifti')
+                masklist = [masklist;{handles.dat.masks(i).mod_name}];
+            end
         end
-    end
-    if isempty(masklist)
-        set(handles.mask_list,'String',{'none'});
-        set(handles.mask_list,'Value',1);
-    else
-        set(handles.mask_list,'String',masklist);
-        set(handles.mask_list,'Value',length(masklist));
+        if isempty(masklist)
+            set(handles.mask_list,'String',{'none'});
+            set(handles.mask_list,'Value',1);
+        else
+            set(handles.mask_list,'String',masklist);
+            set(handles.mask_list,'Value',length(masklist));
+        end
     end
 end
 update_display_data(hObject,handles);
