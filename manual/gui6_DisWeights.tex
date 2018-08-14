@@ -58,7 +58,7 @@ and the cross-hair will be synchronised with the weight map.
 
 \subsection{Select image to display}
 
-The \texttt{Display} panel shows the models for which weights were computed and weight images were found in the same folder as the PRT. For each model, the list of images available is displayed in the \texttt{Weights} pop-down list. Typically, one image will be created for a binary comparison or regression with only one modality or multiple modalities concatenated in samples (e.g. multiple runs). On the other hand, multiclass classification models will return one image per class (with the index of the class appended to the name of the image). In the same way, multiple modalities used in multiple kernels will lead to the building of \textit{number of modalities} images. For each image, the weight map can be displayed for each fold or for their average. In PRoNTo v2.0, it is possible to display the contributions of each voxel (\texttt{weights per voxel}) or of each region (\texttt{weights per region}, if previously computed).
+The \texttt{Display} panel shows the models for which weights were computed and weight images were found in the same folder as the PRT. For each model, the list of images available is displayed in the \texttt{Weights} pop-down list. Typically, one image will be created for a binary comparison or regression with only one modality or multiple modalities concatenated in samples (e.g. multiple runs). On the other hand, multiclass classification models will return one image per class (with the index of the class appended to the name of the image). In the same way, multiple modalities used in multiple kernels will lead to the building of \textit{number of modalities} images. For each image, the weight map can be displayed for each fold or for their average. Starting from PRoNTo v2.0, it is possible to display the contributions of each voxel (\texttt{weights per voxel}) or of each region (\texttt{weights per region}, if previously computed).
 
 \textbf{Note:} the weight images (per voxel and per region) are automatically detected in the list of files in the PRT folder according to the name specified in the `Compute weights' step (Chapter \ref{chap:ComputeWeights}). Modifying the image name afterwards or moving the images might lead to warning messages and the images will not be listed in the GUI.
 
@@ -82,7 +82,7 @@ to common practice in Statistical Parametric Mapping, which is a mass-univariate
 not make sense to isolate part of the pattern and report only on the peaks of the distribution
 of the decision function's weight map, unless they have perfectly null contribution (as might happen with sparse models such as L1-MKL modelling)}. 
 
-Below the displayed image, an edit box and a `browse' ($[${\tt ...}$]$) button also allow to load a weight image (.img) that is not linked to a model (e.g. from a previous PRoNTo version).
+In v2.1, the `browse' ($[${\tt ...}$]$) button under the edit box is disabled. 
 
 \subsection{Anatomical image}
 
@@ -96,7 +96,7 @@ In this panel, the cross-hair position is displayed in voxels and in mm. It can 
 Additional information will be displayed in two main cases:
 \begin{itemize}
 \item \textbf{Multiple Kernel Learning modelling:} MKL modelling, based on modalities or on regions as defined by an atlas, will provide weights at two levels: the kernel level and the voxel level. The kernel contributions, which sum to 1, can then be ranked in descending order. 
-\item \textbf{Summarizing weights per region:} in PRoNTo v2.0, weights can be summarized within regions of interest as defined by an atlas (user-specified). For each region, a normalized contribution can be defined, and those contributions can then be ranked in descending order. 
+\item \textbf{Summarizing weights per region:} Starting from PRoNTo v2.0, weights can be summarized within regions of interest as defined by an atlas (user-specified). For each region, a normalized contribution can be defined, and those contributions can then be ranked in descending order. If summarizing weights by using an atlas is desired, this atlas should be used as a second level mask in the 'feature set' step. Otherwise, any voxels used as features in the model but not present in the atlas will be summarized in one extra region referred to as 'other' that will not correspond to any anatomical region. In this case, users will see one extra region in the ROI label column in a table. 
 \end{itemize}
 
 In both cases, the region/modality contributions will be displayed in a table as well as in a bar plot, for each fold and for their average (according to the selected fold in the \texttt{Display} panel). An example is displayed in Figure \ref{fig_prt_ui_weights_ROI}, for weight summarization after GP modelling.
