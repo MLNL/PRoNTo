@@ -157,21 +157,17 @@ else
     set(handles.pop_cond,'String',{'All scans','All conditions'})
 end
 
-% % if all modalities are .mat
+% % if modalities are .mat, 
 if isfield(handles.PRT.group(1).subject(1).modality(1),'type') && ...
     ~isempty(handles.PRT.group(1).subject(1).modality(1).type) && ... %Nifti if no type
-    length(unique({handles.PRT.group(1).subject(1).modality(:).type}))==1 ...
-        && strcmp(unique({handles.PRT.group(1).subject(1).modality(:).type}),'.mat')
+    strcmp(unique({handles.PRT.group(1).subject(1).modality(handles.indmod(1)).type}),'.mat')
     set(handles.pop_det,'Visible','on')
     set(handles.pop_norm,'Visible','on')
     set(handles.pop_det,'Enable','off')
-    set(handles.pop_norm,'Enable','off');
+    set(handles.pop_norm,'Enable','on');
     set(handles.froi, 'Value',0)
-%     set(handles.froi,'Enable','off')
     set(handles.edit_atlas,'Visible','on')
     set(handles.br_atlas,'Visible','on')
-%     set(handles.edit_atlas,'Enable','off')
-%     set(handles.br_atlas,'Enable','off')
 end
 
 set(handles.pop_cond,'Value',1)
