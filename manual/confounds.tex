@@ -149,26 +149,6 @@ We will first analyse the data using PRoNTo's GUI and then repeat the analysis u
 
 \end{itemize}
 	
-%------------------------------------------------------------------
-
-\subsection{An example of the effects of removing covariates}
-
-This section shows an example of how removing covariates influences the results. Figure \ref{fig:EffectsOfRemoveConf_mkl_withoutCov} and Figure \ref{fig:EffectsOfRemoveConf_mkl_withCovOneHot} shows accuracies of the multi-kernel learning models using OASIS dataset with and without removing covariates (gender and age). After removing the confounds, the accuracy increased from 65\% to 75\%. Please note that for the categorical variable gender, we have two categories, i.e. male and female. Hence, we use one-hot encoding (two columns in the R matrix) for the covariate removing.   
-
-\begin{figure}[!htbp]
-	\centering
-	\includegraphics[scale=0.65]{images/Tutorial/confounds/EffectsOfRemoveConf_mkl_withoutCov.png}
-	\caption{`Accuracies of MKL without removing covariates' GUI.}
-	\label{fig:EffectsOfRemoveConf_mkl_withoutCov}
-\end{figure}
-
-
-\begin{figure}[!htbp]
-	\centering
-	\includegraphics[scale=0.65]{images/Tutorial/confounds/EffectsOfRemoveConf_mkl_withCovOneHot.png}
-	\caption{`Accuracies of MKL after removing covariates' GUI.}
-	\label{fig:EffectsOfRemoveConf_mkl_withCovOneHot}
-\end{figure} 
 
 %=====================================================
 
