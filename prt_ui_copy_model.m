@@ -1,20 +1,20 @@
 function varargout = prt_ui_copy_model(varargin)
-% PRT_UI_KERNEL_CONSTRUCTION M-file for prt_ui_kernel_construction.fig
+% PRT_UI_COPY_MODEL M-file for prt_ui_kernel_construction.fig
 %
-% PRT_UI_KERNEL_CONSTRUCTION, by itself, creates a new 
+% PRT_UI_COPY_MODEL, by itself, creates a new 
 % PRT_UI_KERNEL_CONSTRUCTION or raises the existing singleton*.
 %
-% H = PRT_UI_KERNEL_CONSTRUCTION returns the handle to a new 
-% PRT_UI_KERNEL_CONSTRUCTION or the handle to the existing singleton*.
+% H = PRT_UI_COPY_MODEL returns the handle to a new 
+% PRT_UI_COPY_MODEL or the handle to the existing singleton*.
 %
-% PRT_UI_KERNEL_CONSTRUCTION('CALLBACK',hObject,eventData,handles,...)
-% calls the local function named CALLBACK in PRT_UI_KERNEL_CONSTRUCTION.M 
+% PRT_UI_COPY_MODEL('CALLBACK',hObject,eventData,handles,...)
+% calls the local function named CALLBACK in PRT_UI_COPY_MODEL.M 
 % with the given input arguments.
 %
-% PRT_UI_KERNEL_CONSTRUCTION('Property','Value',...) creates a new 
-% PRT_UI_KERNEL_CONSTRUCTION or raises the existing singleton*.  Starting 
+% PRT_UI_COPY_MODEL('Property','Value',...) creates a new 
+% PRT_UI_COPY_MODEL or raises the existing singleton*.  Starting 
 % from the left, property value pairs are applied to the GUI before 
-% prt_ui_kernel_construction_OpeningFcn gets called.  An unrecognized 
+% prt_ui_COPY_MODEL_OpeningFcn gets called.  An unrecognized 
 % property name or invalid value makes property application stop.  All 
 % inputs are passed to prt_ui_kernel_construction_OpeningFcn via varargin.
 %
@@ -28,7 +28,7 @@ function varargout = prt_ui_copy_model(varargin)
 % Written by J. Schrouff
 % $Id$
 
-% Edit the above text to modify the response to help prt_ui_kernel_construction
+% Edit the above text to modify the response to help prt_ui__COPY_MODEL
 
 % Last Modified by GUIDE v2.5 08-Mar-2016 11:43:11
 
@@ -1535,21 +1535,15 @@ if handles.dat.model(indmod).input.use_nested_cv
         end
     elseif strcmpi(tcv,'loso')
         if kcv ==0
-            listcv = {'Leave One Block Out'};
+            listcv = {'Leave One Subject Out'};
         else
-            listcv = {'k-folds CV on Block'};
+            listcv = {'k-folds CV on Subject Out'};
         end
     elseif strcmpi(tcv,'losgo')
         if kcv ==0
-            listcv = {'Leave One Block Out'};
+            listcv = {'Leave One Subject per Class Out'};
         else
-            listcv = {'k-folds CV on Block'};
-        end
-    elseif strcmpi(tcv,'custom')
-        if kcv ==0
-            listcv = {'Leave One Block Out'};
-        else
-            listcv = {'k-folds CV on Block'};
+            listcv = {'k-folds CV on Subject per Class'};
         end
     elseif strcmpi(tcv,'locbo')
         if kcv ==0

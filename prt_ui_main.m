@@ -28,7 +28,7 @@ function varargout = prt_ui_main(varargin)
 
 % Edit the above text to modify the response to help prt_ui_main
 
-% Last Modified by GUIDE v2.5 04-Apr-2014 04:25:32
+% Last Modified by GUIDE v2.5 14-Aug-2018 11:46:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -102,16 +102,33 @@ else
             bb=get(aa(i),'children');
             if ~isempty(bb)
                 for j=1:length(bb)
-                    if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
-                            'radiobutton','checkbox'})))
+                    if strcmpi(get(bb(j),'type'),'uipanel')
                         set(bb(j),'BackgroundColor',color.bg2)
-                    elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
-                        set(bb(j),'BackgroundColor',color.fr)
+                        cc=get(bb(j),'children');
+                        for k=1:length(cc)
+                            if ~isempty(find(strcmpi(get(cc(k),'Style'),{'text',...
+                                    'radiobutton','checkbox'})))
+                                set(cc(k),'BackgroundColor',color.bg2)
+                            elseif ~isempty(find(strcmpi(get(cc(k),'Style'),'pushbutton')))
+                                set(cc(k),'BackgroundColor',color.fr)
+                            end
+                            set(cc(k),'FontUnits','pixel')
+                            xf=get(cc(k),'FontSize');
+                            set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                'FontUnits','normalized','Units','normalized')
+                        end
+                    else
+                        if ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                                'radiobutton','checkbox'})))
+                            set(bb(j),'BackgroundColor',color.bg2)
+                        elseif ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
+                            set(bb(j),'BackgroundColor',color.fr)
+                        end
+                        set(bb(j),'FontUnits','pixel')
+                        xf=get(bb(j),'FontSize');
+                        set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                            'FontUnits','normalized','Units','normalized')
                     end
-                    set(bb(j),'FontUnits','pixel')
-                    xf=get(bb(j),'FontSize');
-                    set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
-                        'FontUnits','normalized','Units','normalized')
                 end
             end
         else
@@ -160,14 +177,14 @@ function figure1_DeleteFcn(hObject,eventdata,handles)
 % handles    structure with handles and user data (see GUIDATA)
 delete(handles.figure1);
 
-% --- Executes on button press in datastruct.
+% --- Executes on button press in datastruct: data and design
 function datastruct_Callback(hObject, eventdata, handles)
 % hObject    handle to datastruct (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 prt_ui_design;
 
-% --- Executes on button press in fs.
+% --- Executes on button press in fs: compute feature set
 function fs_Callback(hObject, eventdata, handles)
 % hObject    handle to fs (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -212,28 +229,36 @@ else
 end
 
 
-% --- Executes on button press in crval.
+% --- Executes on button press in crval: model specification
 function crval_Callback(hObject, eventdata, handles)
 % hObject    handle to crval (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 prt_ui_model
 
-% --- Executes on button press in model.
+% --- Executes on button press in copy_model: copy previously specified
+% model
+function copy_model_Callback(hObject, eventdata, handles)
+% hObject    handle to copy_model (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+prt_ui_copy_model
+
+% --- Executes on button press in model: run model
 function model_Callback(hObject, eventdata, handles)
 % hObject    handle to model (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 prt_ui_cv_model
 
-% --- Executes on button press in compweights.
+% --- Executes on button press in compweights: compute weights
 function compweights_Callback(hObject, eventdata, handles)
 % hObject    handle to compweights (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 prt_ui_compute_weights
 
-% --- Executes on button press in datarev.
+% --- Executes on button press in datarev: review data and design
 function datarev_Callback(hObject, eventdata, handles)
 % hObject    handle to datarev (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -249,7 +274,7 @@ catch
     return
 end
 
-% --- Executes on button press in kerncvrev.
+% --- Executes on button press in kerncvrev: review kernel and CV
 function kerncvrev_Callback(hObject, eventdata, handles)
 % hObject    handle to kerncvrev (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -265,21 +290,21 @@ catch
 end
 prt_ui_reviewmodel('UserData',{PRT,prtdir});
 
-% --- Executes on button press in resrev.
+% --- Executes on button press in resrev: display results - stats
 function resrev_Callback(hObject, eventdata, handles)
 % hObject    handle to resrev (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 prt_ui_results_stats
 
-% --- Executes on button press in dispweights.
+% --- Executes on button press in dispweights: display weights
 function dispweights_Callback(hObject, eventdata, handles)
 % hObject    handle to dispweights (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 prt_ui_disp_weights
 
-% --- Executes on button press in batchbutt.
+% --- Executes on button press in batchbutt: open batch interface
 function batchbutt_Callback(hObject, eventdata, handles)
 % hObject    handle to batchbutt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
