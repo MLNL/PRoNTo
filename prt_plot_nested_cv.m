@@ -272,9 +272,11 @@ else % It's a 1 parameter optimisation problem
         hold on
         [hax,hbar,hline] = plotyy(x,hx_opt*100,x,f_mean,'bar','plot');
         %errorbar(hax(1), x, f_mean, f_std, '.k', 'linewidth', 2);
-        set(hbar,'BarWidth',0.5,'FaceColor',[0.5 0.8 0.5])
+        cc = cbrewer('qual','Set3',3);
+        tcc = brighten(cc,-0.6);
+        set(hbar,'BarWidth',0.5,'FaceColor',cc(1,:))
         set(hline,'Color','k','Linewidth',1)
-        set(hax(1),'YColor',[0.1,0.6,0.1])
+        set(hax(1),'YColor',tcc(1,:))
         box(hax(1),'off')
         set(hax(2),'YColor',[0,0,0])
         hold off
@@ -289,7 +291,7 @@ else % It's a 1 parameter optimisation problem
              xlabel(axes_handle, x_label,'FontWeight','bold');
         end
         axis(hax(1), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
-        axis(hax(2), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) min(min(f)) max(max(f))]);
+%         axis(hax(2), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) min(min(f)) max(max(f))]);
 %         set(hax(2),'XTickLabel',{})      
 %         set(hax(2),'YTickLabel',{})
 %         a=get(hax(1),'YTick');
@@ -341,7 +343,7 @@ else % It's a 1 parameter optimisation problem
         xlabel(axes_handle, x_label,'FontWeight','bold');
         ylabel(axes_handle, y_label,'FontWeight','bold');
         legend(opt_handle, 'Optimal value(s)');
-        axis(axes_handle, [min(x) max(x) f_min f_max]);
+        axis(axes_handle, [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
         
     end
     
