@@ -9,17 +9,33 @@ function [tpr,fpr] = prt_tpr_fpr(targets,scores)
 %        tpr: true positive rate
 %        fpr: false positive rate
 
+% Check that problem is binary
+numClass = numel(unique(targets(:)));
 
 
-% Compute tpr and fpr
-targpos = targets==1;
-[~,idx] = sort(scores,'descend');
-s_targpos = targpos(idx);% Sorted targets
+if numClass == 2
+    % Compute tpr and fpr
+    targpos = targets==1;
+    [~,idx] = sort(scores,'descend');
+    s_targpos = targpos(idx);% Sorted targets
 
-tpr      = cumsum(single(s_targpos))/sum(single(s_targpos));
-fpr      = cumsum(single(~s_targpos))/sum(single(~s_targpos));
+    tpr      = cumsum(single(s_targpos))/sum(single(s_targpos));
+    fpr      = cumsum(single(~s_targpos))/sum(single(~s_targpos));
+    
+    if length(tpr+fpr)<2
+        % Cannot compute tpr or fpr if not enough points
+        tpr = NaN;
+        fpr = NaN;
+    end
+        
 
-tpr      = [0 ; tpr ; 1];
-fpr      = [0 ; fpr ; 1];
-
+    tpr      = [0 ; tpr ; 1];
+    fpr      = [0 ; fpr ; 1];
+        
+else
+    % Cannot compute tpr and fpr is not both classes are present or if not
+    % a binary problem
+    tpr = NaN;
+    fpr = NaN;
 end 
+

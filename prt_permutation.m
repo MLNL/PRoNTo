@@ -128,6 +128,8 @@ else
     if perm_train_only %onyle permute the train set labels, not test set
         itrain = find(PRT.model(modelid(1)).input.cv_mat(:,1)==1);
         ids = ids(itrain,:);
+    else
+        itrain = 1:length(PRT.model(modelid(1)).input.samp_idx);
     end
     for k = 1:nk
         if nk>1
@@ -207,7 +209,7 @@ else
                         % multiple targets: Need to permute within subject
                         % and modality, case 1
                         if (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classifier') && ...
-                                numel(samp_c)>1 && numel(ism)>numel(samp_c) && length(unique(t(ism)))>1 ) ||... % i.e. there is a design and more than one image per subject in classification
+                                numel(samp_c)>1 && numel(samp_c)>1 && length(unique(t(ism)))>1 ) ||... % i.e. there is a design and more than one image per subject in classification
                                 (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'regression') && ...
                                 numel(ism)>1 && all(samp_c~=0))  % i.e. there is more than one image for this subject, coming from a design
                             exchange_subjects = 0;
@@ -265,9 +267,6 @@ else
                                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                                 end
                                 pchunk = cell2mat(chunks); % get the permuted indexes for each image in the subject and modality
-                                if ~perm_train_only
-                                    itrain = 1:length(ism);
-                                end
                                 t_perm(itrain(ism(pchunk)))   = t(itrain(ism(chunkpermcv)));
                                 CVperm(itrain(ism(pchunk)),:) = CV(itrain(ism(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
                                 IDperm(itrain(ism(pchunk)),:) = ID(itrain(ism(chunkpermcv)),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)

@@ -228,23 +228,33 @@ else
         % Get folds pulldown menu
         m             = get(handles.classmenu,'Value');
         handles.nfold = length(PRT.model(mi(m)).output.fold);
-        folds{1}      = 'All folds / Average';
+        folds{1}      = 'Average';
         for f = 1:handles.nfold
             folds{f+1} = num2str(f);
         end
         handles.folds = folds;
         set(handles.foldmenu,'String',handles.folds);
+        set(handles.foldmenu,'Value',1);
         
-        % Set plots menu for first model
-        if strcmp(PRT.model(mi(m)).input.type,'classification');
-            if length(PRT.model(mi(m)).output.stats.c_acc) <= 2 ;
-                plots = {'Histogram','Confusion Matrix','Predictions','ROC'};
+        % Set plots menu for first model, for Average fold
+        if strcmp(PRT.model(mi(m)).input.type,'classification')
+            if length(PRT.model(mi(m)).output.stats.c_acc) <= 2 
+                plots = {'Accuracy Distribution','Predictions','ROC'};
             else
-                plots = {'Histogram','Confusion Matrix','Predictions'};
+                plots = {'Accuracy Distribution','Predictions'};
             end
         else
-            plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
+            plots = {'Prediction Errors', 'R2'};
         end
+%         if strcmp(PRT.model(mi(m)).input.type,'classification')
+%             if length(PRT.model(mi(m)).output.stats.c_acc) <= 2 
+%                 plots = {'Histogram','Confusion Matrix','Predictions','ROC'};
+%             else
+%                 plots = {'Histogram','Confusion Matrix','Predictions'};
+%             end
+%         else
+%             plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
+%         end
         if isfield(PRT.model(mi(m)).input,'use_nested_cv')
             if PRT.model(mi(m)).input.use_nested_cv
                 plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
@@ -318,17 +328,48 @@ function foldmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns foldmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from foldmenu
 
-% Change weight map
+% Change plot options whether it's the Average or each fold
 % -------------------------------------------------------------------------
-if ~handles.model_button
-    if isfield(handles,'vols')
-        handles.noloadw = 1;
-        weightbutton_Callback(hObject, eventdata, handles);
+fold          = get(handles.foldmenu,'Value');
+list = get(handles.plotmenu,'String');
+model         = get(handles.classmenu,'Value');
+mi            = handles.mi;
+m         = mi(model);
+if fold ==1
+    % Set plots menu for first model, for Average fold
+    if strcmp(handles.PRT.model(mi(m)).input.type,'classification')
+        if length(handles.PRT.model(mi(m)).output.stats.c_acc) <= 2 
+            plots = {'Accuracy Distribution','Predictions','ROC'};
+        else
+            plots = {'Accuracy Distribution','Predictions'};
+        end
+    else
+        plots = {'Prediction Errors', 'R2'};
+    end
+else
+    if strcmp(handles.PRT.model(mi(m)).input.type,'classification')
+        if length(handles.PRT.model(mi(m)).output.stats.c_acc) <= 2 
+            plots = {'Histogram','Confusion Matrix','Predictions','ROC'};
+        else
+            plots = {'Histogram','Confusion Matrix','Predictions'};
+        end
+    else
+        plots = {'Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
     end
 end
 
-% Change plot
-% -------------------------------------------------------------------------
+if isfield(handles.PRT.model(mi(m)).input,'use_nested_cv')
+    if handles.PRT.model(mi(m)).input.use_nested_cv
+        plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
+    end
+end
+set(handles.plotmenu,'String',plots);
+
+if ~isempty(setdiff(list,plots))
+    % Menu changed, set plot to first one in list
+    set(handles.plotmenu,'Value',1)
+end
+
 if isfield(handles,'plot')
     plotmenu_Callback(hObject, eventdata, handles);
 end
@@ -361,12 +402,11 @@ function plotmenu_Callback(hObject, eventdata, handles)
 
 nplot         = get(handles.plotmenu,'String');
 plotm         = get(handles.plotmenu,'Value');
-plotchosen    = num2str(plotm);
 if plotm>length(nplot)  % reset to 1 if list of available plot smaller than chosen plot
     set(handles.plotmenu,'Value',1);
     plotm = 1;
-    plotchosen    = num2str(plotm);
 end
+plotchosen    = nplot{plotm};
 fold          = get(handles.foldmenu,'Value');
 model         = get(handles.classmenu,'Value');
 mi            = handles.mi;
@@ -393,31 +433,36 @@ if strcmp(PRT.model(model).input.type,'classification')
     % Plot
     % ---------------------------------------------------------------------
     switch plotchosen
+            % Accuracy distribution as violin plot - across folds
+            % -------------------------------------------------------------
+        case 'Accuracy Distribution'
+            if fold == 1
+                prt_plot_accuracy_distribution(handles.PRT,model,handles.axes5);
+            end
         
-        
-        % Histograms
-        % -----------------------------------------------------------------
-        case '1'
+            % Histograms - within folds
+            % -------------------------------------------------------------
+        case 'Histogram'
             prt_plot_histograms(handles.PRT, model, fold, handles.axes5);
             
-            % Confusion matrix
+            % Confusion matrix - within folds
             % -------------------------------------------------------------
-        case '2'
+        case 'Confusion Matrix'
             prt_plot_confusion_matrix(handles.PRT, model, fold, handles.axes5);
             
             % Predictions
             % -------------------------------------------------------------
-        case '3'
+        case 'Predictions'
             prt_plot_prediction(handles.PRT, model, fold, nms, handles.axes5);
             
             % ROC / AUC
             % -------------------------------------------------------------
-        case '4'
+        case 'ROC'
             prt_plot_ROC(handles.PRT, model, fold, handles.axes5);
             
-            % TODO: Check if this does not cause problems when the
-            % Influence of the hyper-parameter on performance was not used
-        case '5'
+            % Influence of hyper-parameters
+            %--------------------------------------------------------------
+        case 'Influence of the hyper-parameter on performance'
             prt_plot_nested_cv(handles.PRT, model, fold, handles.axes5);
             
     end
@@ -427,18 +472,18 @@ else
     % Plot
     % ---------------------------------------------------------------------
     switch plotchosen
-        case '1'
+        case 'Predictions (scatter)'
             prt_plot_prediction_reg_scatter(handles.PRT, model, handles.axes5);
             
-        case '2'
+        case 'Predictions (bar)'
             prt_plot_prediction_reg_bar(handles.PRT, model, handles.axes5);
             
-        case '3'
+        case 'Predictions (line)'
             prt_plot_prediction_reg_line(handles.PRT, model, handles.axes5);
             
-            % TODO: Check if this does not cause problems when the
-            % nested CV was not used
-        case '4'
+            % Influence of hyper-parameters
+            %--------------------------------------------------------------
+        case 'Influence of the hyper-parameter on performance'
             prt_plot_nested_cv(handles.PRT, model, fold, handles.axes5);
             
     end
