@@ -19,38 +19,57 @@ function prt_plot_ROC(PRT, model, fold, axes_handle)
 
 
 nfold = length(PRT.model(model).output.fold);
+stats_tool = which('perfcurve');
+tpr_up = [];
 
 if fold == 1
-    stats_tool = which('perfcurve');
-    % Compute average ROC with confidence intervals if possible
-    if stats_tool
-        targets = {PRT.model(model).output.fold(:).targets};
-        if isfield(PRT.model(model).output.fold(1),'func_val')
-            fVals  = {PRT.model(model).output.fold(:).func_val};
+    fpr_mean = linspace(0,1,100);
+    tpr = cell(nfold,1);
+    fpr = cell(nfold,1);
+    tpr_mean = zeros(nfold,length(fpr_mean));
+    % Compute average ROC with std if possible
+    for f = 1:nfold
+        targets = PRT.model(model).output.fold(f).targets;
+        if isfield(PRT.model(model).output.fold(f),'func_val')
+            fVals  = PRT.model(model).output.fold(f).func_val;
         else
-            fVals  = {PRT.model(model).output.fold(:).predictions};
+            fVals  = PRT.model(model).output.fold(f).predictions;
         end
-        [fprs,tprs] = perfcurve(targets,fVals,1);        
-        tpr{1} = tprs(:,1);
-        fpr{1} = fprs(:,1);
-        tpr_up = min(tprs(:,3),1);
-        tpr_low = max(tprs(:,2),0);
-        legend_labs = {'ROC curve','Confidence intervals'};
-    else % Computing ROC for each fold and plotting them all
-        tpr = cell(nfold,1);
-        fpr = cell(nfold,1);
-        legend_labs = cell(nfold,1);
-        for f = 1:nfold
-            targets = PRT.model(model).output.fold(f).targets;
-            if isfield(PRT.model(model).output.fold(f),'func_val')
-                fVals  = PRT.model(model).output.fold(f).func_val;
-            else
-                fVals  = PRT.model(model).output.fold(f).predictions;
-            end
+        if stats_tool
             [tpr{f},fpr{f}] = prt_tpr_fpr(targets,fVals);
+        else
+            [fpr{f},tpr(f)] = perfcurve(targets,fVals,1);   
+        end
+        if all(isnan(tpr{f})) || all(isnan(fpr{f}))
+            tpr_mean(f,:) = NaN * ones(1,length(fpr_mean));
+        end
+        if which('interp1q')
+            tpr_mean(f,:) = (interp1q(fpr{f},tpr{f},fpr_mean'))';
+        else
             legend_labs{f} = ['ROC fold ',num2str(f)];
         end
-        tpr_up = [];
+    end
+    if which('interp1q') % was able to compute interpolation for average
+        clear tpr fpr
+        tpr{1} = mean(tpr_mean,1)';
+        tpr_std = std(tpr_mean,[],1)';
+        fpr{1} = fpr_mean';
+        if tpr{1}(1)~= 0 % Add (0,0) point if needed
+            tpr{1} =[0;tpr{1}];
+            fpr{1} =[0;fpr{1}];
+            tpr_std = [0;tpr_std];
+        elseif tpr{1}(end) ~= 1 % Add (1,1) point if needed
+            tpr{1} =[tpr{1};1];
+            fpr{1} =[fpr{1};1];
+            tpr_std = [tpr_std;1];
+        end
+        if ~any(isnan(tpr{1}))
+            tpr_low = max(tpr{1}-tpr_std,0);
+            tpr_up = min(tpr{1}+tpr_std,1);
+            legend_labs = {'ROC curve','+/- 1*std'};
+        else
+            legend_labs = {'No ROC to display'};
+        end        
     end
 else
     % if folds wise
@@ -60,8 +79,11 @@ else
     else
         fVals  = PRT.model(model).output.fold(fold-1).predictions;
     end
-    [tpr{1},fpr{1}] = prt_tpr_fpr(targets,fVals);
-    tpr_up = [];
+    if stats_tool
+        [fpr{1},tpr{1}] = perfcurve(targets,fVals,1);
+    else
+        [tpr{1},fpr{1}] = prt_tpr_fpr(targets,fVals);
+    end
     legend_labs = {'ROC curve'};
 end
 
@@ -86,13 +108,18 @@ hold on
 
 % Plot ROC curves, one per fold if no stats toolbox
 for i = 1:length(tpr)
-    plot(axes_handle,fpr{i},tpr{i},'-s','Color',cc(i,:), ...
-        'LineWidth',2, 'MarkerEdgeColor',cc(i,:),...
-        'MarkerFaceColor',cc(i,:),...
-        'MarkerSize',4);
+    if numel(tpr{i})<40 % display markers at each point
+        plot(axes_handle,fpr{i},tpr{i},'-s','Color',cc(i,:), ...
+            'LineWidth',2, 'MarkerEdgeColor',cc(i,:),...
+            'MarkerFaceColor',cc(i,:),...
+            'MarkerSize',4);
+    else % Do not display markers if a lot are present
+        plot(axes_handle,fpr{i},tpr{i},'-','Color',cc(i,:), ...
+            'LineWidth',2);
+    end
 end
 
-% Plot std of curve if across folds
+% Plot std of curve if across folds and not NaN
 if ~isempty(tpr_up)
     std_x = [fpr{1}; flipud(fpr{1})];
     inBetween = [tpr_low;flipud(tpr_up)];
