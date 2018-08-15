@@ -21,26 +21,37 @@ function prt_plot_ROC(PRT, model, fold, axes_handle)
 nfold = length(PRT.model(model).output.fold);
 
 if fold == 1
-    % Compute average and std ROC, based on scikit-learn function
-    % plot_roc_crossval
-    mean_fpr = linspace(0,1,100);
-    tprs   = zeros();
-    
-    for f = 1:nfold
-        targets = PRT.model(model).output.fold(f).targets;
-        if isfield(PRT.model(model).output.fold(f),'func_val')
-            fVals  = PRT.model(model).output.fold(f).func_val;
+    stats_tool = which('perfcurve');
+    % Compute average ROC with confidence intervals if possible
+    if stats_tool
+        targets = {PRT.model(model).output.fold(:).targets};
+        if isfield(PRT.model(model).output.fold(1),'func_val')
+            fVals  = {PRT.model(model).output.fold(:).func_val};
         else
-            fVals  = PRT.model(model).output.fold(f).predictions;
+            fVals  = {PRT.model(model).output.fold(:).predictions};
         end
-%         [tpr,fpr] = prt_tpr_fpr(targets,fVals);
-        [tpr,fpr] = perfcurve(targets,fVals,1);
-        tprs(f,:) = interp1(fpr',tpr',mean_fpr);
-        
+        [fprs,tprs] = perfcurve(targets,fVals,1);        
+        tpr{1} = tprs(:,1);
+        fpr{1} = fprs(:,1);
+        tpr_up = min(tprs(:,3),1);
+        tpr_low = max(tprs(:,2),0);
+        legend_labs = {'ROC curve','Confidence intervals'};
+    else % Computing ROC for each fold and plotting them all
+        tpr = cell(nfold,1);
+        fpr = cell(nfold,1);
+        legend_labs = cell(nfold,1);
+        for f = 1:nfold
+            targets = PRT.model(model).output.fold(f).targets;
+            if isfield(PRT.model(model).output.fold(f),'func_val')
+                fVals  = PRT.model(model).output.fold(f).func_val;
+            else
+                fVals  = PRT.model(model).output.fold(f).predictions;
+            end
+            [tpr{f},fpr{f}] = prt_tpr_fpr(targets,fVals);
+            legend_labs{f} = ['ROC fold ',num2str(f)];
+        end
+        tpr_up = [];
     end
-    tpr = mean(tprs,1);
-    fpr = mean_fpr;
-    std_tpr = std(tprs,[],1);
 else
     % if folds wise
     targets = PRT.model(model).output.fold(fold-1).targets;
@@ -49,8 +60,9 @@ else
     else
         fVals  = PRT.model(model).output.fold(fold-1).predictions;
     end
-    [tpr,fpr] = prt_tpr_fpr(targets,fVals);
-    std_tpr = [];
+    [tpr{1},fpr{1}] = prt_tpr_fpr(targets,fVals);
+    tpr_up = [];
+    legend_labs = {'ROC curve'};
 end
 
 
@@ -68,17 +80,28 @@ rotate3d off
 cla(axes_handle, 'reset');
 
 % Plot curve
-plot(axes_handle,fpr,tpr,'--ks','LineWidth',1, 'MarkerEdgeColor','k',...
-    'MarkerFaceColor','k',...
-    'MarkerSize',2);
-% Plot std of curve if across folds
-if ~isempty(std_tpr)
-    tpr_up = min(tpr+std_tpr,1);
-    tpr_low = max(tpr-std_tpr,0);
-    std_x = [fpr, fliplr(fpr)];
-    inBetween = [tpr_low,fliplr(tpr_up)];
-    fill(axes_handle,std_x,inBetween,[0.5 0.5 0.5],'FaceAlpha',0.5);
+cc = cbrewer('qual','Set3',max(length(tpr),3));
+cc = brighten(cc,-0.5);
+hold on
+
+% Plot ROC curves, one per fold if no stats toolbox
+for i = 1:length(tpr)
+    plot(axes_handle,fpr{i},tpr{i},'-s','Color',cc(i,:), ...
+        'LineWidth',2, 'MarkerEdgeColor',cc(i,:),...
+        'MarkerFaceColor',cc(i,:),...
+        'MarkerSize',4);
 end
+
+% Plot std of curve if across folds
+if ~isempty(tpr_up)
+    std_x = [fpr{1}; flipud(fpr{1})];
+    inBetween = [tpr_low;flipud(tpr_up)];
+    fill(axes_handle,std_x,inBetween,[0.8 0.8 0.8],'FaceAlpha',0.4,'EdgeColor',[0.5 0.5 0.5]);
+end
+
+%Plot 'luck'
+plot([0 1],[0,1],'--r')
+legend_labs = [legend_labs,{'Luck'}];
     
 title(axes_handle,sprintf('Receiver Operator Curve'));
 xlabel(axes_handle,'False positive rate','FontWeight','bold')
@@ -86,4 +109,5 @@ ylabel(axes_handle,'True positive rate','FontWeight','bold')
 set(axes_handle,'Color',[1,1,1])
 xlim([-0.05 1.05])
 ylim([-0.05 1.05])
+legend(legend_labs,'Location','SouthEast')
 
