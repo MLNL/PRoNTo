@@ -22,15 +22,20 @@ if numClass == 2
     tpr      = cumsum(single(s_targpos))/sum(single(s_targpos));
     fpr      = cumsum(single(~s_targpos))/sum(single(~s_targpos));
     
-    if length(tpr+fpr)<2
+    if nnz(targpos)<2 || nnz(~targpos)<2
         % Cannot compute tpr or fpr if not enough points
         tpr = NaN;
         fpr = NaN;
     end
-        
-
-    tpr      = [0 ; tpr ; 1];
-    fpr      = [0 ; fpr ; 1];
+    
+    % Deal with tails, avoiding repeated values
+    if tpr(1) ~= 0
+        tpr      = [0 ; tpr];
+        fpr      = [0 ; fpr];
+    elseif tpr(end) ~= 1
+        tpr      = [tpr ; 1];
+        fpr      = [fpr ; 1];
+    end
         
 else
     % Cannot compute tpr and fpr is not both classes are present or if not
