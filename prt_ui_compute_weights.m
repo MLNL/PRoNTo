@@ -134,8 +134,8 @@ else
 
 
 set(handles.flag_cwi,'Value',0);
-set(handles.flag_cwi,'Visible','off');
-set(handles.flag_cwi,'Enable','off');
+set(handles.flag_cwi,'Visible','on');
+set(handles.flag_cwi,'Enable','on');
 handles.flag = 0;
 set(handles.compbutt,'Enable','off')
 handles.img_name=[];
@@ -412,6 +412,8 @@ function flag_cwi_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of flag_cwi
+
+% Compute weights for permutation, in separate folder?
 flag=get(handles.flag_cwi,'Value');
 if flag
     handles.flag=1;
@@ -430,12 +432,6 @@ function build_ROI_flag2_Callback(hObject, eventdata, handles)
 val = get(handles.build_ROI_flag2,'Value');
 if val
     handles.flag2 = 1;
-%     an = get(handles.edit_atlas,'String');
-%     if ~strcmpi(an,'Load atlas')
-%         handles.atl_name{1} = an;
-%     else
-%         handles.atl_name = {};
-%     end
     set(handles.edit_atlas,'Enable','on')
     set(handles.br_atlas,'Enable','on')
 else
@@ -482,7 +478,7 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-atl_name=spm_select(inf,'image','Select atlas to build weights per region',[],pwd);
+atl_name=spm_select(inf,'*','Select atlas to build weights per region',[],pwd);
 if ~isempty(handles.atl_name) && size(atl_name,1) == handles.nfs % One atlas per feature set
     for i = 1:size(atl_name,1)
         handles.atl_name{i} = deblank(atl_name(i,:));
@@ -502,7 +498,7 @@ function compbutt_Callback(hObject, eventdata, handles)
 list={handles.dat.model(:).model_name};
 in.model_name=list{handles.selmod};
 in.pathdir=handles.prtdir;
-in.img_name=handles.img_name;  %for the moment, coming soon
+in.img_name=handles.img_name; 
 in.atl_name = handles.atl_name;
 if isempty(in.atl_name) && handles.flag2 
     disp('No atlas selected for ROI image')
