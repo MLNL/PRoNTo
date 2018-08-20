@@ -112,7 +112,7 @@ switch PRT.model(model).input.machine.function
 end
 
 
-cla(axes_handle)
+cla(axes_handle,'reset')
 rotate3d off
 set(axes_handle,'Color',[1,1,1])
 pos=get(axes_handle,'Position');
@@ -268,36 +268,54 @@ else % It's a 1 parameter optimisation problem
         markersize = 10;
         f_min = 0;
         f_max = 1.1*max(hx_opt*100);
-
-        hold on
-        [hax,hbar,hline] = plotyy(x,hx_opt*100,x,f_mean,'bar','plot');
-        %errorbar(hax(1), x, f_mean, f_std, '.k', 'linewidth', 2);
         cc = cbrewer('qual','Set3',3);
         tcc = brighten(cc,-0.6);
-        set(hbar,'BarWidth',0.5,'FaceColor',cc(1,:))
-        set(hline,'Color','k','Linewidth',1)
-        set(hax(1),'YColor',tcc(1,:))
-        box(hax(1),'off')
-        set(hax(2),'YColor',[0,0,0])
-        hold off
+        min_f = min(min(f));
+        max_f = max(max(f));
         
-        % Properties
-       
-        ylabel(hax(2), y_label,'FontWeight','bold');
-        ylabel(hax(1),'Frequency of selection (%)','FontWeight','bold');
-        if logscale 
-             xlabel(axes_handle, [x_label, ' (log 10)'],'FontWeight','bold');
-        else
-             xlabel(axes_handle, x_label,'FontWeight','bold');
+        try
+            % Frequency plot
+            yyaxis left
+            hbar = bar(x,hx_opt*100);
+            set(hbar,'BarWidth',0.5,'FaceColor',cc(1,:))
+            set(gca,'YColor',tcc(1,:))
+            box(gca,'off')
+            % Properties
+            ylabel(gca,'Frequency of selection (%)','FontWeight','bold');
+            axis(gca, [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
+            
+            % Accuracy plot
+            yyaxis right
+            hold on
+            hline = plot(x,f_mean);
+            set(hline,'Color','k','Linewidth',1)
+            X = repmat(x,nfold,1);
+            hscat = scatter(gca,X(:),f(:),20,[0.4 0.4 0.4],'filled');
+            ylabel(gca, y_label,'FontWeight','bold');
+            axis(gca, [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) min_f-5 max_f+5]);
+            set(gca,'YColor',[0 0 0])
+            legend([hline,hscat],{'Average','Each fold'},'Location','SouthEast')
+            hold off
+        catch
+             hold on
+            [hax,hbar,hline] = plotyy(x,hx_opt*100,x,f_mean,'bar','plot');
+            set(hbar,'BarWidth',0.5,'FaceColor',cc(1,:))
+            set(hline,'Color','k','Linewidth',1)
+            set(hax(1),'YColor',tcc(1,:))
+            box(hax(1),'off')
+            set(hax(2),'YColor',[0,0,0])
+            hold off
+
+            % Properties
+            ylabel(hax(2), y_label,'FontWeight','bold');
+            ylabel(hax(1),'Frequency of selection (%)','FontWeight','bold');
+            axis(hax(1), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
         end
-        axis(hax(1), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) f_min f_max]);
-%         axis(hax(2), [min(x)-0.2*abs(min(x)) max(x)+0.2*abs(max(x)) min(min(f)) max(max(f))]);
-%         set(hax(2),'XTickLabel',{})      
-%         set(hax(2),'YTickLabel',{})
-%         a=get(hax(1),'YTick');
-%         b=get(hax(1),'YTickLabel');
-%         set(hax(2),'YTick',a);
-%         set(hax(2),'YTickLabel',b);         
+        if logscale
+            xlabel(axes_handle, [x_label, ' (log 10)'],'FontWeight','bold');
+        else
+            xlabel(axes_handle, x_label,'FontWeight','bold');
+        end
         
     else
         
@@ -348,5 +366,6 @@ else % It's a 1 parameter optimisation problem
     end
     
 end
+hold off
 
 end

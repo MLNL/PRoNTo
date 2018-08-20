@@ -73,7 +73,7 @@ for i=1:nClasses
     classNames{i} = PRT.model(model).input.class(i).class_name;
 end
 %If you want to use more classes, just add more colours to the list bellow
-colourList = {'black','red', 'blue', 'green', 'cyan', 'magenta', 'yellow'};
+colourList = [0 0 0; 1 0 0; cbrewer('qual','Set3',max(nClasses,3))];
 
 
 %If no axes_handle is given, create a new window
@@ -88,41 +88,45 @@ cla(axes_handle, 'reset');
 rotate3d off
 %                 axis xy
 set(axes_handle,'Color',[1,1,1])
-
-if nClasses <= length(colourList)
-    if fVvals_exist
-        classes_used = [];
-        for cl=1:nClasses
-            func_vals = fVals(targval(:,cl));
-            if ~isempty(func_vals)
-                if exist('ksdensity','file')==2
-                    [f,x] = ksdensity(func_vals,'width',[]);
-                    plot(axes_handle,x,f,colourList{cl},'LineWidth',2);
-                    hold(axes_handle,'on')
-                else
-                    % can't plot density, be happy with a histogram
-                    [myHist,myX]=hist(func_vals,100);
-                    bar(axes_handle,myX,myHist,colourList{cl});
-                    hold(axes_handle,'on')
-                end
-                if cl == nClasses, hold(axes_handle,'off'); end
-                classes_used = [classes_used,cl]; % makes a list of the classes used in the plot
+classNames_legend = {};
+if fVvals_exist
+    classes_used = [];
+    for cl=1:nClasses
+        func_vals = fVals(targval(:,cl));
+        if ~isempty(func_vals)
+            if exist('ksdensity','file')==2
+                [f,x] = ksdensity(func_vals,'width',[]);
+                plot(axes_handle,x,f,'Color',colourList(cl,:),'LineWidth',2);
+                hold(axes_handle,'on')
+            else
+                % can't plot density, be happy with a histogram
+                [myHist,myX]=hist(func_vals,100);
+                bar(axes_handle,myX,myHist,'Color',colourList(cl,:));
+                hold(axes_handle,'on')
             end
+            if cl == nClasses, hold(axes_handle,'off'); end
+            classes_used = [classes_used,cl]; % makes a list of the classes used in the plot
         end
-        
-        %Make list of classes used to put in the legend
-        nClasses_used = length(classes_used);
-        for i=1:nClasses_used
-            classNames_legend{i} = classNames{classes_used(i)};
-        end
-        
-        legend(axes_handle,classNames_legend);
-        
-        xlabel(axes_handle,'function value','FontWeight','bold');
-    else
-        % do nothing, no func_val available
     end
     
+    %Make list of classes used to put in the legend
+    nClasses_used = length(classes_used);
+    for i=1:nClasses_used
+        classNames_legend{i} = classNames{classes_used(i)};
+    end
+    
+    xlabel(axes_handle,'function value','FontWeight','bold');
 else
-    error(['Too many classes, Max number of classes: ' num2str(length(colourList))]);
+    % do nothing, no func_val available
 end
+
+hold on
+lims = get(axes_handle,'YLim');
+if strcmp(PRT.model(model).input.machine.function,'prt_machine_gpml')
+    x = 0.5*ones(2,1);
+    plot(axes_handle,x,lims,'--','Color',[1 1 1]*.6);
+else
+    x = zeros(2,1);
+    plot(axes_handle,x,lims,'--','Color',[1 1 1]*.6);
+end
+legend(axes_handle,[classNames_legend,{'Threshold'}]);
