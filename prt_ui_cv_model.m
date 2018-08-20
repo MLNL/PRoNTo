@@ -30,7 +30,7 @@ function varargout = prt_ui_cv_model(varargin)
 
 % Edit the above text to modify the response to help prt_ui_cv_model
 
-% Last Modified by GUIDE v2.5 04-Nov-2011 18:47:47
+% Last Modified by GUIDE v2.5 20-Aug-2018 15:38:52
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -136,6 +136,9 @@ set(handles.unslist,'Enable','off')
 set(handles.sellist,'Enable','off')
 set(handles.selallbutt,'Enable','off')
 set(handles.runbutt,'Enable','off')
+handles.save_weights=0;
+handles.perm = 0;
+handles.nperm = 0;
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -185,12 +188,16 @@ end
 list={handles.dat.model(:).model_name};
 set(handles.unslist,'String',list)
 set(handles.sellist,'String',{''})
+set(handles.unslist,'Value',1)
+set(handles.sellist,'Value',1)
 handles.models=cell(1,2);
 handles.models{1}=1:length(list);
 handles.models{2}=[];
 set(handles.unslist,'Enable','on')
 set(handles.sellist,'Enable','on')
 set(handles.selallbutt,'Enable','on')
+
+handles.pathdir = spm_fileparts(handles.fname);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -236,13 +243,17 @@ if ~isfield(handles.dat,'model')
 end
 list={handles.dat.model(:).model_name};
 set(handles.unslist,'String',list)
+set(handles.unslist,'Value',1)
 set(handles.sellist,'String',{''})
+set(handles.sellist,'Value',1)
 handles.models=cell(1,2);
 handles.models{1}=1:length(list);
 handles.models{2}=0;
 set(handles.unslist,'Enable','on')
 set(handles.sellist,'Enable','on')
 set(handles.selallbutt,'Enable','on')
+
+handles.pathdir = spm_fileparts(handles.fname);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -387,10 +398,92 @@ for i=1:length(handles.models{2})
     else
         prt_cv_model(PRT, in);
     end
+    clear PRT
+    load(handles.fname);
+    if handles.perm
+        if handles.nperm == 0
+            beep
+            disp('No number of permutations specified, aborting')
+            continue
+        else
+            disp('--------------------------------------------------------')
+            disp('Performing permutation test.........>>')
+            prt_permutation(PRT, handles.nperm, mid, handles.pathdir,...
+                handles.save_weights);  
+            clear PRT
+            load(handles.fname);
+        end
+    end
     disp('--------------------------------------------------------')
     disp(['Model ',char(in.model_name),' run completed'])
     disp('--------------------------------------------------------')
-    clear PRT
-    load(handles.fname);
 end
 delete(handles.figure1)
+
+
+% --- Executes on button press in permflag.
+function permflag_Callback(hObject, eventdata, handles)
+% hObject    handle to permflag (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of permflag
+flag=get(handles.permflag,'Value');
+if flag
+    handles.perm=1;
+else
+    handles.perm=0;
+    handles.nperm = 0;
+    set(handles.repedit,'String','Repetitions')
+end
+guidata(hObject, handles);
+
+
+function repedit_Callback(hObject, eventdata, handles)
+% hObject    handle to repedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of repedit as text
+%        str2double(get(hObject,'String')) returns contents of repedit as a double
+reps = str2double(get(handles.repedit,'String'));
+if ~isempty(reps)
+    if length(reps) ==1
+        handles.nperm = round(reps);
+    else
+        beep
+        disp('Please enter only one number for permutations')
+        return
+    end
+end
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function repedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to repedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in save_perm_weights.
+function save_perm_weights_Callback(hObject, eventdata, handles)
+% hObject    handle to save_perm_weights (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of save_perm_weights
+
+flag=get(handles.save_perm_weights,'Value');
+if flag
+    handles.save_weights=1;
+else
+    handles.save_weights=0;
+end
+guidata(hObject, handles);
