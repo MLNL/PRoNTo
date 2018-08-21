@@ -161,7 +161,7 @@ groups     = {PRT.group(:).gr_name};
 t_all    = zeros(n,1);
 samp_all = zeros(n,1);
 
-if ~isempty(PRT.group(1).subject(1).modality(1).covar)
+if isfield(PRT.group(1).subject(1).modality(1),'covar') && ~isempty(PRT.group(1).subject(1).modality(1).covar)
     cov_all = zeros(n,size(PRT.group(1).subject(1).modality(1).covar,2)); % Assume all subjects have the same number of covariates
 else
     cov_all = [];

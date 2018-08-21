@@ -104,7 +104,11 @@ for i=1:nm
                 m2= find(strcmpi(mods{1},{PRT.group(j).subject(k).modality(:).mod_name}));
             end
             des=PRT.group(j).subject(k).modality(m2).design;
-            rt_subj=PRT.group(j).subject(k).modality(m2).rt_subj;
+            if isfield(PRT.group(j).subject(k).modality(m2),'rt_subj')
+                rt_subj=PRT.group(j).subject(k).modality(m2).rt_subj;
+            else
+                rt_subj = [];
+            end
             if isstruct(des) && flag
                 if k==1 && j == 1
                     lcond={des.conds(:).cond_name};
