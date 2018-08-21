@@ -18,11 +18,11 @@ end
 minw = min(weights);
 maxw = max(weights);
 if minw<0 && maxw>0 % Both negative and positive, diverging colormap
-    colneg = cbrewer('seq','Blues',127);
+    colneg = cbrewer('seq','Blues',128);
     colpos = cbrewer('seq','Reds',128);
-    cols  = [flip(colneg,1);[0.5 0.5 0.5];colpos];
+    cols  = [flip(colneg,1);colpos];
     valspos = round((weights(weights>0) ./ maxw) *127)+1;
-    valsneg = -(round((weights(weights<0) ./ minw) *126)+1);
+    valsneg = -(round((weights(weights<0) ./ minw) *127)+1);
     valsN = weights;
     valsN(weights>0) = valspos;
     valsN(weights<0) = valsneg;
@@ -32,16 +32,16 @@ if minw<0 && maxw>0 % Both negative and positive, diverging colormap
     labels = [minw;0;maxw];
 elseif minw>=0 && maxw>0 % Only positive, sequential red colormap
     colpos = cbrewer('seq','Reds',255);
-    cols  = [[0.5 0.5 0.5];colpos];
+    cols  = colpos;
     valsN = round(((weights) ./ (maxw-minw)) .* 255)+1;
     newticks = [1 256];
-    labels = [0;maxw];
+    labels = [minw;maxw];
 elseif minw<0 && maxw<=0 % Only negative, sequential blue colormap
     colneg = cbrewer('seq','Blues',255);
-    cols  = [colneg;[0.5 0.5 0.5]];
+    cols  = flip(colneg,1);
     valsN = round(((weights) ./ (maxw-minw)) .* 255)+1;
     newticks = [1 256];
-    labels = [minw;0];
+    labels = [minw;maxw];
 elseif (minw==0 && maxw==0) || ...
        isnan(minw) && isnan(maxw) % All zeros, just gray
     weights = zeros(size(weights)); 

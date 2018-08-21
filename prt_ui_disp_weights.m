@@ -735,7 +735,7 @@ if ~isempty(datmod) % Chosen model has modality weight values
     set(handles.modtable,'ColumnName',{'Modality','Weight (%)','Exp. Ranking'});
     if handles.flagmodMKL %only MKL across modalities, not across regions on top
         %Bar graph to show modality weights
-        prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod));
+        prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod,ffi));
 %         handles = guidata(hObject);
     end
     
@@ -844,7 +844,7 @@ if ~isempty(handles.datmod)
     if ~isfield(handles,'sort_roi') ||... % chosen model has no ROI values
          isempty(handles.sort_roi) 
         %Bar graph to show modality weights
-         prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod));
+         prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod,ffi));
     end
 end
 
@@ -1255,7 +1255,7 @@ for i=1:length(st.vols) % Image was added to variable st
             set(st.vols{idxw}.ax{3}.ax,'parent',handles.weightspanel);
             if ~isempty(xyz_above)
                 set(st.vols{idxw}.blobs{1}.cbar,'parent',handles.weightspanel);
-%                 cbp = get(st.vols{idxw}.blobs{1}.cbar,'Position'); % Colorbar position
+                set(st.vols{idxw}.blobs{1}.cbar,'YAxisLocation','right'); % Colorbar labels on the right
 %                 set(st.vols{idxw}.blobs{1}.cbar,'Position',...
 %                     [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
                 handles.posaxe4 = get(st.vols{idxw}.blobs{1}.cbar,'Position');
