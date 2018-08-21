@@ -247,7 +247,7 @@ for i=1:length(PRT.masks)
                 end
                 % atlas
                 if isfield(job.format.matmodality(ind),'atlasmat')
-                    mod(i).atlasroi = job.format.modality(ind).atlasmat{1};
+                    mod(i).atlasroi = job.format.matmodality(ind).atlasmat{1};
                     if ~isempty(mod(i).atlasroi)
                         mod(i).multroi = 1;
                     else
