@@ -53,6 +53,26 @@ Importantly, if one wants to avoid discarding scans and having to correct for th
 
 The steps to specify the information relative to the data and design using both the GUI and the {\tt matlabbatch} system are described in the following sections.
 
+\subsection{Covariates}
+\label{sec:Covariates}
+
+When providing one image per subject for multiple subjects, the user can introduce `Covariates', i.e. one or more variables that covary with the data (subjects) but of no interest to the subsequent analyses. This option is functional in version 2.1 of PRoNTo. It requires the input of a matrix, with one row per image/subject. Before entering covariates in PRoNTo, we recommend users to firstly check that their covariates do not correlate with the targets as this could lead to biases (positive or negative) in the obtained results \cite{Miller2001}. 
+In addition, if users have categorical covariates, such as genders, scanner centres, handness et al., we recommend one-hot encoding before constructing the covariate matrix. One-hot encoding represents each value of a variable (for example `center1', `center2') as a boolean `True/False' variable. The obtained variables are then concatenated. This process ensures that all values of the categorical variable are treated with the same importance. This wouldn't be the case if mapping the categorical values to integers, e.g. `center1' to 1 and `center2' to 2. In this last example, we'd assume that `center2' is \textit{bigger} than `center1' although there is no reason to encode an ordinal relationship between `center1' and `center2'. Here is an example code to perform one-hot encoding for an illustration covariate variable `cov' for 12 samples/images and 4 possible values: \linebreak
+
+\noindent\makebox[\textwidth][c]{\begin{minipage}{0.6 \textwidth}
+\color{Gray}
+\texttt{cov = [4 8 1 5 4 8 1 5 1 5 4 8];}\linebreak
+\texttt{vals = unique(cov)};\linebreak
+\texttt{newcovs = zeros(length(cov),length(vals))};\linebreak
+\texttt{for i = 1:length(vals)}\linebreak
+\hspace*{1cm}\texttt{newcovs(:,i) = cov== vals(i);}\linebreak
+\texttt{end}\linebreak
+\end{minipage}}
+
+If multiple categorical variables need to be encoded, this process should be repeated and all obtained matrices concatenated to obtain a $\# samples/images \times \# variables$ matrix. Please note: a variant of this scheme ignores the last value as it is implicitly encoded by $[0,...,0]$. In the case of removing confounds, this is however not appropriate.  
+
+\textbf{Important note on covariates:} Regressing out covariates is still a matter of debate \cite{Miller2001} and should be considered with care. The removal of confounds is a linear regression and wouldn't account for more complex relationships between confounds and variables of interest or between multiple confounds (e.g. all older patients recorded at one site). Balanced and careful experimental designs should be preferred.
+
 \section{Graphical User interface}
 
 The graphical user interface to specify the data and design is presented in Figure \ref{Fig2.2}. This GUI can be launched by typing `prt' in the Matlab window and then clicking the first button on the left, in the main steps panel.
@@ -76,6 +96,7 @@ The group panel allows one to add or remove a group of subjects. The minimum num
 The following panel after `Groups' is `Subjects/Scans'. Here, as mentioned above, there are two ways of entering the data: by `subjects' or by `scans'. The former is chosen by clicking `Add' under the `Subjects/Scans' panel and filling in the fields for each added subject at a time. The latter is done by clicking the tick box `Scans' under the `Subjects/Scans' panel. The subjects panel is then de-activated and the user can enter the modalities and files straight away. The fields to be filled under these two options are described below.
 
 \subsection{Subjects}
+\label{sec:SelectBySection}
 
 \paragraph{Select by scans} The `select by scans' option allows the users to skip the subject step. To identify that this option has been selected, PRoNTo writes `scans' in the subjects panel (Figure \ref{Fig2.3}). The user can then add modalities and for each modality a new window will appear (bottom of Figure \ref{Fig2.3}). 
 
@@ -99,20 +120,7 @@ The steps to enter the modality information are slightly different if one ticks 
 
 \paragraph{Select by scans} Here the data is assumed to have been acquired without an experimental design, and therefore the `No design' option is automatically selected and cannot be changed (bottom window in Figure \ref{Fig2.3}). 
 
-When selecting by scans, the user can introduce `Covariates', i.e. a variable that covaries with the data (subjects) but of no interest to the subsequent analyses. This option is functional in version 2.1 of PRoNTo. It requires the input of a matrix, with one row per image/subject. This matrix can either be entered as a Matlab command in the editable box, or the full path to a .mat containing the matrix should be provided (matrix named  `R'). This last option is recommended to input a matrix (i.e. more than one covariate). The order of covariates should match the order the imaging files are selected. Before entering covariates in PRoNTo, we recommend users to firstly check that their covariates do not correlate with the targets as this could lead to biases (positive or negative) in the obtained results \cite{Miller2001}. 
-In addition, if users have categorical covariates, such as genders, scanner centres, handness et al., we recommend one-hot encoding before constructing the covariate matrix. One-hot encoding represents each value of a variable (for example `center1', `center2') as a boolean `True/False' variable. The obtained variables are then concatenated. This process ensures that all values of the categorical variable are treated with the same importance. This wouldn't be the case if mapping the categorical values to integers, e.g. `center1' to 1 and `center2' to 2. In this last example, we'd assume that `center2' is \texit{bigger} than `center1' although there is no reason to encode an ordinal relationship between `center1' and `center2'. Here is an example code to perform one-hot encoding for an illustration covariate variable `cov': \linebreak
-
-\noindent\makebox[\textwidth][c]{\begin{minipage}{0.6 \textwidth}
-\color{Gray}
-\texttt{cov = [4 8 1 5 4 8 1 5 1 5 4 8];}\linebreak
-\texttt{vals = unique(cov)};\linebreak
-\texttt{newcovs = zeros(length(cov),length(vals))};\linebreak
-\texttt{for i = 1:length(vals)}\linebreak
-\hspace*{1cm}\texttt{newcovs(:,i) = cov== vals(i);}\linebreak
-\texttt{end}\linebreak
-\end{minipage}}
-
-If multiple variables need to be encoded, this process should be repeated and all obtained matrices concatenated to obtain a $\# images \times \# variables$ matrix. Please note: a variant of this scheme ignores the last value as it is implicitly encoded by $[0,...,0]$. In the case of removing confounds, this is however not appropriate.    
+When selecting by scans, the user can introduce `Covariates', i.e. one or more variables that covary with the data (subjects) but of no interest to the subsequent analyses. This option is functional in version 2.1 of PRoNTo. It requires the input of a matrix, with one row per image/subject. This matrix can either be entered as a Matlab command in the editable box, or as the full path to a .mat containing the matrix (variable named  `R'). This last option is recommended to input a matrix (i.e. more than one covariate). The order of covariates should match the order the imaging files are selected. Please see \ref{sec:Covariates} for important considerations on covariates.
 
 The last empty field can be used to enter `Regression targets'  (Figure \ref{Fig2.3}). This option allows the users to introduce a real number per subject to be used later for regression if that is the case. A file can also be selected, with all regression target values stored in a variable called `rt\_subj' and of size $\# images \times 1$. As mentioned above, this is the only way of entering the data and regression values when doing \textit{Regression} models.
 

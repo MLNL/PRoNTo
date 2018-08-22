@@ -96,7 +96,7 @@ In this panel, the cross-hair position is displayed in voxels and in mm. It can 
 Additional information will be displayed in two main cases:
 \begin{itemize}
 \item \textbf{Multiple Kernel Learning modelling:} MKL modelling, based on modalities or on regions as defined by an atlas, will provide weights at two levels: the kernel level and the voxel level. The kernel contributions, which sum to 1, can then be ranked in descending order. 
-\item \textbf{Summarizing weights per region:} Starting from PRoNTo v2.0, weights can be summarized within regions of interest as defined by an atlas (user-specified). For each region, a normalized contribution can be defined, and those contributions can then be ranked in descending order. If summarizing weights by using an atlas is desired, this atlas should be used as a second level mask in the 'feature set' step. Otherwise, any voxels used as features in the model but not present in the atlas will be summarized in one extra region referred to as 'other' that will not correspond to any anatomical region. In this case, users will see one extra region in the ROI label column in a table. 
+\item \textbf{Summarizing weights per region:} Starting from PRoNTo v2.0, weights can be summarized within regions of interest as defined by an atlas (user-specified). For each region, a normalized contribution can be defined, and those contributions can then be ranked in descending order. If the atlas was not selected as second-level mask at the feature set step, users might see one extra region in the ROI label column in a table labelled as `other' (see \ref{chap:ComputeWeights}). 
 \end{itemize}
 
 In both cases, the region/modality contributions will be displayed in a table as well as in a bar plot, for each fold and for their average (according to the selected fold in the \texttt{Display} panel). An example is displayed in Figure \ref{fig_prt_ui_weights_ROI}, for weight summarization after GP modelling.
@@ -137,6 +137,7 @@ When selecting a specific region label in the table, the weight map will only di
 Finally, the table can be exported as a text file using the `Export Table' button.
 
 \subsubsection{Bar plot of contributions}
+
 The bar plot displays the third column of the table, i.e. the contribution of each ROI or modality to the decision function. The x-axis represents the index of the ROI in the table (i.e. first column of the table), in the selected fold, while the y-axis displays the contribution of each region/modality. The bar graph provides insights on how sparse or dense the region/modality contributions are.
 
 
