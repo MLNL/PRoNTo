@@ -4,7 +4,7 @@ function copymodel = prt_cfg_copy_model
 %_______________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by Jessica Schrouff
+% Written by Jessica Schrouff based on prt_cfg_model
 % $Id$
 
 def = prt_get_defaults;
@@ -689,21 +689,13 @@ modify.val     = {tochange};
 % copymodel Model
 % ---------------------------------------------------------------------
 copymodel        = cfg_exbranch;
-copymodel.tag    = 'model';
-copymodel.name   = 'Copy model';
+copymodel.tag    = 'copymodel';
+copymodel.name   = 'Model: Specify from';
 copymodel.val    = {infile, ...
                 model_name, ...
                 copymodel_name, ...
                 tochange};
-% model.val    = {infile, ...
-%     model_name, ...
-%     use_kernel, ...
-%     fsets, ...
-%     model_type, ...
-%     cv_type,...
-%     include_allscans,...
-%     sel_ops};
-copymodel.help   = {'Copy model and change a few fields.'};
+copymodel.help   = {'Specify model from a previsouly specified model and change a few fields.'};
 copymodel.prog   = @prt_run_copy_model;
 copymodel.vout   = @vout_data;
 
@@ -723,70 +715,6 @@ cdep(2).src_output = substruct('.','mname');
 cdep(2).tgt_spec   = cfg_findspec({{'strtype','s'}});
 %------------------------------------------------------------------------
 
-% ---------------------------------------------------------------------
-% include_allscans Include unused scans
-% ---------------------------------------------------------------------
-% include_allscans         = cfg_menu;
-% include_allscans.tag     = 'include_allscans';
-% include_allscans.name    = 'Include all scans';
-% include_allscans.labels  = {
-%     'Yes'
-%     'No'
-% }';
-% include_allscans.values  = {1 0};
-% include_allscans.val     = {0};
-% include_allscans.help    = {[...
-%     'This option can be used to pass all the scans for each subject to ',...
-%     'the learning machine, regardless of whether they are directly ',...
-%     'involved in the classification or regression problem. For example, ',...
-%     'this can be used to estimate a GLM from the whole timeseries ',...
-%     'for each subject prior to prediction. This would allow the resulting ',...
-%     'regression coefficient images to be used as samples.']};
-
-% ---------------------------------------------------------------------
-% subsample : flag whether to subsample classes
-% ---------------------------------------------------------------------
-% subsample         = cfg_menu;
-% subsample.tag     = 'subsample';
-% subsample.name    = 'Subsample examples based on class definition';
-% subsample.help    = {['Whether to subsample the example, or not. '...
-%     'If Yes, the code will match the number of examples in each class '...
-%     'as close as possible. This operation takes the duration of the examples' ...
-%     'into account (i.e. will not cut an event).']};
-% subsample .labels  = {
-%     'No'
-%     'Yes'
-%     }';
-% subsample.values  = {0 1};
-% subsample.val     = {0};
-
-% % ---------------------------------------------------------------------
-% % classes Classes
-% % ---------------------------------------------------------------------
-% classes         = cfg_repeat;
-% classes.tag     = 'classes';
-% classes.name    = 'Classes';
-% classes.help    = {['Specify which elements belong to this class. Click ''new'' '...
-%                            'or ''repeat'' to add another class.']};
-% classes.num     = [1 Inf];
-% classes.values  = {class};
-
-% ---------------------------------------------------------------------
-% indmodels Flag to perform one model per kernel
-% ---------------------------------------------------------------------
-% indmodels         = cfg_menu;
-% indmodels.tag     = 'indmodels';
-% indmodels.name    = 'One model per kernel?';
-% indmodels.help    = {...
-%     ['Do you want to estimate one model per kernel? ', ...
-%      'If ''No'' is selected, the kernels will be considered jointly. ',...
-%      'If ''Yes'' is selected, the kernels will be considered independently.']};
-% indmodels.labels  = {
-%                'Yes'
-%                'No'
-% }';
-% indmodels.values  = {1 0};
-% indmodels.val     = {0};
 % ---------------------------------------------------------------------
 % use_kernel Use Kernels - Do not allow to change kernel or not
 % ---------------------------------------------------------------------

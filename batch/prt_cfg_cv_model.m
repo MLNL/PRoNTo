@@ -128,7 +128,7 @@ perm_test.help   = {'Perform a permutation test on accuracy, or not'};
 % ---------------------------------------------------------------------
 cv_model        = cfg_exbranch;
 cv_model.tag    = 'cv_model';
-cv_model.name   = 'Run model';
+cv_model.name   = 'Model: Run';
 cv_model.val    = {infile model_name perm_test};
 cv_model.help   = {...
     ['Trains and tests the predictive machine using the cross-validation ',...
