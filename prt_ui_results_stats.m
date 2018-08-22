@@ -241,7 +241,7 @@ else
             if length(PRT.model(mi(m)).output.stats.c_acc) == 2 
                 plots = {'Accuracy Distribution','Predictions','ROC'};
             else
-                plots = {'Accuracy Distribution','Predictions'};
+                plots = {'Accuracy Distribution'};
             end
         else
             plots = {'Prediction Errors', 'R2'};
@@ -331,7 +331,7 @@ if fold ==1
         if length(handles.PRT.model(mi(m)).output.stats.c_acc) <= 2 
             plots = {'Accuracy Distribution','Predictions','ROC'};
         else
-            plots = {'Accuracy Distribution','Predictions'};
+            plots = {'Accuracy Distribution'};
         end
     else
         plots = {'Prediction Errors', 'R2'};
@@ -341,7 +341,7 @@ else
         if length(handles.PRT.model(mi(m)).output.stats.c_acc) <= 2 
             plots = {'Histogram','Confusion Matrix','Predictions','ROC'};
         else
-            plots = {'Histogram','Confusion Matrix','Predictions'};
+            plots = {'Histogram','Confusion Matrix'};
         end
     else
         plots = {'Prediction Errors','Predictions (scatter)', 'Predictions (bar)', 'Predictions (line)'};
