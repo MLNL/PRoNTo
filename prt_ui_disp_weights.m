@@ -544,7 +544,11 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
            handles.idfeat_roi = cell(length(handles.PRT.fs(fid).modality(mids).idfeat_img),1);
            for i = 1:length(handles.PRT.fs(fid).modality(mids).idfeat_img)
                dat(i,3) = {length(handles.PRT.fs(fid).modality(mids).idfeat_img{i})};
-               handles.idfeat_roi{i} = idfeat(idfeat_fas(handles.PRT.fs(fid).modality(mids).idfeat_img{i}));
+               if ~isempty(idfeat) %nifti
+                    handles.idfeat_roi{i} = idfeat(idfeat_fas(handles.PRT.fs(fid).modality(mids).idfeat_img{i}));
+               else
+                   handles.idfeat_roi{i} = idfeat_fas(handles.PRT.fs(fid).modality(mids).idfeat_img{i});
+               end
            end
        end
        set(handles.disp_regions,'Enable','on')
@@ -1595,10 +1599,15 @@ wmap = squeeze(wmap);
 dim_mat = size(wmap);
 
 if ~isempty(handles.selectedcell) && ~isempty(handles.idfeat_roi)
-    matroi = NaN * ones(dim_mat);
-    idroi = handles.idfeat_roi{handles.sort_roi(handles.selectedcell(1))};
-    matroi(idroi) = 1;
-    handles.roimatdisp = matroi;
+    try
+        matroi = NaN * ones(dim_mat);
+        idroi = handles.idfeat_roi{handles.sort_roi(handles.selectedcell(1))};
+        matroi(idroi) = 1;
+        handles.roimatdisp = matroi;
+    catch % When MEEG objects do not have the same size as the original file
+        matroi = ones(dim_mat);
+        handles.roimatdisp = matroi;
+    end
 else
     matroi = ones(dim_mat);
     handles.roimatdisp = matroi;
@@ -1802,7 +1811,7 @@ fid=fopen(weightname,'w');
 fprintf(fid,'%s\t%s\t%s\t%s\r\n','"ROI Label"','"ROI weight (%)"','"ROI size (vox)"','"Exp. Ranking"');
 dat = handles.dattable;
 dat = dat(handles.sort_roi,:);
-for i = 1:size(num_roi)
+for i = 1:numel(num_roi)
     cellvalue= dat(i,:);
     fprintf(fid,'%s\t%.2f\t%.2f\t%.2f\r\n', cellvalue{:});
 end

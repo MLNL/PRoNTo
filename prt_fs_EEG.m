@@ -96,12 +96,13 @@ else
 end
 
 % Build kernels
-
+PRT.fs(fid).atlas_label = {};
 Phi = [];
 nim1 =length(find(PRT.fs(fid).id_mat(:,3) == mids(1)));
 PRT.fs(fid).multkernelROI = 0;
 PRT.fs(fid).multkernel = 0;
 addin.n_vols_s = n_vols_s;
+Dsubj1 = PRT.fas(mids(1)).hdr;
 
 for ik = 1:nkm
     if in.flag_mm
@@ -144,6 +145,7 @@ for ik = 1:nkm
         igd = []; %indexes of non 0 kernels
         nroi = 1;
         addin.buildkern = 1;
+        lab_atl = cell(n_kern(ik),1);
         for ich = 1:kernt(1)
             itpstart = 1;
             for ifr = 1:kernt(2)
@@ -151,25 +153,44 @@ for ik = 1:nkm
                     disp ([' > Computing kernel: ', ...
                         num2str(nroi),' of ',num2str(n_kern(ik)),' ...'])
                     % Build mask corresponding to which kernel to build
-                    if kernt(1) ==1, icht = in.mod(mids(ik)).ich(1:dim_m(ik,1)); 
-                    else icht = in.mod(mids(ik)).ich(ich); end %i
+                    if kernt(1) ==1
+                        icht = in.mod(mids(ik)).ich(1:dim_m(ik,1)); 
+                    else
+                        icht = in.mod(mids(ik)).ich(ich);
+                        lab_atl{nroi} = char(chanlabels(Dsubj1,icht));
+                    end %i
                     if kernt(2) ==1
                         if ~isempty(in.mod(mids(ik)).ifr)
-                            ifrt = in.mod(mids(ik)).ifr(1:dim_m(ik,2)); 
+                            ifrt = in.mod(mids(ik)).ifr(1:dim_m(ik,2));
                         else
                             ifrt = 1;
                         end
                     else
                         ifrt = in.mod(mids(ik)).ifr(ifr); 
+                        if ~isempty(lab_atl{nroi})
+                            lab_atl{nroi} = [lab_atl{nroi},'_Fr',num2str(ifrt)];
+                        else
+                            lab_atl{nroi} = ['Fr',num2str(ifrt)];
+                        end
                     end %i
                     if kernt(3) ==1                 %consider all frequencies selected
                         itpt = in.mod(mids(ik)).itp(1:dim_m(ik,3)); 
                     elseif kernt(3)== dim_m(ik,3)   %one kernel per tp
                         itpt = in.mod(mids(ik)).itp(itp); 
+                        if ~isempty(lab_atl{nroi})
+                            lab_atl{nroi} = [lab_atl{nroi},'_Tp',num2str(itpt)];
+                        else
+                            lab_atl{nroi} = ['Tp',num2str(itpt)];
+                        end
                     else                            %one kernel per time window
+                        if ~isempty(lab_atl{nroi})
+                            lab_atl{nroi} = [lab_atl{nroi},'_TpWin',num2str(round(itpstart))];
+                        else
+                            lab_atl{nroi} = ['TpWin',num2str(round(itpstart))];
+                        end
                         itpstop = min(itpstart+winsize-1,length(in.mod(mids(ik)).itp));
                         itpt = in.mod(mids(ik)).itp(round(itpstart):round(itpstop));
-                        itpstart = itpstart+winsize;
+                        itpstart = itpstart+winsize;                        
                     end %i
                     tot_vox = 1:numel(mask{ik});
                     tot_vox = reshape(tot_vox,size(mask{ik}));
@@ -199,6 +220,7 @@ for ik = 1:nkm
         end
         PRT.fs(fid).multkernelROI = 1;
         PRT.fs(fid).atlas_name = 'Ch_fr_tp';
+        PRT.fs(fid).atlas_label{ik} = lab_atl;
         if isempty(igd)
             error('prt_fs:NoDataInMask',...
                 'Signal is zero for at least one event, cannot create kernel')
@@ -219,6 +241,7 @@ for ik = 1:nkm
         PRT.fs(fid).id_mat=PRT.fs(fid).id_mat(indm,:);
         PRT.fs(fid).multkernel = 1;
         PRT.fs(fid).atlas_name = [];
+        PRT.fs(fid).atlas_label = {};
     end
     Phi= [Phi, Phim];
     clear Phim
