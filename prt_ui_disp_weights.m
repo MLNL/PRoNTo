@@ -28,7 +28,7 @@ function varargout = prt_ui_disp_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_disp_weights
 
-% Last Modified by GUIDE v2.5 09-Mar-2015 16:15:47
+% Last Modified by GUIDE v2.5 22-Aug-2018 13:25:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
