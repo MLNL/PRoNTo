@@ -8,6 +8,14 @@ function [tpr,fpr] = prt_tpr_fpr(targets,scores)
 % Outputs:
 %        tpr: true positive rate
 %        fpr: false positive rate
+%__________________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
+% Written by T. Wu 
+
+% Reference: Fawcett, T. (2006). An introduction to ROC analysis. Pattern 
+% Recognition Letters, 27(8), 861–874. https://doi.org/10.1016/J.PATREC.2005.10.010
+%--------------------------------------------------------------------------
 
 % Check that problem is binary
 numClass = numel(unique(targets(:)));
