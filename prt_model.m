@@ -3,10 +3,6 @@ function [PRT, CV, ID] = prt_model(PRT,in)
 %
 % Input:
 % ------
-%   PRT fields:
-%   model.fs(f).fs_name:     feature set(s) this CV approach is defined for
-%   model.fs(f).fs_features: feature selection mode ('all' or 'mask')
-%   model.fs(f).mask_file:   mask for this feature set (fs_features='mask')
 %
 %   in.fname:      filename for PRT.mat
 %   in.model_name: name for this cross-validation structure
@@ -63,19 +59,22 @@ else
 end
     
 
-for f = 1:length(in.fs)
-    fid = prt_init_fs(PRT,in.fs(f));    
+for f = 1:length(in.fs)  
     PRT.model(modelid).input.fs(f).fs_name = in.fs(f).fs_name;
 end
 
 % compute targets and samp_idx
 % -------------------------------------------------------------------------
+
+% Get targets, samples and covariates
 if strcmp(in.type,'classification')
     [targets, samp_idx, t_allscans, samp_allscans,covar,cov_all] = compute_targets(PRT, in, 0,subsample);
 else
- % One RT per trial
+    % One RT per trial
     [targets, samp_idx, t_allscans,samp_allscans, covar,cov_all] = compute_targets(PRT, in, 1,subsample);
 end
+
+
 %[afm]
 if isfield(in,'include_allscans') && in.include_allscans   
     PRT.model(modelid).input.samp_idx = samp_allscans;
@@ -136,22 +135,19 @@ function [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PR
 fid = prt_init_fs(PRT, in.fs(1));
 ID  = PRT.fs(fid).id_mat;
 n   = size(ID,1);
-idtc = [1,2,4:6]; % check for all columns in ID matrix except modality
-% Check the feature sets have the same number of samples (eg for MKL).
-if length(in.fs) > 1
-    for f = 1:length(in.fs)
-        fid = prt_init_fs(PRT, in.fs(f));
-        % Stronger constraint: ID matrices should be exactly equal
-        if any(any(PRT.fs(fid).id_mat(:,idtc)~=ID(:,idtc)))
-            error('prt_model:DesignOfFeatureSetsDiffer',...
-                ['Multiple feature sets included, but they have different ',...
-                'designs']);
-        end
+
+% Check the considered feature sets have the same ID matrix.
+idcheck = [1,2,4]; %skip modality column and scans
+for f = 2:length(in.fs)
+    fid_oth = prt_init_fs(PRT, in.fs(f));
+    ID_oth = PRT.fs(fid_oth).id_mat;
+    % Constraint: targets should be exactly equal across feature sets
+    if any(any(ID_oth(:,idcheck)~=ID(:,idcheck)))
+        error('prt_model:DesignOfFeatureSetsDiffer',...
+            ['Multiple feature sets included, but they have different ',...
+            'designs']);
     end
 end
-% only choose the first one to define the targets as they have the same
-% ID matrix
-fid = prt_init_fs(PRT, in.fs(1));
 
 modalities = {PRT.masks(:).mod_name};
 groups     = {PRT.group(:).gr_name};
