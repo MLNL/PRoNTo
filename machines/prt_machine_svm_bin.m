@@ -11,6 +11,8 @@ function output = prt_machine_svm_bin(d,args)
 %                   [Nte x D])
 %     .tr_targets - training labels (for classification) or values (for
 %                   regression) (column vector, [Ntr x 1])
+%     .te_targets - testing labels (for classification) or values (for
+%                   regression) (column vector, [Ntr x 1])
 %     .use_kernel - flag, is data in form of kernel matrices (true) of in 
 %                form of features (false)
 %    args     - libSVM arguments
@@ -118,16 +120,14 @@ sgn   = -1*(2 * model.Label(1) - 3); %variable to account for label convention i
 alpha = get_alpha(model,nlbs,sgn);
 b     = -model.rho *sgn;
 
-% compute prediction directly rather than using svmpredict, which does
-% not allow empty test labels
+% Make predictions and get function values in probabilities
 if iscell(d.test)
-    func_val = cell2mat(d.test)*alpha+b;
+    test = cell2mat(d.test);
 else
-    func_val = d.test*alpha+b;
+    test = d.test;
 end
+[predictions,acc,func_val] = svmpredict(d.te_targets,test,model,'-q -b 1');
 
-% compute hard decisions
-predictions = sign(func_val);
 
 
 % Outputs
@@ -138,7 +138,7 @@ predictions(c1PredIdx)  = 1; %positive values = 1
 predictions(~c1PredIdx) = 2; %negative values = 2 
 
 output.predictions = predictions;
-output.func_val    = func_val;
+output.func_val    = func_val(:,1);
 output.type        = 'classifier';
 output.alpha       = alpha;
 output.b           = b;

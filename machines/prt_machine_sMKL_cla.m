@@ -120,7 +120,7 @@ tr_targets  (~c1PredIdx) = -1; %negative values = 2
 ktrain = zeros(size(d.train{1},1),size(d.train{1},1),size(d.train,2));
 ktest = zeros(size(d.test{1},1),size(d.train{1},1),size(d.train,2));
 for k = 1:size(d.train,2)
-    if sum(sum(isnan(d.train{k})))==0;
+    if sum(sum(isnan(d.train{k})))==0
         ktrain(:,:,k) =  d.train{k}  ;
     end
     if sum(sum(isnan(d.test{k}))) ==0

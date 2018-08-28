@@ -113,8 +113,7 @@ if isempty(model)
 end
 
 
-[predictions,liblinear_acc,func_val] = predict(d.te_targets,sparse(d.test{:}),model,'-q');
-% [predictions,liblinear_acc,func_val] = predict(d.te_targets,d.test{:},model,'-q'); % check if non-sparse matrix works
+[predictions,liblinear_acc,func_val] = predict(d.te_targets,sparse(d.test{:}),model,'-q -b 1');
 
 % Outputs
 %--------------------------------------------------------------------------

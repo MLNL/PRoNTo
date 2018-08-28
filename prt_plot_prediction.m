@@ -119,16 +119,14 @@ if fVvals_exist
     % Change the x axis for gaussian process or RT - change in
     % the future
     y = [0:nfold+1]';
-    if strcmp(PRT.model(model).input.machine.function,'prt_machine_gpml');
-        x = 0.5*ones(nfold+2,1);
-        plot(axes_handle,x,y,'--','Color',[1 1 1]*.6);
-        xlim(axes_handle,[0 1]);
-    elseif strcmp(PRT.model(model).input.machine.function,'prt_machine_RT_bin')
-        % nothing to do - just leave auto scaling
-    else
+    if strcmp(PRT.model(model).input.machine.function,'prt_machine_sMKL_cla')
         x = zeros(nfold+2,1);
         plot(axes_handle,x,y,'--','Color',[1 1 1]*.6);
         xlim(axes_handle,[-maxfv-0.5 maxfv+0.5]);
+    else
+        x = 0.5*ones(nfold+2,1);
+        plot(axes_handle,x,y,'--','Color',[1 1 1]*.6);
+        xlim(axes_handle,[0 1]);
     end
     ylim(axes_handle,[0 nfold+1.3]);
     xlabel(axes_handle,'function value','FontWeight','bold');

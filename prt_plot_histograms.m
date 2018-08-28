@@ -122,11 +122,10 @@ end
 
 hold on
 lims = get(axes_handle,'YLim');
-if strcmp(PRT.model(model).input.machine.function,'prt_machine_gpml')
-    x = 0.5*ones(2,1);
-    plot(axes_handle,x,lims,'--','Color',[1 1 1]*.6);
-else
+if strcmp(PRT.model(model).input.machine.function,'prt_machine_sMKL_cla')
     x = zeros(2,1);
-    plot(axes_handle,x,lims,'--','Color',[1 1 1]*.6);
+else
+    x = 0.5*ones(2,1);    
 end
+plot(axes_handle,x,lims,'--','Color',[1 1 1]*.6);
 legend(axes_handle,[classNames_legend,{'Threshold'}]);
