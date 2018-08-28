@@ -97,7 +97,7 @@ else
     
     
     %Initialize fas field and check which files need to be epoched
-    if ~isfield(PRT,'fas');
+    if ~isfield(PRT,'fas')
         % initialise all modalities (not just those we're working on)
         for m = 1:length(PRT.masks)
             PRT.fas(m)=struct('mod_name',[],'dat',[],'hdr',[]);
@@ -195,7 +195,7 @@ else
     sample_range = 0;
     
     for gid = 1:length(PRT.group) % group
-        for sid = 1:length(PRT.group(gid).subject);  % subject
+        for sid = 1:length(PRT.group(gid).subject)  % subject
             for m = 1:n_mods
                 mid = mids(m);
                 all_scans = 1:n_vols_s{gid,m}{sid};

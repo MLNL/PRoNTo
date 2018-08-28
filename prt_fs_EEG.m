@@ -146,12 +146,18 @@ for ik = 1:nkm
         nroi = 1;
         addin.buildkern = 1;
         lab_atl = cell(n_kern(ik),1);
+        fprintf(['> Computing kernel (out of %d):',repmat(' ',1,ceil(log10(n_kern(ik)))),'%d'],n_kern(ik), nroi);
         for ich = 1:kernt(1)
             itpstart = 1;
             for ifr = 1:kernt(2)
                 for itp = 1:kernt(3)
-                    disp ([' > Computing kernel: ', ...
-                        num2str(nroi),' of ',num2str(n_kern(ik)),' ...'])
+                    % Update kernel counter display
+                    if nroi>1
+                        for idisp = 1:ceil(log10(nroi)) % delete previous counter display
+                            fprintf('\b');
+                        end
+                        fprintf('%d',nroi);
+                    end
                     % Build mask corresponding to which kernel to build
                     if kernt(1) ==1
                         icht = in.mod(mids(ik)).ich(1:dim_m(ik,1)); 
@@ -173,24 +179,25 @@ for ik = 1:nkm
                             lab_atl{nroi} = ['Fr',num2str(ifrt)];
                         end
                     end %i
-                    if kernt(3) ==1                 %consider all frequencies selected
+                    time = in.mod(mids(ik)).time;
+                    if kernt(3) ==1                 %consider all time points selected
                         itpt = in.mod(mids(ik)).itp(1:dim_m(ik,3)); 
                     elseif kernt(3)== dim_m(ik,3)   %one kernel per tp
                         itpt = in.mod(mids(ik)).itp(itp); 
                         if ~isempty(lab_atl{nroi})
-                            lab_atl{nroi} = [lab_atl{nroi},'_Tp',num2str(itpt)];
+                            lab_atl{nroi} = [lab_atl{nroi},'_Tp',num2str(time(itpt))];
                         else
-                            lab_atl{nroi} = ['Tp',num2str(itpt)];
+                            lab_atl{nroi} = ['Tp',num2str(time(itpt))];
                         end
                     else                            %one kernel per time window
-                        if ~isempty(lab_atl{nroi})
-                            lab_atl{nroi} = [lab_atl{nroi},'_TpWin',num2str(round(itpstart))];
-                        else
-                            lab_atl{nroi} = ['TpWin',num2str(round(itpstart))];
-                        end
                         itpstop = min(itpstart+winsize-1,length(in.mod(mids(ik)).itp));
                         itpt = in.mod(mids(ik)).itp(round(itpstart):round(itpstop));
-                        itpstart = itpstart+winsize;                        
+                        itpstart = itpstart+winsize;    
+                        if ~isempty(lab_atl{nroi})
+                            lab_atl{nroi} = [lab_atl{nroi},'_TpWin',num2str(time(itpt(1)))];
+                        else
+                            lab_atl{nroi} = ['TpWin',num2str(time(itpt(1)))];
+                        end
                     end %i
                     tot_vox = 1:numel(mask{ik});
                     tot_vox = reshape(tot_vox,size(mask{ik}));
@@ -219,7 +226,7 @@ for ik = 1:nkm
             end
         end
         PRT.fs(fid).multkernelROI = 1;
-        PRT.fs(fid).atlas_name = 'Ch_fr_tp';
+        PRT.fs(fid).atlas_name = {'Ch_fr_tp'};
         PRT.fs(fid).atlas_label{ik} = lab_atl;
         if isempty(igd)
             error('prt_fs:NoDataInMask',...
@@ -245,6 +252,7 @@ for ik = 1:nkm
     end
     Phi= [Phi, Phim];
     clear Phim
+    fprintf('\n') % new line 
 end
 
 % Save kernel and function output

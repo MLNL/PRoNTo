@@ -45,14 +45,16 @@ end
 % Weights per ROI
 % -------------------------------------------------------------------------
 if isfield(job, 'build_wpr')
-    if isfield(job.build_wpr,'atl_name') && ~isempty(job.build_wpr.atl_name{1})
+    if isfield(job.build_wpr,'atl_name') && ...
+            ~isempty(job.build_wpr.atl_name) && ...
+            ~isempty(job.build_wpr.atl_name{1})
         for i=1:size(job.build_wpr.atl_name{1},1)
             in.atl_name{i} = job.build_wpr.atl_name{i};
         end
         flag2 = 1;
     else
         in.atl_name = {};
-        flag2 = 0;
+        flag2 = 1; % will try to use loaded atlas
     end
 else % This should make things compatible older jobs...
     in.atl_name = {};

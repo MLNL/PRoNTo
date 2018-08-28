@@ -489,8 +489,15 @@ in.tocomp = zeros(1,length(in.tocomp));
 %further computation of the weights
 PRT.fs(fid).modality(ind_mod).idfeat_img = cell(nroi,1);
 igd = []; %indexes of non 0 kernels
+fprintf(['> Computing kernel (out of %d):',repmat(' ',1,ceil(log10(nroi))),'%d'],nroi, 1);
 for i=1:nroi
-    disp ([' > Computing kernel: ', num2str(i),' of ',num2str(nroi),' ...'])
+    % Counter of kernels to be updated
+    if i>1
+        for idisp = 1:ceil(log10(i)) % delete previous counter display
+            fprintf('\b');
+        end
+        fprintf('%d',i);
+    end
     addin.idvox_fas = idt(interh == roi(i));
     [PRT,Phim] = prt_fs_modality(PRT,in,1,addin);
     [d1,idmax] = max(Phim);
@@ -507,6 +514,7 @@ for i=1:nroi
     %         idts = idt(interh == roi(i));
     PRT.fs(fid).modality(ind_mod).idfeat_img{i} = find(interh == roi(i)) ;
 end
+fprintf('\n') % new line 
 PRT.fs(fid).multkernelROI = 1;
 if ~isempty(igd)
     PRT.fs(fid).modality(ind_mod).idfeat_img = PRT.fs(fid).modality(ind_mod).idfeat_img(igd);

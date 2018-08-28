@@ -67,7 +67,6 @@ atl_name.ufilter = '.*';
 atl_name.filter  = 'image';
 atl_name.num     = [0 inf];
 atl_name.val     = {{''}};
-atl_name.def     = @(val)prt_get_defaults('fs.atlasroi', val{:});
 atl_name.help    = {'Select atlas file to build weights per ROI.'};
 
 % ---------------------------------------------------------------------

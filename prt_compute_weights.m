@@ -130,7 +130,11 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
     end
     
     if isempty(in.atl_name{ifs}) && mult_kern_ROI
-        in.atl_name{ifs} = PRT.fs(fs_idx).atlas_name{1};
+        if iscell(PRT.fs(fs_idx).atlas_name)
+            in.atl_name{ifs} = PRT.fs(fs_idx).atlas_name{1};
+        else
+            in.atl_name{ifs} = PRT.fs(fs_idx).atlas_name;
+        end
     end
 
     % Compute the total number of images to be computed
