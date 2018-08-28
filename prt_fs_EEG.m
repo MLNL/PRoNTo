@@ -179,7 +179,7 @@ for ik = 1:nkm
                             lab_atl{nroi} = ['Fr',num2str(ifrt)];
                         end
                     end %i
-                    time = in.mod(mids(ik)).time;
+                    time = in.mod(mids(ik)).time*1000; % time of time points in ms
                     if kernt(3) ==1                 %consider all time points selected
                         itpt = in.mod(mids(ik)).itp(1:dim_m(ik,3)); 
                     elseif kernt(3)== dim_m(ik,3)   %one kernel per tp
