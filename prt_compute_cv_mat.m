@@ -436,8 +436,8 @@ switch in.cv.type
         for g=1:length(ns)
             is=vcl(:,1)==g;
 %             [nsf]=max(1,floor(length(find(is))/k));
-            nsf = max(1,floor(ns(g)/k));
-            if k>1 && nsf>1 %k-fold CV
+            if k>1 %k-fold CV
+                nsf = max(1,floor(ns(g)/k));
                 if nsf<1
                     error('prt_model:lobcoSelectedWithTooLargeK',...
                         ['Number of blocks in class ',num2str(g),' smaller than k']);
@@ -449,9 +449,9 @@ switch in.cv.type
                 dk=nsf*ones(1,size(CV,2));
             else %Leave-One-Block per Class-Out
                 mns = ns(g)-k;
-                dk=nsf*ones(1,k);
+                dk=ones(1,mns);
             end
-            if mns>0 %Last fold comprises left overs from floor - redistribute
+            if mns>0 && k>1 %Last fold comprises left overs from floor - redistribute
                 ib = 1;
                 while sum(dk)<length(unique(vcl(is,2)))
                     dk(ib)=dk(ib)+1;

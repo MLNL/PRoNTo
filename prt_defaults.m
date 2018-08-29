@@ -64,23 +64,53 @@ prt_def.dspec.use3 = [1 2];
 
 
 
-% Specify model: Parameters of the different machines
-%--------------------------------------------------
-prt_def.model.svmargs       = 1;
-prt_def.model.libsvmargs    = '-q -s 0 -b 1 -t 4 -c ';
-prt_def.model.gpcargs       = '-l erf -h';%-h 
-prt_def.model.gpclapargs    = '-h'; %'-h';
-prt_def.model.gprargs       = '-l gauss -h'; % -h
-prt_def.model.krrargs       = 1;
+% Specify model: String parameters of the different machines
+%------------------------------------------------------------
+prt_def.model.gpc_sargs       = '-l erf -h';%-h 
+prt_def.model.gpclap_sargs    = '-h'; %'-h';
+prt_def.model.gpr_sargs       = '-l gauss -h'; % -h
+
+%LIBSVM machines
+% Classification - dual
+prt_def.model.libsvm_sargs    = '-q -s 0 -b 1 -t 4 -c '; %L2 SVM
+% Regression - dual
+prt_def.model.libeSVR_sargs    = '-q -s 3 -b 1 -t 4 -c '; % e-SVR
+
+%LIBLINEAR machines
+% Classification - primal (i.e. non-kernel)
+prt_def.model.libl2LR_sargs  = '-q -s 0 -B 1 -c '; % L2-regularized logistic regression
+prt_def.model.libl1LR_sargs  = '-q -s 6 -B 1 -c '; % L2-regularized logistic regression
+prt_def.model.libl2svm_sargs  = '-q -s 2 -B 1 -c '; % L2-regularized L2-loss support vector classification
+prt_def.model.libl1svm_sargs  = '-q -s 5 -B 1 -c '; % L1-regularized L2-loss support vector classification
+prt_def.model.libmulticlsvm_sargs  = '-q -s 4 -B 1 -c '; % Multiclass support vector classification by Crammer and Singer
+% Classification - dual (i.e. kernel)
+prt_def.model.libl2KLR_sargs  = '-q -s 7 -B 1 -c '; % L2-regularized logistic regression
+% Regression - primal
+prt_def.model.libl2SVR_sargs  = '-q -s 11 -B 1 -c '; % L2-regularized epsilon-support vector regression
+
+% Multi-Task Learning - MALSAR
+prt_def.model.MTL_sargs       = '';
+
+% Specify model: Default parameter values of the different machines
+%-------------------------------------------------------------------
 prt_def.model.rtargs        = 601;
-prt_def.model.l1MKLargs     = 1;
 prt_def.model.l1MKLmaxitr   = 250;
 prt_def.model.wipargs       = [1 0.5];
-prt_def.model.libl1svmargs  = '-q -s 5 -B 1 -c '; % L1-regularized L2-loss support vector classification
-prt_def.model.libl2svmargs  = '-q -s 2 -B 1 -c '; % L2-regularized L2-loss support vector classification (primal)
-prt_def.model.libmulticlsvmargs  = '-q -s 4 -B 1 -c '; % Multiclass support vector classification by Crammer and Singer
+
+%LIBSVM and LIBLINEAR defaults
+prt_def.model.libsvmargs    = 1; 
+
+% MALSAR - Multi-Task Learning
 prt_def.model.MTLargs       = 1;
 
+% Specify model: Default optimization parameter values of the different machines
+%--------------------------------------------------------------------------------
+prt_def.model.rt_optargs        = 101:100:1001;
+%LIBSVM and LIBLINEAR defaults
+prt_def.model.libsvm_optargs    = 10.^[-2:3]; 
+
+% MALSAR - Multi-Task Learning
+prt_def.model.MTL_optargs       = 1;
 
 % Parralelization of the code
 %--------------------------------------------------

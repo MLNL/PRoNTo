@@ -70,7 +70,7 @@ if ~(prt_checkAlphaNumUnder(model.model_name))
     disp('Please correct')
     return
 end
-model.use_kernel = job.use_kernel;
+
 
 % insert feature set fields
 if ~isstruct(job.fsets)
@@ -182,122 +182,18 @@ if isfield(job.model_type,'classification')
         end
     end
     
-    % Gather machine (i.e. classification or regression algorithm)
-    % information
+    % Gather machine information - classification
     % ---------------------------------------------------------------------
     
-    %SVM
-    if isfield(job.model_type.classification.machine_cl,'svm')
-        model.machine.function = 'prt_machine_svm_bin';
-        model.machine.args     = job.model_type.classification.machine_cl.svm.svm_args;
-        if isfield(job.model_type.classification.machine_cl.svm, 'svm_opt')
-            if job.model_type.classification.machine_cl.svm.svm_opt
-                model.cv.nested = 1;
-                model.cv.nested_param = job.model_type.classification.machine_cl.svm.svm_args;
-            end
-        end
-        if isfield(job.model_type.classification.machine_cl.svm, 'cv_type_nested')
-           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.svm.cv_type_nested);
-           model.cv.type_nested = cv_tmp.type;
-           model.cv.k_nested = cv_tmp.k;
-        end
-        
-    % L1-SVM from Liblinear    
-    elseif isfield(job.model_type.classification.machine_cl,'libl1svm')
-        model.machine.function = 'prt_machine_liblinearsvm';
-        model.machine.args     = def.model.libl1svmargs;
-        if isfield(job.model_type.classification.machine_cl.libl1svm, 'svm_opt')
-            if job.model_type.classification.machine_cl.libl1svm.svm_opt
-                model.cv.nested = 1;
-                model.cv.nested_param = job.model_type.classification.machine_cl.libl1svm.libl1svm_args;
-            else
-                model.machine.args = [model.machine.args num2str(job.model_type.classification.machine_cl.libl1svm.libl1svm_args)];
-            end
-        end
-        if isfield(job.model_type.classification.machine_cl.libl1svm, 'cv_type_nested')
-           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.libl1svm.cv_type_nested);
-           model.cv.type_nested = cv_tmp.type;
-           model.cv.k_nested = cv_tmp.k;
-        end
-      % L2-SVM from Liblinear  
-    elseif isfield(job.model_type.classification.machine_cl,'libl2svm')
-        model.machine.function = 'prt_machine_liblinearsvm';
-        model.machine.args     = def.model.libl2svmargs;
-        if isfield(job.model_type.classification.machine_cl.libl2svm, 'svm_opt')
-            if job.model_type.classification.machine_cl.libl2svm.svm_opt
-                model.cv.nested = 1;
-                model.cv.nested_param = job.model_type.classification.machine_cl.libl2svm.libl2svm_args;
-            else
-                model.machine.args = [model.machine.args num2str(job.model_type.classification.machine_cl.libl2svm.libl2svm_args)];
-            end
-        end
-        if isfield(job.model_type.classification.machine_cl.libl2svm, 'cv_type_nested')
-           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.libl2svm.cv_type_nested);
-           model.cv.type_nested = cv_tmp.type;
-           model.cv.k_nested = cv_tmp.k;
-        end
-      % Multi-class SVM from Liblinear  
-    elseif isfield(job.model_type.classification.machine_cl,'libmulticlsvm')
-        model.machine.function = 'prt_machine_liblinearsvm';
-        model.machine.args     = def.model.libmulticlsvmargs;
-        if isfield(job.model_type.classification.machine_cl.libmulticlsvm, 'svm_opt')
-            if job.model_type.classification.machine_cl.libmulticlsvm.svm_opt
-                model.cv.nested = 1;
-                model.cv.nested_param = job.model_type.classification.machine_cl.libmulticlsvm.libmulticlsvm_args;
-            else
-                model.machine.args = [model.machine.args num2str(job.model_type.classification.machine_cl.libmulticlsvm.libmulticlsvm_args)];
-            end
-        end
-        if isfield(job.model_type.classification.machine_cl.libmulticlsvm, 'cv_type_nested')
-           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.libmulticlsvm.cv_type_nested);
-           model.cv.type_nested = cv_tmp.type;
-           model.cv.k_nested = cv_tmp.k;
-        end
-    % Gaussian Processes
-    elseif isfield(job.model_type.classification.machine_cl,'gpc')
-        model.machine.function='prt_machine_gpml';
-        model.machine.args=job.model_type.classification.machine_cl.gpc.gpc_args;
-    % Gaussian Processes
-    elseif isfield(job.model_type.classification.machine_cl,'gpclap')
-        model.machine.function='prt_machine_gpclap';
-        model.machine.args=job.model_type.classification.machine_cl.gpclap.gpclap_args;
-    % Random Forest (currently not in use)
-    elseif isfield(job.model_type.classification.machine_cl,'rt')
-        model.machine.function='prt_machine_RT_bin';
-        model.machine.args=job.model_type.classification.machine_cl.rt.rt_args;
-    % Simple-MKL
-    elseif isfield(job.model_type.classification.machine_cl,'sMKL_cla')
-        model.machine.function='prt_machine_sMKL_cla';
-        model.machine.args=job.model_type.classification.machine_cl.sMKL_cla.sMKL_cla_args;
-        if isfield(job.model_type.classification.machine_cl.sMKL_cla, 'sMKL_cla_opt')
-            if job.model_type.classification.machine_cl.sMKL_cla.sMKL_cla_opt
-                model.cv.nested = 1;
-                model.cv.nested_param = job.model_type.classification.machine_cl.sMKL_cla.sMKL_cla_args;
-            end
-        end
-        if isfield(job.model_type.classification.machine_cl.sMKL_cla, 'cv_type_nested')
-           [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.sMKL_cla.cv_type_nested);
-           model.cv.type_nested = cv_tmp.type;
-           model.cv.k_nested = cv_tmp.k;
-        end
-     % Custom machine   
+    if isfield(job.model_type.classification.machine_cl_K,'mach_cl_nonkernel')
+        model.use_kernel = 0;
+        jobmach = job.model_type.classification.machine_cl_K.mach_cl_nonkernel;
     else
-        [pat, nam] = fileparts(char(job.model_type.classification.machine_cl.custom_machine.machine_func));
-        model.machine.function = nam;
-        model.machine.args = job.model_type.classification.machine_cl.custom_machine.machine_args;
-        if job.model_type.classification.machine_cl.custom_machine.machine_opt
-            model.cv.nested = 1;
-            model.cv.nested_param = eval(job.model_type.classification.machine_cl.custom_machine.machine_args);
-        else
-            model.cv.nested = 0;
-            model.cv.nested_param = [];
-        end
-        if isfield(job.model_type.classification.machine_cl.custom_machine, 'machine_cv_type_nested')
-            [cv_tmp] = get_cv_type(job.model_type.classification.machine_cl.custom_machine.machine_cv_type_nested);
-            model.cv.type_nested = cv_tmp.type;
-            model.cv.k_nested = cv_tmp.k;
-        end
+        model.use_kernel = 1;
+        jobmach = job.model_type.classification.machine_cl_K.mach_cl_kernel;
     end
+    
+    model = prt_get_machine(model,jobmach);
     
     % Flag to subsample the classes according to lowest number of examples
     if isfield(job.model_type.classification,'subsample')
@@ -359,56 +255,22 @@ elseif isfield(job.model_type,'regression')
     
     % Gather machine information
     % ---------------------------------------------------------------------
-    % Kernel Ridge Regression
-    if isfield(job.model_type.regression.machine_rg,'krr')
-        model.machine.function = 'prt_machine_krr';
-        model.machine.args=job.model_type.regression.machine_rg.krr.krr_args;
-        if isfield(job.model_type.regression.machine_rg.krr, 'krr_opt')
-            if job.model_type.regression.machine_rg.krr.krr_opt
-                model.cv.nested = 1;
-                model.cv.nested_param = job.model_type.regression.machine_rg.krr.krr_args;
-            end
-        end
-         if isfield(job.model_type.regression.machine_rg.krr, 'cv_type_nested')
-           [cv_tmp] = get_cv_type(job.model_type.regression.machine_rg.krr.cv_type_nested);
-           model.cv.type_nested = cv_tmp.type;
-           model.cv.k_nested = cv_tmp.k;
-         end
-    % Relevance Vector Regression     
-    elseif isfield(job.model_type.regression.machine_rg,'rvr')
-        model.machine.function='prt_machine_rvr';
-        model.machine.args=[];
-    % Gaussian Processes regression
-    elseif isfield(job.model_type.regression.machine_rg,'gpr')
-        model.machine.function='prt_machine_gpr';
-        model.machine.args=job.model_type.regression.machine_rg.gpr.gpr_args;
-    % Simple MKL regression
-    elseif isfield(job.model_type.regression.machine_rg,'sMKL_reg')
-        model.machine.function='prt_machine_sMKL_reg';
-        model.machine.args=job.model_type.regression.machine_rg.sMKL_reg.sMKL_reg_args;
-        if isfield(job.model_type.regression.machine_rg.sMKL_reg, 'sMKL_reg_opt')
-            if job.model_type.regression.machine_rg.sMKL_reg.sMKL_reg_opt
-                model.cv.nested = 1;
-                model.cv.nested_param = job.model_type.regression.machine_rg.sMKL_reg.sMKL_reg_args;
-            end
-        end
-        if isfield(job.model_type.regression.machine_rg.sMKL_reg, 'cv_type_nested')
-           [cv_tmp] = get_cv_type(job.model_type.regression.machine_rg.sMKL_reg.cv_type_nested);
-           model.cv.type_nested = cv_tmp.type;
-           model.cv.k_nested = cv_tmp.k;
-        end        
-    % Custom machine    
+    if isfield(job.model_type.regression.machine_rg_K,'mach_rg_nonkernel')
+        model.use_kernel = 0;
+        jobmach = job.model_type.regression.machine_rg_K.mach_rg_nonkernel;
     else
-        [pat, nam] = fileparts(char(job.model_type.regression.machine_rg.custom_machine.machine_func));
-        model.machine.function = nam;
-        model.machine.args = job.model_type.regression.machine_rg.custom_machine.machine_args;
+        model.use_kernel = 1;
+        jobmach = job.model_type.regression.machine_rg_K.mach_rg_kernel;
     end
+    
+    model = prt_get_machine(model,jobmach);
+    
 else
     error('this is not implemented yet');
 end
 
 % assemble structure for performing cross-validation
-mainCV = get_cv_type(job.cv_type);
+mainCV = prt_get_cv_type(job.cv_type);
 % Copy new values to model.cv
 fn = fieldnames(mainCV);
 for fi = 1:length(fn)
@@ -437,36 +299,4 @@ prt_model(PRT,model);
 out.files{1} = fname;
 out.mname = model.model_name;
 disp('Model configuration complete.')
-end
-
-
-%--------------------------------------------------------------------------
-% Private functions
-%--------------------------------------------------------------------------
-function cv = get_cv_type(cv_struct)
-
-% assemble structure for performing cross-validation
-if isfield(cv_struct,'cv_loso')
-    cv = struct('type','loso','k',0);
-elseif isfield(cv_struct,'cv_lkso')
-    cv = struct('type','loso','k',cv_struct.cv_lkso.k_args);
-elseif isfield(cv_struct,'cv_losgo')
-    cv = struct('type','losgo','k',0);
-elseif isfield(cv_struct,'cv_lksgo')
-    cv = struct('type','losgo','k',cv_struct.cv_lksgo.k_args);
-elseif isfield(cv_struct,'cv_lobo')
-    cv = struct('type','lobo','k',0);
-elseif isfield(cv_struct,'cv_lkbo')
-    cv = struct('type','lobo','k',cv_struct.cv_lkbo.k_args);
-elseif isfield(cv_struct,'cv_locbo')
-    cv = struct('type','locbo','k',0);
-elseif isfield(cv_struct,'cv_lkcbo')
-    cv = struct('type','locbo','k',cv_struct.cv_lkcbo.k_args);
-elseif isfield(cv_struct,'cv_loro') % currently implemented for MCKR only
-    cv = struct('type','loro');
-else
-    cv = struct('type','custom','k',cv_struct.cv_custom{1},...
-        'mat_file',cv_struct.cv_custom{1});
-end
-
 end

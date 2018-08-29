@@ -22,6 +22,7 @@ function output = prt_machine(d,m)
 %      .args     - function arguments (either a string, a matrix, or a
 %                  struct). This is specific to each machine, e.g. for
 %                  an L2-norm linear SVM this could be the C parameter
+%      .s_args   - function string arguments.
 % Output:
 %    output      - output of machine (struct).
 %       Mandatory fields:
@@ -200,8 +201,17 @@ end % SANITYCHECK
 
 %% Run model
 %--------------------------------------------------------------------------
+
+if ~isempty(m.s_args)
+    % Assume the arguments must be passed as string
+    args = [m.s_args,num2str(m.args)];
+else
+    % Otherwise use as is
+    args = m.args;
+end
+
 try
-    output = fnch(d,m.args);
+    output = fnch(d,args);
 catch
     err = lasterror;
     err_ID=lower(err.identifier);

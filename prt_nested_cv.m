@@ -33,38 +33,27 @@ else
     opt_Rep = in.opt_Rep;
 end
 
-% Set range of the hyper parameters
-switch PRT.model(in.mid).input.machine.function
-    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_krr', 'prt_machine_sMKL_reg','prt_machine_liblinearsvm'}
-        if ~isempty(PRT.model(in.mid).input.nested_param)
-           par = PRT.model(in.mid).input.nested_param; 
-        else
-            d1 = -2 : 3;
-            par = 10 .^(d1);
+npar = numel(PRT.model(in.mid).input.nested_param);
+% Transform into meshgrid for 2 or more parameters entered as cells
+if iscell(PRT.model(in.mid).input.nested_param)
+    outmesh = ['X1'];
+    inmesh = ['c1'];
+    outpar = ['X1(:)'];
+    for i = 1:npar
+        % Get parameter ranges from PRT
+        eval(['c',num2str(i),' = PRT.model(in.mid).input.nested_param{i};']);
+        if i>1
+            outmesh = [outmesh,',X',num2str(i)];
+            inmesh = [inmesh,',c',num2str(i)];
+            outpar = [outpar,',X',num2str(i),'(:)'];
         end
-    case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
-        if ~isempty(PRT.model(in.mid).input.nested_param)
-            % Get parameter ranges from PRT
-            c = PRT.model(in.mid).input.nested_param{1};
-            mu = PRT.model(in.mid).input.nested_param{2};
-            % Convert them to a matrix with all the combinations
-            [c_mesh,mu_mesh] = meshgrid(c, mu);
-            par = [c_mesh(:), mu_mesh(:)]';
-        else
-            d1 = -2 : 3;
-            c = 10 .^(d1);
-            mu = 0:0.1:1;
-            [c_mesh,mu_mesh] = meshgrid(c, mu);
-            par = [c_mesh(:), mu_mesh(:)]';
-        end
-        
-    otherwise
-        if ~isempty(PRT.model(in.mid).input.nested_param)
-            par = PRT.model(in.mid).input.nested_param;
-        else
-            error('Machine not currently supported for nested CV');
-        end
-        
+    end
+    % Convert them to a matrix with all the combinations
+    eval(['[',outmesh,'] = meshgrid(',inmesh,');']);
+    eval(['par = [',outpar,'];'])
+    par = par';
+else
+    par = reshape(PRT.model(in.mid).input.nested_param,1,npar);
 end
 
 % Gather task info:
@@ -84,61 +73,16 @@ out.param = par;
 stats_vec = zeros(1, size(par, 2));
 cosang = zeros(1,size(par, 2));
 
-% If string parameters were entered for the machine, gather them before
-% adding the nested parameter to optimize. This assumes that the last
-% string corresponds to which parameter to optimize!
-if ~ isempty(PRT.model(in.mid).input.machine.args) && ...
-        ischar(PRT.model(in.mid).input.machine.args)
-    stringpar = PRT.model(in.mid).input.machine.args;
-else
-    stringpar = [];
-end
-
 % compute model performance based on hyper-parameter range
 for i = 1:size(par, 2)
-    
-    switch PRT.model(in.mid).input.machine.function
-        case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
-                'prt_machine_liblinearsvm'}
-            if ~isempty(stringpar)&& ~isvector(str2num(stringpar)) % For custom machine, stringpar may be the same as par.    
-                PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
-            else
-                PRT.model(in.mid).input.machine.args = par(i);
-            end
-            m.type = 'classifier';
-            
-        case {'prt_machine_krr', 'prt_machine_sMKL_reg'}
-            if ~isempty(stringpar)&& ~isvector(str2num(stringpar))   
-                PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
-            else
-                PRT.model(in.mid).input.machine.args = par(i);
-            end
-            m.type = 'regression';
-            
-        case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
-            if ~isempty(stringpar)&& ~isvector(str2num(stringpar))    
-                disp('Using default parameters for EN-MKL')
-            end
-            PRT.model(in.mid).input.machine.args = par(:,i)';
-            m.type = 'classifier';
-            
-        otherwise
-            try
-                if ~isempty(stringpar) && ~isvector(str2num(stringpar)) % For custome machine, stringpar may be the same as par.   
-                    PRT.model(in.mid).input.machine.args = [stringpar, num2str(par(i))];
-                else
-                    PRT.model(in.mid).input.machine.args = par(i);
-                end
-                if strcmpi(PRT.model(in.mid).input.type,'classification')
-                    m.type = 'classifier';
-                elseif strcmpi(PRT.model(in.mid).input.type,'regression')
-                    m.type = PRT.model(in.mid).input.type;
-                end
-            catch
-                error('Machine not currently supported for nested CV');
-            end
+        
+    m.type = PRT.model(in.mid).input.type;
+    if size(par,1)>1
+        PRT.model(in.mid).input.machine.args = par(:,i);
+    else
+        PRT.model(in.mid).input.machine.args = par(i);
     end
-    
+                    
     % compute the model for each fold of the inner CV
     for f = 1:nfolds
         

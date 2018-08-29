@@ -37,31 +37,30 @@ function stats = prt_stats(model, tte, nk)
 if ~isfield(model,'type')
     warning('prt_stats:modelDoesNotProvideTypeField',...
         'model.type not specified, defaulting to classifier');
-    model.type = 'classifier';
+    model.type = 'classification';
 end
 
-switch model.type
-    case 'classifier'
-        if iscell(tte) && numel(tte)>1 
-            % Multi-Task Learning classifier
-            stats = compute_stats_classifier_MTL(model, tte, nk);
-        else
-            % Single task learning classifier
-            stats = compute_stats_classifier(model, tte, nk);
-        end
-        
-    case 'regression'
-        if iscell(tte) && numel(tte)>1
-            % Multi-Task Learning regression
-            stats = compute_stats_regression_MTL(model, tte);
-        else
-            % Single task learning regression
-            stats = compute_stats_regression(model, tte);
-        end
-        
-    otherwise
-        error('prt_stats:unknownTypeSpecified',...
-            ['No method exists for processing machine: ',machine.type]);
+if strcmpi(model.type,'classification') || strcmpi(model.type,'classifier')
+    if iscell(tte) && numel(tte)>1
+        % Multi-Task Learning classifier
+        stats = compute_stats_classifier_MTL(model, tte, nk);
+    else
+        % Single task learning classifier
+        stats = compute_stats_classifier(model, tte, nk);
+    end
+    
+elseif strcmpi(model.type,'regression')
+    if iscell(tte) && numel(tte)>1
+        % Multi-Task Learning regression
+        stats = compute_stats_regression_MTL(model, tte);
+    else
+        % Single task learning regression
+        stats = compute_stats_regression(model, tte);
+    end
+    
+else
+    error('prt_stats:unknownTypeSpecified',...
+        ['No method exists for processing machine: ',machine.type]);
 end
 
 end

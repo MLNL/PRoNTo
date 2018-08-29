@@ -83,13 +83,13 @@ else
     [Phi_all,ID] = prt_getFeatureModel(PRT,mid);
 end
 
-% Gather machine string parameters if any
-if ~ isempty(PRT.model(mid).input.machine.args) && ...
-        ischar(PRT.model(mid).input.machine.args)
-    stringpar = PRT.model(mid).input.machine.args;               
-else
-    stringpar = [];
-end
+% % Gather machine string parameters if any
+% if ~ isempty(PRT.model(mid).input.machine.args) && ...
+%         ischar(PRT.model(mid).input.machine.args)
+%     stringpar = PRT.model(mid).input.machine.args;               
+% else
+%     stringpar = [];
+% end
 
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
@@ -131,18 +131,19 @@ for k = 1:nk
             if PRT.model(mid).input.use_nested_cv
                 if f==1 && isempty(PRT.model(mid).input.nested_param)
                     beep
-                    warning('No parameter range specified for optimization, using defaults.')
+                    error('No parameter range specified for optimization.')
                 end
-                if ~isempty(stringpar) %Reset to string before optimization
-                    PRT.model(mid).input.machine.args = stringpar;
-                end
+%                 if ~isempty(stringpar) %Reset to string before optimization
+%                     PRT.model(mid).input.machine.args = stringpar;
+%                 end
                 [out] = prt_nested_cv(PRT, fdata);
                 PRT.model(mid).output(k).fold(f).param_effect = out;
-                if isempty(stringpar) || isvector(str2num(stringpar)) % For custome machine, stringpar may contain a vector.
-                    PRT.model(mid).input.machine.args = out.opt_param;
-                else
-                    PRT.model(mid).input.machine.args = [stringpar, num2str(out.opt_param)];
-                end
+                PRT.model(mid).input.machine.args = out.opt_param;
+%                 if isempty(stringpar) || isvector(str2num(stringpar)) % For custome machine, stringpar may contain a vector.
+%                     
+%                 else
+%                     PRT.model(mid).input.machine.args = [stringpar, num2str(out.opt_param)];
+%                 end
             end   
         end
         
@@ -160,6 +161,7 @@ for k = 1:nk
         end
         
         % compute stats
+        model.type = PRT.model(mid).input.type;
         stats = prt_stats(model, targets.test, nc); %targets.train
         
         % update PRT
