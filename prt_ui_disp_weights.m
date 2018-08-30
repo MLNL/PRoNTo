@@ -501,7 +501,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
 
                end
            end 
-           lc = {'ROI label','ROI weight (%)'};
+           lc = {'Label','Weight (%)'};
            xlabel = 'Index in table';
            ylabel = 'Weight';
            set(handles.butt_load_labels,'Visible','on')
@@ -528,7 +528,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
            handles.PRT.fs(fid).multkernelROI  %Multiple kernel learning on ROIs
        if isfield(handles.PRT.fs(fid).modality,'idfeat_img')&& ... % Get the indexes of each ROI in the image
                ~isempty(handles.PRT.fs(fid).modality(mids).idfeat_img)
-           lc = [lc,{'ROI size (vox)'}];
+           lc = [lc,{'Size (feat.)'}];
            for i=1:length(handles.PRT.fas)
                if strcmpi(handles.PRT.fs(fid).modality(mids).mod_name,...
                        handles.PRT.fas(i).mod_name)
@@ -555,7 +555,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
        handles.computeER = 1;
    elseif isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') &&... % Summarizing the weights for ROI
            ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}) % Get the indexes of each ROI in the image
-       lc = [lc,{'ROI size (vox)'}];
+       lc = [lc,{'Size (feat.)'}];
        handles.idfeat_roi = cell(length(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}),1);
        for i = 1:length(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class})
            dat(i,3) = {length(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}{i})};
