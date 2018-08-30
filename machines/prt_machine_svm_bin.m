@@ -126,7 +126,7 @@ if iscell(d.test)
 else
     test = d.test;
 end
-[predictions,acc,func_val] = svmpredict(d.te_targets,test,model,'-q -b 1');
+[predictions,acc,func_val] = svmpredict(d.te_targets,test,model,'-q');
 
 
 

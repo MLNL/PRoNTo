@@ -91,9 +91,9 @@ prt_def.model.gpr_sargs       = '-l gauss -h'; % -h
 
 %LIBSVM machines
 % Classification - dual
-prt_def.model.libsvm_sargs    = '-q -s 0 -b 1 -t 4 -c '; %L2 SVM
+prt_def.model.libsvm_sargs    = '-q -s 0 -t 4 -c '; %L2 SVM
 % Regression - dual
-prt_def.model.libeSVR_sargs    = '-q -s 3 -b 1 -t 4 -c '; % e-SVR
+prt_def.model.libeSVR_sargs    = '-q -s 3 -t 4 -c '; % e-SVR
 
 %LIBLINEAR machines
 % Classification - primal (i.e. non-kernel)
