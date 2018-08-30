@@ -327,8 +327,8 @@ mi            = handles.mi;
 m         = mi(model);
 if fold ==1
     % Set plots menu for first model, for Average fold
-    if strcmp(handles.PRT.model(mi(m)).input.type,'classification')
-        if length(handles.PRT.model(mi(m)).output.stats.c_acc) <= 2 
+    if strcmp(handles.PRT.model(m).input.type,'classification')
+        if length(handles.PRT.model(m).output.stats.c_acc) <= 2 
             plots = {'Accuracy Distribution','Predictions','ROC'};
         else
             plots = {'Accuracy Distribution'};
@@ -337,8 +337,8 @@ if fold ==1
         plots = {'Prediction Errors', 'R2'};
     end
 else
-    if strcmp(handles.PRT.model(mi(m)).input.type,'classification')
-        if length(handles.PRT.model(mi(m)).output.stats.c_acc) <= 2 
+    if strcmp(handles.PRT.model(m).input.type,'classification')
+        if length(handles.PRT.model(m).output.stats.c_acc) <= 2 
             plots = {'Histogram','Confusion Matrix','Predictions','ROC'};
         else
             plots = {'Histogram','Confusion Matrix'};
@@ -348,8 +348,8 @@ else
     end
 end
 
-if isfield(handles.PRT.model(mi(m)).input,'use_nested_cv')
-    if handles.PRT.model(mi(m)).input.use_nested_cv
+if isfield(handles.PRT.model(m).input,'use_nested_cv')
+    if handles.PRT.model(m).input.use_nested_cv
         plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
     end
 end
