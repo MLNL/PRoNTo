@@ -80,16 +80,9 @@ if PRT.model(mid).input.use_kernel
     %load kernels and get the used sample in this model
     [Phi_all,ID] = prt_getKernelModel(PRT,prt_dir,mid,indmodels);
 else
+    % Otherwise load features for non-kernel machine
     [Phi_all,ID] = prt_getFeatureModel(PRT,mid);
 end
-
-% % Gather machine string parameters if any
-% if ~ isempty(PRT.model(mid).input.machine.args) && ...
-%         ischar(PRT.model(mid).input.machine.args)
-%     stringpar = PRT.model(mid).input.machine.args;               
-% else
-%     stringpar = [];
-% end
 
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
@@ -133,17 +126,9 @@ for k = 1:nk
                     beep
                     error('No parameter range specified for optimization.')
                 end
-%                 if ~isempty(stringpar) %Reset to string before optimization
-%                     PRT.model(mid).input.machine.args = stringpar;
-%                 end
                 [out] = prt_nested_cv(PRT, fdata);
                 PRT.model(mid).output(k).fold(f).param_effect = out;
                 PRT.model(mid).input.machine.args = out.opt_param;
-%                 if isempty(stringpar) || isvector(str2num(stringpar)) % For custome machine, stringpar may contain a vector.
-%                     
-%                 else
-%                     PRT.model(mid).input.machine.args = [stringpar, num2str(out.opt_param)];
-%                 end
             end   
         end
         
@@ -178,13 +163,8 @@ for k = 1:nk
         end
     end
     
-     % Model level statistics (across folds)
-%      ttt       = vertcat(PRT.model(mid).output(k).fold(:).targets);
-%      m.type    = PRT.model(mid).output(k).fold(1).type;
-%      m.predictions = vertcat(PRT.model(mid).output(k).fold(:).predictions);
-%      %m.func_val   = [PRT.model(mid).output.fold(:).func_val];
-%      gstats        = prt_stats(m,ttt(:),nc);
-%     % Model level statistics (across folds) - average across folds
+
+     % Model level statistics (across folds) - average across folds
     fnamestats = fieldnames(stats);
     gstats = struct;
     for i=1:length(fnamestats)
@@ -194,23 +174,23 @@ for k = 1:nk
             val(:,j) = PRT.model(mid).output(k).fold(j).stats.(fnamestats{i})(:);
         end
         if all(isnan(val(:))) % For auc=NaN
-            gstats = setfield(gstats,fnamestats{i},NaN);
+            gstats.(fnamestats{i})=NaN;
         elseif ~isempty(val)
             av_stats = reshape(nanmean(val,2),size_stats);
-            gstats = setfield(gstats,fnamestats{i},av_stats);
+            gstats.(fnamestats{i}) =av_stats;
         else % For auc=[]
-            gstats = setfield(gstats,fnamestats{i},[]);
+            gstats.(fnamestats{i})=[];
         end
     end
-    % If classifier, get confusion matrix globally
-     m.type        = PRT.model(mid).output(k).fold(1).type;
-     if strcmpi(m.type,'classifier')
-         ttt             = vertcat(PRT.model(mid).output(k).fold(:).targets);
-         m.predictions = vertcat(PRT.model(mid).output(k).fold(:).predictions);
-         m.func_val    = vertcat(PRT.model(mid).output.fold(:).func_val);
-         temp_stats         = prt_stats(m,ttt(:),nc);
-         gstats.con_mat = temp_stats.con_mat;
-     end
+%     % If classifier, get confusion matrix globally
+%      m.type        = PRT.model(mid).output(k).fold(1).type;
+%      if strcmpi(m.type,'classifier')
+%          ttt             = vertcat(PRT.model(mid).output(k).fold(:).targets);
+%          m.predictions = vertcat(PRT.model(mid).output(k).fold(:).predictions);
+%          m.func_val    = vertcat(PRT.model(mid).output.fold(:).func_val);
+%          temp_stats         = prt_stats(m,ttt(:),nc);
+%          gstats.con_mat = temp_stats.con_mat;
+%      end
 %     
       PRT.model(mid).output(k).stats=gstats;
 end

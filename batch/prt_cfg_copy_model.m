@@ -403,7 +403,7 @@ libl2KLR_sargs.num     = [1 Inf];
 % libl2KLR group
 % ---------------------------------------------------------------------
 libl2KLR         = cfg_branch;
-libl2KLR.tag     = 'libl2LR';
+libl2KLR.tag     = 'libl2KLR';
 libl2KLR.name    = 'L2-Logistic Regression';
 libl2KLR.help    = {'Kernel L2-regularized Logistic Regression from LIBLINEAR.'};
 libl2KLR.val     = {libl2KLR_sargs,svm_opt};

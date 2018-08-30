@@ -103,6 +103,8 @@ PRT.model(mid).model_name = model.model_name;
 % -------------------------------------------------------------------------
 for i = 1:length(job.modchoices)
     
+    % Changes in feature set selection
+    %----------------------------------------------------------------------
     if isfield(job.modchoices{i},'fsets')
         % delete previous selection of feature sets
         PRT.model(mid).input.fs = [];
@@ -114,111 +116,47 @@ for i = 1:length(job.modchoices)
                 PRT.model(mid).input.fs(j).fs_name = job.modchoices{i}.fsets.fs_name{j};
             end
         end
+        
+    % Changes in machine
+    %----------------------------------------------------------------------
     elseif isfield(job.modchoices{i},'model_type')
         % insert machine fields
-        if isfield(job.modchoices{i}.model_type.machine,'svm')
-            PRT.model(mid).input.machine.function = 'prt_machine_svm_bin';
-            PRT.model(mid).input.machine.args     = job.modchoices{i}.model_type.machine.svm.svm_args;
-            if isfield(job.modchoices{i}.model_type.machine.svm, 'svm_opt')
-                if job.modchoices{i}.model_type.machine.svm.svm_opt
-                    PRT.model(mid).input.use_nested_cv = 1;
-                    PRT.model(mid).input.nested_param = job.modchoices{i}.model_type.machine.svm.svm_args;
-                else
-                    PRT.model(mid).input.use_nested_cv = 0;
-                    PRT.model(mid).input.nested_param = [];
-                end
+        %Classification
+        if isfield(job.modchoices{i}.model_type,'machine_cl_K')
+            if ~strcmpi(PRT.model(mid).input.type,'classification')
+                error('prt_run_copy_model:WrongModelType',...
+                    'Classification chosen but model was regression, aborting.')
             end
-            if isfield(job.modchoices{i}.model_type.machine.svm, 'cv_type_nested')
-                [cv_tmp] = get_cv_type(job.modchoices{i}.model_type.machine.svm.cv_type_nested);
-                PRT.model(mid).input.cv_type_nested = cv_tmp.type;
-                PRT.model(mid).input.cv_k_nested = cv_tmp.k;
-            end
-        elseif isfield(job.modchoices{i}.model_type.machine,'gpc')
-            PRT.model(mid).input.machine.function='prt_machine_gpml';
-            PRT.model(mid).input.machine.args=job.modchoices{i}.model_type.machine.gpc.gpc_args;
-        elseif isfield(job.modchoices{i}.model_type.machine,'gpclap')
-            PRT.model(mid).input.machine.function='prt_machine_gpclap';
-            PRT.model(mid).input.machine.args=job.modchoices{i}.model_type.machine.gpclap.gpclap_args;
-        elseif isfield(job.modchoices{i}.model_type.machine,'rt')
-            PRT.model(mid).input.machine.function='prt_machine_RT_bin';
-            PRT.model(mid).input.machine.args=job.modchoices{i}.model_type.machine.rt.rt_args;
-        elseif isfield(job.modchoices{i}.model_type.machine,'sMKL_cla')
-            PRT.model(mid).input.machine.function='prt_machine_sMKL_cla';
-            PRT.model(mid).input.machine.args=job.modchoices{i}.model_type.machine.sMKL_cla.sMKL_cla_args;
-            if isfield(job.modchoices{i}.model_type.machine.sMKL_cla, 'sMKL_cla_opt')
-                if job.modchoices{i}.model_type.machine.sMKL_cla.sMKL_cla_opt
-                    PRT.model(mid).input.use_nested_cv = 1;
-                    PRT.model(mid).input.nested_param = job.modchoices{i}.model_type.machine.sMKL_cla.sMKL_cla_args;
-                else
-                    PRT.model(mid).input.use_nested_cv = 0;
-                    PRT.model(mid).input.nested_param = [];
-                end
-            end
-            if isfield(job.modchoices{i}.model_type.machine.sMKL_cla, 'cv_type_nested')
-                [cv_tmp] = get_cv_type(job.modchoices{i}.model_type.machine.sMKL_cla.cv_type_nested);
-                PRT.model(mid).input.cv_type_nested = cv_tmp.type;
-                PRT.model(mid).input.cv_k_nested = cv_tmp.k;
-            end
-        elseif isfield(job.modchoices{i}.model_type.machine,'krr')
-            PRT.model(mid).input.machine.function = 'prt_machine_krr';
-            PRT.model(mid).input.machine.args=job.modchoices{i}.model_type.machine.krr.krr_args;
-            if isfield(job.modchoices{i}.model_type.machine.krr, 'krr_opt')
-                if job.modchoices{i}.model_type.machine.krr.krr_opt
-                    PRT.model(mid).input.use_nested_cv = 1;
-                    PRT.model(mid).input.nested_param = job.modchoices{i}.model_type.machine.krr.krr_args;
-                else
-                    PRT.model(mid).input.use_nested_cv = 0;
-                    PRT.model(mid).input.nested_param = [];
-                end
-            end
-            if isfield(job.modchoices{i}.model_type.machine.krr, 'cv_type_nested')
-                [cv_tmp] = get_cv_type(job.modchoices{i}.model_type.machine.krr.cv_type_nested);
-                PRT.model(mid).input.cv_type_nested = cv_tmp.type;
-                PRT.model(mid).input.cv_k_nested = cv_tmp.k;
-            end
-        elseif isfield(job.modchoices{i}.model_type.machine,'rvr')
-            PRT.model(mid).input.machine.function='prt_machine_rvr';
-            PRT.model(mid).input.machine.args=[];
-        elseif isfield(job.modchoices{i}.model_type.machine,'gpr')
-            PRT.model(mid).input.machine.function='prt_machine_gpr';
-            PRT.model(mid).input.machine.args=job.modchoices{i}.model_type.machine.gpr.gpr_args;
-        elseif isfield(job.modchoices{i}.model_type.machine,'sMKL_reg')
-            PRT.model(mid).input.machine.function='prt_machine_sMKL_reg';
-            PRT.model(mid).input.machine.args=job.modchoices{i}.model_type.machine.sMKL_reg.sMKL_reg_args;
-            if isfield(job.modchoices{i}.model_type.machine.sMKL_reg, 'sMKL_reg_opt')
-                if job.modchoices{i}.model_type.machine.sMKL_reg.sMKL_reg_opt
-                    PRT.model(mid).input.use_nested_cv = 1;
-                    PRT.model(mid).input.nested_param = job.modchoices{i}.model_type.machine.sMKL_reg.sMKL_reg_args;
-                else
-                    PRT.model(mid).input.use_nested_cv = 0;
-                    PRT.model(mid).input.nested_param = [];
-                end
-            end
-            if isfield(job.modchoices{i}.model_type.machine.sMKL_reg, 'cv_type_nested')
-                [cv_tmp] = get_cv_type(job.modchoices{i}.model_type.machine.sMKL_reg.cv_type_nested);
-                PRT.model(mid).input.cv_type_nested = cv_tmp.type;
-                PRT.model(mid).input.cv_k_nested = cv_tmp.k;
-            end
-        else
-            [pat, nam] = fileparts(char(job.modchoices{i}.model_type.machine.custom_machine.machine_func));
-            PRT.model(mid).input.machine.function = nam;            
-            if isfield(job.modchoices{i}.model_type.machine.custom_machine, 'machine_opt')
-                if job.modchoices{i}.model_type.machine.custom_machine.machine_opt
-                    PRT.model(mid).input.use_nested_cv = 1;
-                    PRT.model(mid).input.nested_param = eval(job.modchoices{i}.model_type.machine.custom_machine.machine_args);
-                else
-                    PRT.model(mid).input.use_nested_cv = 0;
-                    PRT.model(mid).input.nested_param = [];
-                end
+            if isfield(job.modchoices{i}.model_type.machine_cl_K,'mach_cl_nonkernel')
+                model.use_kernel = 0;
+                jobmach = job.modchoices{i}.model_type.machine_cl_K.mach_cl_nonkernel;
             else
-                PRT.model(mid).input.machine.args = job.modchoices{i}.model_type.machine.custom_machine.machine_args;
+                model.use_kernel = 1;
+                jobmach = job.modchoices{i}.model_type.machine_cl_K.mach_cl_kernel;
+            end            
+            model = prt_get_machine(PRT.model(mid).input,jobmach);
+        elseif isfield(job.modchoices{i}.model_type,'machine_rg_K')
+            if ~strcmpi(PRT.model(mid).input.type,'regression')
+                error('prt_run_copy_model:WrongModelType',...
+                    'Regression chosen but model was classification, aborting.')
             end
-            if isfield(job.modchoices{i}.model_type.machine.custom_machine, 'machine_cv_type_nested')
-                [cv_tmp] = get_cv_type(job.modchoices{i}.model_type.machine.custom_machine.machine_cv_type_nested);
-                PRT.model(mid).input.cv_type_nested = cv_tmp.type;
-                PRT.model(mid).input.cv_k_nested = cv_tmp.k;
-            end
+            if isfield(job.modchoices{i}.model_type.machine_rg_K,'mach_rg_nonkernel')
+                model.use_kernel = 0;
+                jobmach = job.modchoices{i}.model_type.machine_rg_K.mach_rg_nonkernel;
+            else
+                model.use_kernel = 1;
+                jobmach = job.modchoices{i}.model_type.machine_rg_K.mach_rg_kernel;
+            end            
+            model = prt_get_machine(PRT.model(mid).input,jobmach);           
         end
+        PRT.model(mid).input.machine = model.machine;
+        PRT.model(mid).input.use_nested_cv = model.cv.nested;
+        PRT.model(mid).input.nested_param = model.cv.nested_param;
+        PRT.model(mid).input.cv_type_nested = model.cv.type_nested;
+        PRT.model(mid).input.cv_k_nested = model.cv.k_nested;
+    
+    % Changes in operations
+    %----------------------------------------------------------------------
     elseif isfield(job.modchoices{i},'sel_ops')
         % delete previous selection of operations
         PRT.model(mid).input.operations = [];
@@ -249,7 +187,7 @@ end
 % Function output
 % -------------------------------------------------------------------------
 out.files{1} = fname;
-out.mname = model.model_name;
+out.mname = PRT.model(mid).model_name;
 disp('Model configuration complete.')
 end
 

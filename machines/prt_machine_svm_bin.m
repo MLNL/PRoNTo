@@ -34,7 +34,7 @@ SANITYCHECK=true; % can turn off for "speed". Expert only.
 %Turn the value of the C hyper-parameter into the arguments format for LIBSVM
 if ~ischar(args)
     def = prt_get_defaults('model');
-    args = [def.libsvmargs, num2str(args)];
+    args = [def.libsvm_sargs, num2str(args)];
 end
 
 if SANITYCHECK==true

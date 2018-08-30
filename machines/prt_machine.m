@@ -202,7 +202,7 @@ end % SANITYCHECK
 %% Run model
 %--------------------------------------------------------------------------
 
-if ~isempty(m.s_args)
+if isfield(m,'s_args') && ~isempty(m.s_args)
     % Assume the arguments must be passed as string
     args = [m.s_args,num2str(m.args)];
 else

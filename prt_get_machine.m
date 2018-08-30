@@ -41,7 +41,7 @@ elseif isfield(jobmach,'sMKL_cla')
 elseif isfield(jobmach,'libl2KLR')
     model.machine.function='prt_machine_liblinearsvm';
     model.machine.s_args     = jobmach.libl2KLR.libl2KLR_sargs;
-    opt = jobmach.libl22KLR.svm_opt;
+    opt = jobmach.libl2KLR.svm_opt;
     
 % Non-kernel machines for classfication
 %--------------------------------------------------------------------------
@@ -165,9 +165,15 @@ if ~isempty(opt)
         model.machine.args = opt.machine_no_opt;
         model.cv.nested_param = [];
     end
+else
+    model.cv.nested = 0;
+    model.cv.nested_param = [];
 end
 
 if ~isempty(cv_tmp)
     model.cv.type_nested = cv_tmp.type;
     model.cv.k_nested = cv_tmp.k;
+else
+    model.cv.type_nested = '';
+    model.cv.k_nested = 0;
 end
