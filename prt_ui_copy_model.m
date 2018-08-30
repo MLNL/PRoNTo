@@ -77,7 +77,7 @@ else
     set(handles.figure1,'Tag',Tag)
     
     %build figure when it doesn't exist
-set(handles.figure1,'Name','PRoNTo :: Copy model')
+set(handles.figure1,'Name','PRoNTo :: Specify model from')
 % Choose the color of the different backgrounds and figure parameters
 %set size of the window, taking screen resolution and platform into account
 S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
@@ -144,24 +144,18 @@ handles.use_kernel=1;
 set(handles.pop_cv,'String',{''})
 set(handles.pop_cv,'Value',1)
 set(handles.pop_cv,'Enable','off')
-% set(handles.pop_cv_nested,'String',{'Custom'})
-% set(handles.pop_cv_nested,'Value',1)
 set(handles.pop_reg,'String',{''})
 set(handles.pop_reg,'Value',1)
 set(handles.pop_reg,'Enable','off')
 handles.type='classification';
 set(handles.pop_machine,'String',{''})
 set(handles.pop_machine,'Value',1)
-% list={'Sample averaging (within block)',...
-%     'Sample averaging (within subject/condition)',...
-%     'Mean centre features using training data',...
-%     'Divide data vectors by their norm',...
-%     'Regress out covariates (subject level)'};  %GLM for subjects only
-list={'Sample averaging (within block)',...
+handles.oplist = {'Sample averaging (within block)',...
     'Sample averaging (within subject/condition)',...
     'Mean centre features using training data',...
-    'Normalize samples'};
-set(handles.uns_list,'String',list)
+    'Normalize samples',...
+    'Regress out covariates'};
+set(handles.uns_list,'String',handles.oplist)
 set(handles.sel_list,'String',{''})
 set(handles.uns_list,'Value',1)
 set(handles.sel_list,'Value',1)
@@ -215,7 +209,7 @@ end
 %Get list of models to copy from
 if ~isfield(handles.dat,'model')
     disp('No model found in the PRT.mat')
-    disp('Please, specify one model before copying')
+    disp('Please, specify at least one NEW model before this step')
     delete(handles.figure1)
     return
 end
@@ -259,7 +253,7 @@ end
 %Get list of models to copy from
 if ~isfield(handles.dat,'model')
     disp('No model found in the PRT.mat')
-    disp('Please, specify one model before copying')
+    disp('Please, specify at least one NEW model before this step')
     delete(handles.figure1)
     return
 end
@@ -355,40 +349,13 @@ set(handles.fs_sel,'Value',length(sdu));
 handles.fs(id).fs_name=fsname;
 handles.fs(id).indfs=fsidx;
 % Add multi-kernel learning if flag to 1
-if isfield(handles.dat.fs(fsidx),'multkernel')&& handles.dat.fs(fsidx).multkernel %allowing for multi-kernel learning
-    handles.multimod = 1;
-else
-    handles.multimod = 0;
-end
 if isfield(handles.dat.fs(fsidx),'multkernelROI')&& handles.dat.fs(fsidx).multkernelROI %allowing for multi-kernel learning
     handles.multiroi = 1;
 else
     handles.multiroi = 0;
 end
-handles.use_kernel=get(handles.kernel_methods,'Value');
-if get(handles.pop_reg,'Value')==1 %for classification
-    if handles.use_kernel
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
-        if handles.multimod || handles.multiroi || length(handles.fs)>1
-%             list = [list,{'L1- Multi-Kernel Learning'}];
-            list = [list,{'L1- Multi-Kernel Learning'},{'wip'}];
-        end
-%         listmach = get(handles.pop_machine,'String');
-%             if numel(listmach) ~= numel(list) %number of options is not the same
-%                 val = 1;
-%             else
-%                 val = get(handles.pop_machine,'Value');
-%             end
-%             set(handles.pop_machine,'Value',val)
-        set(handles.pop_machine,'String',list)
-    end
-elseif get(handles.pop_reg,'Value') == 2
-    set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
-        'Relevance Vector Regression','Gaussian Process Regression', 'Multi-Kernel Regression'})
-    set(handles.pop_machine,'Value',1) 
-end
+set_machines(handles,hObject);
+handles = guidata(hObject);
 % Update handles structure
 guidata(hObject, handles);
 
@@ -449,69 +416,16 @@ set(handles.fs_uns,'Value',length(idu));
 if ~isempty(handles.fs)
     fsidx = handles.fs(1).indfs;
     % Add multi-kernel learning if flag to 1
-    if isfield(handles.dat.fs(fsidx),'multkernel')&& handles.dat.fs(fsidx).multkernel %allowing for multi-kernel learning
-        handles.multimod = 1;
-    else
-        handles.multimod = 0;
-    end
     if isfield(handles.dat.fs(fsidx),'multkernelROI')&& handles.dat.fs(fsidx).multkernelROI %allowing for multi-kernel learning
         handles.multiroi = 1;
     else
         handles.multiroi = 0;
     end
-    handles.use_kernel=get(handles.kernel_methods,'Value');
-    if get(handles.pop_reg,'Value')==1 %for classification
-        if handles.use_kernel
-            list = {'Binary support vector machine',...
-                'Binary Gaussian Process Classification',...
-                'Multiclass GPC'};
-            if handles.multimod || handles.multiroi || length(handles.fs)>1
-                list = [list,{'L1- Multi-Kernel Learning',...
-                    'wip'}];
-            end
-            listmach = get(handles.pop_machine,'String');
-            if numel(listmach) ~= numel(list) %number of options is not the same
-                val = 1;
-            else
-                val = get(handles.pop_machine,'Value');
-            end
-            set(handles.pop_machine,'Value',val)
-            set(handles.pop_machine,'String',list)
-        end
-    elseif get(handles.pop_reg,'Value') == 2
-        set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
-            'Relevance Vector Regression','Gaussian Process Regression'})
-            if handles.multimod || handles.multiroi || length(handles.fs)>1
-                list = [list,{'Multi-Kernel Regression'}];%,...
-                    %'wip'}];
-            end
-            listmach = get(handles.pop_machine,'String');
-            if numel(listmach) ~= numel(list) %number of options is not the same
-                val = 1;
-            else
-                val = get(handles.pop_machine,'Value');
-            end
-            set(handles.pop_machine,'Value',val)
-            set(handles.pop_machine,'String',list)
-    end
+    set_machines(handles,hObject);
+    handles = guidata(hObject);
 else
-    if get(handles.pop_reg,'Value')==1 %for classification
-        if handles.use_kernel
-            list = {'Binary support vector machine',...
-                'Binary Gaussian Process Classification',...
-                'Multiclass GPC'};
-            set(handles.pop_machine,'String',list)
-            set(handles.pop_machine,'Value',1)
-            handles.machine.function='prt_machine_svm_bin';
-            handles.machine.args=handles.def.svmargs;
-        end
-    elseif get(handles.pop_reg,'Value') == 2
-        set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
-            'Relevance Vector Regression','Gaussian Process Regression', 'Multi-Kernel Regression'})
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_krr';
-        handles.machine.args=handles.def.krrargs;
-    end
+    set_machines(handles,hObject);
+    handles = guidata(hObject);
 end   
 
 % Update handles structure
@@ -544,37 +458,13 @@ if val==0
     set(handles.pop_machine,'Value',1)
     val=1;
 end
-if any(strfind(mach{val},'support'))
-    handles.machine.function='prt_machine_svm_bin';
-    handles.machine.args=handles.def.svmargs;
-elseif any(strfind(mach{val},'Binary Gaussian'))
-    handles.machine.function='prt_machine_gpml';
-    handles.machine.args=handles.def.gpcargs;
-elseif any(strfind(mach{val},'Multiclass GPC'))
-    handles.machine.function='prt_machine_gpclap';
-    handles.machine.args=handles.def.gpclapargs;
-elseif any(strfind(mach{val},'Ridge'))
-    handles.machine.function='prt_machine_krr';
-    handles.machine.args=handles.def.krrargs;
-elseif any(strfind(mach{val},'Relevance'))
-    handles.machine.function='prt_machine_rvr';
-    handles.machine.args=[];
-elseif any(strfind(mach{val},'Process Regression'))
-    handles.machine.function='prt_machine_gpr';
-    handles.machine.args=handles.def.gprargs;
-elseif any(strfind(mach{val},'Random'))
-    handles.machine.function='prt_machine_RT_bin';
-    handles.machine.args=handles.def.rtargs;    
-elseif any(strfind(mach{val},'L1- Multi-Kernel'))
-    handles.machine.function='prt_machine_sMKL_cla';
-    handles.machine.args=handles.def.l1MKLargs;
-elseif any(strfind(mach{val},'wip'))
-    handles.machine.function='prt_machine_wip_cla';
-    handles.machine.args=handles.def.wipargs;
-elseif any(strfind(mach{val},'Multi-Kernel Regression'))
-    handles.machine.function='prt_machine_sMKL_reg';
-    handles.machine.args=handles.def.l1MKLargs; %TODO: Check if this is correct
+is_class = 0;
+if get(handles.pop_reg,'Value')==1
+    is_class = 1;
 end
+is_kernel = get(handles.kernel_methods,'Value');    
+[machine] = prt_get_machine_ui(is_class,is_kernel,mach{val});
+handles.machine = machine;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -601,26 +491,28 @@ function flag_opt_param_Callback(hObject, eventdata, handles)
 v = get(handles.flag_opt_param,'Value');
 if v
     switch handles.machine.function
-        case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
-                'prt_machine_wip_cla','prt_machine_krr',...
-                'prt_machine_sMKL_reg'}
-            set(handles.edit_param_range,'Enable','on')
-            set(handles.pop_cv_nested,'Enable','on')
-            handles.newmodel.use_nested_cv = 1;
-        otherwise
+        case {'prt_machine_gpml','prt_machine_gpclap',...
+                'prt_machine_rvr','prt_machine_gpr'}
             set(handles.edit_param_range,'Enable','off')
             set(handles.pop_cv_nested,'Enable','off')
             handles.newmodel.use_nested_cv = 0;
             handles.newmodel.nested_param = [];
+            set(handles.edit_param_range,'String','');
             beep
-            disp('No hyper-parameter can be optimized for this machine')            
-            set(handles.edit_param_range,'String','')
+            disp('No hyper-parameter can be optimized for this machine')
+        otherwise
+            set(handles.edit_param_range,'Enable','on')
+            set(handles.pop_cv_nested,'Enable','on')
+            handles.newmodel.use_nested_cv = 1;
+            handles.newmodel.nested_param = handles.def.libsvm_optargs;
+            set(handles.edit_param_range,'String',num2str(handles.cv.nested_param));
     end
 else
     handles.newmodel.use_nested_cv = 0;
     handles.newmodel.nested_param = [];
     set(handles.edit_param_range,'Enable','off')
     set(handles.pop_cv_nested,'Enable','off')
+    set(handles.edit_param_range,'String','');
 end
 
 % Update handles structure
@@ -855,13 +747,9 @@ if exist('PRT','var')
     clear PRT
 end
 load(in.fname)
-mid = prt_init_model(PRT, in);
-% Special cross-validation for MCKR
-if strcmpi(PRT.model(mid).input.machine.function,'prt_machine_mckr')
-    prt_cv_mckr(PRT,in);
-else
-    prt_cv_model(PRT, in);
-end
+
+prt_cv_model(PRT, in);
+
 disp('Model specification and estimation complete.')
 disp('Done...')
 delete(handles.figure1)
@@ -1241,6 +1129,45 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+%--------------------------------------------------------------------------
+% Private functions
+%--------------------------------------------------------------------------
+function [] = set_machines(handles,hObject)
+handles.use_kernel=get(handles.kernel_methods,'Value');
+is_kernel = handles.use_kernel;
+is_class = 0;
+if get(handles.pop_reg,'Value')==1 %for classification
+    if handles.use_kernel
+        list = handles.class_K;
+        if handles.multiroi || length(handles.fs)>1
+            list = [list,handles.MK];
+        end
+    else
+        list = handles.class_NK;
+    end
+    is_class = 1;
+else
+    if handles.use_kernel
+        list = handles.reg_K;
+        if handles.multiroi || length(handles.fs)>1
+            list = [list,handles.MK];
+        end
+    else
+        list = handles.reg_NK;
+    end
+end
+set(handles.pop_machine,'String',list)
+set(handles.pop_machine,'Value',1)
+
+name = list{1};
+[machine] = prt_get_machine_ui(is_class,is_kernel,name);
+
+handles.machine = machine;
+
+% Update handles structure
+guidata(hObject, handles);
+
+
 function update_copy_model(handles,indmod)
 
 % Copy model
@@ -1291,74 +1218,102 @@ else
 end
 
 % Set list of potential machines and show the one selected
+% Machine lists:
+mach = prt_get_defaults('machine');
+handles.class_K = mach.class_K;
+handles.MK = mach.MK;
+handles.class_NK = mach.class_NK;
+handles.reg_K = mach.reg_K;
+handles.reg_NK = mach.reg_NK;
+nk=handles.dat.model(indmod).input.use_kernel;
+% Map back the machine function to the name of the algorithm
 if strcmpi(handles.dat.model(indmod).input.type,'classification')
     handles.type = 'classification';
-    nk=handles.dat.model(indmod).input.use_kernel;
-    if nk==1
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};            
+    if nk==1 % Kernel classification machines
+        list = handles.class_K;            
         if handles.multimod || handles.multiroi ||...
                 numel(sel)>1
-            list = [list,{'L1- Multi-Kernel Learning',...
-                    'wip'}];
+            list = [list,handles.MK];
         end
         if strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_svm_bin')
-            val = 1;
+            mach = 'Binary support vector machine';
         elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_gpml')
-            val = 2;
+            mach = 'Binary Gaussian Process Classification';
         elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_gpclap')
-            val = 3;
+            mach = 'Multiclass GPC';
         elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_sMKL_cla')
-            val = 4;
-        elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_wip_cla')
-            val = 5;
+            mach = 'L1 Multi-Kernel Learning';
+        elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_liblinearsvm')
+            mach = 'L2-Logistic Regression';
         end
-    else
-        list = {'Random Forest'};
-        if strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_RT_bin')
-            val = 1;
+    else % Non-Kernel classification machines
+        list = handles.class_NK;
+        if strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_liblinearsvm')
+            % Get string argument to know which machine
+            sargs = handles.dat.model(indmod).input.machine.s_args;
+            if ~isempty(strfind(sargs,'s 0'))
+                mach = 'L2-Logistic Regression';
+            elseif ~isempty(strfind(sargs,'s 6'))
+                mach = 'L1-Logistic Regression';
+            elseif ~isempty(strfind(sargs,'s 2'))
+                mach = 'Binary L2-SVM';   
+            elseif ~isempty(strfind(sargs,'s 5'))
+                mach = 'Binary L1-SVM';
+            elseif ~isempty(strfind(sargs,'s 4'))
+                mach = 'Multiclass SVM';
+            end
+        elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_RT_bin')
+            mach = 'Random Forest';
         end
     end
 elseif strcmpi(handles.dat.model(indmod).input.type,'regression')
     handles.type='regression';
-    list = {'Kernel Ridge Regression','Relevance Vector Regression',...
-        'Gaussian Process Regression'};
-    if handles.multimod || handles.multiroi ||...
+    if nk % Kernel regression machines
+        list = handles.reg_K;
+        if handles.multimod || handles.multiroi ||...
                 numel(sel)>1
-            list = [list,{'Multi-Kernel Regression'}];
-    end
-    if strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_krr')
-        val = 1;
-    elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_rvr')
-        val = 2;
-    elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_gpr')
-        val = 3;
-    elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_sMKL_reg')
-        val = 4;
+            list = [list,handles.MK];
+        end
+        if strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_krr')
+            mach = 'Kernel Ridge Regression';
+        elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_rvr')
+            mach = 'Relevance Vector Regression';
+        elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_gpr')
+            mach = 'Gaussian Process Regression';
+        elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_sMKL_reg')
+            mach = 'L1 Multi-Kernel Learning';
+        elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_svm_bin')
+            mach = 'epsilon-SVR';
+        end
+    else
+        list = handles.reg_NK;
+        if strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_liblinearsvm')
+            mach = 'epsilon-SVR';
+        end
     end
 end
 
+val = find(ismember(list,mach));
 set(handles.pop_machine,'String',list)
 set(handles.pop_machine,'Value',val)
+set(handles.kernel_methods,'Value',nk)
 
 % Nested cross-validation?
 v = handles.dat.model(indmod).input.use_nested_cv;
 if v
     switch handles.machine.function
-        case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
-                'prt_machine_wip_cla','prt_machine_krr',...
-                'prt_machine_sMKL_reg'}
-            set(handles.edit_param_range,'Enable','on')
-            set(handles.pop_cv_nested,'Enable','on')
-            handles.cv.nested = 1;
-        otherwise
+        case {'prt_machine_gpml','prt_machine_gpclap',...
+                'prt_machine_gpr','prt_machine_rvr'}
             set(handles.edit_param_range,'Enable','off')
             set(handles.pop_cv_nested,'Enable','off')
             handles.cv.nested = 0;
             handles.cv.nested_param = [];
             beep
             disp('No hyper-parameter can be optimized for this machine')
+        otherwise
+            set(handles.edit_param_range,'Enable','on')
+            set(handles.pop_cv_nested,'Enable','on')
+            handles.cv.nested = 1;
     end
     set(handles.flag_opt_param,'Value',1)
     set(handles.edit_param_range,'String',num2str(handles.dat.model(indmod).input.nested_param))
@@ -1559,21 +1514,11 @@ else
     set(handles.pop_cv_nested,'Enable','off')
 end
 
-
-% list={'Sample averaging (within block)',...
-%     'Sample averaging (within subject/condition)',...
-%     'Mean centre features using training data',...
-%     'Divide data vectors by their norm',...
-%     'Regress out covariates (subject level)'};  %GLM for subjects only
-list={'Sample averaging (within block)',...
-    'Sample averaging (within subject/condition)',...
-    'Mean centre features using training data',...
-    'Normalize samples'};
-
+% Get operations
+list=handles.oplist;
 allops = 1:length(list);
 selops = handles.dat.model(indmod).input.operations;
 unsops = setdiff(allops,selops);
-
 handles.indop{1}=unsops;
 handles.indop{2}=selops;
 set(handles.uns_list,'String',list(unsops))
@@ -1582,15 +1527,7 @@ handles.operations = selops;
 handles.namop=list;
 set(handles.uns_list,'Value',1)
 set(handles.sel_list,'Value',1)
-% handles.flagguicv=0;
-% handles.flagguicv_nested=0;
-% set(handles.flag_opt_param,'Value',0)
-% set(handles.edit_param_range,'Enable','off')
-% set(handles.pop_cv_nested,'Enable','off')
-% handles.cv.nested = 0;
-% handles.cv.nested_param = [];
-% handles.cv.k_nested = 0;
-% handles.cv.type_nested='';
+
 handles.model_name = [];
 set(handles.edit_modelname,'ForegroundColor',[1 0 0])
 % Update handles structure

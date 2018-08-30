@@ -137,21 +137,12 @@ for i=1:length(aa)
 end
 
 % Machine lists:
-handles.class_K = {'Binary support vector machine',...
-        'L2-Logistic Regression', ...
-        'Binary Gaussian Process Classification',...
-        'Multiclass GPC'};
-handles.MK = {'L1 Multi-Kernel Learning'};
-% handles.MK = {'L1 Multi-Kernel Learning','wip','GMKL'};
-handles.class_NK = {'Binary L2-SVM',...
-    'Binary L1-SVM',...
-    'Multiclass SVM',...
-    'L2-Logistic Regression',...
-    'L1-Logistic Regression'};
-handles.reg_K = {'Kernel Ridge Regression',...
-        'Relevance Vector Regression','Gaussian Process Regression',...
-        'epsilon-SVR'};
-handles.reg_NK = {'epsilon-SVR'};
+mach = prt_get_defaults('machine');
+handles.class_K = mach.class_K;
+handles.MK = mach.MK;
+handles.class_NK = mach.class_NK;
+handles.reg_K = mach.reg_K;
+handles.reg_NK = mach.reg_NK;
 
 %Set defaults for some subfields and popup menus
 handles.def=prt_get_defaults('model');
@@ -526,7 +517,6 @@ else
         set(handles.pop_cv,'String',list(idtk))
         set(handles.pop_cv,'Value',1)
         handles.cv.type = 'custom';
-        handles.multimod = 0;
     end
 end
     

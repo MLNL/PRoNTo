@@ -99,8 +99,15 @@ for k = 1:nk
         disp([' > Estimating model: ',num2str(k),' of ',num2str(nk),' ...'])
     end
     PRT.model(mid).output(k).fold = struct();
+    fprintf([' > running CV fold (out of %d):',repmat(' ',1,ceil(log10(n_folds))),'%d'],n_folds, 1);
     for f = 1:n_folds
-        disp ([' > running CV fold: ',num2str(f),' of ',num2str(n_folds),' ...'])
+        % Update counter
+        if f>1
+            for idisp = 1:ceil(log10(f)) % delete previous counter display
+                fprintf('\b');
+            end
+            fprintf('%d',f);
+        end
         % configure data structure for prt_cv_fold
         fdata.ID      = ID;
         fdata.mid     = mid; %index of model
@@ -193,6 +200,7 @@ for k = 1:nk
 %      end
 %     
       PRT.model(mid).output(k).stats=gstats;
+      fprintf('\n') % new line
 end
 
 % Save PRT containing machine output
