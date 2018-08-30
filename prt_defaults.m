@@ -66,6 +66,7 @@ prt_def.dspec.use3 = [1 2];
 
 % Specify model: String parameters of the different machines
 %------------------------------------------------------------
+% GPML toolbox
 prt_def.model.gpc_sargs       = '-l erf -h';%-h 
 prt_def.model.gpclap_sargs    = '-h'; %'-h';
 prt_def.model.gpr_sargs       = '-l gauss -h'; % -h

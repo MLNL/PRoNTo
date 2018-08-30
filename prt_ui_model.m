@@ -136,6 +136,23 @@ for i=1:length(aa)
         'Units','normalized')
 end
 
+% Machine lists:
+handles.class_K = {'Binary support vector machine',...
+        'L2-Logistic Regression', ...
+        'Binary Gaussian Process Classification',...
+        'Multiclass GPC'};
+handles.MK = {'L1 Multi-Kernel Learning'};
+% handles.MK = {'L1 Multi-Kernel Learning','wip','GMKL'};
+handles.class_NK = {'Binary L2-SVM',...
+    'Binary L1-SVM',...
+    'Multiclass SVM',...
+    'L2-Logistic Regression',...
+    'L1-Logistic Regression'};
+handles.reg_K = {'Kernel Ridge Regression',...
+        'Relevance Vector Regression','Gaussian Process Regression',...
+        'epsilon-SVR'};
+handles.reg_NK = {'epsilon-SVR'};
+
 %Set defaults for some subfields and popup menus
 handles.def=prt_get_defaults('model');
 set(handles.kernel_methods,'Value',1)
@@ -143,8 +160,6 @@ set(handles.kernel_methods,'Enable','on')
 handles.use_kernel=1;
 set(handles.pop_cv,'String',{'Custom'})
 set(handles.pop_cv,'Value',1)
-% set(handles.pop_cv_nested,'String',{'Custom'})
-% set(handles.pop_cv_nested,'Value',1)
 handles.cv.type='custom';
 handles.cv.mat_file=[];
 handles.cv.nested_mat_file=[];
@@ -153,24 +168,12 @@ set(handles.pop_reg,'String',{'Classification','Regression'})
 set(handles.pop_reg,'Value',1)
 handles.type='classification';
 set(handles.butt_defclass,'ForegroundColor',handles.color.high)
-set(handles.pop_machine,'String',{'Binary support vector machine',...
-        'Binary Gaussian Process Classification',...
-        'Multiclass GPC'})
-set(handles.pop_machine,'Value',1)
-handles.machine.function='prt_machine_svm_bin';
-handles.machine.args=handles.def.svmargs;
 handles.subsample = 0;
-% list={'Sample averaging (within block)',...
-%     'Sample averaging (within subject/condition)',...
-%     'Mean centre features using training data',...
-%     'Divide data vectors by their norm',...
-%     'Regress out covariates (subject level)'};  %GLM for subjects only
 list={'Sample averaging (within block)',...
     'Sample averaging (within subject/condition)',...
     'Mean centre features using training data',...
     'Normalize samples',...
     'Regress out covariates'};
-
 handles.indop{1}=1:length(list);
 handles.indop{2}=0;
 set(handles.uns_list,'String',list)
@@ -188,8 +191,10 @@ handles.cv.nested = 0;
 handles.cv.nested_param = [];
 handles.cv.k_nested = 0;
 handles.cv.type_nested='';
-handles.multimod = 0;
 handles.multiroi = 0;
+handles.fs = [];
+set_machines(handles,hObject);
+handles = guidata(hObject);
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -254,18 +259,9 @@ set(handles.fs_sel,'String',{})
 set(handles.fs_sel,'Value',1)
 handles.fsidx = {[1:length(list)],[]};
 handles.fs = [];
-handles.use_kernel=get(handles.kernel_methods,'Value');
-if get(handles.pop_reg,'Value')==1 %for classification
-    if handles.use_kernel
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_svm_bin';
-        handles.machine.args=handles.def.svmargs;
-    end
-end
+% Get list of machines
+set_machines(handles,hObject);
+handles = guidata(hObject);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -313,18 +309,9 @@ set(handles.fs_sel,'String',{})
 set(handles.fs_sel,'Value',1)
 handles.fsidx = {[1:length(list)],[]};
 handles.fs = [];
-handles.use_kernel=get(handles.kernel_methods,'Value');
-if get(handles.pop_reg,'Value')==1 %for classification
-    if handles.use_kernel
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_svm_bin';
-        handles.machine.args=handles.def.svmargs;
-    end
-end
+% Get list of machines
+set_machines(handles,hObject);
+handles = guidata(hObject);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -374,81 +361,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on selection change in pop_featset.
-function pop_featset_Callback(hObject, eventdata, handles)
-% hObject    handle to pop_featset (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = get(hObject,'String') returns pop_featset contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from pop_featset
-val=get(handles.pop_featset,'Value');
-if val==0
-    warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
-    set(handles.pop_feaset,'Value',1)
-    val=1;
-end
-list=get(handles.pop_featset,'String');
-handles.fs(1).fs_name=list{val};
-handles.fs(1).indfs=val;
-list=get(handles.pop_cv,'String');
-if length(handles.dat.fs(val).modality)>1 %LOO Run if not in list
-    if ~any(strcmpi(list,'Leave One Run/Session Out'))
-        list=[list;{'Leave One Run/Session Out'}];
-        set(handles.pop_cv,'String',list)
-        set(handles.pop_cv,'Value',length(list))
-        handles.cv.type = 'loro';
-        handles.multimod = 1;
-    end
-else                                    %delete LOO Run if not available for the selected feature set
-    if any(strcmpi(list,'Leave One Run/Session Out'))
-        idlist = find(strcmpi(list,'Leave One Run/Session Out'));
-        tidl = 1:length(list);
-        idtk = setdiff(tidl,idlist);
-        set(handles.pop_cv,'String',list(idtk))
-        set(handles.pop_cv,'Value',1)
-        handles.cv.type = 'custom';
-        handles.multimod = 0;
-    end
-end
-if length(handles.dat.fs(val).modality)>2
-    list=get(handles.pop_cv_nested,'String');
-    if ~any(strcmpi(list,'Leave One Run/Session Out'))
-        list=[list;{'Leave One Run/Session Out'}];
-        set(handles.pop_cv_nested,'String',list)
-        set(handles.pop_cv_nested,'Value',length(list))
-        handles.cv.type_nested='loro';
-    end
-end
-% Add multi-kernel learning if flag to 1
-if isfield(handles.dat.fs(val),'multkernel')&& handles.dat.fs(val).multkernel %allowing for multi-kernel learning
-    handles.multimod = 1;
-else
-    handles.multimod = 0;
-end
-if isfield(handles.dat.fs(val),'multkernelROI')&& handles.dat.fs(val).multkernelROI %allowing for multi-kernel learning
-    handles.multiroi = 1;
-else
-    handles.multiroi = 0;
-end
-handles.use_kernel=get(handles.kernel_methods,'Value');
-if get(handles.pop_reg,'Value')==1 %for classification
-    if handles.use_kernel
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
-        if handles.multimod || handles.multiroi || length(handles.fs)>1
-            list = [list,{'L1- Multi-Kernel Learning','wip','G- Multi-Kernel Learning'}];
-%             list = [list,{'L1- Multi-Kernel Learning'}];
-        end
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_svm_bin';
-        handles.machine.args=handles.def.svmargs;
-    end
-end
-% Update handles structure
-guidata(hObject, handles);
 
 % --- Executes on selection change in fs_uns.
 function fs_uns_Callback(hObject, eventdata, handles)
@@ -504,33 +417,15 @@ else                                    %delete LOO Run if not available for the
     end
 end
 % Add multi-kernel learning if flag to 1
-if isfield(handles.dat.fs(fsidx),'multkernel')&& handles.dat.fs(fsidx).multkernel %allowing for multi-kernel learning
-    handles.multimod = 1;
-else
-    handles.multimod = 0;
-end
 if isfield(handles.dat.fs(fsidx),'multkernelROI')&& handles.dat.fs(fsidx).multkernelROI %allowing for multi-kernel learning
     handles.multiroi = 1;
 else
     handles.multiroi = 0;
 end
-handles.use_kernel=get(handles.kernel_methods,'Value');
-if get(handles.pop_reg,'Value')==1 %for classification
-    if handles.use_kernel
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
-        if handles.multimod || handles.multiroi || length(handles.fs)>1
-%             list = [list,{'L1- Multi-Kernel Learning'}];
-            %list = [list,{'L1- Multi-Kernel Learning'},{'wip'}];
-            list = [list,{'L1- Multi-Kernel Learning','wip','G- Multi-Kernel Learning'}];
-        end
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_svm_bin';
-        handles.machine.args=handles.def.svmargs;
-    end
-end
+% Get list of machines
+set_machines(handles,hObject);
+handles = guidata(hObject);
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -611,46 +506,19 @@ if ~isempty(handles.fs)
         end
     end
     % Add multi-kernel learning if flag to 1
-    if isfield(handles.dat.fs(fsidx),'multkernel')&& handles.dat.fs(fsidx).multkernel %allowing for multi-kernel learning
-        handles.multimod = 1;
-    else
-        handles.multimod = 0;
-    end
     if isfield(handles.dat.fs(fsidx),'multkernelROI')&& handles.dat.fs(fsidx).multkernelROI %allowing for multi-kernel learning
         handles.multiroi = 1;
     else
         handles.multiroi = 0;
     end
-    handles.use_kernel=get(handles.kernel_methods,'Value');
-    if get(handles.pop_reg,'Value')==1 %for classification
-        if handles.use_kernel
-            list = {'Binary support vector machine',...
-                'Binary Gaussian Process Classification',...
-                'Multiclass GPC'};
-            if handles.multimod || handles.multiroi || length(handles.fs)>1
-                %list = [list,{'L1- Multi-Kernel Learning',...
-                    %'wip'}];
-                list = [list,{'L1- Multi-Kernel Learning','wip',...
-                    'G- Multi-Kernel Learning'}];
-            end
-            set(handles.pop_machine,'String',list)
-            set(handles.pop_machine,'Value',1)
-            handles.machine.function='prt_machine_svm_bin';
-            handles.machine.args=handles.def.svmargs;
-        end
-    end
+    % Get list of machines
+    set_machines(handles,hObject);
+    handles = guidata(hObject);
+
 else
-    if get(handles.pop_reg,'Value')==1 %for classification
-        if handles.use_kernel
-            list = {'Binary support vector machine',...
-                'Binary Gaussian Process Classification',...
-                'Multiclass GPC'};
-            set(handles.pop_machine,'String',list)
-            set(handles.pop_machine,'Value',1)
-            handles.machine.function='prt_machine_svm_bin';
-            handles.machine.args=handles.def.svmargs;
-        end
-    end
+    set_machines(handles,hObject);
+    handles = guidata(hObject);
+
     if any(strcmpi(list,'Leave One Run/Session Out'))
         idlist = find(strcmpi(list,'Leave One Run/Session Out'));
         tidl = 1:length(list);
@@ -697,33 +565,10 @@ function kernel_methods_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of kernel_methods
-handles.use_kernel=get(handles.kernel_methods,'Value');
-if get(handles.pop_reg,'Value')==1 %for classification
-    if ~handles.use_kernel
-        list = { 'L2 support vector machine',...
-           'L1 support vector machine',...
-            'Multiclass support vector machine'};
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_liblinearsvm';
-        handles.machine.args=handles.def.libl2svmargs;
-    else
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
- 
-        if handles.multimod || handles.multiroi
-           % list = [list,{'L1- Multi-Kernel Learning',...
-           %         'wip'}];
-           list = [list,{'L1- Multi-Kernel Learning','wip',...
-               'G- Multi-Kernel Learning'}];
-        end
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_svm_bin';
-        handles.machine.args=handles.def.svmargs;
-    end
-end
+
+set_machines(handles,hObject);
+handles = guidata(hObject);
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -744,44 +589,14 @@ if val==0
 end
 if val==1 %Classification
     handles.type='classification';
-    nk=get(handles.kernel_methods,'Value');
-    if nk==1
-        %set the list of machines
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
-        if handles.multimod || handles.multiroi || ...
-                numel(handles.fsidx{2})>1
-            %list = [list,{'L1- Multi-Kernel Learning',...
-             %       'wip'}];
-             list = [list,{'L1- Multi-Kernel Learning','wip',...
-                 'G- Multi-Kernel Learning'}];
-        end
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_svm_bin';
-        handles.machine.args=handles.def.svmargs;
-    else
-        %set the list of machines
-        list = {'L2 support vector machine',...
-            'L1 support vector machine',...
-            'Multiclass support vector machine'};
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_liblinearsvm';
-        handles.machine.args=handles.def.libl2svmargs;
-    end
     set(handles.butt_defclass,'String','Define classes')
 elseif val==2
     handles.type='regression';
     set(handles.butt_defclass,'String','Select subjects/scans')
-    %set the list of machines
-    set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
-        'Relevance Vector Regression','Gaussian Process Regression', 'Multi-Kernel Regression'})
-    set(handles.pop_machine,'Value',1)
-    handles.machine.function='prt_machine_krr';
-    handles.machine.args=handles.def.krrargs;
 end
+set_machines(handles,hObject);
+handles = guidata(hObject);
+
 set(handles.butt_defclass,'ForegroundColor',handles.color.high)
 % Update handles structure
 guidata(hObject, handles);
@@ -943,52 +758,13 @@ if val==0
     set(handles.pop_machine,'Value',1)
     val=1;
 end
-if any(strfind(mach{val},'Binary support'))
-    handles.machine.function='prt_machine_svm_bin';
-    handles.machine.args=handles.def.svmargs;
-elseif any(strfind(mach{val},'Binary Gaussian'))
-    handles.machine.function='prt_machine_gpml';
-    handles.machine.args=handles.def.gpcargs;
-elseif any(strfind(mach{val},'Multiclass GPC'))
-    handles.machine.function='prt_machine_gpclap';
-    handles.machine.args=handles.def.gpclapargs;
-elseif any(strfind(mach{val},'Ridge'))
-    handles.machine.function='prt_machine_krr';
-    handles.machine.args=handles.def.krrargs;
-elseif any(strfind(mach{val},'Relevance'))
-    handles.machine.function='prt_machine_rvr';
-    handles.machine.args=[];
-elseif any(strfind(mach{val},'Process Regression'))
-    handles.machine.function='prt_machine_gpr';
-    handles.machine.args=handles.def.gprargs;
-elseif any(strfind(mach{val},'Random'))
-    handles.machine.function='prt_machine_RT_bin';
-    handles.machine.args=handles.def.rtargs;    
-elseif any(strfind(mach{val},'L1- Multi-Kernel'))
-    handles.machine.function='prt_machine_sMKL_cla';
-    handles.machine.args=handles.def.l1MKLargs;
-elseif any(strfind(mach{val},'wip'))
-    handles.machine.function='prt_machine_wip_cla';
-    handles.machine.args=handles.def.wipargs;
-elseif any(strfind(mach{val},'G- Multi-Kernel'))
-    handles.machine.function='prt_machine_GMKL_cla';
-    handles.machine.args=handles.def.wipargs;
-elseif any(strfind(mach{val},'Multi-Kernel Regression'))
-    handles.machine.function='prt_machine_sMKL_reg';
-    handles.machine.args=handles.def.l1MKLargs; %TODO: Check if this is correct
-elseif any(strfind(mach{val},'L1'))
-    handles.machine.function='prt_machine_liblinearsvm';
-% Set handles.machine.args wihe default C = 1 when optimizating hyperparameters are not selected in GUI, 
-% no matter how many times users click the machine button and/or the optimization flag. The '1'
-% is removed each time user click Optimize hyperparameter flag. 
-    handles.machine.args=[handles.def.libl1svmargs num2str(handles.def.svmargs)];
-elseif any(strfind(mach{val},'L2'))
-    handles.machine.function='prt_machine_liblinearsvm';
-    handles.machine.args=[handles.def.libl2svmargs num2str(handles.def.svmargs)];
-elseif any(strfind(mach{val},'Multiclass'))
-    handles.machine.function='prt_machine_liblinearsvm';
-    handles.machine.args=[handles.def.libmulticlsvmargs num2str(handles.def.svmargs)];
+is_class = 0;
+if get(handles.pop_reg,'Value')==1
+    is_class = 1;
 end
+is_kernel = get(handles.kernel_methods,'Value');    
+[machine] = prt_get_machine_ui(is_class,is_kernel,mach{val});
+handles.machine = machine;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -1015,38 +791,26 @@ function flag_opt_param_Callback(hObject, eventdata, handles)
 v = get(handles.flag_opt_param,'Value');
 if v
     switch handles.machine.function
-        case {'prt_machine_svm_bin','prt_machine_sMKL_cla',...
-                'prt_machine_wip_cla','prt_machine_krr',...
-                'prt_machine_sMKL_reg','prt_machine_GMKL_cla','prt_machine_liblinearsvm'}
-            if strcmp(handles.machine.function,'prt_machine_liblinearsvm')
-                if ~isempty(regexp(handles.machine.args,'-s\s+[245]','once'))...
-                    && ~strcmp(handles.machine.args(end-1:end),'c ')% If there are multiple clicks on this flag,no more operations.
-                    handles.machine.args = handles.machine.args(1:end-1);
-                end
-            end
-            set(handles.edit_param_range,'Enable','on')
-            set(handles.pop_cv_nested,'Enable','on')
-            handles.cv.nested = 1;
-        otherwise
+        case {'prt_machine_gpml','prt_machine_gpclap',...
+                'prt_machine_rvr','prt_machine_gpr'}
             set(handles.edit_param_range,'Enable','off')
             set(handles.pop_cv_nested,'Enable','off')
             handles.cv.nested = 0;
             handles.cv.nested_param = [];
             beep
             disp('No hyper-parameter can be optimized for this machine')
+        otherwise
+            set(handles.edit_param_range,'Enable','on')
+            set(handles.pop_cv_nested,'Enable','on')
+            handles.cv.nested = 1;
+            handles.cv.nested_param = handles.def.libsvm_optargs;
+            set(handles.edit_param_range,'String',num2str(handles.cv.nested_param));
     end
 else
     handles.cv.nested = 0;
     handles.cv.nested_param = [];
     set(handles.edit_param_range,'Enable','off')
     set(handles.pop_cv_nested,'Enable','off')
-    
-    if strcmp(handles.machine.function,'prt_machine_liblinearsvm')
-       if ~isempty(regexp(handles.machine.args,'-s\s+[245]','once'))...
-          && strcmp(handles.machine.args(end-1:end),'c ')% If there are multiple clicks on this flag and user selects no optimization again.
-          handles.machine.args = [handles.machine.args num2str(handles.def.svmargs)];
-       end
-    end
 end
 
 % Update handles structure
@@ -1329,6 +1093,10 @@ end
 in.model_name=handles.model_name;
 in.type=handles.type;
 in.machine=handles.machine;
+if handles.cv.nested && isempty(handles.cv.nested_param)
+    disp('Using default hyper-parameter range')
+    in.cv.nested_param = handles.def.libsvm_optargs;
+end
 in.use_kernel=handles.use_kernel;
 in.operations=handles.operations;
 in.fs=handles.fs;
@@ -1424,13 +1192,8 @@ if exist('PRT','var')
     clear PRT
 end
 load(in.fname)
-mid = prt_init_model(PRT, in);
-% Special cross-validation for MCKR
-if strcmpi(PRT.model(mid).input.machine.function,'prt_machine_mckr')
-    prt_cv_mckr(PRT,in);
-else
-    prt_cv_model(PRT, in);
-end
+prt_cv_model(PRT, in);
+
 disp('Model specification and estimation complete.')
 disp('Done...')
 delete(handles.figure1)
@@ -1457,6 +1220,10 @@ end
 in.model_name=handles.model_name;
 in.type=handles.type;
 in.machine=handles.machine;
+if handles.cv.nested && isempty(handles.cv.nested_param)
+    disp('Using default hyper-parameter range')
+    in.cv.nested_param = handles.def.libsvm_optargs;
+end
 in.use_kernel=handles.use_kernel;
 in.operations=handles.operations;
 in.fs=handles.fs;
@@ -1591,3 +1358,41 @@ function pop_cv_nested_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+% -------------------------------------------------------------------------
+% Private functions
+% -------------------------------------------------------------------------
+function [] = set_machines(handles,hObject)
+handles.use_kernel=get(handles.kernel_methods,'Value');
+is_kernel = handles.use_kernel;
+is_class = 0;
+if get(handles.pop_reg,'Value')==1 %for classification
+    if handles.use_kernel
+        list = handles.class_K;
+        if handles.multiroi || length(handles.fs)>1
+            list = [list,handles.MK];
+        end
+    else
+        list = handles.class_NK;
+    end
+    is_class = 1;
+else
+    if handles.use_kernel
+        list = handles.reg_K;
+        if handles.multiroi || length(handles.fs)>1
+            list = [list,handles.MK];
+        end
+    else
+        list = handles.reg_NK;
+    end
+end
+set(handles.pop_machine,'String',list)
+set(handles.pop_machine,'Value',1)
+
+name = list{1};
+[machine] = prt_get_machine_ui(is_class,is_kernel,name);
+
+handles.machine = machine;
+
+% Update handles structure
+guidata(hObject, handles);
