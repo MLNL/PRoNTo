@@ -265,7 +265,7 @@ switch in.cv.type
             end
             mns=mod(gc,k);
             dk=nsb*ones(1,k);
-            if mns>0
+            if mns>0 && k>1
                 ib = 1;
                 while sum(dk)<gc
                     dk(ib)=dk(ib)+1;
