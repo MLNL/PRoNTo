@@ -1,11 +1,12 @@
-function prt_plot_prediction_reg_scatter(PRT, model, axes_handle)
-% FORMAT prt_plot_prediction_reg_scatter(PRT, model, axes_handle)
+function prt_plot_prediction_reg_scatter(PRT, model, fold,axes_handle)
+% FORMAT prt_plot_prediction_reg_scatter(PRT, model, fold,axes_handle)
 %
 % This function plots the scatter plot that appears on prt_ui_results
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).
 %       model           - the number of the model that will be ploted
+%       fold            - the index of fold to plot
 %       axes_handle     - (Optional) axes where the plot will be displayed
 %
 % Output:
@@ -28,12 +29,24 @@ end
 
 
 cla(axes_handle, 'reset');
-preds1 = [];
-preds2 = [];
+hold on
+tars = [];
 for f = 1:nfold
-    preds1 = [preds1; PRT.model(model).output.fold(f).targets];
-    preds2 = [preds2; PRT.model(model).output.fold(f).predictions];
+    tars = [tars; PRT.model(model).output.fold(f).targets];
 end
-scatter(axes_handle,preds2,preds1,'filled');
+
+minp = min(tars);
+maxp = max(tars);
+
+preds1 = PRT.model(model).output.fold(fold-1).targets;
+preds2 = PRT.model(model).output.fold(fold-1).predictions;
+
+cmap = cbrewer('div','RdBu',numel(preds1));
+cmap = brighten(cmap,-0.4); % Make it darker to see the middle points
+colormap(cmap);
+scatter(axes_handle,preds2,preds1,[],preds1-preds2,'filled');
+plot([minp,maxp],[minp,maxp],'--','Color',[0.5 0.5 0.5])
 xlabel(axes_handle,'predictions','FontWeight','bold');
 ylabel(axes_handle,'targets','FontWeight','bold');
+
+hold off

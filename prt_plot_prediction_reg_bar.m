@@ -1,11 +1,12 @@
-function prt_plot_prediction_reg_bar(PRT, model, axes_handle)
-% FORMAT prt_plot_prediction_reg_bar(PRT, model, axes_handle)
+function prt_plot_prediction_reg_bar(PRT, model, fold,axes_handle)
+% FORMAT prt_plot_prediction_reg_bar(PRT, model, fold,axes_handle)
 %
 % This function plots the bar plot that appears on prt_ui_results
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).
 %       model           - the number of the model that will be ploted
+%       fold            - index of fold to plot
 %       axes_handle     - (Optional) axes where the plot will be displayed
 %
 % Output:
@@ -27,13 +28,20 @@ else
 end
 
 cla(axes_handle, 'reset');
-preds1 = [];
-preds2 = [];
-for f = 1:nfold
-    preds1 = [preds1; PRT.model(model).output.fold(f).targets];
-    preds2 = [preds2; PRT.model(model).output.fold(f).predictions];
+if fold==1
+    for f = 1:nfold
+        preds1 = [preds1; PRT.model(model).output.fold(f).targets];
+        preds2 = [preds2; PRT.model(model).output.fold(f).predictions];
+    end
+else
+    preds1 = PRT.model(model).output.fold(fold-1).targets;
+    preds2 = PRT.model(model).output.fold(fold-1).predictions;
 end
+%If you want to use more classes, just add more colours to the list bellow
+colourList = [0 0 0; 1 0 0];
+
 bar(axes_handle,[preds1 preds2]);
+colormap(colourList)
 xlabel(axes_handle,'subjects','FontWeight','bold');
 ylabel(axes_handle,'targets and predictions','FontWeight','bold');
 legend(axes_handle,{'Target', 'Predicted'});

@@ -128,7 +128,7 @@ end
 
 %Plot 'luck'
 plot([0 1],[0,1],'--r')
-legend_labs = [legend_labs,{'Luck'}];
+legend_labs = [legend_labs,{'Chance'}];
     
 title(axes_handle,sprintf('Receiver Operator Curve'));
 xlabel(axes_handle,'False positive rate','FontWeight','bold')

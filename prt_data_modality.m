@@ -687,9 +687,9 @@ switch choice
         rte = [];
     case 1
         if isstruct(handles.mod.rt_subj)
-                rte=prt_data_targets('UserData',{handles.mod.rt_subj,handles.PRT,0});
-            else
-                rte=prt_data_targets;
+             rte=prt_data_targets('UserData',{handles.mod.rt_subj,handles.PRT,0});
+        else
+             rte=prt_data_targets;
         end
 end
 

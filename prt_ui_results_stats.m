@@ -470,16 +470,21 @@ else
     % ---------------------------------------------------------------------
     switch plotchosen
         case 'Predictions (scatter)'
-            prt_plot_prediction_reg_scatter(handles.PRT, model, handles.axes5);
+            prt_plot_prediction_reg_scatter(handles.PRT, model,fold, handles.axes5);
             
         case 'Predictions (bar)'
-            prt_plot_prediction_reg_bar(handles.PRT, model, handles.axes5);
+            prt_plot_prediction_reg_bar(handles.PRT, model,fold, handles.axes5);
             
         case 'Predictions (line)'
-            prt_plot_prediction_reg_line(handles.PRT, model, handles.axes5);
+            prt_plot_prediction_reg_line(handles.PRT, model,fold, handles.axes5);
             
         case 'Prediction Errors'
-            prt_plot_prediction_errors(handles.PRT, model, handles.axes5);
+            prt_plot_prediction_errors(handles.PRT, model,fold,[], handles.axes5);
+        
+        case 'R2'
+            if fold==1
+                prt_plot_R2_distribution(handles.PRT, model,handles.axes5);
+            end
             
         case 'Influence of the hyper-parameter on performance'
             prt_plot_nested_cv(handles.PRT, model, fold, handles.axes5);

@@ -35,7 +35,7 @@ minErr = min(predErr);
 
 
 %Defined the marker size, if no value is given
-if ~exist('marker_size', 'var')
+if ~exist('marker_size', 'var') || isempty(marker_size)
     marker_size = 7;
 end
 
@@ -53,6 +53,8 @@ rotate3d off
 colorbar('peer',axes_handle,'off')
 set(axes_handle,'Color',[1,1,1])
 
+hold on
+
 % Plot prediction errors
 if fold == 1
     foldlabels = 1:nfold;
@@ -60,13 +62,16 @@ if fold == 1
         targets = PRT.model(model).output.fold(f-1).targets;
         fVals   = PRT.model(model).output.fold(f-1).predictions;
         predError = targets - fVals;
-        yc = (f-1)*ones(length(predErrors),1);
+        yc = (f-1)*ones(length(predError),1);
         pl = plot(axes_handle,predError,yc,'kx','MarkerSize',marker_size);
     end
 else
     foldlabels  = fold-1;
-    yc = (fold-1)*ones(length(predErr),1);
-    pl = plot(axes_handle,predErr,yc,'kx','MarkerSize',marker_size);
+    targets = PRT.model(model).output.fold(foldlabels).targets;
+    fVals   = PRT.model(model).output.fold(foldlabels).predictions;
+    predError = targets - fVals;
+    yc = (fold-1)*ones(length(predError),1);
+    pl = plot(axes_handle,predError,yc,'kx','MarkerSize',marker_size);
 end
 y = [0:nfold+1]';
 x = zeros(nfold+2,1);
@@ -82,4 +87,5 @@ set(axes_handle,'YTick',foldlabels)
 hold(axes_handle,'off');
 set(axes_handle,'Color',[1,1,1],'Visible','on')
 title(axes_handle,'')
+hold off
 end
