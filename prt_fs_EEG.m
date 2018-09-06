@@ -105,17 +105,17 @@ addin.n_vols_s = n_vols_s;
 Dsubj1 = PRT.fas(mids(1)).hdr;
 
 for ik = 1:nkm
-    if in.flag_mm
-        idtk = PRT.fs(fid).id_mat(:,3) == mids(ik);
-        nimm = length(find(PRT.fs(fid).id_mat(:,3) == mids(ik)));
-        if nimm~= nim1 %check that modalities have the same dimensions in terms of samples
-            error('prt_fs:MultKernMod_DifIm',...
-                'Modalities should have the same number of samples to be considered for MKL')
-        end
-        addin.ID = PRT.fs(fid).id_mat(idtk,:);
-    else
+%     if in.flag_mm
+%         idtk = PRT.fs(fid).id_mat(:,3) == mids(ik);
+%         nimm = length(find(PRT.fs(fid).id_mat(:,3) == mids(ik)));
+%         if nimm~= nim1 %check that modalities have the same dimensions in terms of samples
+%             error('prt_fs:MultKernMod_DifIm',...
+%                 'Modalities should have the same number of samples to be considered for MKL')
+%         end
+%         addin.ID = PRT.fs(fid).id_mat(idtk,:);
+%     else
         addin.ID = PRT.fs(fid).id_mat;
-    end
+%     end
     addin.dim_m = dim_m;
     if n_kern(ik) ==1
         addin.buildkern = 1;
@@ -240,16 +240,6 @@ for ik = 1:nkm
     end
     
 
-    if in.flag_mm
-        %post-hoc: the ID mat should be the same for all modalities involved,
-        %so only the first one will be saved
-        PRT.fs(fid).multkernel = 1;
-        indm=PRT.fs(fid).fas.im==1;
-        PRT.fs(fid).id_mat=PRT.fs(fid).id_mat(indm,:);
-        PRT.fs(fid).multkernel = 1;
-        PRT.fs(fid).atlas_name = [];
-        PRT.fs(fid).atlas_label = {};
-    end
     Phi= [Phi, Phim];
     clear Phim
     fprintf('\n') % new line 
