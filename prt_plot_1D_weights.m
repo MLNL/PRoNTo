@@ -31,13 +31,13 @@ if minw<0 && maxw>0 % Both negative and positive, diverging colormap
     newticks = [1 128 256];
     labels = [minw;0;maxw];
 elseif minw>=0 && maxw>0 % Only positive, sequential red colormap
-    colpos = cbrewer('seq','Reds',255);
+    colpos = cbrewer('seq','Reds',256);
     cols  = colpos;
     valsN = round(((weights) ./ (maxw-minw)) .* 255)+1;
     newticks = [1 256];
     labels = [minw;maxw];
 elseif minw<0 && maxw<=0 % Only negative, sequential blue colormap
-    colneg = cbrewer('seq','Blues',255);
+    colneg = cbrewer('seq','Blues',256);
     cols  = flip(colneg,1);
     valsN = round(((weights) ./ (maxw-minw)) .* 255)+1;
     newticks = [1 256];
