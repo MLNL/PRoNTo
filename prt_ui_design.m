@@ -548,7 +548,7 @@ function use_scans_Callback(hObject, eventdata, handles)
 val=get(handles.use_scans,'Value');
 if ~isfield(handles.dat,'group') || isempty(handles.ds)
     beep
-    disp('Please add at least one group before adding scans')
+    disp('Please add at least one group before adding samples')
     return
 end
 handles.ds{handles.cgr}=cell(1);
@@ -558,7 +558,7 @@ if val==1
     set(handles.subj_add,'enable','off')
     set(handles.subj_remove,'enable','off')
     set(handles.subjects_list,'String',{'Scans'});
-    handles.dat.group(handles.cgr).subject(handles.cs).subj_name='Scans';
+    handles.dat.group(handles.cgr).subject(handles.cs).subj_name='Samples';
 else
     set(handles.subj_add,'enable','on')
     set(handles.subj_remove,'enable','on')
@@ -677,7 +677,7 @@ end
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).mod_name=mod.name;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).covar=mod.covar;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).rt_subj=mod.rt_subj;
-handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;
+handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=mod.design;    
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).type = mod.type;
 
@@ -1270,7 +1270,7 @@ end
 PRT= handles.dat;
 PRT.group = handles.dat.group;
 for i=1:length(handles.ds)
-    if ~isempty(strfind(lower(handles.dat.group(i).subject(1).subj_name),'scan'))
+    if ~isempty(strfind(lower(handles.dat.group(i).subject(1).subj_name),'samples'))
         subj=struct();
         nsubj=handles.ds{i}{1}{1};
         for j=1:length(handles.dat.group(i).subject(1).modality)
@@ -1339,7 +1339,7 @@ if nmask~=nmimg
     return
 end
 
-% Re-order all modalities based on masks order
+% Re-order all modalities based on masks order 
 PRTcopy = PRT;
 for i=1:ng
     matdat=zeros(ns,nm);
