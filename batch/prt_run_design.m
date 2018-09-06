@@ -126,9 +126,9 @@ if isfield(job.group(1).select,'modality')
                                     disp('Please correct!')
                                     return
                                 else
-                                    PRT.group(g).subject(s).modality(m).rt_subj(rt).rt_tar = rt_val(s);
-                                    PRT.group(g).subject(s).modality(m).rt_subj(rt).rt_name = ...
+                                    PRT.group(g).subject(s).modality(m).rt_subj(rt).name = ...
                                         job.group(g).select.modality(m).rt_subj.rt_subj_tar(rt).rt_name;
+                                    PRT.group(g).subject(s).modality(m).rt_subj(rt).tar = rt_val(s);
                                 end
                             end
                         % Regression targets specified by file
@@ -165,8 +165,8 @@ if isfield(job.group(1).select,'modality')
                                 end
                             end
                             for rt=1:ntar
-                                PRT.group(g).subject(s).modality(m).rt_subj(rt).rt_tar = tars.rt_subj(s,rt);
-                                PRT.group(g).subject(s).modality(m).rt_subj(rt).rt_name = tars.names{rt};
+                                PRT.group(g).subject(s).modality(m).rt_subj(rt).name = tars.names{rt};
+                                PRT.group(g).subject(s).modality(m).rt_subj(rt).tar = tars.rt_subj(s,rt);
                             end
                             
                         % No regression targets
