@@ -95,13 +95,13 @@ end
 switch mfunc
     case 'prt_machine_sMKL_reg'
         m.function = 'prt_weights_sMKL_reg';
-        img_mach{1} = ['weights_',mname,'.img'];
+        img_mach{1} = ['weights_',mname,ext];
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
     otherwise
         m.function  = 'prt_weights_bin_linkernel';
-        img_mach{1} = ['weights_',mname,'.img'];
+        img_mach{1} = ['weights_',mname,ext];
 end
 
 nimage = length(img_mach);
