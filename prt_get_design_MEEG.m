@@ -24,18 +24,22 @@ alldisc = [];
 allscans = [];
 for c=1:ncond
     conds(c).cond_name = cname{c};
-    indt = indtrial(D,cname{c});
-%     indcond = setdiff(indtrial(D,cname{c}),badtrials(D));
-    conds(c).onsets = trialonset(D,indt);
-%     allons = [allons, trialonset(D,indcond)];
+    indt = indtrial(D,cname{c}); % get trial index for each condition
+    conds(c).onsets = trialonset(D,indt); %get the onsets
+    conds(c).blocks = 1:length(conds(c).onsets); % compute the 'blocks' (here = epochs)
     conds(c).durations = repmat(D.nsamples/D.fsample,1,length(indt));
+    
+    % Estimate 'good' trials and scans
     conds(c).scans = [indtrial(D,cname{c},'good')];
     allscans = [allscans, conds(c).scans];
-    conds(c).blocks = 1:length(conds(c).scans);
     badtr = indtrial(D,cname{c},'bad');
     conds(c).discardedscans = reshape(badtr,1,numel(badtr));
     alldisc = [alldisc, conds(c).discardedscans];
     conds(c).hrfdiscardedscans = [];
+    goodb = ismember(indt,conds(c).scans);
+    conds(c).blocks = conds(c).blocks(goodb);
+    
+    % Initialize covariate and RT fields
     conds(c).rt_trial = [];
     conds(c).cov_trial = [];
 end

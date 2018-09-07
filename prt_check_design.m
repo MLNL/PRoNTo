@@ -1,5 +1,5 @@
 function [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)
-% FORMAT [conds] = prt_check_design(cond,tr,units,hrfoverlap)
+% FORMAT [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)
 %
 % Check the design and discards scans which are either overlapping between
 % conditions or which do not respect a minimum time interval between
@@ -51,7 +51,7 @@ if nargin<5
     hrfd=def.hrfd;
 else
     hrfd=hrfdelay;
-end    
+end 
 
 %check the level of overlapping between the different conditions
 all=[];

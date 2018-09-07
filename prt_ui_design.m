@@ -754,7 +754,7 @@ filenum = size(handles.dat.group(handles.cgr).subject(handles.cs).modality(handl
 Update_Filenumber_Callback(hObject, eventdata, handles, filenum);
 guidata(hObject, handles);
 
-%Function called when right-clicking on the 'rename' menu
+%Function called when right-clicking on the 'modify' menu
 function renmod(hObject,eventdata)
 handles=guidata(hObject);
 val=get(handles.modality_list,'Value');
@@ -1357,11 +1357,6 @@ for i=1:ng
             sprintf('Numbers of modalities in groups 1 and %d differ \n',i)
             disp('Please correct')
             return
-%         elseif nmj~=nmask
-%             beep
-%             sprintf('%d modalities found for subject %d of group %d, while %d masks found \n',nmj,j,i,nmask)
-%             disp('Possible errors in the modalities names, please correct')
-%             return
         end
         for k=1:nm
             m2=find(strcmpi({PRTcopy.group(i).subject(j).modality(:).mod_name},{handles.dat.masks(k).mod_name}));
@@ -1408,6 +1403,10 @@ if isfield(PRT,'fas')
 end
 if isfield(PRT,'model')
     PRT=rmfield(PRT,'model');
+end
+
+if isfield(PRT,'design')
+    PRT = rmfield(PRT,'design');
 end
 
 if isempty(handles.dat.dir)

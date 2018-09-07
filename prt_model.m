@@ -156,12 +156,7 @@ groups     = {PRT.group(:).gr_name};
 % ------------------------
 t_all    = zeros(n,1);
 samp_all = zeros(n,1);
-
-if isfield(PRT.group(1).subject(1).modality(1),'covar') && ~isempty(PRT.group(1).subject(1).modality(1).covar)
-    cov_all = zeros(n,size(PRT.group(1).subject(1).modality(1).covar,2)); % Assume all subjects have the same number of covariates
-else
-    cov_all = [];
-end
+cov_all = [];
 
 if ~regression
     nc = length(in.class);
@@ -221,8 +216,11 @@ for c = 1:nc
                                 t_all(idx) = c;
                             end
                             if any(ismember(in.operations, 5)) % Get the covariates for GLM
+                                if mean([c,gid,sid,mid,cid]) ==1 % Initialize covariates
+                                    cov_all = zeros(n,size(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial,2));
+                                end                                   
                                 idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
-                                cov_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial(idb);
+                                cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial(idb,:);
                             end
                             samp_all(idx) = 1;
                         else
@@ -237,8 +235,8 @@ for c = 1:nc
                     blocks=1;
                     % all conditions
                     for cid = 1:length(conds)
-                        idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;
-                        if regression % Regression
+                        idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid & ID(:,4) == cid;                        
+                        if regression % Regression                            
                             try
                                 idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
                                 t_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).rt_trial(idb);
@@ -250,8 +248,11 @@ for c = 1:nc
                             t_all(idx) = c;
                         end
                         if any(ismember(in.operations, 5)) % Get the covariates for GLM
+                            if mean([c,gid,sid,mid,cid]) ==1 % Initialize covariates
+                                cov_all = zeros(n,size(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial,2));
+                            end
                             idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
-                            cov_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial(idb);
+                            cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial(idb,:);
                         end
                         samp_all(idx) = 1;
                     end
@@ -261,6 +262,9 @@ for c = 1:nc
                         ~isfield(PRT.group(gid).subject(sid).modality(mid).design,'conds')
                     idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
                     if any(ismember(in.operations, 5)) %Get covariates
+                        if mean([c,gid,sid,mid]) ==1 % Initialize covariates
+                            cov_all = zeros(n,size(PRT.group(gid).subject(sid).modality(mid).covar,2));
+                        end
                         cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
                     end
                     try
@@ -295,6 +299,9 @@ for c = 1:nc
                     %[afm] idx = ID(:,1) == gid & ID(:,2) == s & ID(:,3) == mid;
                     idx = ID(:,1) == gid & ID(:,2) == sid & ID(:,3) == mid;
                     if any(ismember(in.operations, 5)) %Get covariates
+                        if mean([c,gid,sid,mid]) ==1 % Initialize covariates
+                            cov_all = zeros(n,size(PRT.group(gid).subject(sid).modality(mid).covar,2));
+                        end
                         cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
                     end
                     if ~regression

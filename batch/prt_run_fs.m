@@ -176,6 +176,7 @@ for i=1:length(PRT.masks)
                 t_start = job.format.MEEGmodality(ind).tp.timewin(1)/1000;
                 t_stop = job.format.MEEGmodality(ind).tp.timewin(2)/1000;
                 mod(i).itp = indsample(D,t_start):indsample(D,t_stop); 
+                mod(i).time = D.time;
                 if job.format.MEEGmodality(ind).tp.average
                     mod(i).aver(3) = 1;
                     if ~isfield(job.format.MEEGmodality(ind).tp.multkerntp,'nomult') || ...

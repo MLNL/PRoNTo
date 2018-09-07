@@ -62,7 +62,7 @@ if SANITYCHECK==true
                     ['Error: machine structure should contain'...
                     ' ''.function'' field!']);
             end
-            if ~isfield(m,'args')
+            if ~isfield(m,'args') && ~isfield(m,'s_args')
                 error('prt_machine:argsFieldNotFound',...
                     ['Error: machine structure should contain' ...
                     ' ''.args'' field!']);
@@ -204,7 +204,11 @@ end % SANITYCHECK
 
 if isfield(m,'s_args') && ~isempty(m.s_args)
     % Assume the arguments must be passed as string
-    args = [m.s_args,num2str(m.args)];
+    if isfield(m,'args') && ~isempty(m.args) %Need to assemble string and integer, for LIBSVM and LIBLINEAR
+        args = [m.s_args,num2str(m.args)];
+    else
+        args = m.s_args; % GPML cases
+    end
 else
     % Otherwise use as is
     args = m.args;

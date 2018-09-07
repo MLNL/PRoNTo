@@ -329,7 +329,7 @@ else
                                 design = 0;
                                 
                                 % One covariate vector per subject?
-                                if isfield(job.group(g).select.subject{j}(k).design.no_design,'covarcond') && ...
+                                if isfield(job.group(g).select.subject{j}(k).design.no_design,'cov_trial') && ...
                                         ~isempty(job.group(g).select.subject{j}(k).design.no_design.cov_trial)
                                     try
                                         load(job.group(g).select.subject{j}(k).design.no_design.cov_trial{1});
@@ -487,7 +487,7 @@ else
                                     end
                                     if isfield(design.conds(c),'cov_trial') && ~isempty(design.conds(c).cov_trial)
                                         try
-                                            load(design.conds.cov_trial{1});
+                                            load(design.conds(c).cov_trial{1});
                                             if exist('R','var')
                                                 if size(R,1)== lons
                                                     design.conds(c).cov_trial  = R;
@@ -548,7 +548,7 @@ else
                                   isfield(job.group(g).select.subject{j}(k).design.MEEGevents.addregcov,'condsadd') && ...
                                    isstruct(job.group(g).select.subject{j}(k).design.MEEGevents.addregcov.condsadd)
                                addconds = job.group(g).select.subject{j}(k).design.MEEGevents.addregcov;
-                               for c = 1:length(addconds)
+                               for c = 1:length(addconds.condsadd)
                                    cond_name = addconds.condsadd(c).cond_name;
                                    ic = find(ismember(clist,cond_name));
                                    if isfield(addconds.condsadd(c),'rt_trial') && ~isempty(addconds.condsadd(c).rt_trial)
@@ -566,9 +566,8 @@ else
                                    end
                                     if isfield(addconds.condsadd(c),'cov_trial') && ~isempty(addconds.condsadd(c).cov_trial)
                                         try
-                                            load(addconds.condsadd.cov_trial{1});
+                                            load(addconds.condsadd(c).cov_trial{1});
                                             if exist('R','var')
-                                                % Take out 'bad trials' from regression targets
                                                 if length(design.conds(ic).onsets) == size(R,1)
                                                     design.conds(ic).cov_trial  = R;
                                                 else
@@ -587,7 +586,7 @@ else
                                             end
                                         catch
                                             beep
-                                            sprintf('Could not load %s file!',char(addconds.condsadd.cov_trial))
+                                            sprintf('Could not load %s file!',char(addconds.condsadd(c).cov_trial))
                                             out.files{1} = [];
                                             return
                                         end

@@ -189,8 +189,9 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         end
         try
             temp=[];
-            for j=1:length(des.conds(i).cov_trial)
-                temp=[temp, ' ',num2str(des.conds(i).cov_trial(j),3)];
+            covs = des.conds(i).cov_trial(:);
+            for j=1:length(covs)
+                temp=[temp, ' ',num2str(covs(j),3)];
             end
             dat{i,5}=temp;
             handles.cond(i).rt_trial=des.conds(i).cov_trial;
@@ -482,9 +483,15 @@ if ind(2)>1
     end
     % vect is a vector - need to compute a scalar to be able to use ||
     %if isnan(vect) || vect>10^6 || ~any(size(vect)==1)
-    if ~any(size(vect)==1)|| any(isnan(vect)) || any(vect>10^6) 
+    if ind(2)~=5 && ~any(size(vect)==1)
         beep
-        disp('Bad formatting of values found!')
+        disp('Only vector inputs allowed!')
+        sprintf('Please review and correct condition %d, column %d', ind(1), ind(2))
+        return
+    end
+    if any(any(isnan(vect))) || any(any(vect>10^6))
+        beep
+        disp('NaN or overflowing values found!')
         sprintf('Please review and correct condition %d, column %d', ind(1), ind(2))
         return
     end
@@ -512,9 +519,10 @@ elseif ind(2)==5
 end
 temp=[];
 if ~isempty(vect)
-for j=1:length(vect)
-    temp=[temp, ' ',num2str(vect(j),3)];
-end
+    vect = vect(:);
+    for j=1:length(vect)
+        temp=[temp, ' ',num2str(vect(j),3)];
+    end
 else
     temp = handles.cond(ind(1)).cond_name;
 end
@@ -552,15 +560,26 @@ for i=1:ncond
     szdur=length(handles.cond(i).durations);
     if isfield(handles.cond(i),'rt_trial')
         szrt=length(handles.cond(i).rt_trial);
-        handles.cond(i).rt_trial = [];
     else
         szrt = 0;
+        handles.cond(i).rt_trial = [];
     end
     if isfield(handles.cond(i),'cov_trial')
-        szcov=length(handles.cond(i).cov_trial);
-        handles.cond(i).cov_trial = [];
+        szcov=size(handles.cond(i).cov_trial,1);
+        szcov2 = size(handles.cond(i).cov_trial,2);
+        % Reshape in #subjects x #covariates
+        try 
+            handles.cond(i).cov_trial = reshape(handles.cond(i).cov_trial,...
+                szon,(szcov*szcov2)/szon);
+        catch
+            beep
+            disp('The covariate matrix must be of size number of trials times number of confounds!')
+            sprintf('Please correct condition %d',i)
+            return
+        end
     else
         szcov=0;
+        handles.cond(i).cov_trial = [];
     end
     if szdur==1
         handles.cond(i).durations=repmat(handles.cond(i).durations, 1, szon);
@@ -573,12 +592,6 @@ for i=1:ncond
         return
     end
     if szrt && szdur ~=szrt
-        beep
-        disp('The number of regression targets must be the number of trials!')
-        sprintf('Please correct condition %d',i)
-        return
-    end
-    if szcov && szdur ~=szcov
         beep
         disp('The number of regression targets must be the number of trials!')
         sprintf('Please correct condition %d',i)

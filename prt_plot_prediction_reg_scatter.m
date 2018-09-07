@@ -41,9 +41,20 @@ maxp = max(tars);
 preds1 = PRT.model(model).output.fold(fold-1).targets;
 preds2 = PRT.model(model).output.fold(fold-1).predictions;
 
-cmap = cbrewer('div','RdBu',numel(preds1));
-cmap = brighten(cmap,-0.4); % Make it darker to see the middle points
-colormap(cmap);
+err = preds1-preds2;
+poserr = err>=0;
+negerr = err<0;
+cmapall = [];
+if nnz(negerr)
+    cmap = cbrewer('seq','Blues',max(3,nnz(negerr)));
+    cmap = flip(cmap,1);
+    cmapall=[cmapall;cmap];
+end
+if nnz(poserr)
+    cmapall = [cmapall; cbrewer('seq','Reds',max(3,nnz(poserr)))];
+end
+cmapall = brighten(cmapall,-0.4); % Make it darker to see the middle points
+colormap(cmapall);
 scatter(axes_handle,preds2,preds1,[],preds1-preds2,'filled');
 plot([minp,maxp],[minp,maxp],'--','Color',[0.5 0.5 0.5])
 xlabel(axes_handle,'predictions','FontWeight','bold');

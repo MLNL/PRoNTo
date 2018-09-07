@@ -231,11 +231,22 @@ else
         else
             set(handles.edit_hrfdel,'String',num2str(def.hrfd))
         end
-    else % Disable HRF delay and overlap for non-nifti modalities
-        set(handles.edit_hrfdel,'String',num2str(def.hrfd))
+    else % Disable and do not display HRF delay and overlap for non-nifti modalities
+        set(handles.edit_hrfdel,'Visible','off')
         set(handles.edit_hrfdel,'Enable','off')
-        set(handles.hrfover_edit,'String',num2str(def.hrfw))
+        set(handles.hrfover_edit,'Visible','off')
         set(handles.hrfover_edit,'Enable','off')
+        set(handles.txthrfdel,'Visible','off')
+        set(handles.hrfover_txt,'Visible','off')
+        set(handles.intsc,'Visible','off')
+        set(handles.befcor,'Visible','off')
+        set(handles.mbef,'Visible','off')
+        set(handles.pm1,'Visible','off')
+        set(handles.stdbef,'Visible','off')
+        set(handles.aftcor,'Visible','off')
+        set(handles.maft,'Visible','off')
+        set(handles.pm2,'Visible','off')
+        set(handles.stdaft,'Visible','off')
     end
     set(handles.des,'String','Yes')
     set(handles.modlist,'String',list)
@@ -316,11 +327,37 @@ if strcmpi(handles.PRT.masks(im).type,'nifti')
         set(handles.edit_hrfdel,'String',num2str(def.hrfd))
         handles.PRT.masks(im).hrfdelay = def.hrfd;
     end
+    set(handles.edit_hrfdel,'Visible','on')
+    set(handles.edit_hrfdel,'Enable','on')
+    set(handles.hrfover_edit,'Visible','on')
+    set(handles.hrfover_edit,'Enable','on')
+    set(handles.txthrfdel,'Visible','on')
+    set(handles.hrfover_txt,'Visible','on')
+    set(handles.intsc,'Visible','on')
+    set(handles.befcor,'Visible','on')
+    set(handles.mbef,'Visible','on')
+    set(handles.pm1,'Visible','on')
+    set(handles.stdbef,'Visible','on')
+    set(handles.aftcor,'Visible','on')
+    set(handles.maft,'Visible','on')
+    set(handles.pm2,'Visible','on')
+    set(handles.stdaft,'Visible','off')
 else % Disable HRF delay and overlap for non-nifti modalities
-    set(handles.edit_hrfdel,'String',num2str(def.hrfd))
+    set(handles.edit_hrfdel,'Visible','off')
     set(handles.edit_hrfdel,'Enable','off')
-    set(handles.hrfover_edit,'String',num2str(def.hrfw))
+    set(handles.hrfover_edit,'Visible','off')
     set(handles.hrfover_edit,'Enable','off')
+    set(handles.txthrfdel,'Visible','off')
+    set(handles.hrfover_txt,'Visible','off')
+    set(handles.intsc,'Visible','off')
+    set(handles.befcor,'Visible','off')
+    set(handles.mbef,'Visible','off')
+    set(handles.pm1,'Visible','off')
+    set(handles.stdbef,'Visible','off')
+    set(handles.aftcor,'Visible','off')
+    set(handles.maft,'Visible','off')
+    set(handles.pm2,'Visible','off')
+    set(handles.stdaft,'Visible','off')
 end
 
 set(handles.figure1,'CurrentAxes',handles.axes2)
@@ -357,7 +394,7 @@ PRT=handles.PRT;
 for i=1:length(PRT.group)
     for j=1:length(PRT.group(i).subject)
         m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
-        if ~strcmpi(PRT.group(i).subject(j).modality(m).type,'Neuroimaging')
+        if ~strcmpi(PRT.group(i).subject(j).modality(m).type,'nifti')
             beep
             disp('These parameters should not be used for non-imaging data')
             return
@@ -429,7 +466,7 @@ for i=1:length(PRT.group)
     for j=1:length(PRT.group(i).subject)
         m=find(strcmpi({PRT.masks(:).mod_name},list{cm}));
         dess=PRT.group(i).subject(j).modality(m).design;
-        if ~strcmpi(PRT.group(i).subject(j).modality(m).type,'Neuroimaging')
+        if ~strcmpi(PRT.group(i).subject(j).modality(m).type,'nifti')
             beep
             disp('These parameters should not be used for non-imaging data')
             return
@@ -503,7 +540,7 @@ end
 ylim([0 max(ns)*1.1])
 xlim([1 max(x)+1])
 set(handles.axes1,'XTickLabel',gname)
-h=ylabel('Number of subjects');
+h=ylabel('# of subjects');
 set(h,'FontWeight','bold')
 set(h,'Rotation',90)
 
@@ -608,7 +645,7 @@ if any(stdtp(:)>0)
 end
 ylim([0 1.1*scmax])
 xlim([1 xl])
-h=ylabel('Number of selected scans');
+h=ylabel('Selected samples');
 set(h,'Rotation',90)
 set(h,'FontWeight','bold')
 set(handles.axes2,'XTickLabel',handles.gname)
@@ -627,7 +664,7 @@ if any(stdtpdisc(:)>0)
 end
 ylim([0 1.1*scmax])
 xlim([1 xl])
-h=ylabel('Number of discarded scans');
+h=ylabel('Discarded samples');
 set(h,'FontWeight','bold')
 set(h,'Rotation',90)
 set(handles.axes3,'XTickLabel',handles.gname)
