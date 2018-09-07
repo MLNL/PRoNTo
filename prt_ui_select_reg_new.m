@@ -151,7 +151,11 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
             for k=1:length(handles.dat.group(j).subject)
                 m2= strcmpi(handles.dat.fs(indfs).modality(nm).mod_name,modnam);
                 des=handles.dat.group(j).subject(k).modality(m2).design;
-                rt_subj=handles.dat.group(j).subject(k).modality(m2).rt_subj;
+                if isfield(handles.dat.group(j).subject(k).modality(m2),'rt_subj')
+                    rt_subj=handles.dat.group(j).subject(k).modality(m2).rt_subj;
+                else
+                    rt_subj = [];
+                end
                 if isstruct(des) && flag
                     if k==1 && j == 1 % [afm] && nm==1
                         lcond={des.conds(:).cond_name};
