@@ -6,13 +6,13 @@
 
 \section{Introduction}
 
-This chapter describes the steps necessary to remove confounding effects using PRoNTo. Confounds (also known as nuisance variables) are removed from predictive variables to improve the statistical significance as well as classification performance. Age, gender or the site where the medical imaging were acquired (in case of a multi-site study) are examples of what can be used to ensure that the results obtained reflect the variable of interest (e.g. disease or healthy) and are not due to other secondary variables. Please see section \ref{sec:Covariates} for important considerations on covariates.
+This chapter describes the steps necessary to remove confounding effects using PRoNTo. Confounds (also known as nuisance variables) are removed from predictive variables to improve model performance. Age, gender or the site where the medical imaging were acquired (in case of a multi-site study) are examples of confounds that can be removed to ensure that the results obtained reflect the variable of interest (e.g. disease or healthy) and are not due to other secondary variables. Please see section \ref{sec:Covariates} for important considerations on covariates.
 
-The dataset used in this chapter can be found in OASIS's website \url{http://www.oasis-brains.org} (data set 1) and consists of a longitudinal collection of 150 subjects aged 60 to 96. Each subject was scanned on two or more visits, separated by at least one year for a total of 373 imaging sessions. For each subject, 3 or 4 individual T1-weighted MRI scans obtained in single scan sessions are included. The subjects are all right-handed and include both men and women. 72 of the subjects were characterized as nondemented throughout the study. 64 of the included subjects were characterized as demented at the time of their initial visits and remained so for subsequent scans, including 51 individuals with mild to moderate Alzheimer’s disease. Another 14 subjects were characterized as nondemented at the time of their initial visit and were subsequently characterized as demented at a later visit. In this example, 100 subjects were selected from OASIS dataset with 50 demented patients and 50 nondemented subjects. Age and gender are considered as the confounds. 
+The dataset used in this chapter can be found in OASIS's website \url{http://www.oasis-brains.org} (data set 1) and consists of a longitudinal collection of 150 subjects aged 60 to 96. Each subject was scanned on two or more visits, separated by at least one year for a total of 373 imaging sessions. For each subject, 3 or 4 individual T1-weighted MRI scans obtained in single scan sessions are included. The subjects are all right-handed and include both men and women. 72 of the subjects were characterized as nondemented throughout the study. 64 of the included subjects were characterized as demented at the time of their initial visits and remained so for subsequent scans, including 51 individuals with mild to moderate Alzheimer’s disease. Another 14 subjects were characterized as nondemented at the time of their initial visit and were subsequently characterized as demented at a later visit. In this example, 100 subjects were selected from the OASIS dataset with 50 demented patients and 50 nondemented subjects. Age and gender are considered as the confounds, gender being one-hot encoded. 
 
-Firstly, we will use PRoNTo to predict if the subject suffers from dementia or not based on MRI scans. We will classify the whole brain images using Multiple Kernel Learning, so the reader is advised to complete the tutorial in Chapter \ref{sec:Block_design_fMRI_dataset} and Chapter \ref{data_example3} before moving on. Chapter \ref{data_example3} is based on Chapter \ref{sec:Block_design_fMRI_dataset}, hence the following contents will refer to Chapter \ref{sec:Block_design_fMRI_dataset}.
+We will use PRoNTo to predict if the subject suffers from dementia or not based on MRI scans. We will classify the whole brain images using Multiple Kernel Learning, so the reader is advised to complete the tutorial in Chapter \ref{sec:Block_design_fMRI_dataset} and Chapter \ref{data_example3} before moving on.
  
-As in previous Chapters, we will start analyzing the data with the PRoNTo's GUI and then repeat the analysis using the {\tt matlabbatch}  system. Please create a folder in your computer to store the results and type {\tt prt} in \matlab.
+As in previous Chapters, we will start analyzing the data with PRoNTo's GUI and then repeat the analysis using the {\tt matlabbatch}  system. Please create a folder on your computer to store the results and type {\tt prt} in \matlab.
 
 \section{GUI analysis}
 
@@ -28,9 +28,9 @@ As in previous Chapters, we will start analyzing the data with the PRoNTo's GUI 
 	
 	\item In the `Modalities' panel, click on `Add' and provide a name to the modality, e.g. `MRI\_GM', where we used gray matter images.
 	
-	\item Load all the image files belonging to the first group. You can select all the files by using the right mouse button and clicking on the option `Select All', or clicking on the first subject then Shift-click on the last. Please ensure that the order of the images in the selection is as what you are expecting. When all the images are selected, click on the `Done' button;
+	\item Load all the image files belonging to the first group. You can select all the files by using the right mouse button and clicking on the option `Select All', or clicking on the first subject then Shift-click on the last. Please ensure that the order of the images in the selection is as expected (SPM file selector sorts the files based on their names, which can lead to `Scan10' being selected before `Scan2'). When all the images are selected, click on the `Done' button;
 	
-	\item In the `Covariates' field, type the covariates you want to regress out. Or you can save all the covariates in a matrix named {\tt R} and input the full path of this matrix to Covariates. Each variable is a column, hence if there is only one covariate, {\tt R} is a column vector;if there are multiple variables, {\tt R} will be a matrix containing multiple columns where each column is a covariate. In this example, we input the full path of a matrix where gender and age are the chosen confounding factors (Figure \ref{fig:covariates});
+	\item In the `Covariates' field, type the covariates you want to regress out. Alternatively, you can save all the covariates in a matrix named {\tt R} and input the full path of this matrix to `Covariates'. Each covariate should be stored in a column, hence if there is only one covariate, {\tt R} is a column vector;if there are multiple variables, {\tt R} will be a matrix containing multiple columns where each column is a covariate. In this example, we input the full path of a matrix where gender and age are the chosen confounding factors (Figure \ref{fig:covariates});
 	
 	\begin{figure}[!h]
 	\centering
@@ -98,7 +98,7 @@ As in previous Chapters, we will start analyzing the data with the PRoNTo's GUI 
 	
 	\item Leave the option `Use kernels' tick box as it is, i.e. `Yes';
 
-	\item	Select the `Classification' model type and click on `Define classes` button. A new window will open, `Specify classes' (Figure \ref{fig:classes}), to define the number of classes and a name for each class. We will define 2 classes. For `Class 1' select group `Dem', and all subjects in this first group and, similarly, for `Class 2' select group `NonDem' and all the subjects in this group. The class names can be any names users prefer. Here we simply use the same names to the group names. 
+	\item	Select the `Classification' model type and click on the `Define classes` button. A new window will open, `Specify classes' (Figure \ref{fig:classes}), to define the number of classes and a name for each class. We will define 2 classes. For `Class 1' select group `Dem', and all subjects in this first group and, similarly, for `Class 2' select group `NonDem' and all the subjects in this group. The class names can be any names the user prefers (in alphanumeric characters). Here we simply use the same names as the group names. 
 	
 \begin{figure}[!h]
 	\centering
@@ -109,7 +109,7 @@ As in previous Chapters, we will start analyzing the data with the PRoNTo's GUI 
 	
 	\item Select the `L1-Multi-Kernel Learning' option, in the `Machine' field;
 	
-	\item Click the `Optimize hyper-parameter' tick box and leave the range unspecified, i.e. use the default hyperparameter range. Choose 'k-folds CV on Subject per Group' for the `Cross-Validation Scheme' (internal loop), and input 5 in the pop up window defining the number of folds; 
+	\item Click the `Optimize hyper-parameter' tick box and leave the range unspecified, i.e. use the default hyper-parameter range. Choose 'k-folds CV on Subject per Group' for the `Cross-Validation Scheme' (internal loop), and input 5 in the pop up window defining the number of folds; 
 	
 	\item Similar to the inner loop, select the `k-folds CV on Subject per Group' cross-validation scheme for the external loop, where k=10;
 	
@@ -178,7 +178,7 @@ Once again, to analyse the data, create a new directory to save the results of t
 		
 		\item Add one modality and provide a name, e.g. `MRI\_GM'; and in the field `scans', select the proper images for each of the groups;	
 		
-		\item Specify in the `Covariates' the file with the confounds you want to remove. Remember that this file should contain a variable `R' with a matrix of covariates. The batch editor should look similar to the Figure \ref{fig:covariates_batch};
+		\item Specify as `Covariates' the file with the confounds you want to remove. Remember that this file should contain a variable `R' with a matrix of covariates. The batch editor should look similar to the Figure \ref{fig:covariates_batch};
 		
 		\begin{figure}[h!]
 	\centering
@@ -194,7 +194,7 @@ Once again, to analyse the data, create a new directory to save the results of t
 	
 	\item Leave the `HRF overlap' and the `HRF delay' fields as default;
 	
-	\item In the `Review' field, select `Yes' if you would like to review your data and design in a separate window. Otherwise, leave as it is, i.e. `No'. Note: if `Yes' is selected, users will need to close the Review window after Running the batch to allow following modules execute. 
+	\item In the `Review' field, select `Yes' if you would like to review your data and design in a separate window. Otherwise, leave as it is, i.e. `No'. Note: if `Yes' is selected, users will need to close the Review window after Running the batch to allow the execution of following modules. 
 
 
 \end{itemize}
@@ -208,10 +208,10 @@ The batch can either be run directly or the following modules can be added to co
 \begin{itemize}
 	\item Click on the `Feature set / Kernel' option on PRoNTo's {\tt matlabbatch} menu (see Figure \ref{fig:batchFeature} in Chapter \ref{sec:Block_design_fMRI_dataset});
 	
-	\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batchDependency}) or click on the `Select files' button to browse where `PRT.mat' file was saved;
+	\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batchDependency}) or click on the `Select files' button to browse where the `PRT.mat' file was saved;
 	
 	
-    \item Provide a name to the `Feature/kernel' set, e.g. `OASIS\_ConfEffects\_withCov';
+    \item Provide a name for the `Feature set/kernel', e.g. `OASIS\_ConfEffects\_withCov';
 	
 	\item Add one modality and select the modality name with the `Dependency' button\footnote{Or type it in manually, `MRI\_GM', but the name needs to be {\it exactly} the same as the one specified in the `Data \& Design' module.}(Data \& Design:Mod\#1 name);
 	
@@ -249,9 +249,9 @@ The batch can either be run directly or the following modules can be added to co
 
 \item Click on the `Specify model' option on PRoNTo's {\tt matlabbatch} menu (see Figure \ref{fig:batchSpecifyModel} in Chapter \ref{sec:Block_design_fMRI_dataset});
 	
-\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Feature set / Kernel' step or click on the `Select files' button to browse where `PRT.mat' file was saved;
+\item With the `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Feature set / Kernel' step or click on the `Select files' button to browse where the `PRT.mat' file was saved;
 
-\item Provide a name to the model, e.g. `mkl\_OASIS\_ConfEffects\_withCov';   
+\item Provide a name for the model, e.g. `mkl\_OASIS\_ConfEffects\_withCov';   
 
 \item Leave the 'Use kernels' field as it is, i.e. 'Yes';    
 
@@ -263,9 +263,9 @@ The batch can either be run directly or the following modules can be added to co
 		
 		\item Add 2 new classes;
 		
-		\item For Class (1) write `Dem' on the name field, or use Dependency to choose the first group's name defined in 'Data \& Design' and add one group. The class name doesn't have to be the same as the group name, this example uses this only for simplicity. After this step, select the group name from the `Data \& Design' module (`Data \& Design:Group\#1 name') with the `Dependency' button\footnote{Or write it {\it exactly}, as previously defined in the Data \& Design' module, here `Dem'}.In the `Subjects' field of the Group 1, type `1:50'. This will tell the program to use all the 50 scans, i.e. from scan 1 to scan 50. In Conditions/Scans, select `All scans'; 
+		\item For Class (1), specify a name by writing `Dem' or using Dependency to choose the first group's name defined in 'Data \& Design' and add one group. The class name doesn't have to be the same as the group name, this example uses this only for simplicity. After this step, select the group name from the `Data \& Design' module (`Data \& Design:Group\#1 name') with the `Dependency' button\footnote{Or write it {\it exactly}, as previously defined in the Data \& Design' module, here `Dem'}.In the `Subjects' field of Group 1, type `1:50'. This will tell the program to use all the 50 scans, i.e. from scan 1 to scan 50. In Conditions/Scans, select `All scans'; 
 		
-		\item Similar to Class (1),  write `NonDem' on the name field for Class (2), or use Dependency to choose the second group's name. Then fill the group name using Dependency, i.e. the second group's name created in the `Data \& Design' module, `NonDem'. In the `Subjects' field of the Group 2, type `1:50'. In Conditions/Scans, select `All scans'. If there are many repetitions in the Classes and Groups, users can use the Replicate option when clicking Classes and Groups, respectively. Then change the places specific to each Class or Group; 	
+		\item Similar to Class (1),  write `NonDem' on the name field for Class (2), or use Dependency to choose the second group's name. Then fill the group name using Dependency, i.e. the second group's name created in the `Data \& Design' module, `NonDem'. In the `Subjects' field of Group 2, type `1:50'. In Conditions/Scans, select `All scans'; 	
 
 		\end{itemize}			
 		
@@ -274,7 +274,7 @@ The batch can either be run directly or the following modules can be added to co
 	\begin{itemize}
 	\item Select the `L1-Multi-Kernel Learning' option;	
 	
-	\item Set `Optimize hyper-parameter' field to `Yes'. Input `10\^{}[-2:3]' to the Arguments field;
+	\item Set the `Optimize hyper-parameter' field to `Yes'. Input `10\^{}[-2:3]' in the `Arguments' field;
 	
 	\item In the `Cross validation type for hyper-parameter optimization' field, choose `k-folds CV on subjects per group', and input `5' in the field `k';  
 	
@@ -290,17 +290,20 @@ The batch can either be run directly or the following modules can be added to co
 		\begin{itemize}
 		\item  Leave the `Mean centre features' field as it is, i.e. `Yes'; 
 				
-		\item  Click on the `Other Operations' button, choose `Select operations', `New Operation' and select the `Normalize samples'. Click `Select operations', `New Operation', and select `Regress out covariates (subject level)' option from the list. After all these steps, the batch editor should look similar to the one in Figure \ref{fig:model_batch};
-		\end{itemize}
+		\item  Click on the `Other Operations' button, choose `Select operations', `New Operation' and select the `Normalize samples'. 
 		
-	\begin{figure}[h!]
-	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/confounds/model_batch.png}
-	\caption{Data and design module in {\tt matlabbatch}. }
-	\label{fig:model_batch}
-	\end{figure}
-	
+		\item Click `Select operations', `New Operation', and select `Regress out covariates (subject level)' option from the list. 
+		\end{itemize}
 \end{itemize}
+
+After these steps, the batch editor should look similar to the one in Figure \ref{fig:model_batch};	
+
+\begin{figure}[h!]
+\centering
+	\includegraphics[scale=0.6]{images/Tutorial/confounds/model_batch.png}
+\caption{Specify model module in {\tt matlabbatch}. }
+\label{fig:model_batch}
+\end{figure}
 
 %----------------------------------------------------------
 
@@ -310,7 +313,7 @@ The batch can either be run directly or the following modules can be added to co
 
     \item Click on the `Run model' option in PRoNTo's {\tt matlabbatch} menu (see Figure \ref{fig:batchRun} in Chapter \ref{sec:Block_design_fMRI_dataset});
     
-   	\item  With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Specify model' step;
+   	\item  With the `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file updated in the previous `Specify model' step;
 
     \item Select the model name from the `Specify model' module with the `Dependency' button\footnote{or write it {\it exactly} as previously defined in the `Specify model' module, here `mkl\_OASIS\_ConfEffects\_withCov'};
     
@@ -324,16 +327,16 @@ The batch can either be run directly or the following modules can be added to co
 
 \item Click on the `Compute weights' option in PRoNTo's {\tt matlabbatch} menu;
 
-\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Run model' step;
+\item With the `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file updated in the previous `Run model' step;
 
-\item In `Model name' field, click on the `Dependency' button to associate the model name from the `Specify model' module;
+\item In the `Model name' field, click on the `Dependency' button to associate the model name from the `Specify model' module;
 
-\item In `Build weight images per ROI', users can choose `Yes' to see weight image with summarized information from each ROI. This example uses MKL, where AAL atlas is selected in the Feature set module, hence the atlas will be automatically loaded here if `Yes' is selected;  
+\item In `Build weight images per ROI', users can choose `Yes' to build a weight image where each voxel intensity corresponds to its kernel/ROI contribution. This example uses MKL, where the AAL atlas was selected during the Feature set module, hence the atlas will be automatically loaded here if `Yes' is selected;  
 
 \item Leave the other fields as default.
 \end{itemize}
 
-We are now ready to run the batch: the arrow on top of the {\tt matlabbatch} should be green and can be clicked. If the arrow is gray, please check for missing inputs in different modules (e.g., displayed with an `X').
+We are now ready to run the batch: the arrow on top of the {\tt matlabbatch} should be green and can be clicked. If the arrow is gray, please check for missing inputs in the different modules (displayed with an `$<--$X').
 
 %----------------------------------------------------------
 \subsection{Display weights (optional)}
@@ -342,7 +345,7 @@ We are now ready to run the batch: the arrow on top of the {\tt matlabbatch} sho
 	
 	\item In PRoNTo's main window, click on `Display weights' and select the `PRT.mat' file. This will open the `PRoNTo::Weights' window.
 	
-	\item In the Display panel, click the model name in the `Model' field, `mkl\_OASIS\_ConfEffects\_withCov'. An image will appear in the `Weights map' box. To show the `Anatomical img' you have to load an anatomical image for reference. A template image can be found in SPM's canonical folder (`single\_subj\_T1` file). If selecting `weights per voxel', the weight image shows the weight map using each voxel as the unit. If selecting `weights per region', the weight image shows the weight map per ROI. In the table below Weights map, information on contributions from each ROI and the corresponding ranks are listed. A histogram on the right to this table shows the ranks/contributions of the ROI to the model. For more detailed descriptions to the weights and Display weights module, please see Chapter \ref{chap:ComputeWeights}. The final window will look similar to the one shown in the Figure \ref{fig:weights_map}.
+	\item In the Display panel, click the model name in the `Model' field, `mkl\_OASIS\_ConfEffects\_withCov'. An image will appear in the `Weights map' panel. To show the `Anatomical img' you have to load an anatomical image for reference. A template image can be found in SPM's canonical folder (`single\_subj\_T1` file). Select `weights per region' to display the kernel/ROI contributions (see Chapter \ref{chap:ComputeWeights} for details on this image). In the table below the weight map, the contribution of ROI to the model and its corresponding rank are listed. A bar graph shows the contribution of each ROI to the model (sorted), displaying how `sparse' the model is. The final window will look similar to the one shown in the Figure \ref{fig:weights_map}.
 	
 \begin{figure}[h!]
 \centering
@@ -355,9 +358,9 @@ We are now ready to run the batch: the arrow on top of the {\tt matlabbatch} sho
 \end{itemize}
 
 %-------------------------------------------------------------------------------------------
-\section{An example of the effects of removing covariates}
+\section{Effects of removing covariates}
 
-This section shows the differences between results with and without removing covariates. Figure \ref{fig:EffectsOfRemoveConf_mkl_withoutCov} shows accuracies of the MKL model using OASIS dataset without removing covariates (gender and age), compared to Figure \ref{fig:results}. Without removing confounds, the accuracy decreased from 75\% to 65\%. Please note that for the categorical variable gender, we have two categories, i.e. male and female. Hence, we use one-hot encoding and obtain two columns in the R matrix for this gender variable. Another column in R stores values of the age variable.   
+This section shows the differences between results with and without removing covariates. Figure \ref{fig:EffectsOfRemoveConf_mkl_withoutCov} shows the accuracy of the same MKL model but without removing confounds: the average balanced accuracy decreased from 75\% to 65\%.   
 
 \begin{figure}[!htbp]
 	\centering
