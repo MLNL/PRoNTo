@@ -90,7 +90,7 @@ for d = 1:length(in.train)
             out.tr_id = round(Ptr*in.tr_id);
             if isfield(in,'tr_targets')
                 out.tr_targets = Ptr*in.tr_targets;
-                if strcmpi(in.pred_type,'classification');
+                if strcmpi(in.pred_type,'classification')
                     out.tr_targets = round(out.tr_targets);
                 end
             end
@@ -107,7 +107,7 @@ for d = 1:length(in.train)
                 out.te_id = round(Pte*in.te_id);
                 if isfield(in,'te_targets')
                     out.te_targets = Pte*in.te_targets;
-                    if strcmpi(in.pred_type,'classification');
+                    if strcmpi(in.pred_type,'classification')
                         out.te_targets = round(out.te_targets);
                     end
                 end
@@ -205,8 +205,8 @@ for d = 1:length(in.train)
             end
             
         case 5
-            % perform a GLM
-            % -------------
+            % perform a GLM to regress confounds
+            % -----------------------------------
             if ~isfield(in,'tr_cov')
                 error('prt_apply_operation:NoCovariates',...
                     'No covariates found to perform requested GLM');
@@ -217,8 +217,8 @@ for d = 1:length(in.train)
                     out.train{d} = prt_remove_confounds(in.train{d},...
                         [in.tr_cov,ones(size(in.tr_cov,1),1)]);
                 else
-                    trainonly = 1;
-                    outreg = prt_regconfTrData(PRT, in, trainonly,d);
+                    trainonly = 0;
+                    outreg = prt_regconf(PRT, in, trainonly,d);
                     out.train{d}    = outreg.train;
                 end
             else
@@ -234,7 +234,9 @@ for d = 1:length(in.train)
                     out.test{d}     = Phi(te,tr);
                     out.testcov{d}  = Phi(te,te);
                 else
-                    trainonly = 0;
+                    trainonly = 1;
+                    % Remove confounds based on train data only and apply
+                    % updates to test data
                     outreg = prt_regconf(PRT, in, trainonly,d);
                     out.train{d}    = outreg.train;
                     out.test{d}     = outreg.test;
@@ -253,7 +255,7 @@ for d = 1:length(in.train)
             % normalize each feature
             % --------------------------------------
             % Unlike option 4, this should take the train-test separation
-            % into account
+            % into account and normalize features instead of samples
             if ~isfield(in,'test')
                 % No test data
                 if in.use_kernel
@@ -290,7 +292,8 @@ for d = 1:length(in.train)
             % Z-score each feature
             % --------------------------------------
             % Unlike option 4, this should take the train-test separation
-            % into account
+            % into account and perform the operation on each feature
+            % separately
             if ~isfield(in,'test')
                 % No test data
                 if in.use_kernel
