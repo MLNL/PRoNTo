@@ -23,10 +23,16 @@ function prt_plot_nested_cv(PRT, model, fold, axes_handle)
 
 % Check machine and set the labels an axes
 logscale = 0;
+
 switch PRT.model(model).input.machine.function
-    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_L1svm'}
+    case {'prt_machine_svm_bin','prt_machine_sMKL_cla','prt_machine_L1svm',...
+            'prt_machine_sMKL_reg','prt_machine_liblinearsvm'}
         x_label = 'C';
-        y_label = 'Balanced Accuracy (%)';
+        if strcmpi(PRT.model(model).input.type,'regression')
+            y_label = 'NMSE';
+        else
+            y_label = 'Balanced Accuracy (%)';
+        end
         
         %If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
@@ -42,27 +48,8 @@ switch PRT.model(model).input.machine.function
         box(axes_handle,'on');
         hold(axes_handle,'all');
         
-    case 'prt_machine_sMKL_reg'
-        x_label = 'Args';
-        y_label = 'NMSE';
-        
-        %If no axes_handle is given, create a new window
-        if ~exist('axes_handle', 'var')
-            figure;
-            axes_handle = axes('XMinorTick','on');
-            logscale = 1;
-        else
-            % Clear EVERYTHING in the UI before defining the axes
-            cla(axes_handle, 'reset');
-            set(axes_handle, 'XMinorTick','on');
-            logscale = 1;
-        end
-        box(axes_handle,'on');
-        hold(axes_handle,'all');
-        
-        
     case 'prt_machine_krr'
-        x_label = 'Args';
+        x_label = 'Lambda';
         y_label = 'NMSE';
         
         %If no axes_handle is given, create a new window
@@ -76,7 +63,24 @@ switch PRT.model(model).input.machine.function
             logscale = 1;
         end
         
+    case 'prt_machine_RT_bin'
+        x_label = '# of Trees';
+        if strcmpi(PRT.model(model).input.type,'regression')
+            y_label = 'NMSE';
+        else
+            y_label = 'Balanced Accuracy (%)';
+        end
         
+        %If no axes_handle is given, create a new window
+        if ~exist('axes_handle', 'var')
+            figure;
+            axes_handle = axes;
+            logscale = 0;
+        else
+            % Clear EVERYTHING in the UI before defining the axes
+            cla(axes_handle, 'reset');
+            logscale = 0;
+        end
         
     case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
         x_label = 'mu';
@@ -121,8 +125,8 @@ set(axes_handle,'Position',[pos(1) pos(2) 0.9*pos(3) pos(4)])
 
 
 % Check if it's a 2 parameter optimisation problem
-if strcmp(PRT.model(model).input.machine.function, 'prt_machine_wip_cla') || ...
-        strcmp(PRT.model(model).input.machine.function, 'prt_machine_GMKL_cla')
+if iscell(PRT.model(model).input.nested_param) && ...
+        length(PRT.model(model).input.nested_param)==2
     
     if fold == 1
         
@@ -259,7 +263,7 @@ else % It's a 1 parameter optimisation problem
         hx_opt = hist(x_opt, x)./size(f,1);
         
         
-         % Plot
+        % Plot
         if logscale
             x = log10(x);
         end
@@ -297,7 +301,7 @@ else % It's a 1 parameter optimisation problem
             legend([hline,hscat],{'Average','Each fold'},'Location','SouthEast')
             hold off
         catch
-             hold on
+            hold on
             [hax,hbar,hline] = plotyy(x,hx_opt*100,x,f_mean,'bar','plot');
             set(hbar,'BarWidth',0.5,'FaceColor',cc(1,:))
             set(hline,'Color','k','Linewidth',1)
@@ -305,7 +309,7 @@ else % It's a 1 parameter optimisation problem
             box(hax(1),'off')
             set(hax(2),'YColor',[0,0,0])
             hold off
-
+            
             % Properties
             ylabel(hax(2), y_label,'FontWeight','bold');
             ylabel(hax(1),'Frequency of selection (%)','FontWeight','bold');

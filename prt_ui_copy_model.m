@@ -464,6 +464,8 @@ if get(handles.pop_reg,'Value')==1
 end
 is_kernel = get(handles.kernel_methods,'Value');    
 [machine] = prt_get_machine_ui(is_class,is_kernel,mach{val});
+set(handles.edit_param_range,'Enable','on')
+set(handles.pop_cv_nested,'Enable','on')
 handles.machine = machine;
 % Update handles structure
 guidata(hObject, handles);
@@ -505,7 +507,9 @@ if v
             set(handles.pop_cv_nested,'Enable','on')
             handles.newmodel.use_nested_cv = 1;
             handles.newmodel.nested_param = handles.def.libsvm_optargs;
-            set(handles.edit_param_range,'String',num2str(handles.cv.nested_param));
+            set(handles.edit_param_range,'String',num2str(handles.newmodel.nested_param));
+            pop_cv_nested_Callback(hObject, eventdata, handles);
+            handles = guidata(hObject);
     end
 else
     handles.newmodel.use_nested_cv = 0;
@@ -849,28 +853,28 @@ function pop_cv_nested_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from pop_cv_nested
 val=get(handles.pop_cv_nested,'Value');
 mach=get(handles.pop_cv_nested,'String');
-handles.cv.k_nested=0; %by default, Leave-One-Out options
+handles.newmodel.cv_k_nested=0; %by default, Leave-One-Out options
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_cv_nested,'Value',1)
     val=1;
 end
 if any(strfind(mach{val},'Subject Out'))
-    handles.cv.type_nested = 'loso';
+    handles.newmodel.cv_type_nested = 'loso';
 elseif any(strfind(mach{val},'Subject per Class'))
     if ~handles.loospg
         beep
         disp('Warning: Subjects are not balanced across classes!')
     end
-    handles.cv.type_nested = 'losgo';
+    handles.newmodel.cv_type_nested = 'losgo';
 elseif any(strfind(mach{val},'Block'))
     if any(strfind(mach{val},'Block per Class'))
-        handles.cv.type_nested = 'locbo';
+        handles.newmodel.cv_type_nested = 'locbo';
     else
-        handles.cv.type_nested = 'lobo';
+        handles.newmodel.cv_type_nested = 'lobo';
     end   
 elseif any(strfind(mach{val},'Run'))        %currently implemented for MCKR only
-    handles.cv.type_nested = 'loro';
+    handles.newmodel.cv_type_nested = 'loro';
 else
     beep
     disp('CV type not supported for inner CV')
@@ -878,7 +882,7 @@ else
 end
 if any(strfind(mach{val},'k-fold'))
     kt=prt_text_input('Title','Specify k, the number of folds');
-    handles.cv.k_nested=str2num(kt);
+    handles.newmodel.cv_k_nested=str2num(kt);
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -1320,8 +1324,9 @@ if v
 else
     handles.cv.nested = 0;
     handles.cv.nested_param = [];
-    set(handles.flag_opt_param,'Value',1)
+    set(handles.flag_opt_param,'Value',0)
     set(handles.edit_param_range,'Enable','off')
+    set(handles.edit_param_range,'String','')
     set(handles.pop_cv_nested,'Enable','off')
 end
 
@@ -1510,7 +1515,7 @@ if handles.dat.model(indmod).input.use_nested_cv
     val = strcmpi(list,listcv);
     set(handles.pop_cv_nested,'Value',find(val))
 else
-    set(handles.pop_cv_nested,'String',{})
+    set(handles.pop_cv_nested,'String',list)
     set(handles.pop_cv_nested,'Enable','off')
 end
 

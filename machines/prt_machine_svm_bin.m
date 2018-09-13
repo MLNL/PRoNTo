@@ -1,5 +1,5 @@
 function output = prt_machine_svm_bin(d,args)
-% Run binary SVM - wrapper for libSVM
+% Wrapper for libSVM - Runs binary kernel SVM and epsilon-SVR
 % FORMAT output = prt_machine_svm_bin(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:
@@ -26,7 +26,7 @@ function output = prt_machine_svm_bin(d,args)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M.J.Rosa, J.Mourao-Miranda and J.Richiardi
+% Written by M.J.Rosa, J.Mourao-Miranda, J.Richiardi and J. Schrouff
 % $Id$
 
 SANITYCHECK=true; % can turn off for "speed". Expert only.
@@ -51,33 +51,33 @@ if SANITYCHECK==true
             ' libSVM svmtrain function could not be found !' ...
             ' SOLUTION: Please check your path.']);
     end
-    % check it is indeed a two-class classification problem
-    uTL=unique(d.tr_targets(:));
-    nC=numel(uTL);
-    if nC>2
-        error('prt_machine_svm_bin:problemNotBinary',['Error:'...
-            ' This machine is only for two-class problems but the' ...
-            ' current problem has ' num2str(nC) ' ! ' ...
-            'SOLUTION: Please select another machine than ' ...
-            'prt_machine_svm_bin in XXX']);
-    end
-    % check it is indeed labelled correctly (probably should be done 
-    if ~all(uTL==[1 2]')
-        error('prt_machine_svm_bin:LabellingIncorect',['Error:'...
-            ' This machine needs labels to be in {1,2} ' ...
-            ' but they are ' mat2str(uTL) ' ! ' ...
-            'SOLUTION: Please relabel your classes by changing the '...
-            ' ''tr_targets'' argument to prt_machine_svm_bin']);
+    % For C-SVC machine 0, check it is a binary classification
+    if ~isempty(regexp(args,'-s\s+[0]','once'))
+        % check it is indeed a two-class classification problem
+        uTL=unique(d.tr_targets(:));
+        nC=numel(uTL);
+        if nC>2
+            error('prt_machine_svm_bin:problemNotBinary',['Error:'...
+                ' This machine is only for two-class problems but the' ...
+                ' current problem has ' num2str(nC) ' ! ' ...
+                'SOLUTION: Please select another machine than ' ...
+                'prt_machine_svm_bin in XXX']);
+        end
+        % check it is indeed labelled correctly (probably should be done
+        if ~all(uTL==[1 2]')
+            error('prt_machine_svm_bin:LabellingIncorect',['Error:'...
+                ' This machine needs labels to be in {1,2} ' ...
+                ' but they are ' mat2str(uTL) ' ! ' ...
+                'SOLUTION: Please relabel your classes by changing the '...
+                ' ''tr_targets'' argument to prt_machine_svm_bin']);
+        end
+        
     end
     
-    % check we are using the C-SVC (exclude types -s 1,2,3,4)
-    if ~isempty(regexp(args,'-s\s+[1234]','once'))
-        error('prt_machine_svm_bin:argsProblem:onlyCSVCsupport',['Error:'...
-            ' This machine only supports a C-SVC formulation ' ...
-            ' (''-s 0'' in the ''args'' parameter), but the args ' ...
-            ' supplied are ''' args ''' ! ' ...
-            'SOLUTION: Please change the offending part of args to '...
-            '''-s 0''']);
+    if ~isempty(regexp(args,'-s\s+[34]','once'))
+        reg = 1; %regression machine
+    else
+        reg=0;
     end
     
     % check we are using linear or precomputed kernels
@@ -94,7 +94,7 @@ if SANITYCHECK==true
 end
 
 
-% Run SVM
+% Run LIBSVM
 %--------------------------------------------------------------------------
 nlbs  = length(d.tr_targets);
 allids_tr = (1:nlbs)';
@@ -116,7 +116,11 @@ end
 
 
 % Get SV coefficients (alpha) in the original order and the bias term (b) 
-sgn   = -1*(2 * model.Label(1) - 3); %variable to account for label convention in PRoNTo
+if ~isempty(model.Label)
+    sgn   = -1*(2 * model.Label(1) - 3); %variable to account for label convention in PRoNTo
+else
+    sgn = 1;
+end
 alpha = get_alpha(model,nlbs,sgn);
 b     = -model.rho *sgn;
 
@@ -132,14 +136,18 @@ end
 
 % Outputs
 %--------------------------------------------------------------------------
-% change predictions from 1/-1 to 1/2 
-c1PredIdx               = predictions==1; 
-predictions(c1PredIdx)  = 1; %positive values = 1 
-predictions(~c1PredIdx) = 2; %negative values = 2 
+if ~reg
+    % change predictions from 1/-1 to 1/2
+    c1PredIdx               = predictions==1;
+    predictions(c1PredIdx)  = 1; %positive values = 1
+    predictions(~c1PredIdx) = 2; %negative values = 2
+    output.type        = 'classification';
+else
+    output.type        = 'regression';
+end
 
 output.predictions = predictions;
 output.func_val    = func_val(:,1);
-output.type        = 'classifier';
 output.alpha       = alpha;
 output.b           = b;
 output.totalSV     = model.totalSV;
