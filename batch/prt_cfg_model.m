@@ -1014,8 +1014,10 @@ data_op.labels  = {
     'Mean centre features using training data'
     'Normalize samples'
     'Regress out covariates'
+    'Normalize features (Non-kernel only)'
+    'Z-score features (Non-kernel only)'
 }';
-data_op.values  = {0 1 2 3 4 5};
+data_op.values  = {0 1 2 3 4 5 6 7};
 data_op.val     = {0};
 
 % ---------------------------------------------------------------------

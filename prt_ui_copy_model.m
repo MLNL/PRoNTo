@@ -139,7 +139,7 @@ end
 %Set defaults for some subfields and popup menus
 handles.def=prt_get_defaults('model');
 set(handles.kernel_methods,'Value',1)
-set(handles.kernel_methods,'Enable','off')
+set(handles.kernel_methods,'Enable','on')
 handles.use_kernel=1;
 set(handles.pop_cv,'String',{''})
 set(handles.pop_cv,'Value',1)
@@ -155,6 +155,9 @@ handles.oplist = {'Sample averaging (within block)',...
     'Mean centre features using training data',...
     'Normalize samples',...
     'Regress out covariates'};
+handles.oplistNK = [handles.oplist,...
+    {'Normalize features',...
+    'Z-score features'}];
 set(handles.uns_list,'String',handles.oplist)
 set(handles.sel_list,'String',{''})
 set(handles.uns_list,'Value',1)
@@ -1146,8 +1149,10 @@ if get(handles.pop_reg,'Value')==1 %for classification
         if handles.multiroi || length(handles.fs)>1
             list = [list,handles.MK];
         end
+        oplist = handles.oplist;
     else
         list = handles.class_NK;
+        oplist = handles.oplistNK;
     end
     is_class = 1;
 else
@@ -1156,12 +1161,24 @@ else
         if handles.multiroi || length(handles.fs)>1
             list = [list,handles.MK];
         end
+        oplist = handles.oplist; % Operations in kernel space
     else
         list = handles.reg_NK;
+        oplist = handles.oplistNK; % Add feature normalization
     end
 end
 set(handles.pop_machine,'String',list)
 set(handles.pop_machine,'Value',1)
+
+% Deal with operations
+handles.indop{1}=1:length(oplist);
+handles.indop{2}=0;
+set(handles.uns_list,'String',oplist)
+set(handles.sel_list,'String',{''})
+handles.operations = [];
+handles.namop=oplist;
+set(handles.uns_list,'Value',1)
+set(handles.sel_list,'Value',1)
 
 name = list{1};
 [machine] = prt_get_machine_ui(is_class,is_kernel,name);
@@ -1199,16 +1216,6 @@ for i = 1:numel(handles.fs)
     handles.fs(i).indfs = sel(i);
 end
 handles.use_kernel=handles.dat.model(indmod).input.use_kernel;
-handles.machine = handles.dat.model(indmod).input.machine;
-if get(handles.pop_reg,'Value')==1 %for classification
-    if handles.use_kernel
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-    end
-end
 
 if isfield(handles.dat.fs(sel(1)),'multkernel')&& handles.dat.fs(sel(1)).multkernel %allowing for multi-kernel learning
     handles.multimod = 1;
@@ -1520,7 +1527,11 @@ else
 end
 
 % Get operations
-list=handles.oplist;
+if nk
+    list=handles.oplist;
+else
+    list = handles.oplistNK;
+end
 allops = 1:length(list);
 selops = handles.dat.model(indmod).input.operations;
 unsops = setdiff(allops,selops);

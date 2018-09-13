@@ -285,6 +285,15 @@ if isfield(job.sel_ops.use_other_ops,'data_op')
 elseif isfield(job.sel_ops.use_other_ops,'no_op')
     ops = [];
 end
+
+% Check that operations on features were not selected for kernels
+if any(ismember([6,7],ops))
+    if model.use_kernel
+        error('prt_run_model:BadOperations',...
+            'Feature operations selected while using kernels, please correct')
+    end
+end
+
 % Add mean centering in first position if requested
 if job.sel_ops.data_op_mc == 1
     model.operations = [3 ops];

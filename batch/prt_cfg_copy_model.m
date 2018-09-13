@@ -750,23 +750,17 @@ data_op         = cfg_menu;
 data_op.tag     = 'data_op';
 data_op.name    = 'Operation';
 data_op.help    = {'Select an operation to apply.'};
-% data_op.labels  = {
-%     'Done'
-%     'Sample averaging (within block)'
-%     'Sample averaging (within subject/condition)'
-%     'Mean centre features using training data'
-%     'Normalize samples'
-%     'Regress out covariates (subjects only)'
-% }';
-% data_op.values  = {0 1 2 3 4 5};
 data_op.labels  = {
     'Done'
     'Sample averaging (within block)'
     'Sample averaging (within subject/condition)'
     'Mean centre features using training data'
     'Normalize samples'
-    }';
-data_op.values  = {0 1 2 3 4};
+    'Regress out covariates'
+    'Normalize features (Non-kernel only)'
+    'Z-score features (Non-kernel only)'
+}';
+data_op.values  = {0 1 2 3 4 5 6 7};
 data_op.val     = {0};
 
 % ---------------------------------------------------------------------
@@ -893,21 +887,4 @@ cdep(2).sname      = 'Model name';
 cdep(2).src_output = substruct('.','mname');
 cdep(2).tgt_spec   = cfg_findspec({{'strtype','s'}});
 %------------------------------------------------------------------------
-
-% ---------------------------------------------------------------------
-% use_kernel Use Kernels - Do not allow to change kernel or not
-% ---------------------------------------------------------------------
-% use_kernel         = cfg_menu;
-% use_kernel.tag     = 'use_kernel';
-% use_kernel.name    = 'Use kernels';
-% use_kernel.help    = {...
-%     ['Are the data for this model in the form of kernels/basis functions? ', ...
-%      'If ''No'' is selected, it is assumed the data are in the form of ',...
-%      'feature matrices']};
-% use_kernel.labels  = {
-%                'Yes'
-%                'No'
-% }';
-% use_kernel.values  = {1 0};
-% use_kernel.val     = {1};
 

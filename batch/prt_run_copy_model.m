@@ -171,6 +171,13 @@ for i = 1:length(job.modchoices)
         else
             PRT.model(mid).input.operations = ops;
         end
+        % Check that operations on features were not selected for kernels
+        if any(ismember([6,7],ops))
+            if model.use_kernel
+                error('prt_run_model:BadOperations',...
+                    'Feature operations selected while using kernels, please correct')
+            end
+        end
     end
 
 end

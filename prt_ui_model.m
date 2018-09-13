@@ -160,17 +160,20 @@ set(handles.pop_reg,'Value',1)
 handles.type='classification';
 set(handles.butt_defclass,'ForegroundColor',handles.color.high)
 handles.subsample = 0;
-list={'Sample averaging (within block)',...
+handles.oplist={'Sample averaging (within block)',...
     'Sample averaging (within subject/condition)',...
     'Mean centre features using training data',...
     'Normalize samples',...
     'Regress out covariates'};
-handles.indop{1}=1:length(list);
+handles.oplistNK = [handles.oplist,...
+    {'Normalize features',...
+    'Z-score features'}];
+handles.indop{1}=1:length(handles.oplist);
 handles.indop{2}=0;
-set(handles.uns_list,'String',list)
+set(handles.uns_list,'String',handles.oplist)
 set(handles.sel_list,'String',{''})
 handles.operations = [];
-handles.namop=list;
+handles.namop=handles.oplist;
 set(handles.uns_list,'Value',1)
 set(handles.sel_list,'Value',1)
 handles.flagguicv=0;
@@ -1362,8 +1365,10 @@ if get(handles.pop_reg,'Value')==1 %for classification
         if handles.multiroi || length(handles.fs)>1
             list = [list,handles.MK];
         end
+        oplist = handles.oplist;
     else
         list = handles.class_NK;
+        oplist = handles.oplistNK;
     end
     is_class = 1;
 else
@@ -1372,12 +1377,24 @@ else
         if handles.multiroi || length(handles.fs)>1
             list = [list,handles.MK];
         end
+        oplist = handles.oplist; % Operations in kernel space
     else
         list = handles.reg_NK;
+        oplist = handles.oplistNK; % Add feature normalization
     end
 end
 set(handles.pop_machine,'String',list)
 set(handles.pop_machine,'Value',1)
+
+% Deal with operations
+handles.indop{1}=1:length(oplist);
+handles.indop{2}=0;
+set(handles.uns_list,'String',oplist)
+set(handles.sel_list,'String',{''})
+handles.operations = [];
+handles.namop=oplist;
+set(handles.uns_list,'Value',1)
+set(handles.sel_list,'Value',1)
 
 name = list{1};
 [machine] = prt_get_machine_ui(is_class,is_kernel,name);
