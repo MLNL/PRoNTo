@@ -24,10 +24,9 @@ function output = prt_machine_liblinearsvm(d,args)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by Tong from prt_machine_libL1svm.m
+% Written by Tong Wu and J. Schrouff
 % $Id$
 
-%Turn the value of the C hyper-parameter into the arguments format for LIBSVM
 
 SANITYCHECK=true; % can turn off for "speed". Expert only.
 
@@ -37,67 +36,61 @@ if SANITYCHECK==true
     if ~ischar(args)
         error('prt_machine_liblinearsvm:liblinearargsNotString',['Error: liblinear'...
             ' args should be a string. ' ...
-            ' SOLUTION: Please do XXX']);
+            ' SOLUTION: Please enter string arguments and check LIBLINEAR Read me']);
     end
     
     % check we can reach the binary library
     if ~exist('train','file')
         error('prt_machine_liblinearsvm:libNotFound',['Error:'...
             ' liblinear train function could not be found !' ...
-            ' SOLUTION: Please check your path.']);
+            ' SOLUTION: Please check your path or recompile.']);
     end
-    % check if it is a two-class or a multiclass classification problem
-    uTL=unique(d.tr_targets(:));
-    nC=numel(uTL);
-    if nC==2
-        % check it is indeed labelled correctly (probably should be done)
-        if ~all(uTL==[1 2]')
-            error('prt_machine_liblinearsvm:LabellingIncorect',['Error:'...
-                ' This is a binary classification problem, hence the machine needs labels to be in {1,2} ' ...
-                ' but they are ' mat2str(uTL) ' ! ' ...
-                'SOLUTION: Please relabel your classes by changing the '...
-                ' ''tr_targets'' argument to prt_machine_liblinearsv']);
+    
+    if ~isempty(regexp(args,'-s\s+[01234567]','once')) % Classification machines
+        % check if it is a two-class or a multiclass classification problem    
+        uTL=unique(d.tr_targets(:));
+        nC=numel(uTL);
+        if nC==2
+            % check it is indeed labelled correctly (probably should be done)
+            if ~all(uTL==[1 2]')
+                error('prt_machine_liblinearsvm:LabellingIncorect',['Error:'...
+                    ' This is a binary classification problem, hence the machine needs labels to be in {1,2} ' ...
+                    ' but they are ' mat2str(uTL) ' ! ' ...
+                    'SOLUTION: Please relabel your classes by changing the '...
+                    ' ''tr_targets'' argument to prt_machine_liblinearsv']);
+            end
+        else
+            % check it is indeed labelled correctly (probably should be done)
+            if ~all(uTL==[1:nC]')
+                error('prt_machine_liblinearsvm:LabellingIncorect',['Error:'...
+                    ' This is a multiclass classification problem, hence the machine needs labels to be in {1,2,3,.., #classes selected} ' ...
+                    ' but they are ' mat2str(uTL) ' ! ' ...
+                    'SOLUTION: Please relabel your classes by changing the '...
+                    ' ''tr_targets'' argument to prt_machine_liblinearsvm']);
+            end     
         end
+        % Adjust weights for each class
+        wi = [];
+        wi_args = [];
+        n_tr_targets = length(d.tr_targets);
+        s = ' ';
+        for i = 1:nC
+            wi(1,i) = sum(d.tr_targets==i)/n_tr_targets;
+            wi(1,i) = 1; % Only for now, will be changed in future
+            wi_args = [wi_args,'-w',num2str(i),s,num2str(wi(1,i)),s];
+        end
+        
+        args = [args ' ' wi_args];
+        output.type        = 'classification';
     else
-        % check it is indeed labelled correctly (probably should be done)
-        if ~all(uTL==[1:nC]')
-            error('prt_machine_liblinearsvm:LabellingIncorect',['Error:'...
-                ' This is a multiclass classification problem, hence the machine needs labels to be in {1,2,3,.., #classes selected} ' ...
-                ' but they are ' mat2str(uTL) ' ! ' ...
-                'SOLUTION: Please relabel your classes by changing the '...
-                ' ''tr_targets'' argument to prt_machine_liblinearsvm']);
-        end     
+        output.type = 'regression';
     end
-    
-    
-    % check we are using the right types of machines (exclude types -s 0,1,3,6,7,11,12,13)
-    if isempty(regexp(args,'-s\s+[245]','once'))
-        warning(['Arguments and inputs for three linear SVC formulations are internally evaluated by this machine'...
-            '''-s 2, -s 4 or -s 5'', but the args supplied are ',args,...
-            '. Please be aware that arguments and parameters for this user-defined machine are not internally evaluated.']);
-    end
-    
-    
 end
-
-% Adjust weights for each class
-wi = [];
-wi_args = [];
-n_tr_targets = length(d.tr_targets);
-s = ' ';
-for i = 1:nC
-    wi(1,i) = sum(d.tr_targets==i)/n_tr_targets;
-    wi(1,i) = 1; % Only for now, will be changed in future
-    wi_args = [wi_args,'-w',num2str(i),s,num2str(wi(1,i)),s];
-end
-
-args = [args ' ' wi_args]; 
 
 
 % Run SVM
 %-------------------------------------------------------------------------
 model = train(d.tr_targets,sparse(d.train{:}),args);
-% model_NonSparse = train(d.tr_targets,d.train{:},args); % check if non-sparse matrix works
 
 % check if training succeeded:
 if isempty(model)
@@ -119,7 +112,7 @@ end
 %--------------------------------------------------------------------------
 output.predictions = predictions;
 output.func_val    = func_val;
-output.type        = 'classifier';
+
 if (nC==2) && (~contains(args,'-s 4'))
     output.w           = model.w(1:end-1)';
     output.b           = model.w(end);
