@@ -26,7 +26,7 @@ As in previous Chapters, we will start analyzing the data with PRoNTo's GUI and 
 	
 	\item In the `Modalities' panel, click on `Add' and provide a name to the modality, e.g. `MRI'.
 	
-	\item Load all the image files available in the directory (IXIdata/aged/Guys/). You can select all the files by using the right mouse button and clicking on the option `Select All' or clicking on the first image then shift-click on the last. Please ensure that the order of the images in the selection is as expected (e.g. SPM can place scan10 before scan2). When all the images are selected, click on the `Done' button;
+	\item Load all the image files available in the directory (IXIdata/aged/Guys/). You can select all the files by using the right mouse button and clicking on the option `Select All' or clicking on the first image then shift-click on the last. Please ensure that the order of the images in the selection is as what you expect. When all the images are selected, click on the `Done' button;
 	
 	\item In the `Covariates' field, type the covariates you want to regress out. In this example, `Gender' is the one chosen. As in the previous chapter, covariates can be input to PRoNTo by directly copying values into the Covariate if there is only one confounding factor, or by typing the full path of the {\tt R} matrix containing either one column or multiple columns. As `Gender' is categorical, one-hot encoding was used (i.e. one column for males and one column for females in the `R' matrix).
 	
@@ -44,10 +44,10 @@ As in previous Chapters, we will start analyzing the data with PRoNTo's GUI and 
 	\item The `Data and design' window should look similar to Figure \ref{fig:data_and_design_reg}. Click on the `Save' button to create the `PRT.mat' file with the structure containing the information that has been previously specified. If no errors are shown in the \matlab command, leave the `Data and design' window by clicking `Quit'.
 
 \begin{figure}[!h]
-	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/confounds/Data_and_design_reg.png}
-	\caption{`Data and design' GUI final configuration.}
-	\label{fig:data_and_design_reg}
+\centering
+\includegraphics[scale=0.45]{images/Tutorial/confounds/Data_and_design_reg.png}
+\caption{`Data and design' GUI final configuration.}
+\label{fig:data_and_design_reg}
 \end{figure}
 
 \end{itemize}
@@ -129,7 +129,7 @@ As in previous Chapters, we will start analyzing the data with PRoNTo's GUI and 
 	
 	\item In PRoNTo's main window, click on `Display results' and select the `PRT.mat' file. This will open the main results window (Figure \ref{fig:results_reg});
 	
-	\item In the `Results' window, select the `KRR' model and `All folds'. The results should look like:
+	\item In the `Results' window, select the `KRR' model and `All folds'. The results should look like (Figure \ref{fig:results_reg});
 	
 \begin{figure}[h!]
 	\centering
@@ -199,7 +199,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 		
 		\begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/confounds/Data_and_design_reg_batch.png}
+		\includegraphics[scale=0.7]{images/Tutorial/confounds/Data_and_design_reg_batch.png}
 	\caption{Data and design module in {\tt matlabbatch}. }
 	\label{fig:Data_and_design_reg_batch}
 	\end{figure}
