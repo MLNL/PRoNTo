@@ -87,6 +87,13 @@ switch mtype
         nclass = 1;
 end
 
+% Kernel machine?
+if PRT.model(model_idx).input.use_kernel
+    kernel = 1;
+else
+    kernel = 0;
+end
+
 if nclass > 2, mfunc = 'multiclass_machine'; end
 m.args      = [];
 
@@ -297,90 +304,102 @@ for p=0:maxp
             
             for f = 1:nfold
                 
-                train_idx      = PRT.model(model_idx).input.cv_mat(:,f)==1;
-                train          = samp_idx(train_idx);
-                train_all      = zeros(size(ID_all,1),1); train_all(train) = 1;
-                if p>0
-                    d.coeffs   = PRT.model(model_idx).output.permutation(p).fold(f).alpha;
-                else
-                    d.coeffs   = PRT.model(model_idx).output.fold(f).alpha;
-                end
-                
-                d.datamat = zeros(length(train), length(feat_slc));
-                for i = 1:length(fas_idx)
-                    % indexes to access the file array
-                    indm = find(PRT.fs(fs_idx).fas.im == fas_idx(i));
-                    if PRT.fs(fs_idx).multkernel
-                        indtr = ID(train_idx,3) == fas_idx(1);
-                        indm = indm(find(train_all));
+                if kernel % Kernel method, need to get the data and multiply by coefficients
+                    train_idx      = PRT.model(model_idx).input.cv_mat(:,f)==1;
+                    train          = samp_idx(train_idx);
+                    train_all      = zeros(size(ID_all,1),1); train_all(train) = 1;
+                    if p>0
+                        d.coeffs   = PRT.model(model_idx).output.permutation(p).fold(f).alpha;
                     else
-                        indtr = ID(train_idx,3) == fas_idx(i);
-                        indm = indm(find(train_all(ID_all(:,3)==fas_idx(i))));
+                        d.coeffs   = PRT.model(model_idx).output.fold(f).alpha;
                     end
-                    ifa  = PRT.fs(fs_idx).fas.ifa(indm);
                     
-                    % index for the target data matrix
-                    d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,voxtr(feat_slc));
-                end
-                
-                % Average data matrix along specified dimensions
-                if isfield(PRT.fs(fs_idx).modality(mm(1)),'aver') && ...
-                        any(PRT.fs(fs_idx).modality(mm(1)).aver)
-                    tmp = d.datamat';
-                    tmp = reshape(tmp,[fin_dim length(train)]);
-                    dimta = find(PRT.fs(fs_idx).modality(mm(1)).aver); %dimensions to average
-                    for iav = 1:length(dimta)
-                        tmp = mean(tmp, dimta(iav));
+                    d.datamat = zeros(length(train), length(feat_slc));
+                    for i = 1:length(fas_idx)
+                        % indexes to access the file array
+                        indm = find(PRT.fs(fs_idx).fas.im == fas_idx(i));
+                        if PRT.fs(fs_idx).multkernel
+                            indtr = ID(train_idx,3) == fas_idx(1);
+                            indm = indm(find(train_all));
+                        else
+                            indtr = ID(train_idx,3) == fas_idx(i);
+                            indm = indm(find(train_all(ID_all(:,3)==fas_idx(i))));
+                        end
+                        ifa  = PRT.fs(fs_idx).fas.ifa(indm);
+                        
+                        % index for the target data matrix
+                        d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,voxtr(feat_slc));
                     end
-                    dimav = fin_dim;
-                    dimav(find(PRT.fs(fs_idx).modality(mm(1)).aver)) = 1;
-                    tmp = reshape(tmp,prod(dimav),length(train));
-                    d.datamat = tmp';
-                end
-                
-                % Apply any operations specified during training
-                ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
-                % If GLM is one operation, set it to be the first. 
-                if any(ismember(ops,5))
-                    posglm = find(ops==5);
-                    if posglm~=1 % GLM should be the first
-                        idxops = 1:length(ops);
-                        newidx = setdiff(idxops,posglm);
-                        ops=[5,ops(newidx)];
+                    
+                    % Average data matrix along specified dimensions
+                    if isfield(PRT.fs(fs_idx).modality(mm(1)),'aver') && ...
+                            any(PRT.fs(fs_idx).modality(mm(1)).aver)
+                        tmp = d.datamat';
+                        tmp = reshape(tmp,[fin_dim length(train)]);
+                        dimta = find(PRT.fs(fs_idx).modality(mm(1)).aver); %dimensions to average
+                        for iav = 1:length(dimta)
+                            tmp = mean(tmp, dimta(iav));
+                        end
+                        dimav = fin_dim;
+                        dimav(find(PRT.fs(fs_idx).modality(mm(1)).aver)) = 1;
+                        tmp = reshape(tmp,prod(dimav),length(train));
+                        d.datamat = tmp';
                     end
-                end
-                
-                cvdata.train      = {d.datamat};
-                cvdata.tr_id      = ID(train_idx,:);
-                cvdata.use_kernel = false; % need to apply the operation to the data
-                % Get covariates (all columns) if any
-                if ~isfield(PRT.model(model_idx).input,'covar') || ...
-                        isempty(PRT.model(model_idx).input.covar)
-                    cvdata.tr_cov = [];
-                else
-                    cvdata.tr_cov = PRT.model(model_idx).input.covar(train_idx,:);
-                end
-                for o = 1:length(ops)
-                    cvdata = prt_apply_operation(PRT, cvdata, ops(o));
-                end
-                d.datamat = cvdata.train{:};
-                
-                if isfield(PRT.model(model_idx).output.fold(f),'beta') && ...
-                        ~isempty(PRT.model(model_idx).output.fold(f).beta)            
-                    if isempty(ibe)
-                        m.args.betas = PRT.model(model_idx).output.fold(f).beta;
+                    
+                    % Apply any operations specified during training
+                    ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
+                    % If GLM is one operation, set it to be the first.
+                    if any(ismember(ops,5))
+                        posglm = find(ops==5);
+                        if posglm~=1 % GLM should be the first
+                            idxops = 1:length(ops);
+                            newidx = setdiff(idxops,posglm);
+                            ops=[5,ops(newidx)];
+                        end
+                    end
+                    
+                    cvdata.train      = {d.datamat};
+                    cvdata.tr_id      = ID(train_idx,:);
+                    cvdata.use_kernel = false; % need to apply the operation to the data
+                    % Get covariates (all columns) if any
+                    if ~isfield(PRT.model(model_idx).input,'covar') || ...
+                            isempty(PRT.model(model_idx).input.covar)
+                        cvdata.tr_cov = [];
                     else
-                        m.args.betas = PRT.model(model_idx).output.fold(f).beta(ibe);
+                        cvdata.tr_cov = PRT.model(model_idx).input.covar(train_idx,:);
                     end
+                    for o = 1:length(ops)
+                        cvdata = prt_apply_operation(PRT, cvdata, ops(o));
+                    end
+                    d.datamat = cvdata.train{:};
+                    
+                    if isfield(PRT.model(model_idx).output.fold(f),'beta') && ...
+                            ~isempty(PRT.model(model_idx).output.fold(f).beta)
+                        if isempty(ibe)
+                            m.args.betas = PRT.model(model_idx).output.fold(f).beta;
+                        else
+                            m.args.betas = PRT.model(model_idx).output.fold(f).beta(ibe);
+                        end
+                    end
+                    
+                    if flag2
+                        m.args.flag = 1;
+                    end
+                    
+                    % COMPUTE WEIGHTS
+                    wimg      = prt_weights(d,m);
+                    
+                else
+                    % weights saved directly in PRT
+                    w = PRT.model(model_idx).output.fold(f).w;
+                    
+                    for icl = 1:size(w,2) % Loop over classes
+                        % get slice
+                        wimg{icl} = w(voxtr(feat_slc),icl);
+                    end
+                    
                 end
                 
-                if flag2
-                    m.args.flag = 1;
-                end
-                
-                % COMPUTE WEIGHTS
-                wimg      = prt_weights(d,m);
-
                 for c = 1:nimage
                     img3d              = zeros(1,xydim);
                     indi               = mask_train(feat_slc)-xydim*(z-1);
@@ -393,7 +412,6 @@ for p=0:maxp
                         img4d{c}(:,:,z,f)  = reshape(img3d,dat_dim(1),dat_dim(2),1,1);
                     end
                 end
-               
                 
             end
             
@@ -406,14 +424,14 @@ for p=0:maxp
                 norm4dav{c}(z,:)           = sum(img3dav{c}(isfinite(img3dav{c})).^2); %afm
             end
         end
-
+        
     end
     
     for c =1:nimage
         norm4d{c}   = sqrt(sum(norm4d{c},1));
         norm4dav{c} = sqrt(sum(norm4dav{c},1)); %average across folds
     end
-    fprintf('\n') % new line 
+    fprintf('\n') % new line
     disp('Normalising weights--------->>')
     if p==0
         for f = 1:nfold
@@ -430,7 +448,7 @@ for p=0:maxp
             img4d{c}(:,:,:,folds_comp) = img4d{c}(:,:,:,folds_comp)./norm4dav{c}; %afm
         end
     end %afm
-
+    
     % Create weigths file
     %-------------------------------------------------------------------------
     clear No
