@@ -66,55 +66,6 @@ of the machine. In PRoNTo, plots are different for classification and regression
 
 \subsection{Classification}
 
-\subsubsection{Predictions plot}
-
-A prediction plot displays, for a particular fold (y-axis), the output value of the machine's
-decision function for each test sample (x-axis, e.g., for a linear SVM, this could be $\mathbf{w}^T\mathbf{x}_i + b$,
-for a probabilistic classifier this could be a posterior probability $P(\Omega=\omega | \mathbf{x}_i)$). The decision threshold is displayed by a vertical line at the centre of the plot.
-A well-performing classifier will yield very different function values for samples of different
-classes, i.e. samples from different classes will fall on different sides of the decision threshold. 
-%By observing which fold have more or less overlapping function values, it is possible
-%to understand which block / subject / condition might have a test distribution of features that
-%departs from the training set. 
-The inspection, in each fold, of the overlap of function values between classes, can help to identify which of the test blocks/subjects/conditions is atypical with respect to the training set.  
-This plot is available for binary classification.
-
-
-On the plot, each class is represented by a different marker and color, and indicated in the legend.
-Figure \ref{fig_prt_ui_results_plots_pred} shows an example predictions plot. 
-
-\begin{figure}[h!]
-\begin{center}
-\includegraphics[height=6cm]{images/prt_ui_results_plots_pred.png}
-\caption{Example predictions plot for a two-class problem modelled by an SVM.}
-\label{fig_prt_ui_results_plots_pred}
-\end{center}
-\end{figure}
-
-\subsubsection{Receiver Operating Characteristic (ROC) plot}
-
-In two-class classification, there is always a trade-off between class 1
-and class 2 errors. Indeed, a classifier predicting class 1 regardless of input
-would have excellent accuracy on class 1, but bad accuracy on class2. This is also
-known as the sensitivity / specificity trade-off. The 
-ROC curve is a graphical depiction of this trade-off, showing how one error rate
-varies as a function of the other. An ideal classifier would have an ROC passing
-through the top-left corner. The area under curve (AUC) is a summary measure of 
-classifier performance, where higher is better (1 represents perfect performance,
-0.5 represents random performance). As with all summary measures,
-the AUC is but one way of comparing performance of machines, and cannot be used alone
-to declare a machine statistically significantly superior to another on a given dataset.
-
-Figure \ref{fig_prt_ui_results_plots_ROC} shows an example of such a plot (Haxby dataset, Faces versus Houses, 4-folds nested CV, LOBO outer CV).
-
-\begin{figure}[h!]
-\begin{center}
-\includegraphics[height=6cm]{images/prt_ui_results_plots_ROC.png}
-\caption{Example ROC curve for a two-class problem modelled by an MKL on ROIs.}
-\label{fig_prt_ui_results_plots_ROC}
-\end{center}
-\end{figure}
-
 \subsubsection{Histogram plot}
 
 The histogram plot is a smoothed density version of the predictions
@@ -155,6 +106,53 @@ Figure \ref{fig_prt_ui_results_plots_confMat} shows an example of a confusion ma
 \label{fig_prt_ui_results_plots_confMat}
 \end{center}
 \end{figure}
+
+
+\subsubsection{Predictions plot}
+
+A prediction plot displays, for a particular fold (y-axis), the output value of the machine's
+decision function for each test sample (x-axis, e.g., for a linear SVM, this could be $\mathbf{w}^T\mathbf{x}_i + b$,
+for a probabilistic classifier this could be a posterior probability $P(\Omega=\omega | \mathbf{x}_i)$). The decision threshold is displayed by a vertical line at the centre of the plot.
+A well-performing classifier will yield very different function values for samples of different
+classes, i.e. samples from different classes will fall on different sides of the decision threshold. 
+%By observing which fold have more or less overlapping function values, it is possible
+%to understand which block / subject / condition might have a test distribution of features that
+%departs from the training set. 
+The inspection, in each fold, of the overlap of function values between classes, can help to identify which of the test blocks/subjects/conditions is atypical with respect to the training set.  
+This plot is available for binary classification.
+
+
+On the plot, each class is represented by a different marker and color, and indicated in the legend.
+Figure \ref{fig_prt_ui_results_plots_pred} shows an example predictions plot. 
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[height=6cm]{images/prt_ui_results_plots_pred.png}
+\caption{Example predictions plot for a two-class problem modelled by an SVM.}
+\label{fig_prt_ui_results_plots_pred}
+\end{center}
+\end{figure}
+
+
+\subsubsection{Receiver Operating Characteristic (ROC) plot}
+
+ROC curve is a commonly used measure to evaluate a binary classifier performance. It shows the trade off between the true positive rate (TPR) (sensitivity, the number of correctly classified positive instances divided by the total number of positive instances) and false positive rate (FPR) (1-specificity, the number of incorrectly classified negative instances divided by the total number of negative instances) across a number of thresholds. An ideal classifier would have an ROC passing through the top-left corner, depicting all true positives and no false positives. The area under curve (AUC) is a summary measure of classifier performance, where higher is better (1 represents perfect performance,
+0.5 represents random performance). Please note that there might be discrepancies between AUC and balanced accuracy as AUC measures the relative ranking of positive and negative test samples in terms of decision values while balanced accuracy reflects whether each decision value is correct or incorrect \cite{Fawcett2006}. For example: assume a testing set comprising 4 images, 2 of faces (our positive class) and 2 of houses and an SVM binary classifier. The decision values are $[-0.5087 -0.0371  -2.2863 -1.5753]$, which corresponds to all scans being classified as `houses' (since the decision threshold for SVM is 0). However, we notice that the decision values for the positive scans (first 2 values) are higher than for the negative scans, which leads to an AUC of 1. It is hence important to report both measures when assessing model performance and/or comparing models.
+	
+
+In PRoNTo, the ROC and AUC are estimated within each fold if a specific fold is chosen or across folds by concatenating all test samples. Users may notice that sometimes AUC is `NaN' (Not a Number) within fold. AUC is computed by using TPR and FPR, which are both proportions. However, if at least one of the two proportions doesn't exist, AUC cannot be computed. For example, if users choose leave-one-subject-out as the CV scheme with one image per subject, there is only one test target in each fold. Hence, there will be no positive instance or negative instance from which we can compute TPR or FPR. AUC is therefore NaN. Another case leading to a NaN value is that there is only one class in the test targets within one fold (e.g. leave-one-block-out with one class per block as in Haxby dataset), even if there are multiple test targets. We display AUC when it is NaN, such that users are aware of this limitation. 
+
+Figure \ref{fig_prt_ui_results_plots_ROC} shows an example of ROC plot (Haxby dataset, Faces versus Houses, 4-folds nested CV, LOBO outer CV, display All folds).
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[height=6cm]{images/prt_ui_results_plots_ROC.png}
+\caption{Example ROC curve for a two-class problem modelled by an MKL on ROIs.}
+\label{fig_prt_ui_results_plots_ROC}
+\end{center}
+\end{figure}
+
+
 
 \subsection{Regression}
 
