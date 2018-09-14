@@ -89,6 +89,12 @@ if nargin<6
     flag2 = 0;
 end
 
+if PRT.model(model_idx).input.use_kernel
+    kernel = 1;
+else
+    kernel = 0;
+end
+
 % unfortunately a bug somewhere causes shifts in weight image if
 % .nii is used...
 
@@ -181,13 +187,13 @@ pthperm = cell(nimage,1);
 for p=0:maxp
     if p>0
         for c = 1:nimage
-            [pth,nam] = fileparts(img_name{c});            
+            [pth,nam] = fileparts(img_name{c});
             if p==1
                 pthperm{c} = fullfile(pth,['perm_',nam]);
                 if ~exist(pthperm{c},'dir')
                     mkdir(pth,['perm_',nam]);
                 end
-            end            
+            end
             img_nam{c} = fullfile(pthperm{c},[nam,'_perm',num2str(p),'.img']);
         end
         fprintf('Permutation: %d of %d \n',p, ...
@@ -214,7 +220,7 @@ for p=0:maxp
                     delete(img_nam{c});
                 end
             end
-
+            
             delete(hdr_name)
         end
     end
@@ -239,7 +245,7 @@ for p=0:maxp
     disp('Computing weights.......>>')
     
     fprintf(['Slice (out of %d):',repmat(' ',1,ceil(log10(zdim))),'%d'],zdim, 1);
-        
+    
     for z = 1:zdim
         % Counter of slices to be updated
         if z>1
@@ -268,7 +274,7 @@ for p=0:maxp
             feat_slc = find(mask_train>=(xydim*(z-1)+1) & ...
                 mask_train<=(xydim*z));
             m.args.idfeat_img = {1:length(feat_slc)};
-        end      
+        end
         
         if isempty(feat_slc)
             
@@ -278,93 +284,107 @@ for p=0:maxp
             
         else
             
+            
+            
             for f = 1:nfold
                 
-                train_idx      = PRT.model(model_idx).input.cv_mat(:,f)==1;
-                train          = samp_idx(train_idx);
-                train_all      = zeros(size(ID_all,1),1); train_all(train) = 1;
-                if p>0
-                    d.coeffs   = PRT.model(model_idx).output.permutation(p).fold(f).alpha;
-                else
-                    d.coeffs   = PRT.model(model_idx).output.fold(f).alpha;
-                end
-                
-                d.datamat = zeros(length(train), length(feat_slc));
-                for i = 1:length(fas_idx)
-                    % indexes to access the file array
-                    indm = find(PRT.fs(fs_idx).fas.im == fas_idx(i));
-                    if PRT.fs(fs_idx).multkernel
-                        indtr = ID(train_idx,3) == fas_idx(1);
-                        indm = indm(find(train_all));
-                    else
-                        indtr = ID(train_idx,3) == fas_idx(i);
-                        indm = indm(find(train_all(ID_all(:,3)==fas_idx(i))));
-                    end
-                    ifa  = PRT.fs(fs_idx).fas.ifa(indm);
+                if kernel % Compute weights for kernel machines, includes getting the data back
                     
-                    % index for the target data matrix                    
-                    d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,voxtr(feat_slc));
-                end
-                
-                 % Average data matrix along specified dimensions
-                if isfield(PRT.fs(fs_idx).modality(mm(1)),'aver') && ...
-                        any(PRT.fs(fs_idx).modality(mm(1)).aver)
-                    tmp = d.datamat';
-                    tmp = reshape(tmp,[fin_dim length(train)]);
-                    dimta = find(PRT.fs(fs_idx).modality(mm(1)).aver); %dimensions to average
-                    for iav = 1:length(dimta)
-                        tmp = mean(tmp, dimta(iav));
-                    end
-                    dimav = fin_dim;
-                    dimav(find(PRT.fs(fs_idx).modality(mm(1)).aver)) = 1;
-                    tmp = reshape(tmp,prod(dimav),length(train));
-                    d.datamat = tmp';
-                end
-                
-                % Apply any operations specified during training
-                ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
-                % If GLM is one operation, set it to be the first. 
-                if any(ismember(ops,5))
-                    posglm = find(ops==5);
-                    if posglm~=1 % GLM should be the first
-                        idxops = 1:length(ops);
-                        newidx = setdiff(idxops,posglm);
-                        ops=[5,ops(newidx)];
-                    end
-                end
-                
-                cvdata.train      = {d.datamat};
-                cvdata.tr_id      = ID(train_idx,:);
-                cvdata.use_kernel = false; % need to apply the operation to the data
-                % Get covariates (all columns) if any
-                if ~isfield(PRT.model(model_idx).input,'covar') || ...
-                        isempty(PRT.model(model_idx).input.covar)
-                    cvdata.tr_cov = [];
-                else
-                    cvdata.tr_cov = PRT.model(model_idx).input.covar(train_idx,:);
-                end
-                for o = 1:length(ops)
-                    cvdata = prt_apply_operation(PRT, cvdata, ops(o));
-                end
-                d.datamat = cvdata.train{:};
-                
-                if strcmpi(mfunc,'prt_machine_sMKL_reg') || ...
-                          strcmpi(mfunc,'prt_machine_wip_reg')
-                    if isempty(ibe)
-                        m.args.betas = PRT.model(model_idx).output.fold(f).beta;
+                    train_idx      = PRT.model(model_idx).input.cv_mat(:,f)==1;
+                    train          = samp_idx(train_idx);
+                    train_all      = zeros(size(ID_all,1),1); train_all(train) = 1;
+                    if p>0
+                        d.coeffs   = PRT.model(model_idx).output.permutation(p).fold(f).alpha;
                     else
-                        m.args.betas = PRT.model(model_idx).output.fold(f).beta(ibe);
+                        d.coeffs   = PRT.model(model_idx).output.fold(f).alpha;
+                    end
+                    
+                    d.datamat = zeros(length(train), length(feat_slc));
+                    for i = 1:length(fas_idx)
+                        % indexes to access the file array
+                        indm = find(PRT.fs(fs_idx).fas.im == fas_idx(i));
+                        if PRT.fs(fs_idx).multkernel
+                            indtr = ID(train_idx,3) == fas_idx(1);
+                            indm = indm(find(train_all));
+                        else
+                            indtr = ID(train_idx,3) == fas_idx(i);
+                            indm = indm(find(train_all(ID_all(:,3)==fas_idx(i))));
+                        end
+                        ifa  = PRT.fs(fs_idx).fas.ifa(indm);
+                        
+                        % index for the target data matrix
+                        d.datamat(indtr,:) = PRT.fas(fas_idx(i)).dat(ifa,voxtr(feat_slc));
+                    end
+                    
+                    % Average data matrix along specified dimensions
+                    if isfield(PRT.fs(fs_idx).modality(mm(1)),'aver') && ...
+                            any(PRT.fs(fs_idx).modality(mm(1)).aver)
+                        tmp = d.datamat';
+                        tmp = reshape(tmp,[fin_dim length(train)]);
+                        dimta = find(PRT.fs(fs_idx).modality(mm(1)).aver); %dimensions to average
+                        for iav = 1:length(dimta)
+                            tmp = mean(tmp, dimta(iav));
+                        end
+                        dimav = fin_dim;
+                        dimav(find(PRT.fs(fs_idx).modality(mm(1)).aver)) = 1;
+                        tmp = reshape(tmp,prod(dimav),length(train));
+                        d.datamat = tmp';
+                    end
+                    
+                    % Apply any operations specified during training
+                    ops = PRT.model(model_idx).input.operations(PRT.model(model_idx).input.operations ~=0 );
+                    % If GLM is one operation, set it to be the first.
+                    if any(ismember(ops,5))
+                        posglm = find(ops==5);
+                        if posglm~=1 % GLM should be the first
+                            idxops = 1:length(ops);
+                            newidx = setdiff(idxops,posglm);
+                            ops=[5,ops(newidx)];
+                        end
+                    end
+                    
+                    cvdata.train      = {d.datamat};
+                    cvdata.tr_id      = ID(train_idx,:);
+                    cvdata.use_kernel = false; % need to apply the operation to the data
+                    % Get covariates (all columns) if any
+                    if ~isfield(PRT.model(model_idx).input,'covar') || ...
+                            isempty(PRT.model(model_idx).input.covar)
+                        cvdata.tr_cov = [];
+                    else
+                        cvdata.tr_cov = PRT.model(model_idx).input.covar(train_idx,:);
+                    end
+                    for o = 1:length(ops)
+                        cvdata = prt_apply_operation(PRT, cvdata, ops(o));
+                    end
+                    d.datamat = cvdata.train{:};
+                    
+                    if strcmpi(mfunc,'prt_machine_sMKL_reg') || ...
+                            strcmpi(mfunc,'prt_machine_wip_reg')
+                        if isempty(ibe)
+                            m.args.betas = PRT.model(model_idx).output.fold(f).beta;
+                        else
+                            m.args.betas = PRT.model(model_idx).output.fold(f).beta(ibe);
+                        end
+                    end
+                    
+                    if flag2
+                        m.args.flag = 1;
+                    end
+                    
+                    % COMPUTE WEIGHTS
+                    wimg      = prt_weights(d,m);
+                    
+                else
+                    % weights saved directly in PRT
+                    w = PRT.model(model_idx).output.fold(f).w;
+                    
+                    for icl = 1:size(w,2) % Loop over images
+                        % get slice
+                        wimg{icl} = w(voxtr(feat_slc),icl);
                     end
                 end
                 
-                if flag2
-                    m.args.flag = 1;
-                end
-                
-                % COMPUTE WEIGHTS
-                wimg      = prt_weights(d,m);
-                
-                for c = 1:nimage,
+                for c = 1:nimage
                     img3d              = zeros(1,xydim);
                     indi               = mask_train(feat_slc)-xydim*(z-1);
                     indm               = setdiff(1:xydim,indi);
@@ -433,7 +453,7 @@ for p=0:maxp
             if ismember(2,find(fin_dim == 1)) %No frequency or averaged
                 fin_dim = [fin_dim(1) fin_dim(3)];
             end
-            weightD = clone(hdr,fnamedat,[fin_dim, folds_comp]); 
+            weightD = clone(hdr,fnamedat,[fin_dim, folds_comp]);
             tmp = squeeze(img4d{c}(aa{1},aa{2},aa{3},:));
             weightD(:,:,:,:) = reshape(tmp,[fin_dim,folds_comp]);
             delete(img_nam{c});
@@ -466,9 +486,9 @@ for p=0:maxp
                 No.descrip = 'Pronto weigths'; % description
                 create(No);                    % write header
             end
-        end 
+        end
         img_name{c} = finimg_name{c};
-    end  
+    end
     disp('Done.')
 end
 

@@ -113,12 +113,13 @@ end
 output.predictions = predictions;
 output.func_val    = func_val;
 
-if (nC==2) && (~contains(args,'-s 4'))
-    output.w           = model.w(1:end-1)';
-    output.b           = model.w(end);
-else
+%Weights for
+if ~any(size(model.w)==1) %Multiclass problem
     output.w           = model.w(:,1:end-1)';
     output.b           = model.w(:,end);
+else
+    output.w           = model.w(1:end-1)';
+    output.b           = model.w(end);
 end
 
 
