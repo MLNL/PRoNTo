@@ -1312,7 +1312,7 @@ set(handles.kernel_methods,'Value',nk)
 % Nested cross-validation?
 v = handles.dat.model(indmod).input.use_nested_cv;
 if v
-    switch handles.machine.function
+    switch handles.dat.model(indmod).input.machine.function
         case {'prt_machine_gpml','prt_machine_gpclap',...
                 'prt_machine_gpr','prt_machine_rvr'}
             set(handles.edit_param_range,'Enable','off')

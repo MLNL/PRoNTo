@@ -17,7 +17,7 @@ out = in;
 % get data and covs
 traindata=in.train{d};
 traincovs=in.tr_cov;
-augtraincovs=[ones(size(traincovs,1)) traincovs];
+augtraincovs=[ones(size(traincovs,1),1) traincovs];
 
 if (trainonly==0)
     % adjust using training only

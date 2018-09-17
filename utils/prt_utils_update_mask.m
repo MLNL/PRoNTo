@@ -15,14 +15,15 @@ function [nmask] = prt_utils_update_mask(files,mask,dir)
 %
 % Outputs: the updated mask, saved in the specified directory.
 %--------------------------------------------------------------------------
-% Written by J. Schrouff, 2015, as a preprocessing step for PRoNTo.
+% Written by J. Mourao-Miranda and T. Wu based on code from J. Schrouff
+% Copyright PRoNTo, 2018, UCL.
 
 if nargin<1
     files=spm_select([1 Inf],'image','Select files to be analyzed in PRoNTo');
 end
 
 if nargin<2
-    mask = spm_select(1,'image','Select maks image to be updated');
+    mask = spm_select(1,'image','Select mask image to be updated');
 end
 
 if nargin<3

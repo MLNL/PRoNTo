@@ -46,7 +46,10 @@ if SANITYCHECK==true
             ' SOLUTION: Please check your path or recompile.']);
     end
     
-    if ~isempty(regexp(args,'-s\s+[01234567]','once')) % Classification machines
+    if ~isempty(regexp(args,'-s\s+[01234567]','once')) && ...% Classification machines
+            isempty(regexp(args,'-s\s+[10]','once')) && ... % Not a regression machine
+            isempty(regexp(args,'-s\s+[11]','once')) && ...
+            isempty(regexp(args,'-s\s+[12]','once'))
         % check if it is a two-class or a multiclass classification problem    
         uTL=unique(d.tr_targets(:));
         nC=numel(uTL);

@@ -222,7 +222,7 @@ for d = 1:length(in.train)
                     out.train{d}    = outreg.train;
                 end
             else
-                Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
+%                 Phi = [in.train{d}, in.test{d}'; in.test{d}, in.testcov{d}];
                 if in.use_kernel
                     %Remove confounds only in the training data, and keep
                     %the updates in Phi

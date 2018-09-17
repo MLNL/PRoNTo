@@ -83,7 +83,7 @@ end
 % Data type
 datformat = {'nifti','MEEG','.mat'};
 if isfield(job.group(1).select,'modality')
-    % selection by "images" in a modality
+    % selection by "samples" in a modality
     nmod_scans = length(job.group(1).select.modality);
     for g = 1:ngroup
         
