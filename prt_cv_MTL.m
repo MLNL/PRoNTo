@@ -77,14 +77,6 @@ if ~isfield(in,'opt_Rep')
     opt_Rep = 0;
 end
 
-% Gather machine string parameters if any
-if ~ isempty(PRT.model(mid).input.machine.args) && ...
-        ischar(PRT.model(mid).input.machine.args)
-    stringpar = PRT.model(mid).input.machine.args;
-else
-    stringpar = [];
-end
-
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
 PRT.model(mid).output=struct();
