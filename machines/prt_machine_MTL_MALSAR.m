@@ -77,16 +77,17 @@ end
 %--------------------------------------------------------------------------
 nt  = numel(d.tr_targets);
 
-if ~reg
+for t = 1:nt
+    if ~reg
     %Machine specific inputs
-    for t = 1:nt
+
         % Change targets to be +1/-1
         c2 = d.tr_targets{t}==2;
         d.tr_targets{t}(c2) = -1;
-        % Add bias
-        %     d.train{t} = [d.train{t}, ones(size(d.train{t},1),1)];
-        %     d.test{t} = [d.test{t}, ones(size(d.test{t},1),1)];
     end
+    % Add bias
+    d.train{t} = [d.train{t}, ones(size(d.train{t},1),1)];
+    d.test{t} = [d.test{t}, ones(size(d.test{t},1),1)];
 end
 
 opts.init = 0; % compute start point from data.
@@ -102,7 +103,7 @@ if isnan(vals(1))
         'Argument after -args should be numerical and separated by one white space')
 end
 
-C = zeros(1,nt);
+C = [];
 P = [];
 Q = [];
 
@@ -153,7 +154,7 @@ end
 
 % check if training succeeded:
 if isempty(W) || ~nnz(W)
-    error('prt_machine_MTL_MALSAR:MALSARtrainUnsuccessful',['Error:'...
+    warning('prt_machine_MTL_MALSAR:MALSARtrainUnsuccessful',['Error:'...
         ' MALSAR machine function did not run properly!' ...
         ' This could be a problem with the supplied function arguments'...
         ' ' num2str(args) '']);
@@ -184,9 +185,12 @@ end
 %--------------------------------------------------------------------------
 output.predictions = predictions;
 output.func_val    = func_val;
-output.w           = W;
-output.b           = C;
+output.w           = W(1:end-1,:);
+output.b           = W(end,:);
 % Get extra outputs for specific algorithms
+if ~isempty(C)
+    output.others.C = C;
+end
 if ~isempty(P)
     output.others.P = P; 
 end

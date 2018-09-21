@@ -309,8 +309,16 @@ for c = 1:nc
                     else
                         try 
                             tars = {PRT.group(gid).subject(sid).modality(mid).rt_subj(:).name}; %Gather target names
-                            sel_tar = in.class(c).group(g).subj(s).modality(m).conds(1).cond_name; % Can only select one target
-                            rt = strfind(tars,sel_tar);
+                            if isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond')
+                                if length(tars)>1
+                                    error('prt_model:MoreThanOneTarget',...
+                                        'More than one regression target was selected')
+                                end
+                                rt = 1;
+                            elseif isfield(in.class(c).group(g).subj(s).modality(m),'conds')
+                                sel_tar = in.class(c).group(g).subj(s).modality(m).conds(1).cond_name; % Can only select one target
+                                rt = strfind(tars,sel_tar);
+                            end
                             t_all(idx) = PRT.group(gid).subject(sid).modality(mid).rt_subj(rt).tar;
                         catch
                             error('prt_model:WrongNumberofTargets',...

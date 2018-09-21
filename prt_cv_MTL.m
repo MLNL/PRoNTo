@@ -109,16 +109,9 @@ for f = 1:n_folds
                 beep
                 warning('No parameter range specified for optimization, using defaults.')
             end
-            if ~isempty(stringpar) %Reset to string before optimization
-                PRT.model(mid).input.machine.args = stringpar;
-            end
             [out] = prt_nested_cv(PRT, fdata);
             PRT.model(mid).output.fold(f).param_effect = out;
-            if isempty(stringpar)
-                PRT.model(mid).input.machine.args = out.opt_param;
-            else
-                PRT.model(mid).input.machine.args = [stringpar, num2str(out.opt_param)];
-            end
+            PRT.model(mid).input.machine.args = out.opt_param;
         end
     end
     
