@@ -236,7 +236,8 @@ function br_mask_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 modindx = handles.indmod(strcmp({handles.PRT.masks(handles.indmod).mod_name},handles.mod.mod_name));
-if strcmp(handles.PRT.group(1).subject(1).modality(modindx).type, '.mat')
+if isfield(handles.PRT.group(1).subject(1).modality(modindx),'type') && ...
+        strcmp(handles.PRT.group(1).subject(1).modality(modindx).type, '.mat')
     handles.mod.mask=spm_select(1,'mat','Select mask for the considered modality');
 else
     handles.mod.mask=spm_select(1,'image','Select mask for the considered modality');

@@ -489,7 +489,7 @@ switch chosen
         else
             del=def.hrfd;
         end
-        if length(unique([])) ~=1
+        if length(unique([SPM.xX.K(:).RT])) ~=1
             beep
             disp('Differents TR found in SPM.mat, please separate sessions')
             return
