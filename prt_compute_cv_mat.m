@@ -38,7 +38,7 @@ else
     k = in.cv.k;
 end
 
-if k==1 && ~strcmpi(in.cv.type,'custom') %half-half unless custom
+if ~strcmpi(in.cv.type,'custom') && k ==1 %half-half unless custom
     k=2;
     flaghh=1;
     PRT.model(modelid).input.cv_k = k;

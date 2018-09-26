@@ -423,6 +423,11 @@ for t=1:n_tasks
     % generate new CV matrix
     nested.ID = in.ID{t};
     nested.t = in.t{t};
+    if isfield(PRT.model(in.mid).input,'cv_type_nested') && ...
+            isempty(in.cv.type) % No parameter optimization for STL machine
+        in.cv.type = PRT.model(in.mid).input.cv_type_nested;
+        in.cv.k = PRT.model(in.mid).input.cv_k_nested;
+    end
     nested.cv = in.cv;
     if isfield(in,'class')
         nested.class = in.class{t};
