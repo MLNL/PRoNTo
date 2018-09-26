@@ -704,6 +704,7 @@ handles.newmodel.machine=handles.machine;
 handles.newmodel.operations=handles.operations;
 handles.newmodel.fs=handles.fs;
 handles.newmodel.fs = rmfield(handles.newmodel.fs,'indfs');
+handles.newmodel.use_kernel = handles.use_kernel;
 
 %checks on the CV framework compared to the model entered
 if strcmpi(handles.newmodel.cv_type,'lobo')
@@ -797,6 +798,7 @@ handles.newmodel.machine=handles.machine;
 handles.newmodel.operations=handles.operations;
 handles.newmodel.fs=handles.fs;
 handles.newmodel.fs = rmfield(handles.newmodel.fs,'indfs');
+handles.newmodel.use_kernel = handles.use_kernel;
 
 %checks on the CV framework compared to the model entered
 if strcmpi(handles.newmodel.cv_type,'lobo')
@@ -937,29 +939,12 @@ function kernel_methods_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of kernel_methods
-handles.use_kernel=get(handles.kernel_methods,'Value');
-if get(handles.pop_reg,'Value')==1 %for classification
-    if ~handles.use_kernel
-        set(handles.pop_machine,'String',{'Random Forest'})
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_RT_bin';
-        handles.machine.args=handles.def.rtargs;
-    else
-        list = {'Binary support vector machine',...
-            'Binary Gaussian Process Classification',...
-            'Multiclass GPC'};
-        if handles.multimod || handles.multiroi
-            list = [list,{'L1- Multi-Kernel Learning',...
-                    'wip'}];
-        end
-        set(handles.pop_machine,'String',list)
-        set(handles.pop_machine,'Value',1)
-        handles.machine.function='prt_machine_svm_bin';
-        handles.machine.args=handles.def.svmargs;
-    end
-end
+set_machines(handles,hObject);
+handles = guidata(hObject);
+
 % Update handles structure
 guidata(hObject, handles);
+
 
 
 % --- Executes on selection change in pop_reg.
@@ -1549,5 +1534,3 @@ set(handles.edit_modelname,'ForegroundColor',[1 0 0])
 % Update handles structure
 hObject = gcf;
 guidata(hObject, handles);
-
-

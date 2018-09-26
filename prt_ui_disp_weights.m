@@ -1618,7 +1618,7 @@ if numel(dim_mat)~=2 % Cannot plot more than 2D
     disp('Can not render files with more than 2D')
     disp('Use external viewers instead')
     return
-elseif dim_mat(2) == 1 % Vector, plotting as bar graph
+elseif any(dim_mat == 1) % Vector, plotting as bar graph
     h = prt_plot_1D_weights(handles.uipanelmat,wmap,matroi);
 else                    % Matrix, plotting with imshow
     h = prt_plot_2D_weights(handles.uipanelmat,wmap.*matroi);

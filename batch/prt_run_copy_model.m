@@ -128,10 +128,10 @@ for i = 1:length(job.modchoices)
                     'Classification chosen but model was regression, aborting.')
             end
             if isfield(job.modchoices{i}.model_type.machine_cl_K,'mach_cl_nonkernel')
-                model.use_kernel = 0;
+                PRT.model(mid).input.use_kernel = 0;
                 jobmach = job.modchoices{i}.model_type.machine_cl_K.mach_cl_nonkernel;
             else
-                model.use_kernel = 1;
+                PRT.model(mid).input.use_kernel = 1;
                 jobmach = job.modchoices{i}.model_type.machine_cl_K.mach_cl_kernel;
             end            
             model = prt_get_machine(PRT.model(mid).input,jobmach);
@@ -141,10 +141,10 @@ for i = 1:length(job.modchoices)
                     'Regression chosen but model was classification, aborting.')
             end
             if isfield(job.modchoices{i}.model_type.machine_rg_K,'mach_rg_nonkernel')
-                model.use_kernel = 0;
+                PRT.model(mid).input.use_kernel = 0;
                 jobmach = job.modchoices{i}.model_type.machine_rg_K.mach_rg_nonkernel;
             else
-                model.use_kernel = 1;
+                PRT.model(mid).input.use_kernel = 1;
                 jobmach = job.modchoices{i}.model_type.machine_rg_K.mach_rg_kernel;
             end            
             model = prt_get_machine(PRT.model(mid).input,jobmach);           

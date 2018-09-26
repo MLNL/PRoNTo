@@ -21,10 +21,10 @@ if minw<0 && maxw>0 % Both negative and positive, diverging colormap
     colneg = cbrewer('seq','Blues',128);
     colpos = cbrewer('seq','Reds',128);
     cols  = [flip(colneg,1);colpos];
-    valspos = round((weights(weights>0) ./ maxw) *127)+1;
-    valsneg = -(round((weights(weights<0) ./ minw) *127)+1);
+    valspos = round((weights(weights>=0) ./ maxw) *127)+1;
+    valsneg = -(round((weights(weights<0) ./ minw) *127));
     valsN = weights;
-    valsN(weights>0) = valspos;
+    valsN(weights>=0) = valspos;
     valsN(weights<0) = valsneg;
     valsN = valsN + 128;
     % Colorbar ticks and labels

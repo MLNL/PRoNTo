@@ -395,7 +395,7 @@ for p=0:maxp
                     
                     for icl = 1:size(w,2) % Loop over classes
                         % get slice
-                        wimg{icl} = w(voxtr(feat_slc),icl);
+                        wimg{icl} = w(feat_slc,icl);
                     end
                     
                 end
