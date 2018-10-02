@@ -677,13 +677,13 @@ for g=1:length(list)
                         end
                         % Case of multiple conditions each with one
                         % regression target
+                        if isempty(handles.clas{1,4})
+                            beep
+                            disp('No target selected for the regression model')
+                            disp('Please correct')
+                            return
+                        end
                         for ic=1:length(handles.clas{1,4})
-                            if ~isfield(handles.group(g2).subj(scount).modality(m),'conds')
-                                beep
-                                disp('No target selected for the regression model')
-                                disp('Please correct')
-                                return
-                            end
                             handles.group(g2).subj(scount).modality(m).conds(ic).cond_name= ...
                                 handles.condm{1,2}{handles.clas{1,4}(ic)};
                         end

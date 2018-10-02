@@ -518,7 +518,7 @@ switch in.cv.type
                         error('CV does not comprise the same number of samples as selected')
                     else
                         disp('Subsampling CV matrix according to selected samples in model')
-                        CV = CV(samp_idx,:);
+                        CV = CV(PRT.model(modelid).input.samp_idx,:);
                     end
                 else
                     nfo = size(CV,2);
