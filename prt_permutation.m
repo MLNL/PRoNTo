@@ -100,7 +100,7 @@ else
 % Initialize counts
 % -------------------------------------------------------------------------
     switch PRT.model(modelid(1)).output(1).fold(1).type
-        case 'classifier'
+        case {'classifier','classification'}
             n_class = length(PRT.model(modelid(1)).output(1).fold(1).stats.c_acc);
             total_greater_c_acc = zeros(n_class,1);
             total_greater_b_acc = 0;
@@ -217,7 +217,8 @@ else
                         % Multiple images in the modality, but only one
                         % target: Need to permute within subject but across
                         % modalities, case 2
-                        elseif strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classifier') && ...
+                        elseif (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classifier') || ...
+                                strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classification')) && ...
                                 length(unique(t(ism)))==1
                             if numel(samp_c)==1 && samp_c>0
                                 exchange_subjects = 0;
@@ -392,7 +393,7 @@ else
             end
             % If classifier, get confusion matrix globally
             m.type        = PRT.model(modelid(1)).output(k).fold(1).type;
-            if strcmpi(m.type,'classifier')
+            if strcmpi(m.type,'classifier') || strcmpi(m.type,'classification')
                 tp             = vertcat(model.output.fold(:).targets);
                 m.predictions  = vertcat(model.output.fold(:).predictions);
                 m.func_val    = vertcat(PRT.model(mid).output.fold(:).func_val);
@@ -403,7 +404,7 @@ else
             % Update counts depending on permuted model performance
             switch PRT.model(modelid(1)).output(k).fold(1).type
                 
-                case 'classifier'
+                case {'classifier','classification'}
                     
                     permutation.b_acc(p)=perm_stats.b_acc;
                     
@@ -468,7 +469,7 @@ else
         
         %Compute p-values
         switch PRT.model(modelid(1)).output(k).fold(1).type
-            case 'classifier'
+            case {'classifier','classification'}
                 
                 pval_b_acc = (total_greater_b_acc+1) / (n_perm+1);
                 
