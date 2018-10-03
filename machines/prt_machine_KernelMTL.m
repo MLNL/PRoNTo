@@ -97,9 +97,6 @@ if isnan(vals(1))
         'Argument after -args should be numerical and separated by one white space')
 end
 
-C = zeros(1,nt);
-Q = [];
-
 
 if ~isempty(regexp(args,'-s\s+[1]','once')) % Feature learning
     method = Train.rls_mtl_dual('trace');
@@ -142,11 +139,15 @@ end
 output.predictions = predictions;
 output.func_val    = predictions;
 output.alpha       = lm.internal_params.C;
-output.b           = C;
 % Get extra outputs for specific algorithms
 if ~isempty(lm.internal_params.A)
     output.others.A = lm.internal_params.A; 
 end
+
+% Compute primal weights as non-kernel machine for PRoNTo
+primalw = output.alpha'*Xtmp';
+output.w = primalw(:,1:end-1)';
+output.b = primalw(:,end)';
 
 end
 

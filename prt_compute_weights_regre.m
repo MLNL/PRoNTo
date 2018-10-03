@@ -95,54 +95,70 @@ else
     kernel = 0;
 end
 
-% unfortunately a bug somewhere causes shifts in weight image if
-% .nii is used...
 
-switch mfunc
-    case 'prt_machine_sMKL_reg'
-        m.function = 'prt_weights_sMKL_reg';
-        img_mach{1} = ['weights_',mname,ext];
-    case 'prt_machine_RT_bin'
-        error('prt_compute_weights:MachineNotSupported',...
-            'Error: weights computation not supported for this machine!');
-    otherwise
-        m.function  = 'prt_weights_bin_linkernel';
-        img_mach{1} = ['weights_',mname,ext];
-end
-
-nimage = length(img_mach);
-% Image name
-% -------------------------------------------------------------------------
-img_name = cell(nimage,1);
-finimg_name = cell(nimage,1);
+% Compute number of images to build and get their names
+% ------------------------------------------------------
 if ~isempty(in.img_name)
     if ~(prt_checkAlphaNumUnder(in.img_name))
         error('prt_compute_weights:NameNotAlphaNumeric',...
             'Error: image name should contain only alpha-numeric elements!');
     end
-    if nimage>1 && ~flag2
-        for c = 1:nimage
-            in.img_name_c  = [in.img_name,'_',num2str(c),ext];
-            img_name{c}    = fullfile(in.pathdir,[appendn,in.img_name_c]);
-            finimg_name{c} = fullfile(in.pathdir,in.img_name_c);
-        end
-    else
-        img_name{1}   = fullfile(in.pathdir,[appendn,in.img_name,ext]);
-        finimg_name{1}= fullfile(in.pathdir,[in.img_name,ext]);
+    basisname = in.img_name;
+else
+    basisname = ['weights_',mname,ext];
+end
+
+if isfield(PRT.model(model_idx).input,'models_MTL') &&...
+        ~isempty(PRT.model(model_idx).input.models_MTL)
+    nmodels = PRT.model(model_idx).input.models_MTL; % number of models for MTL
+else
+    nmodels = 1;
+end
+
+cnt = 1;
+nimage = length(nmodels);
+if nimage>1 %get the name of the task and append the task name
+    for imodel = 1:length(nmodels)
+        img_mach{cnt} = [basisname,'_',PRT.model(nmodels(imodel)).model_name,ext];
+        cnt = cnt+1;
     end
 else
-    for c = 1:nimage
-        img_name{c}    = fullfile(in.pathdir,[appendn,img_mach{c}]);
-        finimg_name{c} = fullfile(in.pathdir,img_mach{c});
-    end
+    img_mach{cnt} = [basisname,ext]; % just one image otherwise
 end
+
+% Get function to compute weights for kernel machines
+% -------------------------------------------------------------------------
+switch mfunc
+    case 'prt_machine_sMKL_reg'
+        m.function = 'prt_weights_sMKL_reg';
+    case 'prt_machine_RT_bin'
+        error('prt_compute_weights:MachineNotSupported',...
+            'Error: weights computation not supported for this machine!');
+    otherwise
+        m.function  = 'prt_weights_bin_linkernel';
+end
+
+
+% Image name
+% -------------------------------------------------------------------------
+img_name = cell(nimage,1);
+finimg_name = cell(nimage,1);
+nimage = length(img_mach);
+for c = 1:nimage
+    img_name{c}    = fullfile(in.pathdir,[appendn,img_mach{c}]);
+    finimg_name{c} = fullfile(in.pathdir,img_mach{c});
+end
+
 
 % Other info
 % -------------------------------------------------------------------------
-samp_idx = PRT.model(model_idx).input.samp_idx;
+if kernel %get info to retrieve the data
+    samp_idx = PRT.model(model_idx).input.samp_idx;
+    ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
+    ID_all = PRT.fs(fs_idx).id_mat;
+end
 nfold    = length(PRT.model(model_idx).output.fold);
-ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
-ID_all = PRT.fs(fs_idx).id_mat;
+
 
 % Get the indexes of the voxels which are in the first/second level mask
 % -------------------------------------------------------------------------
@@ -378,7 +394,7 @@ for p=0:maxp
                     % weights saved directly in PRT
                     w = PRT.model(model_idx).output.fold(f).w;
                     
-                    for icl = 1:size(w,2) % Loop over images
+                    for icl = 1:size(w,2) % Loop over tasks in MTL if present
                         % get slice
                         wimg{icl} = w(voxtr(feat_slc),icl);
                     end

@@ -104,66 +104,91 @@ if nargin<6
     flag2 = 0;
 end
 
+% Compute the number and names of images to create, i.e. number of tasks
+% times number of classes
+%--------------------------------------------------------------------------
 % unfortunately a bug somewhere causes shifts in weight image if
 % .nii is used...
 
-switch mfunc    
-    case 'multiclass_machine'
-        m.function  = 'prt_weights_gpclap';
-        nclass      = length(PRT.model(model_idx).input.class);
-        for c = 1:nclass
-            img_mach{c} = ['weights_',mname,'_',num2str(c),ext];
-        end
-    case 'prt_machine_sMKL_cla'
-        m.function = 'prt_weights_sMKL_cla';
-        img_mach{1} = ['weights_',mname,ext];
-    case 'prt_machine_wip_cla'
-        m.function = 'prt_weights_sMKL_cla';
-        img_mach{1} = ['weights_',mname,ext];
-    case 'prt_machine_RT_bin'
-        error('prt_compute_weights:MachineNotSupported',...
-            'Error: weights computation not supported for this machine!');
-    case 'prt_machine_sMKL_reg'
-        m.function = 'prt_weights_sMKL_reg';
-        img_mach{1} = ['weights_',mname,ext];
-    otherwise
-        m.function  = 'prt_weights_bin_linkernel';
-        img_mach{1} = ['weights_',mname,ext];
-end
+ nclass      = length(PRT.model(model_idx).input.class); % number of classes
+ 
+ if isfield(PRT.model(model_idx).input,'models_MTL') &&...
+         ~isempty(PRT.model(model_idx).input.models_MTL)
+     nmodels = PRT.model(model_idx).input.models_MTL; % number of models for MTL
+ else
+     nmodels = 1;
+ end
 
-nimage = length(img_mach);
-% Image name
-% -------------------------------------------------------------------------
-img_name = cell(nimage,1);
-finimg_name = cell(nimage,1);
-if ~isempty(in.img_name)
+if ~isempty(in.img_name) % User has entered image name
     if ~(prt_checkAlphaNumUnder(in.img_name))
         error('prt_compute_weights:NameNotAlphaNumeric',...
             'Error: image name should contain only alpha-numeric elements!');
     end
-    if nimage>1 && ~flag2
-        for c = 1:nimage
-            in.img_name_c  = [in.img_name,'_',num2str(c),ext];
-            img_name{c}    = fullfile(in.pathdir,[appendn,in.img_name_c]);
-            finimg_name{c} = fullfile(in.pathdir,in.img_name_c);
-        end
-    else
-        img_name{1}   = fullfile(in.pathdir,[appendn,in.img_name,ext]);
-        finimg_name{1}= fullfile(in.pathdir,[in.img_name,ext]);
-    end
+    basisname = in.img_name;
 else
-    for c = 1:nimage
-        img_name{c}    = fullfile(in.pathdir,[appendn,img_mach{c}]);
-        finimg_name{c} = fullfile(in.pathdir,img_mach{c});
-    end
+    basisname = ['weights_',mname]; %default name is used otherwise
 end
 
-% Other info
+cnt = 1;
+img_mach = cell(length(nmodels)*nclass,1);
+for imodel = 1:length(nmodels)
+    if nmodels>1 %get the name of the task
+        img_mach{cnt} = [basisname,'_',PRT.model(nmodels(imodel)).model_name];
+    else
+        img_mach{cnt} = basisname;
+    end
+    if nclass>2
+        for c=1:nclass %get the name of the class
+            img_mach{cnt} = [img_mach{cnt},'_',PRT.model(model_idx).input.class(c).class_name,ext];
+            cnt = cnt+1;
+        end        
+    else
+        img_mach{cnt} = [img_mach{cnt},ext];
+        cnt = cnt+1;
+    end    
+end
+ 
+% Get the function to compute the weights for kernel machines
+switch mfunc    
+    case 'prt_machine_gpclap'
+        m.function  = 'prt_weights_gpclap';
+    case 'prt_machine_sMKL_cla'
+        m.function = 'prt_weights_sMKL_cla';
+    case 'prt_machine_wip_cla'
+        m.function = 'prt_weights_sMKL_cla';
+    case 'prt_machine_RT_bin'
+        error('prt_compute_weights:MachineNotSupported',...
+            'Error: weights computation not supported for this machine!');        
+    otherwise
+        m.function  = 'prt_weights_bin_linkernel';
+end
+
+
+
+% Finalize image names with full path
 % -------------------------------------------------------------------------
-samp_idx = PRT.model(model_idx).input.samp_idx;
+nimage = length(img_mach);
+img_name = cell(nimage,1);
+finimg_name = cell(nimage,1);
+for c = 1:nimage
+    img_name{c}    = fullfile(in.pathdir,[appendn,img_mach{c}]); % Need to create a temporary image for MEEG before discarding NaN weights
+    finimg_name{c} = fullfile(in.pathdir,img_mach{c});
+end
+% 
+% if flag2 % weights per region, can only come from MKL that is binary
+%     img_name{1}   = fullfile(in.pathdir,[appendn,in.img_name,ext]);
+%     finimg_name{1}= fullfile(in.pathdir,[in.img_name,ext]);
+% end
+
+
+% Gather other info
+% -------------------------------------------------------------------------
+if kernel %get info to retrieve the data
+    samp_idx = PRT.model(model_idx).input.samp_idx;
+    ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
+    ID_all = PRT.fs(fs_idx).id_mat;
+end
 nfold    = length(PRT.model(model_idx).output.fold);
-ID     = PRT.fs(fs_idx).id_mat(PRT.model(model_idx).input.samp_idx,:);
-ID_all = PRT.fs(fs_idx).id_mat;
 
 % Get the indexes of the voxels which are in the first/second level mask
 % -------------------------------------------------------------------------
@@ -174,7 +199,7 @@ if isempty(PRT.fs(fs_idx).modality(mm(1)).idfeat_fas) % get the 2nd level maskin
 else
     idfeat_fas = PRT.fs(fs_idx).modality(mm(1)).idfeat_fas;
 end
-if PRT.fs(fs_idx).multkernelROI
+if PRT.fs(fs_idx).multkernelROI % Get indices when an atlas is used
     m_train = cell(length(PRT.fs(fs_idx).modality(mm(1)).idfeat_img),1);
     for i = 1:length(PRT.fs(fs_idx).modality(mm(1)).idfeat_img)
         tmp1 = PRT.fs(fs_idx).modality(mm(1)).idfeat_img{i};
@@ -393,7 +418,7 @@ for p=0:maxp
                     % weights saved directly in PRT
                     w = PRT.model(model_idx).output.fold(f).w;
                     
-                    for icl = 1:size(w,2) % Loop over classes
+                    for icl = 1:size(w,2) % Loop over tasks or classes (for now it is exclusive)
                         % get slice
                         wimg{icl} = w(feat_slc,icl);
                     end

@@ -628,7 +628,7 @@ if disp_vox
     set(handles.disp_voxels,'Value',1)
     set(handles.disp_regions,'Value',0)
     if isfield(handles.PRT.model(mi(m)).output,'weight_atlas') &&... % chosen model has ROI values
-         ~isempty(handles.PRT.model(mi(m)).output.weight_atlas) &&...
+         ~isempty(handles.PRT.model(mi(m)).output.weight_atlas{1}) &&...
        ~isempty(handles.PRT.model(mi(m)).output.weight_atlas{handles.class})
         set(handles.disp_regions,'Enable','on');
     else
