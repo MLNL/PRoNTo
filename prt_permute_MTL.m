@@ -1,4 +1,22 @@
 function [out] = prt_permute_MTL(PRT,mid,fname,maxnp)
+% Computes permutations for MTL models based on the single task model
+% permutations.
+% Before using this code, ensure you have run permutations on the tasks
+% independently and have saved the permutation parameters for each.
+%
+% Inputs:
+% PRT       : PRT structure after loading
+% mid       : index of model to permute
+% fname     : full path and name of PRT.mat file
+% maxnp     : maximum number of permutations. If the sub-models were run
+% with a lot of permutations, this value will cap it to the first maxnp
+% permutations.
+% 
+% Output:
+% full path to updated PRT structure containing p-values for each stat.
+% -------------------------------------------------------------------------
+% Written by J. Schrouff for PRoNTo, Copyright 2011 MLNL, UCL.
+
 
 models = PRT.model(mid).input.models_MTL;
 
@@ -14,7 +32,6 @@ end
 if maxnp<nperm
     nperm = maxnp;
 end
-disp(['Computing ',num2str(nperm),' permutations'])
 
 tokeep = cell(length(models),1);
 trueperf = PRT.model(mid).output;
@@ -39,7 +56,16 @@ switch PRT.model(mid).output.fold(1).type
         total_greater_r2_task = zeros(length(models),1);
 end
 
-for p = 1:nperm
+fprintf(['Permutation (out of %d):',repmat(' ',1,ceil(log10(nperm))),'%d'],nperm, 1);
+for p=1:nperm
+    
+    % Counter of permutations to be updated
+    if p>1
+        for idisp = 1:ceil(log10(p)) % delete previous counter display
+            fprintf('\b');
+        end
+        fprintf('%d',p);
+    end
     
     % Change the targets in the model input to the permuted targets
     for i=1:length(models)
@@ -59,7 +85,7 @@ for p = 1:nperm
     % Compare stats from permuted model to 'true' stats
     switch PRT.model(mid).output.fold(1).type
         
-        case 'classifier'
+        case {'classifier','classification'}
             permutation.b_acc(p)=perm_stats.b_acc;
             
             if (perm_stats.b_acc >= trueperf.stats.b_acc)
@@ -84,6 +110,13 @@ for p = 1:nperm
                 permutation.c_acc(c,p)=perm_stats.c_acc(c);
                 if (perm_stats.c_acc(c) >= trueperf.stats.c_acc(c))
                     total_greater_c_acc(c)=total_greater_c_acc(c)+1;
+                end
+            end
+            
+            for c=1:length(models)
+                permutation.bacc_task(c,p)=perm_stats.task_bacc(c);
+                if (perm_stats.task_bacc(c) >= trueperf.stats.task_bacc(c))
+                    total_greater_bacc_task(c)=total_greater_bacc_task(c)+1;
                 end
             end
             
@@ -113,28 +146,29 @@ for p = 1:nperm
             end
     end
 end
+fprintf('\n') % new line
 
 %Compute p-values
 switch PRT.model(mid).output.fold(1).type
-    case 'classifier'
+    case {'classifier','classification'}
         
-        pval_b_acc = (total_greater_b_acc+1) / (n_perm+1);        
+        pval_b_acc = (total_greater_b_acc+1) / (nperm+1);        
         if isnan(total_greater_auc)
             pval_auc = NaN;
         elseif ~isempty(total_greater_auc)
-            pval_auc = (total_greater_auc+1) / (n_perm+1);
+            pval_auc = (total_greater_auc+1) / (nperm+1);
         else
             pval_auc = [];
         end
         
         pval_c_acc=zeros(n_class,1);
         for c=1:n_class
-            pval_c_acc(c) = (total_greater_c_acc(c)+1) / (n_perm+1);
+            pval_c_acc(c) = (total_greater_c_acc(c)+1) / (nperm+1);
         end
         
         pval_bacc_task=zeros(length(models),1);
         for c=1:length(models)
-            pval_bacc_task(c) = (total_greater_bacc_task(c)+1) / (n_perm+1);
+            pval_bacc_task(c) = (total_greater_bacc_task(c)+1) / (nperm+1);
         end
         
         permutation.pvalue_b_acc = pval_b_acc;
@@ -144,14 +178,14 @@ switch PRT.model(mid).output.fold(1).type
         
     case 'regression'
         
-        pval_corr = (total_greater_corr+1) / (n_perm+1);        
-        pval_mse = (total_greater_mse+1) / (n_perm+1);        
-        pval_nmse = (total_greater_nmse+1) / (n_perm+1);        
-        pval_r2 = (total_greater_r2+1) / (n_perm+1);
+        pval_corr = (total_greater_corr+1) / (nperm+1);        
+        pval_mse = (total_greater_mse+1) / (nperm+1);        
+        pval_nmse = (total_greater_nmse+1) / (nperm+1);        
+        pval_r2 = (total_greater_r2+1) / (nperm+1);
         
         pval_r2_task=zeros(length(models),1);
         for c=1:length(models)
-            pval_r2_task(c) = (total_greater_r2_task(c)+1) / (n_perm+1);
+            pval_r2_task(c) = (total_greater_r2_task(c)+1) / (nperm+1);
         end
         
         permutation.pval_corr = pval_corr;

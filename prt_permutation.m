@@ -78,15 +78,24 @@ else
     t = PRT.model(modelid(1)).input.targets;
     
     % load data files and configure ID matrix
+    % ----------------------------------------
     if ~isfield(PRT.model(modelid(1)).input,'indmodels')
         indmodels = 0;
     else
         indmodels = PRT.model(modelid(1)).input.indmodels;
     end
-    [Phi_all,ID,fid] = prt_getKernelModel(PRT,prt_dir,modelid(1),indmodels);
+    
+    if PRT.model(modelid(1)).input.use_kernel
+        %load kernels and get the used sample in this model
+        [Phi_all,ID,fid] = prt_getKernelModel(PRT,prt_dir,modelid(1),indmodels);
+    else
+        % Otherwise load features for non-kernel machine
+        [Phi_all,ID,fid] = prt_getFeatureModel(PRT,modelid(1));
+    end
     
     %get number of classes
-    if strcmpi(PRT.model(modelid(1)).input.type,'classification')
+    if strcmpi(PRT.model(modelid(1)).input.type,'classification') || ...
+            strcmpi(PRT.model(modelid(1)).input.type,'classifier')
         nc=max(unique(t));
     else
         nc=[];
