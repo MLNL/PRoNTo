@@ -8,6 +8,7 @@ function [outfile] = prt_cv_MTL(PRT,in)
 % in.fname:        filename for PRT.mat (string)
 % in.model_name:   name for this model (string)
 % in.models_MTL:   names of models to combine (cell array)
+% in.savePRT:      whether to save PRT or not (for permutations, default 1)
 %
 % Outputs:
 % --------

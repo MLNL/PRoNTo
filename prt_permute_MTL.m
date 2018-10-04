@@ -39,6 +39,7 @@ trueperf = PRT.model(mid).output;
 in.model_name = PRT.model(mid).model_name;
 in.models_MTL = {PRT.model(models).model_name};
 in.fname = fname;
+in.savePRT = 0;
 
 switch PRT.model(mid).output.fold(1).type
     case {'classifier','classification'}
@@ -56,16 +57,12 @@ switch PRT.model(mid).output.fold(1).type
         total_greater_r2_task = zeros(length(models),1);
 end
 
-fprintf(['Permutation (out of %d):',repmat(' ',1,ceil(log10(nperm))),'%d'],nperm, 1);
+
 for p=1:nperm
     
     % Counter of permutations to be updated
-    if p>1
-        for idisp = 1:ceil(log10(p)) % delete previous counter display
-            fprintf('\b');
-        end
-        fprintf('%d',p);
-    end
+    disp(['Compute for permutation ',num2str(p),' of ',num2str(nperm)])
+    disp('---------------------------------------------------')
     
     % Change the targets in the model input to the permuted targets
     for i=1:length(models)
@@ -79,7 +76,6 @@ for p=1:nperm
     
     % Run MTL on permuted targets from all tasks
     out = prt_cv_MTL(PRT,in);
-    load(out)
     
     perm_stats = PRT.model(mid).output.stats;
     % Compare stats from permuted model to 'true' stats
