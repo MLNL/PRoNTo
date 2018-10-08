@@ -130,14 +130,14 @@ Remember, if you want to use the version that you have just compiled, you have t
 \section{What's new?}
 %==========================
 \subsection{Version 2.1}
-This version of the toolbox is released mainly to provide a bug-fixed version of v2.0. One new functionality is added: removing confounds . A detailed description of this version can be found: \url{http://www.cs.ucl.ac.uk/fileadmin/UCL-CS/research/Research_Notes/RN_17_09_ARJMM.pdf}. 
+This version of the toolbox is released mainly to provide a bug-fixed version of v2.0. One new functionality is added: removing confounds. A detailed description of this procedure can be found at \url{http://www.cs.ucl.ac.uk/fileadmin/UCL-CS/research/Research_Notes/RN_17_09_ARJMM.pdf}. 
 
 Below is a list of selected bug fixes that might affect your use of the software or previously obtained results: 
 \begin{itemize}
 \item \textbf{HRF delay and overlap}: In the Data\&Design module users can define parameters to approximate the HRF shape (namely HRF delay and overlap). In earlier versions, the values could only be entered once and applied to all modalities. This has now been fixed to allow different values for different modalities. Although the GUI has not changed, the bug has been fixed for the GUI too.   
 \item \textbf{Freeze the Review data window}: In relation to the HRF delay and overlap bug fix, the Review data is now 'on wait' until closed. This means that no operation (in PRoNTo or in Matlab) can be done until the window is closed. This ensures that values input in the Data review GUI are passed to the main Data and Design window.   
 \item \textbf{ROC and AUC}: There was a bug in how we computed the area under the curve (AUC) and plotted the receiver operating characteristic (ROC) curve tha we have now fixed. This means that different AUC values and ROC plots might be observed, if comparing previously obtained results in older versions and in v2.1. We hence recommend re-computing AUC and re-plotting ROC if needed. 
-\item \textbf{k-fold CV}: Before v2.1, when using k-fold cross validation (CV) and the number of samples is not divisible by k, we re-allocated the remainder to the last fold by default before. For example, a 4 fold CV with 43 samples would lead to 4 folds of size 10,10,10 and 13 respectively. In v2.1, the remainder is evenly re-allocated to each fold, starting from the first. The above example would then lead to folds of size 11, 11, 11 and 10. This change affects all k-fold CV scheme and should then be taken into consideration if comparing results from older versions with results from v2.1.  
+\item \textbf{k-fold CV}: Before v2.1, when using k-fold cross validation (CV) and the number of samples was not divisible by k, we re-allocated the remainder to the last fold by default before. For example, a 4 fold CV with 43 samples would lead to 4 folds of size 10,10,10 and 13 respectively. In v2.1, the remainder is evenly re-allocated to each fold, starting from the first. The above example would then lead to folds of size 11, 11, 11 and 10. This change affects all k-fold CV scheme and should then be taken into consideration if comparing results from older versions with results from v2.1.  
  
 \end{itemize}
 
