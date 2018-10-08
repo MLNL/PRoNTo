@@ -9,31 +9,28 @@
 This chapter will describe the steps necessary to remove confounding effects using PRoNTo in a regression approach. These are similar to the ones used in the previous chapter, thus, the reader is advised to complete the tutorial in Chapter \ref{sec:confounds_clas} before moving on, since the explanation of some steps will be less descriptive. The dataset used in this chapter can be found on PRoNTo's website \url{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} (data set 3).
 
 
-As in previous Chapters, we will start analyzing the data with the PRoNTo's GUI and then repeating the analysis using the {\tt matlabbatch}  system. Please create a folder in your computer to store the results and type
+As in previous Chapters, we will start analyzing the data with PRoNTo's GUI and then repeating the analysis using the {\tt matlabbatch}  system. Please create a folder in your computer to store the results and type `prt’ or `pronto’ in the MATLAB prompt. This will open the main interface of PRoNTo (see Figure \ref{fig:mainInterface} in Chapter \ref{sec:Block_design_fMRI_dataset}).
 
 \section{GUI analysis}
-
-We will first analyse the data using PRoNTo's GUI and then repeat the analysis using the {\tt matlabbatch} system, then start up MATLAB and type `prt’ or `pronto’ in the MATLAB prompt. This will open the main interface of PRoNTo (see Figure \ref{fig:mainInterface} in Chapter \ref{sec:Block_design_fMRI_dataset}).
 
 %--------------------------------------------------------------------------
 \subsection{Data \& Design}
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Data \& Design' 
-	and a new window will open, `Data and design' (Figure \ref{fig:dataDesign}). Like in previous chapters, browse the directory in which to save the PRT structure (saved as `PRT.mat'); 
+	\item In PRoNTo's main window, click on `Data \& Design' and a new window will open, `Data and design' (Figure \ref{fig:dataDesign}). Like in previous chapters, browse the directory in which to save the PRT structure (saved as `PRT.mat'); 
 	
 	\item In the panel ‘Groups’, click on ‘Add’ and provide a name to the group, e.g. `Aged'. 
 	
-	\item All the images in the dataset correspond to different subjects; therefore, click on the ‘Scans’ tick box. This will lock the ‘Subjects/Scans’ field, allowing you to skip to the third field. See Chapter \ref{sec:Block_design_fMRI_dataset} of the manual for more information on this option; 
+	\item All the images in the dataset correspond to different subjects; therefore, click on the ‘Scans’ tick box. This will lock the ‘Subjects/Scans’ field, allowing you to skip to the third field. 
 	
 	\item In the `Modalities' panel, click on `Add' and provide a name to the modality, e.g. `MRI'.
 	
-	\item Load all the image files available in the directory (IXIdata/aged/Guys/). You can select all the files by using the right mouse button and clicking on the option `Select All'. When all the images are selected, click on the `Done' button;
+	\item Load all the image files available in the directory (IXIdata/aged/Guys/). You can select all the files by using the right mouse button and clicking on the option `Select All' or clicking on the first image then shift-click on the last. Please ensure that the order of the images in the selection is as what you expect. When all the images are selected, click on the `Done' button;
 	
-	\item In the `Covariates' field, type the covariates you want to regress out. In this example, `Gender' is the one chosen. As in the previous chapter, covariates can be input to PRoNTo by directly copying values into the Covariate if there is only one confounding factor, or by typing the full path of the R matrix containing either one column or multiple columns. Note: removing a variable encoding for acquisition centres does not fully solve the problem of different data distributions across centres, potentially as this effect is not linear;
+	\item In the `Covariates' field, type the covariates you want to regress out. In this example, `Gender' is the one chosen. As in the previous chapter, covariates can be input to PRoNTo by directly copying values into the Covariate if there is only one confounding factor, or by typing the full path of the {\tt R} matrix containing either one column or multiple columns. As `Gender' is categorical, one-hot encoding was used (i.e. one column for males and one column for females in the `R' matrix).
 	
-	\item In the `Regression targets' field, write (or paste) the list of target values available in the `Age\_old\_Guys' file (IXIdata/aged/), or input the full path of a rt\_subj.mat file containing the target values in a column. The final window should look like to the Figure \ref{fig:covariates_reg}. Press `OK'; 
+	\item In the `Regression targets' field, write (or paste) the list of target values available in the `Age\_old\_Guys' file (IXIdata/aged/), or input the full path of a  file containing the target values in a column (saved in a `rt\_subj' variable). The final window should look like to the Figure \ref{fig:covariates_reg}. Press `OK'; 
 	
 	\begin{figure}[!h]
 	\centering
@@ -42,15 +39,15 @@ We will first analyse the data using PRoNTo's GUI and then repeat the analysis u
 	\label{fig:covariates_reg}
 	\end{figure}
 	
-	\item In the `Masks' field, on the bottom left of the `Data and design' window, select the `mergedsmwrc1\_mask\_01' mask for the modality specified (Figure 12.6);
+	\item In the `Masks' field, on the bottom left of the `Data and design' window, select the `mergedsmwrc1\_mask\_01' mask for the modality specified;
 	
-	\item The `Data and design' window should look similar to Figure \ref{fig:data_and_design_reg}. Click on the `Save' button to create `PRT.mat' file with the structure containing the information that has been previously specified. If no errors are shown in the MATLAB command, leave the `Data and design' window by clicking `Quit'.
+	\item The `Data and design' window should look similar to Figure \ref{fig:data_and_design_reg}. Click on the `Save' button to create the `PRT.mat' file with the structure containing the information that has been previously specified. If no errors are shown in the \matlab command, leave the `Data and design' window by clicking `Quit'.
 
 \begin{figure}[!h]
-	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/confounds/Data_and_design_reg.png}
-	\caption{`Data and design' GUI final configuration..}
-	\label{fig:data_and_design_reg}
+\centering
+\includegraphics[scale=0.45]{images/Tutorial/confounds/Data_and_design_reg.png}
+\caption{`Data and design' GUI final configuration.}
+\label{fig:data_and_design_reg}
 \end{figure}
 
 \end{itemize}
@@ -62,15 +59,8 @@ We will first analyse the data using PRoNTo's GUI and then repeat the analysis u
 \begin{itemize}
 	
 	\item In PRoNTo's main window, click on `Prepare feature set' and a new window will open, `Prepare feature set' (see Figure \ref{fig:prepareFeature} in Chapter \ref{sec:Block_design_fMRI_dataset});
+	
 	\item Select the `PRT.mat' file previously created in the `Data \& Design' step and another window will open, `Specify modality to include' (see Figure \ref{fig:specifyModality} in Chapter \ref{sec:confounds_clas});
-
-	%
-%	\begin{figure}[!h]
-%	\centering
-%		\includegraphics[scale=0.7]{images/Tutorial/confounds/specify_modality.png}
-%	\caption{`Specify modality to include' GUI.}
-%	\label{fig:specifyModality}
-%	\end{figure}
 		
 	\item In the `Prepare feature set' window, provide a name for the feature set, e.g. `KRRAged';
 
@@ -106,7 +96,7 @@ We will first analyse the data using PRoNTo's GUI and then repeat the analysis u
 	
 	\item Select the `Kernel Ridge Regression' option, in the Machine field;	
 	
-	 \item Check the option `Optimize hyper-parameter' tick box (we will see later the importance of optimizing the hyperparameter when the confounds are removed). Type `10.\textasciicircum{}[-5:5]' on the right field. Then, select `k-fold CV on Subject-Out' option in the `Cross-Validation Scheme' field (internal loop). After that, type `5' in the new window that will open (see Figure \ref{fig:cv_reg});
+	 \item Check the option `Optimize hyper-parameter' tick box. Type `10.\textasciicircum{}[-5:5]' on the right field. Then, select `k-fold CV on Subject-Out' option in the `Cross-Validation Scheme' field (internal loop). After that, type `5' in the new window that will open (see Figure \ref{fig:cv_reg});
 	
 		\begin{figure}[!h]
 	\centering
@@ -139,30 +129,18 @@ We will first analyse the data using PRoNTo's GUI and then repeat the analysis u
 	
 	\item In PRoNTo's main window, click on `Display results' and select the `PRT.mat' file. This will open the main results window (Figure \ref{fig:results_reg});
 	
+	\item In the `Results' window, select the `KRR' model and `All folds'. The results should look like (Figure \ref{fig:results_reg});
+	
 \begin{figure}[h!]
 	\centering
 		\includegraphics[scale=0.65]{images/Tutorial/confounds/results_reg.png}
 	\caption{`Results' GUI.}
 	\label{fig:results_reg}
 \end{figure}
-
-%\begin{figure}[h!]
-%	\centering
-%		\includegraphics[scale=0.65]{images/Tutorial/confounds/results_no_opt.png}
-%	\caption{`Results' GUI when the hyper-parameter is not optimized.}
-%	\label{fig:results_no_opt}
-%\end{figure}
 	
-	
-   \item In the `Results' window, one can select the different regression models in the `Model' list on the upper right region. This will show the results obtained using each one of the regression models.
-
-   \item It is important to optimize the hyperparameter when we try to remove confounds. From our experience, results without the hyperparameter optimization may be significantly different from results with hyperparameter optimization. But this effect may be data dependent. We therefore highly suggest users choose to perform this step. 
-   %In Figure \ref{fig:results_no_opt} we can see the results when this operation is not done, where the different subjects are split according to their gender, getting two different regressions. 
-
 \end{itemize}
 
 %------------------------------------------------------------------
-
 
 \subsection{Compute weights (optional step)}
 
@@ -221,7 +199,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 		
 		\begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/confounds/Data_and_design_reg_batch.png}
+		\includegraphics[scale=0.7]{images/Tutorial/confounds/Data_and_design_reg_batch.png}
 	\caption{Data and design module in {\tt matlabbatch}. }
 	\label{fig:Data_and_design_reg_batch}
 	\end{figure}
@@ -229,9 +207,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 		
 	\end{itemize}
 	
-	\item In the `Masks' field, add a new modality and provide the same modality name, `fMRI'; and select the `whole\_brain' mask available in the masks directory of the Haxby dataset. The name of the modality here has to be exactly the same as in `Modalities', otherwise it will not work;
-	
-	%checar aqui
+	\item In the `Masks' field, add a new modality and provide the same modality name, `MRI'; and select the `mergedsmwrc1\_mask\_01' mask for the modality specified.
 	
 	\item Leave the `HRF overlap' and the `HRF delay' fields as default;
 	
@@ -260,7 +236,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 	
 	\item In the `Voxels to include' field, select `All voxels' option, this means we are not entering an additional second-level mask;
 	
-	\item In the `Detrend' field, select `Polynomial detrend' option with order 1;
+	\item In the `Detrend' field, select `None';
 	
 	\item In the `Scale input scans' field, select `No scaling' option;
 	
@@ -275,7 +251,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 	
 	\end{itemize}
 	
-	\item Leave the `Generate Multiple Kernels' and the `Use one kernel per modality' fields as default.
+	\item Leave the `Use one kernel per modality' field as default.
 	
 
 \end{itemize}
@@ -300,9 +276,9 @@ Once again, to analyse the data, create a new directory in which to save the res
 	
 		\begin{itemize}
 		
-    		\item Add a new group and call it `Aged';
+    		\item Add a new group and call it `Aged', as in the `Data and Design' step;
 		
-		   \item In the `Subjects' field, type `1:102'. This will instruct the program to use all the 102 scans, i.e. from scan 1 to scan 102;
+		   \item In the `Subjects' field, type {\tt 1:102}. This will instruct the program to use all the 102 scans, i.e. from scan 1 to scan 102;
 		    \end{itemize}		
 		
 	\item In the `Machine' field:
@@ -310,8 +286,7 @@ Once again, to analyse the data, create a new directory in which to save the res
 	\begin{itemize}
    \item Select the `Kernel Ridge Regression' option:
 	
-	\item Change the `Optimize hyper-parameter' field as to `Yes'; Type `10.\textasciicircum{}[-5:5]' on the `Regularization' field. Then, select `k-fold CV on Subject-Out' option in the `Cross-Validation Scheme' field (internal loop).
-	After that, type `5' in `k' field;
+	\item Change the `Optimize hyper-parameter' field as to `Yes'; Type `10.\textasciicircum{}[-5:5]' on the `Regularization' field. Then, select `k-fold CV on Subject-Out' option in the `Cross-Validation Scheme' field (internal loop). After that, type {\tt 5} in `k' field;
 		
 	\end{itemize}
 	
@@ -352,3 +327,4 @@ Once again, to analyse the data, create a new directory in which to save the res
 
 \end{itemize}
 
+We are now ready to run the batch: the arrow on top of the {\tt matlabbatch} should be green and can be clicked. If the arrow is gray, check the different modules for missing inputs (displayed by an `X'). The outputs should be the same as with the GUI.

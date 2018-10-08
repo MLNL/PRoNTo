@@ -14,7 +14,9 @@ function prt_plot_ROC(PRT, model, fold, axes_handle)
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
-% Written by M. J. Rosa
+% Written by M. J. Rosa, modified by T. Wu.
+% Reference: Fawcett, T. (2006). An introduction to ROC analysis. Pattern 
+% Recognition Letters, 27(8), 861–874. https://doi.org/10.1016/J.PATREC.2005.10.010
 % $Id: prt_plot_ROC.m 706 2013-06-07 14:33:34Z cphillip $
 
 
@@ -35,12 +37,10 @@ if fold == 1
                 PRT.model(model).output.fold(f).predictions];
         end
     end
-    targpos = targets == 1; 
     
 else
     % if folds wise
     targets = PRT.model(model).output.fold(fold-1).targets;
-        targpos = targets == 1;
     if isfield(PRT.model(model).output.fold(fold-1),'func_val')
         fVals  = PRT.model(model).output.fold(fold-1).func_val;
         fVvals_exist = 1;
@@ -63,20 +63,63 @@ end
 
 rotate3d off
 cla(axes_handle, 'reset');
-[y,idx] = sort(fVals,'descend');
-targpos = targpos(idx);
 
-tp      = cumsum(single(targpos))/sum(single(targpos));
-fp      = cumsum(single(~targpos))/sum(single(~targpos));
+% Check that how many classes are there in the targets
+numClass = numel(unique(targets(:)));
 
-tp      = [0 ; tp ; 1];
-fp      = [0 ; fp ; 1];
+if numClass == 2
+    % Compute tpr and fpr
+    targpos = targets==1;
+    numPos = sum(targpos);
+    numNeg = sum(~targpos);
 
-n       = size(tp, 1);
-A       = sum((fp(2:n) - fp(1:n-1)).*(tp(2:n)+tp(1:n-1)))/2;
+    if numPos<=0 || numNeg<=0
+        error('The number(s) of test positives and/or negatives cannot be negative or zero.');
+    else
+        [s_scores,idx] = sort(fVals,'descend');
+        s_targets = targets(idx);% Sorted targets
+
+        tp = 0;
+        fp = 0;
+        thr_prev = s_scores(1)+1; % For (0,0) in ROC space
+        num_scores = length(s_scores);
+        num_thr = length(unique(s_scores))+1;
+        tpr = [];
+        fpr = [];
+        i = 1;
+        j = 1;
+        while i<=num_scores && j<=num_thr
+            if thr_prev~=s_scores(i)
+                tpr(j,1) = tp/numPos;
+                fpr(j,1) = fp/numNeg;
+                thr_prev = s_scores(i);
+                j = j+1;
+            end
+
+            if s_targets(i)==1
+                tp = tp+1;
+            else
+                fp = fp+1;
+            end
+
+            i = i+1; 
+        end
+        tpr(j,1) = tp/numPos; % (1,1) in ROC space
+        fpr(j,1) = fp/numNeg;
+    end
+
+else
+    % Cannot compute tpr and fpr if there is only one class in the targets
+    tpr = NaN;
+    fpr = NaN;
+end 
+
+
+n       = size(tpr, 1);
+A       = sum((fpr(2:n) - fpr(1:n-1)).*(tpr(2:n)+tpr(1:n-1)))/2;
 %
 %                 axis xy
-plot(axes_handle,fp,tp,'--ks','LineWidth',1, 'MarkerEdgeColor','k',...
+plot(axes_handle,fpr,tpr,'--ks','LineWidth',1, 'MarkerEdgeColor','k',...
     'MarkerFaceColor','k',...
     'MarkerSize',2);
 title(axes_handle,sprintf('Receiver Operator Curve / Area Under Curve = %3.2f',A));
