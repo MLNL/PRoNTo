@@ -105,7 +105,7 @@ if ~isempty(in.img_name)
     end
     basisname = in.img_name;
 else
-    basisname = ['weights_',mname,ext];
+    basisname = ['weights_',mname];
 end
 
 if isfield(PRT.model(model_idx).input,'models_MTL') &&...

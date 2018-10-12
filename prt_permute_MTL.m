@@ -75,7 +75,7 @@ for p=1:nperm
     end
     
     % Run MTL on permuted targets from all tasks
-    out = prt_cv_MTL(PRT,in);
+    PRT = prt_cv_MTL(PRT,in);
     
     perm_stats = PRT.model(mid).output.stats;
     % Compare stats from permuted model to 'true' stats
@@ -191,9 +191,6 @@ switch PRT.model(mid).output.fold(1).type
         permutation.pval_r2_task = pval_r2_task;
 end
 
-%update PRT
-PRT.model(mid).output.stats.permutation = permutation;
-
 % Restore tasks' true targets
 for i=1:length(models)
     PRT.model(models(i)).input.targets = tokeep{i};
@@ -201,6 +198,9 @@ end
 
 % Restore model output
 PRT.model(mid).output = trueperf;
+
+%update PRT
+PRT.model(mid).output.stats.permutation = permutation;
 
 % Save PRT containing permutation output
 % -------------------------------------------------------------------------

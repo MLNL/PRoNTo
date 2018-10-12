@@ -102,18 +102,22 @@ if ~isempty(regexp(args,'-s\s+[1]','once')) % Feature learning
     method = Train.rls_mtl_dual('trace');
 elseif ~isempty(regexp(args,'-s\s+[2]','once')) % Independent learning
     method = Train.rls_mtl_dual('ind');
-elseif ~isempty(regexp(args,'-s\s+[3]','once')) % Output kernel learning
-    method = Train.rls_mtl_dual('frobenius');
+elseif ~isempty(regexp(args,'-s\s+[3]','once')) % Variance
+    if length(vals)<2 %only one argument, fix gamma
+        gamma = 0.01;
+    else
+        gamma = vals(2);
+    end
+    A = eye(nt,nt) - gamma*ones(nt,nt);
+    [~,p] = chol(A); %check A is psd
+    if p
+        error('prt_machine_KernelMTL:FixednotPSD',...
+            'Fixed relationship matrix A must be positive definite')
+    end
+    tmp_train_method = Train.rls_mtl_dual('fix');
+    method = @(X,Y,lambda) tmp_train_method(X,Y,lambda,A);
 end
   
-% Need to do something for classification and regression but do not know
-% what
-% Classification
-% if ~reg   
-% % Regression
-% else
-% end
-
 % prepare the learning machine 
 lm = LearningMachine;
 lm.verbose = false;
@@ -123,7 +127,21 @@ lm.setTrain(method);
 
 % call the Train/Test methods
 lm.Train(Ktr,d.tr_targets,vals(1));
-predictions = lm.Test(Kts);
+pred = lm.Test(Kts);
+
+% Need to do take the sign of predictions for classification 
+if ~reg   
+    predictions = cell(1,nt);
+    for t = 1:nt
+        pred{t} = sign(pred{t});
+        c1PredIdx        = pred{t}==1; 
+        pred{t}(c1PredIdx)  = 1; %positive values = 1 
+        pred{t}(~c1PredIdx) = 2; %negative values = 2 
+        predictions{t} = pred{t};
+    end
+else
+    predictions = pred;
+end
 
 
 % Outputs

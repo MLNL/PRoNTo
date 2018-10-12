@@ -190,6 +190,8 @@ stats.corr      = mean([task_stats(:).corr]);
 stats.r2        = mean([task_stats(:).r2]);
 stats.task_stats= task_stats;
 stats.task_r2   = [task_stats(:).r2];
+% stats.task_r   = [task_stats(:).corr];
+% stats.task_mse   = [task_stats(:).mse];
 
 end
 
