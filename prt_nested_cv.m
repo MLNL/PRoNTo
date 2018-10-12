@@ -49,7 +49,7 @@ if iscell(PRT.model(in.mid).input.nested_param)
         end
     end
     % Convert them to a matrix with all the combinations
-    eval(['[',outmesh,'] = meshgrid(',inmesh,');']);
+    eval(['[',outmesh,'] = meshgrid(',inmesh,');']); %replace by ndgrid later on
     eval(['par = [',outpar,'];'])
     par = par';
 else
@@ -191,7 +191,7 @@ for i = 1:size(par, 2)
 %                   stats_vec(i) = tstats.auc;
 %               end
         case 'regression'
-            stats_vec(i) = tstats.nmse;
+            stats_vec(i) = tstats.mse;
         otherwise
             error('Type of model not recognised');
     end
@@ -202,13 +202,11 @@ end
 % For now, only parameter optimisation. Add flag for feature selection
 % Get optimal parameter
 
-
-if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_wip_cla') || ...
-        strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_GMKL_cla')
+numpar = size(par,1);
+if numpar==2 %Grid search    
     
     % Reshape the stats vector into a matrix
-    stats_mat = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';
-    
+    stats_mat = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';    
     cos_mat = reshape(cosang, length(unique(par(2,:))), length(unique(par(1,:))))';
     if opt_Rep && isfield(f_stats,'beta')        
         w1=1;
@@ -222,20 +220,20 @@ if strcmp(PRT.model(in.mid).input.machine.function, 'prt_machine_wip_cla') || ..
         case 'classification'
             % Find max
             st = (stats_mat*w1 + cos_mat*w2) / (w1+w2);
-            opt_stats_ind = get_opt_stats_ind(st, 2, true);
+            opt_stats_ind = get_opt_stats_ind(st, numpar, true);
         case 'regression'
             % Find min
             st = (stats_mat*w1 + (1-cos_mat)*w2) / (w1+w2);
-            opt_stats_ind = get_opt_stats_ind(st, 2, false);
+            opt_stats_ind = get_opt_stats_ind(st, numpar, false);
     end
-    c_max = c(opt_stats_ind(1));
-    mu_max = mu(opt_stats_ind(2));
+    c1_max = c1(opt_stats_ind(1));
+    c2_max = c2(opt_stats_ind(2));
     
-    out.opt_param = [c_max, mu_max];
+    out.opt_param = [c1_max, c2_max];
     out.vary_param = stats_mat;
     out.vary_cos = cos_mat;
     
-else
+elseif numpar ==1
     
     if opt_Rep && isfield(f_stats,'beta')
         w1=0;
@@ -261,6 +259,10 @@ else
     out.opt_param = par_opt;
     out.vary_param = stats_vec;
     out.vary_cos = cosang;
+    
+else
+    error('prt_nested_cv:MoreThan2Hyperparmeters',...
+        'Cannot optimize more than 2 hyper-parameters')
 end
 
 end
@@ -318,7 +320,7 @@ switch n_par
             opt_stats = min(min(stats));
         end
         
-        [ind_c, ind_mu] = find(stats==opt_stats);
+        [ind_c1, ind_c2] = find(stats==opt_stats);
         indopt = find(stats==opt_stats);
         
         if length(indopt)>1
@@ -339,20 +341,20 @@ switch n_par
                 opt_stats_ind(2) = floor(stats(indmax).Centroid(1));
             catch
                 iopt = floor(median(1:length(indopt)));
-                opt_stats_ind(1) = ind_c(iopt);
-                opt_stats_ind(2) = ind_mu(iopt);
+                opt_stats_ind(1) = ind_c1(iopt);
+                opt_stats_ind(2) = ind_c2(iopt);
             end
         else % if only one maximum, report it
-            opt_stats_ind(1) = ind_c;
-            opt_stats_ind(2) = ind_mu;
+            opt_stats_ind(1) = ind_c1;
+            opt_stats_ind(2) = ind_c2;
         end
         
         
-%         opt_stats_ind(1) = ind_c(1); %smallest value
-%         opt_stats_ind(2) = ind_mu(1);
+%         opt_stats_ind(1) = ind_c1(1); %smallest value
+%         opt_stats_ind(2) = ind_c2(1);
         
-%         opt_stats_ind(1) = round(median(ind_c));
-%         opt_stats_ind(2) = round(median(ind_mu));
+%         opt_stats_ind(1) = round(median(ind_c1));
+%         opt_stats_ind(2) = round(median(ind_c2));
         
     otherwise
         error('The number of parameters to optimise must be <=2')

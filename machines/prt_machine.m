@@ -205,7 +205,10 @@ end % SANITYCHECK
 if isfield(m,'s_args') && ~isempty(m.s_args)
     % Assume the arguments must be passed as string
     if isfield(m,'args') && ~isempty(m.args) %Need to assemble string and integer, for LIBSVM and LIBLINEAR
-        args = [m.s_args,num2str(m.args)];
+        args = m.s_args;
+        for i=1:numel(m.args)
+            args = [args,num2str(m.args(i)),' '];
+        end
     else
         args = m.s_args; % GPML cases
     end
