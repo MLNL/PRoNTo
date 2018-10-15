@@ -108,7 +108,7 @@ elseif ~isempty(regexp(args,'-s\s+[3]','once')) % Variance
     else
         gamma = vals(2);
     end
-    A = eye(nt,nt) - gamma*ones(nt,nt);
+    A = eye(nt,nt) + gamma*ones(nt,nt);
     [~,p] = chol(A); %check A is psd
     if p
         error('prt_machine_KernelMTL:FixednotPSD',...
