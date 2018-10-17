@@ -50,8 +50,14 @@ for t = 1:ntasks
         opsdata.testcov    = Phi_tt(t);
     end
     
-    % Apply any operations specified
-    ops = PRT.model(m(t)).input.operations(PRT.model(m(t)).input.operations ~=0 );
+    % Apply any operations specified: if imposed at MTL level, extract
+    % these, otherwise get the model specific operations
+    if isfield(PRT.model(in.mid).input,'operations') && ...
+            ~isempty(PRT.model(in.mid).input.operations)
+        ops = PRT.model(in.mid).input.operations(PRT.model(in.mid).input.operations ~=0 );
+    else
+        ops = PRT.model(m(t)).input.operations(PRT.model(m(t)).input.operations ~=0 );
+    end
     if any(ismember(ops,5))
         opsdata.tr_cov = in.cov{t}(tr_idx,:);
         opsdata.te_cov = in.cov{t}(te_idx,:);

@@ -79,6 +79,13 @@ end
 
 dt = cellfun(@transpose,d.train,'UniformOutput',false);
 Xtmp = cell2mat(dt);
+% % perform normlization of the features across all tasks
+% normtrain = zeros(size(Xtmp,1),1);
+% for feat = 1:size(Xtmp,1)
+%     normtrain(feat) = norm(Xtmp(feat,:));
+% end
+% Xtmp = Xtmp ./ repmat(normtrain,1,size(Xtmp,2));
+
 % Add bias
 Xtmp = [Xtmp;ones(1,size(Xtmp,2))];
 % Compute kernel
@@ -86,7 +93,8 @@ Ktr = Xtmp'*Xtmp;
 
 Kts = cell(nt,1);
 for idx_t=1:nt
-    Testd = [d.test{idx_t},ones(size(d.test{idx_t},1),1)];
+%     Testd = [d.test{idx_t} ./ repmat(normtrain',size(d.test{idx_t},1),1),... %normalize features    
+    Testd = [d.test{idx_t} ,ones(size(d.test{idx_t},1),1)]; %add bias
     Kts{idx_t}=Testd*Xtmp;
 end
 
