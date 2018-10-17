@@ -116,15 +116,24 @@ end
 output.predictions = predictions;
 output.func_val    = func_val;
 
-%Weights for
-if ~any(size(model.w)==1) %Multiclass problem
-    output.w           = model.w(:,1:end-1)';
-    output.b           = model.w(:,end);
+if ~d.use_kernel
+    %Weights for primal
+    if ~any(size(model.w)==1) %Multiclass problem
+        output.w           = model.w(:,1:end-1)';
+        output.b           = model.w(:,end);
+    else
+        output.w           = model.w(1:end-1)';
+        output.b           = model.w(end);
+    end
 else
-    output.w           = model.w(1:end-1)';
-    output.b           = model.w(end);
+    if ~any(size(model.w)==1) %Multiclass problem
+        output.alpha       = model.w(:,1:end-1)';
+        output.b           = model.w(:,end);
+    else
+        output.alpha       = model.w(1:end-1)';
+        output.b           = model.w(end);
+    end
 end
-
 
 
 
