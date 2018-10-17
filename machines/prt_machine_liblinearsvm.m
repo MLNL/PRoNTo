@@ -47,9 +47,9 @@ if SANITYCHECK==true
     end
     
     if ~isempty(regexp(args,'-s\s+[01234567]','once')) && ...% Classification machines
-            isempty(regexp(args,'-s\s+[10]','once')) && ... % Not a regression machine
-            isempty(regexp(args,'-s\s+[11]','once')) && ...
-            isempty(regexp(args,'-s\s+[12]','once'))
+            isempty(regexp(args,'-s\s+10','once')) && ... % Not a regression machine
+            isempty(regexp(args,'-s\s+11','once')) && ...
+            isempty(regexp(args,'-s\s+12','once'))
         % check if it is a two-class or a multiclass classification problem    
         uTL=unique(d.tr_targets(:));
         nC=numel(uTL);
@@ -117,6 +117,8 @@ output.predictions = predictions;
 
 if strcmpi(output.type,'classification')
     output.func_val    = -func_val; % Sign is inverted compared to class definition in LIBSVM
+else
+    output.func_val = func_val;
 end
 
 if ~d.use_kernel
