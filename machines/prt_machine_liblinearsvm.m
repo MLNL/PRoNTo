@@ -114,7 +114,10 @@ end
 % Outputs
 %--------------------------------------------------------------------------
 output.predictions = predictions;
-output.func_val    = func_val;
+
+if strcmpi(output.type,'classification')
+    output.func_val    = -func_val; % Sign is inverted compared to class definition in LIBSVM
+end
 
 if ~d.use_kernel
     %Weights for primal
