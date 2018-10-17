@@ -130,6 +130,9 @@ else
 end
 
 cnt = 1;
+if nclass == 2 %binary classification, build a single image
+    nclass = 1;
+end
 img_mach = cell(length(nmodels)*nclass,1);
 for imodel = 1:length(nmodels)
     if nmodels>1 %get the name of the task
