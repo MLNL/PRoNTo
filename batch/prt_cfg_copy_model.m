@@ -674,7 +674,8 @@ mach_cl_nonkernel.help   = {...
 mach_cl_kernel       = cfg_choice;
 mach_cl_kernel.tag    = 'mach_cl_kernel';
 mach_cl_kernel.name   = 'Kernel machine';
-mach_cl_kernel.values = {svm,libl2KLR, gpc, gpclap, sMKL_cla, custom_machine}; 
+mach_cl_kernel.values = {svm,gpc, gpclap, sMKL_cla, custom_machine}; 
+% mach_cl_kernel.values = {svm,libl2KLR, gpc, gpclap, sMKL_cla, custom_machine}; 
 mach_cl_kernel.val    =  {svm};
 mach_cl_kernel.help   = {...
     ['Choose a kernel prediction machine for this model']};
