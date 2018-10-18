@@ -124,14 +124,20 @@ end
 alpha = get_alpha(model,nlbs,sgn);
 b     = -model.rho *sgn;
 
-% Make predictions and get function values in probabilities
+% compute prediction directly rather than using svmpredict, which does
+% not allow empty test labels
 if iscell(d.test)
-    test = cell2mat(d.test);
+    func_val = cell2mat(d.test)*alpha+b;
 else
-    test = d.test;
+    func_val = d.test*alpha+b;
 end
-[predictions,acc,func_val] = svmpredict(d.te_targets,test,model,'-q');
 
+if ~reg
+    % compute hard decisions
+    predictions = sign(func_val);
+else
+    predictions = func_val;
+end
 
 
 % Outputs
