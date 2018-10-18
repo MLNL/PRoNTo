@@ -35,11 +35,24 @@ prt_def.global.install_dir = prt('dir');
 % prt_def.color.fr=[1,0.5,0.7];
 % prt_def.color.high=[0.2,0.2,0.8];
 
-prt_def.color.bg1  = [0.83,0.83,0.83];
-prt_def.color.bg2  = [0.88,0.88,0.88];
-prt_def.color.fr   = [0.92,0.92,0.92];
+% Blue-gray option
+% prt_def.color.bg1  = ([0,115,151]/255 + [0.83 0.83 0.83])/2;
+% prt_def.color.bg2  = ([0,115,151]/255 + 2*[0.88 0.88 0.88])/3;
+% prt_def.color.fr   = ([0,115,151]/255 + 3*[0.92 0.92 0.92])/4;
+
+% Gray option
+% prt_def.color.bg1  = [0.83,0.83,0.83];
+% prt_def.color.bg2  = [0.88,0.88,0.88];
+% prt_def.color.fr   = [0.92,0.92,0.92];
+
+% Blue-gray with more contrast, blue comes from logo
+prt_def.color.bg1  = ([0,115,151]/255 + [0.8 0.8 0.8])/2;
+% prt_def.color.bg1  = ([0,115,151]/255 + [0.6 0.6 0.6])/2;
+prt_def.color.bg2  = ([0,115,151]/255 + 4*[0.88 0.88 0.88])/5;
+prt_def.color.fr   = ([0,115,151]/255 + 12*[0.95 0.95 0.95])/13;
 prt_def.color.high = [0.8 0 0];
 prt_def.color.black = [0 0 0];
+prt_def.color.white = [1 1 1];
 
 % Parameters for the data and design
 %-----------------------------------------------
