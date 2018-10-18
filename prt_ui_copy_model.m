@@ -1294,6 +1294,13 @@ set(handles.pop_machine,'String',list)
 set(handles.pop_machine,'Value',val)
 set(handles.kernel_methods,'Value',nk)
 
+is_class = 0;
+if strcmpi(handles.type,'classification')
+    is_class = 1;
+end
+machine = prt_get_machine_ui(is_class,nk,mach);
+handles.machine = machine;
+
 % Nested cross-validation?
 v = handles.dat.model(indmod).input.use_nested_cv;
 if v
