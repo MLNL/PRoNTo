@@ -1265,7 +1265,7 @@ if ~isfield(handles,'ds') || length(handles.ds) <1 || ...
     return
 end
 
-%Rearrange the data structure if the "Scans" option was selected for one of
+%Rearrange the data structure if the "Samples" option was selected for one of
 %the groups
 PRT= handles.dat;
 PRT.group = handles.dat.group;
