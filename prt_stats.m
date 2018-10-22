@@ -152,7 +152,7 @@ else
     stats.r2 = coef(1,2).^2;
 end
 stats.mse  = mean((model.predictions-tte).^2);
-stats.nmse = mean((model.predictions-tte).^2)/(max(tte)-min(tte));
+stats.nmse = mean((model.predictions-tte).^2)/(var(tte));
 end
 
 function stats = compute_stats_classifier_MTL(model, tte, k)
