@@ -43,12 +43,12 @@ elseif minw<0 && maxw<=0 % Only negative, sequential blue colormap
     newticks = [1 256];
     labels = [minw;maxw];
 elseif (minw==0 && maxw==0) || ...
-       isnan(minw) && isnan(maxw) % All zeros, just gray
+       (isnan(minw) && isnan(maxw)) % All zeros or NaNs, just gray
     weights = zeros(size(weights)); 
-    cols = [0.5 0.5 0.5];
+    cols = [0.5 0.5 0.5; cbrewer('seq','Reds',256)];
     valsN = ones(size(weights));
-    newticks = 0;
-    labels = 0;
+    newticks = [0 1];
+    labels = [0; 1];
 end
 colormap(cols);
 
@@ -59,29 +59,37 @@ valsN = valsN(roimat==1);
 % Draw axes and x-slider
 step = min(1,100/numel(weights));
 
-try 
-    axmat = axes(parent,'XLim', [-5 numel(weights)+5], 'units','normalized', ...
-        'position',[0.2 0.2 0.6 0.7], 'NextPlot', 'add');
-catch % for older Matlab versions
-    axmat = axes('XLim', [-5 numel(weights)+5], 'units','normalized', ...
-        'position',[0.2 0.2 0.6 0.7]);
-end
-
-% Plot values
 valsl = 0;
 lowval = floor((valsl)*numel(weights));
 minsl = max(lowval,1);
 highval = ceil((valsl + (step))*numel(weights));
 maxsl = min(highval,length(weights));
 
+% Draw axes (try-catch on Matlab version)
+try 
+    axmat = axes(parent,'XLim', [-5 numel(weights)+5], 'units','normalized', ...
+        'position',[0.2 0.2 0.6 0.7], 'NextPlot', 'add');
+catch % for older Matlab versions
+    axmat = axes('XLim', [-5 numel(weights)+5], 'units','normalized', ...
+        'position',[0.2 0.2 0.6 0.7],'NextPlot', 'add','parent',parent);
+end
+set(gcf,'CurrentAxes',axmat);
+
+% Plot values
 h = plot_data(axmat,minsl:maxsl,weights(minsl:maxsl),cols,valsN(minsl:maxsl),[minw maxw]);
 hc = colorbar('Units','normalized','Position',[0.85 0.2 0.02 0.7]);
-% Change colorbar limites and tick labels
-limhc = get(hc,'Limits');
-newticksproj = ceil(newticks * (max(limhc)/size(cols,1)));
-set(hc,'Ticks',newticksproj);
-set(hc,'TickLabelsMode','manual');
-set(hc,'TickLabels',labels);
+% Change colorbar limits and tick labels
+try
+    limhc = get(hc,'Limits');
+    newticksproj = ceil(newticks * (max(limhc)/size(cols,1)));
+    set(hc,'Ticks',newticksproj);
+    set(hc,'TickLabelsMode','manual');
+    set(hc,'TickLabels',labels);
+catch
+    newticksproj = [0 1];
+    set(hc,'Ticks',newticksproj);
+    set(hc,'YTickLabels',cellstr(num2str(labels)))
+end
 
 
 if step<1 % set slider
