@@ -14,9 +14,14 @@ for i=1:numel(gch)
     delete(gch);
 end
 
-% Draw axes
-axmat = axes(parent,'units','normalized', ...
-     'position',[0.2 0.2 0.6 0.7], 'NextPlot', 'add');
+% Draw axes (properties depend on Matlab version)
+try
+    axmat = axes(parent,'units','normalized', ...
+        'position',[0.2 0.2 0.6 0.7], 'NextPlot', 'add');
+catch
+    axmat = axes(parent,'units','normalized', ...
+        'position',[0.2 0.2 0.6 0.7]);
+end
 
 % Define colormap
 minw = min(min(weights));

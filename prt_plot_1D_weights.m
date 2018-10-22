@@ -58,8 +58,14 @@ valsN = valsN(roimat==1);
 
 % Draw axes and x-slider
 step = min(1,100/numel(weights));
-axmat = axes(parent,'XLim', [-5 numel(weights)+5], 'units','normalized', ...
-     'position',[0.2 0.2 0.6 0.7], 'NextPlot', 'add');
+
+try 
+    axmat = axes(parent,'XLim', [-5 numel(weights)+5], 'units','normalized', ...
+        'position',[0.2 0.2 0.6 0.7], 'NextPlot', 'add');
+catch % for older Matlab versions
+    axmat = axes(parent,'XLim', [-5 numel(weights)+5], 'units','normalized', ...
+        'position',[0.2 0.2 0.6 0.7]);
+end
 
 % Plot values
 valsl = 0;
