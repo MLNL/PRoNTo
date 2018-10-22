@@ -394,6 +394,16 @@ for p=0:maxp
                     % weights saved directly in PRT
                     w = PRT.model(model_idx).output.fold(f).w;
                     
+%                     Compute latent space for the Trace-norm MTL
+%                     A = PRT.model(model_idx).output.fold(f).others.A;
+%                     [U,S] = svd(A);
+%                     threshold = 1e-3;
+%                     S(S<threshold) = 0;
+%                     S(S>0) = S(S>0).^(-1);
+%                     B = U*sqrt(S);
+%                     Z = w*B;
+%                     w = Z;
+                    
                     for icl = 1:size(w,2) % Loop over tasks in MTL if present
                         % get slice
                         wimg{icl} = w(voxtr(feat_slc),icl);
