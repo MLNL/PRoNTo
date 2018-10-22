@@ -61,18 +61,18 @@ else
     CV       = PRT.model(modelid(1)).input.cv_mat;     % CV matrix
     n_folds  = size(CV,2);                      % number of CV folds
     
-    % parralel code?
-    if def_par.allow
-        try
-            matlabpool(def_par.ncore)
-        catch
-            try
-                parpool;
-            catch
-                warning('Could not use pool of Matlab processes!')
-            end
-        end
-    end
+%     % parralel code?
+%     if def_par.allow
+%         try
+%             matlabpool(def_par.ncore)
+%         catch
+%             try
+%                 parpool;
+%             catch
+%                 warning('Could not use pool of Matlab processes!')
+%             end
+%         end
+%     end
     
     % targets
     t = PRT.model(modelid(1)).input.targets;
@@ -217,7 +217,7 @@ else
                         % Multiple images and conditions in the modality, across the
                         % multiple targets: Need to permute within subject
                         % and modality, case 1
-                        if (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classifier') && ...
+                        if (~isempty(strfind(PRT.model(modelid(1)).output(1).fold(1).type,'classif')) && ...
                                 numel(samp_c)>1 && numel(samp_c)>1 && length(unique(t(ism)))>1 ) ||... % i.e. there is a design and more than one image per subject in classification
                                 (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'regression') && ...
                                 numel(ism)>1 && all(samp_c~=0))  % i.e. there is more than one image for this subject, coming from a design
@@ -226,8 +226,7 @@ else
                         % Multiple images in the modality, but only one
                         % target: Need to permute within subject but across
                         % modalities, case 2
-                        elseif (strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classifier') || ...
-                                strcmpi(PRT.model(modelid(1)).output(1).fold(1).type,'classification')) && ...
+                        elseif ~isempty(strfind(PRT.model(modelid(1)).output(1).fold(1).type,'classif')) && ...
                                 length(unique(t(ism)))==1
                             if numel(samp_c)==1 && samp_c>0
                                 exchange_subjects = 0;
