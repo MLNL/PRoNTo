@@ -19,8 +19,8 @@ try
     axmat = axes(parent,'units','normalized', ...
         'position',[0.2 0.2 0.6 0.7], 'NextPlot', 'add');
 catch
-    axmat = axes(parent,'units','normalized', ...
-        'position',[0.2 0.2 0.6 0.7]);
+    axmat = axes('units','normalized', ...
+        'position',[0.2 0.2 0.6 0.7],'parent',parent);
 end
 
 % Define colormap
@@ -46,14 +46,26 @@ elseif isnan(minw) && isnan(maxw)
 end
     
 colormap(cols);
-h = imagesc(axmat,weights);
+try
+    h = imagesc(axmat,weights);
+catch
+    set(gcf,'CurrentAxes',axmat)
+    h = imagesc(weights);
+end
+
 xlim([1 size(weights,2)])
 ylim([1 size(weights,1)])
 hc = colorbar('Units','normalized','Position',[0.85 0.2 0.02 0.7]);
 % Change colorbar limits to ensure centered white if positive and negative
 if minw<0 && maxw>0
-    limhc = get(hc,'Limits');
-    caxis(max(abs(limhc)) * [-1 1]);
+    try
+        limhc = get(hc,'Limits');
+        limw = max(abs(limhc));
+    catch
+        absw = abs(weights);
+        limw = max(max(absw));
+    end
+    caxis(limw * [-1 1]);
 end
 
 
