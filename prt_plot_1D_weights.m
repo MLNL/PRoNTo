@@ -88,6 +88,7 @@ try
 catch
     newticksproj = [0 1];
     set(hc,'Ticks',newticksproj);
+    set(hc,'TickLabelsMode','manual');
     set(hc,'YTickLabels',cellstr(num2str(labels)))
 end
 
