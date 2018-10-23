@@ -867,9 +867,15 @@ end
 if any(strfind(mach{val},'Subject Out'))
     handles.newmodel.cv_type_nested = 'loso';
 elseif any(strfind(mach{val},'Subject per Class'))
-    if ~handles.loospg
+    nscl = zeros(numel(handles.newmodel.class),1);
+    for i = 1:numel(handles.newmodel.class)
+        nscl(i) = length([handles.newmodel.class(i).group(:).subj]);
+    end
+    handles.loospg = 1;
+    if numel(unique(nscl))~=1
         beep
         disp('Warning: Subjects are not balanced across classes!')
+        handles.loospg = 0;
     end
     handles.newmodel.cv_type_nested = 'losgo';
 elseif any(strfind(mach{val},'Block'))
