@@ -111,15 +111,19 @@ end
 
 [predictions,liblinear_acc,func_val] = predict(d.te_targets,sparse(d.test{:}),model,'-q');
 
+% Get SV coefficients (alpha) in the original order and the bias term (b) 
+if ~isempty(model.Label)
+    sgn   = -1*(2 * model.Label(1) - 3); %variable to account for label convention in PRoNTo
+else
+    sgn = 1;
+end
+if strcmpi(output.type,'classification')
+    output.func_val    = sgn*func_val; 
+end
+
 % Outputs
 %--------------------------------------------------------------------------
 output.predictions = predictions;
-
-if strcmpi(output.type,'classification')
-    output.func_val    = -func_val; % Sign is inverted compared to class definition in LIBSVM
-else
-    output.func_val = func_val;
-end
 
 if ~d.use_kernel
     %Weights for primal
@@ -139,9 +143,6 @@ else
         output.b           = model.w(end);
     end
 end
-
-
-
 
 
 
