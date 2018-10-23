@@ -86,7 +86,7 @@ end
 
 % Begin cross-validation loop
 % -------------------------------------------------------------------------
-PRT.model(mid).output=struct();
+
 if indmodels %loop over the kernels and output accuracy for each kernel only
     nk = length(Phi_all);
 else

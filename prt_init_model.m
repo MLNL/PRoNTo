@@ -111,6 +111,10 @@ else
         PRT.model(mid).input.indmodels    = 0;
     end
     
+    % Delete outputs (including weights) to ensure model specification and
+    % results are always corresponding
+    PRT.model(mid).output=struct();
+    
 end
 
 end
