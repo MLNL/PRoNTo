@@ -1412,20 +1412,33 @@ set(mp13,'String',sprintf('%.1f %.1f %.1f',spm_orthviews('Pos')));
 pos = spm_orthviews('Pos',1);
 set(mp14,'String',sprintf('%.1f %.1f %.1f',pos));
 set(tx20,'String',sprintf('%g',spm_sample_vol(st.V,pos(1),pos(2),pos(3),st.hld)));
-child = get(st.handles.weightspanel,'Children');
-count = [];
-for i = 1:length(child) % Resize colorbar if blobs
-    if strcmpi(get(child(i),'Type'),'axes')
-        count = [count, i];     
+% child = get(st.handles.weightspanel,'Children');
+% count = [];
+% for i = 1:length(child) % Resize colorbar if blobs
+%     if strcmpi(get(child(i),'Type'),'axes')
+%         count = [count, i];     
+%     end
+% end
+% Ensure colorbar labels are on the right side
+[fpw,faw] = fileparts(st.handles.wmap);
+for i=1:length(st.vols)
+    if ~isempty(st.vols{i})
+        [fp,fa] = fileparts(st.vols{i}.fname);
+        if strcmpi([fp,fa],[fpw,faw])
+            idxw = i;
+            set(st.vols{idxw}.blobs{1}.cbar,'parent',st.handles.weightspanel);
+            set(st.vols{idxw}.blobs{1}.cbar,'YAxisLocation','right');
+        end
     end
 end
-% if length(count)==4
-%     pos = get(child(count(1)),'Position');
-%     set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
-% end
+
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
+    colgrey = colormap(gray(64));
+    coldiv = cbrewer('div','RdBu',64);
+    coldiv = flip(coldiv,1);
     spm_figure('Colormap','gray-jet');
+    colormap([colgrey; coldiv]);
 end
 
 

@@ -668,7 +668,7 @@ h=ylabel('Discarded samples');
 set(h,'FontWeight','bold')
 set(h,'Rotation',90)
 set(handles.axes3,'XTickLabel',handles.gname)
-legend({dat.group(1).subject(1).modality(ind).design.conds(:).cond_name},...
+legend(handles.axes3,{dat.group(1).subject(1).modality(ind).design.conds(:).cond_name},...
     'Location','NorthEast')
 
 
