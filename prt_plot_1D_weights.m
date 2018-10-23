@@ -45,9 +45,9 @@ elseif minw<0 && maxw<=0 % Only negative, sequential blue colormap
 elseif (minw==0 && maxw==0) || ...
        (isnan(minw) && isnan(maxw)) % All zeros or NaNs, just gray
     weights = zeros(size(weights)); 
-    cols = [0.5 0.5 0.5; cbrewer('seq','Reds',256)];
+    cols = [0.5 0.5 0.5; cbrewer('seq','Reds',255)];
     valsN = ones(size(weights));
-    newticks = [0 1];
+    newticks = [1 256];
     labels = [0; 1];
 end
 colormap(cols);
@@ -81,7 +81,11 @@ hc = colorbar('Units','normalized','Position',[0.85 0.2 0.02 0.7]);
 % Change colorbar limits and tick labels
 try
     limhc = get(hc,'Limits');
-    newticksproj = ceil(newticks * (max(limhc)/size(cols,1)));
+    if limhc(end) >1
+        newticksproj = ceil(newticks * (max(limhc)/size(cols,1)));
+    else
+        newticksproj = round(newticks/size(cols,1));
+    end
     set(hc,'Ticks',newticksproj);
     set(hc,'TickLabelsMode','manual');
     set(hc,'TickLabels',labels);
