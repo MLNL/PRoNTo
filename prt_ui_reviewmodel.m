@@ -272,29 +272,32 @@ hf=figure;
 set(hf,'NumberTitle','off')
 set(hf,'Name','PRoNTo :: Review kernel')
 color=prt_get_defaults('color');
-set(hf,'Color',color.bg1)
+set(hf,'Color',color.bg2)
 S0= spm('WinSize','0',1);
 tmp  = [S0(3)/1280 (S0(4))/800];
 ratio=min(tmp)*[1 1 1 1];
 set(hf,'Resize','on')
-set(hf,'Position',ratio.*[360 278 560 520])
+set(hf,'Position',ratio.*[360 150 440 480])
 set(hf,'Units','normalized')
-fs = uicontrol(hf,'Style','popupmenu',...
+fs = uicontrol(hf,'Style','popupmenu',...  
     'String',listfs,...
-    'Position', ratio.*[170 455 220 50],...
-    'Callback',@changefs);
+    'Position', ratio.*[110 410 220 50]);
+set(fs,'Units','normalized')
+set(fs,'Enable','off')
 c = uicontrol(hf,'Style','popupmenu',...
     'String',list,...
-    'Position', ratio.*[170 425 220 50],...
+    'Position', ratio.*[110 380 220 50],...
     'Callback',@dispkern);
 top = uicontrol(hf,'Style','text',...
     'String','Selected operations',...
-    'Position', ratio.*[90 10 100 50]);
+    'Position', ratio.*[40 10 100 50]);
 listop={'Sample averaging (within block)',...
     'Sample averaging (within subject/condition)',...
     'Mean centre features using training data',...
     'Divide data vectors by their norm',...
-    'Regress out covariates (subject level)'};  %GLM for subjects only
+    'Regress out covariates',...
+    'Normalize features',...
+    'Z-score features'};
 if ~isempty(handles.PRT.model(handles.indm).input.operations)
     loper=listop(handles.PRT.model(handles.indm).input.operations);
 else
@@ -302,11 +305,11 @@ else
 end
 lop = uicontrol(hf,'Style','listbox',...
     'String',loper,...
-    'Position', ratio.*[190 10 200 50]);
+    'Position', ratio.*[140 10 200 50]);
 set(c,'Units','normalized')
 set(top,'Units','normalized')
 set(lop,'Units','normalized')
-set(fs,'Units','normalized')
+set(fs,'UserData',{handles.PRT,handles.indf,handles.prtdir,c})
 FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts 
 if ispc
     PF='MS Sans Serif';
@@ -320,13 +323,13 @@ set(hf,'DefaultTextFontSize',FS*12,...
         'DefaultAxesFontName',PF,...
         'DefaultUicontrolFontName',PF)
 color=prt_get_defaults('color');
-set(hf,'Color',color.bg1)
+set(hf,'Color',color.bg2)
 aa=get(hf,'children');
 for i=1:length(aa)
     if strcmpi(get(aa(i),'type'),'uicontrol')
         if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
                 'radiobutton','checkbox'})))
-            set(aa(i),'BackgroundColor',color.bg1)
+            set(aa(i),'BackgroundColor',color.bg2)
         elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
             set(aa(i),'BackgroundColor',color.fr)
         end
@@ -336,8 +339,7 @@ for i=1:length(aa)
     set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
         'Units','normalized')
 end
-axes('Position',[0.15 0.15 0.7 0.7]);
-set(fs,'UserData',{handles.PRT,handles.indf,handles.prtdir,c})
+axes('Position',[0.15 0.18 0.75 0.65]);
 set(c,'UserData',Phi)
 imagesc(Phi{1})
 colormap(jet)
@@ -350,23 +352,23 @@ imagesc(Phi{ind})
 colormap(jet)
 colorbar
 
-function changefs(source,callbackdata)
-ind = get(source,'Value');
-dat = get(source,'UserData');
-kername=dat{1}.fs(dat{2}(ind)).k_file;
-try
-    load([dat{3},filesep,kername])
-catch
-    beep
-    disp('Could not load kernel file')
-    return
-end
-list = {};
-for i=1:length(Phi)
-    list = [list;{['Kernel ',num2str(i)]}];
-end
-set(dat{4},'UserData',Phi)
-imagesc(Phi{1})
-colormap(jet)
-colorbar
+% function changefs(source,callbackdata)
+% ind = get(source,'Value');
+% dat = get(source,'UserData');
+% kername=dat{1}.fs(dat{2}(ind)).k_file;
+% try
+%     load([dat{3},filesep,kername])
+% catch
+%     beep
+%     disp('Could not load kernel file')
+%     return
+% end
+% list = {};
+% for i=1:length(Phi)
+%     list = [list;{['Kernel ',num2str(i)]}];
+% end
+% set(dat{4},'UserData',Phi)
+% imagesc(Phi{1})
+% colormap(jet)
+% colorbar
 
