@@ -203,19 +203,21 @@ pthperm = cell(nimage,1);
 for p=0:maxp
     if p>0
         for c = 1:nimage
-            [pth,nam] = fileparts(img_name{c});
+            [pth,nam] = fileparts(nametokeep{c});
             if p==1
                 pthperm{c} = fullfile(pth,['perm_',nam]);
                 if ~exist(pthperm{c},'dir')
                     mkdir(pth,['perm_',nam]);
                 end
             end
-            img_nam{c} = fullfile(pthperm{c},[nam,'_perm',num2str(p),'.img']);
+            img_nam{c} = fullfile(pthperm{c},[appendn,nam,'_perm',num2str(p),ext]);
+            finimg_name{c} = fullfile(pthperm{c},[nam,'_perm',num2str(p),ext]);
         end
         fprintf('Permutation: %d of %d \n',p, ...
             length(PRT.model(model_idx).output.permutation));
     else
         img_nam = img_name;
+        nametokeep = finimg_name;
     end
     
     % check that image does not exist, otherwise, delete
@@ -225,14 +227,12 @@ for p=0:maxp
             % delete hdr if neuroimaging, dat if MEEG
             [pth,nam] = fileparts(finimg_name{c});
             if ~flagmeeg
-                if flagmat
-                    hdr_name  = [pth,filesep,nam,'.mat'];
-                else
+                if ~flagmat
                     hdr_name  = [pth,filesep,nam,'.hdr'];
                 end
             else
                 hdr_name  = [pth,filesep,nam,'.dat'];
-                if exist(img_nam{1},'file')
+                if exist(img_nam{c},'file')
                     delete(img_nam{c});
                 end
             end
