@@ -634,7 +634,7 @@ end
 % ----------------------
 scmax=max(max(meantp(:)),max(meantpdisc(:)));
 %cbrewer Matlab exchange package by Charles Robert for better color maps
-cmap = cbrewer('qual','Set3',max(3,max(numel(x),size(meantp,2)))); 
+cmap = cbrewer('qual','Set3',max(3,size(meantp,2))); 
 h = bar(handles.axes2,x,meantp,0.9);
 for i= 1:length(h)
     set(h(i), 'FaceColor', cmap(i,:));

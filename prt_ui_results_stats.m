@@ -334,7 +334,7 @@ if fold ==1
             plots = {'Accuracy Distribution'};
         end
     else
-        plots = {'Prediction Errors', 'R2'};
+        plots = {'Prediction Errors', 'R2 Distribution', 'Predictions (scatter)'};
     end
 else
     if strcmp(handles.PRT.model(m).input.type,'classification')
@@ -481,7 +481,7 @@ else
         case 'Prediction Errors'
             prt_plot_prediction_errors(handles.PRT, model,fold,[], handles.axes5);
         
-        case 'R2'
+        case 'R2 Distribution'
             if fold==1
                 prt_plot_R2_distribution(handles.PRT, model,handles.axes5);
             end
