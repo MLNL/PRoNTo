@@ -776,7 +776,7 @@ if exist([handles.wmap],'file')
         set(handles.uipanelnifti,'Visible','on')
         uistack(handles.uipanelnifti,'top') %Switch to nifti panel
         set(handles.uipanelmat,'Visible','off')
-        if isempty(evendata) || ~strcmpi(evendata.EventName,'CellSelection')
+        if isempty(eventdata) || ~strcmpi(eventdata.EventName,'CellSelection')
             handles.selectedcell = [];
         end
         % Update handles structure
@@ -787,7 +787,7 @@ if exist([handles.wmap],'file')
         set(handles.uipanelmat,'Visible','on')
         uistack(handles.uipanelmat,'top') %Switch to nifti panel
         set(handles.uipanelnifti,'Visible','off')
-        if isempty(evendata) || ~strcmpi(evendata.EventName,'CellSelection')
+        if isempty(eventdata) || ~strcmpi(eventdata.EventName,'CellSelection')
             handles.selectedcell = [];
         end
         % Update handles structure
