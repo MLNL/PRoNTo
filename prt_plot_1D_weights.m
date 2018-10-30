@@ -84,7 +84,7 @@ try
     if limhc(end) >1
         newticksproj = ceil(newticks * (max(limhc)/size(cols,1)));
     else
-        newticksproj = round(newticks/size(cols,1));
+        newticksproj = newticks/size(cols,1);
     end
     set(hc,'Ticks',newticksproj);
     set(hc,'TickLabelsMode','manual');
