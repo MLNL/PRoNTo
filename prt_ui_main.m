@@ -217,7 +217,7 @@ for i=1:nm
         mod_type = 'nifti';
     elseif isfield(PRT.masks(i),'type') && strcmpi(PRT.masks(i).type,'.mat')
         flagmat = flagmat +1;
-        mod_type = 'mat';
+        mod_type = '.mat';
     end
 end
 if flagMEEG && flagim && flagmat
