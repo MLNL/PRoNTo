@@ -14,13 +14,13 @@ For simplicity, in this example we will use PRoNTo to predict if the subject is 
 
 We will first analyse the data using PRoNTo's GUI and then repeat the analysis using the {\tt matlabbatch} system.
 
-To start, create a new directory in which to save the results of the analysis, then start up MATLAB and type `prt' or `pronto' in the MATLAB prompt. This will open the main interface of PRoNTo (Figure \ref{fig:mainInterface}).
+To start, create a new directory in which to save the results of the analysis, then start up MATLAB and type `prt' or `pronto' in the MATLAB prompt. This will open the main interface of PRoNTo (Figure \ref{fig:gui_main_screen}).
 
 \begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.8]{images/Tutorial/classification/mainInterface.png}
+		\includegraphics[scale=0.6]{images/Tutorial/classification/v3/gui_main_screen.png}
 	\caption{Main interface of PRoNTo.}
-	\label{fig:mainInterface}
+	\label{fig:gui_main_screen}
 \end{figure}
 
 %--------------------------------------------------------------------------
@@ -28,78 +28,102 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Data \& Design' and a new window will open, `Data and design' (Figure \ref{fig:dataDesign}). Then, browse the directory in which to save the PRT structure (saved as `PRT.mat');
+	\item In PRoNTo's main window, click on `Data \& Design' and a new window will open, `Data and design' (Figure \ref{fig:gui_data_and_designs_blank}). Then, browse the directory in which to save the PRT structure (saved as `PRT.mat');
 	
 \begin{figure}[!h]
 	\centering
-			\includegraphics[scale=0.7]{images/Tutorial/classification/dataDesign.png}
+			\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_data_and_designs_blank.png}
 	\caption{`Data and design' GUI.}
-	\label{fig:dataDesign}
+	\label{fig:gui_data_and_designs_blank}
 \end{figure}
 	
 	\item In the panel `Groups', click on `Add' and provide a name to the group (we only have one group/subject), with no spaces, e.g. `G1';
 	
-	\item Add a subject in the `Subject/Scans' option, e.g. `s1', and leave the `Scans' tick box below the panel unchecked. See Chapter \ref{chap:DataDesign} of the manual for more information on this option;
+	\item Add a subject in the `Subject/Scans' option, e.g. `S1', and leave the `Scans' tick box below the panel unchecked. See Chapter \ref{chap:DataDesign} of the manual for more information on this option;
 	
-	\item In the `Modalities' panel, click on `Add' and provide a name to the modality, e.g. `fMRI'. In the `Design' field, choose the option `Load SPM.mat' (Figure \ref{fig:modality}). This file is available with the Haxby dataset on PRoNTo's website\footnote{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} inside the folder Haxby\_dataset/design/;
+	\item In the `Modalities' panel, click on `Add' and provide a name to the modality, e.g. `fMRI'. In the `Data format', choose `nifti' (Figure \ref{fig:gui_data_and_design_modality_data_format}).  In the `Design' field, choose the option `Load SPM.mat' (Figure \ref{fig:gui_data_and_design_modality_specify_design}). This file is available with the Haxby dataset on PRoNTo's website\footnote{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} inside the folder Haxby\_dataset/design/. Finally, in this case leave `Regression targets' as it is, in the `No targets' option.
 	
 \begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/modality.png}
-	\caption{`Specify modality' GUI allows one to load a specified design from an `SPM.mat' file.}
-	\label{fig:modality}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_data_and_design_modality_data_format.png}
+	\caption{`Specify modality' GUI allows one to specify the format of the Data (here nifti) and to specify the design of the experiment.}
+	\label{fig:gui_data_and_design_modality_data_format}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_data_and_design_modality_specify_design.png}
+	\caption{Here we load a specified design from an `SPM.mat' file.}
+	\label{fig:gui_data_and_design_modality_specify_design}
 \end{figure}
 
 	\begin{itemize}
 	
-		\item In case there is no `SPM.mat' file available to use, create a new design by selecting the option `Specify design'. Choose how many conditions you have, which in this case are 8 conditions (corresponding to the 8 categories of images). This will open another window that allows the user to write the names, onsets and durations (if the duration is the same for all events only one value is required) of each condition (Figure \ref{fig:specifyDesign}). The unit in which the onsets/durations are read in this case is `scans' and the interscan interval (TR) is 2.5 seconds. The design information (names, onsets and durations) can be found inside the `Haxby\_design.pdf' file in the Haxby dataset folder. 
+		\item In case there is no `SPM.mat' file available to use, create a new design by selecting the option `Specify design'. Choose how many conditions you have, which in this case are 8 conditions (corresponding to the 8 categories of images). This will open another window that allows the user to write the names, onsets and durations of each condition (Figure \ref{fig:gui_data_and_design_modality_specify_design_2}). If the duration of each event is different, you must specify the duration of all events as shown in the figure above. If however the duration is the same for all events, specifying one value per class will suffice (Figure \ref{fig:gui_data_and_design_modality_specify_design_3}). The unit in which the onsets/durations are read in this case is `scans' and the interscan interval (TR) is 2.5 seconds. The design information (names, onsets and durations) can be found inside the `Haxby\_design.pdf' file in the Haxby dataset folder. 
+		
+		\item In case you want to regress some variables in your dataset, you should change the option `Regression targets' from `No targets' to the variables you want to regress your dataset with (Figure XXX).
+% 		\ref{fig:gui_data_and_design_modality_regression}).
 	
 	\end{itemize}
 	
 \begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/specifyDesign.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_data_and_design_modality_specify_design_2.png}
 	\caption{`Specify design' GUI to enter the conditions, the units of design, TR and covariates.}
-	\label{fig:specifyDesign}
+	\label{fig:gui_data_and_design_modality_specify_design_2}
 \end{figure}
+
+\begin{figure}[!h]
+	\centering
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_data_and_design_modality_specify_design_3.png}
+	\caption{If all events have the same duration, you can specify this with only one number.}
+	\label{fig:gui_data_and_design_modality_specify_design_3}
+\end{figure}
+
+% \begin{figure}[!h]
+% 	\centering
+% 		\includegraphics[scale=0.7]{images/Tutorial/classification/gui_data_and_design_modality_regression.png}
+% 	\caption{`Regression targets' GUI allows one to specify variables that wants to regress out of the dataset.}
+% 	\label{fig:gui_data_and_design_modality_regression}
+% \end{figure}
 	
-	\item Finally, load all the image files available in the fMRI directory (Haxby\_dataset/fMRI/). You can select all the files by using the right mouse button and clicking on the option `Select All' (Figure \ref{fig:files}). When all the images are selected, click on the `Done' button;
+	\item Finally, load all the image files available in the fMRI directory (Haxby\_dataset/fMRI/). You can select all the files by using the right mouse button and clicking on the option `Select All' (Figure \ref{fig:gui_data_and_design_modality_files}). When all the images are selected, click on the `Done' button;
 	
 		
 \begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.65]{images/Tutorial/classification/files.png}
+		\includegraphics[scale=0.45]{images/Tutorial/classification/v3/gui_data_and_design_modality_files.png}
 	\caption{`Files' field is used to select the scans/images for the selected subject.}
-	\label{fig:files}
+	\label{fig:gui_data_and_design_modality_files}
 \end{figure}
 	
-	\item In the `Masks' field, on the bottom left of the `Data and design' window, select the `whole\_brain' mask for the modality specified (Figure \ref{fig:mask}). The mask is available in the masks directory inside the folder Haxby\_dataset/masks/;
+	\item In the `Masks' field, on the bottom left of the `Data and design' window, select the `whole\_brain' mask for the modality specified (Figure \ref{fig:gui_data_and_design_masks}). The mask is available in the masks directory inside the folder Haxby\_dataset/masks/. Once you have specified the mask for each modality, you will notice that the word `Masks' changes from red to black. This tells you that you have defined a mask for each modality.
 
 \begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.65]{images/Tutorial/classification/mask.png}
+		\includegraphics[scale=0.45]{images/Tutorial/classification/v3/gui_data_and_design_masks.png}
 	\caption{This window is called when one clicks `Masks'.}
-	\label{fig:mask}
+	\label{fig:gui_data_and_design_masks}
 \end{figure}
 
-	\item Click on `Review' button to check the data and the design inserted in this modality (Figure \ref{fig:review}). For more information on what one can do with the Review option please see Chapter \ref{chap:DataDesign};
+	\item Click on `Review' button to check the data and the design inserted in this modality (Figure \ref{fig:gui_review_data}). For more information on what one can do with the Review option please see Chapter \ref{chap:DataDesign};
 	
 	
 \begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/review.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_review_data.png}
 	\caption{`Review' GUI allows the user to check the data and design.}
-	\label{fig:review}
+	\label{fig:gui_review_data}
 \end{figure}	
 	
-	\item The `Data and design' window should look similar to the Figure \ref{fig:finalDesign}. Click on `Save' button to create `PRT.mat' file with the structure containing the information that has been previously specified. If no errors are shown in the MATLAB command window, leave the `Data and design' window by clicking `Quit'.
+	\item Click on `Save' button to create `PRT.mat' file with the structure containing the information that has been previously specified. If there is no error, the `Save' button changes from red to black; which also tells you that everything has been properly saved right up until that moment. The `Data and design' window after you click `Save' should look similar to the Figure \ref{fig:gui_data_and_designs_final}. If `Save' turned black and no errors are shown in the MATLAB command window, leave the `Data and design' window by clicking `Quit'.
 	
 
 \begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/finalDesign.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_data_and_designs_final.png}
 	\caption{`Data and design' GUI final configuration.}
-	\label{fig:finalDesign}
+	\label{fig:gui_data_and_designs_final}
 \end{figure}	
 
 \end{itemize}
@@ -110,16 +134,16 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Prepare feature set' and a new window will open, `Prepare feature set' (Figure \ref{fig:prepareFeature});
+	\item Next we have to prepare the feature set, so click on `Prepare feature set' in PRoNTo's main window. A new window will open prompting you to select a PRT.mat file. Select the `PRT.mat' file previously created in the `Data \& Design' step (Figure \ref{fig:gui_prepare_featureSet_choose_PRT}).
 	
 	\begin{figure}[!h]
-	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/prepareFeature.png}
-	\caption{`Prepare feature set' GUI.}
-	\label{fig:prepareFeature}
-\end{figure}
+	    \centering
+	    	\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_prepare_featureSet_choose_PRT.png}
+    	\caption{`Prepare feature set' GUI.}
+	    \label{fig:gui_prepare_featureSet_choose_PRT}
+    \end{figure}
 	
-	\item Select the `PRT.mat' file previously created in the `Data \& Design' step and another window will open, `Specify modality to include' (Figure \ref{fig:specifyModality}), to set the specification of different parameters and options for each modality, which are: 
+	\item Once you click `Done' another window will appear, `Specify modality to include' (Figure \ref{fig:gui_prepare_featureSet_specify_modality}). Here you set the specification of different parameters and options for each modality, which are: 
 	
 	\begin{itemize}
 		\item `Modality' field: select the modality previously specified in the `Data \& Design' step, `fMRI';
@@ -133,23 +157,21 @@ To start, create a new directory in which to save the results of the analysis, t
 			
 			\begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.75]{images/Tutorial/classification/specifyModality.png}
+		\includegraphics[scale=0.55]{images/Tutorial/classification/v3/gui_prepare_featureSet_specify_modality.png}
 	\caption{`Specify modality to include' GUI.}
-	\label{fig:specifyModality}
+	\label{fig:gui_prepare_featureSet_specify_modality}
 \end{figure}				
 		
 	\end{itemize}		
 		
-	\item In the `Prepare feature set' window, provide a name for the feature set, e.g. `HaxbyFeatures';
-
-	\item Click on `Build kernel/data matrix' to build the feature set and kernel (Figure \ref{fig:buildKernel}). It takes a few minutes.
+	\item Once you specify the modality to include and click `Done', yet another window will appear, `Prepare feature set'. Here you provide a name for the feature set, e.g. `HaxbyFeatures' and finally you click on `Build kernel / data matrix' to build the kernel. If everything was done correctly, a progress bar will pop up, marking the start of the procedure  (Figure \ref{fig:gui_prepare_featureSet_prepare_and_build}), which can take a few minutes.
 
 
 \begin{figure}[!h]
 	\centering
-		\includegraphics[scale=0.65]{images/Tutorial/classification/buildKernel.png}
+		\includegraphics[scale=0.50]{images/Tutorial/classification/v3/gui_prepare_featureSet_prepare_and_build.png}
 	\caption{Preparing feature set.}
-	\label{fig:buildKernel}
+	\label{fig:gui_prepare_featureSet_prepare_and_build}
 \end{figure}
 
 
@@ -159,18 +181,18 @@ To start, create a new directory in which to save the results of the analysis, t
 
 %---------------------------------------------------------------------
 
-\subsection{Specify model}
+\subsection{Specify model new}
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Specify model' and a new window will open, `Specify model' (Figure \ref{fig:specifyModel});
+	\item Next we have to specify a model. In PRoNTo's main window, click on `Specify new' and a new window will open, `Specify model' (Figure \ref{fig:gui_specify_new});
 	
 	\begin{figure}[!h]
-	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/specifyModel.png}
-	\caption{`Specify Model' GUI.}
-	\label{fig:specifyModel}
-\end{figure}
+    	\centering
+	    	\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_specify_new.png}
+    	\caption{`Specify new' GUI.}
+    	\label{fig:gui_specify_new}
+    \end{figure}
 	
 	\item Select the `PRT.mat' file and provide a name to the model, e.g. `svmFacesHouses';
 
@@ -178,14 +200,14 @@ To start, create a new directory in which to save the results of the analysis, t
 
 	\item	Leave the option `Use kernels' tick box as it is, i.e. `Yes';
 
-	\item	Select the `Classification' model type and click on `Define classes` button. A new window will open, `Specify classes' (Figure \ref{fig:specifyClasses}), to define the number of classes and a name for each class. We will define 2 classes. For `Class 1' select subject `S1' and the condition `Faces' and, similarly, for `Class 2' select subject `S1' and the condition `Houses'. Click on `Done';
+	\item	Select the `Classification' model type and click on `Define classes' button. A new window will open, `Specify classes' (Figure \ref{fig:gui_specify_new_specify_classes}), to define the number of classes and a name for each class. We will define 2 classes. First click `Class 1' on the tab `Class'. For `Class 1' select subject `S1' and the condition `Faces' and, similarly, for `Class 2' select subject `S1' and the condition `Houses'. Leave the `Subsample according to smallest class' as it is for now. Once you have appropriately specified everything, click `Done'.
 	
-\begin{figure}[!h]
-	\centering
-		\includegraphics[height=9cm]{images/Tutorial/classification/specifyClasses.png}
-	\caption{`Specify classes' GUI.}
-	\label{fig:specifyClasses}
-\end{figure}
+    \begin{figure}[!h]
+    	\centering
+	    	\includegraphics[scale=0.6]{images/Tutorial/classification/v3/gui_specify_new_specify_classes.png}
+    	\caption{`Specify classes' GUI.}
+    	\label{fig:gui_specify_new_specify_classes}
+    \end{figure}
 	
 	\item Select the `Binary support vector machine' option, in the `Machine' field;
 	
@@ -193,61 +215,110 @@ To start, create a new directory in which to save the results of the analysis, t
 	
 	\item Select the `Leave One Block Out' cross-validation scheme (external loop);
 	
-	\item In the `Data operations' box, select the `Sample averaging (within block)' option, which corresponds to a temporal compression of the data within each block, and `Mean centre features using training data' option. Then, the `Specify model' window should look similar to Figure \ref{fig:finalModel};
+	\item In the `Data operations' box, select the `Sample averaging (within block)' option, which corresponds to a temporal compression of the data within each block, and `Mean centre features using training data' option. Then, the `Specify model' window should look similar to Figure \ref{fig:gui_specify_new_final_config};
 	
-	\begin{figure}[h!]
-	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/finalModel.png}
-	\caption{`Specify model' GUI final configuration.}
-	\label{fig:finalModel}
-\end{figure}
+    \begin{figure}[h!]
+    	\centering
+	    	\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_specify_new_final_config.png}
+	    \caption{`Specify new' GUI final configuration.}
+	    \label{fig:gui_specify_new_final_config}
+    \end{figure}
 	
 	\item Click on `Specify and run model' and the model will be immediately estimated, therefore there is no need to use the `Run model' module in this case;
 
 	\item If you do not wish to average the scans within each block (i.e. to do temporal compression), go back to the `Specify model' window, give another name to the model and select the same options mentioned above, except in the data operations part. Here, choose only the `Mean centre features using training data' option. Finish by clicking on the `Specify and run model' button.
+
 \end{itemize}
 
+%--------------------------------------------------------------------
+
+\subsection{Specify model from (optional step)}
+
+\begin{itemize}
+    
+    \item The `Specify from' window is the same as the `Specify new' window, except that some fields have been disabled to ensure comparability of the models, and there is also an extra popup menu that allows to select which model to copy from (Figure \ref{fig:gui_specify_from}). For more information on what one can do with the `Specify from' option please see Chapter \\ref{chap:XXXX}. 
+    
+        \begin{figure}[h!]
+        	\centering
+	     	\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_specify_from.png}
+    	    \caption{`Specify from' GUI.}
+	        \label{fig:gui_specify_from}
+         \end{figure}
+    
+    \item Select the `PRT.mat' file we have been using so far and provide a name to the model, e.g. `Test\_Model'. Assuming you had previously created a second feature set called `HaxbyFeatures2', you could now deselect `HaxbyFeatures' and select `HaxbyFeatures2' as your selected feature set.
+
+    \item  Notice that Classes/Regression selection and outer CV options cannot be modified. Only the `Machine' (with its hyper-parameter optimization) and the `Data operations' can be modified according to ones needs.
+    
+    \item  After you have specified everything, the final configuration would look like this (Figure \ref{fig:gui_specify_from_final_config}). Now click `Specify and run model' to create a second model comparable to `svmFacesHouses' model.
+
+        \begin{figure}[h!]
+        	\centering
+	        	\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_specify_from_final_config.png}
+        	\caption{`Specify from' GUI final configuration.}
+	        \label{fig:gui_specify_from_final_config}
+         \end{figure}
+
+\end{itemize}
+
+
+%--------------------------------------------------------------------
+
+\subsection{Run}
+
+\begin{itemize}
+    
+    \item From the `Run' window you can run the model(s) you have specified in the previous section. It is useful when you have specified some model(s) but did not run it, and also if you want to run permutations for multiple models (Figure \ref{fig:gui_run.png}).
+
+        \begin{figure}[h!]
+        	\centering
+	        	\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_run.png}
+        	\caption{`Run' GUI.}
+	        \label{fig:gui_run}
+         \end{figure}
+         
+     \item If you want to run permutation tests, check the option `Perform permutation test', and also specify the number of repetitions.	Keep in mind that in order to check the significance of the results you must run permutation test. 100 repetitions is ok but it still is a small amount. If possible, the number of repetitions should be many more (e.g. 1000).
+
+\end{itemize}
+  
 %--------------------------------------------------------------------
 
 \subsection{Display model (optional step)}
 
 \begin{itemize}
-\item To review the model specification, in the main PRoNTo GUI, click on `Review kernel \& CV' and a new window will open, `Review Model Specification' (Figure \ref{fig:reviewModel});
+\item To review the model specification, in the main PRoNTo GUI, click on `Review kernel \& CV' and after you select the `PRT.mat' file to review, a new window will open, `Review Model Specification' (Figure \ref{fig:gui_review_kernel_and_CV});
 
 \begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/reviewModel.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_review_kernel_and_CV.png}
 	\caption{Review CV \& kernel window.}
-	\label{fig:reviewModel}
+	\label{fig:gui_review_kernel_and_CV}
 \end{figure}
 
-\item Select the model, `svmFacesHouses', from the list at the top and click on `Review model'; then, select one class from the list of `Class' to see which groups, subjects and conditions this class comprises (Figure \ref{fig:reviewModelClass});
-
-
+\item Select the model, `svmFacesHouses', from the list at the top and click on `Review model'; then, select one class from the list of `Class' to see which groups, subjects and conditions this class comprises (Figure \ref{fig:gui_review_kernel_and_CV_model});
 
 \begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/reviewModelClass.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_review_kernel_and_CV_model.png}
 	\caption{Review model specification window to Class 1.}
-	\label{fig:reviewModelClass}
+	\label{fig:gui_review_kernel_and_CV_model}
 \end{figure}
 
-\item To review the data and cross-validation matrix click on `Review CV' (Figure \ref{fig:reviewCV}). For more information on what these matrices mean, please consult the previous chapters of the manual;
+\item To review the data and cross-validation matrix click on `Review CV' (Figure \ref{fig:gui_review_kernel_and_CV_CV}). For more information on what these matrices mean, please consult the previous chapters of the manual;
 
 \begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/reviewCV.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_review_kernel_and_CV_CV.png}
 	\caption{Data and cross-validation matrix from `Review CV' option.}
-	\label{fig:reviewCV}
+	\label{fig:gui_review_kernel_and_CV_CV}
 \end{figure}
 
-\item To review the kernel, click on `Show kernel' (Figure \ref{fig:reviewKernel}).
+\item To review the kernel, click on `Show kernel' (Figure \ref{fig:gui_review_kernel_and_CV_kernel}).
 
 \begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/reviewKernel.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_review_kernel_and_CV_kernel.png}
 	\caption{Kernel matrix used for classification.}
-	\label{fig:reviewKernel}
+	\label{fig:gui_review_kernel_and_CV_kernel}
 \end{figure}
 
 \end{itemize}
@@ -257,20 +328,22 @@ To start, create a new directory in which to save the results of the analysis, t
 \subsection{Compute weights (optional step)}
 
 \begin{itemize}
-\item In PRoNTo's main window, click on `Compute weights' and a new window will open, `Compute weights' (Figure \ref{fig:computeWeights});
+\item In PRoNTo's main window, click on `Compute weights' and a new window will open, `Compute weights' (Figure \ref{fig:gui_compute_weights});
 
 \begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.7]{images/Tutorial/classification/computeWeights.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_compute_weights.png}
 	\caption{`Compute weights' GUI.}
-	\label{fig:computeWeights}
+	\label{fig:gui_compute_weights}
 \end{figure}
 
 \item Select the `PRT.mat' file;
 
 \item Select the model from the list to `Models computed in PRT', `svmFacesHouses' model;
 
-\item Leave the option `Compute average/kernel weight per region' tick box unchecked;
+\item If you previously run permutation tests and want to review and display the results, check the option `Build weight images for permutations'.
+
+\item Leave the option `Compute average/kernel weight per region' unchecked.
 
 \item Click on `Compute weights' button. Computations will be displayed on the MATLAB command window.
 
@@ -283,36 +356,18 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Display results' and select the `PRT.mat' file. This will open the main results window (Figure \ref{fig:results});
+	\item In PRoNTo's main window, click on `Display results' and select the `PRT.mat' file. This will open the main results window. In the `Model' panel, select the model that you want to view, `svmFacesHouses'. The main results window together with the performance stats should be similar to the one in Figure \ref{fig:gui_display_results};
 	
 \begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/results.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_display_results.png}
 	\caption{`Results' GUI.}
-	\label{fig:results}
+	\label{fig:gui_display_results}
 \end{figure}
 	
+	\item In the `Results' window, one can select specific folds in the `Fold' list and also check their performance with different plots in the `Plot' list;
 	
-	\item In the `Model' panel, select the model that you want to view, `svmFacesHouses'. The performance should be similar to the one in Figure \ref{fig:stats};
-	
-	\begin{figure}[h!]
-	\centering
-		\includegraphics[scale=0.75]{images/Tutorial/classification/stats.png}
-	\caption{Summary for model's performance.}
-	\label{fig:stats}
-\end{figure}
-	
-	\item In the `Results' window, one can select a different plot in the `Plots' list;
-	
-	
-	\item Finally, to check the significance of the results, run a permutation test by clicking on `Permutation test' button with 100 repetitions. Results will be displayed on the MATLAB prompt (Figure \ref{fig:permutations}). Please note that 100 repetitions is a small amount, if possible, this should be greater (e.g. 1000).
-
-\begin{figure}[h!]
-	\centering
-		\includegraphics[height=9cm]{images/Tutorial/classification/permutations.png}
-	\caption{Sample of the MATLAB window after the permutation test (100 repetitions).}
-	\label{fig:permutations}
-\end{figure}
+	\item Keep in mind that if you were not to run permutation tests, the values of `BA p-value' and `CA p-value' would be `N.A.'.
 
 \end{itemize}
 	
@@ -322,23 +377,23 @@ To start, create a new directory in which to save the results of the analysis, t
 
 \begin{itemize}
 	
-	\item In PRoNTo's main window, click on `Display weights' and select the `PRT.mat' file. This will open the `Model interpretation' window (Figure \ref{fig:modelInterpretationMain});
+	\item In PRoNTo's main window, click on `Display weights' and select the `PRT.mat' file. This will open the `Model interpretation' window (Figure \ref{fig:gui_display_weights});
 	
 	\begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/modelInterpretationMain.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_display_weights.png}
 	\caption{`Model interpretation' GUI.}
-	\label{fig:modelInterpretationMain}
+	\label{fig:gui_display_weights}
 \end{figure}
 
 	
-	\item By clicking on `Model', svmFacesHouses, an image will appear in the `Weights map' box; and to show the `Anatomical img' you have to load an anatomical image for reference. A template image can be found in SPM's canonical folder (`single\_subj\_T1` file). The final window will look similar to the one shown in the Figure \ref{fig:modelInterpretation}.
+	\item By clicking on `Model', svmFacesHouses, an image will appear in the `Weights map' box; and to show the `Anatomical img' you have to load an anatomical image for reference. A template image can be found in SPM's canonical folder (`single\_subj\_T1` file). The final window will look similar to the one shown in the Figure \ref{fig:gui_display_weights_final}.
 
 \begin{figure}[h!]
 	\centering
-		\includegraphics[height=10cm]{images/Tutorial/classification/modelInterpretation.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/gui_display_weights_final.png}
 	\caption{`Model interpretation' GUI with results.}
-	\label{fig:modelInterpretation}
+	\label{fig:gui_display_weights_final}
 \end{figure}
 	
 \end{itemize}
@@ -354,13 +409,13 @@ To start, create a new directory in which to save the results of the analysis, t
 
 This tutorial will now show how to analyse the same data but using the {\tt matlabbatch} system.
 
-Once again, create a new directory where you wish to save the results. On the main interface of PRoNTo click on the `Batch' button to open the `{\tt matlabbatch}'. Alternatively, type `prt\_batch' on the MATLAB command window. On the menu bar of the batch, there is a PRoNTo menu with the 5 options shown in the main steps interface (Figure \ref{fig:batch}).
+Once again, create a new directory where you wish to save the results. On the main interface of PRoNTo click on the `Batch' button to open the `{\tt matlabbatch}'. Alternatively, type `prt\_batch' on the MATLAB command window. On the menu bar of the batch, there is a PRoNTo menu with the 5 options shown in the main steps interface (Figure \ref{fig:batch_main}).
 
 \begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batch.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/batch_main.png}
 	\caption{Menu PRoNTo in the main {\tt matlabbatch} window.}
-	\label{fig:batch}
+	\label{fig:batch_main}
 \end{figure}
 
 %--------------------------------------------------------------
@@ -369,15 +424,20 @@ Once again, create a new directory where you wish to save the results. On the ma
 
 \begin{itemize}
 
-	\item Click on `Data \& Design' in the PRoNTo menu (Figure \ref{fig:batchData});
+	\item Click on `Data \& Design' in the PRoNTo menu. Figure \ref{fig:batch_data_and_design} is the starting `Data \& Design' module menu, and Figure \ref{fig:batch_data_and_design_full} is the full drop-down list of options.
 	
 	\begin{figure}[h!]
+    	\centering
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/batch_data_and_design.png}
+    	\caption{Data and design module in {\tt matlabbatch}. }
+    	\label{fig:batch_data_and_design}
+	\end{figure}
 	
-	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchData.png}
-	\caption{Data and design module in {\tt matlabbatch}. }
-	\label{fig:batchData}
-	
+	\begin{figure}[h!]
+    	\centering
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/batch_data_and_design_full.png}
+    	\caption{Full drop-down list of options in the {\tt matlabbatch} Data and design module. }
+    	\label{fig:batch_data_and_design_full}
 	\end{figure}
 
 	\item In the `Directory' field, select a directory where the `PRT.mat' file will be saved. There are three ways of editing all fields in {\tt matlabbatch}: (i) by using the right mouse button and clicking on the current option, (ii) clicking on current button in the window or (iii) by double clicking;
@@ -392,40 +452,43 @@ Once again, create a new directory where you wish to save the results. On the ma
 		
 		\item In the field `Select by', select the `Subjects' option and add one subject;
 		
-		\item Add one modality for this subject and provide a name, e.g. `fMRI'; define the interscan interval of 2.5 seconds; and in the field `Scans', select all the image files available in the fMRI directory of the Haxby dataset;	
+		\item Add one modality for this subject and provide a name, e.g. `fMRI'; choose the appropriate data format (here nifti); define the interscan interval of 2.5 seconds; and in the field `Files', select all the image files available in the fMRI directory of the Haxby dataset;	
 		
-		\item In the `Data \& Design' field, choose `Load SPM.mat' option. This file is available with the Haxby dataset on PRoNTo's website\footnote{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} inside the folder Haxby\_dataset/design/. The batch editor should look similar to the one in Figure \ref{fig:batchGroups};	
+		\item In the `Data \& Design' field, since our data are in nifti format, choose the `Load SPM.mat' option. This file is available with the Haxby dataset on PRoNTo's website\footnote{http://www.mlnl.cs.ucl.ac.uk/pronto/prtdata.html} inside the folder Haxby\_dataset/design/.
+% 		The batch editor should look similar to the one in Figure \ref{fig:batchGroups};
+
+        \item In case our data were in MEEG format, we could choose the `Events in MEEG file' option, where we could also further specify regression targets/covariates.
 		
-		\begin{figure}[h!]
-	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchGroups.png}
-	\caption{Data and design module in {\tt matlabbatch}. }
-	\label{fig:batchGroups}
-	\end{figure}
+% 		\begin{figure}[h!]
+% 	\centering
+% 		\includegraphics[scale=0.6]{images/Tutorial/classification/batchGroups.png}
+% 	\caption{Data and design module in {\tt matlabbatch}. }
+% 	\label{fig:batchGroups}
+% 	\end{figure}
 				
 		
 		\begin{itemize}
 	
-			\item In case there is no `SPM.mat' file available to use, create a new	design by selecting the option `Specify design'. Choose how many conditions you have, which in this case are 8 conditions (corresponding to the 8 categories of images). The unit in which the onsets/durations are read is `Scans'. Write the names, onsets and durations of each condition (Figure \ref{fig:batchSpecifyDesign});
+			\item In case there is no `SPM.mat' or `MEEG Events' file available to use, create a new design by selecting the option `Specify design'. Choose the units (scans in our case), how many conditions you have, which in this case are 8 conditions (corresponding to the 8 categories of images) and also write the names, onsets, durations and any covariates and regression targets of each condition (Figure \ref{fig:batch_data_and_design_specify_design});
 	
 \begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchSpecifyDesign.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/batch_data_and_design_specify_design.png}
 	\caption{Data and design module. The `Specify design' option.}
-	\label{fig:batchSpecifyDesign}
+	\label{fig:batch_data_and_design_specify_design}
 \end{figure}
 	
 	\end{itemize}
 
 		\end{itemize}
 	
-	\item In the `Masks' field, add a new modality and provide the same modality name, `fMRI'; and select the `whole\_brain' mask available in the masks directory of the Haxby dataset. The name of the modality here has to be exactly the same as in `Modalities', otherwise it will not work;
+	\item In the `Masks' field, add a new modality and provide the same modality name, `fMRI', choose the appropriate data format and finally select the `whole\_brain' mask available in the masks directory of the Haxby dataset. The name of the modality here has to be exactly the same as in `Modalities', otherwise it will not work;
 	
 	%checar aqui
 	
 	\item Leave the `HRF overlap' and the `HRF delay' fields as default;
 	
-	\item In the `Review' field, select `Yes' if you would like to review your data and design in a separate window. Otherwise, leave as it is, i.e. `No'.
+	\item In the `Review' field, select `Yes' if you would like to review your data and design in a separate window. Otherwise, leave as it is, i.e. `No'. Keep in mind that the procedure pauses while you review the data and that you have to close the `Review' window for the procedure to continue.
 
 
 \end{itemize}
@@ -435,32 +498,31 @@ Once again, create a new directory where you wish to save the results. On the ma
 \subsection{Feature set / Kernel}
 
 \begin{itemize}
-	\item Click on `Feature set / Kernel' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchFeature});
+	\item Click on `Feature set / Kernel' option on PRoNTo's {\tt matlabbatch} menu. Figure \ref{fig:batch_feature_set_full} is the full drop-down list of options.
+	
+	\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batch_feature_set_dep}) or click on the `Select files' button to browse where `PRT.mat' file was saved;
 	
 	\begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchFeature.png}
-	\caption{Feature set/Kernel module in {\tt matlabbatch}. }
-	\label{fig:batchFeature}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/batch_feature_set_full.png}
+	\caption{Full drop-down list of options in the {\tt matlabbatch} Feature set / Kernel module.}
+	\label{fig:batch_feature_set_full}
 \end{figure}
-	
-	\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Data \& Design' step (Figure \ref{fig:batchDependency}) or click on the `Select files' button to browse where `PRT.mat' file was saved;
-	
 	 	
 \begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchDependency.png}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/batch_feature_set_dep.png}
 	\caption{Feature set / Kernel module in {\tt matlabbatch}. This window is called to establish a dependency connection with the previous `Data and design' module.}
-	\label{fig:batchDependency}
+	\label{fig:batch_feature_set_dep}
 \end{figure}
 	
 	\item Provide a name to the `Feature/kernel' set, e.g. `HaxbyFeatures';
 	
-	\item Add one modality and select the modality name with the `Dependency' button\footnote{Or type it in manually, `fMRI', but the name needs to be {\it exactly} the same as the one specified in the `Data \& Design' module.}(Data \& Design:Mod\#1 name);
+	\item Select the `Nifti' option for a data format, add one modality and select the modality name with the `Dependency' button\footnote{Or type it in manually, `fMRI', but the name needs to be {\it exactly} the same as the one specified in the `Data \& Design' module.}(Data \& Design:Mod\#1 name);
 	
 		\begin{itemize}
 	
-	\item In the `Scans/Conditions' field , select the `All scans' option;
+	\item In the `Scans/Conditions' field , select the `All samples' option;
 	
 	\item In the `Voxels to include' field, select `All voxels' option, this means we are not entering an additional second-level mask;
 	
@@ -470,51 +532,32 @@ Once again, create a new directory where you wish to save the results. On the ma
 	
 	\item In the `Detrend' field, select `Polynomial detrend' option with order 1;
 	
-	\item In the `Scale input scans' field, select `No scaling' option;
-	
-	\item Leave `Load Atlas' as default. After all these steps, the batch editor should look similar to the one in Figure \ref{fig:batchModality};
-	
-	\begin{figure}[h!]
-	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchModality.png}
-	\caption{Feature set / Kernel module. Selected parameters in the Modality option.}
-	\label{fig:batchModality}
-\end{figure}
+	\item In the `Scale input scans' field, select `No scaling' option and finally leave `Load Atlas' as default.
 	
 	\end{itemize}
 	
-	\item Leave the `Generate Multiple Kernels' and the `Use one kernel per modality' fields as default.
-	
+	\item For the other Data formats please refer to Chapter XXXX.
 
 \end{itemize}
 
 %--------------------------------------------------------
 
-\subsection{Specify model}
+\subsection{Model: Specify new}
 
 \begin{itemize}
 
-\item Click on `Specify model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchSpecifyModel});
+\item Click on `Model: Specify new' option on PRoNTo's {\tt matlabbatch} menu. Figure \ref{fig:batch_model_specify_new_full} is the full drop-down list of options.
 	
 	\begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchSpecifyModel.png}
-	\caption{Specify model module in {\tt matlabbatch}.}
-	\label{fig:batchSpecifyModel}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/batch_model_specify_new_full.png}
+	\caption{`Model: Specify new' module in {\tt matlabbatch}.}
+	\label{fig:batch_model_specify_new_full}
 \end{figure}
 	
-	\item With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Feature set / Kernel' step (Figure \ref{fig:batchDependency2}) or click on `Select files' button to browse where `PRT.mat' file was saved;
-	
-\begin{figure}[h!]
-	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchDependency2.png}
-	\caption{Specify model module in {\tt matlabbatch}. This window is called to establish a dependency connection with the previous `Feature set / Kernel' module.}
-	\label{fig:batchDependency2}
-\end{figure}
+	\item With `Load PRT.mat' field selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous `Feature set / Kernel' step, or alternatively either double-click on `Load PRT.mat' option or click on `Specify' button to browse where `PRT.mat' file was saved.
 
 	\item Provide a name to the model, e.g. `svmFacesHouses'; 
-	
-	\item Leave the `Use kernels' field as it is, i.e. `Yes';
 	
 	\item In the `Feature sets' field, select the feature set name with the `Dependency' button\footnote{or write it {\it exactly} as previously defined in the `Feature set / Kernel' module (option `Feature set/Kernel: Feature/kernel name'), here `HaxbyFeatures'.};
 	
@@ -530,28 +573,20 @@ Once again, create a new directory where you wish to save the results. On the ma
 		
 		\item In the `Conditions / Scans' field, select the `Specify Conditions' option and add a new condition. Provide a name for this condition, i.e. for Class (1) `Faces' and for Class (2) `Houses'. Note that this name needs to be spelled exactly as specified in the `Data \& Design' module: if you simply loaded an `SPM.mat' file for the design, you {\it must} know the names of the conditions;
 		
-		\item After all this steps, the batch editor should look similar to the one in Figure \ref{fig:batchClass}	
-	
-	\begin{figure}[h!]
-	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchClass.png}
-	\caption{Specify model module. Selected parameters in the Class option.}
-	\label{fig:batchClass}
-\end{figure}
 
 		\end{itemize}			
+	
+        \item Leave `Subsample examples based on class definition' as it is, i.e. `No'.
 		
-	\item In the `Machine' field:
-	
+	\item In the `Machine Type' field:
+
 	\begin{itemize}
-	\item Select the `SVM Classification' option;	
 	
-	\item Leave the `Optimize hyper-parameter' field as it is, i.e. `No';
-	
-	\item Leave the `Soft-margin hyper-parameter' field as it is, i.e. `1';
-	
-	\item Leave the `Cross validation type for hyper-parameter optimization' field as it is, i.e. `Leave one subject out';  
-	
+	\item Select the`Kernel machine' and the `SVM Classification' options;
+
+    \item Leave the `SVM string argument' as it is, i.e. `-q -s 0 -t 4 -c'.	
+    
+	\item Finally, on the `Machine optimization and parameters' field select `No optimization'.
 	
 	\end{itemize}
 	
@@ -571,17 +606,41 @@ Once again, create a new directory where you wish to save the results. On the ma
 
 %----------------------------------------------------------
 
-\subsection{Run model}
+
+\subsection{Model: Specify from}
 
 \begin{itemize}
 
-	\item Click on the `Run model' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchRun});
+    \item Click on `Model: Specify from' option on PRoNTo's {\tt matlabbatch} menu. Figure \ref{fig:batch_model_specify_from} is the full drop-down list of options.
+	
+	\begin{figure}[h!]
+	    \centering
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/batch_model_specify_from.png}
+    	\caption{`Model: Specify from' module in {\tt matlabbatch}.}
+    	\label{fig:batch_model_specify_from}
+    \end{figure}
+
+    \item The `Specify model from' module is similar to the `Specify model new' module, with the appropriate fields disabled to ensure comparability between models. As in the `Specify model new' module first with the `PRT.mat' file selected, click on `Dependency' button to associate the `PRT.mat' file created in the previous step, or alternatively either double-click on `Load PRT.mat' option or click on `Specify' button to browse where `PRT.mat' file was saved.
+    
+    \item Choose a `Model name', e.g. `Test\_Model', and then specify the name of an existing model with whom you want to compare, here `svmFacesHouses'.
+    
+    \item There are three different options you can change in your new model. The feature set, the model type and the data operations. For further information regarding these options go to (((REF-> specify from gui and/or previous chapters in theory))).
+
+\end{itemize}
+
+%----------------------------------------------------------
+
+\subsection{Model: Run}
+
+\begin{itemize}
+
+	\item Click on the `Model: Run' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batch_model_run});
 	
 	\begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchRun.png}
-	\caption{Run model module in {\tt matlabbatch}.}
-	\label{fig:batchRun}
+		\includegraphics[scale=0.5]{images/Tutorial/classification/v3/batch_model_run.png}
+	\caption{`Model: Run' module in {\tt matlabbatch}.}
+	\label{fig:batch_model_run}
 \end{figure}
 	
 	
@@ -589,7 +648,9 @@ Once again, create a new directory where you wish to save the results. On the ma
 	
 	\item Select the model name from the `Specify model' module with the `Dependency' button\footnote{Or write it {\it exactly}, as previously defined in the `Specify model' module, here `svmFacesHouses'};
 
-	\item In the field `Do permutation test?', select `yes' with 100 repetitions or leave as default (1000 repetitions).
+	\item In the field `Do permutation test?', select `Permutation test' with 100 repetitions, or leave as default (1000 repetitions).
+	
+	\item Leave both `Save permutations parameters' and `Copy permutations from model' as they are, i.e. `No'. `Copy permutations from model' should be set to `Yes' if one has more than one models and wants to correct for multiple comparisons. In that case the two models should have exactly the same number of samples.
 
 \end{itemize}
 %-----------------------------------------------------
@@ -598,24 +659,22 @@ Once again, create a new directory where you wish to save the results. On the ma
 
 \begin{itemize}
 
-	\item Click on the `Compute weights' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batchWeights});
+	\item Click on the `Compute weights' option on PRoNTo's {\tt matlabbatch} menu (Figure \ref{fig:batch_compute_weights});
 	
 	\begin{figure}[h!]
 	\centering
-		\includegraphics[scale=0.6]{images/Tutorial/classification/batchWeights.png}
-	\caption{Compute weights module in {\tt matlabbatch}.}
-	\label{fig:batchWeights}
+		\includegraphics[scale=0.6]{images/Tutorial/classification/v3/batch_compute_weights.png}
+	\caption{`Compute weights' module in {\tt matlabbatch}.}
+	\label{fig:batch_compute_weights}
 \end{figure}
 
 	\item With `Load PRT.mat' field selected, click on the `Dependency' button to associate the `PRT.mat' file created in the previous `Run model' step;
 	
-	\item Select the model name from the `Specify model' module with the `Dependency' button;
+	\item Select the model name from the `Model: Specify new' module with the `Dependency' button;
 	
 	\item It's optional to define a name for the image; 
 	
 	\item Leave the `Build weights images for permutations' field as it is, i.e. `No'; 
-	
-	\item Leave the `Load Atlas' field as default.
 
 \end{itemize}
 
