@@ -1,13 +1,14 @@
 % Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
-% Verion 2.0 (PRoNTo2) February-2015
+% Verion 3.alpha (PRoNTo3) October-2018
 %__________________________________________________________________________
-%    ____  ____        _   ________              ___    ____ 
-%   / __ \/ __ \____  / | / /_  __/___     _   _|__ \  / __ \
-%  / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / /_/ / / / / /
-% / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ / __/_/ /_/ / 
-%/_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/  
+%    ____  ____        _   ________              _____  ____ 
+%   / __ \/ __ \____  / | / /_  __/___     _   _|__  / / __ \
+%  / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / //_ < / / / /
+% / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ /__/ // /_/ / 
+%/_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/ 
 %
-%                         PRoNTO v2.0 - http://www.mlnl.cs.ucl.ac.uk/pronto
+%
+%                         PRoNTO v3.a - http://www.mlnl.cs.ucl.ac.uk/pronto
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
@@ -15,23 +16,23 @@
 %
 %__________________________________________________________________________
 %
-% PRoNTo is the deliverable of a Pascal Harvest project 
-% coordinated by Dr. Mourao-Miranda.
 % PRoNTo is  developed by the Machine Learning & Neuroimaging Laboratory,
 % Computer Science department, University College London, UK.
 % http://www.mlnl.cs.ucl.ac.uk and associated researchers.
 % 
-% The main contributors, in alphabetical order, are:
+% The main contributors (past and present), in alphabetical order, are:
 % - John Ashburner, 
 % - Carlton Chu, 
 % - Andre Marquand,
 % - Joao M. Monteiro, 
 % - Janaina Mourao-Miranda, 
 % - Christophe Phillips, 
+% - Anil Rao,
 % - Jonas Richiardi,
 % - Jane Rondina,
 % - Maria J. Rosa,
-% - Jessica Schrouff.
+% - Jessica Schrouff
+% - Tong Wu
 % 
 % The development of PRoNTo was possible with the financial and logistic 
 % support of 
@@ -49,9 +50,10 @@
 %   of Lausanne and Geneva.
 % - Laboratory of Behavioral and Cognitive Neuroscience, Stanford
 %   University, USA.
+% - Marie Sklodowska-Curie Actions, grant 654038 DecoMP-ECoG to J.S.
 %
-% PRoNTo is designed to work from MATLAB versions 7.5 (R2007b) to 
-% 8.3 (R2014a), and will not work with earlier versions.
+% PRoNTo is designed to work from MATLAB versions R2013a to 
+% R2018a, and will not work with earlier versions.
 % Some routine may need to be compiled for your specific OS.
 % 
 % Moreover the latest version of the SPM software is also required! You can
