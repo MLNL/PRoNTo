@@ -77,7 +77,11 @@ set(gcf,'CurrentAxes',axmat);
 
 % Plot values
 h = plot_data(axmat,minsl:maxsl,weights(minsl:maxsl),cols,valsN(minsl:maxsl),[minw maxw]);
-hc = colorbar('Units','normalized','Position',[0.85 0.2 0.02 0.7]);
+try
+    hc = colorbar(axmat,'Units','normalized','Position',[0.85 0.2 0.02 0.7]);
+catch
+    hc = colorbar('peer',axmat,'Units','normalized','Position',[0.85 0.2 0.02 0.7]);
+end
 % Change colorbar limits and tick labels
 try
     limhc = get(hc,'Limits');

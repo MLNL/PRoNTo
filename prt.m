@@ -50,10 +50,9 @@ switch lower(Action)
             end
         end
         
-        % utils - dirty check for the moment
-        if ~exist('cbrewer','file')
-            addpath(genpath(fullfile(prt('Dir'),'utils')));
-        end
+        % utils 
+        addpath(genpath(fullfile(prt('Dir'),'utils')));
+
         
         % check installation of machines and that of SPM8/12
         warning('OFF')

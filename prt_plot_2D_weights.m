@@ -55,7 +55,11 @@ end
 
 xlim([1 size(weights,2)])
 ylim([1 size(weights,1)])
-hc = colorbar('Units','normalized','Position',[0.85 0.2 0.02 0.7]);
+try
+    hc = colorbar(axmat,'Units','normalized','Position',[0.85 0.2 0.02 0.7]);
+catch
+    hc = colorbar('peer',axmat,'Units','normalized','Position',[0.85 0.2 0.02 0.7]);
+end
 % Change colorbar limits to ensure centered white if positive and negative
 if minw<0 && maxw>0
     try

@@ -163,7 +163,7 @@ if handles.flagMEEG
     handles.indmod = indmeeg;
 elseif strcmpi(handles.modtype,'nifti')
     handles.indmod = indimg;
-elseif strcmpi(handles.modtype,'.mat')
+elseif ~isempty(strfind(handles.modtype,'mat'))
     handles.indmod = indmat;
 end
 
