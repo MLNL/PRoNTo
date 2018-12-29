@@ -413,7 +413,7 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    else
        stm =1; % if modalities concatenated or only one
    end
-   if ~iscell(handles.PRT.fs(fid).atlas_name)
+   if isfield(handles.PRT.fs(fid),'atlas_name') && ~iscell(handles.PRT.fs(fid).atlas_name)
        handles.PRT.fs(fid).atlas_name = {handles.PRT.fs(fid).atlas_name};
    end
    % Get the number of ROIs and their labels for each modality
