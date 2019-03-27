@@ -88,6 +88,8 @@ elseif isfield(jobmach,'krr')
 elseif isfield(jobmach,'rvr')
     model.machine.function='prt_machine_rvr';
     model.machine.s_args     = '';
+    % K.T. Edit 03/2019
+    model.machine.args     = [];
     
 % Gaussian Processes regression
 elseif isfield(jobmach,'gpr')
@@ -130,7 +132,12 @@ else
     else
         model.machine.s_args  = '';
     end
+    
+	if isfield(jobmach.custom_machine.machine_opt, 'machine_no_opt')
+        model.machine.args  = jobmach.custom_machine.machine_opt.machine_no_opt;
+    else
     opt = jobmach.custom_machine.machine_opt;
+    end
 end
 
 % Get optimization and parameters

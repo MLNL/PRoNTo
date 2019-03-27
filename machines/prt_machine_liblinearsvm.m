@@ -118,7 +118,10 @@ else
     sgn = 1;
 end
 if strcmpi(output.type,'classification')
-    output.func_val    = sgn*func_val; 
+    output.func_val    = sgn*func_val;
+% K.T. Edit 03/2019
+else
+    output.func_val    = func_val;	
 end
 
 % Outputs

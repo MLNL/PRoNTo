@@ -404,7 +404,8 @@ else
             if strcmpi(m.type,'classifier') || strcmpi(m.type,'classification')
                 tp             = vertcat(model.output.fold(:).targets);
                 m.predictions  = vertcat(model.output.fold(:).predictions);
-                m.func_val    = vertcat(PRT.model(mid).output.fold(:).func_val);
+				% K.T. Edit 03/2019
+				m.func_val    = vertcat(PRT.model(modelid(1)).output.fold(:).func_val);
                 t_stats     = prt_stats(m,tp,n_class);
                 perm_stats.con_mat = t_stats.con_mat;
             end

@@ -237,7 +237,10 @@ for p=0:maxp
                 end
             end
             
-            delete(hdr_name)
+            % K.T. Edit 03/2019
+			if ~flagmat
+				delete(hdr_name)
+			end
         end
     end
     
@@ -513,7 +516,12 @@ for p=0:maxp
                 create(No);                    % write header
             end
         end
-        img_name{c} = finimg_name{c};
+        
+        % K.T. Edit 03/2019
+        if p == 0
+            img_name{c} = finimg_name{c};
+        end
+        
     end
     disp('Done.')
 end

@@ -73,7 +73,8 @@ for i = 1:n_mods
             if ~isempty(in.mod(mids(i)).multkernparam) &&...
                     ~isempty(in.mod(mids(i)).multkernparam{j})
                 winsize = in.mod(mids(i)).multkernparam{j};
-                newdim = ceil(dim(i,j)/in.mod(mids(i)).multkernparam{j});
+				% K.T. Edit 03/2019
+                newdim = ceil(round(dim(i,j)/in.mod(mids(i)).multkernparam{j}, 7));
                 dim(i,j) = newdim;
             end
         end            
@@ -190,7 +191,8 @@ for ik = 1:nkm
                             lab_atl{nroi} = ['Tp',num2str(time(itpt))];
                         end
                     else                            %one kernel per time window
-                        itpstop = min(itpstart+winsize-1,length(in.mod(mids(ik)).itp));
+						% K.T. Edit 03/2019
+                        itpstop = min(itpstart+winsize-1,max(in.mod(mids(ik)).itp));
                         itpt = in.mod(mids(ik)).itp(round(itpstart):round(itpstop));
                         itpstart = itpstart+winsize;    
                         if ~isempty(lab_atl{nroi})
