@@ -132,7 +132,12 @@ else
     else
         model.machine.s_args  = '';
     end
+    
+	if isfield(jobmach.custom_machine.machine_opt, 'machine_no_opt')
+        model.machine.args  = jobmach.custom_machine.machine_opt.machine_no_opt;
+    else
     opt = jobmach.custom_machine.machine_opt;
+    end
 end
 
 % Get optimization and parameters
