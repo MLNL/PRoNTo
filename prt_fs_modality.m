@@ -218,7 +218,7 @@ for b = 1:n_block
                             try
                                 TR = PRT.group(gid).subject(sid).modality(mid).TR;
                             catch
-                                error('detrend:TRnotfound','No TR in data, suggesting that detrend is not necessary')
+                                error('detrend:TRnotfound','No TR in data, suggesting that detrend is not necessary. Detrending is bad practice in regression.')
                             end
                         end
                         switch in.mod(mid).detrend
