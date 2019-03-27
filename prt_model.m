@@ -334,6 +334,8 @@ end
 
 
 if nargin>=4 && subsample
+    % K.T. Edit 03/2019
+    rng(3, 'twister');
     nc_count = hist(t_all(t_all~=0),unique(t_all(t_all~=0))); % count how many trials per class
     ntk = min(nc_count);
     for i = 1:nc
