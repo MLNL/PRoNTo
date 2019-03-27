@@ -1,5 +1,5 @@
 % Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
-% Verion 3.alpha (PRoNTo3) October-2018
+% Verion 3.0 (PRoNTo3) March-2019
 %__________________________________________________________________________
 %    ____  ____        _   ________              _____  ____ 
 %   / __ \/ __ \____  / | / /_  __/___     _   _|__  / / __ \
@@ -8,7 +8,7 @@
 %/_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/ 
 %
 %
-%                         PRoNTO v3.a - http://www.mlnl.cs.ucl.ac.uk/pronto
+%                         PRoNTO v3.0 - http://www.mlnl.cs.ucl.ac.uk/pronto
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
