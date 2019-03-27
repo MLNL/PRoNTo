@@ -529,8 +529,13 @@ for p=0:maxp
                 No.descrip = 'Pronto weigths'; % description
                 create(No);                    % write header
             end
-        end 
-        img_name{c} = finimg_name{c};
-    end  
+        end
+        
+        % K.T. Edit 03/2019
+        if p == 0
+            img_name{c} = finimg_name{c};
+        end
+        
+    end
 end
 disp('Done.')
