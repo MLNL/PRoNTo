@@ -45,7 +45,8 @@ plot(axes_handle,preds1,'--ok');
 hold on
 plot(axes_handle,preds2,'--or');
 hold off
-xlabel(axes_handle,'folds','FontWeight','bold');
+% K.T. Edit 03/2019
+xlabel(axes_handle,'subjects','FontWeight','bold');
 ylabel(axes_handle,'predictions/targets','FontWeight','bold');
 xlim(axes_handle,[0 ntargs+1]);
 legend(axes_handle,{'Target', 'Predicted'});
