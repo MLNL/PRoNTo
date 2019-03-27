@@ -237,7 +237,10 @@ for p=0:maxp
                 end
             end
             
-            delete(hdr_name)
+            % K.T. Edit 03/2019
+			if ~flagmat
+				delete(hdr_name)
+			end
         end
     end
     

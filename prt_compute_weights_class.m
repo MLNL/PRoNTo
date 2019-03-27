@@ -270,8 +270,11 @@ for p=0:maxp
                 end
             end
 
-            delete(hdr_name)
-        end
+            % K.T. Edit 03/2019
+			if ~flagmat
+				delete(hdr_name)
+			end
+		end
     end
     
     if length(dat_dim)==2, dat_dim = [dat_dim 1]; end % handling case of 2D image
