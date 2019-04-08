@@ -126,8 +126,9 @@ end
 if ~isempty(varargin{1}) && strcmpi(varargin{1},'UserData')
     handles.PRT=varargin{2}{1};
     mod_type = {handles.PRT.masks.type};
+    unique_mod_type = unique(mod_type);
     for i = 1:length(aa)
-        set(aa(i),'String',char(mod_type(i)));
+        set(aa(i),'String',char(unique_mod_type(i)));
     end
     handles.fname = varargin{2}{2};
 end 
