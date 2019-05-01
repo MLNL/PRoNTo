@@ -81,7 +81,7 @@ for i=1:length(PRT.masks)
                     mod(i).matnorm = char(job.format.modality(ind).normalise.mat_gms);
                 end
                 
-                if isfield(job.format.modality.conditions,'all_cond')
+                if isfield(job.format.modality(ind).conditions,'all_cond')
                     mod(i).mode='all_cond';
                 elseif isfield(job.format.modality(ind).conditions,'all_scans')
                     mod(i).mode='all_scans';
@@ -232,7 +232,7 @@ for i=1:length(PRT.masks)
                     mod(i).matnorm = char(job.format.matmodality(ind).normalise.mat_gms);
                 end
                 % Condition options
-                if isfield(job.format.matmodality.conditions,'all_cond')
+                if isfield(job.format.matmodality(ind).conditions,'all_cond')
                     mod(i).mode='all_cond';
                 elseif isfield(job.format.matmodality(ind).conditions,'all_scans')
                     mod(i).mode='all_scans';
