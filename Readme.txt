@@ -5,7 +5,7 @@
          / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ / __/_ / /  
         /_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)_/ 
                                                                     
-              PRoNTo v2.1 - http://www.mlnl.cs.ucl.ac.uk/pronto      
+              PRoNTo v3.0 - http://www.mlnl.cs.ucl.ac.uk/pronto      
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 % 
@@ -40,6 +40,6 @@
 %
 %                               ----------------
 % 
-% Please refer to this version as "PRoNTo2" in papers and communications.
+% Please refer to this version as "PRoNTo3" in papers and communications.
 % 
 %__________________________________________________________________________
