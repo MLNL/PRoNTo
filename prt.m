@@ -28,6 +28,9 @@ switch lower(Action)
     case 'startup'                                    % Startup the toolbox
         %==================================================================
         
+        % Initialize SPM properly
+        spm('fmri'); close all;
+        
         % Welcome message
         prt('ASCIIwelcome');
         
