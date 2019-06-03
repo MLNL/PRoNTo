@@ -1,5 +1,5 @@
 function [cvdata] = prt_prepare_task_input_STL(PRT,in)
-% function to gather task information before MTL model estimation
+% Function to gather task information before MTL model estimation.
 %
 % Inputs:
 % -------

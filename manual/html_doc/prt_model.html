@@ -1,0 +1,459 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_model</title>
+  <meta name="keywords" content="prt_model">
+  <meta name="description" content="Function to configure and build the PRT.model data structure">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_model.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_model
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to configure and build the PRT.model data structure</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [PRT, CV, ID] = prt_model(PRT,in) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to configure and build the PRT.model data structure
+
+ Input:
+ ------
+
+   in.fname:      filename for PRT.mat
+   in.model_name: name for this cross-validation structure
+   in.type:       'classification' or 'regression'
+   in.use_kernel: does this model use kernels or features?
+   in.operations: operations to apply before prediction
+
+   in.fs(f).fs_name:     feature set(s) this CV approach is defined for
+
+   in.class(c).class_name
+   in.class(c).group(g).subj(s).num
+   in.class(c).group(g).subj(s).modality(m).mod_name
+   EITHER: in.class(c).group(g).subj(s).modality(m).conds(c).cond_name
+   OR:     in.class(c).group(g).subj(s).modality(m).all_scans
+   OR:     in.class(c).group(g).subj(s).modality(m).all_cond
+
+   in.cv.type:     type of cross-validation ('loso','losgo','custom')
+   in.cv.mat_file: file specifying CV matrix (if type='custom')
+   in.savePRT:     flag specifying if PRT is saved at the end, if omited 
+                   save by default (to ensure back compatibility)
+
+ Output:
+ -------
+
+   This function performs the following functions:
+      1. populates basic fields in PRT.model(m).input
+      2. computes PRT.model(m).input.targets based on in.class(c)...
+      3. computes PRT.model(m).input.samp_idx based on targets
+      4. computes PRT.model(m).input.cv_mat based on the labels and CV spec
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_compute_cv_mat.html" class="code" title="function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)">prt_compute_cv_mat</a>	Function to compute the cross-validation matrix.</li><li><a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>	Function to initialise the kernel data structure.</li><li><a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>	Function to initialise the model data structure.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_ui_model.html" class="code" title="function varargout = prt_ui_model(varargin)">prt_ui_model</a>	PRT_UI_KERNEL_CONSTRUCTION M-file for prt_ui_kernel_construction.fig</li><li><a href="prt_ui_specify_CV_basis.html" class="code" title="function varargout = prt_ui_specify_CV_basis(varargin)">prt_ui_specify_CV_basis</a>	PRT_UI_SPECIFY_CV_BASIS M-file for prt_ui_specify_CV_basis.fig</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PRT, in, regression,subsample)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [PRT, CV, ID] = prt_model(PRT,in)</a>
+0002 <span class="comment">% Function to configure and build the PRT.model data structure</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Input:</span>
+0005 <span class="comment">% ------</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   in.fname:      filename for PRT.mat</span>
+0008 <span class="comment">%   in.model_name: name for this cross-validation structure</span>
+0009 <span class="comment">%   in.type:       'classification' or 'regression'</span>
+0010 <span class="comment">%   in.use_kernel: does this model use kernels or features?</span>
+0011 <span class="comment">%   in.operations: operations to apply before prediction</span>
+0012 <span class="comment">%</span>
+0013 <span class="comment">%   in.fs(f).fs_name:     feature set(s) this CV approach is defined for</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   in.class(c).class_name</span>
+0016 <span class="comment">%   in.class(c).group(g).subj(s).num</span>
+0017 <span class="comment">%   in.class(c).group(g).subj(s).modality(m).mod_name</span>
+0018 <span class="comment">%   EITHER: in.class(c).group(g).subj(s).modality(m).conds(c).cond_name</span>
+0019 <span class="comment">%   OR:     in.class(c).group(g).subj(s).modality(m).all_scans</span>
+0020 <span class="comment">%   OR:     in.class(c).group(g).subj(s).modality(m).all_cond</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   in.cv.type:     type of cross-validation ('loso','losgo','custom')</span>
+0023 <span class="comment">%   in.cv.mat_file: file specifying CV matrix (if type='custom')</span>
+0024 <span class="comment">%   in.savePRT:     flag specifying if PRT is saved at the end, if omited</span>
+0025 <span class="comment">%                   save by default (to ensure back compatibility)</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% Output:</span>
+0028 <span class="comment">% -------</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">%   This function performs the following functions:</span>
+0031 <span class="comment">%      1. populates basic fields in PRT.model(m).input</span>
+0032 <span class="comment">%      2. computes PRT.model(m).input.targets based on in.class(c)...</span>
+0033 <span class="comment">%      3. computes PRT.model(m).input.samp_idx based on targets</span>
+0034 <span class="comment">%      4. computes PRT.model(m).input.cv_mat based on the labels and CV spec</span>
+0035 <span class="comment">%__________________________________________________________________________</span>
+0036 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0037 
+0038 <span class="comment">% Written by A Marquand, modified by J. Schrouff</span>
+0039 <span class="comment">% $Id$</span>
+0040 
+0041 <span class="comment">% Populate basic fields in PRT.mat</span>
+0042 <span class="comment">% -------------------------------------------------------------------------</span>
+0043 [modelid, PRT] = <a href="prt_init_model.html" class="code" title="function [mid, PRT] = prt_init_model(PRT, in)">prt_init_model</a>(PRT,in);
+0044 
+0045 <span class="comment">% specify model type and feature sets</span>
+0046 PRT.model(modelid).input.type = in.type;
+0047 <span class="keyword">if</span> strcmp(in.type,<span class="string">'classification'</span>)
+0048     <span class="keyword">for</span> c = 1:length(in.class)
+0049         PRT.model(modelid).input.class(c) = in.class(c);
+0050     <span class="keyword">end</span>
+0051 <span class="keyword">else</span>
+0052     PRT.model(modelid).input.group = in.group;
+0053 <span class="keyword">end</span>
+0054 
+0055 <span class="keyword">if</span> ~isfield(in,<span class="string">'subsample'</span>) <span class="comment">% No subsampling of the trials by default</span>
+0056     subsample = 0;
+0057 <span class="keyword">else</span>
+0058     subsample = in.subsample;
+0059 <span class="keyword">end</span>
+0060     
+0061 
+0062 <span class="keyword">for</span> f = 1:length(in.fs)  
+0063     PRT.model(modelid).input.fs(f).fs_name = in.fs(f).fs_name;
+0064 <span class="keyword">end</span>
+0065 
+0066 <span class="comment">% compute targets and samp_idx</span>
+0067 <span class="comment">% -------------------------------------------------------------------------</span>
+0068 
+0069 <span class="comment">% Get targets, samples and covariates</span>
+0070 <span class="keyword">if</span> strcmp(in.type,<span class="string">'classification'</span>)
+0071     [targets, samp_idx, t_allscans, samp_allscans,covar,cov_all] = <a href="#_sub1" class="code" title="subfunction [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PRT, in, regression,subsample)">compute_targets</a>(PRT, in, 0,subsample);
+0072 <span class="keyword">else</span>
+0073     <span class="comment">% One RT per trial</span>
+0074     [targets, samp_idx, t_allscans,samp_allscans, covar,cov_all] = <a href="#_sub1" class="code" title="subfunction [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PRT, in, regression,subsample)">compute_targets</a>(PRT, in, 1,subsample);
+0075 <span class="keyword">end</span>
+0076 
+0077 
+0078 <span class="comment">%[afm]</span>
+0079 <span class="keyword">if</span> isfield(in,<span class="string">'include_allscans'</span>) &amp;&amp; in.include_allscans   
+0080     PRT.model(modelid).input.samp_idx = samp_allscans;
+0081     PRT.model(modelid).input.include_allscans = in.include_allscans;
+0082 <span class="keyword">else</span>
+0083     PRT.model(modelid).input.samp_idx = samp_idx;
+0084     PRT.model(modelid).input.include_allscans = false;
+0085 <span class="keyword">end</span>
+0086 PRT.model(modelid).input.targets          = targets;
+0087 PRT.model(modelid).input.targ_allscans    = t_allscans;
+0088 PRT.model(modelid).input.covar            = covar;
+0089 PRT.model(modelid).input.cov_allscans     = cov_all;
+0090 
+0091 <span class="comment">% compute cross-validation matrix and specify operations to apply</span>
+0092 <span class="comment">% -------------------------------------------------------------------------</span>
+0093 <span class="keyword">if</span> isfield(in.cv,<span class="string">'k'</span>)
+0094     PRT.model(modelid).input.cv_k=in.cv.k;
+0095 <span class="keyword">else</span>
+0096     PRT.model(modelid).input.cv_k = 0;
+0097 <span class="keyword">end</span>  
+0098 [CV,ID] = <a href="prt_compute_cv_mat.html" class="code" title="function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)">prt_compute_cv_mat</a>(PRT,in, modelid);
+0099 PRT.model(modelid).input.cv_mat     = CV;
+0100 PRT.model(modelid).input.cv_type=in.cv.type;
+0101 <span class="comment">% Deal with nested CV parameters</span>
+0102 <span class="keyword">if</span> isfield(in.cv,<span class="string">'type_nested'</span>) &amp;&amp; ~isempty(in.cv.type_nested)
+0103     PRT.model(modelid).input.cv_type_nested = in.cv.type_nested;
+0104 <span class="keyword">end</span>
+0105 <span class="keyword">if</span> isfield(in.cv,<span class="string">'k_nested'</span>) &amp;&amp; ~isempty(in.cv.k_nested)
+0106     PRT.model(modelid).input.cv_k_nested = in.cv.k_nested;
+0107 <span class="keyword">end</span>
+0108 <span class="keyword">if</span> isfield(in.cv,<span class="string">'nested_param'</span>) &amp;&amp; ~isempty(in.cv.nested_param)
+0109     PRT.model(modelid).input.nested_param = in.cv.nested_param;
+0110 <span class="keyword">end</span>
+0111 
+0112 PRT.model(modelid).input.operations = in.operations;
+0113 
+0114 <span class="comment">% Save PRT.mat</span>
+0115 <span class="comment">% -------------------------------------------------------------------------</span>
+0116 <span class="keyword">if</span> ~isfield(in,<span class="string">'savePRT'</span>) || in.savePRT 
+0117     disp(<span class="string">'Updating PRT.mat.......&gt;&gt;'</span>)
+0118     <span class="keyword">if</span> spm_check_version(<span class="string">'MATLAB'</span>,<span class="string">'7'</span>) &gt;= 0
+0119         save(in.fname,<span class="string">'-V7'</span>,<span class="string">'PRT'</span>);
+0120     <span class="keyword">else</span>
+0121         save(in.fname,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
+0122     <span class="keyword">end</span>
+0123 <span class="keyword">end</span>
+0124 
+0125 <span class="keyword">end</span>
+0126 
+0127 <span class="comment">%% ------------------------------------------------------------------------</span>
+0128 <span class="comment">% Private Functions</span>
+0129 <span class="comment">% -------------------------------------------------------------------------</span>
+0130 <a name="_sub1" href="#_subfunctions" class="code">function [targets, samp_idx, t_all, samp_all,covar,cov_all] = compute_targets(PRT, in, regression,subsample)</a>
+0131 
+0132 <span class="comment">% Function to compute the prediction targets. Also does some error checking</span>
+0133 
+0134 <span class="comment">% Set the reference feature set</span>
+0135 fid = <a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>(PRT, in.fs(1));
+0136 ID  = PRT.fs(fid).id_mat;
+0137 n   = size(ID,1);
+0138 
+0139 <span class="comment">% Check the considered feature sets have the same ID matrix.</span>
+0140 idcheck = [1,2,4]; <span class="comment">%skip modality column and scans</span>
+0141 <span class="keyword">for</span> f = 2:length(in.fs)
+0142     fid_oth = <a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>(PRT, in.fs(f));
+0143     ID_oth = PRT.fs(fid_oth).id_mat;
+0144     <span class="comment">% Constraint: targets should be exactly equal across feature sets</span>
+0145     <span class="keyword">if</span> any(any(ID_oth(:,idcheck)~=ID(:,idcheck)))
+0146         error(<span class="string">'prt_model:DesignOfFeatureSetsDiffer'</span>,<span class="keyword">...</span>
+0147             [<span class="string">'Multiple feature sets included, but they have different '</span>,<span class="keyword">...</span>
+0148             <span class="string">'designs'</span>]);
+0149     <span class="keyword">end</span>
+0150 <span class="keyword">end</span>
+0151 
+0152 modalities = {PRT.masks(:).mod_name};
+0153 groups     = {PRT.group(:).gr_name};
+0154 
+0155 <span class="comment">% Initialize output values</span>
+0156 <span class="comment">% ------------------------</span>
+0157 t_all    = zeros(n,1);
+0158 samp_all = zeros(n,1);
+0159 cov_all = [];
+0160 
+0161 <span class="keyword">if</span> ~regression
+0162     nc = length(in.class);
+0163 <span class="keyword">else</span>
+0164     nc = 1; <span class="comment">%deal with regression</span>
+0165     in.class.group = in.group;
+0166 <span class="keyword">end</span>
+0167 
+0168 <span class="comment">% Gather targets for each scan</span>
+0169 <span class="comment">% ----------------------------</span>
+0170 
+0171 <span class="keyword">for</span> c = 1:nc
+0172     <span class="comment">% groups</span>
+0173     <span class="keyword">for</span> g = 1:length(in.class(c).group)
+0174         gr_name = in.class(c).group(g).gr_name;
+0175         <span class="keyword">if</span> any(strcmpi(gr_name,groups))
+0176             gid = find(strcmpi(gr_name,groups));
+0177         <span class="keyword">else</span>
+0178             error(<span class="string">'prt_model:groupNotFoundInPRT'</span>,<span class="keyword">...</span>
+0179                 [<span class="string">'Group '</span>,gr_name,<span class="string">' not found in PRT.mat'</span>]);
+0180         <span class="keyword">end</span>
+0181         
+0182         <span class="comment">% subjects</span>
+0183         <span class="keyword">for</span> s = 1:length(in.class(c).group(g).subj)
+0184             sid = in.class(c).group(g).subj(s).num;
+0185             <span class="comment">% modalities</span>
+0186             <span class="keyword">for</span> m = 1:length(in.class(c).group(g).subj(s).modality)
+0187                 mod_name = in.class(c).group(g).subj(s).modality(m).mod_name;
+0188                 <span class="keyword">if</span> any(strcmpi(mod_name,modalities))
+0189                     mid = find(strcmpi(mod_name,modalities));
+0190                 <span class="keyword">else</span>
+0191                     error(<span class="string">'prt_model:groupNotFoundInPRT'</span>,<span class="keyword">...</span>
+0192                         [<span class="string">'Modality '</span>,mod_name,<span class="string">' not found in PRT.mat'</span>]);
+0193                 <span class="keyword">end</span>
+0194                 
+0195                 <span class="comment">% Case 1: conditions were specified and there is a design</span>
+0196                 <span class="comment">% (i.e. within-subject classification or regression)</span>
+0197                 <span class="keyword">if</span> isfield(in.class(c).group(g).subj(s).modality(m),<span class="string">'conds'</span>) &amp;&amp; <span class="keyword">...</span>
+0198                         isfield(PRT.group(gid).subject(sid).modality(mid).design,<span class="string">'conds'</span>)
+0199                     conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
+0200                     blocks=1;
+0201                     <span class="keyword">for</span> cond = 1:length(in.class(c).group(g).subj(s).modality(m).conds)
+0202                         cond_name = in.class(c).group(g).subj(s).modality(m).conds(cond).cond_name;
+0203                         
+0204                         <span class="keyword">if</span> any(strcmpi(cond_name,conds))
+0205                             cid = find(strcmpi(cond_name,conds));
+0206                             idx = ID(:,1) == gid &amp; ID(:,2) == sid &amp; ID(:,3) == mid &amp; ID(:,4) == cid;
+0207                             <span class="keyword">if</span> regression <span class="comment">%regression</span>
+0208                                 <span class="keyword">try</span>
+0209                                     idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+0210                                     t_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).rt_trial(idb);
+0211                                 <span class="keyword">catch</span>
+0212                                     error(<span class="string">'prt_model:WrongTargetNumber'</span>,<span class="keyword">...</span>
+0213                                         <span class="string">'Bad number of regression targets'</span>)
+0214                                 <span class="keyword">end</span>
+0215                             <span class="keyword">else</span>
+0216                                 t_all(idx) = c;
+0217                             <span class="keyword">end</span>
+0218                             <span class="keyword">if</span> any(ismember(in.operations, 5)) <span class="comment">% Get the covariates for GLM</span>
+0219                                 <span class="keyword">if</span> mean([c,gid,sid,mid,cid]) ==1 <span class="comment">% Initialize covariates</span>
+0220                                     cov_all = zeros(n,size(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial,2));
+0221                                 <span class="keyword">end</span>                                   
+0222                                 idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+0223                                 cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial(idb,:);
+0224                             <span class="keyword">end</span>
+0225                             samp_all(idx) = 1;
+0226                         <span class="keyword">else</span>
+0227                             <span class="keyword">continue</span> <span class="comment">% Skip a subject/modality for which a condition is not found</span>
+0228                         <span class="keyword">end</span>
+0229                     <span class="keyword">end</span>
+0230                     
+0231                 <span class="comment">% Case 2: all conditions were chosen and there is a design</span>
+0232                 <span class="keyword">elseif</span> isfield(in.class(c).group(g).subj(s).modality(m), <span class="string">'all_cond'</span>) &amp;&amp; <span class="keyword">...</span>
+0233                         isfield(PRT.group(gid).subject(sid).modality(mid).design,<span class="string">'conds'</span>)
+0234                     conds     = {PRT.group(gid).subject(sid).modality(mid).design.conds(:).cond_name};
+0235                     blocks=1;
+0236                     <span class="comment">% all conditions</span>
+0237                     <span class="keyword">for</span> cid = 1:length(conds)
+0238                         idx = ID(:,1) == gid &amp; ID(:,2) == sid &amp; ID(:,3) == mid &amp; ID(:,4) == cid;                        
+0239                         <span class="keyword">if</span> regression <span class="comment">% Regression</span>
+0240                             <span class="keyword">try</span>
+0241                                 idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+0242                                 t_all(idx) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).rt_trial(idb);
+0243                             <span class="keyword">catch</span>
+0244                                 error(<span class="string">'prt_model:WrongTargetNumber'</span>,<span class="keyword">...</span>
+0245                                     <span class="string">'Bad number of regression targets'</span>)
+0246                             <span class="keyword">end</span>
+0247                         <span class="keyword">else</span>
+0248                             t_all(idx) = c;
+0249                         <span class="keyword">end</span>
+0250                         <span class="keyword">if</span> any(ismember(in.operations, 5)) <span class="comment">% Get the covariates for GLM</span>
+0251                             <span class="keyword">if</span> mean([c,gid,sid,mid,cid]) ==1 <span class="comment">% Initialize covariates</span>
+0252                                 cov_all = zeros(n,size(PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial,2));
+0253                             <span class="keyword">end</span>
+0254                             idb = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).blocks;
+0255                             cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).design.conds(cid).cov_trial(idb,:);
+0256                         <span class="keyword">end</span>
+0257                         samp_all(idx) = 1;
+0258                     <span class="keyword">end</span>
+0259                     
+0260                 <span class="comment">% Case 3: multiple regression targets are present in the feature set but we only access one</span>
+0261                 <span class="keyword">elseif</span> isfield(in.class(c).group(g).subj(s).modality(m),<span class="string">'conds'</span>) &amp;&amp; <span class="keyword">...</span>
+0262                         ~isfield(PRT.group(gid).subject(sid).modality(mid).design,<span class="string">'conds'</span>)
+0263                     idx = ID(:,1) == gid &amp; ID(:,2) == sid &amp; ID(:,3) == mid;
+0264                     <span class="keyword">if</span> any(ismember(in.operations, 5)) <span class="comment">%Get covariates</span>
+0265                         <span class="keyword">if</span> mean([c,gid,sid,mid]) ==1 <span class="comment">% Initialize covariates</span>
+0266                             cov_all = zeros(n,size(PRT.group(gid).subject(sid).modality(mid).covar,2));
+0267                         <span class="keyword">end</span>
+0268                         cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
+0269                     <span class="keyword">end</span>
+0270                     <span class="keyword">try</span>
+0271                         tars = {PRT.group(gid).subject(sid).modality(mid).rt_subj(:).name}; <span class="comment">%Gather target names</span>
+0272                         sel_tar = in.class(c).group(g).subj(s).modality(m).conds(1).cond_name; <span class="comment">% Can only select one target</span>
+0273                         rt = strcmpi(sel_tar,tars);
+0274                         rt_tar = PRT.group(gid).subject(sid).modality(mid).rt_subj(rt).tar;
+0275                         <span class="keyword">if</span> ~isnan(rt_tar)
+0276                             t_all(idx) = rt_tar;
+0277                         <span class="keyword">else</span>
+0278                             <span class="keyword">continue</span>
+0279                         <span class="keyword">end</span>
+0280                     <span class="keyword">catch</span>
+0281                         error(<span class="string">'prt_model:WrongNumberofTargets'</span>,<span class="keyword">...</span>
+0282                             <span class="string">'Number of regression targets with specified name does not correspond to number of images'</span>)
+0283                     <span class="keyword">end</span>
+0284                     samp_all(idx) = 1;
+0285                 <span class="keyword">else</span>
+0286                     blocks=0;
+0287                     <span class="comment">% check whether this was included in the feature set</span>
+0288                     <span class="comment">% using 'all conditions' (which is invalid)</span>
+0289                     <span class="keyword">if</span> strcmpi(PRT.fs(fid).modality(m).mode,<span class="string">'all_cond'</span>)
+0290                         error(<span class="string">'prt_model:fsIsAllCondModelisAllScans'</span>,<span class="keyword">...</span>
+0291                             [<span class="string">'''All scans'' selected for subject '</span>,num2str(s),<span class="keyword">...</span>
+0292                             <span class="string">', group '</span>,num2str(g), <span class="string">', modality '</span>, num2str(m),<span class="keyword">...</span>
+0293                             <span class="string">' but the feature set was constructed using '</span>,<span class="keyword">...</span>
+0294                             <span class="string">'''All conditions''. This syntax is invalid. '</span>,<span class="keyword">...</span>
+0295                             <span class="string">'Please use ''All Conditions'' instead.'</span>]);
+0296                     <span class="keyword">end</span>
+0297                     
+0298                     <span class="comment">% otherwise add all scans for each subject</span>
+0299                     <span class="comment">%[afm] idx = ID(:,1) == gid &amp; ID(:,2) == s &amp; ID(:,3) == mid;</span>
+0300                     idx = ID(:,1) == gid &amp; ID(:,2) == sid &amp; ID(:,3) == mid;
+0301                     <span class="keyword">if</span> any(ismember(in.operations, 5)) <span class="comment">%Get covariates</span>
+0302                         <span class="keyword">if</span> mean([c,gid,sid,mid]) ==1 <span class="comment">% Initialize covariates</span>
+0303                             cov_all = zeros(n,size(PRT.group(gid).subject(sid).modality(mid).covar,2));
+0304                         <span class="keyword">end</span>
+0305                         cov_all(idx,:) = PRT.group(gid).subject(sid).modality(mid).covar;
+0306                     <span class="keyword">end</span>
+0307                     <span class="keyword">if</span> ~regression
+0308                         t_all(idx) = c;
+0309                     <span class="keyword">else</span>
+0310                         <span class="keyword">try</span> 
+0311                             tars = {PRT.group(gid).subject(sid).modality(mid).rt_subj(:).name}; <span class="comment">%Gather target names</span>
+0312                             <span class="keyword">if</span> isfield(in.class(c).group(g).subj(s).modality(m), <span class="string">'all_scans'</span>)
+0313                                 <span class="keyword">if</span> length(tars)&gt;1
+0314                                     error(<span class="string">'prt_model:MoreThanOneTarget'</span>,<span class="keyword">...</span>
+0315                                         <span class="string">'More than one regression target was selected'</span>)
+0316                                 <span class="keyword">end</span>
+0317                                 rt = 1;
+0318                             <span class="keyword">elseif</span> isfield(in.class(c).group(g).subj(s).modality(m),<span class="string">'conds'</span>)
+0319                                 sel_tar = in.class(c).group(g).subj(s).modality(m).conds(1).cond_name; <span class="comment">% Can only select one target</span>
+0320                                 rt = strfind(tars,sel_tar);
+0321                             <span class="keyword">end</span>
+0322                             t_all(idx) = PRT.group(gid).subject(sid).modality(mid).rt_subj(rt).tar;
+0323                         <span class="keyword">catch</span>
+0324                             error(<span class="string">'prt_model:WrongNumberofTargets'</span>,<span class="keyword">...</span>
+0325                                 <span class="string">'Number of regression targets does not correspond to number of images'</span>)
+0326                         <span class="keyword">end</span>
+0327                     <span class="keyword">end</span>
+0328                     samp_all(idx) = 1;
+0329                 <span class="keyword">end</span>
+0330             <span class="keyword">end</span>
+0331         <span class="keyword">end</span>
+0332     <span class="keyword">end</span>
+0333 <span class="keyword">end</span>
+0334 
+0335 
+0336 <span class="keyword">if</span> nargin&gt;=4 &amp;&amp; subsample
+0337     <span class="comment">% K.T. Edit 03/2019</span>
+0338     rng(3, <span class="string">'twister'</span>);
+0339     nc_count = hist(t_all(t_all~=0),unique(t_all(t_all~=0))); <span class="comment">% count how many trials per class</span>
+0340     ntk = min(nc_count);
+0341     <span class="keyword">for</span> i = 1:nc
+0342         indnc = find(t_all==i);
+0343         <span class="comment">% Randomly select BLOCKS of trials to match the number of lowest</span>
+0344         <span class="comment">% sample as close as possible, balancing the sub-categories.</span>
+0345         <span class="keyword">if</span> length(indnc) &gt; ntk
+0346             <span class="keyword">if</span> blocks
+0347                 id_ID=5;
+0348             <span class="keyword">else</span>
+0349                 id_ID=2;
+0350             <span class="keyword">end</span>
+0351             indb = unique(ID(indnc,id_ID));
+0352             nbcount = hist(ID(indnc,id_ID),indb);
+0353             rs = randperm(length(indb));
+0354             [minrs,pivot] = min(abs(cumsum(nbcount(rs))-ntk));
+0355             disp([<span class="string">'Imbalanced for class '</span>,num2str(i),<span class="string">':'</span>,num2str(minrs)])
+0356             <span class="keyword">if</span> pivot&lt;length(rs)
+0357                 <span class="keyword">for</span> j = pivot+1:length(indb)
+0358                     ii = find(ID(indnc,id_ID)==rs(j));
+0359                     t_all(indnc(ii)) = 0;
+0360                     samp_all(indnc(ii)) = 0;
+0361                 <span class="keyword">end</span>
+0362             <span class="keyword">end</span>
+0363         <span class="keyword">end</span>
+0364     <span class="keyword">end</span>
+0365 <span class="keyword">end</span>
+0366     
+0367 samp_idx = find(samp_all);
+0368 samp_all = find(samp_all);    
+0369 targets  = t_all(samp_idx);
+0370 <span class="keyword">if</span> ~isempty(cov_all)
+0371     covar = cov_all(samp_idx,:);
+0372 <span class="keyword">else</span>
+0373     covar = [];
+0374 <span class="keyword">end</span>
+0375 
+0376 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

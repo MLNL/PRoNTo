@@ -1,6 +1,5 @@
 function prt_defaults
-% Sets the defaults which are used by the Pattern Recognition for
-% Neuroimaging Toolbox, aka. PRoNTo.
+% Function to set the defaults which are used by PRoNTo.
 %
 % FORMAT prt_defaults
 %_______________________________________________________________________

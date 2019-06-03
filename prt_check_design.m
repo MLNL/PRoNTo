@@ -1,9 +1,7 @@
 function [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)
-% FORMAT [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)
+% Function to check the design and discard scans which are either overlapping between conditions or which do not respect a minimum time interval between conditions (due to the width of the HRF function).
 %
-% Check the design and discards scans which are either overlapping between
-% conditions or which do not respect a minimum time interval between
-% conditions (due to the width of the HRF function).
+% FORMAT [conds] = prt_check_design(cond,tr,units,hrfoverlap,hrfdelay)
 %
 % INPUT
 %   - cond  :   structure containing the names, durations and onsets of the

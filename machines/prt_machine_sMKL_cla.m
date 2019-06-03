@@ -1,5 +1,5 @@
 function output = prt_machine_sMKL_cla(d,args)
-% Run L1-norm MKL - wrapper for simpleMKL
+% Function to run L1-norm MKL. Wrapper for simpleMKL.
 % FORMAT output = prt_machine_sMKL_cla(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

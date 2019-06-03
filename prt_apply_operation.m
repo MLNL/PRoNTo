@@ -1,5 +1,5 @@
 function out = prt_apply_operation(PRT, in, opid)
-% function to apply a data operation to the training, test and
+% Function to apply a data operation to the training and test sets.
 % in.train:      training data
 % in.tr_id:      id matrix for training data
 % in.use_kernel: are the data in kernelised form

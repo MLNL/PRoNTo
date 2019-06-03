@@ -1,5 +1,5 @@
 function output = prt_machine_gpclap(d,args)
-% Run multiclass Gaussian process classification (Laplace approximation)
+% Function to run multiclass Gaussian process classification (with Laplace approximation).
 % FORMAT output = prt_machine_gpclap(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

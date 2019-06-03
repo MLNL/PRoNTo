@@ -1,0 +1,1622 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_ui_copy_model</title>
+  <meta name="keywords" content="prt_ui_copy_model">
+  <meta name="description" content="PRT_UI_COPY_MODEL M-file for prt_ui_kernel_construction.fig">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_ui_copy_model.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_ui_copy_model
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>PRT_UI_COPY_MODEL M-file for prt_ui_kernel_construction.fig</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function varargout = prt_ui_copy_model(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> PRT_UI_COPY_MODEL M-file for prt_ui_kernel_construction.fig
+
+ PRT_UI_COPY_MODEL, by itself, creates a new 
+ PRT_UI_KERNEL_CONSTRUCTION or raises the existing singleton*.
+
+ H = PRT_UI_COPY_MODEL returns the handle to a new 
+ PRT_UI_COPY_MODEL or the handle to the existing singleton*.
+
+ PRT_UI_COPY_MODEL('CALLBACK',hObject,eventData,handles,...)
+ calls the local function named CALLBACK in PRT_UI_COPY_MODEL.M 
+ with the given input arguments.
+
+ PRT_UI_COPY_MODEL('Property','Value',...) creates a new 
+ PRT_UI_COPY_MODEL or raises the existing singleton*.  Starting 
+ from the left, property value pairs are applied to the GUI before 
+ prt_ui_COPY_MODEL_OpeningFcn gets called.  An unrecognized 
+ property name or invalid value makes property application stop.  All 
+ inputs are passed to prt_ui_kernel_construction_OpeningFcn via varargin.
+
+ *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one
+ instance to run (singleton)&quot;.
+
+ See also: GUIDE, GUIDATA, GUIHANDLES
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_cv_model.html" class="code" title="function [outfile] = prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Function to get/set the defaults values associated with an identifier.</li><li><a href="prt_get_machine_ui.html" class="code" title="function [machine] = prt_get_machine_ui(is_class,is_kernel,name)">prt_get_machine_ui</a>	Function to gather the machine name and arguments (string and values) for a specific machine name, whether kernel or non-kernel.</li><li><a href="prt_load.html" class="code" title="function PRT = prt_load(fname,flag)">prt_load</a>	Function to load the PRT.mat and check its integrity regarding the</li><li><a href="prt_text_input.html" class="code" title="function varargout = prt_text_input(varargin)">prt_text_input</a>	PRT_TEXT_INPUT M-file for prt_text_input.fig</li><li><a href="prt_ui_specify_CV_basis.html" class="code" title="function varargout = prt_ui_specify_CV_basis(varargin)">prt_ui_specify_CV_basis</a>	PRT_UI_SPECIFY_CV_BASIS M-file for prt_ui_specify_CV_basis.fig</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_ui_main.html" class="code" title="function varargout = prt_ui_main(varargin)">prt_ui_main</a>	PRT_UI_MAIN M-file for prt_ui_main.fig</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function prt_ui_copy_model_OpeningFcn(hObject, eventdata, handles, varargin)</a></li><li><a href="#_sub2" class="code">function varargout = prt_ui_copy_model_OutputFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub3" class="code">function br_prt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub4" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub5" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub6" class="code">function edit_modelname_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub7" class="code">function edit_modelname_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub8" class="code">function fs_uns_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub9" class="code">function fs_uns_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub10" class="code">function fs_sel_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub11" class="code">function fs_sel_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub12" class="code">function pop_machine_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub13" class="code">function pop_machine_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub14" class="code">function flag_opt_param_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub15" class="code">function edit_param_range_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub16" class="code">function edit_param_range_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub17" class="code">function uns_list_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub18" class="code">function uns_list_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub19" class="code">function sel_list_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub20" class="code">function sel_list_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub21" class="code">function buildbutt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub22" class="code">function specbutt_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub23" class="code">function pop_cv_nested_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub24" class="code">function pop_cv_nested_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub25" class="code">function popmodels_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub26" class="code">function popmodels_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub27" class="code">function kernel_methods_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub28" class="code">function pop_reg_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub29" class="code">function pop_reg_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub30" class="code">function pop_cv_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub31" class="code">function pop_cv_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub32" class="code">function [] = set_machines(handles,hObject)</a></li><li><a href="#_sub33" class="code">function update_copy_model(handles,indmod)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = prt_ui_copy_model(varargin)</a>
+0002 <span class="comment">% PRT_UI_COPY_MODEL M-file for prt_ui_kernel_construction.fig</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% PRT_UI_COPY_MODEL, by itself, creates a new</span>
+0005 <span class="comment">% PRT_UI_KERNEL_CONSTRUCTION or raises the existing singleton*.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% H = PRT_UI_COPY_MODEL returns the handle to a new</span>
+0008 <span class="comment">% PRT_UI_COPY_MODEL or the handle to the existing singleton*.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% PRT_UI_COPY_MODEL('CALLBACK',hObject,eventData,handles,...)</span>
+0011 <span class="comment">% calls the local function named CALLBACK in PRT_UI_COPY_MODEL.M</span>
+0012 <span class="comment">% with the given input arguments.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% PRT_UI_COPY_MODEL('Property','Value',...) creates a new</span>
+0015 <span class="comment">% PRT_UI_COPY_MODEL or raises the existing singleton*.  Starting</span>
+0016 <span class="comment">% from the left, property value pairs are applied to the GUI before</span>
+0017 <span class="comment">% prt_ui_COPY_MODEL_OpeningFcn gets called.  An unrecognized</span>
+0018 <span class="comment">% property name or invalid value makes property application stop.  All</span>
+0019 <span class="comment">% inputs are passed to prt_ui_kernel_construction_OpeningFcn via varargin.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one</span>
+0022 <span class="comment">% instance to run (singleton)&quot;.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% See also: GUIDE, GUIDATA, GUIHANDLES</span>
+0025 <span class="comment">%__________________________________________________________________________</span>
+0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0027 
+0028 <span class="comment">% Written by J. Schrouff</span>
+0029 <span class="comment">% $Id$</span>
+0030 
+0031 <span class="comment">% Edit the above text to modify the response to help prt_ui__COPY_MODEL</span>
+0032 
+0033 <span class="comment">% Last Modified by GUIDE v2.5 08-Mar-2016 11:43:11</span>
+0034 
+0035 <span class="comment">% Begin initialization code - DO NOT EDIT</span>
+0036 gui_Singleton = 1;
+0037 gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
+0038                    <span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
+0039                    <span class="string">'gui_OpeningFcn'</span>, @<a href="#_sub1" class="code" title="subfunction prt_ui_copy_model_OpeningFcn(hObject, eventdata, handles, varargin)">prt_ui_copy_model_OpeningFcn</a>, <span class="keyword">...</span>
+0040                    <span class="string">'gui_OutputFcn'</span>,  @<a href="#_sub2" class="code" title="subfunction varargout = prt_ui_copy_model_OutputFcn(hObject, eventdata, handles)">prt_ui_copy_model_OutputFcn</a>, <span class="keyword">...</span>
+0041                    <span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
+0042                    <span class="string">'gui_Callback'</span>,   []);
+0043 <span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
+0044     gui_State.gui_Callback = str2func(varargin{1});
+0045 <span class="keyword">end</span>
+0046 
+0047 <span class="keyword">if</span> nargout
+0048     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+0049 <span class="keyword">else</span>
+0050     gui_mainfcn(gui_State, varargin{:});
+0051 <span class="keyword">end</span>
+0052 <span class="comment">% End initialization code - DO NOT EDIT</span>
+0053 
+0054 
+0055 <span class="comment">% --- Executes just before prt_ui_kernel_construction is made visible.</span>
+0056 <a name="_sub1" href="#_subfunctions" class="code">function prt_ui_copy_model_OpeningFcn(hObject, eventdata, handles, varargin)</a>
+0057 <span class="comment">% This function has no output args, see OutputFcn.</span>
+0058 <span class="comment">% hObject    handle to figure</span>
+0059 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0060 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0061 <span class="comment">% varargin   command line arguments to prt_ui_kernel_construction (see VARARGIN)</span>
+0062 
+0063 <span class="comment">% Choose default command line output for prt_ui_kernel_construction</span>
+0064 handles.output = hObject;
+0065 
+0066 <span class="comment">%if window already exists, just put it as the current figure</span>
+0067 Tag=<span class="string">'copymodelwin'</span>;
+0068 F = findall(allchild(0),<span class="string">'Flat'</span>,<span class="string">'Tag'</span>,Tag);
+0069 <span class="keyword">if</span> length(F) &gt; 1
+0070     <span class="comment">% Multiple Graphics windows - close all but most recent</span>
+0071     close(F(2:end))
+0072     F = F(1);
+0073     uistack(F,<span class="string">'top'</span>)
+0074 <span class="keyword">elseif</span> length(F)==1
+0075     uistack(F,<span class="string">'top'</span>)
+0076 <span class="keyword">else</span>
+0077     set(handles.figure1,<span class="string">'Tag'</span>,Tag)
+0078     
+0079     <span class="comment">%build figure when it doesn't exist</span>
+0080 set(handles.figure1,<span class="string">'Name'</span>,<span class="string">'PRoNTo :: Specify model from'</span>)
+0081 <span class="comment">% Choose the color of the different backgrounds and figure parameters</span>
+0082 <span class="comment">%set size of the window, taking screen resolution and platform into account</span>
+0083 S0= spm(<span class="string">'WinSize'</span>,<span class="string">'0'</span>,1);   <span class="comment">%-Screen size (of the current monitor)</span>
+0084 <span class="keyword">if</span> ispc
+0085     PF=<span class="string">'MS Sans Serif'</span>;
+0086 <span class="keyword">else</span>
+0087     PF= spm_platform(<span class="string">'fonts'</span>);     <span class="comment">%-Font names (for this platform)</span>
+0088     PF=PF.helvetica;
+0089 <span class="keyword">end</span>
+0090 tmp  = [S0(3)/1280 (S0(4))/800];
+0091 ratio=min(tmp)*[1 1 1 1];
+0092 FS = 1 + 0.85*(min(ratio)-1);  <span class="comment">%factor to scale the fonts</span>
+0093 x=get(handles.figure1,<span class="string">'Position'</span>);
+0094 set(handles.figure1,<span class="string">'DefaultTextFontSize'</span>,FS*12,<span class="keyword">...</span>
+0095     <span class="string">'DefaultUicontrolFontSize'</span>,FS*12,<span class="keyword">...</span>
+0096     <span class="string">'DefaultTextFontName'</span>,PF,<span class="keyword">...</span>
+0097     <span class="string">'DefaultAxesFontName'</span>,PF,<span class="keyword">...</span>
+0098     <span class="string">'DefaultUicontrolFontName'</span>,PF)
+0099 set(handles.figure1,<span class="string">'Position'</span>,ratio.*x)
+0100 <span class="comment">% set(handles.figure1,'Units','normalized')</span>
+0101 set(handles.figure1,<span class="string">'Resize'</span>,<span class="string">'on'</span>)
+0102 
+0103 color=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'color'</span>);
+0104 handles.color=color;
+0105 set(handles.figure1,<span class="string">'Color'</span>,color.bg1)
+0106 aa=get(handles.figure1,<span class="string">'children'</span>);
+0107 <span class="keyword">for</span> i=1:length(aa)
+0108     <span class="keyword">if</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uipanel'</span>)
+0109         set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg2)
+0110         bb=get(aa(i),<span class="string">'children'</span>);
+0111         <span class="keyword">if</span> ~isempty(bb)
+0112             <span class="keyword">for</span> j=1:length(bb)
+0113                 <span class="keyword">if</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0114                         <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>})))
+0115                     set(bb(j),<span class="string">'BackgroundColor'</span>,color.bg2)
+0116                 <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>)))
+0117                     set(bb(j),<span class="string">'BackgroundColor'</span>,color.fr)
+0118                 <span class="keyword">end</span>
+0119                 set(bb(j),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0120                 xf=get(bb(j),<span class="string">'FontSize'</span>);
+0121                 set(bb(j),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0122                     <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0123             <span class="keyword">end</span>
+0124         <span class="keyword">end</span>
+0125     <span class="keyword">elseif</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uicontrol'</span>)
+0126         <span class="keyword">if</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0127                 <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>})))
+0128             set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg1)
+0129         <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>)))
+0130             set(aa(i),<span class="string">'BackgroundColor'</span>,color.fr)
+0131         <span class="keyword">end</span>
+0132     <span class="keyword">end</span>
+0133     set(aa(i),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0134     xf=get(aa(i),<span class="string">'FontSize'</span>);
+0135     set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0136         <span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0137 <span class="keyword">end</span>
+0138 
+0139 <span class="comment">%Set defaults for some subfields and popup menus</span>
+0140 handles.def=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'model'</span>);
+0141 set(handles.kernel_methods,<span class="string">'Value'</span>,1)
+0142 set(handles.kernel_methods,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0143 handles.use_kernel=1;
+0144 set(handles.pop_cv,<span class="string">'String'</span>,{<span class="string">''</span>})
+0145 set(handles.pop_cv,<span class="string">'Value'</span>,1)
+0146 set(handles.pop_cv,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0147 set(handles.pop_reg,<span class="string">'String'</span>,{<span class="string">''</span>})
+0148 set(handles.pop_reg,<span class="string">'Value'</span>,1)
+0149 set(handles.pop_reg,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0150 handles.type=<span class="string">'classification'</span>;
+0151 set(handles.pop_machine,<span class="string">'String'</span>,{<span class="string">''</span>})
+0152 set(handles.pop_machine,<span class="string">'Value'</span>,1)
+0153 handles.oplist = {<span class="string">'Sample averaging (within block)'</span>,<span class="keyword">...</span>
+0154     <span class="string">'Sample averaging (within subject/condition)'</span>,<span class="keyword">...</span>
+0155     <span class="string">'Mean centre features using training data'</span>,<span class="keyword">...</span>
+0156     <span class="string">'Normalize samples'</span>,<span class="keyword">...</span>
+0157     <span class="string">'Regress out covariates'</span>};
+0158 handles.oplistNK = [handles.oplist,<span class="keyword">...</span>
+0159     {<span class="string">'Normalize features'</span>,<span class="keyword">...</span>
+0160     <span class="string">'Z-score features'</span>}];
+0161 set(handles.uns_list,<span class="string">'String'</span>,handles.oplist)
+0162 set(handles.sel_list,<span class="string">'String'</span>,{<span class="string">''</span>})
+0163 set(handles.uns_list,<span class="string">'Value'</span>,1)
+0164 set(handles.sel_list,<span class="string">'Value'</span>,1)
+0165 handles.flagguicv=0;
+0166 handles.flagguicv_nested=0;
+0167 set(handles.flag_opt_param,<span class="string">'Value'</span>,0)
+0168 set(handles.edit_param_range,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0169 set(handles.pop_cv_nested,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0170 <span class="keyword">end</span>
+0171 <span class="comment">% Update handles structure</span>
+0172 guidata(hObject, handles);
+0173 
+0174 <span class="comment">% UIWAIT makes prt_ui_kernel_construction wait for user response (see UIRESUME)</span>
+0175 <span class="comment">% uiwait(handles.figure1);</span>
+0176 
+0177 
+0178 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0179 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_ui_copy_model_OutputFcn(hObject, eventdata, handles) </a>
+0180 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0181 <span class="comment">% hObject    handle to figure</span>
+0182 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0183 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0184 
+0185 <span class="comment">% Get default command line output from handles structure</span>
+0186 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
+0187     varargout{1} = handles.output;
+0188 <span class="keyword">else</span>
+0189     varargout{1}=[];
+0190 <span class="keyword">end</span>
+0191 
+0192 
+0193 <span class="comment">% --- Executes on button press in br_prt.</span>
+0194 <a name="_sub3" href="#_subfunctions" class="code">function br_prt_Callback(hObject, eventdata, handles)</a>
+0195 <span class="comment">% hObject    handle to br_prt (see GCBO)</span>
+0196 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0197 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0198 fname=spm_select(1,<span class="string">'.mat'</span>,<span class="string">'Select PRT.mat'</span>,[],pwd,<span class="string">'PRT.mat'</span>);
+0199 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0200     clear PRT
+0201 <span class="keyword">end</span>
+0202 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname,flag)">prt_load</a>(fname);
+0203 <span class="keyword">if</span> ~isempty(PRT)
+0204     handles.dat=PRT;
+0205     set(handles.edit_prt,<span class="string">'String'</span>,fname);
+0206 <span class="keyword">else</span>
+0207     beep
+0208     disp(<span class="string">'Could not load file'</span>)
+0209     <span class="keyword">return</span>
+0210 <span class="keyword">end</span>
+0211 
+0212 <span class="comment">%Get list of models to copy from</span>
+0213 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
+0214     disp(<span class="string">'No model found in the PRT.mat'</span>)
+0215     disp(<span class="string">'Please, specify at least one NEW model before this step'</span>)
+0216     delete(handles.figure1)
+0217     <span class="keyword">return</span>
+0218 <span class="keyword">end</span>
+0219 lmod = {handles.dat.model(:).model_name};
+0220 set(handles.popmodels,<span class="string">'String'</span>,lmod)
+0221 set(handles.popmodels,<span class="string">'Value'</span>,1)
+0222 
+0223 <span class="comment">%Get the info from model (here first specified model)</span>
+0224 indmod = 1;
+0225 <span class="keyword">while</span> isempty(handles.dat.model(indmod).input)
+0226     indmod = indmod +1;
+0227 <span class="keyword">end</span>
+0228 <a href="#_sub33" class="code" title="subfunction update_copy_model(handles,indmod)">update_copy_model</a>(handles,indmod)
+0229 handles = guidata(gcf);
+0230 <span class="comment">% Update handles structure</span>
+0231 guidata(hObject, handles);
+0232 
+0233 
+0234 
+0235 <a name="_sub4" href="#_subfunctions" class="code">function edit_prt_Callback(hObject, eventdata, handles)</a>
+0236 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
+0237 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0238 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0239 
+0240 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_prt as text</span>
+0241 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_prt as a double</span>
+0242 fname=get(handles.edit_prt,<span class="string">'String'</span>);
+0243 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0244     clear PRT
+0245 <span class="keyword">end</span>
+0246 PRT=<a href="prt_load.html" class="code" title="function PRT = prt_load(fname,flag)">prt_load</a>(fname);
+0247 <span class="keyword">if</span> ~isempty(PRT)
+0248     handles.dat=PRT;
+0249     set(handles.edit_prt,<span class="string">'String'</span>,fname);
+0250 <span class="keyword">else</span>
+0251     beep
+0252     disp(<span class="string">'Could not load file'</span>)
+0253     <span class="keyword">return</span>
+0254 <span class="keyword">end</span>
+0255 
+0256 <span class="comment">%Get list of models to copy from</span>
+0257 <span class="keyword">if</span> ~isfield(handles.dat,<span class="string">'model'</span>)
+0258     disp(<span class="string">'No model found in the PRT.mat'</span>)
+0259     disp(<span class="string">'Please, specify at least one NEW model before this step'</span>)
+0260     delete(handles.figure1)
+0261     <span class="keyword">return</span>
+0262 <span class="keyword">end</span>
+0263 lmod = {handles.dat.model(:).model_name};
+0264 set(handles.popmodels,<span class="string">'String'</span>,lmod)
+0265 set(handles.popmodels,<span class="string">'Value'</span>,1)
+0266 
+0267 <span class="comment">%Get the info from model (here first specified model)</span>
+0268 indmod = 1;
+0269 <span class="keyword">while</span> isempty(handles.dat.model(indmod).input)
+0270     indmod = indmod +1;
+0271 <span class="keyword">end</span>
+0272 <a href="#_sub33" class="code" title="subfunction update_copy_model(handles,indmod)">update_copy_model</a>(handles,indmod)
+0273 handles = guidata(gcf);
+0274 <span class="comment">% Update handles structure</span>
+0275 guidata(hObject, handles);
+0276 
+0277 
+0278 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0279 <a name="_sub5" href="#_subfunctions" class="code">function edit_prt_CreateFcn(hObject, eventdata, handles)</a>
+0280 <span class="comment">% hObject    handle to edit_prt (see GCBO)</span>
+0281 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0282 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0283 
+0284 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0285 <span class="comment">%       See ISPC and COMPUTER.</span>
+0286 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0287     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0288 <span class="keyword">end</span>
+0289 
+0290 <a name="_sub6" href="#_subfunctions" class="code">function edit_modelname_Callback(hObject, eventdata, handles)</a>
+0291 <span class="comment">% hObject    handle to edit_modelname (see GCBO)</span>
+0292 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0293 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0294 
+0295 <span class="comment">% Hints: get(hObject,'String') returns contents of edit_modelname as text</span>
+0296 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit_modelname as a double</span>
+0297 handles.model_name=deblank(get(handles.edit_modelname,<span class="string">'String'</span>));
+0298 <span class="keyword">if</span> ~(prt_checkAlphaNumUnder(handles.model_name))
+0299     beep
+0300     disp(<span class="string">'Model name should be entered in alphanumeric format only'</span>)
+0301     disp(<span class="string">'Please correct'</span>)
+0302     set(handles.edit_modelname,<span class="string">'ForegroundColor'</span>,[1,0,0])
+0303     <span class="keyword">return</span>
+0304 <span class="keyword">else</span>
+0305     set(handles.edit_modelname,<span class="string">'ForegroundColor'</span>,[0,0,0])
+0306 <span class="keyword">end</span>
+0307 <span class="comment">% Update handles structure</span>
+0308 guidata(hObject, handles);
+0309 
+0310 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0311 <a name="_sub7" href="#_subfunctions" class="code">function edit_modelname_CreateFcn(hObject, eventdata, handles)</a>
+0312 <span class="comment">% hObject    handle to edit_modelname (see GCBO)</span>
+0313 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0314 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0315 
+0316 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0317 <span class="comment">%       See ISPC and COMPUTER.</span>
+0318 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0319     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0320 <span class="keyword">end</span>
+0321 
+0322 <span class="comment">% --- Executes on selection change in fs_uns.</span>
+0323 <a name="_sub8" href="#_subfunctions" class="code">function fs_uns_Callback(hObject, eventdata, handles)</a>
+0324 <span class="comment">% hObject    handle to fs_uns (see GCBO)</span>
+0325 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0326 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0327 
+0328 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns fs_uns contents as cell array</span>
+0329 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from fs_uns</span>
+0330 list = get(handles.fs_uns,<span class="string">'String'</span>);
+0331 val = get(handles.fs_uns,<span class="string">'Value'</span>);
+0332 fsname = list{val};
+0333 fsidx = find(strcmpi(fsname,handles.fslist));
+0334 <span class="keyword">if</span> ~isfield(handles,<span class="string">'fs'</span>) || ~isfield(handles.fs,<span class="string">'fs_name'</span>)
+0335     id = 1;
+0336 <span class="keyword">else</span>
+0337     id = length(handles.fs)+1;
+0338 <span class="keyword">end</span>
+0339 <span class="comment">% Update lists</span>
+0340 idu = setdiff(handles.fsidx{1},fsidx);
+0341 handles.fsidx{1} = idu;
+0342 <span class="keyword">if</span> isempty(idu)
+0343     set(handles.fs_uns,<span class="string">'String'</span>,{});
+0344 <span class="keyword">else</span>
+0345     set(handles.fs_uns,<span class="string">'String'</span>,handles.fslist(idu));
+0346 <span class="keyword">end</span>
+0347 set(handles.fs_uns,<span class="string">'Value'</span>,1);
+0348 sdu = [handles.fsidx{2},fsidx];
+0349 handles.fsidx{2} = sdu;
+0350 set(handles.fs_sel,<span class="string">'String'</span>,handles.fslist(sdu));
+0351 set(handles.fs_sel,<span class="string">'Value'</span>,length(sdu));
+0352 handles.fs(id).fs_name=fsname;
+0353 handles.fs(id).indfs=fsidx;
+0354 <span class="comment">% Add multi-kernel learning if flag to 1</span>
+0355 <span class="keyword">if</span> isfield(handles.dat.fs(fsidx),<span class="string">'multkernelROI'</span>)&amp;&amp; handles.dat.fs(fsidx).multkernelROI <span class="comment">%allowing for multi-kernel learning</span>
+0356     handles.multiroi = 1;
+0357 <span class="keyword">else</span>
+0358     handles.multiroi = 0;
+0359 <span class="keyword">end</span>
+0360 <a href="#_sub32" class="code" title="subfunction [] = set_machines(handles,hObject)">set_machines</a>(handles,hObject);
+0361 handles = guidata(hObject);
+0362 <span class="comment">% Update handles structure</span>
+0363 guidata(hObject, handles);
+0364 
+0365 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0366 <a name="_sub9" href="#_subfunctions" class="code">function fs_uns_CreateFcn(hObject, eventdata, handles)</a>
+0367 <span class="comment">% hObject    handle to fs_uns (see GCBO)</span>
+0368 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0369 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0370 
+0371 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0372 <span class="comment">%       See ISPC and COMPUTER.</span>
+0373 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0374     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0375 <span class="keyword">end</span>
+0376 
+0377 
+0378 <span class="comment">% --- Executes on selection change in fs_sel.</span>
+0379 <a name="_sub10" href="#_subfunctions" class="code">function fs_sel_Callback(hObject, eventdata, handles)</a>
+0380 <span class="comment">% hObject    handle to fs_sel (see GCBO)</span>
+0381 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0382 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0383 
+0384 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns fs_sel contents as cell array</span>
+0385 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from fs_sel</span>
+0386 list = get(handles.fs_sel,<span class="string">'String'</span>);
+0387 val = get(handles.fs_sel,<span class="string">'Value'</span>);
+0388 fsname = list{val};
+0389 fsidx = find(strcmpi(fsname,handles.fslist));
+0390 <span class="keyword">if</span> ~isfield(handles,<span class="string">'fs'</span>) || ~isfield(handles.fs,<span class="string">'fs_name'</span>)
+0391     <span class="keyword">return</span>
+0392 <span class="keyword">else</span>
+0393     <span class="keyword">for</span> i = 1:length(handles.fs)
+0394         <span class="keyword">if</span> strcmpi(fsname,handles.fs(i).fs_name)
+0395             id = i;
+0396         <span class="keyword">end</span>
+0397     <span class="keyword">end</span>
+0398 <span class="keyword">end</span>
+0399 idtc = setdiff([1:length(handles.fs)],id);
+0400 <span class="keyword">if</span> isempty(idtc)
+0401     handles.fs = [];
+0402 <span class="keyword">else</span>
+0403     handles.fs = handles.fs(idtc);
+0404 <span class="keyword">end</span>
+0405 <span class="comment">% Update lists</span>
+0406 sdu = setdiff(handles.fsidx{2},fsidx);
+0407 handles.fsidx{2} = sdu;
+0408 <span class="keyword">if</span> isempty(sdu)
+0409     set(handles.fs_sel,<span class="string">'String'</span>,{});
+0410 <span class="keyword">else</span>
+0411     set(handles.fs_sel,<span class="string">'String'</span>,handles.fslist(sdu));
+0412 <span class="keyword">end</span>
+0413 set(handles.fs_sel,<span class="string">'Value'</span>,1);
+0414 idu = [handles.fsidx{1},fsidx];
+0415 handles.fsidx{1} = idu;
+0416 set(handles.fs_uns,<span class="string">'String'</span>,handles.fslist(idu));
+0417 set(handles.fs_uns,<span class="string">'Value'</span>,length(idu));
+0418 <span class="comment">% Update CV and machine options</span>
+0419 <span class="keyword">if</span> ~isempty(handles.fs)
+0420     fsidx = handles.fs(1).indfs;
+0421     <span class="comment">% Add multi-kernel learning if flag to 1</span>
+0422     <span class="keyword">if</span> isfield(handles.dat.fs(fsidx),<span class="string">'multkernelROI'</span>)&amp;&amp; handles.dat.fs(fsidx).multkernelROI <span class="comment">%allowing for multi-kernel learning</span>
+0423         handles.multiroi = 1;
+0424     <span class="keyword">else</span>
+0425         handles.multiroi = 0;
+0426     <span class="keyword">end</span>
+0427     <a href="#_sub32" class="code" title="subfunction [] = set_machines(handles,hObject)">set_machines</a>(handles,hObject);
+0428     handles = guidata(hObject);
+0429 <span class="keyword">else</span>
+0430     <a href="#_sub32" class="code" title="subfunction [] = set_machines(handles,hObject)">set_machines</a>(handles,hObject);
+0431     handles = guidata(hObject);
+0432 <span class="keyword">end</span>   
+0433 
+0434 <span class="comment">% Update handles structure</span>
+0435 guidata(hObject, handles);
+0436 
+0437 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0438 <a name="_sub11" href="#_subfunctions" class="code">function fs_sel_CreateFcn(hObject, eventdata, handles)</a>
+0439 <span class="comment">% hObject    handle to fs_sel (see GCBO)</span>
+0440 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0441 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0442 
+0443 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0444 <span class="comment">%       See ISPC and COMPUTER.</span>
+0445 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0446     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0447 <span class="keyword">end</span>
+0448 
+0449 <span class="comment">% --- Executes on selection change in pop_machine.</span>
+0450 <a name="_sub12" href="#_subfunctions" class="code">function pop_machine_Callback(hObject, eventdata, handles)</a>
+0451 <span class="comment">% hObject    handle to pop_machine (see GCBO)</span>
+0452 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0453 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0454 
+0455 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_machine contents as cell array</span>
+0456 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_machine</span>
+0457 mach=get(handles.pop_machine,<span class="string">'String'</span>);
+0458 val=get(handles.pop_machine,<span class="string">'Value'</span>);
+0459 <span class="keyword">if</span> val==0
+0460     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0461     set(handles.pop_machine,<span class="string">'Value'</span>,1)
+0462     val=1;
+0463 <span class="keyword">end</span>
+0464 is_class = 0;
+0465 <span class="keyword">if</span> get(handles.pop_reg,<span class="string">'Value'</span>)==1
+0466     is_class = 1;
+0467 <span class="keyword">end</span>
+0468 is_kernel = get(handles.kernel_methods,<span class="string">'Value'</span>);    
+0469 [machine] = <a href="prt_get_machine_ui.html" class="code" title="function [machine] = prt_get_machine_ui(is_class,is_kernel,name)">prt_get_machine_ui</a>(is_class,is_kernel,mach{val});
+0470 set(handles.edit_param_range,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0471 set(handles.pop_cv_nested,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0472 handles.machine = machine;
+0473 <span class="comment">% Update handles structure</span>
+0474 guidata(hObject, handles);
+0475 
+0476 
+0477 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0478 <a name="_sub13" href="#_subfunctions" class="code">function pop_machine_CreateFcn(hObject, eventdata, handles)</a>
+0479 <span class="comment">% hObject    handle to pop_machine (see GCBO)</span>
+0480 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0481 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0482 
+0483 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0484 <span class="comment">%       See ISPC and COMPUTER.</span>
+0485 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0486     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0487 <span class="keyword">end</span>
+0488 
+0489 <span class="comment">% --- Executes on button press in flag_opt_param.</span>
+0490 <a name="_sub14" href="#_subfunctions" class="code">function flag_opt_param_Callback(hObject, eventdata, handles)</a>
+0491 <span class="comment">% hObject    handle to flag_opt_param (see GCBO)</span>
+0492 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0493 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0494 
+0495 <span class="comment">% Hint: get(hObject,'Value') returns toggle state of flag_opt_param</span>
+0496 v = get(handles.flag_opt_param,<span class="string">'Value'</span>);
+0497 <span class="keyword">if</span> v
+0498     <span class="keyword">switch</span> handles.machine.function
+0499         <span class="keyword">case</span> {<span class="string">'prt_machine_gpml'</span>,<span class="string">'prt_machine_gpclap'</span>,<span class="keyword">...</span>
+0500                 <span class="string">'prt_machine_rvr'</span>,<span class="string">'prt_machine_gpr'</span>}
+0501             set(handles.edit_param_range,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0502             set(handles.pop_cv_nested,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0503             handles.newmodel.use_nested_cv = 0;
+0504             handles.newmodel.nested_param = [];
+0505             set(handles.edit_param_range,<span class="string">'String'</span>,<span class="string">''</span>);
+0506             beep
+0507             disp(<span class="string">'No hyper-parameter can be optimized for this machine'</span>)
+0508         <span class="keyword">otherwise</span>
+0509             set(handles.edit_param_range,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0510             set(handles.pop_cv_nested,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+0511             handles.newmodel.use_nested_cv = 1;
+0512             handles.newmodel.nested_param = handles.def.libsvm_optargs;
+0513             set(handles.edit_param_range,<span class="string">'String'</span>,num2str(handles.newmodel.nested_param));
+0514             <a href="#_sub23" class="code" title="subfunction pop_cv_nested_Callback(hObject, eventdata, handles)">pop_cv_nested_Callback</a>(hObject, eventdata, handles);
+0515             handles = guidata(hObject);
+0516     <span class="keyword">end</span>
+0517 <span class="keyword">else</span>
+0518     handles.newmodel.use_nested_cv = 0;
+0519     handles.newmodel.nested_param = [];
+0520     set(handles.edit_param_range,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0521     set(handles.pop_cv_nested,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+0522     set(handles.edit_param_range,<span class="string">'String'</span>,<span class="string">''</span>);
+0523 <span class="keyword">end</span>
+0524 
+0525 <span class="comment">% Update handles structure</span>
+0526 guidata(hObject, handles);
+0527 
+0528 
+0529 <a name="_sub15" href="#_subfunctions" class="code">function edit_param_range_Callback(hObject, eventdata, handles)</a>
+0530 <span class="comment">% hObject    handle to edit7 (see GCBO)</span>
+0531 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0532 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0533 
+0534 <span class="comment">% Hints: get(hObject,'String') returns contents of edit7 as text</span>
+0535 <span class="comment">%        str2double(get(hObject,'String')) returns contents of edit7 as a double</span>
+0536 vp = get(handles.edit_param_range,<span class="string">'String'</span>);
+0537 <span class="keyword">try</span>
+0538     eval([<span class="string">'p = ['</span> vp <span class="string">'];'</span>]);
+0539 <span class="keyword">catch</span>
+0540     beep
+0541     disp(<span class="string">'Parameter range cannot be evaluated, please enter as min:step:max'</span>)
+0542 <span class="keyword">end</span>
+0543 <span class="keyword">if</span> isnumeric(p)
+0544     handles.newmodel.nested_param = p;
+0545 <span class="keyword">elseif</span> iscell(p)
+0546     handles.newmodel.nested_param = {};
+0547     <span class="keyword">for</span> i=1:length(p)
+0548         <span class="keyword">if</span> isnumeric(p{i})
+0549             handles.newmodel.nested_param{i} = p{i};
+0550         <span class="keyword">else</span>
+0551            beep
+0552             disp(<span class="string">'Parameter range is not numeric, please enter as min:step:max'</span>)
+0553         <span class="keyword">end</span>
+0554     <span class="keyword">end</span>
+0555 <span class="keyword">else</span>
+0556     beep
+0557     disp(<span class="string">'Parameter range is not numeric, please enter as min:step:max'</span>)
+0558 <span class="keyword">end</span>
+0559 <span class="comment">% Update handles structure</span>
+0560 guidata(hObject, handles);
+0561 
+0562 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0563 <a name="_sub16" href="#_subfunctions" class="code">function edit_param_range_CreateFcn(hObject, eventdata, handles)</a>
+0564 <span class="comment">% hObject    handle to edit7 (see GCBO)</span>
+0565 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0566 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0567 
+0568 <span class="comment">% Hint: edit controls usually have a white background on Windows.</span>
+0569 <span class="comment">%       See ISPC and COMPUTER.</span>
+0570 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0571     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0572 <span class="keyword">end</span>
+0573 
+0574 
+0575 <span class="comment">% --- Executes on selection change in uns_list.</span>
+0576 <a name="_sub17" href="#_subfunctions" class="code">function uns_list_Callback(hObject, eventdata, handles)</a>
+0577 <span class="comment">% hObject    handle to uns_list (see GCBO)</span>
+0578 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0579 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0580 
+0581 <span class="comment">% Hints: contents = get(hObject,'String') returns uns_list contents as cell array</span>
+0582 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from uns_list</span>
+0583 val=get(handles.uns_list,<span class="string">'Value'</span>);
+0584 <span class="keyword">if</span> val==0
+0585     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0586     set(handles.uns_list,<span class="string">'Value'</span>,1)
+0587     val=1;
+0588 <span class="keyword">end</span>
+0589 <span class="comment">% specify operations to apply to the data prior to prediction</span>
+0590 ind=handles.indop{1}(val);
+0591 handles.operations=[handles.operations, ind];
+0592 handles.indop{1}=setdiff(handles.indop{1},ind);
+0593 <span class="keyword">if</span> isempty(handles.indop{1})
+0594     handles.indop{1}=0;
+0595     set(handles.uns_list,<span class="string">'String'</span>,{<span class="string">''</span>})
+0596 <span class="keyword">else</span>
+0597     set(handles.uns_list,<span class="string">'String'</span>,{handles.namop{handles.indop{1}}})    
+0598 <span class="keyword">end</span>
+0599 set(handles.uns_list,<span class="string">'Value'</span>,1)
+0600 <span class="keyword">if</span> handles.indop{2}==0
+0601     handles.indop{2}=ind;
+0602 <span class="keyword">else</span>
+0603     handles.indop{2}=[handles.indop{2},ind];
+0604 <span class="keyword">end</span>
+0605 set(handles.sel_list,<span class="string">'String'</span>,{handles.namop{handles.indop{2}}})
+0606 set(handles.sel_list,<span class="string">'Value'</span>,length(handles.indop{2}))
+0607 <span class="comment">% Update handles structure</span>
+0608 guidata(hObject, handles);
+0609 
+0610 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0611 <a name="_sub18" href="#_subfunctions" class="code">function uns_list_CreateFcn(hObject, eventdata, handles)</a>
+0612 <span class="comment">% hObject    handle to uns_list (see GCBO)</span>
+0613 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0614 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0615 
+0616 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0617 <span class="comment">%       See ISPC and COMPUTER.</span>
+0618 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0619     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0620 <span class="keyword">end</span>
+0621 
+0622 
+0623 <span class="comment">% --- Executes on selection change in sel_list.</span>
+0624 <a name="_sub19" href="#_subfunctions" class="code">function sel_list_Callback(hObject, eventdata, handles)</a>
+0625 <span class="comment">% hObject    handle to sel_list (see GCBO)</span>
+0626 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0627 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0628 
+0629 <span class="comment">% Hints: contents = get(hObject,'String') returns sel_list contents as cell array</span>
+0630 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from sel_list</span>
+0631 val=get(handles.sel_list,<span class="string">'Value'</span>);
+0632 <span class="keyword">if</span> val==0
+0633     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0634     set(handles.sel_list,<span class="string">'Value'</span>,1)
+0635     val=1;
+0636 <span class="keyword">end</span>
+0637 <span class="comment">% specify operations to apply to the data prior to prediction</span>
+0638 ind=handles.indop{2}(val);
+0639 handles.operations=setdiff(handles.operations, ind);
+0640 handles.indop{2}=setdiff(handles.indop{2},ind);
+0641 <span class="keyword">if</span> isempty(handles.indop{2})
+0642     handles.indop{2}=0;
+0643     set(handles.sel_list,<span class="string">'String'</span>,{<span class="string">''</span>})
+0644 <span class="keyword">else</span>
+0645     set(handles.sel_list,<span class="string">'String'</span>,{handles.namop{handles.indop{2}}})    
+0646 <span class="keyword">end</span>
+0647 set(handles.sel_list,<span class="string">'Value'</span>,1)
+0648 <span class="keyword">if</span> handles.indop{1}==0
+0649     handles.indop{1}=ind;
+0650 <span class="keyword">else</span>
+0651     handles.indop{1}=[handles.indop{1},ind];
+0652 <span class="keyword">end</span>
+0653 set(handles.uns_list,<span class="string">'String'</span>,{handles.namop{handles.indop{1}}})
+0654 set(handles.uns_list,<span class="string">'Value'</span>,length(handles.indop{1}))
+0655 <span class="comment">% Update handles structure</span>
+0656 guidata(hObject, handles);
+0657 
+0658 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0659 <a name="_sub20" href="#_subfunctions" class="code">function sel_list_CreateFcn(hObject, eventdata, handles)</a>
+0660 <span class="comment">% hObject    handle to sel_list (see GCBO)</span>
+0661 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0662 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0663 
+0664 <span class="comment">% Hint: listbox controls usually have a white background on Windows.</span>
+0665 <span class="comment">%       See ISPC and COMPUTER.</span>
+0666 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0667     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0668 <span class="keyword">end</span>
+0669 
+0670 
+0671 
+0672 <span class="comment">% --- Executes on button press in buildbutt.</span>
+0673 <a name="_sub21" href="#_subfunctions" class="code">function buildbutt_Callback(hObject, eventdata, handles)</a>
+0674 <span class="comment">% hObject    handle to buildbutt (see GCBO)</span>
+0675 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0676 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0677 
+0678 <span class="keyword">if</span> isempty(handles.model_name)
+0679     beep
+0680     disp(<span class="string">'Provide a model name for this copied model'</span>)
+0681     <span class="keyword">return</span>
+0682 <span class="keyword">end</span>
+0683 
+0684 <span class="comment">% find model index</span>
+0685 model_exists = false;
+0686 <span class="keyword">if</span> any(strcmpi(handles.model_name,{handles.dat.model(:).model_name}))
+0687     mid = find(strcmpi(handles.model_name,{handles.dat.model(:).model_name}));
+0688     model_exists = true;
+0689 <span class="keyword">else</span>
+0690     mid = length(handles.dat.model)+1;
+0691 <span class="keyword">end</span>
+0692 
+0693 <span class="comment">% For each field, input the values into the new model</span>
+0694 <span class="keyword">if</span> model_exists
+0695     warning(<span class="string">'prt_init_model:modelAlreadyInPRT'</span>,[<span class="string">'Model '''</span>,handles.model_name,<span class="keyword">...</span>
+0696         <span class="string">''' already exists in PRT.mat. Overwriting...'</span>]);
+0697 <span class="keyword">else</span>
+0698     disp([<span class="string">'Model '''</span>,handles.model_name,<span class="string">''' not found in PRT.mat. Creating...'</span>])
+0699 <span class="keyword">end</span>
+0700 
+0701 
+0702 <span class="comment">%fill the input of the 'prt_model' button</span>
+0703 handles.newmodel.machine=handles.machine;
+0704 handles.newmodel.operations=handles.operations;
+0705 handles.newmodel.fs=handles.fs;
+0706 handles.newmodel.fs = rmfield(handles.newmodel.fs,<span class="string">'indfs'</span>);
+0707 handles.newmodel.use_kernel = handles.use_kernel;
+0708 
+0709 <span class="comment">%checks on the CV framework compared to the model entered</span>
+0710 <span class="keyword">if</span> strcmpi(handles.newmodel.cv_type,<span class="string">'lobo'</span>)
+0711     <span class="keyword">if</span> isfield(handles.newmodel,<span class="string">'class'</span>)
+0712 <span class="comment">%         beep</span>
+0713 <span class="comment">%         disp('Leave One Block Out cross-validation only allowed for classification')</span>
+0714 <span class="comment">%         disp('Please correct')</span>
+0715 <span class="comment">%         return</span>
+0716 <span class="comment">%     else</span>
+0717         <span class="keyword">for</span> c=1:length(handles.newmodel.class)
+0718             <span class="keyword">for</span> i=1:length(handles.newmodel.class(c).group)
+0719                 <span class="keyword">if</span> length(handles.newmodel.class(c).group(i).subj)&gt;1
+0720                     beep
+0721                     disp(<span class="string">'Leave One Block Out cross-validation only allowed for within-subject classification'</span>)
+0722                     disp(<span class="string">'Please correct'</span>)
+0723                     <span class="keyword">return</span>
+0724                 <span class="keyword">end</span>
+0725             <span class="keyword">end</span>
+0726         <span class="keyword">end</span>
+0727     <span class="keyword">end</span>
+0728 <span class="keyword">end</span>
+0729 <span class="comment">% if ~isfield(in,'class')</span>
+0730 <span class="comment">%     if ~strcmpi(in.cv.type,'loso')</span>
+0731 <span class="comment">%         beep</span>
+0732 <span class="comment">%         disp('Regression only allows a Leave (One) Subject Out cross-validation')</span>
+0733 <span class="comment">%         disp('Please correct')</span>
+0734 <span class="comment">%     end</span>
+0735 <span class="comment">% end</span>
+0736 
+0737 <span class="comment">% Copy model</span>
+0738 PRT = handles.dat;
+0739 PRT.model(mid).model_name = handles.model_name;
+0740 PRT.model(mid).input = handles.newmodel;
+0741 PRT.model(mid).output = [];
+0742 
+0743 <span class="comment">% Save modified PRT</span>
+0744 disp(<span class="string">'Updating PRT.mat.......&gt;&gt;'</span>)
+0745 fname      = get(handles.edit_prt,<span class="string">'String'</span>);
+0746 <span class="keyword">if</span> spm_check_version(<span class="string">'MATLAB'</span>,<span class="string">'7'</span>) &gt;= 0
+0747     save(fname,<span class="string">'-V7'</span>,<span class="string">'PRT'</span>);
+0748 <span class="keyword">else</span>
+0749     save(fname,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
+0750 <span class="keyword">end</span>
+0751 
+0752 in.fname      = get(handles.edit_prt,<span class="string">'String'</span>);
+0753 in.model_name = handles.model_name;
+0754 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0755     clear PRT
+0756 <span class="keyword">end</span>
+0757 load(in.fname)
+0758 
+0759 <a href="prt_cv_model.html" class="code" title="function [outfile] = prt_cv_model(PRT,in)">prt_cv_model</a>(PRT, in);
+0760 
+0761 disp(<span class="string">'Model specification and estimation complete.'</span>)
+0762 disp(<span class="string">'Done...'</span>)
+0763 delete(handles.figure1)
+0764 
+0765 
+0766 <span class="comment">% --- Executes on button press in buildbutt.</span>
+0767 <a name="_sub22" href="#_subfunctions" class="code">function specbutt_Callback(hObject, eventdata, handles)</a>
+0768 <span class="comment">% hObject    handle to buildbutt (see GCBO)</span>
+0769 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0770 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0771 
+0772 <span class="keyword">if</span> isempty(handles.model_name)
+0773     beep
+0774     disp(<span class="string">'Provide a model name for this copied model'</span>)
+0775     <span class="keyword">return</span>
+0776 <span class="keyword">end</span>
+0777 
+0778 <span class="comment">% find model index</span>
+0779 model_exists = false;
+0780 <span class="keyword">if</span> any(strcmpi(handles.model_name,{handles.dat.model(:).model_name}))
+0781     mid = find(strcmpi(handles.model_name,{handles.dat.model(:).model_name}));
+0782     model_exists = true;
+0783 <span class="keyword">else</span>
+0784     mid = length(handles.dat.model)+1;
+0785 <span class="keyword">end</span>
+0786 
+0787 <span class="comment">% For each field, input the values into the new model</span>
+0788 <span class="keyword">if</span> model_exists
+0789     warning(<span class="string">'prt_init_model:modelAlreadyInPRT'</span>,[<span class="string">'Model '''</span>,handles.model_name,<span class="keyword">...</span>
+0790         <span class="string">''' already exists in PRT.mat. Overwriting...'</span>]);
+0791 <span class="keyword">else</span>
+0792     disp([<span class="string">'Model '''</span>,handles.model_name,<span class="string">''' not found in PRT.mat. Creating...'</span>])
+0793 <span class="keyword">end</span>
+0794 
+0795 
+0796 <span class="comment">%Copy modified fields into new model</span>
+0797 handles.newmodel.machine=handles.machine;
+0798 handles.newmodel.operations=handles.operations;
+0799 handles.newmodel.fs=handles.fs;
+0800 handles.newmodel.fs = rmfield(handles.newmodel.fs,<span class="string">'indfs'</span>);
+0801 handles.newmodel.use_kernel = handles.use_kernel;
+0802 
+0803 <span class="comment">%checks on the CV framework compared to the model entered</span>
+0804 <span class="keyword">if</span> strcmpi(handles.newmodel.cv_type,<span class="string">'lobo'</span>)
+0805     <span class="keyword">if</span> isfield(handles.newmodel,<span class="string">'class'</span>)
+0806 <span class="comment">%         beep</span>
+0807 <span class="comment">%         disp('Leave One Block Out cross-validation only allowed for classification')</span>
+0808 <span class="comment">%         disp('Please correct')</span>
+0809 <span class="comment">%         return</span>
+0810 <span class="comment">%     else</span>
+0811         <span class="keyword">for</span> c=1:length(handles.newmodel.class)
+0812             <span class="keyword">for</span> i=1:length(handles.newmodel.class(c).group)
+0813                 <span class="keyword">if</span> length(handles.newmodel.class(c).group(i).subj)&gt;1
+0814                     beep
+0815                     disp(<span class="string">'Leave One Block Out cross-validation only allowed for within-subject classification'</span>)
+0816                     disp(<span class="string">'Please correct'</span>)
+0817                     <span class="keyword">return</span>
+0818                 <span class="keyword">end</span>
+0819             <span class="keyword">end</span>
+0820         <span class="keyword">end</span>
+0821     <span class="keyword">end</span>
+0822 <span class="keyword">end</span>
+0823 <span class="comment">% if ~isfield(in,'class')</span>
+0824 <span class="comment">%     if ~strcmpi(in.cv.type,'loso')</span>
+0825 <span class="comment">%         beep</span>
+0826 <span class="comment">%         disp('Regression only allows a Leave (One) Subject Out cross-validation')</span>
+0827 <span class="comment">%         disp('Please correct')</span>
+0828 <span class="comment">%     end</span>
+0829 <span class="comment">% end</span>
+0830 
+0831 <span class="comment">% Copy model</span>
+0832 PRT = handles.dat;
+0833 PRT.model(mid).model_name = handles.model_name;
+0834 PRT.model(mid).input = handles.newmodel;
+0835 PRT.model(mid).output = [];
+0836 
+0837 <span class="comment">% Save modified PRT</span>
+0838 disp(<span class="string">'Updating PRT.mat.......&gt;&gt;'</span>)
+0839 fname      = get(handles.edit_prt,<span class="string">'String'</span>);
+0840 <span class="keyword">if</span> spm_check_version(<span class="string">'MATLAB'</span>,<span class="string">'7'</span>) &gt;= 0
+0841     save(fname,<span class="string">'-V7'</span>,<span class="string">'PRT'</span>);
+0842 <span class="keyword">else</span>
+0843     save(fname,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
+0844 <span class="keyword">end</span>
+0845 
+0846 disp(<span class="string">'Model specification complete.'</span>)
+0847 disp(<span class="string">'Done...'</span>)
+0848 delete(handles.figure1)
+0849 
+0850 
+0851 <span class="comment">% --- Executes on selection change in pop_cv_nested.</span>
+0852 <a name="_sub23" href="#_subfunctions" class="code">function pop_cv_nested_Callback(hObject, eventdata, handles)</a>
+0853 <span class="comment">% hObject    handle to pop_cv_nested (see GCBO)</span>
+0854 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0855 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0856 
+0857 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns pop_cv_nested contents as cell array</span>
+0858 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_cv_nested</span>
+0859 val=get(handles.pop_cv_nested,<span class="string">'Value'</span>);
+0860 mach=get(handles.pop_cv_nested,<span class="string">'String'</span>);
+0861 handles.newmodel.cv_k_nested=0; <span class="comment">%by default, Leave-One-Out options</span>
+0862 <span class="keyword">if</span> val==0
+0863     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0864     set(handles.pop_cv_nested,<span class="string">'Value'</span>,1)
+0865     val=1;
+0866 <span class="keyword">end</span>
+0867 <span class="keyword">if</span> any(strfind(mach{val},<span class="string">'Subject Out'</span>))
+0868     handles.newmodel.cv_type_nested = <span class="string">'loso'</span>;
+0869 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Subject per Class'</span>))
+0870     nscl = zeros(numel(handles.newmodel.class),1);
+0871     <span class="keyword">for</span> i = 1:numel(handles.newmodel.class)
+0872         nscl(i) = length([handles.newmodel.class(i).group(:).subj]);
+0873     <span class="keyword">end</span>
+0874     handles.loospg = 1;
+0875     <span class="keyword">if</span> numel(unique(nscl))~=1
+0876         beep
+0877         disp(<span class="string">'Warning: Subjects are not balanced across classes!'</span>)
+0878         handles.loospg = 0;
+0879     <span class="keyword">end</span>
+0880     handles.newmodel.cv_type_nested = <span class="string">'losgo'</span>;
+0881 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Block'</span>))
+0882     <span class="keyword">if</span> any(strfind(mach{val},<span class="string">'Block per Class'</span>))
+0883         handles.newmodel.cv_type_nested = <span class="string">'locbo'</span>;
+0884     <span class="keyword">else</span>
+0885         handles.newmodel.cv_type_nested = <span class="string">'lobo'</span>;
+0886     <span class="keyword">end</span>   
+0887 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Run'</span>))        <span class="comment">%currently implemented for MCKR only</span>
+0888     handles.newmodel.cv_type_nested = <span class="string">'loro'</span>;
+0889 <span class="keyword">else</span>
+0890     beep
+0891     disp(<span class="string">'CV type not supported for inner CV'</span>)
+0892     <span class="keyword">return</span>
+0893 <span class="keyword">end</span>
+0894 <span class="keyword">if</span> any(strfind(mach{val},<span class="string">'k-fold'</span>))
+0895     kt=<a href="prt_text_input.html" class="code" title="function varargout = prt_text_input(varargin)">prt_text_input</a>(<span class="string">'Title'</span>,<span class="string">'Specify k, the number of folds'</span>);
+0896     handles.newmodel.cv_k_nested=str2num(kt);
+0897 <span class="keyword">end</span>
+0898 <span class="comment">% Update handles structure</span>
+0899 guidata(hObject, handles);
+0900 
+0901 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0902 <a name="_sub24" href="#_subfunctions" class="code">function pop_cv_nested_CreateFcn(hObject, eventdata, handles)</a>
+0903 <span class="comment">% hObject    handle to pop_cv_nested (see GCBO)</span>
+0904 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0905 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0906 
+0907 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0908 <span class="comment">%       See ISPC and COMPUTER.</span>
+0909 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0910     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0911 <span class="keyword">end</span>
+0912 
+0913 
+0914 <span class="comment">% --- Executes on selection change in popmodels.</span>
+0915 <a name="_sub25" href="#_subfunctions" class="code">function popmodels_Callback(hObject, eventdata, handles)</a>
+0916 <span class="comment">% hObject    handle to popmodels (see GCBO)</span>
+0917 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0918 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0919 
+0920 <span class="comment">% Hints: contents = cellstr(get(hObject,'String')) returns popmodels contents as cell array</span>
+0921 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from popmodels</span>
+0922 
+0923 indmod = get(hObject,<span class="string">'Value'</span>);
+0924 <a href="#_sub33" class="code" title="subfunction update_copy_model(handles,indmod)">update_copy_model</a>(handles,indmod)
+0925 
+0926 
+0927 
+0928 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0929 <a name="_sub26" href="#_subfunctions" class="code">function popmodels_CreateFcn(hObject, eventdata, handles)</a>
+0930 <span class="comment">% hObject    handle to popmodels (see GCBO)</span>
+0931 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0932 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0933 
+0934 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0935 <span class="comment">%       See ISPC and COMPUTER.</span>
+0936 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0937     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0938 <span class="keyword">end</span>
+0939 
+0940 <span class="comment">% Cannot be modified in this version of 'Copy model' - March 2016</span>
+0941 <span class="comment">% --- Executes on button press in kernel_methods.</span>
+0942 <a name="_sub27" href="#_subfunctions" class="code">function kernel_methods_Callback(hObject, eventdata, handles)</a>
+0943 <span class="comment">% hObject    handle to kernel_methods (see GCBO)</span>
+0944 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0945 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0946 
+0947 <span class="comment">% Hint: get(hObject,'Value') returns toggle state of kernel_methods</span>
+0948 <a href="#_sub32" class="code" title="subfunction [] = set_machines(handles,hObject)">set_machines</a>(handles,hObject);
+0949 handles = guidata(hObject);
+0950 
+0951 <span class="comment">% Update handles structure</span>
+0952 guidata(hObject, handles);
+0953 
+0954 
+0955 
+0956 <span class="comment">% --- Executes on selection change in pop_reg.</span>
+0957 <a name="_sub28" href="#_subfunctions" class="code">function pop_reg_Callback(hObject, eventdata, handles)</a>
+0958 <span class="comment">% hObject    handle to pop_reg (see GCBO)</span>
+0959 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0960 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0961 
+0962 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_reg contents as cell array</span>
+0963 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_reg</span>
+0964 val=get(handles.pop_reg,<span class="string">'Value'</span>);
+0965 <span class="keyword">if</span> val==0
+0966     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+0967     set(handles.pop_reg,<span class="string">'Value'</span>,1)
+0968     val=1;
+0969 <span class="keyword">end</span>
+0970 <span class="keyword">if</span> val==1 <span class="comment">%Classification</span>
+0971     handles.type=<span class="string">'classification'</span>;
+0972     nk=get(handles.kernel_methods,<span class="string">'Value'</span>);
+0973     <span class="keyword">if</span> nk==1
+0974         <span class="comment">%set the list of machines</span>
+0975         list = {<span class="string">'Binary support vector machine'</span>,<span class="keyword">...</span>
+0976             <span class="string">'Binary Gaussian Process Classification'</span>,<span class="keyword">...</span>
+0977             <span class="string">'Multiclass GPC'</span>};
+0978         <span class="keyword">if</span> handles.multimod || handles.multiroi
+0979             list = [list,{<span class="string">'L1- Multi-Kernel Learning'</span>,<span class="keyword">...</span>
+0980                     <span class="string">'wip'</span>}];
+0981         <span class="keyword">end</span>
+0982         set(handles.pop_machine,<span class="string">'String'</span>,list)
+0983         set(handles.pop_machine,<span class="string">'Value'</span>,1)
+0984         handles.machine.function=<span class="string">'prt_machine_svm_bin'</span>;
+0985         handles.machine.args=handles.def.svmargs;
+0986     <span class="keyword">else</span>
+0987         <span class="comment">%set the list of machines</span>
+0988         set(handles.pop_machine,<span class="string">'String'</span>,{<span class="string">'Random Forest'</span>})
+0989         set(handles.pop_machine,<span class="string">'Value'</span>,1)
+0990         handles.machine.function=<span class="string">'prt_machine_RT_bin'</span>;
+0991         handles.machine.args=handles.def.rtargs;  
+0992     <span class="keyword">end</span>
+0993 <span class="keyword">elseif</span> val==2
+0994     handles.type=<span class="string">'regression'</span>;
+0995     set(handles.butt_defclass,<span class="string">'String'</span>,<span class="string">'Select subjects/scans'</span>)
+0996     <span class="comment">%set the list of machines</span>
+0997     set(handles.pop_machine,<span class="string">'String'</span>,{<span class="string">'Kernel Ridge Regression'</span>,<span class="keyword">...</span>
+0998         <span class="string">'Relevance Vector Regression'</span>,<span class="string">'Gaussian Process Regression'</span>, <span class="string">'Multi-Kernel Regression'</span>})
+0999     set(handles.pop_machine,<span class="string">'Value'</span>,1)
+1000     handles.machine.function=<span class="string">'prt_machine_krr'</span>;
+1001     handles.machine.args=handles.def.krrargs;
+1002 <span class="keyword">end</span>
+1003 <span class="comment">% Update handles structure</span>
+1004 guidata(hObject, handles);
+1005 
+1006 
+1007 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+1008 <a name="_sub29" href="#_subfunctions" class="code">function pop_reg_CreateFcn(hObject, eventdata, handles)</a>
+1009 <span class="comment">% hObject    handle to pop_reg (see GCBO)</span>
+1010 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+1011 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+1012 
+1013 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+1014 <span class="comment">%       See ISPC and COMPUTER.</span>
+1015 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+1016     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+1017 <span class="keyword">end</span>
+1018 
+1019 <span class="comment">% --- Executes on selection change in pop_cv.</span>
+1020 <a name="_sub30" href="#_subfunctions" class="code">function pop_cv_Callback(hObject, eventdata, handles)</a>
+1021 <span class="comment">% hObject    handle to pop_cv (see GCBO)</span>
+1022 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+1023 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+1024 
+1025 <span class="comment">% Hints: contents = get(hObject,'String') returns pop_cv contents as cell array</span>
+1026 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from pop_cv</span>
+1027 <span class="comment">% assemble structure for performing cross-validation</span>
+1028 val=get(handles.pop_cv,<span class="string">'Value'</span>);
+1029 mach=get(handles.pop_cv,<span class="string">'String'</span>);
+1030 handles.cv.k=0; <span class="comment">%by default, Leave-One-Out options</span>
+1031 <span class="keyword">if</span> val==0
+1032     warning(<span class="string">'off'</span>,<span class="string">'MATLAB:hg:uicontrol:ParameterValuesMustBeValid'</span>)
+1033     set(handles.pop_cv,<span class="string">'Value'</span>,1)
+1034     val=1;
+1035 <span class="keyword">end</span>
+1036 <span class="keyword">if</span> any(strfind(mach{val},<span class="string">'Subject Out'</span>))
+1037     handles.cv.type = <span class="string">'loso'</span>;
+1038 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Subject per Class'</span>)) || <span class="keyword">...</span>
+1039         any(strfind(mach{val},<span class="string">'Subject per Group'</span>)) <span class="comment">% Backwards compatibility</span>
+1040     <span class="keyword">if</span> ~handles.loospg
+1041         beep
+1042         disp(<span class="string">'Warning: Subjects are not balanced across classes!'</span>)
+1043     <span class="keyword">end</span>
+1044     handles.cv.type = <span class="string">'losgo'</span>;
+1045 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Block'</span>))
+1046     <span class="keyword">if</span> any(strfind(mach{val},<span class="string">'Block per Class'</span>))
+1047         handles.cv.type = <span class="string">'locbo'</span>;
+1048     <span class="keyword">else</span>
+1049         handles.cv.type = <span class="string">'lobo'</span>;
+1050     <span class="keyword">end</span> 
+1051 <span class="keyword">elseif</span> any(strfind(mach{val},<span class="string">'Run'</span>))        <span class="comment">%currently implemented for MCKR only</span>
+1052     handles.cv.type = <span class="string">'loro'</span>;
+1053 <span class="keyword">else</span>
+1054     handles.cv.type     = <span class="string">'custom'</span>;
+1055     <span class="comment">%fill the input of the 'prt_model' button</span>
+1056     in.fname=get(handles.edit_prt,<span class="string">'String'</span>);
+1057     <span class="keyword">if</span> ~isfield(handles,<span class="string">'model_name'</span>)
+1058         beep
+1059         disp(<span class="string">'Please enter a valid model name'</span>)
+1060         <span class="keyword">return</span>
+1061     <span class="keyword">end</span>
+1062     in.model_name=handles.model_name;
+1063     in.type=handles.type;
+1064     in.machine=handles.machine;
+1065     in.use_kernel=handles.use_kernel;
+1066     in.operations=handles.operations;
+1067     in.fs(1).fs_name=handles.fs(1).fs_name;
+1068     in.cv=handles.cv;
+1069     <span class="comment">%check that classes/subjects/scans were defined</span>
+1070     <span class="keyword">if</span> strcmpi(in.type,<span class="string">'classification'</span>)
+1071         <span class="keyword">if</span> ~isfield(handles,<span class="string">'class'</span>)
+1072             beep
+1073             disp(<span class="string">'No class selected for classification'</span>)
+1074             disp(<span class="string">'Please, define classes'</span>)
+1075             <span class="keyword">return</span>
+1076         <span class="keyword">else</span>
+1077             <span class="keyword">for</span> i=1:length(handles.class)
+1078                 ind=[];
+1079                 <span class="keyword">for</span> g=1:length(handles.class(i).group)
+1080                     <span class="keyword">if</span> ~isempty(handles.class(i).group(g).gr_name)
+1081                         ind=[ind,g];
+1082                     <span class="keyword">end</span>
+1083                 <span class="keyword">end</span>
+1084                 handles.class(i).group=handles.class(i).group(ind);
+1085             <span class="keyword">end</span>
+1086             in.class=handles.class;
+1087         <span class="keyword">end</span>
+1088     <span class="keyword">else</span>
+1089         <span class="keyword">if</span> ~isfield(handles,<span class="string">'group'</span>)
+1090             beep
+1091             disp(<span class="string">'No subjects/scans selected for classification'</span>)
+1092             disp(<span class="string">'Please, select subjects/scans'</span>)
+1093             <span class="keyword">return</span>
+1094         <span class="keyword">else</span>
+1095             ind=[];
+1096             <span class="keyword">for</span> g=1:length(handles.group)
+1097                 <span class="keyword">if</span> ~isempty(handles.group(g).gr_name)
+1098                     ind=[ind,g];
+1099                 <span class="keyword">end</span>
+1100             <span class="keyword">end</span>
+1101             handles.group=handles.group(ind);
+1102             in.group=handles.group;
+1103         <span class="keyword">end</span>
+1104     <span class="keyword">end</span>
+1105     handles.in=in;
+1106     <a href="prt_ui_specify_CV_basis.html" class="code" title="function varargout = prt_ui_specify_CV_basis(varargin)">prt_ui_specify_CV_basis</a>(handles);
+1107     handles.flagguicv=1;
+1108 <span class="keyword">end</span>
+1109 <span class="keyword">if</span> any(strfind(mach{val},<span class="string">'k-fold'</span>))
+1110     kt=<a href="prt_text_input.html" class="code" title="function varargout = prt_text_input(varargin)">prt_text_input</a>(<span class="string">'Title'</span>,<span class="string">'Specify k, the number of folds'</span>);
+1111     handles.cv.k=str2num(kt);
+1112 <span class="keyword">end</span>
+1113 <span class="comment">% Update handles structure</span>
+1114 guidata(hObject, handles);
+1115 
+1116 
+1117 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+1118 <a name="_sub31" href="#_subfunctions" class="code">function pop_cv_CreateFcn(hObject, eventdata, handles)</a>
+1119 <span class="comment">% hObject    handle to pop_cv (see GCBO)</span>
+1120 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+1121 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+1122 
+1123 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+1124 <span class="comment">%       See ISPC and COMPUTER.</span>
+1125 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+1126     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+1127 <span class="keyword">end</span>
+1128 
+1129 
+1130 <span class="comment">%--------------------------------------------------------------------------</span>
+1131 <span class="comment">% Private functions</span>
+1132 <span class="comment">%--------------------------------------------------------------------------</span>
+1133 <a name="_sub32" href="#_subfunctions" class="code">function [] = set_machines(handles,hObject)</a>
+1134 handles.use_kernel=get(handles.kernel_methods,<span class="string">'Value'</span>);
+1135 is_kernel = handles.use_kernel;
+1136 is_class = 0;
+1137 <span class="keyword">if</span> get(handles.pop_reg,<span class="string">'Value'</span>)==1 <span class="comment">%for classification</span>
+1138     <span class="keyword">if</span> handles.use_kernel
+1139         list = handles.class_K;
+1140         <span class="keyword">if</span> handles.multiroi || length(handles.fs)&gt;1
+1141             list = [list,handles.MK];
+1142         <span class="keyword">end</span>
+1143         oplist = handles.oplist;
+1144     <span class="keyword">else</span>
+1145         list = handles.class_NK;
+1146         oplist = handles.oplistNK;
+1147     <span class="keyword">end</span>
+1148     is_class = 1;
+1149 <span class="keyword">else</span>
+1150     <span class="keyword">if</span> handles.use_kernel
+1151         list = handles.reg_K;
+1152         <span class="keyword">if</span> handles.multiroi || length(handles.fs)&gt;1
+1153             list = [list,handles.MK];
+1154         <span class="keyword">end</span>
+1155         oplist = handles.oplist; <span class="comment">% Operations in kernel space</span>
+1156     <span class="keyword">else</span>
+1157         list = handles.reg_NK;
+1158         oplist = handles.oplistNK; <span class="comment">% Add feature normalization</span>
+1159     <span class="keyword">end</span>
+1160 <span class="keyword">end</span>
+1161 set(handles.pop_machine,<span class="string">'String'</span>,list)
+1162 set(handles.pop_machine,<span class="string">'Value'</span>,1)
+1163 
+1164 <span class="comment">% Deal with operations</span>
+1165 handles.indop{1}=1:length(oplist);
+1166 handles.indop{2}=0;
+1167 set(handles.uns_list,<span class="string">'String'</span>,oplist)
+1168 set(handles.sel_list,<span class="string">'String'</span>,{<span class="string">''</span>})
+1169 handles.operations = [];
+1170 handles.namop=oplist;
+1171 set(handles.uns_list,<span class="string">'Value'</span>,1)
+1172 set(handles.sel_list,<span class="string">'Value'</span>,1)
+1173 
+1174 name = list{1};
+1175 [machine] = <a href="prt_get_machine_ui.html" class="code" title="function [machine] = prt_get_machine_ui(is_class,is_kernel,name)">prt_get_machine_ui</a>(is_class,is_kernel,name);
+1176 
+1177 handles.machine = machine;
+1178 
+1179 <span class="comment">% Update handles structure</span>
+1180 guidata(hObject, handles);
+1181 
+1182 
+1183 <a name="_sub33" href="#_subfunctions" class="code">function update_copy_model(handles,indmod)</a>
+1184 
+1185 <span class="comment">% Copy model</span>
+1186 handles.newmodel = handles.dat.model(indmod).input;
+1187 set(handles.pop_reg,<span class="string">'String'</span>,{<span class="string">'Classification'</span>,<span class="string">'Regression'</span>})
+1188 val = find(strcmpi({<span class="string">'Classification'</span>,<span class="string">'Regression'</span>},handles.dat.model(indmod).input.type));
+1189 set(handles.pop_reg,<span class="string">'Value'</span>,val)  
+1190 set(handles.pop_reg,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+1191 
+1192 
+1193 listall = {handles.dat.fs(:).fs_name};
+1194 listfs = {handles.dat.model(indmod).input.fs(:).fs_name};
+1195 sel = find(ismember(listall,listfs));
+1196 unsel = find(~ismember(listall,listfs));
+1197 
+1198 <span class="comment">% Set feature set lists</span>
+1199 handles.fslist = listall;
+1200 set(handles.fs_uns,<span class="string">'String'</span>,listall(unsel))
+1201 set(handles.fs_uns,<span class="string">'Value'</span>,1)
+1202 set(handles.fs_sel,<span class="string">'String'</span>,listall(sel))
+1203 set(handles.fs_sel,<span class="string">'Value'</span>,1)
+1204 handles.fsidx = {unsel,sel};
+1205 handles.fs = handles.dat.model(indmod).input.fs;
+1206 <span class="keyword">for</span> i = 1:numel(handles.fs)
+1207     handles.fs(i).indfs = sel(i);
+1208 <span class="keyword">end</span>
+1209 handles.use_kernel=handles.dat.model(indmod).input.use_kernel;
+1210 
+1211 <span class="keyword">if</span> isfield(handles.dat.fs(sel(1)),<span class="string">'multkernel'</span>)&amp;&amp; handles.dat.fs(sel(1)).multkernel <span class="comment">%allowing for multi-kernel learning</span>
+1212     handles.multimod = 1;
+1213 <span class="keyword">else</span>
+1214     handles.multimod = 0;
+1215 <span class="keyword">end</span>
+1216 <span class="keyword">if</span> isfield(handles.dat.fs(sel(1)),<span class="string">'multkernelROI'</span>)&amp;&amp; handles.dat.fs(sel(1)).multkernelROI <span class="comment">%allowing for multi-kernel learning</span>
+1217     handles.multiroi = 1;
+1218 <span class="keyword">else</span>
+1219     handles.multiroi = 0;
+1220 <span class="keyword">end</span>
+1221 
+1222 <span class="comment">% Set list of potential machines and show the one selected</span>
+1223 <span class="comment">% Machine lists:</span>
+1224 mach = <a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'machine'</span>);
+1225 handles.class_K = mach.class_K;
+1226 handles.MK = mach.MK;
+1227 handles.class_NK = mach.class_NK;
+1228 handles.reg_K = mach.reg_K;
+1229 handles.reg_NK = mach.reg_NK;
+1230 nk=handles.dat.model(indmod).input.use_kernel;
+1231 <span class="comment">% Map back the machine function to the name of the algorithm</span>
+1232 <span class="keyword">if</span> strcmpi(handles.dat.model(indmod).input.type,<span class="string">'classification'</span>)
+1233     handles.type = <span class="string">'classification'</span>;
+1234     <span class="keyword">if</span> nk==1 <span class="comment">% Kernel classification machines</span>
+1235         list = handles.class_K;            
+1236         <span class="keyword">if</span> handles.multimod || handles.multiroi ||<span class="keyword">...</span>
+1237                 numel(sel)&gt;1
+1238             list = [list,handles.MK];
+1239         <span class="keyword">end</span>
+1240         <span class="keyword">if</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_svm_bin'</span>)
+1241             mach = <span class="string">'Binary support vector machine'</span>;
+1242         <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_gpml'</span>)
+1243             mach = <span class="string">'Binary Gaussian Process Classification'</span>;
+1244         <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_gpclap'</span>)
+1245             mach = <span class="string">'Multiclass GPC'</span>;
+1246         <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_sMKL_cla'</span>)
+1247             mach = <span class="string">'L1 Multi-Kernel Learning'</span>;
+1248         <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_liblinearsvm'</span>)
+1249             mach = <span class="string">'L2-Logistic Regression'</span>;
+1250         <span class="keyword">end</span>
+1251     <span class="keyword">else</span> <span class="comment">% Non-Kernel classification machines</span>
+1252         list = handles.class_NK;
+1253         <span class="keyword">if</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_liblinearsvm'</span>)
+1254             <span class="comment">% Get string argument to know which machine</span>
+1255             sargs = handles.dat.model(indmod).input.machine.s_args;
+1256             <span class="keyword">if</span> ~isempty(strfind(sargs,<span class="string">'s 0'</span>))
+1257                 mach = <span class="string">'L2-Logistic Regression'</span>;
+1258             <span class="keyword">elseif</span> ~isempty(strfind(sargs,<span class="string">'s 6'</span>))
+1259                 mach = <span class="string">'L1-Logistic Regression'</span>;
+1260             <span class="keyword">elseif</span> ~isempty(strfind(sargs,<span class="string">'s 2'</span>))
+1261                 mach = <span class="string">'Binary L2-SVM'</span>;   
+1262             <span class="keyword">elseif</span> ~isempty(strfind(sargs,<span class="string">'s 5'</span>))
+1263                 mach = <span class="string">'Binary L1-SVM'</span>;
+1264             <span class="keyword">elseif</span> ~isempty(strfind(sargs,<span class="string">'s 4'</span>))
+1265                 mach = <span class="string">'Multiclass SVM'</span>;
+1266             <span class="keyword">end</span>
+1267         <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_RT_bin'</span>)
+1268             mach = <span class="string">'Random Forest'</span>;
+1269         <span class="keyword">end</span>
+1270     <span class="keyword">end</span>
+1271 <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.type,<span class="string">'regression'</span>)
+1272     handles.type=<span class="string">'regression'</span>;
+1273     <span class="keyword">if</span> nk <span class="comment">% Kernel regression machines</span>
+1274         list = handles.reg_K;
+1275         <span class="keyword">if</span> handles.multimod || handles.multiroi ||<span class="keyword">...</span>
+1276                 numel(sel)&gt;1
+1277             list = [list,handles.MK];
+1278         <span class="keyword">end</span>
+1279         <span class="keyword">if</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_krr'</span>)
+1280             mach = <span class="string">'Kernel Ridge Regression'</span>;
+1281         <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_rvr'</span>)
+1282             mach = <span class="string">'Relevance Vector Regression'</span>;
+1283         <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_gpr'</span>)
+1284             mach = <span class="string">'Gaussian Process Regression'</span>;
+1285         <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_sMKL_reg'</span>)
+1286             mach = <span class="string">'L1 Multi-Kernel Learning'</span>;
+1287         <span class="keyword">elseif</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_svm_bin'</span>)
+1288             mach = <span class="string">'epsilon-SVR'</span>;
+1289         <span class="keyword">end</span>
+1290     <span class="keyword">else</span>
+1291         list = handles.reg_NK;
+1292         <span class="keyword">if</span> strcmpi(handles.dat.model(indmod).input.machine.function,<span class="string">'prt_machine_liblinearsvm'</span>)
+1293             mach = <span class="string">'epsilon-SVR'</span>;
+1294         <span class="keyword">end</span>
+1295     <span class="keyword">end</span>
+1296 <span class="keyword">end</span>
+1297 
+1298 val = find(ismember(list,mach));
+1299 set(handles.pop_machine,<span class="string">'String'</span>,list)
+1300 set(handles.pop_machine,<span class="string">'Value'</span>,val)
+1301 set(handles.kernel_methods,<span class="string">'Value'</span>,nk)
+1302 
+1303 is_class = 0;
+1304 <span class="keyword">if</span> strcmpi(handles.type,<span class="string">'classification'</span>)
+1305     is_class = 1;
+1306 <span class="keyword">end</span>
+1307 machine = <a href="prt_get_machine_ui.html" class="code" title="function [machine] = prt_get_machine_ui(is_class,is_kernel,name)">prt_get_machine_ui</a>(is_class,nk,mach);
+1308 handles.machine = machine;
+1309 
+1310 <span class="comment">% Nested cross-validation?</span>
+1311 v = handles.dat.model(indmod).input.use_nested_cv;
+1312 <span class="keyword">if</span> v
+1313     <span class="keyword">switch</span> handles.dat.model(indmod).input.machine.function
+1314         <span class="keyword">case</span> {<span class="string">'prt_machine_gpml'</span>,<span class="string">'prt_machine_gpclap'</span>,<span class="keyword">...</span>
+1315                 <span class="string">'prt_machine_gpr'</span>,<span class="string">'prt_machine_rvr'</span>}
+1316             set(handles.edit_param_range,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+1317             set(handles.pop_cv_nested,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+1318             handles.cv.nested = 0;
+1319             handles.cv.nested_param = [];
+1320             beep
+1321             disp(<span class="string">'No hyper-parameter can be optimized for this machine'</span>)
+1322         <span class="keyword">otherwise</span>
+1323             set(handles.edit_param_range,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+1324             set(handles.pop_cv_nested,<span class="string">'Enable'</span>,<span class="string">'on'</span>)
+1325             handles.cv.nested = 1;
+1326     <span class="keyword">end</span>
+1327     set(handles.flag_opt_param,<span class="string">'Value'</span>,1)
+1328     set(handles.edit_param_range,<span class="string">'String'</span>,num2str(handles.dat.model(indmod).input.nested_param))
+1329 <span class="keyword">else</span>
+1330     handles.cv.nested = 0;
+1331     handles.cv.nested_param = [];
+1332     set(handles.flag_opt_param,<span class="string">'Value'</span>,0)
+1333     set(handles.edit_param_range,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+1334     set(handles.edit_param_range,<span class="string">'String'</span>,<span class="string">''</span>)
+1335     set(handles.pop_cv_nested,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+1336 <span class="keyword">end</span>
+1337 
+1338 <span class="comment">% Set CV parameters (cannot be modified)</span>
+1339 tcv = handles.dat.model(indmod).input.cv_type;
+1340 kcv = handles.dat.model(indmod).input.cv_k;
+1341 <span class="keyword">if</span> strcmpi(tcv,<span class="string">'lobo'</span>)
+1342     <span class="keyword">if</span> kcv ==0
+1343         listcv = {<span class="string">'Leave One Block Out'</span>};
+1344     <span class="keyword">else</span>
+1345         listcv = {<span class="string">'k-folds CV on Block'</span>};
+1346     <span class="keyword">end</span>
+1347 <span class="keyword">elseif</span> strcmpi(tcv,<span class="string">'loro'</span>)
+1348     <span class="keyword">if</span> kcv ==0
+1349         listcv = {<span class="string">'Leave One Run/Session Out'</span>};
+1350 <span class="comment">%     else</span>
+1351 <span class="comment">%         listcv = {'k-folds CV on Runs'};</span>
+1352     <span class="keyword">end</span>
+1353 <span class="keyword">elseif</span> strcmpi(tcv,<span class="string">'loso'</span>)
+1354     <span class="keyword">if</span> kcv ==0
+1355         listcv = {<span class="string">'Leave One Block Out'</span>};
+1356     <span class="keyword">else</span>
+1357         listcv = {<span class="string">'k-folds CV on Block'</span>};
+1358     <span class="keyword">end</span>
+1359 <span class="keyword">elseif</span> strcmpi(tcv,<span class="string">'losgo'</span>)
+1360     <span class="keyword">if</span> kcv ==0
+1361         listcv = {<span class="string">'Leave One Block Out'</span>};
+1362     <span class="keyword">else</span>
+1363         listcv = {<span class="string">'k-folds CV on Block'</span>};
+1364     <span class="keyword">end</span>
+1365 <span class="keyword">elseif</span> strcmpi(tcv,<span class="string">'custom'</span>)
+1366     <span class="keyword">if</span> kcv ==0
+1367         listcv = {<span class="string">'Leave One Block Out'</span>};
+1368     <span class="keyword">else</span>
+1369         listcv = {<span class="string">'k-folds CV on Block'</span>};
+1370     <span class="keyword">end</span>
+1371 <span class="keyword">elseif</span> strcmpi(tcv,<span class="string">'locbo'</span>)
+1372     <span class="keyword">if</span> kcv ==0
+1373         listcv = {<span class="string">'Leave One Block per Class Out'</span>};
+1374     <span class="keyword">else</span>
+1375         listcv = {<span class="string">'k-folds CV on Block per Class'</span>};
+1376     <span class="keyword">end</span>
+1377 <span class="keyword">else</span>
+1378     listcv = {<span class="string">'custom'</span>};
+1379 <span class="keyword">end</span>
+1380 set(handles.pop_cv,<span class="string">'String'</span>,listcv)
+1381 set(handles.pop_cv,<span class="string">'Value'</span>,1)
+1382 set(handles.pop_cv,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+1383 
+1384 <span class="comment">% Set options for nested CV and see if one option selected</span>
+1385 <span class="keyword">if</span> strcmpi(handles.type,<span class="string">'classification'</span>)
+1386     speccl.class = handles.dat.model(indmod).input.class;
+1387     <span class="keyword">if</span> isfield(speccl.class(1).group(1).subj(1).modality,<span class="string">'conds'</span>) &amp;&amp; <span class="keyword">...</span>
+1388            ~isempty(speccl.class(1).group(1).subj(1).modality(1).conds(1).cond_name) 
+1389         speccl.design = 1;
+1390     <span class="keyword">else</span>
+1391         speccl.design = 0;
+1392     <span class="keyword">end</span>
+1393     ns=zeros(length(speccl.class),1);
+1394     ng1=1;
+1395     ng2=1;
+1396     <span class="keyword">for</span> ii=1:length(speccl.class)
+1397         <span class="keyword">for</span> jj=1:length(speccl.class(ii).group)
+1398             ns(ii)=ns(ii)+length(speccl.class(ii).group(jj).subj);
+1399         <span class="keyword">end</span>
+1400         <span class="keyword">if</span> jj==1
+1401             <span class="keyword">if</span> ii==1
+1402                 gname=speccl.class(ii).group(jj).gr_name;
+1403             <span class="keyword">else</span>
+1404                 <span class="keyword">if</span> strcmpi(gname,speccl.class(ii).group(jj).gr_name)
+1405                     ng2=ng2+1;
+1406                 <span class="keyword">end</span>
+1407             <span class="keyword">end</span>
+1408         <span class="keyword">else</span>
+1409             ng1=0;
+1410         <span class="keyword">end</span>
+1411     <span class="keyword">end</span>
+1412     
+1413     <span class="comment">% Options for the inner CV</span>
+1414     ng2=floor(ng2/length(speccl.class));
+1415     list={};
+1416     <span class="keyword">if</span> (speccl.design) &amp;&amp; max(ns)==1
+1417         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'Leave One Block Out'</span>))
+1418             list=[list;{<span class="string">'Leave One Block Out'</span>}];
+1419         <span class="keyword">end</span>
+1420         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'k-folds CV on Block'</span>))
+1421             list=[list;{<span class="string">'k-folds CV on Block'</span>}];
+1422         <span class="keyword">end</span>
+1423         set(handles.pop_cv_nested,<span class="string">'String'</span>,list)
+1424         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'Leave One Block per Class Out'</span>))
+1425             list=[list;{<span class="string">'Leave One Block per Class Out'</span>}];
+1426         <span class="keyword">end</span>
+1427         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'k-folds CV on Block per Class'</span>))
+1428             list=[list;{<span class="string">'k-folds CV on Block per Class'</span>}];
+1429         <span class="keyword">end</span>
+1430         set(handles.pop_cv_nested,<span class="string">'String'</span>,list)
+1431     <span class="keyword">end</span>
+1432     <span class="keyword">if</span> min(ns)&gt;1
+1433         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'Leave One Subject Out'</span>))
+1434             list=[list;{<span class="string">'Leave One Subject Out'</span>}];
+1435         <span class="keyword">end</span>
+1436         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'k-folds CV on Subject Out'</span>))
+1437             list=[list;{<span class="string">'k-folds CV on Subject Out'</span>}];
+1438         <span class="keyword">end</span>
+1439         set(handles.pop_cv_nested,<span class="string">'String'</span>,list)
+1440         <span class="keyword">if</span> ~ng1 || ~ng2
+1441             list=get(handles.pop_cv_nested,<span class="string">'String'</span>);
+1442             <span class="keyword">if</span> ~any(ismember(list, <span class="string">'Leave One Subject per Class Out'</span>))
+1443                 list=[list;{<span class="string">'Leave One Subject per Class Out'</span>}];
+1444             <span class="keyword">end</span>
+1445             <span class="keyword">if</span> ~any(ismember(list, <span class="string">'k-folds CV on Subject per Class'</span>))
+1446                 list=[list;{<span class="string">'k-folds CV on Subject per Class'</span>}];
+1447             <span class="keyword">end</span>
+1448             set(handles.pop_cv_nested,<span class="string">'String'</span>,list)
+1449         <span class="keyword">end</span>
+1450     <span class="keyword">end</span>
+1451     
+1452 <span class="keyword">else</span> <span class="comment">% Regression</span>
+1453     <span class="comment">% need to reverse the sample selection to know how many subjects and/or</span>
+1454     <span class="comment">% blocks were selected</span>
+1455     id = handles.dat.fs(sel(1)).id_mat(handles.dat.model(indmod).input.samp_idx,:);
+1456     n = numel(unique(id(:,2)));
+1457     blocks = numel(unique(id(:,5)));
+1458     list={};
+1459     <span class="keyword">if</span> n&gt;1
+1460         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'Leave One Subject Out'</span>))
+1461             list=[list;{<span class="string">'Leave One Subject Out'</span>}];
+1462         <span class="keyword">end</span>
+1463         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'k-folds CV on Subject Out'</span>))
+1464             list=[list;{<span class="string">'k-folds CV on Subject Out'</span>}];
+1465         <span class="keyword">end</span>
+1466         set(handles.pop_cv_nested,<span class="string">'String'</span>,list)
+1467     <span class="keyword">elseif</span> blocks&gt;1 &amp;&amp; n==1
+1468         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'Leave One Block Out'</span>))
+1469             list=[list;{<span class="string">'Leave One Block Out'</span>}];
+1470         <span class="keyword">end</span>
+1471         <span class="keyword">if</span> ~any(ismember(list, <span class="string">'k-folds CV on Block'</span>))
+1472             list=[list;{<span class="string">'k-folds CV on Block'</span>}];
+1473         <span class="keyword">end</span>
+1474         set(handles.pop_cv_nested,<span class="string">'String'</span>,list)
+1475     <span class="keyword">end</span>
+1476 <span class="keyword">end</span>
+1477 <span class="keyword">if</span> length(handles.dat.fs(sel(1)).modality)&gt;2
+1478     list=get(handles.pop_cv_nested,<span class="string">'String'</span>);
+1479     <span class="keyword">if</span> ~any(strcmpi(list,<span class="string">'Leave One Run/Session Out'</span>))
+1480         list=[list;{<span class="string">'Leave One Run/Session Out'</span>}];
+1481         set(handles.pop_cv_nested,<span class="string">'String'</span>,list)
+1482     <span class="keyword">end</span>
+1483 <span class="keyword">end</span>
+1484 
+1485 <span class="comment">% Get specific values that were selected</span>
+1486 <span class="keyword">if</span> handles.dat.model(indmod).input.use_nested_cv
+1487     tcv = handles.dat.model(indmod).input.cv_type_nested;
+1488     kcv = handles.dat.model(indmod).input.cv_k_nested;
+1489     <span class="keyword">if</span> strcmpi(tcv,<span class="string">'lobo'</span>)
+1490         <span class="keyword">if</span> kcv ==0
+1491             listcv = {<span class="string">'Leave One Block Out'</span>};
+1492         <span class="keyword">else</span>
+1493             listcv = {<span class="string">'k-folds CV on Block'</span>};
+1494         <span class="keyword">end</span>
+1495     <span class="keyword">elseif</span> strcmpi(tcv,<span class="string">'loro'</span>)
+1496         <span class="keyword">if</span> kcv ==0
+1497             listcv = {<span class="string">'Leave One Run/Session Out'</span>};
+1498             <span class="comment">%     else</span>
+1499             <span class="comment">%         listcv = {'k-folds CV on Runs'};</span>
+1500         <span class="keyword">end</span>
+1501     <span class="keyword">elseif</span> strcmpi(tcv,<span class="string">'loso'</span>)
+1502         <span class="keyword">if</span> kcv ==0
+1503             listcv = {<span class="string">'Leave One Subject Out'</span>};
+1504         <span class="keyword">else</span>
+1505             listcv = {<span class="string">'k-folds CV on Subject Out'</span>};
+1506         <span class="keyword">end</span>
+1507     <span class="keyword">elseif</span> strcmpi(tcv,<span class="string">'losgo'</span>)
+1508         <span class="keyword">if</span> kcv ==0
+1509             listcv = {<span class="string">'Leave One Subject per Class Out'</span>};
+1510         <span class="keyword">else</span>
+1511             listcv = {<span class="string">'k-folds CV on Subject per Class'</span>};
+1512         <span class="keyword">end</span>
+1513     <span class="keyword">elseif</span> strcmpi(tcv,<span class="string">'locbo'</span>)
+1514         <span class="keyword">if</span> kcv ==0
+1515             listcv = {<span class="string">'Leave One Block per Class Out'</span>};
+1516         <span class="keyword">else</span>
+1517             listcv = {<span class="string">'k-folds CV on Block per Class'</span>};
+1518         <span class="keyword">end</span>
+1519     <span class="keyword">end</span>
+1520     val = strcmpi(list,listcv);
+1521     set(handles.pop_cv_nested,<span class="string">'Value'</span>,find(val))
+1522 <span class="keyword">else</span>
+1523     set(handles.pop_cv_nested,<span class="string">'String'</span>,list)
+1524     set(handles.pop_cv_nested,<span class="string">'Enable'</span>,<span class="string">'off'</span>)
+1525 <span class="keyword">end</span>
+1526 
+1527 <span class="comment">% Get operations</span>
+1528 <span class="keyword">if</span> nk
+1529     list=handles.oplist;
+1530 <span class="keyword">else</span>
+1531     list = handles.oplistNK;
+1532 <span class="keyword">end</span>
+1533 allops = 1:length(list);
+1534 selops = handles.dat.model(indmod).input.operations;
+1535 unsops = setdiff(allops,selops);
+1536 handles.indop{1}=unsops;
+1537 handles.indop{2}=selops;
+1538 set(handles.uns_list,<span class="string">'String'</span>,list(unsops))
+1539 set(handles.sel_list,<span class="string">'String'</span>,list(selops))
+1540 handles.operations = selops;
+1541 handles.namop=list;
+1542 set(handles.uns_list,<span class="string">'Value'</span>,1)
+1543 set(handles.sel_list,<span class="string">'Value'</span>,1)
+1544 
+1545 handles.model_name = [];
+1546 set(handles.edit_modelname,<span class="string">'ForegroundColor'</span>,[1 0 0])
+1547 <span class="comment">% Update handles structure</span>
+1548 hObject = gcf;
+1549 guidata(hObject, handles);</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

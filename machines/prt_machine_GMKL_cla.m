@@ -1,6 +1,6 @@
 function [output] = prt_machine_GMKL_cla(d,args)
-
-% Run GMKL - wrapper for Generalized MKL By Haiqin Yang
+% Function to run Multi-Kernel Learning. GMKL-wrapper for Generalized MKL.
+% By Haiqin Yang.
 % FORMAT output = prt_machine_GMKL_cla(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

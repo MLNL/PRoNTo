@@ -1,7 +1,5 @@
 function prt_latex(opt)
-%
-% Extract information from the toolbox m-files and output them as usable
-% .tex files which can be directly included in the manual.
+% Function to extract information from the toolbox's m-files and to output them as usable .tex files which can be directly included in the manual.
 %
 % There are 2 types of m2tex operations:
 % 1. converting the job configuration tree, i.e. *_cfg_* files defining the

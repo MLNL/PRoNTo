@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_plot_2D_weights</title>
+  <meta name="keywords" content="prt_plot_2D_weights">
+  <meta name="description" content="Function to plot 2D weights from .mat or MEEG modalities">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_plot_2D_weights.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_plot_2D_weights
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to plot 2D weights from .mat or MEEG modalities</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [h] = prt_plot_2D_weights(parent,weights) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to plot 2D weights from .mat or MEEG modalities
+ Inputs: Parent graph handle and weights, the 2D matrix of values
+ Output: Handle to obtained plot
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_ui_disp_weights.html" class="code" title="function varargout = prt_ui_disp_weights(varargin)">prt_ui_disp_weights</a>	PRT_UI_DISP_WEIGHTS MATLAB code for prt_ui_disp_weights.fig</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [h] = prt_plot_2D_weights(parent,weights)</a>
+0002 <span class="comment">% Function to plot 2D weights from .mat or MEEG modalities</span>
+0003 <span class="comment">% Inputs: Parent graph handle and weights, the 2D matrix of values</span>
+0004 <span class="comment">% Output: Handle to obtained plot</span>
+0005 <span class="comment">%__________________________________________________________________________</span>
+0006 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0007 
+0008 <span class="comment">% Written by J. Schrouff</span>
+0009 <span class="comment">% $Id$</span>
+0010 
+0011 <span class="comment">% Remove figure axes and plots</span>
+0012 gch = get(parent,<span class="string">'Children'</span>);
+0013 <span class="keyword">for</span> i=1:numel(gch)
+0014     delete(gch);
+0015 <span class="keyword">end</span>
+0016 
+0017 <span class="comment">% Draw axes (properties depend on Matlab version)</span>
+0018 <span class="keyword">try</span>
+0019     axmat = axes(parent,<span class="string">'units'</span>,<span class="string">'normalized'</span>, <span class="keyword">...</span>
+0020         <span class="string">'position'</span>,[0.2 0.2 0.6 0.7], <span class="string">'NextPlot'</span>, <span class="string">'add'</span>);
+0021 <span class="keyword">catch</span>
+0022     axmat = axes(<span class="string">'units'</span>,<span class="string">'normalized'</span>, <span class="string">'NextPlot'</span>, <span class="string">'add'</span>, <span class="keyword">...</span>
+0023         <span class="string">'position'</span>,[0.2 0.2 0.6 0.7],<span class="string">'parent'</span>,parent);
+0024 <span class="keyword">end</span>
+0025 
+0026 <span class="comment">% Define colormap</span>
+0027 minw = min(min(weights));
+0028 minw = min(minw,0);
+0029 maxw = max(max(weights));
+0030 maxw = max(maxw,0);
+0031 
+0032 <span class="keyword">if</span> minw&lt;0 &amp;&amp; maxw&gt;0 <span class="comment">% Both negative and positive, diverging colormap</span>
+0033     colneg = cbrewer(<span class="string">'seq'</span>,<span class="string">'Blues'</span>,128);
+0034     colpos = cbrewer(<span class="string">'seq'</span>,<span class="string">'Reds'</span>,128);
+0035     cols  = [flip(colneg,1);colpos];
+0036 <span class="keyword">elseif</span> minw&gt;=0 &amp;&amp; maxw&gt;0 <span class="comment">% Only positive, sequential red colormap</span>
+0037     cols = cbrewer(<span class="string">'seq'</span>,<span class="string">'Reds'</span>,256);
+0038 <span class="keyword">elseif</span> minw&lt;0 &amp;&amp; maxw&lt;=0 <span class="comment">% Only negative, sequential blue colormap</span>
+0039     colneg= cbrewer(<span class="string">'seq'</span>,<span class="string">'Blues'</span>,256);
+0040     cols  = flip(colneg,1);
+0041 <span class="keyword">elseif</span> minw==0 &amp;&amp; maxw==0 <span class="comment">% All zeros, just gray</span>
+0042     cols = [0.5 0.5 0.5];
+0043 <span class="keyword">elseif</span> isnan(minw) &amp;&amp; isnan(maxw)
+0044     weights = zeros(size(weights));
+0045     cols = [0.5 0.5 0.5];
+0046 <span class="keyword">end</span>
+0047     
+0048 colormap(cols);
+0049 <span class="keyword">try</span>
+0050     h = imagesc(axmat,weights);
+0051 <span class="keyword">catch</span>
+0052     set(gcf,<span class="string">'CurrentAxes'</span>,axmat)
+0053     h = imagesc(weights);
+0054 <span class="keyword">end</span>
+0055 
+0056 xlim([1 size(weights,2)])
+0057 ylim([1 size(weights,1)])
+0058 <span class="keyword">try</span>
+0059     hc = colorbar(axmat,<span class="string">'Units'</span>,<span class="string">'normalized'</span>,<span class="string">'Position'</span>,[0.85 0.2 0.02 0.7]);
+0060 <span class="keyword">catch</span>
+0061     hc = colorbar(<span class="string">'peer'</span>,axmat,<span class="string">'Units'</span>,<span class="string">'normalized'</span>,<span class="string">'Position'</span>,[0.85 0.2 0.02 0.7]);
+0062 <span class="keyword">end</span>
+0063 <span class="comment">% Change colorbar limits to ensure centered white if positive and negative</span>
+0064 <span class="keyword">if</span> minw&lt;0 &amp;&amp; maxw&gt;0
+0065     <span class="keyword">try</span>
+0066         limhc = get(hc,<span class="string">'Limits'</span>);
+0067         limw = max(abs(limhc));
+0068     <span class="keyword">catch</span>
+0069         absw = abs(weights);
+0070         limw = max(max(absw));
+0071     <span class="keyword">end</span>
+0072     caxis(limw * [-1 1]);
+0073 <span class="keyword">end</span>
+0074 
+0075</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

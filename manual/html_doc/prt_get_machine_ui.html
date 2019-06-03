@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_get_machine_ui</title>
+  <meta name="keywords" content="prt_get_machine_ui">
+  <meta name="description" content="Function to gather the machine name and arguments (string and values) for a specific machine name, whether kernel or non-kernel.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_get_machine_ui.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_get_machine_ui
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to gather the machine name and arguments (string and values) for a specific machine name, whether kernel or non-kernel.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [machine] = prt_get_machine_ui(is_class,is_kernel,name) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to gather the machine name and arguments (string and values) for a specific machine name, whether kernel or non-kernel.
+inputs:
+ - is_class: 1 for classification, 0 for regression
+ - is_kernel: 1 for kernel machines, 0 for non-kernel
+ - name: name of the machine in the GUI
+--------------------------------------------------------------------------
+ Written by J. Schrouff for PRoNTo</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Function to get/set the defaults values associated with an identifier.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_ui_copy_model.html" class="code" title="function varargout = prt_ui_copy_model(varargin)">prt_ui_copy_model</a>	PRT_UI_COPY_MODEL M-file for prt_ui_kernel_construction.fig</li><li><a href="prt_ui_model.html" class="code" title="function varargout = prt_ui_model(varargin)">prt_ui_model</a>	PRT_UI_KERNEL_CONSTRUCTION M-file for prt_ui_kernel_construction.fig</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [machine] = prt_get_machine_ui(is_class,is_kernel,name)</a>
+0002 <span class="comment">% Function to gather the machine name and arguments (string and values) for a specific machine name, whether kernel or non-kernel.</span>
+0003 <span class="comment">%inputs:</span>
+0004 <span class="comment">% - is_class: 1 for classification, 0 for regression</span>
+0005 <span class="comment">% - is_kernel: 1 for kernel machines, 0 for non-kernel</span>
+0006 <span class="comment">% - name: name of the machine in the GUI</span>
+0007 <span class="comment">%--------------------------------------------------------------------------</span>
+0008 <span class="comment">% Written by J. Schrouff for PRoNTo</span>
+0009 
+0010 def = <a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'model'</span>);
+0011 machine.s_args = <span class="string">''</span>;
+0012 machine.args = [];
+0013 
+0014 <span class="comment">% Classification</span>
+0015 <span class="comment">% ---------------</span>
+0016 <span class="keyword">if</span> is_class
+0017     
+0018     <span class="comment">% Kernel machines</span>
+0019     <span class="comment">%-----------------</span>
+0020     <span class="keyword">if</span> is_kernel
+0021         
+0022         <span class="comment">% LIBSVM SVM</span>
+0023         <span class="keyword">if</span> any(strfind(name,<span class="string">'Binary support'</span>))
+0024             machine.function=<span class="string">'prt_machine_svm_bin'</span>;
+0025             machine.args= def.libsvmargs;
+0026             machine.s_args = def.libsvm_sargs;
+0027             
+0028         <span class="comment">% Binary GPC</span>
+0029         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Binary Gaussian'</span>))
+0030             machine.function=<span class="string">'prt_machine_gpml'</span>;
+0031             machine.s_args= def.gpc_sargs;
+0032             
+0033         <span class="comment">% Multiclass GPC</span>
+0034         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Multiclass GPC'</span>))
+0035             machine.function=<span class="string">'prt_machine_gpclap'</span>;
+0036             machine.s_args = def.gpclap_sargs;
+0037             
+0038         <span class="comment">% simple MKL</span>
+0039         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Multi-Kernel'</span>))
+0040             machine.function=<span class="string">'prt_machine_sMKL_cla'</span>;
+0041             machine.args = def.libsvmargs;
+0042             
+0043         <span class="comment">% Logistic Regression</span>
+0044         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Logistic'</span>))
+0045             machine.function=<span class="string">'prt_machine_liblinearsvm'</span>;
+0046             machine.s_args = def.libl2KLR_sargs;
+0047             machine.args = def.libsvmargs;
+0048         <span class="keyword">end</span>
+0049         
+0050     <span class="comment">% Non-Kernel machines</span>
+0051     <span class="comment">%---------------------</span>
+0052     <span class="keyword">else</span>
+0053         <span class="comment">% L2 - SVM</span>
+0054         <span class="keyword">if</span> any(strfind(name,<span class="string">'L2-SVM'</span>))
+0055             machine.function=<span class="string">'prt_machine_liblinearsvm'</span>;
+0056             machine.s_args = def.libl2svm_sargs;
+0057             machine.args = def.libsvmargs;
+0058             
+0059         <span class="comment">% L1-SVM</span>
+0060         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'L1-SVM'</span>))
+0061             machine.function=<span class="string">'prt_machine_liblinearsvm'</span>;
+0062             machine.s_args = def.libl1svm_sargs;
+0063             machine.args = def.libsvmargs;
+0064         
+0065         <span class="comment">% L2-Logistic</span>
+0066         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'L2-Logistic'</span>))
+0067             machine.function=<span class="string">'prt_machine_liblinearsvm'</span>;
+0068             machine.s_args = def.libl2LR_sargs;
+0069             machine.args = def.libsvmargs;
+0070         
+0071         <span class="comment">% L1-Logistic</span>
+0072         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'L1-Logistic'</span>))
+0073             machine.function=<span class="string">'prt_machine_liblinearsvm'</span>;
+0074             machine.s_args = def.libl1LR_sargs;
+0075             machine.args = def.libsvmargs;
+0076         
+0077         <span class="comment">% Multiclass SVM</span>
+0078         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Multiclass SVM'</span>))
+0079             machine.function=<span class="string">'prt_machine_liblinearsvm'</span>;
+0080             machine.s_args = def.libmulticlsvm_sargs;
+0081             machine.args = def.libsvmargs;
+0082         
+0083         <span class="comment">% Random Trees</span>
+0084         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Random'</span>))
+0085             machine.function=<span class="string">'prt_machine_RT_bin'</span>;
+0086             machine.args = def.rtargs;
+0087         <span class="keyword">end</span>
+0088     <span class="keyword">end</span>
+0089     
+0090 <span class="comment">% Regression machines</span>
+0091 <span class="comment">%---------------------</span>
+0092 <span class="keyword">else</span>
+0093     
+0094     <span class="comment">% Kernel machines</span>
+0095     <span class="comment">%-----------------</span>
+0096     <span class="keyword">if</span> is_kernel
+0097         
+0098         <span class="comment">% epsilon-SVR</span>
+0099         <span class="keyword">if</span> any(strfind(name,<span class="string">'epsilon'</span>))
+0100             machine.function=<span class="string">'prt_machine_svm_bin'</span>;
+0101             machine.args= def.libsvmargs;
+0102             machine.s_args = def.libeSVR_sargs;
+0103             
+0104         <span class="comment">% Kernel Ridge Regression</span>
+0105         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Ridge'</span>))
+0106             machine.function=<span class="string">'prt_machine_krr'</span>;
+0107             machine.args = def.libsvmargs;
+0108         
+0109         <span class="comment">%Relevance Vector Machine</span>
+0110         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Relevance'</span>))
+0111             machine.function=<span class="string">'prt_machine_rvr'</span>;
+0112 
+0113         <span class="comment">% Gaussian process</span>
+0114         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Process Regression'</span>))
+0115             machine.function=<span class="string">'prt_machine_gpr'</span>;
+0116             machine.s_args= def.gpr_sargs;
+0117             
+0118         <span class="comment">% simpleMKL</span>
+0119         <span class="keyword">elseif</span> any(strfind(name,<span class="string">'Multi-Kernel'</span>))
+0120             machine.function=<span class="string">'prt_machine_sMKL_reg'</span>;
+0121             machine.args= def.libsvmargs;
+0122         <span class="keyword">end</span>
+0123         
+0124     <span class="comment">% Non-Kernel machines</span>
+0125     <span class="comment">%---------------------</span>
+0126     <span class="keyword">else</span>
+0127         <span class="comment">% epsilon-SVR</span>
+0128         <span class="keyword">if</span> any(strfind(name,<span class="string">'epsilon'</span>))
+0129             machine.function=<span class="string">'prt_machine_liblinearsvm'</span>;
+0130             machine.args= def.libsvmargs;
+0131             machine.s_args = def.libl2SVR_sargs;
+0132         <span class="keyword">end</span>
+0133     <span class="keyword">end</span>
+0134 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

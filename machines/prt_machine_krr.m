@@ -1,5 +1,5 @@
 function output = prt_machine_krr(d,args)
-% Kernel ridge regression
+% Function for the Kernel ridge regression machine.
 % FORMAT output = prt_machine_svm_bin(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

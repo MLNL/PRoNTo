@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_plot_prediction_reg_bar</title>
+  <meta name="keywords" content="prt_plot_prediction_reg_bar">
+  <meta name="description" content="Function to plot the bar plot that appears on prt_ui_results.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_plot_prediction_reg_bar.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_plot_prediction_reg_bar
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to plot the bar plot that appears on prt_ui_results.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function prt_plot_prediction_reg_bar(PRT, model, fold,axes_handle) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to plot the bar plot that appears on prt_ui_results.
+
+ FORMAT prt_plot_prediction_reg_bar(PRT, model, fold,axes_handle)
+ Inputs:
+       PRT             - data/design/model structure (it needs to contain
+                         at least one estimated model).
+       model           - the number of the model that will be ploted
+       fold            - index of fold to plot
+       axes_handle     - (Optional) axes where the plot will be displayed
+
+ Output:
+       None
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_ui_results.html" class="code" title="function varargout = prt_ui_results(varargin)">prt_ui_results</a>	PRT_UI_RESULTS MATLAB code for prt_ui_results.fig</li><li><a href="prt_ui_results_stats.html" class="code" title="function varargout = prt_ui_results_stats(varargin)">prt_ui_results_stats</a>	PRT_UI_RESULTS_STATS MATLAB code for prt_ui_results_stats.fig</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function prt_plot_prediction_reg_bar(PRT, model, fold,axes_handle)</a>
+0002 <span class="comment">% Function to plot the bar plot that appears on prt_ui_results.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% FORMAT prt_plot_prediction_reg_bar(PRT, model, fold,axes_handle)</span>
+0005 <span class="comment">% Inputs:</span>
+0006 <span class="comment">%       PRT             - data/design/model structure (it needs to contain</span>
+0007 <span class="comment">%                         at least one estimated model).</span>
+0008 <span class="comment">%       model           - the number of the model that will be ploted</span>
+0009 <span class="comment">%       fold            - index of fold to plot</span>
+0010 <span class="comment">%       axes_handle     - (Optional) axes where the plot will be displayed</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Output:</span>
+0013 <span class="comment">%       None</span>
+0014 <span class="comment">%__________________________________________________________________________</span>
+0015 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0016 
+0017 <span class="comment">% Written by M. J. Rosa</span>
+0018 <span class="comment">% $Id: prt_plot_prediction_reg_bar.m 706 2013-06-07 14:33:34Z cphillip $</span>
+0019 
+0020 nfold = length(PRT.model(model).output.fold);
+0021 
+0022 <span class="comment">%If no axes_handle is given, create a new window</span>
+0023 <span class="keyword">if</span> ~exist(<span class="string">'axes_handle'</span>, <span class="string">'var'</span>)
+0024     figure;
+0025     axes_handle = axes;
+0026 <span class="keyword">else</span>
+0027     set(axes_handle, <span class="string">'XScale'</span>,<span class="string">'linear'</span>);
+0028 <span class="keyword">end</span>
+0029 
+0030 cla(axes_handle, <span class="string">'reset'</span>);
+0031 <span class="keyword">if</span> fold==1
+0032     <span class="keyword">for</span> f = 1:nfold
+0033         preds1 = [preds1; PRT.model(model).output.fold(f).targets];
+0034         preds2 = [preds2; PRT.model(model).output.fold(f).predictions];
+0035     <span class="keyword">end</span>
+0036 <span class="keyword">else</span>
+0037     preds1 = PRT.model(model).output.fold(fold-1).targets;
+0038     preds2 = PRT.model(model).output.fold(fold-1).predictions;
+0039 <span class="keyword">end</span>
+0040 <span class="comment">%If you want to use more classes, just add more colours to the list bellow</span>
+0041 colourList = [0 0 0; 1 0 0];
+0042 
+0043 bar(axes_handle,[preds1 preds2]);
+0044 colormap(colourList)
+0045 xlabel(axes_handle,<span class="string">'subjects'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0046 ylabel(axes_handle,<span class="string">'targets and predictions'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>);
+0047 legend(axes_handle,{<span class="string">'Target'</span>, <span class="string">'Predicted'</span>});</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

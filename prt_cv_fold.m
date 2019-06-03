@@ -1,5 +1,5 @@
 function [model, targets] = prt_cv_fold(PRT, in)
-% Function to run a single cross-validation fold 
+% Function to run a single cross-validation fold.
 %
 % Inputs:
 % -------

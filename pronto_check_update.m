@@ -1,8 +1,6 @@
 function pronto_check_update()
-
-
-% need to put the pronto_current_version.txt file in the main pronto folder of all versions.
-% DON'T FORGET TO UPDATE MANUALLY THE 'latest_version.txt' in the Server!!!
+% Function to check if there is a newer version of PRoNTo available.
+% The 'latest_version.txt' needs to updated to the latest version of PRoNTo after each update.
 
 [latest_version, server_status] = urlread('http://www.mlnl.cs.ucl.ac.uk/pronto/pronto_versions/latest_version.txt');
 
@@ -20,7 +18,7 @@ if server_status == 1
         
         txt_dev = sprintf(['\n======================================================================\n'...
             ' You might be using a developer version of PRoNTo. These versions can\n be unstable. Please consider'...
-            ' switching to the latest version as\n indicated in http://www.mlnl.cs.ucl.ac.uk/pronto/pronto_versions/\n' ...
+            ' switching to the latest stable version\n as indicated in http://www.mlnl.cs.ucl.ac.uk/pronto/pronto_versions/\n' ...
             '======================================================================']);
         
         if l_vers(1) == c_vers(1)

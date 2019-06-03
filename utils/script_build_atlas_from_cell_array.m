@@ -1,4 +1,5 @@
 function [atl_mat,ROI_names] = script_build_atlas_from_cell_array(region_list)
+% Function to build an atlas from a cell array.
 
 if nargin<1 || isempty(region_list)
     beep;

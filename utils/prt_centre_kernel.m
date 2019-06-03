@@ -1,8 +1,6 @@
 function [C,Cs,Css] = prt_centre_kernel(K, Ks, Kss)
-
-% This function centres the kernel matrix, respecting the independence of
-% training and test partitions. See Shawe-Taylor and Cristianini for
-% background on this approach.
+% Function to centre the kernel matrix while respecting the independence of training and test partitions.
+% See Shawe-Taylor and Cristianini for background on this approach.
 %
 % Shawe-Taylor, J. and Cristianini, N. (2004). Kernel methods for Pattern
 % analysis. Cambridge University Press.

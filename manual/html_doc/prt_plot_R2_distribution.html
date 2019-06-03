@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_plot_R2_distribution</title>
+  <meta name="keywords" content="prt_plot_R2_distribution">
+  <meta name="description" content="Function to plot the accuracy distribution across folds as a violin plot that appears in the prt_ui_results_stats window.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_plot_R2_distribution.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_plot_R2_distribution
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to plot the accuracy distribution across folds as a violin plot that appears in the prt_ui_results_stats window.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function prt_plot_R2_distribution(PRT, model, axes_handle) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to plot the accuracy distribution across folds as a violin plot that appears in the prt_ui_results_stats window.
+
+ FORMAT prt_plot_R2_distribution(PRT, model, axes_handle)
+ Inputs:
+       PRT             - data/design/model structure (it needs to contain
+                         at least one estimated model).
+       model           - the number of the model that will be ploted
+       axes_handle     - (Optional) axes where the plot will be displayed
+
+ Output:
+       None        
+__________________________________________________________________________
+ Copyright (C) 2018 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_ui_results_stats.html" class="code" title="function varargout = prt_ui_results_stats(varargin)">prt_ui_results_stats</a>	PRT_UI_RESULTS_STATS MATLAB code for prt_ui_results_stats.fig</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function prt_plot_R2_distribution(PRT, model, axes_handle)</a>
+0002 <span class="comment">% Function to plot the accuracy distribution across folds as a violin plot that appears in the prt_ui_results_stats window.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% FORMAT prt_plot_R2_distribution(PRT, model, axes_handle)</span>
+0005 <span class="comment">% Inputs:</span>
+0006 <span class="comment">%       PRT             - data/design/model structure (it needs to contain</span>
+0007 <span class="comment">%                         at least one estimated model).</span>
+0008 <span class="comment">%       model           - the number of the model that will be ploted</span>
+0009 <span class="comment">%       axes_handle     - (Optional) axes where the plot will be displayed</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% Output:</span>
+0012 <span class="comment">%       None</span>
+0013 <span class="comment">%__________________________________________________________________________</span>
+0014 <span class="comment">% Copyright (C) 2018 Machine Learning &amp; Neuroimaging Laboratory</span>
+0015 
+0016 <span class="comment">% Written by J. Schrouff</span>
+0017 <span class="comment">% $Id: prt_plot_R2_distribution.m 706 2013-06-07 14:33:34Z cphillip $</span>
+0018 
+0019 <span class="comment">% Set colors</span>
+0020 c1 = cbrewer(<span class="string">'qual'</span>,<span class="string">'Set3'</span>,3);
+0021 c = [c1(1,:); 0.6 0.6 0.6];
+0022 c_over = brighten(c,0.5);
+0023 c = brighten(c,-0.4);
+0024 
+0025 
+0026 nfold = length(PRT.model(model).output.fold);
+0027 
+0028 <span class="comment">% Get balanced accuracy value</span>
+0029 r2 = zeros(nfold,1);
+0030 <span class="keyword">for</span> i = 1:nfold
+0031     r2(i) = PRT.model(model).output.fold(i).stats.r2;
+0032 <span class="keyword">end</span>
+0033 
+0034 <span class="comment">% Get permuted balanced accuracy values if they exist</span>
+0035 <span class="keyword">if</span> isfield(PRT.model(model).output.stats,<span class="string">'permutation'</span>) &amp;&amp; <span class="keyword">...</span>
+0036         isfield(PRT.model(model).output.stats.permutation,<span class="string">'r2'</span>) &amp;&amp; <span class="keyword">...</span>
+0037         ~isempty(PRT.model(model).output.stats.permutation.r2)
+0038     perm_r2 = PRT.model(model).output.stats.permutation.r2;
+0039 <span class="keyword">else</span>
+0040     perm_r2 = [];
+0041 <span class="keyword">end</span>
+0042 
+0043 <span class="comment">% Set axes</span>
+0044 <span class="comment">%If no axes_handle is given, create a new window</span>
+0045 <span class="keyword">if</span> ~exist(<span class="string">'axes_handle'</span>, <span class="string">'var'</span>)
+0046     figure;
+0047     axes_handle = axes;
+0048 <span class="keyword">else</span>
+0049     set(axes_handle, <span class="string">'XScale'</span>,<span class="string">'linear'</span>);
+0050 <span class="keyword">end</span>
+0051 rotate3d off
+0052 cla(axes_handle, <span class="string">'reset'</span>);
+0053 
+0054 <span class="comment">% Get violin plot for balanced accuracy</span>
+0055 <span class="keyword">if</span> isempty(perm_r2)
+0056     <span class="comment">% Only plot balanced accuracy if no permutations</span>
+0057     distributionPlot(axes_handle,r2,<span class="string">'color'</span>,c_over(1,:),<span class="string">'showMM'</span>,2)
+0058     legend_text = {<span class="string">'R2'</span>,<span class="string">'Mean'</span>};
+0059 <span class="keyword">else</span>
+0060     <span class="comment">% Plot balanced accuracy on the left and permutations on the right</span>
+0061     distributionPlot(axes_handle,r2,<span class="string">'widthDiv'</span>,[2 1],<span class="string">'histOri'</span>,<span class="string">'left'</span>,<span class="string">'color'</span>,c_over(1,:),<span class="string">'showMM'</span>,0)
+0062     distributionPlot(axes_handle,perm_r2',<span class="string">'widthDiv'</span>,[2 2],<span class="string">'histOri'</span>,<span class="string">'right'</span>,<span class="string">'color'</span>,c_over(2,:),<span class="string">'showMM'</span>,0)
+0063     distributionPlot(axes_handle,r2,<span class="string">'widthDiv'</span>,[2 1],<span class="string">'histOri'</span>,<span class="string">'left'</span>,<span class="string">'color'</span>,c(1,:),<span class="string">'histOpt'</span>,0,<span class="string">'showMM'</span>,0)
+0064     distributionPlot(axes_handle,perm_r2',<span class="string">'widthDiv'</span>,[2 2],<span class="string">'histOri'</span>,<span class="string">'right'</span>,<span class="string">'color'</span>,c(2,:),<span class="string">'histOpt'</span>,0,<span class="string">'showMM'</span>,0)
+0065     legend_text = {<span class="string">'True labels'</span>,<span class="string">'Permuted labels'</span>};
+0066 <span class="keyword">end</span>
+0067 
+0068 <span class="comment">% Plot and axes labels</span>
+0069 ylim([-0.05 1.05])
+0070 set(axes_handle,<span class="string">'XTickLabels'</span>,<span class="string">''</span>)
+0071 title(axes_handle,sprintf(<span class="string">'R2 distribution'</span>));
+0072 ylabel(axes_handle,<span class="string">'Model performance'</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0073 xlabel(axes_handle,<span class="string">''</span>,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>)
+0074 legend(legend_text,<span class="string">'Location'</span>,<span class="string">'NorthEast'</span>)
+0075 set(axes_handle,<span class="string">'Color'</span>,[1,1,1])</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

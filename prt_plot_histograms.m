@@ -1,12 +1,11 @@
 function prt_plot_histograms(PRT, model, fold, axes_handle)
-% FORMAT prt_plot_histograms(PRT, model, fold, axes_handle)
-%
-% This function plots the histogram that appears on prt_ui_results.
+% Function to plot the histogram that appears on prt_ui_results.
 %
 % The maximum number of classes that can be ploted is 7. However, this can
 % be increased by editing the function. Just add more colours to the
 % colourList variable.
 %
+% FORMAT prt_plot_histograms(PRT, model, fold, axes_handle)
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).

@@ -1,5 +1,6 @@
 function weights = prt_weights(d,m)
-% Run function to compute weights
+% Main function to compute weights.
+%
 % FORMAT weights = prt_weights(d,m)
 % Inputs:
 %       d   - data structure

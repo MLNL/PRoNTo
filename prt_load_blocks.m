@@ -1,7 +1,8 @@
 function block = prt_load_blocks(filenames, bs, br)
-% Load one or more blocks of data.
-% This script is a effectively a wrapper function that for the routines
-% that actually do the work (SPM nifti routines)
+% Wrapper function to load one or more blocks of data.
+%
+% This script is essentially a wrapper function for the routines
+% that actually do the aforementioned work (SPM nifti routines).
 %
 % The syntax is either:
 %

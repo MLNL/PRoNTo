@@ -1,9 +1,7 @@
 function [nmask] = prt_utils_update_mask(files,mask,dir)
-
-% Script to update the first level mask to be entered in the Data and
-% Design step of a PRoNTo analysis. The mask is first resized to match the
-% dimensions of provided images. Any NaN value found in any of the images
-% will then be removed from the mask.
+% Function to update the first level mask to be entered in the Data & Design step.
+% The mask is first resized to match the dimensions of provided images. Any NaN
+% value found in any of the images will then be removed from the mask.
 %
 % Modalities/runs that will be concatenated in samples should be selected
 % at the same time to ensure common features>

@@ -1,4 +1,5 @@
 function w = prt_KRR(K,t,reg)
+% Function for some KRR calculations.
 
 % w = prt_KRR(K,t,reg)
 %__________________________________________________________________________

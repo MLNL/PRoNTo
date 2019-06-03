@@ -1,5 +1,5 @@
 function [mid, PRT] = prt_init_model(PRT, in)
-% function to initialise the model data structure
+% Function to initialise the model data structure.
 %
 % FORMAT: Two modes are possible:
 %     mid = prt_init_model(PRT, in)

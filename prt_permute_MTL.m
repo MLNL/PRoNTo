@@ -1,6 +1,6 @@
 function [out] = prt_permute_MTL(PRT,mid,fname,maxnp)
-% Computes permutations for MTL models based on the single task model
-% permutations.
+% Function to compute permutations for MTL models based on the single task model permutations.
+%
 % Before using this code, ensure you have run permutations on the tasks
 % independently and have saved the permutation parameters for each.
 %

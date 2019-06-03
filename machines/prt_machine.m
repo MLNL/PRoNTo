@@ -1,5 +1,5 @@
 function output = prt_machine(d,m)
-% Run machine function for classification or regression
+% Main function to run machine function for classification or regression.
 % FORMAT output = prt_machine(d,m)
 % Inputs:
 %   d            - structure with information about the data, with fields:

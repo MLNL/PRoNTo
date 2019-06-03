@@ -1,4 +1,5 @@
 function out = prt_get_filename(ids)
+% Function to gather the filename.
 
 % out = prt_get_filename(ids)
 % 

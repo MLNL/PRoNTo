@@ -1,7 +1,5 @@
 function [H HN SN idfeatroi] = prt_region_histogram(beta, atlas)
-
-% 
-% Atlas-based region histograms.
+% Function to plot Atlas-based region histograms.
 % 
 % Based on the following function:
 % 

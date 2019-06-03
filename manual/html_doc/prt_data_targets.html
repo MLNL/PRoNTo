@@ -1,0 +1,451 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_data_targets</title>
+  <meta name="keywords" content="prt_data_targets">
+  <meta name="description" content="PRT_DATA_TARGETS M-file for prt_data_targets.fig">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_data_targets.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_data_targets
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>PRT_DATA_TARGETS M-file for prt_data_targets.fig</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function varargout = prt_data_targets(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> PRT_DATA_TARGETS M-file for prt_data_targets.fig
+ 
+ PRT_DATA_TARGETS, by itself, creates a new PRT_DATA_TARGETS or 
+ raises the existing singleton*.
+
+ H = PRT_DATA_TARGETS returns the handle to a new PRT_DATA_TARGETS 
+ or the handle to the existing singleton*.
+
+ PRT_DATA_TARGETS('CALLBACK',hObject,eventData,handles,...) calls the 
+ local function named CALLBACK in PRT_DATA_TARGETS.M with the given 
+ input arguments.
+
+ PRT_DATA_TARGETS('Property','Value',...) creates a new 
+ PRT_DATA_TARGETS or raises the existing singleton*.  Starting from the
+ left, property value pairs are applied to the GUI before 
+ prt_data_targets_OpeningFcn gets called.  An unrecognized property name
+ or invalid value makes property application stop.  All inputs are passed 
+ to prt_data_targets_OpeningFcn via varargin.
+
+ *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one
+  instance to run (singleton)&quot;.
+
+ See also: GUIDE, GUIDATA, GUIHANDLES
+_______________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Function to get/set the defaults values associated with an identifier.</li><li><a href="prt_text_input.html" class="code" title="function varargout = prt_text_input(varargin)">prt_text_input</a>	PRT_TEXT_INPUT M-file for prt_text_input.fig</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_data_modality.html" class="code" title="function varargout = prt_data_modality(varargin)">prt_data_modality</a>	PRT_DATA_MODALITY M-file for prt_data_modality.fig</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function prt_data_targets_OpeningFcn(hObject, eventdata, handles, varargin)</a></li><li><a href="#_sub2" class="code">function varargout = prt_data_targets_OutputFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub3" class="code">function targmenu_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub4" class="code">function targmenu_CreateFcn(hObject, eventdata, handles)</a></li><li><a href="#_sub5" class="code">function targtable_CellEditCallback(hObject, eventdata, handles)</a></li><li><a href="#_sub6" class="code">function okbutton_Callback(hObject, eventdata, handles)</a></li><li><a href="#_sub7" class="code">function cancelbutton_Callback(hObject, eventdata, handles)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function varargout = prt_data_targets(varargin)</a>
+0002 <span class="comment">% PRT_DATA_TARGETS M-file for prt_data_targets.fig</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% PRT_DATA_TARGETS, by itself, creates a new PRT_DATA_TARGETS or</span>
+0005 <span class="comment">% raises the existing singleton*.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% H = PRT_DATA_TARGETS returns the handle to a new PRT_DATA_TARGETS</span>
+0008 <span class="comment">% or the handle to the existing singleton*.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% PRT_DATA_TARGETS('CALLBACK',hObject,eventData,handles,...) calls the</span>
+0011 <span class="comment">% local function named CALLBACK in PRT_DATA_TARGETS.M with the given</span>
+0012 <span class="comment">% input arguments.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% PRT_DATA_TARGETS('Property','Value',...) creates a new</span>
+0015 <span class="comment">% PRT_DATA_TARGETS or raises the existing singleton*.  Starting from the</span>
+0016 <span class="comment">% left, property value pairs are applied to the GUI before</span>
+0017 <span class="comment">% prt_data_targets_OpeningFcn gets called.  An unrecognized property name</span>
+0018 <span class="comment">% or invalid value makes property application stop.  All inputs are passed</span>
+0019 <span class="comment">% to prt_data_targets_OpeningFcn via varargin.</span>
+0020 <span class="comment">%</span>
+0021 <span class="comment">% *See GUI Options on GUIDE's Tools menu.  Choose &quot;GUI allows only one</span>
+0022 <span class="comment">%  instance to run (singleton)&quot;.</span>
+0023 <span class="comment">%</span>
+0024 <span class="comment">% See also: GUIDE, GUIDATA, GUIHANDLES</span>
+0025 <span class="comment">%_______________________________________________________________________</span>
+0026 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0027 
+0028 <span class="comment">% Written by J.Schrouff</span>
+0029 <span class="comment">% $Id$</span>
+0030 
+0031 <span class="comment">% Edit the above text to modify the response to help prt_data_targets</span>
+0032 
+0033 <span class="comment">% Last Modified by GUIDE v2.5 31-Jul-2018 10:50:26</span>
+0034 
+0035 <span class="comment">% Begin initialization code - DO NOT EDIT</span>
+0036 gui_Singleton = 1;
+0037 gui_State = struct(<span class="string">'gui_Name'</span>,       mfilename, <span class="keyword">...</span>
+0038                    <span class="string">'gui_Singleton'</span>,  gui_Singleton, <span class="keyword">...</span>
+0039                    <span class="string">'gui_OpeningFcn'</span>, @<a href="#_sub1" class="code" title="subfunction prt_data_targets_OpeningFcn(hObject, eventdata, handles, varargin)">prt_data_targets_OpeningFcn</a>, <span class="keyword">...</span>
+0040                    <span class="string">'gui_OutputFcn'</span>,  @<a href="#_sub2" class="code" title="subfunction varargout = prt_data_targets_OutputFcn(hObject, eventdata, handles)">prt_data_targets_OutputFcn</a>, <span class="keyword">...</span>
+0041                    <span class="string">'gui_LayoutFcn'</span>,  [] , <span class="keyword">...</span>
+0042                    <span class="string">'gui_Callback'</span>,   []);
+0043 <span class="keyword">if</span> nargin &amp;&amp; ischar(varargin{1})
+0044     gui_State.gui_Callback = str2func(varargin{1});
+0045 <span class="keyword">end</span>
+0046 
+0047 <span class="keyword">if</span> nargout
+0048     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+0049 <span class="keyword">else</span>
+0050     gui_mainfcn(gui_State, varargin{:});
+0051 <span class="keyword">end</span>
+0052 <span class="comment">% End initialization code - DO NOT EDIT</span>
+0053 
+0054 
+0055 <span class="comment">% --- Executes just before prt_data_targets is made visible.</span>
+0056 <a name="_sub1" href="#_subfunctions" class="code">function prt_data_targets_OpeningFcn(hObject, eventdata, handles, varargin)</a>
+0057 <span class="comment">% This function has no output args, see OutputFcn.</span>
+0058 <span class="comment">% hObject    handle to figure</span>
+0059 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0060 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0061 <span class="comment">% varargin   command line arguments to prt_data_targets (see VARARGIN)</span>
+0062 
+0063 <span class="comment">% Choose default command line output for prt_data_targets</span>
+0064 handles.output = hObject;
+0065 
+0066 <span class="comment">%if window already exists, just put it as the current figure</span>
+0067 Tag=<span class="string">'DDTargets'</span>;
+0068 F = findall(allchild(0),<span class="string">'Flat'</span>,<span class="string">'Tag'</span>,Tag);
+0069 <span class="keyword">if</span> length(F) &gt; 1
+0070     <span class="comment">% Multiple Graphics windows - close all but most recent</span>
+0071     close(F(2:end))
+0072     F = F(1);
+0073     uistack(F,<span class="string">'top'</span>)
+0074 <span class="keyword">elseif</span> length(F)==1
+0075     uistack(F,<span class="string">'top'</span>)
+0076 <span class="keyword">else</span>
+0077     set(handles.figure1,<span class="string">'Tag'</span>,Tag)
+0078     <span class="comment">%build figure when it doesn't exist yet</span>
+0079     set(handles.figure1,<span class="string">'Name'</span>,<span class="string">'PRoNTo :: Specify targets'</span>)
+0080     set(handles.targmenu,<span class="string">'String'</span>,{<span class="string">'Specify'</span>,<span class="string">'From .mat file'</span>})
+0081     set(handles.targmenu,<span class="string">'Value'</span>,2)
+0082 <span class="comment">%set size of the window, taking screen resolution and platform into account</span>
+0083 S0= spm(<span class="string">'WinSize'</span>,<span class="string">'0'</span>,1);   <span class="comment">%-Screen size (of the current monitor)</span>
+0084 <span class="keyword">if</span> ispc
+0085     PF =<span class="string">'MS Sans Serif'</span>;
+0086 <span class="keyword">else</span>
+0087     PF = spm_platform(<span class="string">'fonts'</span>);     <span class="comment">%-Font names (for this platform)</span>
+0088     PF = PF.helvetica;
+0089 <span class="keyword">end</span>
+0090 tmp  = [S0(3)/1280 (S0(4))/800];
+0091 ratio=min(tmp)*[1 1 1 1];
+0092 FS = 1 + 0.85*(min(ratio)-1);  <span class="comment">%factor to scale the fonts</span>
+0093 x=get(handles.figure1,<span class="string">'Position'</span>);
+0094 set(handles.figure1,<span class="string">'DefaultTextFontSize'</span>,FS*12,<span class="keyword">...</span>
+0095     <span class="string">'DefaultUicontrolFontSize'</span>,FS*12,<span class="keyword">...</span>
+0096     <span class="string">'DefaultTextFontName'</span>,PF,<span class="keyword">...</span>
+0097     <span class="string">'DefaultAxesFontName'</span>,PF,<span class="keyword">...</span>
+0098     <span class="string">'DefaultUicontrolFontName'</span>,PF)
+0099 set(handles.figure1,<span class="string">'Position'</span>,ratio.*x)
+0100 set(handles.figure1,<span class="string">'Resize'</span>,<span class="string">'on'</span>)
+0101 
+0102 <span class="comment">% Choose the color of the different backgrounds and figure parameters</span>
+0103 color=<a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>(<span class="string">'color'</span>);
+0104 set(handles.figure1,<span class="string">'Color'</span>,color.bg1)
+0105 aa=get(handles.figure1,<span class="string">'children'</span>);
+0106 <span class="keyword">for</span> i=1:length(aa)
+0107     <span class="keyword">if</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uipanel'</span>)
+0108         set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg2)
+0109         bb=get(aa(i),<span class="string">'children'</span>);
+0110         <span class="keyword">if</span> ~isempty(bb)
+0111             <span class="keyword">for</span> j=1:length(bb)
+0112                 <span class="keyword">if</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0113                         <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>}))) 
+0114                     set(bb(j),<span class="string">'BackgroundColor'</span>,color.bg2)
+0115                 <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(bb(j),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>))) 
+0116                     set(bb(j),<span class="string">'BackgroundColor'</span>,color.fr)
+0117                 <span class="keyword">end</span>
+0118                 set(bb(j),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0119                 xf=get(bb(j),<span class="string">'FontSize'</span>);
+0120                 set(bb(j),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0121                     <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0122             <span class="keyword">end</span>
+0123         <span class="keyword">end</span>
+0124     <span class="keyword">elseif</span> strcmpi(get(aa(i),<span class="string">'type'</span>),<span class="string">'uicontrol'</span>)
+0125         <span class="keyword">if</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),{<span class="string">'text'</span>,<span class="keyword">...</span>
+0126                 <span class="string">'radiobutton'</span>,<span class="string">'checkbox'</span>,<span class="string">'listbox'</span>})))
+0127             set(aa(i),<span class="string">'BackgroundColor'</span>,color.bg1)
+0128         <span class="keyword">elseif</span> ~isempty(find(strcmpi(get(aa(i),<span class="string">'Style'</span>),<span class="string">'pushbutton'</span>)))
+0129             set(aa(i),<span class="string">'BackgroundColor'</span>,color.fr)
+0130         <span class="keyword">end</span>
+0131     <span class="keyword">end</span>
+0132     set(aa(i),<span class="string">'FontUnits'</span>,<span class="string">'pixel'</span>)
+0133     xf=get(aa(i),<span class="string">'FontSize'</span>);
+0134     <span class="keyword">if</span> ispc
+0135         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0136             <span class="string">'FontUnits'</span>,<span class="string">'normalized'</span>,<span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0137     <span class="keyword">else</span>
+0138         set(aa(i),<span class="string">'FontSize'</span>,ceil(FS*xf),<span class="string">'FontName'</span>,PF,<span class="keyword">...</span>
+0139             <span class="string">'Units'</span>,<span class="string">'normalized'</span>)
+0140     <span class="keyword">end</span>
+0141 <span class="keyword">end</span>
+0142 
+0143 <span class="comment">% Fill fields if targets have been specified for this modality</span>
+0144 handles.rt_subj=struct();
+0145 <span class="keyword">if</span> ~isempty(varargin) &amp;&amp; strcmpi(varargin{1},<span class="string">'UserData'</span>)
+0146     rt=varargin{2}{1};
+0147     szn=length(rt);    
+0148     dat=cell(szn,2);
+0149     handles.rt_subj = rt;
+0150     <span class="keyword">for</span> i=1:szn
+0151         <span class="keyword">try</span>
+0152             dat{i,1}=rt(i).name;
+0153         <span class="keyword">catch</span>
+0154             dat{i,1}=[<span class="string">'Tar '</span>,num2str(i)];
+0155         <span class="keyword">end</span>
+0156         handles.rt_subj(i).name=dat{i,1};
+0157         <span class="keyword">try</span>
+0158             temp=[];
+0159             <span class="keyword">for</span> j=1:length(rt(i).tar)
+0160                 temp=[temp, <span class="string">' '</span>,num2str(rt(i).tar(j),3)];
+0161             <span class="keyword">end</span>
+0162             dat{i,2}=temp;
+0163             handles.rt_subj(i).tar=rt(i).tar;
+0164         <span class="keyword">catch</span>
+0165             dat{i,2}=<span class="string">'NaN'</span>;
+0166             handles.rt_subj(i).tar=[];
+0167         <span class="keyword">end</span>
+0168     <span class="keyword">end</span>
+0169     set(handles.targtable,<span class="string">'visible'</span>,<span class="string">'on'</span>);
+0170     set(handles.targtable,<span class="string">'Data'</span>,dat);
+0171 <span class="keyword">else</span>
+0172     dat={<span class="string">'Tar 1'</span>,<span class="string">'NaN'</span>};
+0173     set(handles.targtable,<span class="string">'visible'</span>,<span class="string">'off'</span>);
+0174 <span class="keyword">end</span>
+0175 set(handles.targtable,<span class="string">'Data'</span>,dat);
+0176 set(handles.targtable,<span class="string">'ColumnName'</span>,{<span class="string">'Name'</span>,<span class="string">'Regression targets'</span>});
+0177 set(handles.targtable,<span class="string">'ColumnEditable'</span>,[true,true]);
+0178 set(handles.targtable,<span class="string">'ColumnWidth'</span>,{200,250});
+0179 set(handles.targtable,<span class="string">'ColumnFormat'</span>,{<span class="string">'char'</span>,<span class="string">'char'</span>});
+0180 
+0181 <span class="keyword">end</span>
+0182 
+0183 <span class="comment">% Update handles structure</span>
+0184 guidata(hObject, handles);
+0185 
+0186 <span class="comment">%UIWAIT makes prt_data_targets wait for user response (see UIRESUME)</span>
+0187 uiwait(handles.figure1);
+0188 
+0189 
+0190 <span class="comment">% --- Outputs from this function are returned to the command line.</span>
+0191 <a name="_sub2" href="#_subfunctions" class="code">function varargout = prt_data_targets_OutputFcn(hObject, eventdata, handles) </a>
+0192 <span class="comment">% varargout  cell array for returning output args (see VARARGOUT);</span>
+0193 <span class="comment">% hObject    handle to figure</span>
+0194 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0195 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0196 
+0197 <span class="comment">% Get default command line output from handles structure</span>
+0198 <span class="keyword">if</span> isfield(handles,<span class="string">'output'</span>) &amp;&amp; ~isempty(handles.output)
+0199     varargout{1} = handles.output;
+0200 <span class="keyword">else</span>
+0201     varargout{1}=[];
+0202 <span class="keyword">end</span>
+0203 
+0204 <span class="comment">% The figure can be deleted now</span>
+0205 <span class="keyword">if</span> isfield(handles,<span class="string">'figure1'</span>)
+0206     delete(handles.figure1);
+0207 <span class="keyword">end</span>
+0208 
+0209 
+0210 <span class="comment">% --- Executes on selection change in targmenu.</span>
+0211 <a name="_sub3" href="#_subfunctions" class="code">function targmenu_Callback(hObject, eventdata, handles)</a>
+0212 <span class="comment">% hObject    handle to targmenu (see GCBO)</span>
+0213 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0214 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0215 
+0216 <span class="comment">% Hints: contents = get(hObject,'String') returns targmenu contents as cell array</span>
+0217 <span class="comment">%        contents{get(hObject,'Value')} returns selected item from targmenu</span>
+0218 choice=get(handles.targmenu,<span class="string">'Value'</span>);
+0219 <span class="keyword">if</span> choice==1
+0220     ntar=str2double(<a href="prt_text_input.html" class="code" title="function varargout = prt_text_input(varargin)">prt_text_input</a>(<span class="string">'Title'</span>,<span class="string">'Enter number of targets'</span>));
+0221     <span class="keyword">if</span> isnan(ntar)
+0222         <span class="keyword">return</span>
+0223     <span class="keyword">end</span>
+0224     dat=cell(ntar,2);
+0225     <span class="keyword">for</span> i=1:ntar
+0226         dat{i,1}=[<span class="string">'Tar '</span>,num2str(i)];
+0227         dat{i,2}=<span class="string">'NaN'</span>;
+0228         handles.rt_subj(i).name=[<span class="string">'Tar '</span>,num2str(i)];
+0229     <span class="keyword">end</span>
+0230     set(handles.targtable,<span class="string">'visible'</span>,<span class="string">'on'</span>);
+0231     set(handles.targtable,<span class="string">'Data'</span>,dat);
+0232 <span class="keyword">else</span>
+0233     tarfile = spm_select(1,<span class="string">'.mat'</span>,<span class="string">'Select regression target file'</span>);
+0234     <span class="keyword">try</span>
+0235         load(tarfile);
+0236     <span class="keyword">catch</span>
+0237         beep
+0238         disp(<span class="string">'Could not load file'</span>)
+0239         <span class="keyword">return</span>
+0240     <span class="keyword">end</span>
+0241     <span class="keyword">try</span>
+0242         na=names;
+0243     <span class="keyword">catch</span>
+0244         beep
+0245         disp(<span class="string">'No &quot;names&quot; found in the .mat file, using default names'</span>)
+0246     <span class="keyword">end</span>
+0247     <span class="keyword">try</span>
+0248         tar=rt_subj;
+0249     <span class="keyword">catch</span>
+0250         beep
+0251         disp(<span class="string">'No &quot;rt_subj&quot; found in the .mat file, please select another file'</span>)
+0252         <span class="keyword">return</span>
+0253     <span class="keyword">end</span>
+0254     szn=length(names);    
+0255     dat=cell(szn,2);
+0256     <span class="keyword">for</span> i=1:szn
+0257         <span class="keyword">try</span>
+0258             dat{i,1}=na{i};
+0259         <span class="keyword">catch</span>
+0260             dat{i,1}=[<span class="string">'Tar '</span>,num2str(i)];
+0261         <span class="keyword">end</span>
+0262         handles.rt_subj(i).name=dat{i,1};
+0263         <span class="keyword">try</span>
+0264             dat{i,2}=num2str(tar(:,i)',3);
+0265             handles.rt_subj(i).tar=tar(:,i)';
+0266         <span class="keyword">catch</span>
+0267             dat{i,2}=<span class="string">'NaN'</span>;
+0268             handles.rt_subj(i).tar=[];
+0269         <span class="keyword">end</span>
+0270     <span class="keyword">end</span>
+0271     set(handles.targtable,<span class="string">'visible'</span>,<span class="string">'on'</span>);
+0272     set(handles.targtable,<span class="string">'Data'</span>,dat);
+0273 <span class="keyword">end</span>
+0274 <span class="comment">% Update handles structure</span>
+0275 guidata(hObject, handles);
+0276 
+0277 <span class="comment">% --- Executes during object creation, after setting all properties.</span>
+0278 <a name="_sub4" href="#_subfunctions" class="code">function targmenu_CreateFcn(hObject, eventdata, handles)</a>
+0279 <span class="comment">% hObject    handle to targmenu (see GCBO)</span>
+0280 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0281 <span class="comment">% handles    empty - handles not created until after all CreateFcns called</span>
+0282 
+0283 <span class="comment">% Hint: popupmenu controls usually have a white background on Windows.</span>
+0284 <span class="comment">%       See ISPC and COMPUTER.</span>
+0285 <span class="keyword">if</span> ispc &amp;&amp; isequal(get(hObject,<span class="string">'BackgroundColor'</span>), get(0,<span class="string">'defaultUicontrolBackgroundColor'</span>))
+0286     set(hObject,<span class="string">'BackgroundColor'</span>,<span class="string">'white'</span>);
+0287 <span class="keyword">end</span>
+0288 
+0289 
+0290 
+0291 <span class="comment">% --- Executes when entered data in editable cell(s) in targtable.</span>
+0292 <a name="_sub5" href="#_subfunctions" class="code">function targtable_CellEditCallback(hObject, eventdata, handles)</a>
+0293 <span class="comment">% hObject    handle to targtable (see GCBO)</span>
+0294 <span class="comment">% eventdata  structure with the following fields (see UITABLE)</span>
+0295 <span class="comment">%    Indices: row and column indices of the cell(s) edited</span>
+0296 <span class="comment">%    PreviousData: previous data for the cell(s) edited</span>
+0297 <span class="comment">%    EditData: string(s) entered by the user</span>
+0298 <span class="comment">%    NewData: EditData or its converted form set on the Data property. Empty if Data was not changed</span>
+0299 <span class="comment">%    Error: error string when failed to convert EditData to appropriate value for Data</span>
+0300 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0301 
+0302 ind=eventdata.Indices;
+0303 <span class="keyword">if</span> ind(2)&gt;1
+0304     dat=eventdata.EditData;
+0305     <span class="keyword">try</span>
+0306         eval([<span class="string">'vect=['</span>,dat,<span class="string">'];'</span>]);
+0307     <span class="keyword">catch</span>
+0308         warning(<span class="string">'prt_data_targets:EvalError'</span>,<span class="keyword">...</span>
+0309             <span class="string">'Could not evaluate statement, please correct'</span>)
+0310         <span class="keyword">return</span>
+0311     <span class="keyword">end</span>
+0312     <span class="comment">% check for bad values or formatting</span>
+0313     <span class="keyword">if</span> ~any(size(vect)==1)|| any(isnan(vect)) || any(vect&gt;10^6) 
+0314         beep
+0315         disp(<span class="string">'Bad formatting of values found!'</span>)
+0316         sprintf(<span class="string">'Please review and correct condition %d, column %d'</span>, ind(1), ind(2))
+0317         <span class="keyword">return</span>
+0318     <span class="keyword">end</span>
+0319 <span class="keyword">end</span>
+0320 
+0321 <span class="keyword">if</span> ind(2)==1
+0322     handles.rt_subj(ind(1)).name=eventdata.EditData;
+0323     vect = [];
+0324 <span class="keyword">elseif</span> ind(2)==2
+0325     handles.rt_subj(ind(1)).tar=vect;
+0326 <span class="keyword">end</span>
+0327 temp=[];
+0328 <span class="keyword">if</span> ~isempty(vect)
+0329     <span class="keyword">for</span> j=1:length(vect)
+0330         temp=[temp, <span class="string">' '</span>,num2str(vect(j),3)];
+0331     <span class="keyword">end</span>
+0332 <span class="keyword">else</span>
+0333     temp = handles.rt_subj(ind(1)).name;
+0334 <span class="keyword">end</span>
+0335 dat = get(handles.targtable,<span class="string">'Data'</span>);
+0336 dat{ind(1),ind(2)} = temp;
+0337 set(handles.targtable,<span class="string">'Data'</span>,dat);
+0338 <span class="comment">% Update handles structure</span>
+0339 guidata(hObject, handles);
+0340 
+0341 
+0342 <span class="comment">% --- Executes on button press in okbutton.</span>
+0343 <a name="_sub6" href="#_subfunctions" class="code">function okbutton_Callback(hObject, eventdata, handles)</a>
+0344 <span class="comment">% hObject    handle to okbutton (see GCBO)</span>
+0345 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0346 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0347 
+0348 <span class="comment">%get number of targets</span>
+0349 ntar=length(handles.rt_subj);
+0350 
+0351 <span class="comment">%check that each target has the same number of targets</span>
+0352 <span class="keyword">for</span> i=1:ntar
+0353     sztar=length(handles.rt_subj(i).tar);
+0354     <span class="keyword">if</span> i==1
+0355         szrt = sztar;
+0356     <span class="keyword">end</span>
+0357     <span class="keyword">if</span> sztar ~=szrt
+0358         beep
+0359         disp(<span class="string">'The number of regression targets must be the same in all targets!'</span>)
+0360         sprintf(<span class="string">'Please correct target %d'</span>,i)
+0361         <span class="keyword">return</span>
+0362     <span class="keyword">end</span>
+0363 <span class="keyword">end</span>
+0364 
+0365 <span class="comment">%Output targets</span>
+0366 handles.output=handles.rt_subj;
+0367 <span class="comment">% Update handles structure</span>
+0368 guidata(hObject, handles);
+0369 
+0370 uiresume(handles.figure1);
+0371 
+0372 <span class="comment">% --- Executes on button press in cancelbutton.</span>
+0373 <a name="_sub7" href="#_subfunctions" class="code">function cancelbutton_Callback(hObject, eventdata, handles)</a>
+0374 <span class="comment">% hObject    handle to cancelbutton (see GCBO)</span>
+0375 <span class="comment">% eventdata  reserved - to be defined in a future version of MATLAB</span>
+0376 <span class="comment">% handles    structure with handles and user data (see GUIDATA)</span>
+0377 uiresume(handles.figure1);
+0378</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

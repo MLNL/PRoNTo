@@ -1,8 +1,6 @@
 function [NW_roi,idfeatroi] = prt_build_region_weights(weight_fname,atlas_fname,build_im,comp_perm)
-%
-% Function to compute the weights for each region as specified by the atlas
-% image (one value per region). Weights not in the atlas are comprised in an
-% additional region with name 'others'.
+% Function to compute the weights for each region as specified by the atlas image (one value per region).
+% Weights not in the atlas are comprised in an additional region with name 'others'.
 %
 % --------------------------------------------------------------------------
 % INPUT : 

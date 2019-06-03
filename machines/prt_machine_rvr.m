@@ -1,5 +1,5 @@
 function output = prt_machine_rvr(d,args)
-% Relevance vector regression (training and testing)
+% Function to run Relevance vector regression (training and testing) machine.
 % FORMAT output = prt_machine_svm_bin(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

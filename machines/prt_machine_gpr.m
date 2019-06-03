@@ -1,5 +1,5 @@
 function output = prt_machine_gpr(d,args)
-% Run Gaussian process regression - meta-wrapper for regression with gpml  
+% Function to run the Gaussian process regression machine - meta-wrapper for regression with gpml.  
 % FORMAT output = prt_machine_gpml(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

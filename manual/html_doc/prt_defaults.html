@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_defaults</title>
+  <meta name="keywords" content="prt_defaults">
+  <meta name="description" content="Function to set the defaults which are used by PRoNTo.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_defaults.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_defaults
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to set the defaults which are used by PRoNTo.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function prt_defaults </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to set the defaults which are used by PRoNTo.
+
+ FORMAT prt_defaults
+_______________________________________________________________________
+
+ This file can be customised to any the site/person own setup.
+ Individual users can make copies which can be stored on their own
+ matlab path. Make sure your 'prt_defaults' is the first one found in the
+ path. See matlab documentation for details on setting path.
+
+ Care must be taken when modifying this file!
+
+ The structure and content of this file are largely inspired by SPM:
+ http://www.fil.ion.ucl.ac.uk/spm
+_______________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>	Pattern Recognition for Neuroimaging Toolbox, PRoNTo.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_get_defaults.html" class="code" title="function varargout = prt_get_defaults(defstr, varargin)">prt_get_defaults</a>	Function to get/set the defaults values associated with an identifier.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function prt_defaults</a>
+0002 <span class="comment">% Function to set the defaults which are used by PRoNTo.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% FORMAT prt_defaults</span>
+0005 <span class="comment">%_______________________________________________________________________</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% This file can be customised to any the site/person own setup.</span>
+0008 <span class="comment">% Individual users can make copies which can be stored on their own</span>
+0009 <span class="comment">% matlab path. Make sure your 'prt_defaults' is the first one found in the</span>
+0010 <span class="comment">% path. See matlab documentation for details on setting path.</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Care must be taken when modifying this file!</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% The structure and content of this file are largely inspired by SPM:</span>
+0015 <span class="comment">% http://www.fil.ion.ucl.ac.uk/spm</span>
+0016 <span class="comment">%_______________________________________________________________________</span>
+0017 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0018 
+0019 <span class="comment">% Written by Christophe Phillips</span>
+0020 <span class="comment">% $Id$</span>
+0021 
+0022 <span class="comment">%%</span>
+0023 <span class="keyword">global</span> prt_def
+0024 
+0025 <span class="comment">% Global defaults</span>
+0026 <span class="comment">% prt_loc = which('prt_batch');</span>
+0027 <span class="comment">% prt_def.global.install_dir = fileparts(prt_loc);</span>
+0028 prt_def.global.install_dir = <a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>);
+0029 
+0030 <span class="comment">% Default colors of the different elements</span>
+0031 <span class="comment">%-----------------------------------------------</span>
+0032 <span class="comment">% prt_def.color.bg1=[0 0.8 1];</span>
+0033 <span class="comment">% prt_def.color.bg2=[0.9,0.6,0.3];</span>
+0034 <span class="comment">% prt_def.color.fr=[1,0.5,0.7];</span>
+0035 <span class="comment">% prt_def.color.high=[0.2,0.2,0.8];</span>
+0036 
+0037 <span class="comment">% Blue-gray option</span>
+0038 <span class="comment">% prt_def.color.bg1  = ([0,115,151]/255 + [0.83 0.83 0.83])/2;</span>
+0039 <span class="comment">% prt_def.color.bg2  = ([0,115,151]/255 + 2*[0.88 0.88 0.88])/3;</span>
+0040 <span class="comment">% prt_def.color.fr   = ([0,115,151]/255 + 3*[0.92 0.92 0.92])/4;</span>
+0041 
+0042 <span class="comment">% Gray option</span>
+0043 <span class="comment">% prt_def.color.bg1  = [0.83,0.83,0.83];</span>
+0044 <span class="comment">% prt_def.color.bg2  = [0.88,0.88,0.88];</span>
+0045 <span class="comment">% prt_def.color.fr   = [0.92,0.92,0.92];</span>
+0046 
+0047 <span class="comment">% Blue-gray with more contrast, blue comes from logo</span>
+0048 prt_def.color.bg1  = ([0,115,151]/255 + [0.8 0.8 0.8])/2;
+0049 <span class="comment">% prt_def.color.bg1  = ([0,115,151]/255 + [0.6 0.6 0.6])/2;</span>
+0050 prt_def.color.bg2  = ([0,115,151]/255 + 4*[0.88 0.88 0.88])/5;
+0051 prt_def.color.fr   = ([0,115,151]/255 + 12*[0.95 0.95 0.95])/13;
+0052 prt_def.color.high = [0.8 0 0];
+0053 prt_def.color.black = [0 0 0];
+0054 prt_def.color.white = [1 1 1];
+0055 
+0056 <span class="comment">% Parameters for the data and design</span>
+0057 <span class="comment">%-----------------------------------------------</span>
+0058 prt_def.datad.hrfd = 0; <span class="comment">% HRF delay in seconds</span>
+0059 prt_def.datad.hrfw = 0; <span class="comment">% HRF FWHM, used to compute the overlap between conditions</span>
+0060 
+0061 prt_def.prep.default_mask  = fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>),<span class="string">'masks'</span>, <span class="keyword">...</span>
+0062                                 <span class="string">'SPM_mask_noeyes.hdr'</span>);<span class="comment">% default mask</span>
+0063 
+0064 <span class="comment">% Preprocessing defaults</span>
+0065 <span class="comment">%------------------------------------------------</span>
+0066 <span class="comment">% memory limit for kernel/file arrays construction</span>
+0067 prt_def.fs.mem_limit = 256*1024*1024;  <span class="comment">% bytes of memory to use</span>
+0068 prt_def.fs.writeraw  = 0;              <span class="comment">% flag to write the data detrended (default) or raw (to set to 1).</span>
+0069 
+0070 <span class="comment">% Default atlas for ROI defintion</span>
+0071 prt_def.fs.atlasroi  = cellstr(fullfile(<a href="prt.html" class="code" title="function varargout = prt(varargin)">prt</a>(<span class="string">'dir'</span>),<span class="string">'atlas'</span>, <span class="keyword">...</span>
+0072     <span class="string">'aal_79x91x69.img'</span>)); 
+0073 
+0074 <span class="comment">% Design specification default</span>
+0075 prt_def.dspec.use3 = [1 2];
+0076 
+0077 
+0078 <span class="comment">% Machine lists for GUI</span>
+0079 <span class="comment">%------------------------------------------------------------</span>
+0080 
+0081 prt_def.machine.class_K = {<span class="string">'Binary support vector machine'</span>,<span class="keyword">...</span>
+0082     <span class="string">'Binary Gaussian Process Classification'</span>,<span class="keyword">...</span>
+0083         <span class="string">'Multiclass GPC'</span>};
+0084 <span class="comment">%         'L2-Logistic Regression', ...</span>
+0085 prt_def.machine.MK = {<span class="string">'L1 Multi-Kernel Learning'</span>};
+0086 <span class="comment">% handles.MK = {'L1 Multi-Kernel Learning','wip','GMKL'};</span>
+0087 prt_def.machine.class_NK = {<span class="string">'Binary L2-SVM'</span>,<span class="keyword">...</span>
+0088     <span class="string">'Binary L1-SVM'</span>,<span class="keyword">...</span>
+0089     <span class="string">'Multiclass SVM'</span>,<span class="keyword">...</span>
+0090     <span class="string">'L2-Logistic Regression'</span>,<span class="keyword">...</span>
+0091     <span class="string">'L1-Logistic Regression'</span>};
+0092 prt_def.machine.reg_K = {<span class="string">'Kernel Ridge Regression'</span>,<span class="keyword">...</span>
+0093         <span class="string">'Relevance Vector Regression'</span>,<span class="string">'Gaussian Process Regression'</span>,<span class="keyword">...</span>
+0094         <span class="string">'epsilon-SVR'</span>};
+0095 prt_def.machine.reg_NK = {<span class="string">'epsilon-SVR'</span>};
+0096 
+0097 <span class="comment">% Specify model: String parameters of the different machines</span>
+0098 <span class="comment">%------------------------------------------------------------</span>
+0099 <span class="comment">% GPML toolbox</span>
+0100 prt_def.model.gpc_sargs       = <span class="string">'-l erf -h'</span>;<span class="comment">%-h</span>
+0101 prt_def.model.gpclap_sargs    = <span class="string">'-h'</span>; <span class="comment">%'-h';</span>
+0102 prt_def.model.gpr_sargs       = <span class="string">'-l gauss -h'</span>; <span class="comment">% -h</span>
+0103 
+0104 <span class="comment">%LIBSVM machines</span>
+0105 <span class="comment">% Classification - dual</span>
+0106 prt_def.model.libsvm_sargs    = <span class="string">'-q -s 0 -t 4 -c '</span>; <span class="comment">%L2 SVM</span>
+0107 <span class="comment">% Regression - dual</span>
+0108 prt_def.model.libeSVR_sargs    = <span class="string">'-q -s 3 -t 4 -c '</span>; <span class="comment">% e-SVR</span>
+0109 
+0110 <span class="comment">%LIBLINEAR machines</span>
+0111 <span class="comment">% Classification - primal (i.e. non-kernel)</span>
+0112 prt_def.model.libl2LR_sargs  = <span class="string">'-q -s 0 -B 1 -c '</span>; <span class="comment">% L2-regularized logistic regression</span>
+0113 prt_def.model.libl1LR_sargs  = <span class="string">'-q -s 6 -B 1 -c '</span>; <span class="comment">% L2-regularized logistic regression</span>
+0114 prt_def.model.libl2svm_sargs  = <span class="string">'-q -s 2 -B 1 -c '</span>; <span class="comment">% L2-regularized L2-loss support vector classification</span>
+0115 prt_def.model.libl1svm_sargs  = <span class="string">'-q -s 5 -B 1 -c '</span>; <span class="comment">% L1-regularized L2-loss support vector classification</span>
+0116 prt_def.model.libmulticlsvm_sargs  = <span class="string">'-q -s 4 -B 1 -c '</span>; <span class="comment">% Multiclass support vector classification by Crammer and Singer</span>
+0117 <span class="comment">% Classification - dual (i.e. kernel)</span>
+0118 prt_def.model.libl2KLR_sargs  = <span class="string">'-q -s 7 -B 1 -c '</span>; <span class="comment">% L2-regularized logistic regression</span>
+0119 <span class="comment">% Regression - primal</span>
+0120 prt_def.model.libl2SVR_sargs  = <span class="string">'-q -s 11 -B 1 -c '</span>; <span class="comment">% L2-regularized epsilon-support vector regression</span>
+0121 
+0122 <span class="comment">% Multi-Task Learning - MALSAR</span>
+0123 prt_def.model.MTL_sargs       = <span class="string">''</span>;
+0124 
+0125 <span class="comment">% Specify model: Default parameter values of the different machines</span>
+0126 <span class="comment">%-------------------------------------------------------------------</span>
+0127 prt_def.model.rtargs        = 601;
+0128 prt_def.model.l1MKLmaxitr   = 250;
+0129 prt_def.model.wipargs       = [1 0.5];
+0130 
+0131 <span class="comment">%LIBSVM and LIBLINEAR defaults</span>
+0132 prt_def.model.libsvmargs    = 1; 
+0133 
+0134 <span class="comment">% MALSAR - Multi-Task Learning</span>
+0135 prt_def.model.MTLargs       = 1;
+0136 
+0137 <span class="comment">% Specify model: Default optimization parameter values of the different machines</span>
+0138 <span class="comment">%--------------------------------------------------------------------------------</span>
+0139 prt_def.model.rt_optargs        = 101:100:1001;
+0140 <span class="comment">%LIBSVM and LIBLINEAR defaults</span>
+0141 prt_def.model.libsvm_optargs    = 10.^[-2:3]; 
+0142 
+0143 <span class="comment">% MALSAR - Multi-Task Learning</span>
+0144 prt_def.model.MTL_optargs       = 1;
+0145 
+0146 <span class="comment">% Parralelization of the code</span>
+0147 <span class="comment">%--------------------------------------------------</span>
+0148 prt_def.paral.allow     = true; <span class="comment">% use (or not) 'parfor' loops</span>
+0149 prt_def.paral.ncore     = 6;     <span class="comment">% number of cores that can be used.</span>
+0150 
+0151 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

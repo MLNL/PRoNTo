@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_remove_confounds_TrKernel</title>
+  <meta name="keywords" content="prt_remove_confounds_TrKernel">
+  <meta name="description" content="Function to remove confounds from kernel.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_remove_confounds_TrKernel.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_remove_confounds_TrKernel
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to remove confounds from kernel.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Ktr_r,Kte_r,Ktrte_r] = prt_remove_confounds_TrKernel(Ktr,Kte,Ktrte,Ctr,Cte) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to remove confounds from kernel.
+
+ [Ktr_r, Ktr_te,Ktrte_r,R] = prt_remove_confounds_AR(Ktr,Kte,KtrKte,Ctr,Cte)
+
+ Ktr =Xtr*Xtr',Kte=Xte*Xte',Ktrte=Xtr*Xte'
+ Ctr are the confounds (covariates) for training data
+ Cte are the confounds for test data
+ We return the deconfounded kernels as _r</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_apply_operation.html" class="code" title="function out = prt_apply_operation(PRT, in, opid)">prt_apply_operation</a>	Function to apply a data operation to the training and test sets.</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Ktr_r,Kte_r,Ktrte_r] = prt_remove_confounds_TrKernel(Ktr,Kte,Ktrte,Ctr,Cte)</a>
+0002 <span class="comment">% Function to remove confounds from kernel.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [Ktr_r, Ktr_te,Ktrte_r,R] = prt_remove_confounds_AR(Ktr,Kte,KtrKte,Ctr,Cte)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Ktr =Xtr*Xtr',Kte=Xte*Xte',Ktrte=Xtr*Xte'</span>
+0007 <span class="comment">% Ctr are the confounds (covariates) for training data</span>
+0008 <span class="comment">% Cte are the confounds for test data</span>
+0009 <span class="comment">% We return the deconfounded kernels as _r</span>
+0010 
+0011 <span class="comment">%__________________________________________________________________________</span>
+0012 <span class="comment">% Copyright (C) 2015 Machine Learning &amp; Neuroimaging Laboratory</span>
+0013 
+0014 <span class="comment">% Written by A. Rao</span>
+0015 <span class="comment">% $Id$</span>
+0016 
+0017 <span class="comment">% we need to include an intercept term to the confounds corresponding to a</span>
+0018 <span class="comment">% mean</span>
+0019 <span class="comment">% dont think its required if all kernels and confounds are centred</span>
+0020 <span class="comment">% if they are centred, it wont cause any harm having it (the mean should</span>
+0021 <span class="comment">% then be estimated as zero)</span>
+0022 
+0023 ntr=size(Ktr,1);
+0024 nte=size(Kte,1);
+0025 
+0026 Ctr=[ones(ntr,1) Ctr]; <span class="comment">% include intercept in confounds, can delete this line and one after if we tell users to include a column of ones in C_tr,C_te</span>
+0027 Cte=[ones(nte,1) Cte];
+0028 
+0029 <span class="comment">% deconfound training kernel</span>
+0030 Ctr_pi=pinv(Ctr); <span class="comment">% pseudoinverse of training confounds</span>
+0031 R=eye(ntr)-Ctr*Ctr_pi;
+0032 Ktr_r=R'*Ktr*R; <span class="comment">% deconfounded training kernel</span>
+0033 
+0034 <span class="comment">% deconfound test kernel</span>
+0035 Ctetr_pi=Cte*Ctr_pi;
+0036 crossterm=Ctetr_pi*Ktrte;
+0037 Kte_r=Kte-crossterm-crossterm'+Ctetr_pi*Ktr*Ctetr_pi'; <span class="comment">% deconfounded training kernel</span>
+0038 
+0039 <span class="comment">% deconfound train test kernel</span>
+0040 <span class="comment">%Ktrte_r=-R*Ktr*Ctetr_plus'+R*Ktrte;</span>
+0041 Ktrte_r=R*(-Ktr*Ctetr_pi'+Ktrte);
+0042 <span class="keyword">return</span></pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

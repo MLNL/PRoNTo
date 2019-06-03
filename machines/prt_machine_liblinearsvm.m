@@ -1,5 +1,6 @@
 function output = prt_machine_liblinearsvm(d,args)
-% Run binary SVM - wrapper for LIBLINEAR
+% Function to run binary SVM. Wrapper for LIBLINEAR.
+%
 % FORMAT output = prt_machine_liblinearsvm(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

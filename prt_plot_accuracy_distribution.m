@@ -1,8 +1,7 @@
 function prt_plot_accuracy_distribution(PRT, model, axes_handle)
-% FORMAT prt_plot_accuracy_distribution(PRT, model, axes_handle)
+% Function to plot the accuracy distribution across folds as a violin plot that appears in the prt_ui_results_stats window.
 %
-% This function plots the accuracy distribution across folds as a violin
-% plot that appears in the prt_ui_results_stats window
+% FORMAT prt_plot_accuracy_distribution(PRT, model, axes_handle)
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).

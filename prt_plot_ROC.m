@@ -1,7 +1,7 @@
 function prt_plot_ROC(PRT, model, fold, axes_handle)
-% FORMAT prt_plot_ROC(PRT, model, fold, axes_handle)
+% Function that plots the ROC plot that appears on prt_ui_results
 %
-% This function plots the ROC plot that appears on prt_ui_results 
+% FORMAT prt_plot_ROC(PRT, model, fold, axes_handle)
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).

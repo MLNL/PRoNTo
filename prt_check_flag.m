@@ -1,10 +1,7 @@
 function flags = prt_check_flag(flags_o,flags)
-
-% FORMAT flags = prt_check_flag(flags_o,flags)
+% Function to automatically check the content of a "flag" structure, using a "default flag structure", adding the missing fields and putting in the  default value if none was provided.
 %
-% Function to automatically check the content of a "flag" structure, using
-% a "default flag structure", adding the missing fields and putting in the 
-% default value if none was provided.
+% FORMAT flags = prt_check_flag(flags_o,flags)
 %
 % INPUT:
 % flags_o   default or reference structure

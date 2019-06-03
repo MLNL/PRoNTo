@@ -1,9 +1,7 @@
 function prt_plot_nested_cv(PRT, model, fold, axes_handle)
+% Function to plot the results of the nested cv that appear on prt_ui_results.
+%
 % FORMAT prt_plot_nested_cv(PRT, model, fold, axes_handle)
-%
-% Plots the results of the nested cv that appear on prt_ui_results.
-%
-%
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).
