@@ -1,5 +1,5 @@
 function out = prt_regconf_TrData(PRT, in,trainonly,d)
-% function to remove confounds from raw data within 'in'
+% Function to remove confounds from raw data within the 'in' input structure.
 % trainonly is a flag set to 1 if removing using training data only
 % otherwise do it using all data
 % Copyright (C) 2016 Machine Learning & Neuroimaging Laboratory

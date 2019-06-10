@@ -1,6 +1,5 @@
 function [PRT,flag] = prt_struct(PRT,prtdir)
-%% Function to load the PRT.mat and check its integrity regarding the 
-% fields that it is supposed to contain. Updates the PRT if needed.
+% Function to load the PRT.mat and check its integrity regarding the fields that it is supposed to contain. Updates the PRT if needed.
 %
 % input  : PRT structure to check
 %

@@ -1,5 +1,6 @@
 function output = prt_machine_svm_bin(d,args)
-% Wrapper for libSVM - Runs binary kernel SVM and epsilon-SVR
+% Function to run binary kernel SVM and epsilon-SVR. Wrapper for libSVM.
+% 
 % FORMAT output = prt_machine_svm_bin(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

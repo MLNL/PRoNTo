@@ -1,6 +1,5 @@
 function [machine] = prt_get_machine_ui(is_class,is_kernel,name)
-% Gathers the machine name and arguments (string and values) for a specific
-% machine name, whether kernel or non-kernel.
+% Function to gather the machine name and arguments (string and values) for a specific machine name, whether kernel or non-kernel.
 %inputs:
 % - is_class: 1 for classification, 0 for regression
 % - is_kernel: 1 for kernel machines, 0 for non-kernel

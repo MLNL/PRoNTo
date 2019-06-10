@@ -1,5 +1,6 @@
 function weights = prt_weights_gpclap (d,args)
-% Run function to compute weights for linear multiclass classifiers
+% Function to compute weights for linear multiclass classifiers.
+%
 % FORMAT weights = prt_weights_gpclap (d,args)
 % Inputs:
 %       d              - data structure

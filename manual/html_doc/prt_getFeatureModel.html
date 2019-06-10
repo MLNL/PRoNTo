@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_getFeatureModel</title>
+  <meta name="keywords" content="prt_getFeatureModel">
+  <meta name="description" content="Function to load the kernels according to the samples considered in a">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_getFeatureModel.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_getFeatureModel
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to load the kernels according to the samples considered in a</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Phi_all,ID,fid] = prt_getFeatureModel(PRT,mid) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to load the kernels according to the samples considered in a
+given model. These kernels will be added if the machine is a single kernel
+technique.
+
+ Inputs:
+ -------
+ PRT:            data structure
+ mid :           index of model in the data structure/ PRT.mat
+
+ Output:
+ --------
+ Phi_all :  cell array with one feature set per cell
+            with the samples considered in the
+            specified model, as defined by the class/regression selection.
+ ID :       the ID matrix for the considered samples
+ fid :      index of feature set in data structure / PRT.mat
+
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>	Function to initialise the kernel data structure.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_cv_MTL.html" class="code" title="function [outfile] = prt_cv_MTL(PRT,in)">prt_cv_MTL</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_cv_model.html" class="code" title="function [outfile] = prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_permutation.html" class="code" title="function [] = prt_permutation(PRT, n_perm, modelid, path, save_perm)">prt_permutation</a>	Function to compute permutation test</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Phi_all,ID,fid] = prt_getFeatureModel(PRT,mid)</a>
+0002 
+0003 <span class="comment">% Function to load the kernels according to the samples considered in a</span>
+0004 <span class="comment">%given model. These kernels will be added if the machine is a single kernel</span>
+0005 <span class="comment">%technique.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Inputs:</span>
+0008 <span class="comment">% -------</span>
+0009 <span class="comment">% PRT:            data structure</span>
+0010 <span class="comment">% mid :           index of model in the data structure/ PRT.mat</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Output:</span>
+0013 <span class="comment">% --------</span>
+0014 <span class="comment">% Phi_all :  cell array with one feature set per cell</span>
+0015 <span class="comment">%            with the samples considered in the</span>
+0016 <span class="comment">%            specified model, as defined by the class/regression selection.</span>
+0017 <span class="comment">% ID :       the ID matrix for the considered samples</span>
+0018 <span class="comment">% fid :      index of feature set in data structure / PRT.mat</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%__________________________________________________________________________</span>
+0021 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0022 
+0023 <span class="comment">% Written by J Schrouff</span>
+0024 <span class="comment">% $Id: prt_getFeatureModel.m 855 2014-05-27 09:35:15Z schrouff $</span>
+0025 
+0026 <span class="comment">% load data files and configure ID matrix</span>
+0027 disp(<span class="string">'Loading data files.....&gt;&gt;'</span>);
+0028 
+0029 samp_idx = PRT.model(mid).input.samp_idx;   <span class="comment">% which samples are in the model</span>
+0030 
+0031 nfid = numel(PRT.model(mid).input.fs);
+0032 Phi_all=[];
+0033 
+0034 <span class="keyword">for</span> ifid = 1:nfid
+0035     fid = <a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>(PRT, PRT.model(mid).input.fs(ifid));
+0036     
+0037     ID_all = PRT.fs(fid).id_mat;
+0038     ID = PRT.fs(fid).id_mat(samp_idx,:); <span class="comment">% Reduce ID mat to selected samples</span>
+0039     
+0040     <span class="comment">% Check that all feature sets have the same ID matrix</span>
+0041     <span class="keyword">if</span> ifid==1
+0042         ID1 = ID;
+0043     <span class="keyword">else</span>
+0044         cols = [1,2,4,5];
+0045         <span class="keyword">if</span> any(any(ID1(:,cols)~=ID(:,cols)))
+0046             error(<span class="string">'prt_get_FeatureModel:CannotCombineFS'</span>,<span class="keyword">...</span>
+0047                 <span class="string">'Multiple feature sets selected but they do not have the same ID matrix'</span>)
+0048         <span class="keyword">end</span>
+0049     <span class="keyword">end</span>
+0050     
+0051     <span class="comment">% Find modality/modalities in feature set and corresponding file arrays</span>
+0052     mods = [PRT.fs(fid).modality(:).mod_name];
+0053     modnames = {PRT.fas(:).mod_name};
+0054     fas  = zeros(1,numel(modnames));
+0055     mm=zeros(length(mods),numel(modnames));
+0056     <span class="keyword">for</span> i = 1:numel(modnames)
+0057         <span class="keyword">for</span> j = 1:length(mods)
+0058             <span class="keyword">if</span> strcmpi(PRT.fas(i).mod_name,mods{j})
+0059                 fas(i) = 1;
+0060                 mm(i,j)= 1;
+0061             <span class="keyword">end</span>
+0062         <span class="keyword">end</span>
+0063     <span class="keyword">end</span>
+0064     fas_idx = find(fas);
+0065     <span class="keyword">if</span> ~ isempty(PRT.fs(fid).modality(1).idfeat_fas)
+0066         ifeat = numel(PRT.fs(fid).modality(1).idfeat_fas); <span class="comment">%all concatenated modalities have the same size</span>
+0067     <span class="keyword">else</span>
+0068         ifeat = PRT.fas(fas_idx(1)).dat.dim(2);
+0069     <span class="keyword">end</span>
+0070     
+0071     <span class="comment">% Averaging of the feature on onr or more dimensions?</span>
+0072     <span class="keyword">if</span> isfield(PRT.fs(fid).modality(1),<span class="string">'aver'</span>) &amp;&amp; <span class="keyword">...</span>
+0073             any(PRT.fs(fid).modality(1).aver)
+0074         ndim = numel(PRT.fs(fid).modality(1).dim_m);
+0075         fin_dim = ones(1,ndim);
+0076         <span class="keyword">for</span> idim = 1:ndim
+0077             fin_dim(idim) = length(PRT.fs(fid).modality(1).dim_m{idim});
+0078         <span class="keyword">end</span>
+0079         dimav = fin_dim;
+0080         dimav(find(PRT.fs(fid).modality(1).aver)) = 1;
+0081         ifeat = prod(dimav);
+0082     <span class="keyword">end</span>
+0083     
+0084     d.datamat = zeros(length(samp_idx), ifeat);
+0085     <span class="keyword">for</span> i = 1:length(fas_idx)
+0086         
+0087         mf = find(mm(fas_idx(i),:));
+0088         <span class="keyword">if</span> ~ isempty(PRT.fs(fid).modality(mf(1)).idfeat_fas)
+0089             feats = PRT.fs(fid).modality(mf(1)).idfeat_fas; <span class="comment">%all concatenated modalities have the same size</span>
+0090         <span class="keyword">else</span>
+0091             feats = 1:PRT.fas(fas_idx(i)).dat.dim(2);
+0092         <span class="keyword">end</span>
+0093         indm = ID(:,3) == fas_idx(i);
+0094         samp_all = zeros(size(ID_all,1),1);
+0095         samp_all(samp_idx) = 1;
+0096         inds = find(samp_all(ID_all(:,3)==fas_idx(i)));
+0097         <span class="keyword">if</span> isempty(inds) <span class="comment">%Modality not selected in this model</span>
+0098             <span class="keyword">continue</span>;
+0099         <span class="keyword">else</span>
+0100             ifa  = PRT.fs(fid).fas.ifa(inds);
+0101         <span class="keyword">end</span>
+0102                 
+0103         <span class="comment">% Average data matrix along specified dimensions</span>
+0104         <span class="keyword">if</span> isfield(PRT.fs(fid).modality(mf(1)),<span class="string">'aver'</span>) &amp;&amp; <span class="keyword">...</span>
+0105                 any(PRT.fs(fid).modality(mf(1)).aver)
+0106             tmp = PRT.fas(fas_idx(i)).dat(ifa,feats)';
+0107             ndim = numel(PRT.fs(fid).modality(mf(1)).dim_m);
+0108             fin_dim = ones(1,ndim);
+0109             <span class="keyword">for</span> idim = 1:ndim
+0110                 fin_dim(idim) = length(PRT.fs(fid).modality(mf(1)).dim_m{idim});
+0111             <span class="keyword">end</span>
+0112             tmp = reshape(tmp,[fin_dim length(ifa)]);
+0113             dimta = find(PRT.fs(fid).modality(mf(1)).aver); <span class="comment">%dimensions to average</span>
+0114             <span class="keyword">for</span> iav = 1:length(dimta)
+0115                 tmp = mean(tmp, dimta(iav));
+0116             <span class="keyword">end</span>
+0117             dimav = fin_dim;
+0118             dimav(find(PRT.fs(fid).modality(mf(1)).aver)) = 1;
+0119             tmp = reshape(tmp,prod(dimav),length(ifa));
+0120             d.datamat(indm,:) = tmp';
+0121         <span class="keyword">else</span>
+0122             <span class="comment">% index for the target data matrix</span>
+0123             d.datamat(indm,:) = PRT.fas(fas_idx(i)).dat(ifa,feats);
+0124         <span class="keyword">end</span>
+0125     <span class="keyword">end</span>
+0126     
+0127     <span class="keyword">try</span>
+0128         Phi_all = [Phi_all, d.datamat];
+0129     <span class="keyword">catch</span>
+0130         error(<span class="string">'prt_get_KernelFeature:CannotCombineFS'</span>,<span class="keyword">...</span>
+0131             <span class="string">'Could not combine feature sets, potentially too large data set'</span>)
+0132     <span class="keyword">end</span>
+0133     clear d
+0134     
+0135 <span class="keyword">end</span>
+0136 
+0137 <span class="comment">% Gather outputs</span>
+0138 <span class="comment">%-----------------</span>
+0139 
+0140 fid = <a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>(PRT, PRT.model(mid).input.fs(1)); <span class="comment">%As everything is based on 1st feature set</span>
+0141 ID = ID1;
+0142 Phi_all = {Phi_all};
+0143 
+0144 
+0145 
+0146 
+0147 
+0148 
+0149 
+0150 
+0151</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

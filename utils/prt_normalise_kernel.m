@@ -1,10 +1,9 @@
 function K_normalised = prt_normalise_kernel(K)
-
+% Function to normalise the kernel matrix such that each entry is divided by the product of the std deviations.
+% i.e. K_new(x,y) = K(x,y) / sqrt(var(x)*var(y)) 
+% 
 % FORMAT K_normalised = prt_normalise_kernel(K)
 %
-% This function normalises the kernel matrix such that each entry is 
-% divided by the product of the std deviations, i.e.
-% K_new(x,y) = K(x,y) / sqrt(var(x)*var(y)) 
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 

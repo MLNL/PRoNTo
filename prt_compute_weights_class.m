@@ -1,7 +1,7 @@
 function img_name = prt_compute_weights_class(PRT,in,model_idx,flag, ibe, flag2)
-% FORMAT prt_compute_weights_class(PRT,in,model_idx)
+% Function to call prt_weights to compute weights for classification problems (v2).
 %
-% This function calls prt_weights to compute weights
+% FORMAT prt_compute_weights_class(PRT,in,model_idx)
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).

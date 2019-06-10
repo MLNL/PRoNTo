@@ -1,5 +1,5 @@
 function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)
-% function to initialise the kernel data structure
+% Function to initialise the kernel data structure.
 % ------------------------------------------------
 %
 % FORMAT: Two modes are possible:

@@ -1,0 +1,272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_machine_MTL_MALSAR</title>
+  <meta name="keywords" content="prt_machine_MTL_MALSAR">
+  <meta name="description" content="Function to run Multi-Task Learning. Wrapper for the MALSAR toolbox.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="#">machines</a> &gt; prt_machine_MTL_MALSAR.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\machines&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_machine_MTL_MALSAR
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to run Multi-Task Learning. Wrapper for the MALSAR toolbox.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function output = prt_machine_MTL_MALSAR(d,args) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to run Multi-Task Learning. Wrapper for the MALSAR toolbox.
+ 
+ FORMAT output = prt_machine_MTL_MALSAR(d,args)
+ Inputs:
+   d         - structure with data information, with mandatory fields:
+     .train      - training data (cell array of matrices of row vectors,
+                   each [Ntr x D]). each matrix contains one representation
+                   of the data. This is useful for approaches such as
+                   multiple kernel learning.
+     .test       - testing data  (cell array of matrices row vectors, each
+                   [Nte x D])
+     .tr_targets - training labels (for classification) or values (for
+                   regression) (column vector, [Ntr x 1])
+     .te_targets - testing labels (for classification) or values (for
+                   regression) (column vector, [Ntr x 1])
+    args         - Regularization parameter
+ Output:
+    output  - output of machine (struct).
+     * Mandatory fields:
+      .predictions - predictions of classification or regression [Nte x D]
+     * Optional fields:
+      .func_val - value of the decision function
+      .type     - which type of machine this is (here, 'classifier')
+__________________________________________________________________________
+ Copyright (C) 2018 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function output = prt_machine_MTL_MALSAR(d,args)</a>
+0002 <span class="comment">% Function to run Multi-Task Learning. Wrapper for the MALSAR toolbox.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% FORMAT output = prt_machine_MTL_MALSAR(d,args)</span>
+0005 <span class="comment">% Inputs:</span>
+0006 <span class="comment">%   d         - structure with data information, with mandatory fields:</span>
+0007 <span class="comment">%     .train      - training data (cell array of matrices of row vectors,</span>
+0008 <span class="comment">%                   each [Ntr x D]). each matrix contains one representation</span>
+0009 <span class="comment">%                   of the data. This is useful for approaches such as</span>
+0010 <span class="comment">%                   multiple kernel learning.</span>
+0011 <span class="comment">%     .test       - testing data  (cell array of matrices row vectors, each</span>
+0012 <span class="comment">%                   [Nte x D])</span>
+0013 <span class="comment">%     .tr_targets - training labels (for classification) or values (for</span>
+0014 <span class="comment">%                   regression) (column vector, [Ntr x 1])</span>
+0015 <span class="comment">%     .te_targets - testing labels (for classification) or values (for</span>
+0016 <span class="comment">%                   regression) (column vector, [Ntr x 1])</span>
+0017 <span class="comment">%    args         - Regularization parameter</span>
+0018 <span class="comment">% Output:</span>
+0019 <span class="comment">%    output  - output of machine (struct).</span>
+0020 <span class="comment">%     * Mandatory fields:</span>
+0021 <span class="comment">%      .predictions - predictions of classification or regression [Nte x D]</span>
+0022 <span class="comment">%     * Optional fields:</span>
+0023 <span class="comment">%      .func_val - value of the decision function</span>
+0024 <span class="comment">%      .type     - which type of machine this is (here, 'classifier')</span>
+0025 <span class="comment">%__________________________________________________________________________</span>
+0026 <span class="comment">% Copyright (C) 2018 Machine Learning &amp; Neuroimaging Laboratory</span>
+0027 
+0028 <span class="comment">% Written by J. Schrouff from prt_machine_svm_bin.m</span>
+0029 <span class="comment">% $Id$</span>
+0030 
+0031 SANITYCHECK=true; <span class="comment">% can turn off for &quot;speed&quot;. Expert only.</span>
+0032 
+0033 <span class="comment">%Regularization parameter</span>
+0034 <span class="keyword">if</span> isempty(args)
+0035     def = prt_get_defaults(<span class="string">'model'</span>);
+0036     args = def.MTLargs;
+0037 <span class="keyword">end</span>
+0038 
+0039 reg = 0;
+0040 <span class="keyword">if</span> SANITYCHECK==true
+0041     <span class="comment">% args should be a string (empty or otherwise)</span>
+0042     <span class="keyword">if</span> ~ischar(args)
+0043         error(<span class="string">'prt_machine_MTL_MATLSAR:ArgsNotString'</span>,[<span class="string">'Error: MALSAR'</span><span class="keyword">...</span>
+0044             <span class="string">' args should be a string. '</span> <span class="keyword">...</span>
+0045             <span class="string">' SOLUTION: Please enter a string argument'</span>]);
+0046     <span class="keyword">end</span>
+0047     
+0048     <span class="comment">% Check for classification machines</span>
+0049     <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-s\s+[123]'</span>,<span class="string">'once'</span>))
+0050 
+0051         <span class="comment">% check it is indeed a two-class classification problem</span>
+0052         uTL=unique(d.tr_targets{1}(:));
+0053         nC=numel(uTL);
+0054         <span class="keyword">if</span> nC&gt;2
+0055             error(<span class="string">'prt_machine_MTL_MALSAR:problemNotBinary'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0056                 <span class="string">' This machine is only for two-class problems but the'</span> <span class="keyword">...</span>
+0057                 <span class="string">' current problem has '</span> num2str(nC) <span class="string">' ! '</span> <span class="keyword">...</span>
+0058                 <span class="string">'SOLUTION: Please select another machine than '</span> <span class="keyword">...</span>
+0059                 <span class="string">'prt_machine_MTL_MALSAR in XXX'</span>]);
+0060         <span class="keyword">end</span>
+0061         <span class="comment">% check it is indeed labelled correctly (probably should be done)</span>
+0062         <span class="keyword">if</span> ~all(uTL==[1 2]')
+0063             error(<span class="string">'prt_machine_MTL_MALSAR:LabellingIncorect'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0064                 <span class="string">' This machine needs labels to be in {1,2} '</span> <span class="keyword">...</span>
+0065                 <span class="string">' but they are '</span> mat2str(uTL) <span class="string">' ! '</span> <span class="keyword">...</span>
+0066                 <span class="string">'SOLUTION: Please relabel your classes by changing the '</span><span class="keyword">...</span>
+0067                 <span class="string">' ''tr_targets'' argument to prt_machine_MTL_MALSAR'</span>]);
+0068         <span class="keyword">end</span>
+0069         output.type = <span class="string">'classification'</span>;
+0070     <span class="keyword">else</span>
+0071         output.type = <span class="string">'regression'</span>;
+0072         reg = 1;
+0073     <span class="keyword">end</span>   
+0074 <span class="keyword">end</span>
+0075 
+0076 
+0077 <span class="comment">% Run Multi-Task in MALSAR</span>
+0078 <span class="comment">%--------------------------------------------------------------------------</span>
+0079 nt  = numel(d.tr_targets);
+0080 
+0081 <span class="keyword">for</span> t = 1:nt
+0082     <span class="keyword">if</span> ~reg
+0083     <span class="comment">%Machine specific inputs</span>
+0084 
+0085         <span class="comment">% Change targets to be +1/-1</span>
+0086         c2 = d.tr_targets{t}==2;
+0087         d.tr_targets{t}(c2) = -1;
+0088     <span class="keyword">end</span>
+0089     <span class="comment">% Add bias</span>
+0090     d.train{t} = [d.train{t}, ones(size(d.train{t},1),1)];
+0091     d.test{t} = [d.test{t}, ones(size(d.test{t},1),1)];
+0092 <span class="keyword">end</span>
+0093 
+0094 opts.init = 0; <span class="comment">% compute start point from data.</span>
+0095 opts.tFlag = 1; <span class="comment">% terminate after objective value does not changes much.</span>
+0096 opts.tol = 10^-5; <span class="comment">% tolerance.</span>
+0097 opts.maxIter = 1500; <span class="comment">% maximum iteration number of optimization.</span>
+0098 
+0099 valued_args = args(regexp(args,<span class="string">'-args'</span>,<span class="string">'once'</span>)+5:end);
+0100 vals = sscanf(valued_args,<span class="string">'%f'</span>);
+0101 
+0102 <span class="keyword">if</span> isnan(vals(1))
+0103     error(<span class="string">'prt_machine_MTL_MALSAR:WrongArguments'</span>,<span class="keyword">...</span>
+0104         <span class="string">'Argument after -args should be numerical and separated by one white space'</span>)
+0105 <span class="keyword">end</span>
+0106 
+0107 C = [];
+0108 P = [];
+0109 Q = [];
+0110 
+0111 <span class="comment">% Classification</span>
+0112 <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-s\s+[1]'</span>,<span class="string">'once'</span>)) <span class="comment">% Lasso classification</span>
+0113     args = vals(1);
+0114     <span class="keyword">if</span> numel(vals)&gt;1 &amp;&amp; ~isnan(vals(2))<span class="comment">% rho2 was entered</span>
+0115         opts.rho_L2 = vals(2);
+0116     <span class="keyword">end</span>
+0117     [W,C] = Logistic_Lasso(d.train,d.tr_targets,args,opts);
+0118 <span class="keyword">elseif</span> ~isempty(regexp(args,<span class="string">'-s\s+[2]'</span>,<span class="string">'once'</span>)) <span class="comment">% L2,1 classification</span>
+0119     args = vals(1);
+0120     <span class="keyword">if</span> numel(vals)&gt;1 &amp;&amp; ~isnan(vals(2))<span class="comment">% rho2 was entered</span>
+0121         opts.rho_L2 = vals(2);
+0122     <span class="keyword">end</span>
+0123     [W,C] = Logistic_L21(d.train,d.tr_targets,args,opts);
+0124 <span class="keyword">elseif</span> ~isempty(regexp(args,<span class="string">'-s\s+[3]'</span>,<span class="string">'once'</span>)) <span class="comment">%Trace-norm classification</span>
+0125     args = vals(1);
+0126     [W,C] = Logistic_Trace(d.train,d.tr_targets,args,opts);
+0127     
+0128 <span class="comment">%Regression</span>
+0129 <span class="keyword">elseif</span> ~isempty(regexp(args,<span class="string">'-s\s+[4]'</span>,<span class="string">'once'</span>)) <span class="comment">% Lasso regression</span>
+0130     args = vals(1);
+0131     <span class="keyword">if</span> numel(vals)&gt;1 &amp;&amp; ~isnan(vals(2))<span class="comment">% rho2 was entered</span>
+0132         opts.rho_L2 = vals(2);
+0133     <span class="keyword">end</span>
+0134     [W] = Least_Lasso(d.train,d.tr_targets,args,opts);
+0135 <span class="keyword">elseif</span> ~isempty(regexp(args,<span class="string">'-s\s+[5]'</span>,<span class="string">'once'</span>)) <span class="comment">% L2,1 regression</span>
+0136     args = vals(1);
+0137     <span class="keyword">if</span> numel(vals)&gt;1 &amp;&amp; ~isnan(vals(2))<span class="comment">% rho2 was entered</span>
+0138         opts.rho_L2 = vals(2);
+0139     <span class="keyword">end</span>
+0140     [W] = Least_L21(d.train,d.tr_targets,args,opts);
+0141 <span class="keyword">elseif</span> ~isempty(regexp(args,<span class="string">'-s\s+[6]'</span>,<span class="string">'once'</span>)) <span class="comment">%Trace-norm regression</span>
+0142     args = vals(1);
+0143     [W] = Least_Trace(d.train,d.tr_targets,args,opts);
+0144 <span class="keyword">elseif</span> ~isempty(regexp(args,<span class="string">'-s\s+[7]'</span>,<span class="string">'once'</span>)) <span class="comment">%Dirty model regression</span>
+0145     args1 = vals(1);
+0146     <span class="keyword">if</span> numel(vals)&gt;1 &amp;&amp; ~isnan(vals(2))<span class="comment">% rho2 was entered</span>
+0147         args2 = vals(2);
+0148     <span class="keyword">else</span>
+0149         error(<span class="string">'prt_machine_MTL_MALSAR:WrongArgumentDirtyModel'</span>,<span class="keyword">...</span>
+0150             <span class="string">'2 arguments need to be provided for the Dirty Model'</span>)
+0151     <span class="keyword">end</span>
+0152     [W,P,Q] = Least_Dirty(d.train,d.tr_targets,args1,args2,opts);
+0153 <span class="keyword">end</span>
+0154 
+0155 
+0156 <span class="comment">% check if training succeeded:</span>
+0157 <span class="keyword">if</span> isempty(W) || ~nnz(W)
+0158     warning(<span class="string">'prt_machine_MTL_MALSAR:MALSARtrainUnsuccessful'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0159         <span class="string">' MALSAR machine function did not run properly!'</span> <span class="keyword">...</span>
+0160         <span class="string">' This could be a problem with the supplied function arguments'</span><span class="keyword">...</span>
+0161         <span class="string">' '</span> num2str(args) <span class="string">''</span>]);
+0162 <span class="keyword">end</span>
+0163 
+0164 predictions = cell(1,nt);
+0165 func_val = cell(1,nt);
+0166 <span class="keyword">for</span> t = 1:nt
+0167     <span class="keyword">if</span> ~ reg
+0168         func_val{t} = d.test{t} * W(:, t) + C(t);
+0169         pred = sign(func_val{t});
+0170         <span class="comment">% change predictions from 1/-1 to 1/2</span>
+0171         c1PredIdx               = pred==1; 
+0172         pred(c1PredIdx)  = 1; <span class="comment">%positive values = 1</span>
+0173         pred(~c1PredIdx) = 2; <span class="comment">%negative values = 2</span>
+0174         predictions{t} = pred;
+0175     <span class="keyword">else</span>
+0176         func_val{t} = d.test{t} * W(:, t);
+0177         predictions{t} = func_val{t};
+0178     <span class="keyword">end</span>
+0179     
+0180 <span class="keyword">end</span>
+0181 
+0182 
+0183 
+0184 
+0185 <span class="comment">% Outputs</span>
+0186 <span class="comment">%--------------------------------------------------------------------------</span>
+0187 output.predictions = predictions;
+0188 output.func_val    = func_val;
+0189 output.w           = W(1:end-1,:);
+0190 output.b           = W(<span class="keyword">end</span>,:);
+0191 <span class="comment">% Get extra outputs for specific algorithms</span>
+0192 <span class="keyword">if</span> ~isempty(C)
+0193     output.others.C = C;
+0194 <span class="keyword">end</span>
+0195 <span class="keyword">if</span> ~isempty(P)
+0196     output.others.P = P; 
+0197 <span class="keyword">end</span>
+0198 <span class="keyword">if</span> ~isempty(Q)
+0199     output.others.Q = Q;
+0200 <span class="keyword">end</span>
+0201</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

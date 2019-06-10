@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of pronto_check_update</title>
+  <meta name="keywords" content="pronto_check_update">
+  <meta name="description" content="Function to check if there is a newer version of PRoNTo available.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; pronto_check_update.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>pronto_check_update
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to check if there is a newer version of PRoNTo available.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function pronto_check_update() </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to check if there is a newer version of PRoNTo available.
+ The 'latest_version.txt' needs to updated to the latest version of PRoNTo after each update.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function pronto_check_update()</a>
+0002 <span class="comment">% Function to check if there is a newer version of PRoNTo available.</span>
+0003 <span class="comment">% The 'latest_version.txt' needs to updated to the latest version of PRoNTo after each update.</span>
+0004 
+0005 [latest_version, server_status] = urlread(<span class="string">'http://www.mlnl.cs.ucl.ac.uk/pronto/pronto_versions/latest_version.txt'</span>);
+0006 
+0007 <span class="keyword">if</span> server_status == 1
+0008     
+0009     txt_old = sprintf([<span class="string">'\n===========================================================================\n'</span><span class="keyword">...</span>
+0010         <span class="string">' There might be a newer version of PRoNTo available. Users are strongly advised\n to switch to'</span><span class="keyword">...</span>
+0011         <span class="string">' that version. You can find the latest version on our servers\n in http://www.mlnl.cs.ucl.ac.uk/.'</span><span class="keyword">...</span>
+0012         <span class="string">'pronto/pronto_versions/\n===========================================================================\n'</span>]);
+0013     
+0014     <span class="keyword">try</span>
+0015         current_version = fileread(<span class="string">'pronto_current_version.txt'</span>); <span class="comment">% need to change the path</span>
+0016         l_vers = latest_version(9:13); l_vers = strrep(l_vers, <span class="string">'.'</span>, <span class="string">' '</span>); l_vers = str2num(l_vers);
+0017         c_vers = current_version(9:13); c_vers = strrep(c_vers, <span class="string">'.'</span>, <span class="string">' '</span>); c_vers = str2num(c_vers);
+0018         
+0019         txt_dev = sprintf([<span class="string">'\n======================================================================\n'</span><span class="keyword">...</span>
+0020             <span class="string">' You might be using a developer version of PRoNTo. These versions can\n be unstable. Please consider'</span><span class="keyword">...</span>
+0021             <span class="string">' switching to the latest stable version\n as indicated in http://www.mlnl.cs.ucl.ac.uk/pronto/pronto_versions/\n'</span> <span class="keyword">...</span>
+0022             <span class="string">'======================================================================'</span>]);
+0023         
+0024         <span class="keyword">if</span> l_vers(1) == c_vers(1)
+0025             <span class="keyword">if</span> l_vers(2) == c_vers(2)
+0026                 <span class="keyword">if</span> l_vers(3) &gt; c_vers(3)
+0027                     disp(txt_old);
+0028                 <span class="keyword">elseif</span> l_vers(3) &lt; c_vers(3)
+0029                     disp(txt_dev);
+0030                 <span class="keyword">end</span>
+0031             <span class="keyword">elseif</span> l_vers(2) &gt; c_vers(2)
+0032                 disp(txt_old);
+0033             <span class="keyword">elseif</span> l_vers(2) &lt; c_vers(2)
+0034                 disp(txt_dev);
+0035             <span class="keyword">end</span>
+0036         <span class="keyword">elseif</span> l_vers(1) &gt; c_vers(1)
+0037             disp(txt_old);
+0038         <span class="keyword">elseif</span> l_vers(1) &lt; c_vers(1)
+0039             disp(txt_dev);
+0040         <span class="keyword">end</span>
+0041         
+0042     <span class="keyword">catch</span>
+0043         disp(txt_old);
+0044     <span class="keyword">end</span>
+0045     
+0046 <span class="keyword">else</span>
+0047     disp(sprintf([<span class="string">'\n===================================================================\n Cannot access the PRoNTo server. '</span><span class="keyword">...</span>
+0048         <span class="string">'No version check was run. Please\n check the PRoNTo website for news regarding the latest updates.\n'</span><span class="keyword">...</span>
+0049         <span class="string">'==================================================================='</span>]));
+0050 <span class="keyword">end</span>
+0051 
+0052 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

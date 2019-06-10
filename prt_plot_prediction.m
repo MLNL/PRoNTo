@@ -1,7 +1,8 @@
 function prt_plot_prediction(PRT, model, fold, marker_size, axes_handle)
+% Function to plot the prediction plot that appears on prt_ui_results
+%
 % FORMAT prt_plot_prediction(PRT, model, fold, marker_size, axes_handle)
 %
-% This function plots the prediction plot that appears on prt_ui_results
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).

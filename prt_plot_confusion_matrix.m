@@ -1,7 +1,7 @@
 function prt_plot_confusion_matrix(PRT, model, fold, axes_handle)
-% FORMAT prt_plot_confusion_matrix(PRT, model, fold, axes_handle)
+% Function to plot the confusion matrix that appears on prt_ui_results.
 %
-% This function plots the confusion matrix that appears on prt_ui_results
+% FORMAT prt_plot_confusion_matrix(PRT, model, fold, axes_handle)
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).

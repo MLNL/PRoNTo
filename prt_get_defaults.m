@@ -1,5 +1,5 @@
 function varargout = prt_get_defaults(defstr, varargin)
-% Get/set the defaults values associated with an identifier
+% Function to get/set the defaults values associated with an identifier.
 %
 % FORMAT defaults = prt_get_defaults
 % Return the global "defaults" variable defined in prt_defaults.m.

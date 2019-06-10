@@ -1,7 +1,7 @@
 function [fid,PRT,tocomp,n_vols_s] = prt_init_fs_EEG(PRT, in, mids)
-% function to initialise the kernel data structure
+% Function to initialise the kernel data structure.
 % ------------------------------------------------
-% function will create the feature set in PRT.mat by epoching the data.
+% Function will create the feature set in PRT.mat by epoching the data.
 % Input:
 % ------
 % in.fs_name: name for the feature set (string)

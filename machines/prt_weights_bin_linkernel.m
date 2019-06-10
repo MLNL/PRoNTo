@@ -1,5 +1,6 @@
 function weights = prt_weights_bin_linkernel (d,args)
-% Run function to compute weights for linear kernel binary classifiers
+% Function to compute weights for linear kernel binary classifiers.
+% 
 % FORMAT weights = prt_weights_bin_linkernel (d,args)
 % Inputs:
 %       d              - data structure

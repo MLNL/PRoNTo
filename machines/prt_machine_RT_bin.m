@@ -1,6 +1,6 @@
 function output = prt_machine_RT_bin(d,args)
-% Run binary Ensemble of Regression Tree - wrapper for Pierre Geurt's
-% RT code
+% Function to run binary Ensemble of Regression Tree. Wrapper for Pierre Geurt's RT code.
+%
 % FORMAT output =  prt_machine_RT_bin(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

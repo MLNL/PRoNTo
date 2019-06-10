@@ -1,0 +1,575 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_nested_cv</title>
+  <meta name="keywords" content="prt_nested_cv">
+  <meta name="description" content="Function to perform the nested CV">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_nested_cv.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_nested_cv
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to perform the nested CV</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [out] = prt_nested_cv(PRT, in) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to perform the nested CV
+
+ Inputs:
+ -------
+   in.nc:          number of classes
+   in.ID:          ID matrix
+   in.mid:         model id
+   in.CV:          cross-validation matrix
+   in.Phi_all:     Kernel
+
+ Outputs:
+ --------
+   out.opt_param:  optimal hyper-parameter choosen using the stats from
+                   the inner CVs
+   out.vary_param: stats values associated with all the hyper-parameters
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_compute_cv_mat.html" class="code" title="function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)">prt_compute_cv_mat</a>	Function to compute the cross-validation matrix.</li><li><a href="prt_cv_fold.html" class="code" title="function [model, targets] = prt_cv_fold(PRT, in)">prt_cv_fold</a>	Function to run a single cross-validation fold.</li><li><a href="prt_stats.html" class="code" title="function stats = prt_stats(model, tte, nk)">prt_stats</a>	Function to compute predictions machine performance statistcs statistics</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_cv_MTL.html" class="code" title="function [outfile] = prt_cv_MTL(PRT,in)">prt_cv_MTL</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_cv_model.html" class="code" title="function [outfile] = prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_permutation.html" class="code" title="function [] = prt_permutation(PRT, n_perm, modelid, path, save_perm)">prt_permutation</a>	Function to compute permutation test</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function opt_stats_ind = get_opt_stats_ind(stats, n_par, classification)</a></li><li><a href="#_sub2" class="code">function [in] = gather_task_info_STL(PRT,in)</a></li><li><a href="#_sub3" class="code">function [in] = gather_task_info_MTL(PRT,in)</a></li><li><a href="#_sub4" class="code">function [cosang] = compute_reproducibility_ER(betas)</a></li><li><a href="#_sub5" class="code">function [cosang] = compute_reproducibility_betas(betas)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [out] = prt_nested_cv(PRT, in)</a>
+0002 <span class="comment">% Function to perform the nested CV</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% Inputs:</span>
+0005 <span class="comment">% -------</span>
+0006 <span class="comment">%   in.nc:          number of classes</span>
+0007 <span class="comment">%   in.ID:          ID matrix</span>
+0008 <span class="comment">%   in.mid:         model id</span>
+0009 <span class="comment">%   in.CV:          cross-validation matrix</span>
+0010 <span class="comment">%   in.Phi_all:     Kernel</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">% Outputs:</span>
+0013 <span class="comment">% --------</span>
+0014 <span class="comment">%   out.opt_param:  optimal hyper-parameter choosen using the stats from</span>
+0015 <span class="comment">%                   the inner CVs</span>
+0016 <span class="comment">%   out.vary_param: stats values associated with all the hyper-parameters</span>
+0017 <span class="comment">%__________________________________________________________________________</span>
+0018 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0019 
+0020 <span class="comment">% Written by J.M. Monteiro and J. Schrouff</span>
+0021 <span class="comment">% $Id$</span>
+0022 
+0023 
+0024 <span class="comment">% Set flag</span>
+0025 use_nested_cv = PRT.model(in.mid).input.use_nested_cv;
+0026 <span class="keyword">if</span> use_nested_cv == false
+0027     error(<span class="string">'prt_nested_cv function called with use_nested_cv = false'</span>);
+0028 <span class="keyword">end</span>
+0029 
+0030 <span class="keyword">if</span> ~isfield(in,<span class="string">'opt_Rep'</span>)
+0031     opt_Rep = 0;
+0032 <span class="keyword">else</span>
+0033     opt_Rep = in.opt_Rep;
+0034 <span class="keyword">end</span>
+0035 
+0036 npar = numel(PRT.model(in.mid).input.nested_param);
+0037 <span class="comment">% Transform into meshgrid for 2 or more parameters entered as cells</span>
+0038 <span class="keyword">if</span> iscell(PRT.model(in.mid).input.nested_param)
+0039     outmesh = [<span class="string">'X1'</span>];
+0040     inmesh = [<span class="string">'c1'</span>];
+0041     outpar = [<span class="string">'X1(:)'</span>];
+0042     <span class="keyword">for</span> i = 1:npar
+0043         <span class="comment">% Get parameter ranges from PRT</span>
+0044         eval([<span class="string">'c'</span>,num2str(i),<span class="string">' = PRT.model(in.mid).input.nested_param{i};'</span>]);
+0045         <span class="keyword">if</span> i&gt;1
+0046             outmesh = [outmesh,<span class="string">',X'</span>,num2str(i)];
+0047             inmesh = [inmesh,<span class="string">',c'</span>,num2str(i)];
+0048             outpar = [outpar,<span class="string">',X'</span>,num2str(i),<span class="string">'(:)'</span>];
+0049         <span class="keyword">end</span>
+0050     <span class="keyword">end</span>
+0051     <span class="comment">% Convert them to a matrix with all the combinations</span>
+0052     eval([<span class="string">'['</span>,outmesh,<span class="string">'] = meshgrid('</span>,inmesh,<span class="string">');'</span>]); <span class="comment">%replace by ndgrid later on</span>
+0053     eval([<span class="string">'par = ['</span>,outpar,<span class="string">'];'</span>])
+0054     par = par';
+0055 <span class="keyword">else</span>
+0056     par = reshape(PRT.model(in.mid).input.nested_param,1,npar);
+0057 <span class="keyword">end</span>
+0058 
+0059 <span class="comment">% Gather task info:</span>
+0060 <span class="comment">% Multiple tasks?</span>
+0061 <span class="keyword">if</span> isfield(in,<span class="string">'midMTL'</span>)
+0062     MTLflag = 1;
+0063     in = <a href="#_sub3" class="code" title="subfunction [in] = gather_task_info_MTL(PRT,in)">gather_task_info_MTL</a>(PRT,in);
+0064     nt = numel(in.midMTL);
+0065     nfolds = size(in.CV{1},2);
+0066 <span class="keyword">else</span>
+0067     MTLflag = 0;
+0068     in = <a href="#_sub2" class="code" title="subfunction [in] = gather_task_info_STL(PRT,in)">gather_task_info_STL</a>(PRT,in);
+0069     nfolds = size(in.CV, 2);
+0070 <span class="keyword">end</span>
+0071 
+0072 out.param = par;
+0073 stats_vec = zeros(1, size(par, 2));
+0074 cosang = zeros(1,size(par, 2));
+0075 
+0076 <span class="comment">% compute model performance based on hyper-parameter range</span>
+0077 <span class="keyword">for</span> i = 1:size(par, 2)
+0078         
+0079     m.type = PRT.model(in.mid).input.type;
+0080     <span class="keyword">if</span> size(par,1)&gt;1
+0081         PRT.model(in.mid).input.machine.args = par(:,i);
+0082     <span class="keyword">else</span>
+0083         PRT.model(in.mid).input.machine.args = par(i);
+0084     <span class="keyword">end</span>
+0085                     
+0086     <span class="comment">% compute the model for each fold of the inner CV</span>
+0087     <span class="keyword">for</span> f = 1:nfolds
+0088         
+0089         fold.ID      = in.ID;
+0090         <span class="keyword">if</span> MTLflag
+0091             <span class="keyword">for</span> t=1:nt        
+0092                 fold.CV{t}      = in.CV{t}(:,f);
+0093             <span class="keyword">end</span>
+0094             fold.midMTL = in.midMTL;
+0095         <span class="keyword">else</span>
+0096             fold.CV      = in.CV(:,f);
+0097         <span class="keyword">end</span>
+0098         fold.Phi_all = in.Phi_all;
+0099         fold.t       = in.t;
+0100         fold.mid     = in.mid;
+0101         <span class="keyword">if</span> isfield(in, <span class="string">'cov'</span>) 
+0102             <span class="keyword">if</span> ~MTLflag &amp;&amp; ~ isempty(in.cov)
+0103                 fold.cov     = in.cov;
+0104             <span class="keyword">else</span>
+0105                 <span class="keyword">for</span> t=1:nt
+0106                     <span class="keyword">if</span> ~isempty(in.cov{t})
+0107                         fold.cov{t} = in.cov{t};
+0108                     <span class="keyword">end</span>
+0109                 <span class="keyword">end</span>
+0110             <span class="keyword">end</span>
+0111         <span class="keyword">end</span>
+0112 
+0113         [model, targets] = <a href="prt_cv_fold.html" class="code" title="function [model, targets] = prt_cv_fold(PRT, in)">prt_cv_fold</a>(PRT,fold);
+0114         
+0115         <span class="comment">%for classification check that for each fold, the test targets have been trained</span>
+0116         <span class="keyword">if</span> strcmpi(PRT.model(in.mid).input.type,<span class="string">'classification'</span>)
+0117             <span class="keyword">if</span> ~MTLflag &amp;&amp; ~all(ismember(unique(targets.test),unique(targets.train)))
+0118                 beep
+0119                 disp(<span class="string">'At least one class is in the test set but not in the training set'</span>)
+0120                 disp(<span class="string">'Abandoning modelling, please correct class selection/cross-validation'</span>)
+0121                 <span class="keyword">return</span>
+0122             <span class="keyword">elseif</span> MTLflag
+0123                 <span class="keyword">for</span> t=1:nt
+0124                     <span class="keyword">if</span> ~all(ismember(unique(targets.test{t}),unique(targets.train{t})))
+0125                         beep
+0126                         disp([<span class="string">'At least one class is in the test set but not in the training set for task '</span>,num2str(t)])
+0127                         disp(<span class="string">'Abandoning modelling, please correct class selection/cross-validation'</span>)
+0128                         <span class="keyword">return</span>
+0129                     <span class="keyword">end</span>
+0130                 <span class="keyword">end</span> 
+0131             <span class="keyword">end</span>
+0132         <span class="keyword">end</span>
+0133         
+0134         <span class="comment">% Compute stats</span>
+0135         model.type = m.type;
+0136         stats = <a href="prt_stats.html" class="code" title="function stats = prt_stats(model, tte, nk)">prt_stats</a>(model, targets.test, in.nc);
+0137         f_stats(f).targets     = targets.test;
+0138         f_stats(f).predictions = model.predictions;
+0139         f_stats(f).func_val = model.func_val;
+0140         f_stats(f).stats       = stats;
+0141         <span class="keyword">if</span> isfield(model,<span class="string">'beta'</span>) &amp;&amp; ~isempty(model.beta)
+0142             f_stats(f).beta = model.beta;
+0143         <span class="keyword">end</span>
+0144         
+0145         
+0146     <span class="keyword">end</span>
+0147     
+0148 <span class="comment">%     % Model level statistics (across folds)</span>
+0149 <span class="comment">%     ttt           = vertcat(f_stats(:).targets);</span>
+0150 <span class="comment">%     m.predictions = vertcat(f_stats(:).predictions);</span>
+0151 <span class="comment">%     tstats         = prt_stats(m, ttt(:), in.nc);</span>
+0152     <span class="comment">% Model statistics, averaged across folds</span>
+0153     fnamestats = fieldnames(stats);
+0154     tstats = struct;
+0155     <span class="keyword">if</span> ismember(<span class="string">'task_stats'</span>,fnamestats)
+0156         its = ismember(fnamestats,<span class="string">'task_stats'</span>);
+0157         fnamestats = fnamestats(~its);
+0158     <span class="keyword">end</span>
+0159     <span class="keyword">for</span> s=1:length(fnamestats)
+0160         size_stats = size(stats.(fnamestats{s}));
+0161         val = zeros(prod(size_stats),nfolds);
+0162         <span class="keyword">for</span> j = 1:nfolds
+0163             val(:,j) = f_stats(j).stats.(fnamestats{s})(:);
+0164         <span class="keyword">end</span>
+0165         av_stats = reshape(nanmean(val,2),size_stats);
+0166         tstats = setfield(tstats,fnamestats{s},av_stats);
+0167     <span class="keyword">end</span>
+0168     <span class="comment">% If classifier, get confusion matrix globally</span>
+0169      <span class="keyword">if</span> strcmpi(m.type,<span class="string">'classifier'</span>) &amp;&amp; ~MTLflag
+0170          flag = <span class="string">'model'</span>;
+0171          ttt             = vertcat(f_stats(:).targets);
+0172          m.predictions   = vertcat(f_stats(:).predictions);
+0173          m.func_val    = vertcat(f_stats(:).func_val);
+0174          temp_stats         = <a href="prt_stats.html" class="code" title="function stats = prt_stats(model, tte, nk)">prt_stats</a>(m,ttt(:),in.nc);
+0175          tstats.con_mat = temp_stats.con_mat;
+0176      <span class="keyword">end</span>
+0177     
+0178     <span class="comment">% Reproducibility of the weights if MKL</span>
+0179     <span class="keyword">if</span> isfield(f_stats,<span class="string">'beta'</span>) &amp;&amp; opt_Rep
+0180 <span class="comment">%         cosang(i) = compute_reproducibility_ER(f_stats);</span>
+0181         cosang(i) = <a href="#_sub5" class="code" title="subfunction [cosang] = compute_reproducibility_betas(betas)">compute_reproducibility_betas</a>(f_stats);
+0182     <span class="keyword">end</span>
+0183     
+0184     <span class="keyword">switch</span> PRT.model(in.mid).input.type
+0185         <span class="keyword">case</span> <span class="string">'classification'</span>
+0186               stats_vec(i) = tstats.b_acc;
+0187 <span class="comment">%               if isnan(tstats.auc)</span>
+0188 <span class="comment">%                   stats_vec(i) = tstats.b_acc;</span>
+0189 <span class="comment">%                   error('AUC is not a number. Balanced accuracy is used to optimize hyperparameters.');</span>
+0190 <span class="comment">%               else</span>
+0191 <span class="comment">%                   stats_vec(i) = tstats.auc;</span>
+0192 <span class="comment">%               end</span>
+0193         <span class="keyword">case</span> <span class="string">'regression'</span>
+0194             stats_vec(i) = tstats.mse;
+0195         <span class="keyword">otherwise</span>
+0196             error(<span class="string">'Type of model not recognised'</span>);
+0197     <span class="keyword">end</span>
+0198     
+0199     
+0200 <span class="keyword">end</span>
+0201 
+0202 <span class="comment">% For now, only parameter optimisation. Add flag for feature selection</span>
+0203 <span class="comment">% Get optimal parameter</span>
+0204 
+0205 numpar = size(par,1);
+0206 <span class="keyword">if</span> numpar==2 <span class="comment">%Grid search</span>
+0207     
+0208     <span class="comment">% Reshape the stats vector into a matrix</span>
+0209     stats_mat = reshape(stats_vec, length(unique(par(2,:))), length(unique(par(1,:))))';    
+0210     cos_mat = reshape(cosang, length(unique(par(2,:))), length(unique(par(1,:))))';
+0211     <span class="keyword">if</span> opt_Rep &amp;&amp; isfield(f_stats,<span class="string">'beta'</span>)        
+0212         w1=1;
+0213         w2=1;
+0214     <span class="keyword">else</span>
+0215         w1=1;
+0216         w2=0;
+0217     <span class="keyword">end</span>
+0218     
+0219     <span class="keyword">switch</span> PRT.model(in.mid).input.type
+0220         <span class="keyword">case</span> <span class="string">'classification'</span>
+0221             <span class="comment">% Find max</span>
+0222             st = (stats_mat*w1 + cos_mat*w2) / (w1+w2);
+0223             opt_stats_ind = <a href="#_sub1" class="code" title="subfunction opt_stats_ind = get_opt_stats_ind(stats, n_par, classification)">get_opt_stats_ind</a>(st, numpar, true);
+0224         <span class="keyword">case</span> <span class="string">'regression'</span>
+0225             <span class="comment">% Find min</span>
+0226             st = (stats_mat*w1 + (1-cos_mat)*w2) / (w1+w2);
+0227             opt_stats_ind = <a href="#_sub1" class="code" title="subfunction opt_stats_ind = get_opt_stats_ind(stats, n_par, classification)">get_opt_stats_ind</a>(st, numpar, false);
+0228     <span class="keyword">end</span>
+0229     c1_max = c1(opt_stats_ind(1));
+0230     c2_max = c2(opt_stats_ind(2));
+0231     
+0232     out.opt_param = [c1_max, c2_max];
+0233     out.vary_param = stats_mat;
+0234     out.vary_cos = cos_mat;
+0235     
+0236 <span class="keyword">elseif</span> numpar ==1
+0237     
+0238     <span class="keyword">if</span> opt_Rep &amp;&amp; isfield(f_stats,<span class="string">'beta'</span>)
+0239         w1=0;
+0240         w2=1;
+0241     <span class="keyword">else</span>
+0242         w1=1;
+0243         w2=0;
+0244     <span class="keyword">end</span>
+0245     
+0246     <span class="keyword">switch</span> PRT.model(in.mid).input.type
+0247         <span class="keyword">case</span> <span class="string">'classification'</span>
+0248             st = (stats_vec*w1 + cosang*w2) / (w1+w2);
+0249             opt_stats_ind = <a href="#_sub1" class="code" title="subfunction opt_stats_ind = get_opt_stats_ind(stats, n_par, classification)">get_opt_stats_ind</a>(st, 1, true);
+0250         <span class="keyword">case</span> <span class="string">'regression'</span>
+0251             st = (stats_vec*w1 + (1-cosang)*w2) / (w1+w2);
+0252             opt_stats_ind = <a href="#_sub1" class="code" title="subfunction opt_stats_ind = get_opt_stats_ind(stats, n_par, classification)">get_opt_stats_ind</a>(st, 1, false);
+0253         <span class="keyword">otherwise</span>
+0254             error(<span class="string">'Type of model not recognised'</span>);
+0255     <span class="keyword">end</span>
+0256     
+0257     par_opt = par(opt_stats_ind);
+0258     
+0259     out.opt_param = par_opt;
+0260     out.vary_param = stats_vec;
+0261     out.vary_cos = cosang;
+0262     
+0263 <span class="keyword">else</span>
+0264     error(<span class="string">'prt_nested_cv:MoreThan2Hyperparmeters'</span>,<span class="keyword">...</span>
+0265         <span class="string">'Cannot optimize more than 2 hyper-parameters'</span>)
+0266 <span class="keyword">end</span>
+0267 
+0268 <span class="keyword">end</span>
+0269 
+0270 
+0271 
+0272 <span class="comment">% -------------------------------------------------------------------------</span>
+0273 <span class="comment">% Private functions</span>
+0274 <span class="comment">% -------------------------------------------------------------------------</span>
+0275 <a name="_sub1" href="#_subfunctions" class="code">function opt_stats_ind = get_opt_stats_ind(stats, n_par, classification)</a>
+0276 
+0277 <span class="keyword">switch</span> n_par
+0278     
+0279     <span class="keyword">case</span> 1
+0280         <span class="keyword">if</span> classification
+0281             opt_stats = max(stats);
+0282         <span class="keyword">else</span>
+0283             opt_stats = min(stats);
+0284         <span class="keyword">end</span>
+0285         
+0286         ind = find(stats == opt_stats);
+0287         <span class="keyword">if</span> length(ind)&gt;1
+0288             <span class="keyword">try</span> <span class="comment">% if user has the image processing toolbox</span>
+0289                 metricmap = zeros(size(stats)); <span class="comment">% The metric can be acc or auc</span>
+0290                 metricmap(ind) = 1;
+0291                 [L,nconn] = bwlabel(metricmap);
+0292                 stats = regionprops(L,{<span class="string">'centroid'</span>,<span class="string">'area'</span>});
+0293                 maxar = stats(1).Area;
+0294                 <span class="keyword">if</span> nconn&gt;1
+0295                     <span class="keyword">for</span> i = 2:nconn
+0296                         <span class="keyword">if</span> stats(i).Area&gt;maxar
+0297                             maxar = stats(i).Area;
+0298                             indmax = i;
+0299                         <span class="keyword">end</span>
+0300                     <span class="keyword">end</span>
+0301                 <span class="keyword">else</span>
+0302                     indmax = 1;
+0303                 <span class="keyword">end</span>
+0304                 opt_stats_ind = floor(stats(indmax).Centroid(1));
+0305             <span class="keyword">catch</span>
+0306                 iopt = floor(median(1:length(ind)));
+0307                 opt_stats_ind = ind(iopt);
+0308             <span class="keyword">end</span>
+0309         <span class="keyword">else</span> <span class="comment">% if only one maximum, report it</span>
+0310             opt_stats_ind = ind;
+0311         <span class="keyword">end</span>
+0312         
+0313 <span class="comment">%         opt_stats_ind = ind(1);</span>
+0314 <span class="comment">%         opt_stats_ind = round(median(ind));</span>
+0315         
+0316     <span class="keyword">case</span> 2
+0317         <span class="keyword">if</span> classification
+0318             opt_stats = max(max(stats));
+0319         <span class="keyword">else</span>
+0320             opt_stats = min(min(stats));
+0321         <span class="keyword">end</span>
+0322         
+0323         [ind_c1, ind_c2] = find(stats==opt_stats);
+0324         indopt = find(stats==opt_stats);
+0325         
+0326         <span class="keyword">if</span> length(indopt)&gt;1
+0327             <span class="keyword">try</span> <span class="comment">% if user has the image processing toolbox</span>
+0328                 metricmap = zeros(size(stats));
+0329                 metricmap(indopt) = 1;
+0330                 [L,nconn] = bwlabel(metricmap);
+0331                 stats = regionprops(L,{<span class="string">'centroid'</span>,<span class="string">'area'</span>});
+0332                 maxar = stats(1).Area;
+0333                 indmax = 1;
+0334                 <span class="keyword">for</span> i = 2:nconn
+0335                     <span class="keyword">if</span> stats(i).Area&gt;maxar
+0336                         maxar = stats(i).Area;
+0337                         indmax = i;
+0338                     <span class="keyword">end</span>
+0339                 <span class="keyword">end</span>
+0340                 opt_stats_ind(1) = floor(stats(indmax).Centroid(2));
+0341                 opt_stats_ind(2) = floor(stats(indmax).Centroid(1));
+0342             <span class="keyword">catch</span>
+0343                 iopt = floor(median(1:length(indopt)));
+0344                 opt_stats_ind(1) = ind_c1(iopt);
+0345                 opt_stats_ind(2) = ind_c2(iopt);
+0346             <span class="keyword">end</span>
+0347         <span class="keyword">else</span> <span class="comment">% if only one maximum, report it</span>
+0348             opt_stats_ind(1) = ind_c1;
+0349             opt_stats_ind(2) = ind_c2;
+0350         <span class="keyword">end</span>
+0351         
+0352         
+0353 <span class="comment">%         opt_stats_ind(1) = ind_c1(1); %smallest value</span>
+0354 <span class="comment">%         opt_stats_ind(2) = ind_c2(1);</span>
+0355         
+0356 <span class="comment">%         opt_stats_ind(1) = round(median(ind_c1));</span>
+0357 <span class="comment">%         opt_stats_ind(2) = round(median(ind_c2));</span>
+0358         
+0359     <span class="keyword">otherwise</span>
+0360         error(<span class="string">'The number of parameters to optimise must be &lt;=2'</span>)
+0361 <span class="keyword">end</span>
+0362 
+0363 
+0364 <span class="keyword">end</span>
+0365 
+0366 <a name="_sub2" href="#_subfunctions" class="code">function [in] = gather_task_info_STL(PRT,in)</a>
+0367 
+0368 <span class="comment">% Set flag</span>
+0369 use_nested_cv = PRT.model(in.mid).input.use_nested_cv;
+0370 
+0371 train_entries = find(in.CV == 1);
+0372 in.ID      = in.ID(train_entries, :);
+0373 in.t       = in.t(train_entries);
+0374 <span class="comment">% in.fs      = PRT.fs;</span>
+0375 <span class="keyword">if</span> isfield(in, <span class="string">'cov'</span>) &amp;&amp; ~isempty(in.cov)
+0376     in.cov     = in.cov(train_entries,:);
+0377 <span class="keyword">end</span>
+0378 <span class="keyword">if</span> isfield(PRT.model(in.mid).input,<span class="string">'cv_type_nested'</span>)
+0379     in.cv.type = PRT.model(in.mid).input.cv_type_nested;
+0380     in.cv.k = PRT.model(in.mid).input.cv_k_nested;
+0381 <span class="keyword">else</span>
+0382     in.cv.type = PRT.model(in.mid).input.cv_type;
+0383     in.cv.k = PRT.model(in.mid).input.cv_k;
+0384 <span class="keyword">end</span>
+0385 
+0386 <span class="keyword">for</span> i=1:length(in.Phi_all)
+0387     <span class="keyword">if</span> PRT.model(in.mid).input.use_kernel <span class="comment">%Kernel method</span>
+0388         in.Phi_all{i} = in.Phi_all{i}(train_entries, train_entries);
+0389     <span class="keyword">else</span> <span class="comment">%Non-kernel</span>
+0390         in.Phi_all{i} = in.Phi_all{i}(train_entries, :);
+0391     <span class="keyword">end</span>
+0392 <span class="keyword">end</span>
+0393 <span class="comment">% generate new CV matrix</span>
+0394 in.CV = <a href="prt_compute_cv_mat.html" class="code" title="function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)">prt_compute_cv_mat</a>(PRT, in, in.mid, use_nested_cv);
+0395 <span class="keyword">end</span>
+0396 
+0397 <a name="_sub3" href="#_subfunctions" class="code">function [in] = gather_task_info_MTL(PRT,in)</a>
+0398 
+0399 n_tasks = length(in.midMTL);
+0400 <span class="comment">% Set flag</span>
+0401 use_nested_cv = PRT.model(in.mid).input.use_nested_cv;
+0402 m = in.midMTL;
+0403 
+0404 <span class="keyword">for</span> t=1:n_tasks    
+0405     train_entries = find(in.CV{t} == 1);
+0406     in.ID{t}      = in.ID{t}(train_entries, :);
+0407     in.t{t}       = in.t{t}(train_entries);
+0408     <span class="keyword">if</span> isfield(in, <span class="string">'cov'</span>) &amp;&amp; ~isempty(in.cov{t})
+0409         in.cov{t}     = in.cov{t}(train_entries,:);
+0410     <span class="keyword">end</span>
+0411     <span class="keyword">if</span> isfield(PRT.model(m(t)).input,<span class="string">'cv_type_nested'</span>)
+0412         in.cv.type = PRT.model(m(t)).input.cv_type_nested;
+0413         in.cv.k = PRT.model(m(t)).input.cv_k_nested;
+0414     <span class="keyword">else</span>
+0415         in.cv.type = PRT.model(m(t)).input.cv_type;
+0416         in.cv.k = PRT.model(m(t)).input.cv_k;
+0417     <span class="keyword">end</span>
+0418     
+0419     <span class="keyword">if</span> PRT.model(in.mid).input.use_kernel <span class="comment">%Kernel method</span>
+0420         in.Phi_all{t} = in.Phi_all{t}(train_entries, train_entries);
+0421     <span class="keyword">else</span> <span class="comment">%Non-kernel</span>
+0422         in.Phi_all{t} = in.Phi_all{t}(train_entries, :);
+0423     <span class="keyword">end</span>
+0424 
+0425     <span class="comment">% generate new CV matrix</span>
+0426     nested.ID = in.ID{t};
+0427     nested.t = in.t{t};
+0428     <span class="keyword">if</span> isfield(PRT.model(in.mid).input,<span class="string">'cv_type_nested'</span>) &amp;&amp; <span class="keyword">...</span>
+0429             isempty(in.cv.type) <span class="comment">% No parameter optimization for STL machine</span>
+0430         in.cv.type = PRT.model(in.mid).input.cv_type_nested;
+0431         in.cv.k = PRT.model(in.mid).input.cv_k_nested;
+0432     <span class="keyword">end</span>
+0433     nested.cv = in.cv;
+0434     <span class="keyword">if</span> isfield(in,<span class="string">'class'</span>)
+0435         nested.class = in.class{t};
+0436     <span class="keyword">end</span>
+0437     in.CV{t} = <a href="prt_compute_cv_mat.html" class="code" title="function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)">prt_compute_cv_mat</a>(PRT, nested, m(t), use_nested_cv);
+0438 <span class="keyword">end</span>
+0439 <span class="keyword">end</span>
+0440 
+0441 <a name="_sub4" href="#_subfunctions" class="code">function [cosang] = compute_reproducibility_ER(betas)</a>
+0442 <span class="comment">% Compute 'reproducibility' value from MKL beta weights</span>
+0443 
+0444 
+0445 <span class="comment">% Compute Expected Ranking for model</span>
+0446 erwn=zeros(numel(betas(1).beta),length(betas));
+0447 <span class="keyword">for</span> fold = 1:length(betas)
+0448     w_all =[betas(fold).beta]'*100;
+0449     <span class="comment">%take 0 columns out of the computation</span>
+0450     mw = min(w_all);
+0451     mxw = max(w_all);
+0452     id0 = find(mw==mxw);
+0453     id0 = id0(mw(id0)==0);
+0454     id = 1:size(w_all,2);
+0455     idtr = setdiff(id,id0);
+0456     <span class="keyword">if</span> isempty(idtr)   <span class="comment">% if a modality has always 0 weights</span>
+0457         erwn=NaN*ones(length(w_all),1);
+0458     <span class="keyword">else</span>
+0459         w_all = w_all(:,idtr);
+0460         <span class="comment">%deal with NaNs</span>
+0461         [d1,d2]=sort(w_all,1,<span class="string">'ascend'</span>);
+0462         isn=find(isnan(w_all(:,1)));
+0463         d3=size(d1,1)-length(isn)+1:size(d1,1);
+0464         d4=1:size(d1,1)-length(isn);
+0465         ihn=[d2(d3,:);d2(d4,:)];
+0466         [d1,dwn]=sort(ihn);
+0467         dwn(isn)=0;
+0468         isnu=find((w_all(:,1)==0));
+0469         dwn(isnu)=0;
+0470         erwn(:,fold) = dwn;
+0471 <span class="comment">%         for i=1:size(w_all,1)</span>
+0472 <span class="comment">%             for j=1:size(w_all,1)</span>
+0473 <span class="comment">%                 tmp=length(find(dwn(i,1:end)==j));</span>
+0474 <span class="comment">%                 erwn(i,fold)=erwn(i,fold)+j*tmp;</span>
+0475 <span class="comment">%             end</span>
+0476 <span class="comment">%         end</span>
+0477 <span class="comment">%         erwn(:,fold)=erwn(:,fold)/length(idtr);</span>
+0478     <span class="keyword">end</span>   
+0479 <span class="keyword">end</span>
+0480 
+0481 mer = mean(erwn,2);
+0482 
+0483 cosang =zeros(size(erwn,2),1);
+0484 <span class="keyword">for</span> i = 1:length(cosang)
+0485     cosang(i) = (erwn(:,i)'*mer)/ (norm(erwn(:,i)) * norm(mer));
+0486 <span class="keyword">end</span>
+0487 cosang = mean(cosang);
+0488 
+0489 <span class="keyword">end</span>
+0490 
+0491 <a name="_sub5" href="#_subfunctions" class="code">function [cosang] = compute_reproducibility_betas(betas)</a>
+0492 <span class="comment">% Compute 'reproducibility' value from MKL beta weights</span>
+0493 
+0494 
+0495 <span class="comment">% Extract beta values for each fold</span>
+0496 erwn=zeros(numel(betas(1).beta),length(betas));
+0497 <span class="keyword">for</span> fold = 1:length(betas)
+0498     erwn(:,fold) =[betas(fold).beta]';
+0499 <span class="keyword">end</span>
+0500 
+0501 mer = mean(erwn,2);
+0502 
+0503 <span class="comment">%Compute reproducibility for model</span>
+0504 cosang =zeros(size(erwn,2),1);
+0505 <span class="keyword">for</span> i = 1:length(cosang)
+0506     cosang(i) = (erwn(:,i)'*mer)/ (norm(erwn(:,i)) * norm(mer));
+0507 <span class="keyword">end</span>
+0508 cosang = mean(cosang);
+0509 
+0510 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,5 +1,6 @@
 function out=prt_checkAlphaNumUnder(s)
-% check whether a given string is alphanumerical or underscore
+% Function to check whether a given string is alphanumerical or underscore.
+%
 % FORMAT out =  prt_checkAlphaNumUnder(s)
 % Inputs:
 %   s - a string of arbitrary length to check

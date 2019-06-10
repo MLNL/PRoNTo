@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_getKernelModel</title>
+  <meta name="keywords" content="prt_getKernelModel">
+  <meta name="description" content="Function to load the kernels according to the samples considered in a">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_getKernelModel.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_getKernelModel
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to load the kernels according to the samples considered in a</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Phi_all,ID,fid] = prt_getKernelModel (PRT,prt_dir,mid,flag) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to load the kernels according to the samples considered in a
+given model. These kernels will be added if the machine is a single kernel
+technique.
+
+ Inputs:
+ -------
+ PRT:            data structure
+ prt_dir:        path for PRT.mat (string)
+ mid :           index of model in the data structure/ PRT.mat
+ flag:           1 to compute one model for each kernel, 0 otherwise (def)
+
+ Output:
+ --------
+ Phi_all :  cell array with one kernel per cell or a single cell
+            with the samples considered in the
+            specified model, as defined by the class/regression selection.
+ ID :       the ID matrix for the considered samples
+ fid :      index of feature set in data structure / PRT.mat
+
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>	Function to initialise the kernel data structure.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_cv_MTL.html" class="code" title="function [outfile] = prt_cv_MTL(PRT,in)">prt_cv_MTL</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_cv_model.html" class="code" title="function [outfile] = prt_cv_model(PRT,in)">prt_cv_model</a>	Function to run a cross-validation structure on a given model</li><li><a href="prt_permutation.html" class="code" title="function [] = prt_permutation(PRT, n_perm, modelid, path, save_perm)">prt_permutation</a>	Function to compute permutation test</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Phi_all,ID,fid] = prt_getKernelModel (PRT,prt_dir,mid,flag)</a>
+0002 
+0003 <span class="comment">% Function to load the kernels according to the samples considered in a</span>
+0004 <span class="comment">%given model. These kernels will be added if the machine is a single kernel</span>
+0005 <span class="comment">%technique.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% Inputs:</span>
+0008 <span class="comment">% -------</span>
+0009 <span class="comment">% PRT:            data structure</span>
+0010 <span class="comment">% prt_dir:        path for PRT.mat (string)</span>
+0011 <span class="comment">% mid :           index of model in the data structure/ PRT.mat</span>
+0012 <span class="comment">% flag:           1 to compute one model for each kernel, 0 otherwise (def)</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">% Output:</span>
+0015 <span class="comment">% --------</span>
+0016 <span class="comment">% Phi_all :  cell array with one kernel per cell or a single cell</span>
+0017 <span class="comment">%            with the samples considered in the</span>
+0018 <span class="comment">%            specified model, as defined by the class/regression selection.</span>
+0019 <span class="comment">% ID :       the ID matrix for the considered samples</span>
+0020 <span class="comment">% fid :      index of feature set in data structure / PRT.mat</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%__________________________________________________________________________</span>
+0023 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0024 
+0025 <span class="comment">% Written by J Schrouff</span>
+0026 <span class="comment">% $Id: prt_getKernelModel.m 855 2014-05-27 09:35:15Z schrouff $</span>
+0027 
+0028 <span class="comment">% load data files and configure ID matrix</span>
+0029 disp(<span class="string">'Loading data files.....&gt;&gt;'</span>);
+0030 
+0031 samp_idx = PRT.model(mid).input.samp_idx;   <span class="comment">% which samples are in the model</span>
+0032 Phi_all=[];
+0033 
+0034 <span class="keyword">if</span> nargin&lt;4 || isempty(flag)
+0035     flag = 0;
+0036 <span class="keyword">end</span>
+0037 
+0038 <span class="keyword">for</span> i = 1:length(PRT.model(mid).input.fs)
+0039     <span class="comment">%Backwards compatibility with v0 and v1: transform kernel into cell if needed</span>
+0040     
+0041     fid = <a href="prt_init_fs.html" class="code" title="function [fid,PRT,tocomp] = prt_init_fs(PRT, in, mids,mask,precmask,headers)">prt_init_fs</a>(PRT, PRT.model(mid).input.fs(i));
+0042     load(fullfile(prt_dir, PRT.fs(fid).k_file));
+0043     <span class="keyword">if</span> ~iscell(Phi)
+0044         Phi = {Phi};
+0045     <span class="keyword">end</span>
+0046     
+0047     
+0048     <span class="comment">%first case: combine feature sets</span>
+0049     <span class="keyword">if</span> length(PRT.model(mid).input.fs)&gt;1
+0050         <span class="keyword">if</span> i == 1
+0051             ID = PRT.fs(fid).id_mat(samp_idx,:);
+0052         <span class="keyword">end</span>        
+0053         
+0054         <span class="keyword">for</span> j = 1:length(Phi)
+0055             Phi_all = [Phi_all, {Phi{j}(samp_idx,samp_idx)}]; <span class="comment">% in case one feature set comprises multiple kernels already</span>
+0056         <span class="keyword">end</span>
+0057         
+0058     <span class="keyword">else</span>
+0059         <span class="comment">%If only one feature set, load kernel to see which case</span>
+0060         
+0061         ID = PRT.fs(fid).id_mat(samp_idx,:);
+0062         <span class="keyword">if</span> length(Phi)==1
+0063             Phi_all{1} = Phi{1}(samp_idx,samp_idx);
+0064         <span class="keyword">else</span>
+0065             Phi_all=cell(1,length(Phi));
+0066             <span class="keyword">for</span> j=1:length(Phi)
+0067                 Phi_all{j}=Phi{j}(samp_idx,samp_idx);
+0068             <span class="keyword">end</span>
+0069         <span class="keyword">end</span>
+0070         
+0071     <span class="keyword">end</span>
+0072     <span class="comment">%Check that if multiple kernels, MKL was selected,</span>
+0073     <span class="comment">%otherwise kernels will be added when calling prt_machine</span>
+0074     <span class="keyword">if</span> length(Phi_all)&gt;1 &amp;&amp;<span class="keyword">...</span><span class="comment">                                                  %Multiple kernels</span>
+0075             isempty(strfind(PRT.model(mid).input.machine.function,<span class="string">'MKL'</span>)) &amp;&amp;<span class="keyword">...</span><span class="comment"> %not simpleMKL</span>
+0076             isempty(strfind(PRT.model(mid).input.machine.function,<span class="string">'wip'</span>)) &amp;&amp;<span class="keyword">...</span><span class="comment"> %not wip</span>
+0077             ~flag                                                               <span class="comment">%not independent models</span>
+0078         warning(<span class="string">'prt_getKernelModel:AddKernels'</span>,<span class="keyword">...</span>
+0079             <span class="string">'Multiple kernels but machine cannot deal with them, adding the kernels'</span>);
+0080         Phi_tmp = zeros(length(samp_idx));
+0081         <span class="keyword">for</span> j=1:length(Phi_all)
+0082             <span class="keyword">try</span>
+0083                 <span class="comment">%add kernels</span>
+0084                 tp = Phi_all{j};
+0085                 Phi_tmp=Phi_tmp + tp;
+0086             <span class="keyword">catch</span>
+0087                 error(<span class="string">'prt_cv_model:KernelsWithDifferentDimensions'</span>, <span class="keyword">...</span>
+0088                     <span class="string">'Kernels cannot be added since they have different dimensions'</span>)
+0089             <span class="keyword">end</span>
+0090         <span class="keyword">end</span>
+0091         Phi_all = {Phi_tmp};
+0092         clear Phi_tmp
+0093     <span class="keyword">end</span>
+0094 <span class="keyword">end</span>
+0095 clear Phi
+0096</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

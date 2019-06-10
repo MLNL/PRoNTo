@@ -1,5 +1,6 @@
 function weights = prt_weights_svm_bin (d,args)
-% Run function to compute weights for binary SVM
+% Function to compute weights for binary SVM.
+% 
 % FORMAT weights = prt_weights_svm_bin (d,args)
 % Inputs:
 %       d              - data structure

@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_get_design_MEEG</title>
+  <meta name="keywords" content="prt_get_design_MEEG">
+  <meta name="description" content="Function to fill the design with the events extracted from the MEEG file.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_get_design_MEEG.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_get_design_MEEG
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to fill the design with the events extracted from the MEEG file.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function desn = prt_get_design_MEEG(D) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to fill the design with the events extracted from the MEEG file.
+
+ No need to check the design for overlap. We assume that the user has defined
+ his/her epochs correctly/according to his/her needs.
+ Input: 
+           - D:   loaded SPM MEEG object
+ Output: design structure desn with fields:
+           - conds: with name, onsets (in s), durations (in s), associated
+           scans/epochs and discarded scans (trials marked as bad).
+           - stats: information about overlap between events. Here zero in
+           most cases.
+           - TR: here corresponding to the sampling rate.
+           - unit: 1 for seconds, 0 for scans. Here seconds.
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory
+ Written by J. Schrouff</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_data_modality.html" class="code" title="function varargout = prt_data_modality(varargin)">prt_data_modality</a>	PRT_DATA_MODALITY M-file for prt_data_modality.fig</li><li><a href="prt_ui_design.html" class="code" title="function varargout = prt_ui_design(varargin)">prt_ui_design</a>	PRT_UI_DESIGN M-file for prt_ui_design.fig</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function desn = prt_get_design_MEEG(D)</a>
+0002 <span class="comment">% Function to fill the design with the events extracted from the MEEG file.</span>
+0003 <span class="comment">%</span>
+0004 <span class="comment">% No need to check the design for overlap. We assume that the user has defined</span>
+0005 <span class="comment">% his/her epochs correctly/according to his/her needs.</span>
+0006 <span class="comment">% Input:</span>
+0007 <span class="comment">%           - D:   loaded SPM MEEG object</span>
+0008 <span class="comment">% Output: design structure desn with fields:</span>
+0009 <span class="comment">%           - conds: with name, onsets (in s), durations (in s), associated</span>
+0010 <span class="comment">%           scans/epochs and discarded scans (trials marked as bad).</span>
+0011 <span class="comment">%           - stats: information about overlap between events. Here zero in</span>
+0012 <span class="comment">%           most cases.</span>
+0013 <span class="comment">%           - TR: here corresponding to the sampling rate.</span>
+0014 <span class="comment">%           - unit: 1 for seconds, 0 for scans. Here seconds.</span>
+0015 <span class="comment">%__________________________________________________________________________</span>
+0016 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0017 <span class="comment">% Written by J. Schrouff</span>
+0018 
+0019 ncond = D.nconditions;
+0020 desn = struct();
+0021 conds=struct();
+0022 cname = D.condlist;
+0023 <span class="comment">% allons = [];</span>
+0024 alldisc = [];
+0025 allscans = [];
+0026 <span class="keyword">for</span> c=1:ncond
+0027     conds(c).cond_name = cname{c};
+0028     indt = indtrial(D,cname{c}); <span class="comment">% get trial index for each condition</span>
+0029     conds(c).onsets = trialonset(D,indt); <span class="comment">%get the onsets</span>
+0030     conds(c).blocks = 1:length(conds(c).onsets); <span class="comment">% compute the 'blocks' (here = epochs)</span>
+0031     conds(c).durations = repmat(D.nsamples/D.fsample,1,length(indt));
+0032     
+0033     <span class="comment">% Estimate 'good' trials and scans</span>
+0034     conds(c).scans = [indtrial(D,cname{c},<span class="string">'good'</span>)];
+0035     allscans = [allscans, conds(c).scans];
+0036     badtr = indtrial(D,cname{c},<span class="string">'bad'</span>);
+0037     conds(c).discardedscans = reshape(badtr,1,numel(badtr));
+0038     alldisc = [alldisc, conds(c).discardedscans];
+0039     conds(c).hrfdiscardedscans = [];
+0040     goodb = ismember(indt,conds(c).scans);
+0041     conds(c).blocks = conds(c).blocks(goodb);
+0042     
+0043     <span class="comment">% Initialize covariate and RT fields</span>
+0044     conds(c).rt_trial = [];
+0045     conds(c).cov_trial = [];
+0046 <span class="keyword">end</span>
+0047 stats = struct();
+0048 <span class="comment">% Compute overlap between events in seconds</span>
+0049 <span class="comment">% allons = sort(allons,'ascend');</span>
+0050 <span class="comment">% stats.overlap = allons(2:end)-(allons(1:end-1)+D.nsamples/D.fsample);</span>
+0051 <span class="comment">% stats.overlap(stats.overlap&gt;=0) = 0;</span>
+0052 <span class="comment">% stats.overlap = abs(stats.overlap);</span>
+0053 <span class="comment">% Compute overlap in epochs (assuming epochs were defined correctly)</span>
+0054 stats.overlap = diff(sort(allscans));
+0055 stats.goodscans = allscans;
+0056 stats.discscans = alldisc;
+0057 stats.meanovl = mean(stats.overlap);
+0058 stats.stdovl = std(stats.overlap);
+0059 stats.mgoodovl = mean(stats.overlap);
+0060 stats.sgoodovl = std(stats.overlap);
+0061 stats.goodovl = stats.overlap;
+0062 desn.conds = conds;
+0063 desn.stats = stats;
+0064 desn.TR = 1/D.fsample;
+0065 desn.unit = 1;</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

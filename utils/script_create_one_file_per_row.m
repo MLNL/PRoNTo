@@ -1,8 +1,9 @@
 function [path_files] = script_create_one_file_per_row(data_matrix,tosquare)
-% Creates one file per row of a data matrix. The files will be saved in a
-% subfolder, with the names 'Sample_' prepended. The second input 'tosquare'
-% reflects whether the data should be turned into a symmetric matrix or not
-% (0, default value)
+% Function to create one file per row of a data matrix.
+% The files will be saved in a subfolder, with the names 'Sample_' prepended.
+% The second input 'tosquare' reflects whether the data should be turned into
+% a symmetric matrix or not (0, default value).
+
 %--------------------------------------------------------------------------
 % Written for PRoNTo v3.0 by J. Schrouff
 

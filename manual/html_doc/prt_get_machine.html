@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_get_machine</title>
+  <meta name="keywords" content="prt_get_machine">
+  <meta name="description" content="Function to gather the machine functions and parameters, with potential">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">.</a> &gt; prt_get_machine.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_get_machine
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to gather the machine functions and parameters, with potential</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [model] = prt_get_machine(model,jobmach) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to gather the machine functions and parameters, with potential
+ hyper-parameter optimization
+ inputs:
+ -model being constructed
+ -machine as in job
+--------------------------------------------------------------------------
+ Written by J. Schrouff</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_get_cv_type.html" class="code" title="function cv = prt_get_cv_type(cv_struct)">prt_get_cv_type</a>	Function to assemble a structure for performing cross-validation.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [model] = prt_get_machine(model,jobmach)</a>
+0002 <span class="comment">% Function to gather the machine functions and parameters, with potential</span>
+0003 <span class="comment">% hyper-parameter optimization</span>
+0004 <span class="comment">% inputs:</span>
+0005 <span class="comment">% -model being constructed</span>
+0006 <span class="comment">% -machine as in job</span>
+0007 <span class="comment">%--------------------------------------------------------------------------</span>
+0008 <span class="comment">% Written by J. Schrouff</span>
+0009 
+0010 
+0011 <span class="comment">%Gather machine function</span>
+0012 <span class="comment">% -------------------------------------------------------------------------</span>
+0013 opt = [];
+0014 
+0015 <span class="comment">% Kernel machines for classification</span>
+0016 <span class="comment">% -------------------------------------------------------------------------</span>
+0017 
+0018 <span class="comment">%SVM</span>
+0019 <span class="keyword">if</span> isfield(jobmach,<span class="string">'svm'</span>)
+0020     model.machine.function = <span class="string">'prt_machine_svm_bin'</span>;
+0021     model.machine.s_args     = jobmach.svm.svm_sargs;
+0022     opt = jobmach.svm.svm_opt;
+0023   
+0024 <span class="comment">% Gaussian Processes</span>
+0025 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'gpc'</span>)
+0026     model.machine.function=<span class="string">'prt_machine_gpml'</span>;
+0027     model.machine.s_args     = jobmach.gpc.gpc_sargs;
+0028     
+0029 <span class="comment">% Multiclass Gaussian Processes</span>
+0030 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'gpclap'</span>)
+0031     model.machine.function=<span class="string">'prt_machine_gpclap'</span>;
+0032     model.machine.s_args     = jobmach.gpclap.gpclap_sargs;
+0033     
+0034 <span class="comment">% Simple-MKL</span>
+0035 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'sMKL_cla'</span>)
+0036     model.machine.function=<span class="string">'prt_machine_sMKL_cla'</span>;
+0037     model.machine.s_args=<span class="string">''</span>;
+0038     opt = jobmach.sMKL_cla.svm_opt;
+0039     
+0040 <span class="comment">% L2 Logistic Regression</span>
+0041 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'libl2KLR'</span>)
+0042     model.machine.function=<span class="string">'prt_machine_liblinearsvm'</span>;
+0043     model.machine.s_args     = jobmach.libl2KLR.libl2KLR_sargs;
+0044     opt = jobmach.libl2KLR.svm_opt;
+0045     
+0046 <span class="comment">% Non-kernel machines for classfication</span>
+0047 <span class="comment">%--------------------------------------------------------------------------</span>
+0048     
+0049 <span class="comment">% L1-SVM from Liblinear</span>
+0050 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'libl1svm'</span>)
+0051     model.machine.function = <span class="string">'prt_machine_liblinearsvm'</span>;
+0052     model.machine.s_args     = jobmach.libl1svm.libl1svm_sargs;
+0053     opt = jobmach.libl1svm.svm_opt;
+0054     
+0055 <span class="comment">% L2-SVM from Liblinear</span>
+0056 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'libl2svm'</span>)
+0057     model.machine.function = <span class="string">'prt_machine_liblinearsvm'</span>;
+0058     model.machine.s_args     = jobmach.libl2svm.libl2svm_sargs;
+0059     opt = jobmach.libl2svm.svm_opt;
+0060     
+0061 <span class="comment">% Multi-class SVM from Liblinear</span>
+0062 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'libmulticlsvm'</span>)
+0063     model.machine.function = <span class="string">'prt_machine_liblinearsvm'</span>;
+0064     model.machine.s_args     = jobmach.libmulticlsvm.libmulticlsvm_sargs;
+0065     opt = jobmach.libmulticlsvm.svm_opt;
+0066 
+0067 <span class="comment">% L2-Logistic Regression from Liblinear</span>
+0068 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'libl2LR'</span>)
+0069     model.machine.function = <span class="string">'prt_machine_liblinearsvm'</span>;
+0070     model.machine.s_args     = jobmach.libl2LR.libl2LR_sargs;
+0071     opt = jobmach.libl2LR.svm_opt;
+0072 
+0073 <span class="comment">% L1-Logistic Regression from Liblinear</span>
+0074 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'libl1LR'</span>)
+0075     model.machine.function = <span class="string">'prt_machine_liblinearsvm'</span>;
+0076     model.machine.s_args     = jobmach.libl1LR.libl1LR_sargs;
+0077     opt = jobmach.libl1LR.svm_opt;
+0078     
+0079 <span class="comment">% Regression machines - dual</span>
+0080 <span class="comment">% -------------------------------------------------------------------------</span>
+0081 <span class="comment">% Kernel Ridge Regression</span>
+0082 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'krr'</span>)
+0083     model.machine.function = <span class="string">'prt_machine_krr'</span>;
+0084     model.machine.s_args     = <span class="string">''</span>;
+0085     opt = jobmach.krr.svm_opt;
+0086     
+0087 <span class="comment">% Relevance Vector Regression</span>
+0088 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'rvr'</span>)
+0089     model.machine.function=<span class="string">'prt_machine_rvr'</span>;
+0090     model.machine.s_args     = <span class="string">''</span>;
+0091     <span class="comment">% K.T. Edit 03/2019</span>
+0092     model.machine.args     = [];
+0093     
+0094 <span class="comment">% Gaussian Processes regression</span>
+0095 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'gpr'</span>)
+0096     model.machine.function=<span class="string">'prt_machine_gpr'</span>;
+0097     model.machine.s_args     = jobmach.gpr.gpr_sargs;
+0098     
+0099 <span class="comment">% Simple MKL regression</span>
+0100 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'sMKL_reg'</span>)
+0101     model.machine.function=<span class="string">'prt_machine_sMKL_reg'</span>;
+0102     model.machine.s_args     = <span class="string">''</span>;
+0103     opt = jobmach.sMKL_reg.svm_opt;
+0104 
+0105 <span class="comment">% epsilon-SVR</span>
+0106 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'libeSVR'</span>)
+0107     model.machine.function = <span class="string">'prt_machine_svm_bin'</span>;
+0108     model.machine.s_args = jobmach.libeSVR.libeSVR_sargs;
+0109     opt = jobmach.libeSVR.svm_opt;
+0110     
+0111 <span class="comment">% Non-kernel machines for regression</span>
+0112 <span class="comment">% -------------------------------------------------------------------------</span>
+0113 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'libl2SVR'</span>)
+0114     model.machine.function = <span class="string">'prt_machine_liblinearsvm'</span>;
+0115     model.machine.s_args = jobmach.libl2SVR.libl2SVR_sargs;
+0116     opt = jobmach.libl2SVR.svm_opt;
+0117     
+0118 <span class="comment">% Other machines</span>
+0119 <span class="comment">% -------------------------------------------------------------------------</span>
+0120 
+0121 <span class="comment">% Random Forest (currently not in use)</span>
+0122 <span class="keyword">elseif</span> isfield(jobmach,<span class="string">'rt'</span>)
+0123     model.machine.function=<span class="string">'prt_machine_RT_bin'</span>;
+0124     opt = jobmach.rt.rt_opt;
+0125     
+0126 <span class="comment">% Custom machine</span>
+0127 <span class="keyword">else</span>
+0128     [pat, nam] = fileparts(char(jobmach.custom_machine.machine_func));
+0129     model.machine.function = nam;
+0130     <span class="keyword">if</span> isfield(jobmach.custom_machine,<span class="string">'machine_sargs'</span>)
+0131         model.machine.s_args     = jobmach.custom_machine.machine_sargs;
+0132     <span class="keyword">else</span>
+0133         model.machine.s_args  = <span class="string">''</span>;
+0134     <span class="keyword">end</span>
+0135     
+0136     <span class="keyword">if</span> isfield(jobmach.custom_machine.machine_opt, <span class="string">'machine_no_opt'</span>)
+0137         model.machine.args  = jobmach.custom_machine.machine_opt.machine_no_opt;
+0138     <span class="keyword">else</span>
+0139     opt = jobmach.custom_machine.machine_opt;
+0140     <span class="keyword">end</span>
+0141 <span class="keyword">end</span>
+0142 
+0143 <span class="comment">% Get optimization and parameters</span>
+0144 <span class="comment">% -------------------------------------------------------------------------</span>
+0145 cv_tmp = [];
+0146 <span class="keyword">if</span> ~isempty(opt)
+0147     <span class="keyword">if</span> isfield(opt,<span class="string">'svm_opt_C'</span>) <span class="comment">% Most machines use the same Log parameter</span>
+0148         model.cv.nested = 1;
+0149         model.cv.nested_param = opt.svm_opt_C.svm_args;
+0150         cv_tmp = <a href="prt_get_cv_type.html" class="code" title="function cv = prt_get_cv_type(cv_struct)">prt_get_cv_type</a>(opt.svm_opt_C.cv_type_nested);
+0151         model.machine.args = [];        
+0152     <span class="keyword">elseif</span> isfield(opt,<span class="string">'svm_no_opt'</span>)
+0153         model.cv.nested = 0;
+0154         model.machine.args = opt.svm_no_opt;
+0155         model.cv.nested_param = [];
+0156     <span class="keyword">elseif</span> isfield(opt,<span class="string">'rt_opt_T'</span>) <span class="comment">% Random Forest optimizes trees</span>
+0157         model.cv.nested = 1;
+0158         model.cv.nested_param = opt.rt_opt_T.rt_args;
+0159         cv_tmp = <a href="prt_get_cv_type.html" class="code" title="function cv = prt_get_cv_type(cv_struct)">prt_get_cv_type</a>(opt.rt_opt_T.cv_type_nested);
+0160         model.machine.args = [];        
+0161     <span class="keyword">elseif</span> isfield(opt,<span class="string">'rt_no_opt'</span>)
+0162         model.cv.nested = 0;
+0163         model.machine.args = opt.rt_no_opt;
+0164         model.cv.nested_param = [];
+0165     <span class="keyword">elseif</span> isfield(opt,<span class="string">'machine_opt_p'</span>) <span class="comment">% custom machine</span>
+0166         model.cv.nested = 1;
+0167         model.cv.nested_param = opt.machine_opt_p.machine_args;
+0168         cv_tmp = <a href="prt_get_cv_type.html" class="code" title="function cv = prt_get_cv_type(cv_struct)">prt_get_cv_type</a>(opt.machine_opt_p.cv_type_nested);
+0169         model.machine.args = [];        
+0170     <span class="keyword">elseif</span> isfield(opt,<span class="string">'rt_no_opt'</span>)
+0171         model.cv.nested = 0;
+0172         model.machine.args = opt.machine_no_opt;
+0173         model.cv.nested_param = [];
+0174     <span class="keyword">end</span>
+0175 <span class="keyword">else</span>
+0176     model.cv.nested = 0;
+0177     model.cv.nested_param = [];
+0178 <span class="keyword">end</span>
+0179 
+0180 <span class="keyword">if</span> ~isempty(cv_tmp)
+0181     model.cv.type_nested = cv_tmp.type;
+0182     model.cv.k_nested = cv_tmp.k;
+0183 <span class="keyword">else</span>
+0184     model.cv.type_nested = <span class="string">''</span>;
+0185     model.cv.k_nested = 0;
+0186 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

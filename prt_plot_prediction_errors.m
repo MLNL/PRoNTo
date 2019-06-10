@@ -1,7 +1,7 @@
 function prt_plot_prediction_errors(PRT, model, fold, marker_size, axes_handle)
-% FORMAT prt_plot_prediction_errors(PRT, model, fold, marker_size, axes_handle)
+% Function to plot the prediction error plot that appears on prt_ui_results.
 %
-% This function plots the prediction error plot that appears on prt_ui_results
+% FORMAT prt_plot_prediction_errors(PRT, model, fold, marker_size, axes_handle)
 % Inputs:
 %       PRT             - data/design/model structure (it needs to contain
 %                         at least one estimated model).

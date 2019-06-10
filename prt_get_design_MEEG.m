@@ -1,7 +1,8 @@
 function desn = prt_get_design_MEEG(D)
-% Fill the design with the events extracted from the MEEG file. No need to
-% check the design for overlap. We assume that the user has defined his/her
-% epochs correctly/according to his/her needs.
+% Function to fill the design with the events extracted from the MEEG file.
+%
+% No need to check the design for overlap. We assume that the user has defined
+% his/her epochs correctly/according to his/her needs.
 % Input: 
 %           - D:   loaded SPM MEEG object
 % Output: design structure desn with fields:

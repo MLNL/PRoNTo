@@ -1,5 +1,5 @@
 function out = prt_regconf(PRT, in,trainonly,d)
-% function to remove confounds from raw data (variable 'in')
+% Function to remove confounds from raw data (variable 'in').
 % trainonly is a flag set to 1 if removing using training data only
 % otherwise do it using all data (only when test set is not present)
 % Based on formulations in "Predictive modelling using neuroimaging data in

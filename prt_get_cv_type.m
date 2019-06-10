@@ -1,5 +1,5 @@
 function cv = prt_get_cv_type(cv_struct)
-% assemble structure for performing cross-validation
+% Function to assemble a structure for performing cross-validation.
 
 if isfield(cv_struct,'cv_loso')
     cv = struct('type','loso','k',0);

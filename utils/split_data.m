@@ -1,5 +1,5 @@
 function [Phi_tr, Phi_te,Phi_tt] = split_data(Phi_all, tr_idx, te_idx, usebf)
-% function to split the data matrix into training and test
+% Function to split the data matrix into training and test.
 %
 % Inputs:
 % -------

@@ -1,8 +1,9 @@
 function output = prt_machine_KernelMTL(d,args)
-% Run Multi-Task Learning - wrapper for Kernel MTL using code from
-%Ciliberto, Carlo, Tomaso Poggio, and Lorenzo Rosasco. "Convex Learning of
-%Multiple Tasks and their Structure". International Conference on Machine 
-%Learning (ICML), 2015. Code at https://github.com/cciliber/matMTL
+% Function to run the Multi-Task Learning machine.  
+% Wrapper for Kernel MTL using code from
+% Ciliberto, Carlo, Tomaso Poggio, and Lorenzo Rosasco. "Convex Learning of
+% Multiple Tasks and their Structure". International Conference on Machine 
+% Learning (ICML), 2015. Code at https://github.com/cciliber/matMTL
 % FORMAT output = prt_machine_KernelMTL(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

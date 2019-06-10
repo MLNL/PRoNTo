@@ -1,5 +1,6 @@
 function weights = prt_weights_sMKL_reg(d,args)
-% Run function to compute weights for binary MKL
+% Function to compute weights for binary MKL.
+%
 % FORMAT weights = prt_weights_sMKL (d,args)
 % Inputs:
 %       d               - data structure

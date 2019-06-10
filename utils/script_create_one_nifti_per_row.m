@@ -1,7 +1,7 @@
 function [path_files] = script_create_one_nifti_per_row(data_matrix,mask)
-% Creates one nifti per row of a data matrix. The files will be saved in a
-% subfolder, with the names 'Subject_S' prepended. The second input 'mask'
-% specifies the nifti mask to use.
+% Function to creates one nifti per row of a data matrix.
+% The files will be saved in a subfolder, with the names 'Subject_S'
+% prepended. The second input 'mask' specifies the nifti mask to use.
 
 if nargin<1 || isempty(data_matrix)
     beep

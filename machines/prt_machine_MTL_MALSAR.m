@@ -1,5 +1,6 @@
 function output = prt_machine_MTL_MALSAR(d,args)
-% Run Multi-Task Learning - wrapper for MALSAR toolbox
+% Function to run Multi-Task Learning. Wrapper for the MALSAR toolbox.
+% 
 % FORMAT output = prt_machine_MTL_MALSAR(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

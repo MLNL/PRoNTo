@@ -1,5 +1,5 @@
 function [varargout] = prt_rvr(varargin)
-% Optimisation for Relevance Vector Regression
+% Function to optimize the Relevance Vector Regression machine.
 %
 % [w,alpha,beta,ll] = prt_rvr(Phi,t)
 % Phi   - MxM matrix derived from kernel function of vector pairs
