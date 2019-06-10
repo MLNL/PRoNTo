@@ -520,12 +520,16 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
    end
    dat(:,1) = label;
    weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
-   dat(:,2) = num2cell(weights);   
+   if length(dat(:,1))==length(weights)
+       dat(:,2) = num2cell(weights); 
+   end
+       
    
    % Fill the table with ROI size if ROIs
    if isfield(handles.PRT.model(mi(m)).output.fold(1),'beta') && ...
        ~isempty(handles.PRT.model(mi(m)).output.fold(1).beta) && ...
-           handles.PRT.fs(fid).multkernelROI  %Multiple kernel learning on ROIs
+           handles.PRT.fs(fid).multkernelROI  && ...%Multiple kernel learning on ROIs
+           length(dat(:,1))==length(weights) % Labels of ROIs of MEEG are not available
        if isfield(handles.PRT.fs(fid).modality,'idfeat_img')&& ... % Get the indexes of each ROI in the image
                ~isempty(handles.PRT.fs(fid).modality(mids).idfeat_img)
            lc = [lc,{'Size (feat.)'}];
