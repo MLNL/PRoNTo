@@ -309,7 +309,7 @@ for c = 1:nc
                     else
                         try 
                             tars = {PRT.group(gid).subject(sid).modality(mid).rt_subj(:).name}; %Gather target names
-                            if isfield(in.class(c).group(g).subj(s).modality(m), 'all_scans')
+                            if isfield(in.class(c).group(g).subj(s).modality(m), 'all_scans') %Jane suggested all_cond as a fix but everything was crashing, check it.
                                 if length(tars)>1
                                     error('prt_model:MoreThanOneTarget',...
                                         'More than one regression target was selected')
