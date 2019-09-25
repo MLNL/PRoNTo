@@ -135,7 +135,7 @@ switch mfunc
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
     otherwise
-        m.function  = 'prt_weights_bin_linkernel';
+        m.function  = 'prt_weights_linkernel';
 end
 
 
