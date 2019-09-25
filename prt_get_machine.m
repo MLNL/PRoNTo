@@ -83,6 +83,12 @@ elseif isfield(jobmach,'krr')
     model.machine.function = 'prt_machine_krr';
     model.machine.s_args     = '';
     opt = jobmach.krr.svm_opt;
+  
+% % New Machine  
+% elseif isfield(jobmach,'new_machine')
+%     model.machine.function = 'prt_new_machine';
+%     model.machine.s_args     = '';
+%     opt = jobmach.krr.svm_opt;
     
 % Relevance Vector Regression
 elseif isfield(jobmach,'rvr')

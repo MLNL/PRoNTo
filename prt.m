@@ -105,6 +105,7 @@ switch lower(Action)
         % Init flag true
         PRT_INIT = true;
         
+        pronto_check_update
         %==================================================================
     case 'asciiwelcome'                       %-ASCII PRoNTo banner welcome
         %==================================================================

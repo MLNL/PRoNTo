@@ -1,5 +1,5 @@
 function prt_defaults
-% Function to set the defaults which are used by PRoNTo.
+% Function to set the defaults used by PRoNTo.
 %
 % FORMAT prt_defaults
 %_______________________________________________________________________

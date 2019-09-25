@@ -1,5 +1,6 @@
 function output = prt_machine_gpml(d,args)
 % Function to run Gaussian process model - wrapper for gpml toolbox.
+
 % FORMAT output = prt_machine_gpml(d,args)
 % Inputs:
 %   d         - structure with data information, with mandatory fields:

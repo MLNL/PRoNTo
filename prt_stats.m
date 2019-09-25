@@ -76,7 +76,7 @@ k = max(unique(k));        % number of classes
 stats.con_mat = zeros(k,k);
 for i = 1:length(tte)
     true_lb = tte(i);
-    pred_lb = model.predictions(i);
+    pred_lb = model.predictions(i); %prediction_train
     if ~any(pred_lb==0)
         stats.con_mat(pred_lb,true_lb) = stats.con_mat(pred_lb,true_lb) + 1;
     end
