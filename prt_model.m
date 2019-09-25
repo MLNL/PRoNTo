@@ -309,7 +309,7 @@ for c = 1:nc
                     else
                         try 
                             tars = {PRT.group(gid).subject(sid).modality(mid).rt_subj(:).name}; %Gather target names
-                            if isfield(in.class(c).group(g).subj(s).modality(m), 'all_scans') %Jane suggested all_cond as a fix but everything was crashing, check it.
+                            if isfield(in.class(c).group(g).subj(s).modality(m), 'all_cond') %Jane suggested all_scans as a fix but everything was crashing, check it.
                                 if length(tars)>1
                                     error('prt_model:MoreThanOneTarget',...
                                         'More than one regression target was selected')
@@ -335,7 +335,7 @@ end
 
 if nargin>=4 && subsample
     % K.T. Edit 03/2019
-    rng(3, 'twister');
+    rng(33, 'twister');
     nc_count = hist(t_all(t_all~=0),unique(t_all(t_all~=0))); % count how many trials per class
     ntk = min(nc_count);
     for i = 1:nc
