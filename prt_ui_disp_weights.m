@@ -586,7 +586,8 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
            id = 1:size(w_all,2);
            idtr = setdiff(id,id0);
            if isempty(idtr)   % if a modality has always 0 weights
-               erwn=NaN*ones(length(num_roi),1);
+%                erwn=NaN*ones(length(num_roi),1);
+                 erwn(:,fold)=NaN*ones(length(num_roi),1);
            else
                w_all = w_all(:,idtr);
                %deal with NaNs

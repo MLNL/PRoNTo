@@ -165,7 +165,7 @@ if ~isempty(opt)
     elseif isfield(opt,'machine_opt_p') % custom machine
         model.cv.nested = 1;
         model.cv.nested_param = opt.machine_opt_p.machine_args;
-        cv_tmp = prt_get_cv_type(opt.machine_opt_p.cv_type_nested);
+        cv_tmp = prt_get_cv_type(opt.machine_opt_p.machine_cv_type_nested);
         model.machine.args = [];        
     elseif isfield(opt,'rt_no_opt')
         model.cv.nested = 0;
