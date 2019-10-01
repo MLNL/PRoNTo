@@ -214,6 +214,14 @@ if isfield(m,'s_args') && ~isempty(m.s_args)
     end
 else
     % Otherwise use as is
+    % DIRTY FIX - K.T. 2019
+    % Proper future fix should include:
+    % 1) Confirming that adding the "args" field when harvesting the batch
+    % defaults doesn't disrupt any other script.
+    % 2) Adding the "args" field when harvesting the batch defaults.
+%     if strcmp(m.function,'prt_machine_rvr') && ~isfield(m, 'args')
+%         m.args = [];
+%     end
     args = m.args;
 end
 

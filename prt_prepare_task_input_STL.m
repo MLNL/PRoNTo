@@ -32,6 +32,11 @@ te_idx = in.CV == 2;
 [Phi_tr, Phi_te, Phi_tt] = ...
     split_data(in.Phi_all, tr_idx, te_idx, PRT.model(in.mid).input.use_kernel);
 
+	% A FIX I THOUGHT WAS CORRECT FOR THE CVperm PROBLEM, BUT IN FACT IT WAS STUPID/WRONG
+% if isfield(in,'f') % check to prt_permutation script
+%     tr_idx = in.CVperm == 1;
+%     te_idx = in.CVperm == 2;
+% end
 cvdata.tr_targets = in.t(tr_idx,:);
 cvdata.te_targets = in.t(te_idx,:);
 cvdata.tr_id      = in.ID(tr_idx,:);

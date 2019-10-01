@@ -67,11 +67,13 @@ for p=1:nperm
     % Change the targets in the model input to the permuted targets
     for i=1:length(models)
         perms = PRT.model(models(i)).output.permutation(p).perm_mat;
+        crossV = PRT.model(models(i)).input.cv_mat;
         if p==1
             tokeep{i} = PRT.model(models(i)).input.targets;
         end
         tars = tokeep{i};
         PRT.model(models(i)).input.targets = tars(perms);
+        PRT.model(models(i)).input.cv_mat = crossV(perms,:);
     end
     
     % Run MTL on permuted targets from all tasks
@@ -141,6 +143,12 @@ for p=1:nperm
                 end
             end
     end
+    
+    % Save Permutation Parameters (excluding w due to big size) in a temp for Re-Use
+     temp(1,p).fold = PRT.model(mid).output.fold;
+     temp(1,p).fold = rmfield(temp(1,p).fold,'w');
+     temp(1,p).perm_stats = perm_stats;
+     
 end
 fprintf('\n') % new line
 
@@ -199,8 +207,9 @@ end
 % Restore model output
 PRT.model(mid).output = trueperf;
 
-%update PRT
+% Update PRT
 PRT.model(mid).output.stats.permutation = permutation;
+PRT.model(mid).output.permutation = temp;
 
 % Save PRT containing permutation output
 % -------------------------------------------------------------------------

@@ -1,7 +1,7 @@
-function weights = prt_weights_bin_linkernel (d,args)
+function weights = prt_weights_linkernel (d,args)
 % Function to compute weights for linear kernel binary classifiers.
 % 
-% FORMAT weights = prt_weights_bin_linkernel (d,args)
+% FORMAT weights = prt_weights_linkernel (d,args)
 % Inputs:
 %       d              - data structure
 %           .datamat   - data matrix [Nfeatures x Nexamples]
@@ -13,7 +13,7 @@ function weights = prt_weights_bin_linkernel (d,args)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J.Mourao-Miranda and M.J.Rosa
-% $Id: prt_weights_bin_linkernel.m 192 2011-10-24 10:57:19Z mjrosa $
+% $Id: prt_weights_linkernel.m 192 2011-10-24 10:57:19Z mjrosa $
 
 SANITYCHECK = true; % turn off for speed
 

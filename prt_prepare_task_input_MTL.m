@@ -36,6 +36,15 @@ for t = 1:ntasks
     [Phi_tr(t), Phi_te(t), Phi_tt(t)] = ...
         split_data(in.Phi_all(t), tr_idx, te_idx, PRT.model(in.mid).input.use_kernel);
     
+    
+	% A FIX I THOUGHT WAS CORRECT FOR THE CVperm PROBLEM, BUT IN FACT IT WAS STUPID/WRONG
+%     if isfield(in,'f')
+%         tr_idx = in.CVperm{t} == 1;
+%         te_idx = in.CVperm{t} == 2;
+%     end
+    
+    
+    
     % configure operation parameters (e.g. needed to compute a GLM)
     opsdata.tr_targets = in.t{t}(tr_idx,:);
     opsdata.te_targets = in.t{t}(te_idx,:);
