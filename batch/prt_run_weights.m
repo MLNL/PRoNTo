@@ -44,7 +44,7 @@ end
 % -------------------------------------------------------------------------
 % Weights per ROI
 % -------------------------------------------------------------------------
-if isfield(job, 'build_wpr')
+if isfield(job, 'build_wpr') && ~isfield(job.build_wpr, 'no_atl')
     if isfield(job.build_wpr,'atl_name') && ...
             ~isempty(job.build_wpr.atl_name) && ...
             ~isempty(job.build_wpr.atl_name{1})
