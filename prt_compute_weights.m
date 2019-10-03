@@ -221,7 +221,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                             if strcmpi(ext,'.mat')
                                 V = load(img_name{1});
                                 if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
-                                    beep('Summarization of weights not available for MEEG')
+                                    beep; fprintf('Summarization of weights not available for MEEG');
                                     MEEGfound = 1;
                                     in.atl_name{ifs} = [];
                                 end
@@ -264,7 +264,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                             if strcmpi(ext,'.mat')
                                 V = load(img_name{1});
                                 if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
-                                    beep('Summarization of weights not available for MEEG')
+                                    beep; fprintf('Summarization of weights not available for MEEG');
                                     MEEGfound = 1;
                                     in.atl_name{ifs} = [];
                                 end
@@ -377,7 +377,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                         if strcmpi(ext,'.mat')
                             V = load(img_name{1});
                             if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
-                                beep('Summarization of weights not available for MEEG')
+                                beep; fprintf('Summarization of weights not available for MEEG');
                                 MEEGfound = 1;
                                 in.atl_name{ifs} = [];
                             end
@@ -419,7 +419,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                         if strcmpi(ext,'.mat')
                             V = load(img_name{1});
                             if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
-                                beep('Summarization of weights not available for MEEG')
+                                beep; fprintf('Summarization of weights not available for MEEG');
                                 MEEGfound = 1;
                                 in.atl_name{ifs} = [];
                             end
