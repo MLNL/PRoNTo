@@ -349,6 +349,13 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                 for i=1:length(name_fin)
                     [du,name_fin{i},ext{i}] = spm_fileparts(img_name{i});
                 end
+                
+                % K.T. Edit Oct-19
+                % Further time needed to make sure it's working properly
+                if ~strcmpi(ext{i},'.mat')
+                    MEEGfound = 0;
+                end
+                
                 if exist('flag2','var') && flag2 % Build image of weights per region
                     disp('Building image of weights per region')
 
@@ -401,6 +408,13 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                 for i=1:length(name_fin)
                     [du,name_fin{i},ext{i}] = spm_fileparts(img_name{i});
                 end
+                
+                % K.T. Edit Oct-19
+                % Further time needed to make sure it's working properly
+                if ~strcmpi(ext{i},'.mat')
+                    MEEGfound = 0;
+                end
+                
                 if exist('flag2','var') && flag2 % Build image of weights per region
                     if mult_kern_ROI && ...
                             isfield(PRT.model(model_idx).output.fold(1),'beta') && ...
