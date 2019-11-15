@@ -478,7 +478,7 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-atl_name=spm_select(inf,'*','Select atlas to build weights per region',[],pwd);
+atl_name=spm_select(inf,'any','Select atlas to build weights per region',[],pwd);
 if ~isempty(handles.atl_name) && size(atl_name,1) == handles.nfs % One atlas per feature set
     for i = 1:size(atl_name,1)
         handles.atl_name{i} = deblank(atl_name(i,:));
