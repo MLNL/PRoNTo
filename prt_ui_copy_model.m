@@ -1342,7 +1342,7 @@ if strcmpi(tcv,'lobo')
     if kcv ==0
         listcv = {'Leave One Block Out'};
     else
-        listcv = {'k-folds CV on Block'};
+        listcv = {'k-folds CV on Blocks Out'};
     end
 elseif strcmpi(tcv,'loro')
     if kcv ==0
@@ -1352,27 +1352,27 @@ elseif strcmpi(tcv,'loro')
     end
 elseif strcmpi(tcv,'loso')
     if kcv ==0
-        listcv = {'Leave One Block Out'};
+        listcv = {'Leave One Subject Out'};
     else
-        listcv = {'k-folds CV on Block'};
+        listcv = {'k-folds CV on Subjects Out'};
     end
 elseif strcmpi(tcv,'losgo')
     if kcv ==0
-        listcv = {'Leave One Block Out'};
+        listcv = {'Leave One Subject per Group Out'};
     else
-        listcv = {'k-folds CV on Block'};
+        listcv = {'k-folds CV on Subjects per Group Out'};
     end
 elseif strcmpi(tcv,'custom')
     if kcv ==0
-        listcv = {'Leave One Block Out'};
+        listcv = {'Custom CV'};
     else
-        listcv = {'k-folds CV on Block'};
+        listcv = {'Custom CV'};
     end
 elseif strcmpi(tcv,'locbo')
     if kcv ==0
         listcv = {'Leave One Block per Class Out'};
     else
-        listcv = {'k-folds CV on Block per Class'};
+        listcv = {'k-folds CV on Blocks per Class Out'};
     end
 else
     listcv = {'custom'};
