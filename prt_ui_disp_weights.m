@@ -28,7 +28,7 @@ function varargout = prt_ui_disp_weights(varargin)
 
 % Edit the above text to modify the response to help prt_ui_disp_weights
 
-% Last Modified by GUIDE v2.5 13-Mar-2019 13:35:32
+% Last Modified by GUIDE v2.5 14-Nov-2019 13:18:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -278,6 +278,7 @@ set(handles.weightbutton,'Enable','off')
 set(handles.weightbutton,'Visible','off')
 uistack(handles.uipanelnifti,'bottom')
 uistack(handles.uipanelmat,'bottom')
+uistack(handles.uipanelmat_topoplots,'bottom')
 % Choose default command line output for prt_ui_disp_weights
 handles.output = hObject;
 
@@ -724,7 +725,7 @@ if isfield(handles,'sort_roi') &&... % chosen model has ROI weight values
     set(handles.ROItable,'visible','on');
     
     %Bar graph to show decrease in ROI weights
-    prt_plot_Kernel_Contribution_bar(handles.axes1,weights(idwroi));
+    handles.weights_bar = prt_plot_Kernel_Contribution_bar(handles.axes1,weights(idwroi));
    
 else
     reset(handles.axes1);
@@ -734,6 +735,7 @@ else
     set(handles.saveweight,'Visible','off')
     set(handles.modtable,'Visible','off')
     set(handles.modtable,'Enable','off')
+    set(handles.weights_bar,'Visible','off')
 end
 
 if ~isempty(datmod) % Chosen model has modality weight values
@@ -744,7 +746,7 @@ if ~isempty(datmod) % Chosen model has modality weight values
     set(handles.modtable,'ColumnName',{'Modality','Weight (%)','Exp. Ranking'});
     if handles.flagmodMKL %only MKL across modalities, not across regions on top
         %Bar graph to show modality weights
-        prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod,ffi));
+        handles.weights_bar = prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod,ffi));
 %         handles = guidata(hObject);
     end
     
@@ -781,6 +783,7 @@ if exist([handles.wmap],'file')
         set(handles.uipanelnifti,'Visible','on')
         uistack(handles.uipanelnifti,'top') %Switch to nifti panel
         set(handles.uipanelmat,'Visible','off')
+        set(handles.uipanelmat_topoplots,'Visible','off')
         if isempty(eventdata) || ~strcmpi(eventdata.EventName,'CellSelection')
             handles.selectedcell = [];
         end
@@ -791,6 +794,8 @@ if exist([handles.wmap],'file')
     else %.mat extension, but can be either MEEG or .mat
         set(handles.uipanelmat,'Visible','on')
         uistack(handles.uipanelmat,'top') %Switch to nifti panel
+        set(handles.uipanelmat_topoplots,'Visible','off')
+%         uistack(handles.uipanelmat_topoplots,'top') %Switch to nifti panel
         set(handles.uipanelnifti,'Visible','off')
         if isempty(eventdata) || ~strcmpi(eventdata.EventName,'CellSelection')
             handles.selectedcell = [];
@@ -842,7 +847,7 @@ if isfield(handles,'sort_roi') &&... % chosen model has ROI values
    set(handles.butt_load_labels,'visible','on');
    
    %Bar graph to show decrease in ROI weights
-    prt_plot_Kernel_Contribution_bar(handles.axes1,weights(idwroi));   
+    handles.weights_bar = prt_plot_Kernel_Contribution_bar(handles.axes1,weights(idwroi));   
 end   
 if ~isempty(handles.datmod)
     datmod = handles.datmod;
@@ -858,7 +863,7 @@ if ~isempty(handles.datmod)
     if ~isfield(handles,'sort_roi') ||... % chosen model has no ROI values
          isempty(handles.sort_roi) 
         %Bar graph to show modality weights
-         prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod,ffi));
+         handles.weights_bar = prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod,ffi));
     end
 end
 
@@ -1249,6 +1254,7 @@ spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
 if ~isempty(xyz_above)
     spm_orthviews('AddBlobs', h, XYZ, Z, M);
+%     spm_orthviews_pronto('AddBlobs', h, XYZ, Z, M);
     spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
     colgrey = colormap(gray(64));
     coldiv = cbrewer('div','RdBu',64);
@@ -1467,6 +1473,7 @@ set(handles.butt_load_labels,'visible','off');
 set(handles.saveweight,'visible','off');
 set(handles.modtable,'Visible','off')
 set(handles.modtable,'Enable','off')
+set(handles.weights_bar,'Visible','off')
 set(handles.loadweight,'String','Load weights map')
 set(handles.loadanatomical,'String','Load anatomical img')
 handles.noloadw = 0;
@@ -1642,9 +1649,16 @@ if numel(dim_mat)~=2 % Cannot plot more than 2D
     disp('Use external viewers instead')
     return
 elseif any(dim_mat == 1) % Vector, plotting as bar graph
+%     set(handles.uipanelmat_topoplots,'Visible','off')
     h = prt_plot_1D_weights(handles.uipanelmat,wmap,matroi);
 else                    % Matrix, plotting with imshow
-    h = prt_plot_2D_weights(handles.uipanelmat,wmap.*matroi);
+    h = prt_plot_2D_weights(handles.uipanelmat,wmap.*matroi, weights);
+%     axmat = weights.ftraw;
+    set(handles.uipanelmat_topoplots,'Visible','on')
+    uistack(handles.uipanelmat_topoplots,'top')
+    handles.time_range_from_ms.String = '';
+    handles.time_range_to_ms.String = '';
+    handles.time_window_ms.String = '';  
 end
 
 % Update handles structure
@@ -1934,3 +1948,88 @@ handles.fid = ifs;
 handles.nmods = nim;
 handles.mids = imod;
 guidata(hObject, handles);
+
+
+% --- Executes on button press in pushbutton_create_topoplots.
+function pushbutton_create_topoplots_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_create_topoplots (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+prt_create_topoplots(handles.wmap, handles.topoplots.time_from, handles.topoplots.time_to, handles.topoplots.time_window)
+
+
+
+function time_range_from_ms_Callback(hObject, eventdata, handles)
+% hObject    handle to time_range_from_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of time_range_from_ms as text
+%        str2double(get(hObject,'String')) returns contents of time_range_from_ms as a double
+val = str2double(get(handles.time_range_from_ms,'String'));
+handles.topoplots.time_from = val;
+guidata(hObject,handles)
+
+
+
+% --- Executes during object creation, after setting all properties.
+function time_range_from_ms_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to time_range_from_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function time_range_to_ms_Callback(hObject, eventdata, handles)
+% hObject    handle to time_range_to_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of time_range_to_ms as text
+%        str2double(get(hObject,'String')) returns contents of time_range_to_ms as a double
+val = str2double(get(handles.time_range_to_ms,'String'));
+handles.topoplots.time_to = val;
+guidata(hObject,handles)
+
+% --- Executes during object creation, after setting all properties.
+function time_range_to_ms_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to time_range_to_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function time_window_ms_Callback(hObject, eventdata, handles)
+% hObject    handle to time_window_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of time_window_ms as text
+%        str2double(get(hObject,'String')) returns contents of time_window_ms as a double
+val = str2double(get(handles.time_window_ms,'String'));
+handles.topoplots.time_window = val;
+guidata(hObject,handles)
+
+% --- Executes during object creation, after setting all properties.
+function time_window_ms_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to time_window_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
