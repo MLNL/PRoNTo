@@ -94,8 +94,8 @@ elseif isfield(jobmach,'krr')
 elseif isfield(jobmach,'rvr')
     model.machine.function='prt_machine_rvr';
     model.machine.s_args     = '';
-    % K.T. Edit 03/2019
-    model.machine.args     = [];
+	% K.T. Edit 03/2019
+	model.machine.args     = [];
     
 % Gaussian Processes regression
 elseif isfield(jobmach,'gpr')
@@ -139,7 +139,7 @@ else
         model.machine.s_args  = '';
     end
     
-	if isfield(jobmach.custom_machine.machine_opt, 'machine_no_opt')
+    if isfield(jobmach.custom_machine.machine_opt, 'machine_no_opt')
         model.machine.args  = jobmach.custom_machine.machine_opt.machine_no_opt;
     else
     opt = jobmach.custom_machine.machine_opt;
@@ -171,7 +171,7 @@ if ~isempty(opt)
     elseif isfield(opt,'machine_opt_p') % custom machine
         model.cv.nested = 1;
         model.cv.nested_param = opt.machine_opt_p.machine_args;
-        cv_tmp = prt_get_cv_type(opt.machine_opt_p.machine_cv_type_nested);
+        cv_tmp = prt_get_cv_type(opt.machine_opt_p.cv_type_nested); %machine_cv_type_nested
         model.machine.args = [];        
     elseif isfield(opt,'rt_no_opt')
         model.cv.nested = 0;
