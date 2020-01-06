@@ -552,7 +552,8 @@ if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&...
                if ~isempty(idfeat) %nifti
                     handles.idfeat_roi{i} = idfeat(idfeat_fas(handles.PRT.fs(fid).modality(mids).idfeat_img{i}));
                else
-                   handles.idfeat_roi{i} = idfeat_fas(handles.PRT.fs(fid).modality(mids).idfeat_img{i});
+%                    handles.idfeat_roi{i} = idfeat_fas(handles.PRT.fs(fid).modality(mids).idfeat_img{i});
+                    handles.idfeat_roi{i} = handles.PRT.fs(fid).modality(mids).idfeat_img{i};
                end
            end
        end
@@ -735,7 +736,9 @@ else
     set(handles.saveweight,'Visible','off')
     set(handles.modtable,'Visible','off')
     set(handles.modtable,'Enable','off')
+    if isfield(handles, 'weights_bar')
     set(handles.weights_bar,'Visible','off')
+    end
 end
 
 if ~isempty(datmod) % Chosen model has modality weight values
@@ -1253,14 +1256,33 @@ handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
 if ~isempty(xyz_above)
-    spm_orthviews('AddBlobs', h, XYZ, Z, M);
-%     spm_orthviews_pronto('AddBlobs', h, XYZ, Z, M);
+%     spm_orthviews('AddBlobs', h, XYZ, Z, M);
+    spm_orthviews_pronto('AddBlobs', h, XYZ, Z, M);
     spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
     colgrey = colormap(gray(64));
-    coldiv = cbrewer('div','RdBu',64);
-    coldiv = flip(coldiv,1);
-    colormap([colgrey; coldiv]);
+%     coldiv = cbrewer('div','RdBu',64);
+%     coldiv = flip(coldiv,1);
+%     colormap([colgrey; coldiv]);
     % spm_orthviews('Zoom',(xfov*abs(vx(1))))
+  
+% colorbar color fix KT-2020
+coldiv = cbrewer('div','RdBu',64);
+blue = coldiv(1:20,:);
+red = coldiv(45:64,:);
+blue2 = imresize(blue,[29,3],'bilinear');
+red2 = imresize(red,[29,3],'bilinear');
+coldiv(1:29,:) = blue2;
+coldiv(36:end,:) = red2;
+dummy2 = coldiv(25:32,:);
+yyy = smoothdata(dummy2);
+coldiv(25:32,:) = yyy;
+dummy2 = coldiv(33:41,:);
+yyy = smoothdata(dummy2);
+coldiv(33:41,:) = yyy;
+coldiv = flip(coldiv,1);
+colormap([colgrey; coldiv]);   
+% spm_figure('Colormap','gray-jet'); % VERSION 2 COLORBAR 
+
     spm_orthviews('Redraw');
 end
 
@@ -1473,7 +1495,9 @@ set(handles.butt_load_labels,'visible','off');
 set(handles.saveweight,'visible','off');
 set(handles.modtable,'Visible','off')
 set(handles.modtable,'Enable','off')
-set(handles.weights_bar,'Visible','off')
+if isfield(handles, 'weights_bar')
+    set(handles.weights_bar,'Visible','off')
+end
 set(handles.loadweight,'String','Load weights map')
 set(handles.loadanatomical,'String','Load anatomical img')
 handles.noloadw = 0;
