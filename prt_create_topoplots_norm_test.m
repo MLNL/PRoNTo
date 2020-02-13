@@ -18,6 +18,12 @@ clear D
 
 xping = 0;
 
+% Normalize the data to make colors more obvious
+dummy = data.trial{1,5};
+dummy = (dummy-mean(dummy))./std(dummy);
+dummy(isnan(dummy)) = 0;
+data.trial{1,5} = dummy;
+
 % Only for EEG data: define the layout (for MEG it is done automatically).
 if contains(data.label{1},'EEG')
     try
@@ -41,10 +47,14 @@ end
 % time_min = min(data.time{max(dims_trial)});
 % time_max = max(data.time{max(dims_trial)});
 
+% tstart = 1;
+% tstop = time_window/1000/abs(data.time{1,1}(1,3)-data.time{1,1}(1,2));
+    
+% scale_min = min(min(data.trial{1,max(dims_trial)}(1,tstart:tstop)));
+% scale_max = max(max(data.trial{1,max(dims_trial)}(1,tstart:tstop)));
+% scalex = max([abs(scale_min) abs(scale_max)]);
 
-scale_min = min(min(data.trial{1,max(dims_trial)}));
-scale_max = max(max(data.trial{1,max(dims_trial)}));
-scalex = max([abs(scale_min) abs(scale_max)]);
+scalex = 0.3;
 
 % Topoplot Fieldtrip
 cfg = [];
@@ -59,7 +69,7 @@ cfg.xlim = [time_min time_min+time_window/1000];
 % warning('off', 'all') % doesn't work for some reason
 
 for i = 1:num_plots
-    
+        
     if abs(cfg.xlim)<0.000001
         ind = abs(cfg.xlim)<0.000001;
         cfg.xlim(ind) = floor(cfg.xlim(ind));
@@ -76,29 +86,14 @@ for i = 1:num_plots
     figure;
     % subplot(2,3,i);
     ft_topoplotTFR(cfg,data); colorbar
+    colormap(flipud(brewermap(64,'RdBu'))); % change the colormap
+    title(['Time ' num2str(1000*cfg.xlim(1)) 'ms to time ' num2str(1000*cfg.xlim(2)) 'ms']);
 
-% colorbar color fix KT-2020
-coldiv = cbrewer('div','RdBu',64);
-blue = coldiv(1:20,:);
-red = coldiv(45:64,:);
-blue2 = imresize(blue,[29,3],'bilinear');
-red2 = imresize(red,[29,3],'bilinear');
-coldiv(1:29,:) = blue2;
-coldiv(36:end,:) = red2;
-dummy2 = coldiv(25:32,:);
-yyy = smoothdata(dummy2);
-coldiv(25:32,:) = yyy;
-dummy2 = coldiv(33:41,:);
-yyy = smoothdata(dummy2);
-coldiv(33:41,:) = yyy;
-coldiv = flip(coldiv,1);
-colormap(coldiv);
 
-title(['Time ' num2str(1000*cfg.xlim(1)) 'ms to time ' num2str(1000*cfg.xlim(2)) 'ms']);
+%     tstart = tstart + time_window/1000/abs(data.time{1,1}(1,3)-data.time{1,1}(1,2));
+%     tstop = tstop + time_window/1000/abs(data.time{1,1}(1,3)-data.time{1,1}(1,2));
 
 end
-
-
 
 
 end
