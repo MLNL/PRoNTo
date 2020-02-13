@@ -3,7 +3,7 @@ function [Ktr_r,Kte_r,Ktrte_r] = prt_remove_confounds_TrKernel(Ktr,Kte,Ktrte,Ctr
 %
 % [Ktr_r, Ktr_te,Ktrte_r,R] = prt_remove_confounds_AR(Ktr,Kte,KtrKte,Ctr,Cte)
 %
-%										   
+%
 % Ktr =Xtr*Xtr',Kte=Xte*Xte',Ktrte=Xtr*Xte'
 % Ctr are the confounds (covariates) for training data
 % Cte are the confounds for test data

@@ -269,6 +269,10 @@ for p=0:maxp
                     delete(img_nam{c});
                 end
             end
+							
+					   
+								
+			   
 
             % K.T. Edit 03/2019
 			if ~flagmat
@@ -533,12 +537,10 @@ for p=0:maxp
                 create(No);                    % write header
             end
         end
-        
         % K.T. Edit 03/2019
         if p == 0
             img_name{c} = finimg_name{c};
         end
-        
     end
 end
 disp('Done.')
