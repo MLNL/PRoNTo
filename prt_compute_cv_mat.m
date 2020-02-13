@@ -1,6 +1,5 @@
 function [CV,ID] = prt_compute_cv_mat(PRT, in, modelid, use_nested_cv)
 % Function to compute the cross-validation matrix.
-%
 % Also does error checking
 %__________________________________________________________________________
 % Copyright (C) 2015 Machine Learning & Neuroimaging Laboratory
@@ -83,7 +82,7 @@ switch in.cv.type
             nsf=floor(gc/k);
             % Check that the number of folds does not exceed the number of
             % subjects
-            if length(unique(dID(:,2)))<2*nsf
+            if height(unique(table(dID)))<2*nsf
                 error('prt_model:losoSelectedWithTooLargeK',...
                     'More than 50%% of data in testing set, increase k');
             end
