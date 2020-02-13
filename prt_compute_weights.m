@@ -260,8 +260,8 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
 
                         elseif ~isempty(in.atl_name{ifs}) % Need to summarize the weights per region
                             % Option not available for MEEG files
-                            [a,b,ext] = spm_fileparts(img_name{1});
-                            if strcmpi(ext,'.mat')
+                            [a,b,ext{1}] = spm_fileparts(img_name{1});
+                            if strcmpi(ext{1},'.mat')
                                 V = load(img_name{1});
                                 if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
                                     beep; fprintf('Summarization of weights not available for MEEG');
@@ -429,8 +429,8 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
                         output.weight_ROI(1) = {betas}; %only one class for now
                     elseif ~isempty(in.atl_name{ifs})
                         % Option not available for MEEG files
-                        [a,b,ext] = spm_fileparts(img_name{1});
-                        if strcmpi(ext,'.mat')
+                        [a,b,ext{1}] = spm_fileparts(img_name{1});
+                        if strcmpi(ext{1},'.mat')
                             V = load(img_name{1});
                             if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
                                 beep; fprintf('Summarization of weights not available for MEEG');
@@ -457,7 +457,7 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
 
     for i = 1:length(name_fin)
         if isempty(ext{i})
-            ext = '.img'; %For older PRTs, nifti is the default
+            ext{i} = '.img'; %For older PRTs, nifti is the default
         end
         name_fin{i} = [name_fin{i},ext{i}]; % Keep extension to have data format
     end
