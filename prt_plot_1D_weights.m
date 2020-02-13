@@ -11,7 +11,10 @@ function [h] = prt_plot_1D_weights(parent,weights,roimat)
 % Remove figure axes and plots
 gch = get(parent,'Children');
 for i=1:numel(gch)
-    delete(gch);
+    if strcmp(gch(i).Tag,'uipanelmat_topoplots')
+        continue
+    end
+    delete(gch(i));
 end
 
 % Define colormap - setting grey for zero, in the middle

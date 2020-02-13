@@ -1,4 +1,4 @@
-function [h] = prt_plot_2D_weights(parent,weights)
+function [h] = prt_plot_2D_weights(parent,weights,weights_D)
 % Function to plot 2D weights from .mat or MEEG modalities
 % Inputs: Parent graph handle and weights, the 2D matrix of values
 % Output: Handle to obtained plot
@@ -11,16 +11,19 @@ function [h] = prt_plot_2D_weights(parent,weights)
 % Remove figure axes and plots
 gch = get(parent,'Children');
 for i=1:numel(gch)
-    delete(gch);
+    if strcmp(gch(i).Tag,'uipanelmat_topoplots')
+        continue
+    end
+    delete(gch(i));
 end
 
 % Draw axes (properties depend on Matlab version)
 try
     axmat = axes(parent,'units','normalized', ...
-        'position',[0.2 0.2 0.6 0.7], 'NextPlot', 'add');
+        'position',[0.037 0.17 0.585 0.7], 'NextPlot', 'add');
 catch
     axmat = axes('units','normalized', 'NextPlot', 'add', ...
-        'position',[0.2 0.2 0.6 0.7],'parent',parent);
+        'position',[0.037 0.17 0.585 0.7],'parent',parent);
 end
 
 % Define colormap
@@ -44,7 +47,7 @@ elseif isnan(minw) && isnan(maxw)
     weights = zeros(size(weights));
     cols = [0.5 0.5 0.5];
 end
-    
+
 colormap(cols);
 try
     h = imagesc(axmat,weights);
@@ -55,10 +58,34 @@ end
 
 xlim([1 size(weights,2)])
 ylim([1 size(weights,1)])
+
+
+xaxmat = weights_D.ftraw.time{1,length(weights_D.ftraw.time)};
+xaxmat = round(xaxmat,5);
+xaxmat = xaxmat';
+xaxmat = xaxmat*1000;
+zero_ind = find(xaxmat==0);
+
+
+dummy_var2 = [zero_ind];
+while max(dummy_var2) < length(weights_D.time)
+    i = max(dummy_var2)+20;
+    dummy_var2 = [dummy_var2 i];
+end
+
+xticks(dummy_var2)
+
+dummy_var = ones(1,length(xaxmat));
+xaxmat = mat2cell(xaxmat,dummy_var);
+xaxmat = xaxmat';
+xticklabels(xaxmat(dummy_var2));
+
+
+
 try
-    hc = colorbar(axmat,'Units','normalized','Position',[0.85 0.2 0.02 0.7]);
+    hc = colorbar(axmat,'Units','normalized','Position',[0.638 0.17 0.02 0.7]);
 catch
-    hc = colorbar('peer',axmat,'Units','normalized','Position',[0.85 0.2 0.02 0.7]);
+    hc = colorbar('peer',axmat,'Units','normalized','Position',[0.638 0.17 0.02 0.7]);
 end
 % Change colorbar limits to ensure centered white if positive and negative
 if minw<0 && maxw>0
