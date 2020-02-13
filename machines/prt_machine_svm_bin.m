@@ -129,15 +129,19 @@ b     = -model.rho *sgn;
 % not allow empty test labels
 if iscell(d.test)
     func_val = cell2mat(d.test)*alpha+b;
+    func_val_train = cell2mat(d.train)*alpha+b;
 else
     func_val = d.test*alpha+b;
+    func_val_train = d.train*alpha+b;
 end
 
 if ~reg
     % compute hard decisions
     predictions = sign(func_val);
+    predictions_train = sign(func_val_train);
 else
     predictions = func_val;
+    predictions_train = func_val_train;
 end
 
 
@@ -148,13 +152,20 @@ if ~reg
     c1PredIdx               = predictions==1;
     predictions(c1PredIdx)  = 1; %positive values = 1
     predictions(~c1PredIdx) = 2; %negative values = 2
+    
+    c1PredIdx_train               = predictions_train==1;
+    predictions_train(c1PredIdx_train)  = 1; %positive values = 1
+    predictions_train(~c1PredIdx_train) = 2; %negative values = 2
+    
     output.type        = 'classification';
 else
     output.type        = 'regression';
 end
 
 output.predictions = predictions;
+output.predictions_train = predictions_train;
 output.func_val    = func_val(:,1);
+output.func_val_train    = func_val_train(:,1);
 output.alpha       = alpha;
 output.b           = b;
 output.totalSV     = model.totalSV;
