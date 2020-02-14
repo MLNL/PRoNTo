@@ -58,7 +58,7 @@ for t=1:nt
     end
     
     % Gather all info
-    [CV{t},Y{t},cov{t},nc{t},CVperm{t}] = gather_task_info(PRT,m(t),in);
+    [CV{t},Y{t},cov{t},nc{t}] = gather_task_info(PRT,m(t));
     
     % Check all tasks have same number of folds
     n_folds  = size(CV{1},2);    
@@ -92,20 +92,6 @@ for f = 1:n_folds
     fdata.mid     = mid; %index of model
     for t=1:nt        
         fdata.CV{t}      = CV{t}(:,f);
-        
-        
-        
-        
-        
-        if isfield(in, 'perm_mode')
-            fdata.CVperm{t}      = CVperm{t}(:,f);
-        end
-        
-        
-        
-        
-        
-        
     end    
     fdata.Phi_all = Phi_all; %all kernels
     fdata.t       = Y; %targets
@@ -113,18 +99,6 @@ for f = 1:n_folds
     if ~isempty(cov)
         fdata.cov = cov;
     end
-    
-    
-    
-    
-    
-    if isfield(in, 'perm_mode')
-        fdata.f = f;
-        fdata.perm_mode = in.perm_mode;
-    end
-    
-    
-    
     
     fdata.opt_Rep = opt_Rep;
     fdata.midMTL  = m;
@@ -214,16 +188,10 @@ end
 
 % Subfunctions
 % -------------------------------------------------------------------------
-function [CV,Y,cov,nc,CVperm] = gather_task_info(PRT,m,in)
+function [CV,Y,cov,nc] = gather_task_info(PRT,m)
 
 % CV matrix
-CV    = PRT.model(m).input.cv_mat;
-
-if isfield(in, 'perm_mode')
-    CVperm = PRT.model(m).input.CVperm;
-else
-    CVperm = [];
-end
+CV    = PRT.model(m).input.cv_mat;     
 
 % targets
 if isfield(PRT.model(m).input,'include_allscans') && ...

@@ -73,25 +73,7 @@ else
 %             end
 %         end
 %     end
- 
-
-
-
-
-
-
-% rng(3) for the initial experiments
-rng(12);
-
-
-
-
-
-
-
-
-
-
+    
     % targets
     t = PRT.model(modelid(1)).input.targets;
     
@@ -220,16 +202,6 @@ rng(12);
                 
                 samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
                 
-                
-                
-%                 samp_s=unique(ids(ids(:,1)==samp_g(gid),2:3),'rows'); %number of subjects for specific group
-
-                
-                
-                
-                
-                
-                
                 for sid = 1: length(samp_s)
                     
                     samp_m=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid),3)); %number of modality for specific group & subject
@@ -356,23 +328,6 @@ rng(12);
                 for i=1:length(chunks)
                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                 end
-                
-                
-                
-                
-                
-                % that was for model a when I was fixing STL
-%                 load('maria2.mat','chunkpermcv')
-%                 chunkperm = chunkpermcv';
-                
-                
-                
-                
-                
-                
-                
-                
-                
                 pchunk = cell2mat(chunks);
                 if ~perm_train_only
                     itrain = 1:size(ids,1);
@@ -382,51 +337,13 @@ rng(12);
                 IDperm(itrain(pchunk),:) = ID(itrain(chunkperm),:);
             end
 
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
             % Run model with permuted data for each fold
             % -------------------------------------------------------------
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
-%                 fdata.ID      = IDperm; %IDperm
-                fdata.ID      = ID;
+                fdata.ID      = IDperm; %IDperm
                 fdata.mid     = modelid(1);
-%                 fdata.CV      = CVperm(:,f);
-                fdata.CV      = CV(:,f);
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
+                fdata.CV      = CVperm(:,f);
                 if nk>1
                     fdata.Phi_all = Phi_all(k); %selected kernel for independent modelling
                 else
@@ -447,29 +364,13 @@ rng(12);
                     end
                 end
                 
-                
-                
-                
-                
-                fdata.perm_mode = 1;
-                fdata.f = f;
-                fdata.CVperm = CVperm(:,f);
-                fdata.IDperm = IDperm;
-                
-                
-                
-                
-                
-                
                 %Run model on permuted targets with optimal parameters if
                 %computed
                 [temp_model, targets] = prt_cv_fold(PRT,fdata);
                 
                 % save the weights per fold if requested
                 if save_perm
-                    if PRT.model(modelid(1)).input.use_kernel == 1
-                        PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
-                    end
+                    PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).targets=targets.test;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).predictions=temp_model.predictions;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).func_val=temp_model.func_val;
@@ -505,7 +406,7 @@ rng(12);
                 tp             = vertcat(model.output.fold(:).targets);
                 m.predictions  = vertcat(model.output.fold(:).predictions);
 				% K.T. Edit 03/2019
-                m.func_val    = vertcat(PRT.model(modelid(1)).output.fold(:).func_val);
+				m.func_val    = vertcat(PRT.model(modelid(1)).output.fold(:).func_val);
                 t_stats     = prt_stats(m,tp,n_class);
                 perm_stats.con_mat = t_stats.con_mat;
             end
@@ -514,7 +415,7 @@ rng(12);
             switch PRT.model(modelid(1)).output(k).fold(1).type
                 
                 case {'classifier','classification'}
-                     
+                    
                     permutation.b_acc(p)=perm_stats.b_acc;
                     
                     if (perm_stats.b_acc >= PRT.model(modelid(1)).output(k).stats.b_acc)
