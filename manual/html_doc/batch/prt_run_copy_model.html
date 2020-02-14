@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_run_copy_model</title>
+  <meta name="keywords" content="prt_run_copy_model">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="#">batch</a> &gt; prt_run_copy_model.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\batch&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_run_copy_model
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function out = prt_run_copy_model(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ PRoNTo job execution function
+ takes a harvested job data structure and rearrange data into &quot;proper&quot;
+ data structure, then save do what it has to do...
+ Here simply the harvested job structure in a mat file.
+
+ INPUT
+   job    - harvested job data structure (see matlabbatch help)
+
+ OUTPUT
+   out    - filename of saved data structure.
+
+   This function modifies a model structure according to user needs and
+   saves it under the new model name specified by the user.
+
+__________________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_cfg_copy_model.html" class="code" title="function copymodel = prt_cfg_copy_model">prt_cfg_copy_model</a>	Copies a model and allows to change a few field</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function cv = get_cv_type(cv_struct)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function out = prt_run_copy_model(varargin)</a>
+0002 <span class="comment">%</span>
+0003 <span class="comment">% PRoNTo job execution function</span>
+0004 <span class="comment">% takes a harvested job data structure and rearrange data into &quot;proper&quot;</span>
+0005 <span class="comment">% data structure, then save do what it has to do...</span>
+0006 <span class="comment">% Here simply the harvested job structure in a mat file.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">% INPUT</span>
+0009 <span class="comment">%   job    - harvested job data structure (see matlabbatch help)</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">% OUTPUT</span>
+0012 <span class="comment">%   out    - filename of saved data structure.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   This function modifies a model structure according to user needs and</span>
+0015 <span class="comment">%   saves it under the new model name specified by the user.</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">%__________________________________________________________________________</span>
+0018 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0019 
+0020 <span class="comment">% Written by Jessica Schrouff</span>
+0021 <span class="comment">% $Id$</span>
+0022 
+0023 <span class="comment">% Job variable</span>
+0024 <span class="comment">% -------------------------------------------------------------------------</span>
+0025 job   = varargin{1};
+0026 
+0027 <span class="comment">% Load PRT.mat</span>
+0028 <span class="comment">% -------------------------------------------------------------------------</span>
+0029 fname = char(job.infile);
+0030 <span class="keyword">if</span> exist(<span class="string">'PRT'</span>,<span class="string">'var'</span>)
+0031     clear PRT
+0032 <span class="keyword">end</span>
+0033 PRT=prt_load(fname);
+0034 <span class="keyword">if</span> ~isempty(PRT)
+0035     handles.dat=PRT;
+0036 <span class="keyword">else</span>
+0037     beep
+0038     disp(<span class="string">'Could not load file'</span>)
+0039     <span class="keyword">return</span>
+0040 <span class="keyword">end</span>
+0041 
+0042 <span class="comment">% assemble basic fields</span>
+0043 model.fname      = fname;
+0044 model.model_name = job.model_name;
+0045 <span class="keyword">if</span> ~(prt_checkAlphaNumUnder(model.model_name))
+0046     beep
+0047     disp(<span class="string">'Model name should be entered in alphanumeric format only'</span>)
+0048     disp(<span class="string">'Please correct'</span>)
+0049     <span class="keyword">return</span>
+0050 <span class="keyword">end</span>
+0051 <span class="comment">% find model index</span>
+0052 model_exists = false;
+0053 <span class="keyword">if</span> isfield(PRT,<span class="string">'model'</span>)
+0054     <span class="keyword">if</span> any(strcmpi(model.model_name,{PRT.model(:).model_name}))
+0055         mid = find(strcmpi(model.model_name,{PRT.model(:).model_name}));
+0056         model_exists = true;
+0057     <span class="keyword">else</span>
+0058         mid = length(PRT.model)+1;
+0059     <span class="keyword">end</span>
+0060 <span class="keyword">else</span>
+0061     beep
+0062     disp(<span class="string">'No models found in PRT.mat, cannot copy'</span>)
+0063     <span class="keyword">return</span>
+0064 <span class="keyword">end</span>
+0065 
+0066 model.copymodel_name = job.copymodel_name;
+0067 <span class="keyword">if</span> ~(prt_checkAlphaNumUnder(model.copymodel_name))
+0068     beep
+0069     disp(<span class="string">'Model name to copy should be entered in alphanumeric format only'</span>)
+0070     disp(<span class="string">'Please correct'</span>)
+0071     <span class="keyword">return</span>
+0072 <span class="keyword">end</span>
+0073 
+0074 <span class="comment">% find model index of model to copy</span>
+0075 <span class="keyword">if</span> isfield(PRT,<span class="string">'model'</span>)
+0076     <span class="keyword">if</span> any(strcmpi(model.copymodel_name,{PRT.model(:).model_name}))
+0077         midtc = find(strcmpi(model.copymodel_name,{PRT.model(:).model_name}));
+0078     <span class="keyword">else</span>
+0079         beep
+0080         disp(<span class="string">'Model not found in PRT.mat, cannot copy'</span>)
+0081         <span class="keyword">return</span>
+0082     <span class="keyword">end</span>
+0083 <span class="keyword">else</span>
+0084     beep
+0085     disp(<span class="string">'No models found in PRT.mat, cannot copy'</span>)
+0086     <span class="keyword">return</span>
+0087 <span class="keyword">end</span>
+0088 
+0089 <span class="comment">% For each field, input the values into the new model</span>
+0090 <span class="keyword">if</span> model_exists
+0091     warning(<span class="string">'prt_init_model:modelAlreadyInPRT'</span>,[<span class="string">'Model '''</span>,model.model_name,<span class="keyword">...</span>
+0092         <span class="string">''' already exists in PRT.mat. Overwriting...'</span>]);
+0093 <span class="keyword">else</span>
+0094     disp([<span class="string">'Model '''</span>,model.model_name,<span class="string">''' not found in PRT.mat. Creating...'</span>])
+0095 <span class="keyword">end</span>
+0096     
+0097 <span class="comment">% Copy model</span>
+0098 PRT.model(mid) = PRT.model(midtc);
+0099 PRT.model(mid).output = [];
+0100 PRT.model(mid).model_name = model.model_name;
+0101 
+0102 <span class="comment">% Get fields for which the user wants to make a change</span>
+0103 <span class="comment">% -------------------------------------------------------------------------</span>
+0104 <span class="keyword">for</span> i = 1:length(job.modchoices)
+0105     
+0106     <span class="comment">% Changes in feature set selection</span>
+0107     <span class="comment">%----------------------------------------------------------------------</span>
+0108     <span class="keyword">if</span> isfield(job.modchoices{i},<span class="string">'fsets'</span>)
+0109         <span class="comment">% delete previous selection of feature sets</span>
+0110         PRT.model(mid).input.fs = [];
+0111         <span class="comment">% insert feature set fields</span>
+0112         <span class="keyword">if</span> ~isstruct(job.modchoices{i}.fsets)
+0113             PRT.model(mid).input.fs(1).fs_name = job.modchoices{i}.fsets;
+0114         <span class="keyword">else</span>
+0115             <span class="keyword">for</span> j = 1:length(job.modchoices{i}.fsets.fs_name)
+0116                 PRT.model(mid).input.fs(j).fs_name = job.modchoices{i}.fsets.fs_name{j};
+0117             <span class="keyword">end</span>
+0118         <span class="keyword">end</span>
+0119         
+0120     <span class="comment">% Changes in machine</span>
+0121     <span class="comment">%----------------------------------------------------------------------</span>
+0122     <span class="keyword">elseif</span> isfield(job.modchoices{i},<span class="string">'model_type'</span>)
+0123         <span class="comment">% insert machine fields</span>
+0124         <span class="comment">%Classification</span>
+0125         <span class="keyword">if</span> isfield(job.modchoices{i}.model_type,<span class="string">'machine_cl_K'</span>)
+0126             <span class="keyword">if</span> ~strcmpi(PRT.model(mid).input.type,<span class="string">'classification'</span>)
+0127                 error(<span class="string">'prt_run_copy_model:WrongModelType'</span>,<span class="keyword">...</span>
+0128                     <span class="string">'Classification chosen but model was regression, aborting.'</span>)
+0129             <span class="keyword">end</span>
+0130             <span class="keyword">if</span> isfield(job.modchoices{i}.model_type.machine_cl_K,<span class="string">'mach_cl_nonkernel'</span>)
+0131                 PRT.model(mid).input.use_kernel = 0;
+0132                 jobmach = job.modchoices{i}.model_type.machine_cl_K.mach_cl_nonkernel;
+0133             <span class="keyword">else</span>
+0134                 PRT.model(mid).input.use_kernel = 1;
+0135                 jobmach = job.modchoices{i}.model_type.machine_cl_K.mach_cl_kernel;
+0136             <span class="keyword">end</span>            
+0137             model = prt_get_machine(PRT.model(mid).input,jobmach);
+0138         <span class="keyword">elseif</span> isfield(job.modchoices{i}.model_type,<span class="string">'machine_rg_K'</span>)
+0139             <span class="keyword">if</span> ~strcmpi(PRT.model(mid).input.type,<span class="string">'regression'</span>)
+0140                 error(<span class="string">'prt_run_copy_model:WrongModelType'</span>,<span class="keyword">...</span>
+0141                     <span class="string">'Regression chosen but model was classification, aborting.'</span>)
+0142             <span class="keyword">end</span>
+0143             <span class="keyword">if</span> isfield(job.modchoices{i}.model_type.machine_rg_K,<span class="string">'mach_rg_nonkernel'</span>)
+0144                 PRT.model(mid).input.use_kernel = 0;
+0145                 jobmach = job.modchoices{i}.model_type.machine_rg_K.mach_rg_nonkernel;
+0146             <span class="keyword">else</span>
+0147                 PRT.model(mid).input.use_kernel = 1;
+0148                 jobmach = job.modchoices{i}.model_type.machine_rg_K.mach_rg_kernel;
+0149             <span class="keyword">end</span>            
+0150             model = prt_get_machine(PRT.model(mid).input,jobmach);           
+0151         <span class="keyword">end</span>
+0152         PRT.model(mid).input.machine = model.machine;
+0153         PRT.model(mid).input.use_nested_cv = model.cv.nested;
+0154         PRT.model(mid).input.nested_param = model.cv.nested_param;
+0155         PRT.model(mid).input.cv_type_nested = model.cv.type_nested;
+0156         PRT.model(mid).input.cv_k_nested = model.cv.k_nested;
+0157     
+0158     <span class="comment">% Changes in operations</span>
+0159     <span class="comment">%----------------------------------------------------------------------</span>
+0160     <span class="keyword">elseif</span> isfield(job.modchoices{i},<span class="string">'sel_ops'</span>)
+0161         <span class="comment">% delete previous selection of operations</span>
+0162         PRT.model(mid).input.operations = [];
+0163         <span class="comment">% specify operations to apply to the data prior to prediction</span>
+0164         <span class="keyword">if</span> isfield(job.modchoices{i}.sel_ops.use_other_ops,<span class="string">'data_op'</span>)
+0165             ops = [job.modchoices{i}.sel_ops.use_other_ops.data_op{:}];
+0166         <span class="keyword">elseif</span> isfield(job.modchoices{i}.sel_ops.use_other_ops,<span class="string">'no_op'</span>)
+0167             ops = [];
+0168         <span class="keyword">end</span>
+0169         <span class="keyword">if</span> job.modchoices{i}.sel_ops.data_op_mc == 1
+0170             PRT.model(mid).input.operations = [3 ops];
+0171         <span class="keyword">else</span>
+0172             PRT.model(mid).input.operations = ops;
+0173         <span class="keyword">end</span>
+0174         <span class="comment">% Check that operations on features were not selected for kernels</span>
+0175         <span class="keyword">if</span> any(ismember([6,7],ops))
+0176             <span class="keyword">if</span> model.use_kernel
+0177                 error(<span class="string">'prt_run_model:BadOperations'</span>,<span class="keyword">...</span>
+0178                     <span class="string">'Feature operations selected while using kernels, please correct'</span>)
+0179             <span class="keyword">end</span>
+0180         <span class="keyword">end</span>
+0181     <span class="keyword">end</span>
+0182 
+0183 <span class="keyword">end</span>
+0184 
+0185 <span class="comment">% Save modified PRT</span>
+0186 <span class="comment">% -------------------------------------------------------------------------</span>
+0187 disp(<span class="string">'Updating PRT.mat.......&gt;&gt;'</span>)
+0188 <span class="keyword">if</span> spm_check_version(<span class="string">'MATLAB'</span>,<span class="string">'7'</span>) &gt;= 0
+0189     save(fname,<span class="string">'-V7'</span>,<span class="string">'PRT'</span>);
+0190 <span class="keyword">else</span>
+0191     save(fname,<span class="string">'-V6'</span>,<span class="string">'PRT'</span>);
+0192 <span class="keyword">end</span>
+0193 
+0194 <span class="comment">% Function output</span>
+0195 <span class="comment">% -------------------------------------------------------------------------</span>
+0196 out.files{1} = fname;
+0197 out.mname = PRT.model(mid).model_name;
+0198 disp(<span class="string">'Model configuration complete.'</span>)
+0199 <span class="keyword">end</span>
+0200 
+0201 
+0202 <span class="comment">%--------------------------------------------------------------------------</span>
+0203 <span class="comment">% Private functions</span>
+0204 <span class="comment">%--------------------------------------------------------------------------</span>
+0205 <a name="_sub1" href="#_subfunctions" class="code">function cv = get_cv_type(cv_struct)</a>
+0206 
+0207 <span class="comment">% assemble structure for performing cross-validation</span>
+0208 <span class="keyword">if</span> isfield(cv_struct,<span class="string">'cv_loso'</span>)
+0209     cv = struct(<span class="string">'type'</span>,<span class="string">'loso'</span>,<span class="string">'k'</span>,0);
+0210 <span class="keyword">elseif</span> isfield(cv_struct,<span class="string">'cv_lkso'</span>)
+0211     cv = struct(<span class="string">'type'</span>,<span class="string">'loso'</span>,<span class="string">'k'</span>,cv_struct.cv_lkso.k_args);
+0212 <span class="keyword">elseif</span> isfield(cv_struct,<span class="string">'cv_losgo'</span>)
+0213     cv = struct(<span class="string">'type'</span>,<span class="string">'losgo'</span>,<span class="string">'k'</span>,0);
+0214 <span class="keyword">elseif</span> isfield(cv_struct,<span class="string">'cv_lksgo'</span>)
+0215     cv = struct(<span class="string">'type'</span>,<span class="string">'losgo'</span>,<span class="string">'k'</span>,cv_struct.cv_lksgo.k_args);
+0216 <span class="keyword">elseif</span> isfield(cv_struct,<span class="string">'cv_lobo'</span>)
+0217     cv = struct(<span class="string">'type'</span>,<span class="string">'lobo'</span>,<span class="string">'k'</span>,0);
+0218 <span class="keyword">elseif</span> isfield(cv_struct,<span class="string">'cv_lkbo'</span>)
+0219     cv = struct(<span class="string">'type'</span>,<span class="string">'lobo'</span>,<span class="string">'k'</span>,cv_struct.cv_lkbo.k_args);
+0220 <span class="keyword">elseif</span> isfield(cv_struct,<span class="string">'cv_locbo'</span>)
+0221     cv = struct(<span class="string">'type'</span>,<span class="string">'locbo'</span>,<span class="string">'k'</span>,0);
+0222 <span class="keyword">elseif</span> isfield(cv_struct,<span class="string">'cv_lkcbo'</span>)
+0223     cv = struct(<span class="string">'type'</span>,<span class="string">'locbo'</span>,<span class="string">'k'</span>,cv_struct.cv_lkcbo.k_args);
+0224 <span class="keyword">elseif</span> isfield(cv_struct,<span class="string">'cv_loro'</span>) <span class="comment">% currently implemented for MCKR only</span>
+0225     cv = struct(<span class="string">'type'</span>,<span class="string">'loro'</span>);
+0226 <span class="keyword">else</span>
+0227     cv = struct(<span class="string">'type'</span>,<span class="string">'custom'</span>,<span class="string">'k'</span>,cv_struct.cv_custom{1},<span class="keyword">...</span>
+0228         <span class="string">'mat_file'</span>,cv_struct.cv_custom{1});
+0229     <span class="comment">% Not sure if I should keep the field 'k' here...</span>
+0230 <span class="keyword">end</span>
+0231 
+0232 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

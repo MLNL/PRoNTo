@@ -1,0 +1,1170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_cfg_model</title>
+  <meta name="keywords" content="prt_cfg_model">
+  <meta name="description" content="Data &amp; design configuration file">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="#">batch</a> &gt; prt_cfg_model.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\batch&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_cfg_model
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Data &amp; design configuration file</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function model = prt_cfg_model </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Data &amp; design configuration file
+ This configures the kernel construction for each modality.
+_______________________________________________________________________
+ Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_run_model.html" class="code" title="function out = prt_run_model(varargin)">prt_run_model</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="prt_cfg_batch.html" class="code" title="function prt = prt_cfg_batch">prt_cfg_batch</a>	Pattern Recognition for Neuroimaging Toolbox, PRoNTo.</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function cdep = vout_data(job)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function model = prt_cfg_model</a>
+0002 <span class="comment">% Data &amp; design configuration file</span>
+0003 <span class="comment">% This configures the kernel construction for each modality.</span>
+0004 <span class="comment">%_______________________________________________________________________</span>
+0005 <span class="comment">% Copyright (C) 2011 Machine Learning &amp; Neuroimaging Laboratory</span>
+0006 
+0007 <span class="comment">% Written by Andre Marquand, modified by J. Schrouff</span>
+0008 <span class="comment">% $Id$</span>
+0009 
+0010 def = prt_get_defaults;
+0011 
+0012 <span class="comment">% ---------------------------------------------------------------------</span>
+0013 <span class="comment">% filename Filename(s) of data</span>
+0014 <span class="comment">% ---------------------------------------------------------------------</span>
+0015 infile        = cfg_files;
+0016 infile.tag    = <span class="string">'infile'</span>;
+0017 infile.name   = <span class="string">'Load PRT.mat'</span>;
+0018 infile.ufilter = <span class="string">'PRT.mat'</span>;
+0019 infile.num    = [1 1];
+0020 infile.help   = {<span class="string">'Select data/design structure file (PRT.mat).'</span>};
+0021 
+0022 <span class="comment">% ---------------------------------------------------------------------</span>
+0023 <span class="comment">% model_name Name</span>
+0024 <span class="comment">% ---------------------------------------------------------------------</span>
+0025 model_name         = cfg_entry;
+0026 model_name.tag     = <span class="string">'model_name'</span>;
+0027 model_name.name    = <span class="string">'Model name'</span>;
+0028 model_name.help    = {<span class="string">'Name for model'</span>};
+0029 model_name.strtype = <span class="string">'s'</span>;
+0030 model_name.num     = [1 Inf];
+0031 
+0032 <span class="comment">% ---------------------------------------------------------------------</span>
+0033 <span class="comment">% fs_name Feature set name</span>
+0034 <span class="comment">% ---------------------------------------------------------------------</span>
+0035 fs_name         = cfg_entry;
+0036 fs_name.tag     = <span class="string">'fs_name'</span>;
+0037 fs_name.name    = <span class="string">'Name'</span>;
+0038 fs_name.help    = {[<span class="string">'Enter the name of a feature set to include in this model. '</span>,<span class="keyword">...</span>
+0039                   <span class="string">'This can be kernel or a feature matrix. '</span>, <span class="keyword">...</span>
+0040                   ]};
+0041 fs_name.strtype = <span class="string">'s'</span>;
+0042 fs_name.num     = [1 Inf];
+0043 
+0044 <span class="comment">% ---------------------------------------------------------------------</span>
+0045 <span class="comment">% indmodels Flag to perform one model per kernel</span>
+0046 <span class="comment">% ---------------------------------------------------------------------</span>
+0047 <span class="comment">% indmodels         = cfg_menu;</span>
+0048 <span class="comment">% indmodels.tag     = 'indmodels';</span>
+0049 <span class="comment">% indmodels.name    = 'One model per kernel?';</span>
+0050 <span class="comment">% indmodels.help    = {...</span>
+0051 <span class="comment">%     ['Do you want to estimate one model per kernel? ', ...</span>
+0052 <span class="comment">%      'If ''No'' is selected, the kernels will be considered jointly. ',...</span>
+0053 <span class="comment">%      'If ''Yes'' is selected, the kernels will be considered independently.']};</span>
+0054 <span class="comment">% indmodels.labels  = {</span>
+0055 <span class="comment">%                'Yes'</span>
+0056 <span class="comment">%                'No'</span>
+0057 <span class="comment">% }';</span>
+0058 <span class="comment">% indmodels.values  = {1 0};</span>
+0059 <span class="comment">% indmodels.val     = {0};</span>
+0060 
+0061 <span class="comment">% ---------------------------------------------------------------------</span>
+0062 <span class="comment">% featureset Feature set names (v3.0: multiple allowed)</span>
+0063 <span class="comment">% ---------------------------------------------------------------------</span>
+0064 featureset         = cfg_repeat;
+0065 featureset.tag     = <span class="string">'featureset'</span>;
+0066 featureset.name    = <span class="string">'Feature set name'</span>;
+0067 featureset.help    = {[<span class="string">'Add onefeature set to this model. Click ''new'' '</span><span class="keyword">...</span>
+0068                     <span class="string">'or ''repeat'' to add another feature set.'</span>]};
+0069 featureset.num     = [1 Inf];
+0070 featureset.values     = {fs_name};
+0071 
+0072 <span class="comment">% ---------------------------------------------------------------------</span>
+0073 <span class="comment">% fsets Feature set(s)</span>
+0074 <span class="comment">% ---------------------------------------------------------------------</span>
+0075 fsets         = cfg_branch;
+0076 fsets.tag     = <span class="string">'fsets'</span>;
+0077 fsets.name    = <span class="string">'Feature sets'</span>;
+0078 fsets.help    = {<span class="string">'Feature set(s) to include in this model.'</span>};
+0079 fsets.val     = {featureset};
+0080 <span class="comment">% fsets.val     = {featureset, indmodels};</span>
+0081 
+0082 <span class="comment">% ---------------------------------------------------------------------</span>
+0083 <span class="comment">% gr_name Group name</span>
+0084 <span class="comment">% ---------------------------------------------------------------------</span>
+0085 gr_name         = cfg_entry;
+0086 gr_name.tag     = <span class="string">'gr_name'</span>;
+0087 gr_name.name    = <span class="string">'Group name'</span>;
+0088 gr_name.help    = {<span class="string">'Name of the group to include. Must exist in PRT.mat'</span>};
+0089 gr_name.strtype = <span class="string">'s'</span>;
+0090 gr_name.num     = [1 Inf];
+0091 
+0092 <span class="comment">% ---------------------------------------------------------------------</span>
+0093 <span class="comment">% all_cond All conditions</span>
+0094 <span class="comment">% ---------------------------------------------------------------------</span>
+0095 all_cond         = cfg_const;
+0096 all_cond.tag     = <span class="string">'all_cond'</span>;
+0097 all_cond.name    = <span class="string">'All Conditions'</span>;
+0098 all_cond.val     = {1};
+0099 all_cond.help    = {<span class="string">'Include all conditions in this model'</span>};
+0100 
+0101 <span class="comment">% ---------------------------------------------------------------------</span>
+0102 <span class="comment">% cond_name Condition name</span>
+0103 <span class="comment">% ---------------------------------------------------------------------</span>
+0104 cond_name         = cfg_entry;
+0105 cond_name.tag     = <span class="string">'cond_name'</span>;
+0106 cond_name.name    = <span class="string">'Name'</span>;
+0107 cond_name.help    = {<span class="string">'Name of condition to include.'</span>};
+0108 cond_name.strtype = <span class="string">'s'</span>;
+0109 cond_name.num     = [1 Inf];
+0110 
+0111 <span class="comment">% ---------------------------------------------------------------------</span>
+0112 <span class="comment">% conds Conditions</span>
+0113 <span class="comment">% ---------------------------------------------------------------------</span>
+0114 conds         = cfg_branch;
+0115 conds.tag     = <span class="string">'conds'</span>;
+0116 conds.name    = <span class="string">'Condition'</span>;
+0117 conds.help    = {<span class="string">'Specify condition to use.'</span>};
+0118 conds.val     = {cond_name};
+0119 
+0120 <span class="comment">% ---------------------------------------------------------------------</span>
+0121 <span class="comment">% sel_cond Select conditions</span>
+0122 <span class="comment">% ---------------------------------------------------------------------</span>
+0123 sel_cond         = cfg_repeat;
+0124 sel_cond.tag     = <span class="string">'sel_cond'</span>;
+0125 sel_cond.name    = <span class="string">'Specify Conditions'</span>;
+0126 sel_cond.help    = {<span class="string">'Specify the name of conditions or of the target to be '</span><span class="keyword">...</span>
+0127     <span class="string">'included. Multiple conditions can be combined.'</span>};
+0128 sel_cond.values  = {conds};
+0129 
+0130 <span class="comment">% ---------------------------------------------------------------------</span>
+0131 <span class="comment">% target_name Target name</span>
+0132 <span class="comment">% ---------------------------------------------------------------------</span>
+0133 target_name         = cfg_entry;
+0134 target_name.tag     = <span class="string">'target_name'</span>;
+0135 target_name.name    = <span class="string">'Name'</span>;
+0136 target_name.help    = {<span class="string">'Name of target to include.'</span>};
+0137 target_name.strtype = <span class="string">'s'</span>;
+0138 target_name.num     = [1 Inf];
+0139 
+0140 <span class="comment">% ---------------------------------------------------------------------</span>
+0141 <span class="comment">% target Target to model</span>
+0142 <span class="comment">% ---------------------------------------------------------------------</span>
+0143 target         = cfg_branch;
+0144 target.tag     = <span class="string">'target'</span>;
+0145 target.name    = <span class="string">'Target'</span>;
+0146 target.help    = {<span class="string">'Specify target to use.'</span>};
+0147 target.val     = {target_name};
+0148 
+0149 <span class="comment">% ---------------------------------------------------------------------</span>
+0150 <span class="comment">% all_scans All scans</span>
+0151 <span class="comment">% ---------------------------------------------------------------------</span>
+0152 all_scans         = cfg_const;
+0153 all_scans.tag     = <span class="string">'all_scans'</span>;
+0154 all_scans.name    = <span class="string">'All samples'</span>;
+0155 all_scans.val     = {1};
+0156 all_scans.help    = {[<span class="string">'No design specified. This option can be used '</span><span class="keyword">...</span>
+0157     <span class="string">'for modalities (e.g. structural) that do not '</span><span class="keyword">...</span>
+0158     <span class="string">'have an experimental design or for an fMRI design'</span>,<span class="keyword">...</span>
+0159     <span class="string">'where you want to include all samples in the timeseries'</span>]};
+0160 
+0161 <span class="comment">% ---------------------------------------------------------------------</span>
+0162 <span class="comment">% conditions Conditions</span>
+0163 <span class="comment">% ---------------------------------------------------------------------</span>
+0164 conditions        = cfg_choice;
+0165 conditions.tag    = <span class="string">'conditions'</span>;
+0166 conditions.name   = <span class="string">'Conditions / Samples'</span>;
+0167 conditions.values = {sel_cond, all_cond, all_scans,target};
+0168 conditions.help   = {<span class="keyword">...</span>
+0169     [<span class="string">'Which task conditions do you want to include? '</span><span class="keyword">...</span>
+0170     <span class="string">'Select conditions: select specific conditions from the design. '</span>, <span class="keyword">...</span>
+0171     <span class="string">'All conditions: include all conditions extracted from the design. '</span>, <span class="keyword">...</span>
+0172     <span class="string">'All samples: include all samples for each subject. This may be used for '</span>, <span class="keyword">...</span>
+0173     <span class="string">'modalities with only one sample per subject (e.g. PET), '</span>, <span class="keyword">...</span>
+0174     <span class="string">'if you want to include all samples from an fMRI timeseries (assumes you '</span>,<span class="keyword">...</span>
+0175     <span class="string">'have not already detrended the timeseries and extracted task components)'</span>,<span class="keyword">...</span>
+0176     <span class="string">'Target: to specify which regression target to use. This may be used '</span>,<span class="keyword">...</span>
+0177     <span class="string">'when multiple regression targets were specified while having only '</span>,<span class="keyword">...</span>
+0178     <span class="string">'one sample per subject.'</span>]};
+0179 
+0180 <span class="comment">% ---------------------------------------------------------------------</span>
+0181 <span class="comment">% subj_num Subjects selected (per group)</span>
+0182 <span class="comment">% ---------------------------------------------------------------------</span>
+0183 subj_nums         = cfg_entry;
+0184 subj_nums.tag     = <span class="string">'subj_nums'</span>;
+0185 subj_nums.name    = <span class="string">'Subjects'</span>;
+0186 subj_nums.help    = {
+0187     [<span class="string">'Subject numbers to be included in this class. Note that individual '</span>,<span class="keyword">...</span>
+0188      <span class="string">'numbers (e.g. 1), or a range of numbers '</span>,<span class="keyword">...</span>
+0189      <span class="string">'(e.g. 3:5) can be entered'</span>] };
+0190 subj_nums.strtype = <span class="string">'e'</span>;
+0191 subj_nums.num     = [Inf 1];
+0192 
+0193 <span class="comment">% ---------------------------------------------------------------------</span>
+0194 <span class="comment">% group Group</span>
+0195 <span class="comment">% ---------------------------------------------------------------------</span>
+0196 group         = cfg_branch;
+0197 group.tag     = <span class="string">'group'</span>;
+0198 group.name    = <span class="string">'Group'</span>;
+0199 group.help    = {<span class="string">'Specify data and design for the group.'</span>};
+0200 group.val     = {gr_name, subj_nums, conditions};
+0201 
+0202 <span class="comment">% ---------------------------------------------------------------------</span>
+0203 <span class="comment">% class_name Class name</span>
+0204 <span class="comment">% ---------------------------------------------------------------------</span>
+0205 class_name         = cfg_entry;
+0206 class_name.tag     = <span class="string">'class_name'</span>;
+0207 class_name.name    = <span class="string">'Name'</span>;
+0208 class_name.help    = {<span class="string">'Name for this class, e.g. ''controls'' '</span>};
+0209 class_name.strtype = <span class="string">'s'</span>;
+0210 class_name.num     = [1 Inf];
+0211 
+0212 <span class="comment">% ---------------------------------------------------------------------</span>
+0213 <span class="comment">% groups Groups</span>
+0214 <span class="comment">% ---------------------------------------------------------------------</span>
+0215 groups         = cfg_repeat;
+0216 groups.tag     = <span class="string">'groups'</span>;
+0217 groups.name    = <span class="string">'Groups'</span>;
+0218 groups.help    = {[<span class="string">'Add one group to this class. Click ''new'' '</span><span class="keyword">...</span>
+0219                     <span class="string">'or ''repeat'' to add another group.'</span>]};
+0220 groups.num     = [1 Inf];
+0221 groups.values  = {group};
+0222 
+0223 <span class="comment">% ---------------------------------------------------------------------</span>
+0224 <span class="comment">% class Class</span>
+0225 <span class="comment">% ---------------------------------------------------------------------</span>
+0226 class         = cfg_branch;
+0227 class.tag     = <span class="string">'class'</span>;
+0228 class.name    = <span class="string">'Class'</span>;
+0229 class.help    = {<span class="keyword">...</span>
+0230     [<span class="string">'Specify which groups, modalities, subjects and conditions should '</span>,<span class="keyword">...</span>
+0231      <span class="string">'be included in this class'</span>]};
+0232 class.val     = {class_name, groups};
+0233 
+0234 
+0235 <span class="comment">% ---------------------------------------------------------------------</span>
+0236 <span class="comment">% reg_group Regression group</span>
+0237 <span class="comment">% ---------------------------------------------------------------------</span>
+0238 reg_group         = cfg_branch;
+0239 reg_group.tag     = <span class="string">'reg_group'</span>;
+0240 reg_group.name    = <span class="string">'Group'</span>;
+0241 reg_group.help    = {<span class="string">'Specify data and design for the group.'</span>};
+0242 reg_group.val     = {gr_name, subj_nums, conditions};
+0243 
+0244 <span class="comment">% ---------------------------------------------------------------------</span>
+0245 <span class="comment">% k_args Define k for partioning</span>
+0246 <span class="comment">% ---------------------------------------------------------------------</span>
+0247 k_args         = cfg_entry;
+0248 k_args.tag     = <span class="string">'k_args'</span>;
+0249 k_args.name    = <span class="string">'k'</span>;
+0250 k_args.help    = {[<span class="string">'Number of folds/partitions for CV. To create a 50%-50%,'</span> <span class="keyword">...</span>
+0251     <span class="string">'choose k as 2. Please note that there can be more partitions than'</span><span class="keyword">...</span>
+0252     <span class="string">' specified when leaving subjects per group out. Also note that '</span><span class="keyword">...</span>
+0253     <span class="string">'leaving more than 50% of the data out is not permitted.'</span>]};
+0254 k_args.strtype = <span class="string">'e'</span>;
+0255 k_args.num     = [1 1];
+0256 
+0257 <span class="comment">% ---------------------------------------------------------------------</span>
+0258 <span class="comment">% cv_loso Leave-one-subject-out</span>
+0259 <span class="comment">% ---------------------------------------------------------------------</span>
+0260 cv_loso         = cfg_const;
+0261 cv_loso.tag     = <span class="string">'cv_loso'</span>;
+0262 cv_loso.name    = <span class="string">'Leave one subject out'</span>;
+0263 cv_loso.val     = {1};
+0264 cv_loso.help    = {<span class="string">'Leave a single subject out each cross-validation iteration'</span>};
+0265 
+0266 <span class="comment">% ---------------------------------------------------------------------</span>
+0267 <span class="comment">% cv_lkso K-folds CV on Subjects</span>
+0268 <span class="comment">% ---------------------------------------------------------------------</span>
+0269 cv_lkso         = cfg_branch;
+0270 cv_lkso.tag     = <span class="string">'cv_lkso'</span>;
+0271 cv_lkso.name    = <span class="string">'k-folds CV on subjects'</span>;
+0272 cv_lkso.val     = {k_args};
+0273 cv_lkso.help    = {<span class="string">'k-partitioning of subjects at each cross-validation iteration'</span>};
+0274 
+0275 <span class="comment">% ---------------------------------------------------------------------</span>
+0276 <span class="comment">% cv_losgo Leave-one-subject-per-group-out</span>
+0277 <span class="comment">% ---------------------------------------------------------------------</span>
+0278 cv_losgo         = cfg_const;
+0279 cv_losgo.tag     = <span class="string">'cv_losgo'</span>;
+0280 cv_losgo.name    = <span class="string">'Leave one subject per group out'</span>;
+0281 cv_losgo.val     = {1};
+0282 cv_losgo.help    = {<span class="keyword">...</span>
+0283     [<span class="string">'Leave out a single subject from each group at a time. '</span>, <span class="keyword">...</span>
+0284      <span class="string">'Appropriate for repeated measures or paired samples designs.'</span>]};
+0285  
+0286 <span class="comment">% ---------------------------------------------------------------------</span>
+0287 <span class="comment">% cv_lksgo K_folds CV on Subjects per Group</span>
+0288 <span class="comment">% ---------------------------------------------------------------------</span>
+0289 cv_lksgo         = cfg_branch;
+0290 cv_lksgo.tag     = <span class="string">'cv_lksgo'</span>;
+0291 cv_lksgo.name    = <span class="string">'k-folds CV on subjects per group'</span>;
+0292 cv_lksgo.val     = {k_args};
+0293 cv_lksgo.help    = {<span class="keyword">...</span>
+0294     [<span class="string">'K-partitioning of subjects from each group at a time. '</span>, <span class="keyword">...</span>
+0295      <span class="string">'Appropriate for repeated measures or paired samples designs.'</span>]};
+0296  
+0297 <span class="comment">% ---------------------------------------------------------------------</span>
+0298 <span class="comment">% cv_lobo Leave-one-block-out</span>
+0299 <span class="comment">% ---------------------------------------------------------------------</span>
+0300 cv_lobo         = cfg_const;
+0301 cv_lobo.tag     = <span class="string">'cv_lobo'</span>;
+0302 cv_lobo.name    = <span class="string">'Leave one block out'</span>;
+0303 cv_lobo.val     = {1};
+0304 cv_lobo.help    = {<span class="keyword">...</span>
+0305     [<span class="string">'Leave out a single block or event from each subject each iteration. '</span>, <span class="keyword">...</span>
+0306      <span class="string">'Appropriate for single subject designs.'</span>]};
+0307 
+0308 <span class="comment">% ---------------------------------------------------------------------</span>
+0309 <span class="comment">% cv_lkbo K-fold CV on blocks</span>
+0310 <span class="comment">% ---------------------------------------------------------------------</span>
+0311 cv_lkbo         = cfg_branch;
+0312 cv_lkbo.tag     = <span class="string">'cv_lkbo'</span>;
+0313 cv_lkbo.name    = <span class="string">'k-folds CV on blocks'</span>;
+0314 cv_lkbo.val     = {k_args};
+0315 cv_lkbo.help    = {<span class="keyword">...</span>
+0316     [<span class="string">'k-partitioning on blocks or events from each subject each iteration. '</span>, <span class="keyword">...</span>
+0317      <span class="string">'Appropriate for single subject designs.'</span>]};
+0318  
+0319 <span class="comment">% ---------------------------------------------------------------------</span>
+0320 <span class="comment">% cv_locbo Leave-one-block per class out</span>
+0321 <span class="comment">% ---------------------------------------------------------------------</span>
+0322 cv_locbo         = cfg_const;
+0323 cv_locbo.tag     = <span class="string">'cv_locbo'</span>;
+0324 cv_locbo.name    = <span class="string">'Leave one block per class out'</span>;
+0325 cv_locbo.val     = {1};
+0326 cv_locbo.help    = {<span class="keyword">...</span>
+0327     [<span class="string">'Leave out a single block or event from each class each iteration. '</span>, <span class="keyword">...</span>
+0328      <span class="string">'Appropriate for single subject designs.'</span>]};
+0329 
+0330 <span class="comment">% ---------------------------------------------------------------------</span>
+0331 <span class="comment">% cv_lkcbo K-fold CV on blocks per class</span>
+0332 <span class="comment">% ---------------------------------------------------------------------</span>
+0333 cv_lkcbo         = cfg_branch;
+0334 cv_lkcbo.tag     = <span class="string">'cv_lkcbo'</span>;
+0335 cv_lkcbo.name    = <span class="string">'k-folds CV on block per class'</span>;
+0336 cv_lkcbo.val     = {k_args};
+0337 cv_lkcbo.help    = {<span class="keyword">...</span>
+0338     [<span class="string">'k-partitioning on blocks or events from each class each iteration. '</span>, <span class="keyword">...</span>
+0339      <span class="string">'Appropriate for single subject designs.'</span>]};
+0340  
+0341 <span class="comment">% ---------------------------------------------------------------------</span>
+0342 <span class="comment">% cv_loro Leave--one-run-per-subject-out (leave one modality out per</span>
+0343 <span class="comment">% subject)</span>
+0344 <span class="comment">% ---------------------------------------------------------------------</span>
+0345 cv_loro         = cfg_const;
+0346 cv_loro.tag     = <span class="string">'cv_loro'</span>;
+0347 cv_loro.name    = <span class="string">'Leave one run/session out'</span>;
+0348 cv_loro.val     = {1};
+0349 cv_loro.help    = {<span class="keyword">...</span>
+0350     [<span class="string">'Leave out a single run (modality) from each subject each iteration. '</span>, <span class="keyword">...</span>
+0351      <span class="string">'Appropriate for single subject designs with multiple runs/sessions.'</span>]};
+0352    
+0353 <span class="comment">% ---------------------------------------------------------------------</span>
+0354 <span class="comment">% cv_custom Feature set mask</span>
+0355 <span class="comment">% ---------------------------------------------------------------------</span>
+0356 cv_custom        = cfg_files;
+0357 cv_custom.tag    = <span class="string">'cv_custom'</span>;
+0358 cv_custom.name   = <span class="string">'Custom'</span>;
+0359 cv_custom.filter = <span class="string">'mat'</span>;
+0360 cv_custom.ufilter = <span class="string">'.*'</span>;
+0361 cv_custom.num    = [1 1];
+0362 cv_custom.help   = {<span class="keyword">...</span>
+0363     <span class="string">'Load a cross-validation matrix comprising a CV variable'</span>};
+0364 
+0365 <span class="comment">% ---------------------------------------------------------------------</span>
+0366 <span class="comment">% cv_type Cross-validation type</span>
+0367 <span class="comment">% ---------------------------------------------------------------------</span>
+0368 cv_type        = cfg_choice;
+0369 cv_type.tag    = <span class="string">'cv_type'</span>;
+0370 cv_type.name   = <span class="string">'Cross-validation type'</span>;
+0371 cv_type.values = {cv_loso, cv_lkso, cv_losgo,cv_lksgo, cv_lobo,<span class="keyword">...</span>
+0372     cv_lkbo, cv_locbo, cv_lkcbo, cv_loro, cv_custom};
+0373 cv_type.val    = {cv_loso};
+0374 cv_type.help   = {<span class="string">'Choose the type of cross-validation to be used'</span>};
+0375 
+0376 <span class="comment">% kernel classification methods</span>
+0377 
+0378 <span class="comment">% ---------------------------------------------------------------------</span>
+0379 <span class="comment">% svm_args SVM argument values</span>
+0380 <span class="comment">% ---------------------------------------------------------------------</span>
+0381 svm_args         = cfg_entry;
+0382 svm_args.tag     = <span class="string">'svm_args'</span>;
+0383 svm_args.name    = <span class="string">'Regularization hyper-parameter'</span>;
+0384 svm_args.help    = {[<span class="string">'Value(s) for hyper-parameter. '</span>,<span class="keyword">...</span>
+0385     <span class="string">'Examples: 10.^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.'</span>]};
+0386 svm_args.strtype = <span class="string">'e'</span>;
+0387 svm_args.val     = {def.model.libsvm_optargs};
+0388 svm_args.num     = [1 Inf];
+0389 
+0390 <span class="comment">% ---------------------------------------------------------------------</span>
+0391 <span class="comment">% cv_type Cross-validation type</span>
+0392 <span class="comment">% ---------------------------------------------------------------------</span>
+0393 svm_cv_type_nested        = cfg_choice;
+0394 svm_cv_type_nested.tag    = <span class="string">'cv_type_nested'</span>;
+0395 svm_cv_type_nested.name   = <span class="string">'Cross-validation type for hyper-parameter optimization'</span>;
+0396 svm_cv_type_nested.values = {cv_loso,cv_lkso, cv_losgo,cv_lksgo, cv_lobo,<span class="keyword">...</span>
+0397     cv_lkbo, cv_locbo, cv_lkcbo, cv_loro};
+0398 svm_cv_type_nested.val    = {cv_loso};
+0399 svm_cv_type_nested.help   = {<span class="string">'Choose the type of cross-validation to be used'</span>};
+0400 
+0401 <span class="comment">% ---------------------------------------------------------------------</span>
+0402 <span class="comment">% svm_opt_C</span>
+0403 <span class="comment">% ---------------------------------------------------------------------</span>
+0404 svm_opt_C         = cfg_branch;
+0405 svm_opt_C.tag     = <span class="string">'svm_opt_C'</span>;
+0406 svm_opt_C.name    = <span class="string">'Optimize hyper-parameter'</span>;
+0407 svm_opt_C.help    = {<span class="string">'Specify range of values and nested CV.'</span>};
+0408 svm_opt_C.val     = {svm_args,svm_cv_type_nested};
+0409 
+0410 <span class="comment">% ---------------------------------------------------------------------</span>
+0411 <span class="comment">% svm_no_opt</span>
+0412 <span class="comment">% ---------------------------------------------------------------------</span>
+0413 svm_no_opt         = cfg_entry;
+0414 svm_no_opt.tag     = <span class="string">'svm_no_opt'</span>;
+0415 svm_no_opt.name    = <span class="string">'No optimization'</span>;
+0416 svm_no_opt.help    = {<span class="string">'Getting default value.'</span>};
+0417 svm_no_opt.strtype = <span class="string">'e'</span>;
+0418 svm_no_opt.val     = {def.model.libsvmargs};
+0419 svm_no_opt.num     = [1 1];
+0420 
+0421 <span class="comment">% ---------------------------------------------------------------------</span>
+0422 <span class="comment">% svm_opt group</span>
+0423 <span class="comment">% ---------------------------------------------------------------------</span>
+0424 svm_opt         = cfg_choice;
+0425 svm_opt.tag     = <span class="string">'svm_opt'</span>;
+0426 svm_opt.name    = <span class="string">'Machine optimization and parameters'</span>;
+0427 svm_opt.help    = {<span class="string">'Choose whether to optimize machine or not'</span>};
+0428 svm_opt.values     = {svm_no_opt,svm_opt_C};
+0429 
+0430 <span class="comment">% ---------------------------------------------------------------------</span>
+0431 <span class="comment">% svm_sargs SVM string argument</span>
+0432 <span class="comment">% ---------------------------------------------------------------------</span>
+0433 svm_sargs         = cfg_entry;
+0434 svm_sargs.tag     = <span class="string">'svm_sargs'</span>;
+0435 svm_sargs.name    = <span class="string">'SVM string argument'</span>;
+0436 svm_sargs.help    = {[<span class="string">'String argument for LIBSVM interfacing.'</span>]};
+0437 svm_sargs.strtype = <span class="string">'s'</span>;
+0438 svm_sargs.val     = {def.model.libsvm_sargs};
+0439 svm_sargs.num     = [1 Inf];
+0440 
+0441 <span class="comment">% ---------------------------------------------------------------------</span>
+0442 <span class="comment">% svm group</span>
+0443 <span class="comment">% ---------------------------------------------------------------------</span>
+0444 svm         = cfg_branch;
+0445 svm.tag     = <span class="string">'svm'</span>;
+0446 svm.name    = <span class="string">'SVM Classification'</span>;
+0447 svm.help    = {<span class="string">'Binary support vector machine.'</span>};
+0448 svm.val     = {svm_sargs,svm_opt};
+0449 
+0450 <span class="comment">% ---------------------------------------------------------------------</span>
+0451 <span class="comment">% gpc_args GPC arguments</span>
+0452 <span class="comment">% ---------------------------------------------------------------------</span>
+0453 gpc_sargs         = cfg_entry;
+0454 gpc_sargs.tag     = <span class="string">'gpc_sargs'</span>;
+0455 gpc_sargs.name    = <span class="string">'String arguments'</span>;
+0456 gpc_sargs.help    = {[<span class="string">'String arguments for GPML machine binary classification machine.'</span>]};
+0457 gpc_sargs.strtype = <span class="string">'s'</span>;
+0458 gpc_sargs.val     = {def.model.gpc_sargs};
+0459 gpc_sargs.num     = [1 Inf];
+0460 
+0461 <span class="comment">% ---------------------------------------------------------------------</span>
+0462 <span class="comment">% gpc GPC</span>
+0463 <span class="comment">% ---------------------------------------------------------------------</span>
+0464 gpc         = cfg_branch;
+0465 gpc.tag     = <span class="string">'gpc'</span>;
+0466 gpc.name    = <span class="string">'Gaussian Process Classification'</span>;
+0467 gpc.help    = {<span class="string">'Gaussian Process Classification'</span>};
+0468 gpc.val     = {gpc_sargs};
+0469 
+0470 <span class="comment">% ---------------------------------------------------------------------</span>
+0471 <span class="comment">% gpclap_args GPC arguments</span>
+0472 <span class="comment">% ---------------------------------------------------------------------</span>
+0473 gpclap_sargs         = cfg_entry;
+0474 gpclap_sargs.tag     = <span class="string">'gpclap_sargs'</span>;
+0475 gpclap_sargs.name    = <span class="string">'String arguments'</span>;
+0476 gpclap_sargs.help    = {[<span class="string">'String arguments for GPML multiclass classification machine.'</span>]};
+0477 gpclap_sargs.strtype = <span class="string">'s'</span>;
+0478 gpclap_sargs.val     = {def.model.gpclap_sargs};
+0479 gpclap_sargs.num     = [1 Inf];
+0480 
+0481 <span class="comment">% ---------------------------------------------------------------------</span>
+0482 <span class="comment">% gpclap GPC - multiclass</span>
+0483 <span class="comment">% ---------------------------------------------------------------------</span>
+0484 gpclap         = cfg_branch;
+0485 gpclap.tag     = <span class="string">'gpclap'</span>;
+0486 gpclap.name    = <span class="string">'Multiclass GPC'</span>;
+0487 gpclap.help    = {<span class="string">'Multiclass GPC'</span>};
+0488 gpclap.val     = {gpclap_sargs};
+0489 
+0490 <span class="comment">% ---------------------------------------------------------------------</span>
+0491 <span class="comment">% sMKL_cla simple (L1) MKL</span>
+0492 <span class="comment">% ---------------------------------------------------------------------</span>
+0493 sMKL_cla         = cfg_branch;
+0494 sMKL_cla.tag     = <span class="string">'sMKL_cla'</span>;
+0495 sMKL_cla.name    = <span class="string">'L1 Multi-Kernel Learning'</span>;
+0496 sMKL_cla.help    = {<span class="string">'Multi-Kernel Learning. Choose only if multiple kernels '</span> <span class="keyword">...</span>
+0497     <span class="string">'were built during the feature set construction (either multiple modalities or ROIs). '</span> <span class="keyword">...</span>
+0498     <span class="string">'It is strongly advised to &quot;normalize&quot; the kernels (in &quot;operations&quot;).'</span>};
+0499 sMKL_cla.val     = {svm_opt};
+0500 
+0501 <span class="comment">% ---------------------------------------------------------------------</span>
+0502 <span class="comment">% libl2KLR_sargs L2 Logistic Regression string argument (dual)</span>
+0503 <span class="comment">% ---------------------------------------------------------------------</span>
+0504 libl2KLR_sargs         = cfg_entry;
+0505 libl2KLR_sargs.tag     = <span class="string">'libl2KLR_sargs'</span>;
+0506 libl2KLR_sargs.name    = <span class="string">'String arguments'</span>;
+0507 libl2KLR_sargs.help    = {[<span class="string">'String arguments for LIBLINEAR interface.'</span>]};
+0508 libl2KLR_sargs.strtype = <span class="string">'s'</span>;
+0509 libl2KLR_sargs.val     = {def.model.libl2KLR_sargs};
+0510 libl2KLR_sargs.num     = [1 Inf];
+0511 
+0512 <span class="comment">% ---------------------------------------------------------------------</span>
+0513 <span class="comment">% libl2KLR group</span>
+0514 <span class="comment">% ---------------------------------------------------------------------</span>
+0515 libl2KLR         = cfg_branch;
+0516 libl2KLR.tag     = <span class="string">'libl2KLR'</span>;
+0517 libl2KLR.name    = <span class="string">'L2-Logistic Regression'</span>;
+0518 libl2KLR.help    = {<span class="string">'Kernel L2-regularized Logistic Regression from LIBLINEAR.'</span>};
+0519 libl2KLR.val     = {libl2KLR_sargs,svm_opt};
+0520 
+0521 
+0522 <span class="comment">% Non-kernel classification methods</span>
+0523 
+0524 
+0525 <span class="comment">% ---------------------------------------------------------------------</span>
+0526 <span class="comment">% libl2svm_sargs SVM string argument (primal)</span>
+0527 <span class="comment">% ---------------------------------------------------------------------</span>
+0528 libl2svm_sargs         = cfg_entry;
+0529 libl2svm_sargs.tag     = <span class="string">'libl2svm_sargs'</span>;
+0530 libl2svm_sargs.name    = <span class="string">'String arguments'</span>;
+0531 libl2svm_sargs.help    = {[<span class="string">'String arguments for LIBLINEAR interfacing.'</span>]};
+0532 libl2svm_sargs.strtype = <span class="string">'s'</span>;
+0533 libl2svm_sargs.val     = {def.model.libl2svm_sargs};
+0534 libl2svm_sargs.num     = [1 Inf];
+0535 
+0536 <span class="comment">% ---------------------------------------------------------------------</span>
+0537 <span class="comment">% libl2svm group</span>
+0538 <span class="comment">% ---------------------------------------------------------------------</span>
+0539 libl2svm         = cfg_branch;
+0540 libl2svm.tag     = <span class="string">'libl2svm'</span>;
+0541 libl2svm.name    = <span class="string">'Binary L2-SVM'</span>;
+0542 libl2svm.help    = {<span class="string">'Non-kernel L2-regularized L2-Loss support vector machine,can be used for multiclass problem.'</span>};
+0543 libl2svm.val     = {libl2svm_sargs,svm_opt};
+0544 
+0545 <span class="comment">% ---------------------------------------------------------------------</span>
+0546 <span class="comment">% libl1svm_sargs L1-SVM string argument (primal)</span>
+0547 <span class="comment">% ---------------------------------------------------------------------</span>
+0548 libl1svm_sargs         = cfg_entry;
+0549 libl1svm_sargs.tag     = <span class="string">'libl1svm_sargs'</span>;
+0550 libl1svm_sargs.name    = <span class="string">'String arguments'</span>;
+0551 libl1svm_sargs.help    = {[<span class="string">'String arguments for LIBLINEAR interface.'</span>]};
+0552 libl1svm_sargs.strtype = <span class="string">'s'</span>;
+0553 libl1svm_sargs.val     = {def.model.libl1svm_sargs};
+0554 libl1svm_sargs.num     = [1 Inf];
+0555 
+0556 <span class="comment">% ---------------------------------------------------------------------</span>
+0557 <span class="comment">% libl1svm group</span>
+0558 <span class="comment">% ---------------------------------------------------------------------</span>
+0559 libl1svm         = cfg_branch;
+0560 libl1svm.tag     = <span class="string">'libl1svm'</span>;
+0561 libl1svm.name    = <span class="string">'Binary L1-SVM'</span>;
+0562 libl1svm.help    = {<span class="string">'Non-kernel L1-regularized L2-Loss support vector machine.'</span>};
+0563 libl1svm.val     = {libl1svm_sargs,svm_opt};
+0564 
+0565 <span class="comment">% ---------------------------------------------------------------------</span>
+0566 <span class="comment">% libmulticlsvm_sargs Multiclass-SVM string argument (primal)</span>
+0567 <span class="comment">% ---------------------------------------------------------------------</span>
+0568 libmulticlsvm_sargs         = cfg_entry;
+0569 libmulticlsvm_sargs.tag     = <span class="string">'libmulticlsvm_sargs'</span>;
+0570 libmulticlsvm_sargs.name    = <span class="string">'String arguments'</span>;
+0571 libmulticlsvm_sargs.help    = {[<span class="string">'String arguments for LIBLINEAR interface.'</span>]};
+0572 libmulticlsvm_sargs.strtype = <span class="string">'s'</span>;
+0573 libmulticlsvm_sargs.val     = {def.model.libmulticlsvm_sargs};
+0574 libmulticlsvm_sargs.num     = [1 Inf];
+0575 
+0576 <span class="comment">% ---------------------------------------------------------------------</span>
+0577 <span class="comment">% libmulticlsvm group</span>
+0578 <span class="comment">% ---------------------------------------------------------------------</span>
+0579 libmulticlsvm         = cfg_branch;
+0580 libmulticlsvm.tag     = <span class="string">'libmulticlsvm'</span>;
+0581 libmulticlsvm.name    = <span class="string">'Multiclass SVM'</span>;
+0582 libmulticlsvm.help    = {[<span class="string">'Multiclass support vector classification by '</span>,<span class="keyword">...</span>
+0583     <span class="string">'Crammer and Singer, can also be used for binary classification.'</span>]};
+0584 libmulticlsvm.val     = {libmulticlsvm_sargs,svm_opt};
+0585 
+0586 <span class="comment">% ---------------------------------------------------------------------</span>
+0587 <span class="comment">% libl2LR_sargs L2 Logistic Regression string argument (primal)</span>
+0588 <span class="comment">% ---------------------------------------------------------------------</span>
+0589 libl2LR_sargs         = cfg_entry;
+0590 libl2LR_sargs.tag     = <span class="string">'libl2LR_sargs'</span>;
+0591 libl2LR_sargs.name    = <span class="string">'String arguments'</span>;
+0592 libl2LR_sargs.help    = {[<span class="string">'String arguments for LIBLINEAR interface.'</span>]};
+0593 libl2LR_sargs.strtype = <span class="string">'s'</span>;
+0594 libl2LR_sargs.val     = {def.model.libl2LR_sargs};
+0595 libl2LR_sargs.num     = [1 Inf];
+0596 
+0597 <span class="comment">% ---------------------------------------------------------------------</span>
+0598 <span class="comment">% libl2LR group</span>
+0599 <span class="comment">% ---------------------------------------------------------------------</span>
+0600 libl2LR         = cfg_branch;
+0601 libl2LR.tag     = <span class="string">'libl2LR'</span>;
+0602 libl2LR.name    = <span class="string">'L2-Logistic Regression'</span>;
+0603 libl2LR.help    = {<span class="string">'Non-kernel L2-regularized Logistic Regression from LIBLINEAR.'</span>};
+0604 libl2LR.val     = {libl2LR_sargs,svm_opt};
+0605 
+0606 <span class="comment">% ---------------------------------------------------------------------</span>
+0607 <span class="comment">% libl2LR_sargs L2 Logistic Regression string argument (primal)</span>
+0608 <span class="comment">% ---------------------------------------------------------------------</span>
+0609 libl1LR_sargs         = cfg_entry;
+0610 libl1LR_sargs.tag     = <span class="string">'libl1LR_sargs'</span>;
+0611 libl1LR_sargs.name    = <span class="string">'String arguments'</span>;
+0612 libl1LR_sargs.help    = {[<span class="string">'String arguments for LIBLINEAR interface.'</span>]};
+0613 libl1LR_sargs.strtype = <span class="string">'s'</span>;
+0614 libl1LR_sargs.val     = {def.model.libl1LR_sargs};
+0615 libl1LR_sargs.num     = [1 Inf];
+0616 
+0617 <span class="comment">% ---------------------------------------------------------------------</span>
+0618 <span class="comment">% libl2LR group</span>
+0619 <span class="comment">% ---------------------------------------------------------------------</span>
+0620 libl1LR         = cfg_branch;
+0621 libl1LR.tag     = <span class="string">'libl1LR'</span>;
+0622 libl1LR.name    = <span class="string">'L1-Logistic Regression'</span>;
+0623 libl1LR.help    = {<span class="string">'Non-kernel L1-regularized Logistic Regression from LIBLINEAR.'</span>};
+0624 libl1LR.val     = {libl1LR_sargs,svm_opt};
+0625 
+0626 <span class="comment">% Regression machines - dual</span>
+0627 
+0628 <span class="comment">% ---------------------------------------------------------------------</span>
+0629 <span class="comment">% gpr_sargs GPR arguments</span>
+0630 <span class="comment">% ---------------------------------------------------------------------</span>
+0631 gpr_sargs         = cfg_entry;
+0632 gpr_sargs.tag     = <span class="string">'gpr_sargs'</span>;
+0633 gpr_sargs.name    = <span class="string">'String arguments'</span>;
+0634 gpr_sargs.help    = {[<span class="string">'String arguments for GMPL machine prt_machine_gpr.'</span>]};
+0635 gpr_sargs.strtype = <span class="string">'s'</span>;
+0636 gpr_sargs.val     = {def.model.gpr_sargs};
+0637 gpr_sargs.num     = [1 Inf];
+0638 
+0639 <span class="comment">% ---------------------------------------------------------------------</span>
+0640 <span class="comment">% gpr GPR</span>
+0641 <span class="comment">% ---------------------------------------------------------------------</span>
+0642 gpr         = cfg_branch;
+0643 gpr.tag     = <span class="string">'gpr'</span>;
+0644 gpr.name    = <span class="string">'Gaussian Process Regression'</span>;
+0645 gpr.help    = {<span class="string">'Gaussian Process Regression'</span>};
+0646 gpr.val     = {gpr_sargs};
+0647 
+0648 <span class="comment">% ---------------------------------------------------------------------</span>
+0649 <span class="comment">% sMKL_reg sMKL regression</span>
+0650 <span class="comment">% ---------------------------------------------------------------------</span>
+0651 sMKL_reg         = cfg_branch;
+0652 sMKL_reg.tag     = <span class="string">'sMKL_reg'</span>;
+0653 sMKL_reg.name    = <span class="string">'Multi-Kernel Regression'</span>;
+0654 sMKL_reg.help    = {<span class="string">'Multi-Kernel Regression'</span>};
+0655 sMKL_reg.val     = {svm_opt};
+0656 
+0657 <span class="comment">% ---------------------------------------------------------------------</span>
+0658 <span class="comment">% KRR machine</span>
+0659 <span class="comment">% ---------------------------------------------------------------------</span>
+0660 krr         = cfg_branch;
+0661 krr.tag     = <span class="string">'krr'</span>;
+0662 krr.name    = <span class="string">'Kernel Ridge Regression'</span>;
+0663 krr.help    = {<span class="string">'Kernel Ridge Regression.'</span>};
+0664 krr.val     = {svm_opt};
+0665 
+0666 <span class="comment">% ---------------------------------------------------------------------</span>
+0667 <span class="comment">% RVR machine</span>
+0668 <span class="comment">% ---------------------------------------------------------------------</span>
+0669 rvr         = cfg_branch;
+0670 rvr.tag     = <span class="string">'rvr'</span>;
+0671 rvr.name    = <span class="string">'Relevance Vector Regression'</span>;
+0672 rvr.help    = {<span class="string">'Relevance Vector Regression. Tipping, Michael E.; Smola, Alex (2001).'</span> <span class="keyword">...</span>
+0673     <span class="string">'&quot;Sparse Bayesian Learning and the Relevance Vector Machine&quot;. Journal of Machine Learning Research 1: 211?244.'</span>};
+0674 
+0675 <span class="comment">% ---------------------------------------------------------------------</span>
+0676 <span class="comment">% libeSVR_sargs epsilon SVR string argument (dual)</span>
+0677 <span class="comment">% ---------------------------------------------------------------------</span>
+0678 libeSVR_sargs         = cfg_entry;
+0679 libeSVR_sargs.tag     = <span class="string">'libeSVR_sargs'</span>;
+0680 libeSVR_sargs.name    = <span class="string">'String arguments'</span>;
+0681 libeSVR_sargs.help    = {[<span class="string">'String arguments for LIBSVM interface.'</span>]};
+0682 libeSVR_sargs.strtype = <span class="string">'s'</span>;
+0683 libeSVR_sargs.val     = {def.model.libeSVR_sargs};
+0684 libeSVR_sargs.num     = [1 Inf];
+0685 
+0686 <span class="comment">% ---------------------------------------------------------------------</span>
+0687 <span class="comment">% libeSVR group</span>
+0688 <span class="comment">% ---------------------------------------------------------------------</span>
+0689 libeSVR         = cfg_branch;
+0690 libeSVR.tag     = <span class="string">'libeSVR'</span>;
+0691 libeSVR.name    = <span class="string">'epsilon-SVR'</span>;
+0692 libeSVR.help    = {<span class="string">'Kernel epsilon Support Vector Regression from LIBSVM.'</span>};
+0693 libeSVR.val     = {libeSVR_sargs,svm_opt};
+0694 
+0695 <span class="comment">% Non-kernel regression machines</span>
+0696 
+0697 <span class="comment">% ---------------------------------------------------------------------</span>
+0698 <span class="comment">% libl2SVR_sargs epsilon-SVR string argument (primal)</span>
+0699 <span class="comment">% ---------------------------------------------------------------------</span>
+0700 libl2SVR_sargs         = cfg_entry;
+0701 libl2SVR_sargs.tag     = <span class="string">'libl2SVR_sargs'</span>;
+0702 libl2SVR_sargs.name    = <span class="string">'String arguments'</span>;
+0703 libl2SVR_sargs.help    = {[<span class="string">'String arguments for LIBLINEAR interface.'</span>]};
+0704 libl2SVR_sargs.strtype = <span class="string">'s'</span>;
+0705 libl2SVR_sargs.val     = {def.model.libl2SVR_sargs};
+0706 libl2SVR_sargs.num     = [1 Inf];
+0707 
+0708 <span class="comment">% ---------------------------------------------------------------------</span>
+0709 <span class="comment">% libl2SVR group</span>
+0710 <span class="comment">% ---------------------------------------------------------------------</span>
+0711 libl2SVR         = cfg_branch;
+0712 libl2SVR.tag     = <span class="string">'libl2SVR'</span>;
+0713 libl2SVR.name    = <span class="string">'epsilon-SVR'</span>;
+0714 libl2SVR.help    = {<span class="string">'Non-kernel epsilon-Support Vector Regression from LIBLINEAR.'</span>};
+0715 libl2SVR.val     = {libl2SVR_sargs,svm_opt};
+0716 
+0717 <span class="comment">% ---------------------------------------------------------------------</span>
+0718 <span class="comment">% rt_args Arguments to RT</span>
+0719 <span class="comment">% ---------------------------------------------------------------------</span>
+0720 rt_args         = cfg_entry;
+0721 rt_args.tag     = <span class="string">'rt_args'</span>;
+0722 rt_args.name    = <span class="string">'Ntrees'</span>;
+0723 rt_args.help    = {[<span class="string">'Number of trees in the forest.'</span>]};
+0724 rt_args.strtype = <span class="string">'e'</span>;
+0725 rt_args.val     = {def.model.rt_optargs};
+0726 rt_args.num     = [1 1];
+0727 
+0728 <span class="comment">% ---------------------------------------------------------------------</span>
+0729 <span class="comment">% rt_opt_T</span>
+0730 <span class="comment">% ---------------------------------------------------------------------</span>
+0731 rt_opt_T         = cfg_branch;
+0732 rt_opt_T.tag     = <span class="string">'rt_opt_T'</span>;
+0733 rt_opt_T.name    = <span class="string">'Optimize hyper-parameter'</span>;
+0734 rt_opt_T.help    = {<span class="string">'Specify range of values and nested CV.'</span>};
+0735 rt_opt_T.val     = {rt_args,svm_cv_type_nested};
+0736 
+0737 <span class="comment">% ---------------------------------------------------------------------</span>
+0738 <span class="comment">% rt_no_opt</span>
+0739 <span class="comment">% ---------------------------------------------------------------------</span>
+0740 rt_no_opt         = cfg_entry;
+0741 rt_no_opt.tag     = <span class="string">'rt_no_opt'</span>;
+0742 rt_no_opt.name    = <span class="string">'No optimization'</span>;
+0743 rt_no_opt.help    = {<span class="string">'Getting default value.'</span>};
+0744 rt_no_opt.strtype = <span class="string">'e'</span>;
+0745 rt_no_opt.val     = {def.model.rtargs};
+0746 rt_no_opt.num     = [1 1];
+0747 
+0748 <span class="comment">% ---------------------------------------------------------------------</span>
+0749 <span class="comment">% rt_opt group</span>
+0750 <span class="comment">% ---------------------------------------------------------------------</span>
+0751 rt_opt         = cfg_choice;
+0752 rt_opt.tag     = <span class="string">'rt_opt'</span>;
+0753 rt_opt.name    = <span class="string">'Random Tree optimization and parameters'</span>;
+0754 rt_opt.help    = {<span class="string">'Choose whether to optimize machine or not'</span>};
+0755 rt_opt.values     = {rt_no_opt,rt_opt_T};
+0756 
+0757 <span class="comment">% ---------------------------------------------------------------------</span>
+0758 <span class="comment">% RT group</span>
+0759 <span class="comment">% ---------------------------------------------------------------------</span>
+0760 rt         = cfg_branch;
+0761 rt.tag     = <span class="string">'rt'</span>;
+0762 rt.name    = <span class="string">'Random Forest'</span>;
+0763 rt.help    = {<span class="string">'Random Forest. Breiman, Leo (2001).&quot;Random Forests&quot;. '</span> <span class="keyword">...</span>
+0764                <span class="string">'Machine Learning 45:5-32. This is a wrapper around '</span> <span class="keyword">...</span>
+0765                <span class="string">'Peter Geurt''s implementation in his Regression Tree '</span> <span class="keyword">...</span>
+0766                <span class="string">' package.'</span> };
+0767 rt.val     = {rt_opt};
+0768 
+0769 <span class="comment">% ---------------------------------------------------------------------</span>
+0770 <span class="comment">% machine_func Filename(s) of data</span>
+0771 <span class="comment">% ---------------------------------------------------------------------</span>
+0772 machine_func        = cfg_files;
+0773 machine_func.tag    = <span class="string">'machine_func'</span>;
+0774 machine_func.name   = <span class="string">'Function'</span>;
+0775 machine_func.ufilter = <span class="string">'^*.m'</span>;
+0776 machine_func.num    = [1 1];
+0777 machine_func.help   = {<span class="string">'Choose a function that will perform prediction.'</span>};
+0778 
+0779 <span class="comment">% ---------------------------------------------------------------------</span>
+0780 <span class="comment">% machine_args Custom machine arguments</span>
+0781 <span class="comment">% ---------------------------------------------------------------------</span>
+0782 machine_args         = cfg_entry;
+0783 machine_args.tag     = <span class="string">'machine_args'</span>;
+0784 machine_args.name    = <span class="string">'Regularization hyper-parameter'</span>;
+0785 machine_args.help    = {[<span class="string">'Hyper-parameter range for prediction machine.'</span>]};
+0786 machine_args.strtype = <span class="string">'e'</span>;
+0787 machine_args.num     = [1 Inf];
+0788 
+0789 <span class="comment">% ---------------------------------------------------------------------</span>
+0790 <span class="comment">% machine_opt_p</span>
+0791 <span class="comment">% ---------------------------------------------------------------------</span>
+0792 machine_opt_p        = cfg_branch;
+0793 machine_opt_p.tag     = <span class="string">'machine_opt_p'</span>;
+0794 machine_opt_p.name    = <span class="string">'Optimize hyper-parameter'</span>;
+0795 machine_opt_p.help    = {<span class="string">'Specify range of values and nested CV.'</span>};
+0796 machine_opt_p.val     = {machine_args,svm_cv_type_nested};
+0797 
+0798 <span class="comment">% ---------------------------------------------------------------------</span>
+0799 <span class="comment">% machine_no_opt</span>
+0800 <span class="comment">% ---------------------------------------------------------------------</span>
+0801 machine_no_opt         = cfg_entry;
+0802 machine_no_opt.tag     = <span class="string">'machine_no_opt'</span>;
+0803 machine_no_opt.name    = <span class="string">'No optimization'</span>;
+0804 machine_no_opt.help    = {<span class="string">'Enter parameter fixed value if needed.'</span>};
+0805 machine_no_opt.strtype = <span class="string">'e'</span>;
+0806 machine_no_opt.val     = {<span class="string">''</span>};
+0807 machine_no_opt.num     = [1 Inf];
+0808 
+0809 <span class="comment">% ---------------------------------------------------------------------</span>
+0810 <span class="comment">% machine_opt group</span>
+0811 <span class="comment">% ---------------------------------------------------------------------</span>
+0812 machine_opt         = cfg_choice;
+0813 machine_opt.tag     = <span class="string">'machine_opt'</span>;
+0814 machine_opt.name    = <span class="string">'Custom machine optimization and parameters'</span>;
+0815 machine_opt.help    = {<span class="string">'Choose whether to optimize machine or not'</span>};
+0816 machine_opt.values     = {machine_no_opt,machine_opt_p};
+0817 
+0818 
+0819 <span class="comment">% ---------------------------------------------------------------------</span>
+0820 <span class="comment">% machine_sargs Custom machine string argument</span>
+0821 <span class="comment">% ---------------------------------------------------------------------</span>
+0822 machine_sargs         = cfg_entry;
+0823 machine_sargs.tag     = <span class="string">'machine_sargs'</span>;
+0824 machine_sargs.name    = <span class="string">'Custom machine string argument'</span>;
+0825 machine_sargs.help    = {[<span class="string">'String argument for custom machine.'</span>]};
+0826 machine_sargs.strtype = <span class="string">'s'</span>;
+0827 machine_sargs.val     = {<span class="string">''</span>};
+0828 machine_sargs.num     = [1 Inf];
+0829 
+0830 <span class="comment">% ---------------------------------------------------------------------</span>
+0831 <span class="comment">% custom_machine Custom machine settings</span>
+0832 <span class="comment">% ---------------------------------------------------------------------</span>
+0833 custom_machine         = cfg_branch;
+0834 custom_machine.tag     = <span class="string">'custom_machine'</span>;
+0835 custom_machine.name    = <span class="string">'Custom machine'</span>;
+0836 custom_machine.help    = {<span class="string">'Choose another prediction machine'</span>};
+0837 custom_machine.val     = {machine_func, machine_sargs, machine_opt};
+0838 
+0839 <span class="comment">% ---------------------------------------------------------------------</span>
+0840 <span class="comment">% mach_cl_nonkernel Select Non-Kernel Machine for classification</span>
+0841 <span class="comment">% ---------------------------------------------------------------------</span>
+0842 mach_cl_nonkernel       = cfg_choice;
+0843 mach_cl_nonkernel.tag    = <span class="string">'mach_cl_nonkernel'</span>;
+0844 mach_cl_nonkernel.name   = <span class="string">'Non-kernel machine'</span>;
+0845 mach_cl_nonkernel.values = {libl2svm,libmulticlsvm,libl1svm, libl2LR,libl1LR, custom_machine}; 
+0846 mach_cl_nonkernel.val    =  {custom_machine};
+0847 mach_cl_nonkernel.help   = {<span class="keyword">...</span>
+0848     [<span class="string">'Choose a non-kernel prediction machine for this model'</span>]};
+0849 <span class="comment">% Random Trees = rt</span>
+0850 
+0851 <span class="comment">% ---------------------------------------------------------------------</span>
+0852 <span class="comment">% mach_cl_kernel Select Kernel Machine for classification</span>
+0853 <span class="comment">% ---------------------------------------------------------------------</span>
+0854 mach_cl_kernel       = cfg_choice;
+0855 mach_cl_kernel.tag    = <span class="string">'mach_cl_kernel'</span>;
+0856 mach_cl_kernel.name   = <span class="string">'Kernel machine'</span>;
+0857 mach_cl_kernel.values = {svm,gpc, gpclap, sMKL_cla, custom_machine}; <span class="comment">% No LR as no precomputed kernels in LIBLINEAR</span>
+0858 <span class="comment">% mach_cl_kernel.values = {svm,libl2KLR, gpc, gpclap, sMKL_cla, custom_machine};</span>
+0859 mach_cl_kernel.val    =  {svm};
+0860 mach_cl_kernel.help   = {<span class="keyword">...</span>
+0861     [<span class="string">'Choose a kernel prediction machine for this model'</span>]};
+0862 
+0863 <span class="comment">% ---------------------------------------------------------------------</span>
+0864 <span class="comment">% machine_cl_K Kernel or non-kernel machine for classification</span>
+0865 <span class="comment">% ---------------------------------------------------------------------</span>
+0866 machine_cl_K        = cfg_choice;
+0867 machine_cl_K.tag    = <span class="string">'machine_cl_K'</span>;
+0868 machine_cl_K.name   = <span class="string">'Machine Type '</span>;
+0869 machine_cl_K.values = {mach_cl_kernel, mach_cl_nonkernel};
+0870 machine_cl_K.help   = {<span class="string">'Select whether a kernel or non-kernel method is to be used.'</span>};
+0871 
+0872 <span class="comment">% ---------------------------------------------------------------------</span>
+0873 <span class="comment">% mach_rg_nonkernel Select Non-Kernel Machine for regression</span>
+0874 <span class="comment">% ---------------------------------------------------------------------</span>
+0875 mach_rg_nonkernel       = cfg_choice;
+0876 mach_rg_nonkernel.tag    = <span class="string">'mach_rg_nonkernel'</span>;
+0877 mach_rg_nonkernel.name   = <span class="string">'Non-kernel machine'</span>;
+0878 mach_rg_nonkernel.values = {libl2SVR, custom_machine}; 
+0879 mach_rg_nonkernel.val    =  {libl2SVR};
+0880 mach_rg_nonkernel.help   = {<span class="keyword">...</span>
+0881     [<span class="string">'Choose a non-kernel prediction machine for this model'</span>]};
+0882 <span class="comment">% Random Trees = rt</span>
+0883 
+0884 <span class="comment">% ---------------------------------------------------------------------</span>
+0885 <span class="comment">% mach_rg_kernel Select Kernel Machine for regression</span>
+0886 <span class="comment">% ---------------------------------------------------------------------</span>
+0887 mach_rg_kernel       = cfg_choice;
+0888 mach_rg_kernel.tag    = <span class="string">'mach_rg_kernel'</span>;
+0889 mach_rg_kernel.name   = <span class="string">'Kernel machine'</span>;
+0890 mach_rg_kernel.values = {krr,libeSVR,rvr,gpr,sMKL_reg,custom_machine}; 
+0891 mach_rg_kernel.val    =  {krr};
+0892 mach_rg_kernel.help   = {<span class="keyword">...</span>
+0893     [<span class="string">'Choose a kernel prediction machine for this model'</span>]};
+0894 
+0895 <span class="comment">% ---------------------------------------------------------------------</span>
+0896 <span class="comment">% machine_rg_K Kernel or non-kernel machine for regression</span>
+0897 <span class="comment">% ---------------------------------------------------------------------</span>
+0898 machine_rg_K        = cfg_choice;
+0899 machine_rg_K.tag    = <span class="string">'machine_rg_K'</span>;
+0900 machine_rg_K.name   = <span class="string">'Machine Type '</span>;
+0901 machine_rg_K.values = {mach_rg_kernel, mach_rg_nonkernel};
+0902 machine_rg_K.help   = {<span class="string">'Select whether a kernel or non-kernel method is to be used.'</span>};
+0903 
+0904 <span class="comment">% ---------------------------------------------------------------------</span>
+0905 <span class="comment">% regression Regression</span>
+0906 <span class="comment">% ---------------------------------------------------------------------</span>
+0907 reggroups         = cfg_repeat;
+0908 reggroups.tag     = <span class="string">'reggroups'</span>;
+0909 reggroups.name    = <span class="string">'Groups'</span>;
+0910 reggroups.help    = {[<span class="string">'Add one group to this regression model. Click ''new'' '</span><span class="keyword">...</span>
+0911                     <span class="string">'or ''repeat'' to add another group.'</span>]};
+0912 reggroups.num     = [1 Inf];
+0913 reggroups.values  = {reg_group};
+0914 
+0915 <span class="comment">% ---------------------------------------------------------------------</span>
+0916 <span class="comment">% regression Regression</span>
+0917 <span class="comment">% ---------------------------------------------------------------------</span>
+0918 regression         = cfg_branch;
+0919 regression.tag     = <span class="string">'regression'</span>;
+0920 regression.name    = <span class="string">'Regression'</span>;
+0921 regression.help    = {<span class="string">'Add group data and machine for regression.'</span>};
+0922 regression.val     = {reggroups, machine_rg_K};
+0923 
+0924 
+0925 <span class="comment">% ---------------------------------------------------------------------</span>
+0926 <span class="comment">% subsample : flag whether to subsample classes</span>
+0927 <span class="comment">% ---------------------------------------------------------------------</span>
+0928 subsample         = cfg_menu;
+0929 subsample.tag     = <span class="string">'subsample'</span>;
+0930 subsample.name    = <span class="string">'Subsample examples based on class definition'</span>;
+0931 subsample.help    = {[<span class="string">'Whether to subsample the example, or not. '</span><span class="keyword">...</span>
+0932     <span class="string">'If Yes, the code will match the number of examples in each class '</span><span class="keyword">...</span>
+0933     <span class="string">'as close as possible. This operation takes the duration of the examples'</span> <span class="keyword">...</span>
+0934     <span class="string">'into account (i.e. will not cut an event).'</span>]};
+0935 subsample .labels  = {
+0936     <span class="string">'No'</span>
+0937     <span class="string">'Yes'</span>
+0938     }';
+0939 subsample.values  = {0 1};
+0940 subsample.val     = {0};
+0941 
+0942 <span class="comment">% ---------------------------------------------------------------------</span>
+0943 <span class="comment">% classes Classes</span>
+0944 <span class="comment">% ---------------------------------------------------------------------</span>
+0945 classes         = cfg_repeat;
+0946 classes.tag     = <span class="string">'classes'</span>;
+0947 classes.name    = <span class="string">'Classes'</span>;
+0948 classes.help    = {[<span class="string">'Specify which elements belong to this class. Click ''new'' '</span><span class="keyword">...</span>
+0949                            <span class="string">'or ''repeat'' to add another class.'</span>]};
+0950 classes.num     = [1 Inf];
+0951 classes.values  = {class};
+0952 
+0953 <span class="comment">% ---------------------------------------------------------------------</span>
+0954 <span class="comment">% classification Classification</span>
+0955 <span class="comment">% ---------------------------------------------------------------------</span>
+0956 classification         = cfg_branch;
+0957 classification.tag     = <span class="string">'classification'</span>;
+0958 classification.name    = <span class="string">'Classification'</span>;
+0959 classification.help    = {<span class="string">'Specify classes and machine for classification.'</span>};
+0960 classification.val     = {classes,subsample,machine_cl_K};
+0961 
+0962 
+0963 <span class="comment">% ---------------------------------------------------------------------</span>
+0964 <span class="comment">% model_type Model type</span>
+0965 <span class="comment">% ---------------------------------------------------------------------</span>
+0966 model_type        = cfg_choice;
+0967 model_type.tag    = <span class="string">'model_type'</span>;
+0968 model_type.name   = <span class="string">'Model Type '</span>;
+0969 model_type.values = {classification, regression};
+0970 model_type.help   = {<span class="string">'Select which kind of predictive model is to be used.'</span>};
+0971 
+0972 <span class="comment">% ---------------------------------------------------------------------</span>
+0973 <span class="comment">% include_allscans Include unused scans</span>
+0974 <span class="comment">% ---------------------------------------------------------------------</span>
+0975 include_allscans         = cfg_menu;
+0976 include_allscans.tag     = <span class="string">'include_allscans'</span>;
+0977 include_allscans.name    = <span class="string">'Include all scans'</span>;
+0978 include_allscans.labels  = {
+0979     <span class="string">'Yes'</span>
+0980     <span class="string">'No'</span>
+0981 }';
+0982 include_allscans.values  = {1 0};
+0983 include_allscans.val     = {0};
+0984 include_allscans.help    = {[<span class="keyword">...</span>
+0985     <span class="string">'This option can be used to pass all the scans for each subject to '</span>,<span class="keyword">...</span>
+0986     <span class="string">'the learning machine, regardless of whether they are directly '</span>,<span class="keyword">...</span>
+0987     <span class="string">'involved in the classification or regression problem. For example, '</span>,<span class="keyword">...</span>
+0988     <span class="string">'this can be used to estimate a GLM from the whole timeseries '</span>,<span class="keyword">...</span>
+0989     <span class="string">'for each subject prior to prediction. This would allow the resulting '</span>,<span class="keyword">...</span>
+0990     <span class="string">'regression coefficient images to be used as samples.'</span>]};
+0991 
+0992 <span class="comment">% ---------------------------------------------------------------------</span>
+0993 <span class="comment">% no_op All scans</span>
+0994 <span class="comment">% ---------------------------------------------------------------------</span>
+0995 no_op         = cfg_const;
+0996 no_op.tag     = <span class="string">'no_op'</span>;
+0997 no_op.name    = <span class="string">'No operations'</span>;
+0998 no_op.val     = {1};
+0999 no_op.help    = {[<span class="string">'No design specified. This option can be used '</span><span class="keyword">...</span>
+1000     <span class="string">'for modalities (e.g. structural scans) that do not '</span><span class="keyword">...</span>
+1001     <span class="string">'have an experimental design or for an fMRI design'</span>,<span class="keyword">...</span>
+1002     <span class="string">'where you want to include all scans in the timeseries'</span>]};
+1003 
+1004 <span class="comment">% ---------------------------------------------------------------------</span>
+1005 <span class="comment">% data_op Operation</span>
+1006 <span class="comment">% ---------------------------------------------------------------------</span>
+1007 data_op         = cfg_menu;
+1008 data_op.tag     = <span class="string">'data_op'</span>;
+1009 data_op.name    = <span class="string">'Operation'</span>;
+1010 data_op.help    = {<span class="string">'Select an operation to apply.'</span>};
+1011 data_op.labels  = {
+1012     <span class="string">'Done'</span>
+1013     <span class="string">'Sample averaging (within block)'</span>
+1014     <span class="string">'Sample averaging (within subject/condition)'</span>
+1015     <span class="string">'Mean centre features using training data'</span>
+1016     <span class="string">'Normalize samples'</span>
+1017     <span class="string">'Regress out covariates'</span>
+1018     <span class="string">'Normalize features (Non-kernel only)'</span>
+1019     <span class="string">'Z-score features (Non-kernel only)'</span>
+1020 }';
+1021 data_op.values  = {0 1 2 3 4 5 6 7};
+1022 data_op.val     = {0};
+1023 
+1024 <span class="comment">% ---------------------------------------------------------------------</span>
+1025 <span class="comment">% data_op Operation</span>
+1026 <span class="comment">% ---------------------------------------------------------------------</span>
+1027 data_op_mc         = cfg_menu;
+1028 data_op_mc.tag     = <span class="string">'data_op_mc'</span>;
+1029 data_op_mc.name    = <span class="string">'Mean centre features'</span>;
+1030 data_op_mc.help    = {<span class="string">'Select an operation to apply.'</span>};
+1031 data_op_mc.labels  = {
+1032     <span class="string">'Yes'</span>
+1033     <span class="string">'No'</span>
+1034 }';
+1035 data_op_mc.values  = {1 0};
+1036 data_op_mc.val     = {1};
+1037 
+1038 <span class="comment">% ---------------------------------------------------------------------</span>
+1039 <span class="comment">% other_ops Other Operations</span>
+1040 <span class="comment">% ---------------------------------------------------------------------</span>
+1041 other_ops         = cfg_repeat;
+1042 other_ops.tag     = <span class="string">'other_ops'</span>;
+1043 other_ops.name    = <span class="string">'Select Operations'</span>;
+1044 other_ops.help    = {<span class="keyword">...</span>
+1045     [<span class="string">'Add zero or more operations to be applied to the data before the '</span>,<span class="keyword">...</span>
+1046      <span class="string">'prediction machine is called. These are executed within the '</span>,<span class="keyword">...</span>
+1047      <span class="string">'cross-validation loop (i.e. they respect training/test independence) '</span>,<span class="keyword">...</span>
+1048      <span class="string">'and will be executed in the order specified. '</span>]};
+1049 other_ops.num     = [1 Inf];
+1050 other_ops.values  = {data_op};
+1051 
+1052 <span class="comment">% ---------------------------------------------------------------------</span>
+1053 <span class="comment">% use_other_ops Use other operations</span>
+1054 <span class="comment">% ---------------------------------------------------------------------</span>
+1055 use_other_ops        = cfg_choice;
+1056 use_other_ops.tag    = <span class="string">'use_other_ops'</span>;
+1057 use_other_ops.name   = <span class="string">'Other Operations'</span>;
+1058 use_other_ops.values = {no_op, other_ops };
+1059 use_other_ops.val    = {no_op};
+1060 use_other_ops.help   = {<span class="string">'Include other operations?'</span>};
+1061 
+1062 <span class="comment">% ---------------------------------------------------------------------</span>
+1063 <span class="comment">% sel_ops Class</span>
+1064 <span class="comment">% ---------------------------------------------------------------------</span>
+1065 sel_ops         = cfg_branch;
+1066 sel_ops.tag     = <span class="string">'sel_ops'</span>;
+1067 sel_ops.name    = <span class="string">'Data operations'</span>;
+1068 sel_ops.help    = {<span class="keyword">...</span>
+1069     [<span class="string">'Specify operations to apply'</span>]};
+1070 sel_ops.val     = {data_op_mc use_other_ops};
+1071 
+1072 <span class="comment">% ---------------------------------------------------------------------</span>
+1073 <span class="comment">% data_ops Select Features</span>
+1074 <span class="comment">% ---------------------------------------------------------------------</span>
+1075 data_ops        = cfg_choice;
+1076 data_ops.tag    = <span class="string">'data_ops'</span>;
+1077 data_ops.name   = <span class="string">'Data Operations'</span>;
+1078 data_ops.values = {data_op_mc, sel_ops};
+1079 data_ops.val    =  {no_op};
+1080 data_ops.help   = {<span class="keyword">...</span>
+1081     [<span class="string">'This branch controls operations that can be applied to the data '</span>,<span class="keyword">...</span>
+1082      <span class="string">'before the data is passed to the classifier. Add zero or more '</span>,<span class="keyword">...</span>
+1083      <span class="string">'operations to be applied. These will be executed in the order '</span>,<span class="keyword">...</span>
+1084      <span class="string">'specified. '</span>]}; 
+1085  
+1086 <span class="comment">% ---------------------------------------------------------------------</span>
+1087 <span class="comment">% model Model</span>
+1088 <span class="comment">% ---------------------------------------------------------------------</span>
+1089 model        = cfg_exbranch;
+1090 model.tag    = <span class="string">'model'</span>;
+1091 model.name   = <span class="string">'Model: Specify new'</span>;
+1092 model.val    = {infile, <span class="keyword">...</span>
+1093                 model_name, <span class="keyword">...</span><span class="comment"> %                 use_kernel, ...</span>
+1094                 fsets, <span class="keyword">...</span>
+1095                 model_type, <span class="keyword">...</span>
+1096                 cv_type,<span class="keyword">...</span>
+1097                 include_allscans,<span class="keyword">...</span>
+1098                 sel_ops};
+1099 model.help   = {<span class="string">'Construct model according to design specified'</span>};
+1100 model.prog   = @<a href="prt_run_model.html" class="code" title="function out = prt_run_model(varargin)">prt_run_model</a>;
+1101 model.vout   = @<a href="#_sub1" class="code" title="subfunction cdep = vout_data(job)">vout_data</a>;
+1102 
+1103 <span class="comment">%------------------------------------------------------------------------</span>
+1104 <span class="comment">%% Output function</span>
+1105 <span class="comment">%------------------------------------------------------------------------</span>
+1106 <a name="_sub1" href="#_subfunctions" class="code">function cdep = vout_data(job)</a>
+1107 <span class="comment">% Specifies the output from this modules, i.e. the filename of the mat file</span>
+1108 
+1109 cdep(1)            = cfg_dep;
+1110 cdep(1).sname      = <span class="string">'PRT.mat file'</span>;
+1111 cdep(1).src_output = substruct(<span class="string">'.'</span>,<span class="string">'files'</span>);
+1112 cdep(1).tgt_spec   = cfg_findspec({{<span class="string">'filter'</span>,<span class="string">'mat'</span>,<span class="string">'strtype'</span>,<span class="string">'e'</span>}});
+1113 cdep(2)            = cfg_dep;
+1114 cdep(2).sname      = <span class="string">'Model name'</span>;
+1115 cdep(2).src_output = substruct(<span class="string">'.'</span>,<span class="string">'mname'</span>);
+1116 cdep(2).tgt_spec   = cfg_findspec({{<span class="string">'strtype'</span>,<span class="string">'s'</span>}});
+1117 <span class="comment">%------------------------------------------------------------------------</span>
+1118</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

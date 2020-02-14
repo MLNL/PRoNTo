@@ -1,0 +1,299 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of prt_machine_KernelMTL</title>
+  <meta name="keywords" content="prt_machine_KernelMTL">
+  <meta name="description" content="Function to run the Multi-Task Learning machine.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="#">machines</a> &gt; prt_machine_KernelMTL.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\machines&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>prt_machine_KernelMTL
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to run the Multi-Task Learning machine.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function output = prt_machine_KernelMTL(d,args) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to run the Multi-Task Learning machine.  
+ Wrapper for Kernel MTL using code from
+ Ciliberto, Carlo, Tomaso Poggio, and Lorenzo Rosasco. &quot;Convex Learning of
+ Multiple Tasks and their Structure&quot;. International Conference on Machine 
+ Learning (ICML), 2015. Code at https://github.com/cciliber/matMTL
+ FORMAT output = prt_machine_KernelMTL(d,args)
+ Inputs:
+   d         - structure with data information, with mandatory fields:
+     .train      - training data (cell array of matrices of row vectors,
+                   each [Ntr x D]). each matrix contains one representation
+                   of the data. This is useful for approaches such as
+                   multiple kernel learning.
+     .test       - testing data  (cell array of matrices row vectors, each
+                   [Nte x D])
+     .tr_targets - training labels (for classification) or values (for
+                   regression) (column vector, [Ntr x 1])
+     .te_targets - testing labels (for classification) or values (for
+                   regression) (column vector, [Ntr x 1])
+    args         - Regularization parameter
+ Output:
+    output  - output of machine (struct).
+     * Mandatory fields:
+      .predictions - predictions of classification or regression [Nte x D]
+     * Optional fields:
+      .func_val - value of the decision function
+      .type     - which type of machine this is (here, 'classifier')
+__________________________________________________________________________
+ Copyright (C) 2018 Machine Learning &amp; Neuroimaging Laboratory</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function output = prt_machine_KernelMTL(d,args)</a>
+0002 <span class="comment">% Function to run the Multi-Task Learning machine.</span>
+0003 <span class="comment">% Wrapper for Kernel MTL using code from</span>
+0004 <span class="comment">% Ciliberto, Carlo, Tomaso Poggio, and Lorenzo Rosasco. &quot;Convex Learning of</span>
+0005 <span class="comment">% Multiple Tasks and their Structure&quot;. International Conference on Machine</span>
+0006 <span class="comment">% Learning (ICML), 2015. Code at https://github.com/cciliber/matMTL</span>
+0007 <span class="comment">% FORMAT output = prt_machine_KernelMTL(d,args)</span>
+0008 <span class="comment">% Inputs:</span>
+0009 <span class="comment">%   d         - structure with data information, with mandatory fields:</span>
+0010 <span class="comment">%     .train      - training data (cell array of matrices of row vectors,</span>
+0011 <span class="comment">%                   each [Ntr x D]). each matrix contains one representation</span>
+0012 <span class="comment">%                   of the data. This is useful for approaches such as</span>
+0013 <span class="comment">%                   multiple kernel learning.</span>
+0014 <span class="comment">%     .test       - testing data  (cell array of matrices row vectors, each</span>
+0015 <span class="comment">%                   [Nte x D])</span>
+0016 <span class="comment">%     .tr_targets - training labels (for classification) or values (for</span>
+0017 <span class="comment">%                   regression) (column vector, [Ntr x 1])</span>
+0018 <span class="comment">%     .te_targets - testing labels (for classification) or values (for</span>
+0019 <span class="comment">%                   regression) (column vector, [Ntr x 1])</span>
+0020 <span class="comment">%    args         - Regularization parameter</span>
+0021 <span class="comment">% Output:</span>
+0022 <span class="comment">%    output  - output of machine (struct).</span>
+0023 <span class="comment">%     * Mandatory fields:</span>
+0024 <span class="comment">%      .predictions - predictions of classification or regression [Nte x D]</span>
+0025 <span class="comment">%     * Optional fields:</span>
+0026 <span class="comment">%      .func_val - value of the decision function</span>
+0027 <span class="comment">%      .type     - which type of machine this is (here, 'classifier')</span>
+0028 <span class="comment">%__________________________________________________________________________</span>
+0029 <span class="comment">% Copyright (C) 2018 Machine Learning &amp; Neuroimaging Laboratory</span>
+0030 
+0031 <span class="comment">% Written by J. Schrouff</span>
+0032 <span class="comment">% $Id$</span>
+0033 
+0034 SANITYCHECK=true; <span class="comment">% can turn off for &quot;speed&quot;. Expert only.</span>
+0035 
+0036 <span class="comment">%Regularization parameter</span>
+0037 <span class="keyword">if</span> isempty(args)
+0038     def = prt_get_defaults(<span class="string">'model'</span>);
+0039     args = def.MTLargs;
+0040 <span class="keyword">end</span>
+0041 
+0042 reg = 0;
+0043 nt  = numel(d.tr_targets);
+0044 
+0045 <span class="keyword">if</span> SANITYCHECK==true
+0046     
+0047     <span class="comment">% Check for classification machines</span>
+0048     <span class="keyword">if</span> strcmpi(d.pred_type,<span class="string">'classification'</span>)
+0049 
+0050         <span class="comment">% check it is indeed a two-class classification problem</span>
+0051         <span class="keyword">for</span> i= 1:nt
+0052             uTL=unique(d.tr_targets{1}(:));
+0053             nC=numel(uTL);
+0054             <span class="keyword">if</span> nC&gt;2
+0055                 error(<span class="string">'prt_machine_MTL_MALSAR:problemNotBinary'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0056                     <span class="string">' This machine is only for two-class problems but the'</span> <span class="keyword">...</span>
+0057                     <span class="string">' current problem has '</span> num2str(nC) <span class="string">' ! '</span> <span class="keyword">...</span>
+0058                     <span class="string">'SOLUTION: Please select another machine than '</span> <span class="keyword">...</span>
+0059                     <span class="string">'prt_machine_MTL_MALSAR in XXX'</span>]);
+0060             <span class="keyword">end</span>
+0061             <span class="comment">% check it is indeed labelled correctly (probably should be done)</span>
+0062             <span class="keyword">if</span> ~all(uTL==[1 2]')
+0063                 error(<span class="string">'prt_machine_MTL_MALSAR:LabellingIncorect'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0064                     <span class="string">' This machine needs labels to be in {1,2} '</span> <span class="keyword">...</span>
+0065                     <span class="string">' but they are '</span> mat2str(uTL) <span class="string">' ! '</span> <span class="keyword">...</span>
+0066                     <span class="string">'SOLUTION: Please relabel your classes by changing the '</span><span class="keyword">...</span>
+0067                     <span class="string">' ''tr_targets'' argument to prt_machine_MTL_MALSAR'</span>]);
+0068             <span class="keyword">end</span>
+0069         <span class="keyword">end</span>
+0070         output.type = <span class="string">'classification'</span>;
+0071     <span class="keyword">else</span>
+0072         output.type = <span class="string">'regression'</span>;
+0073         reg = 1;
+0074     <span class="keyword">end</span>   
+0075 <span class="keyword">end</span>
+0076 
+0077 
+0078 <span class="comment">% Run Multi-Task</span>
+0079 <span class="comment">%--------------------------------------------------------------------------</span>
+0080 
+0081 dt = cellfun(@transpose,d.train,<span class="string">'UniformOutput'</span>,false);
+0082 Xtmp = cell2mat(dt);
+0083 <span class="comment">% % perform normlization of the features across all tasks</span>
+0084 <span class="comment">% normtrain = zeros(size(Xtmp,1),1);</span>
+0085 <span class="comment">% for feat = 1:size(Xtmp,1)</span>
+0086 <span class="comment">%     normtrain(feat) = norm(Xtmp(feat,:));</span>
+0087 <span class="comment">% end</span>
+0088 <span class="comment">% Xtmp = Xtmp ./ repmat(normtrain,1,size(Xtmp,2));</span>
+0089 
+0090 <span class="comment">% Add bias</span>
+0091 Xtmp = [Xtmp;ones(1,size(Xtmp,2))];
+0092 <span class="comment">% Compute kernel</span>
+0093 Ktr = Xtmp'*Xtmp;
+0094 
+0095 Kts = cell(nt,1);
+0096 <span class="keyword">for</span> idx_t=1:nt
+0097 <span class="comment">%     Testd = [d.test{idx_t} ./ repmat(normtrain',size(d.test{idx_t},1),1),... %normalize features</span>
+0098     Testd = [d.test{idx_t} ,ones(size(d.test{idx_t},1),1)]; <span class="comment">%add bias</span>
+0099     Kts{idx_t}=Testd*Xtmp;
+0100 <span class="keyword">end</span>
+0101 
+0102 valued_args = args(regexp(args,<span class="string">'-args'</span>,<span class="string">'once'</span>)+5:end);
+0103 vals = sscanf(valued_args,<span class="string">'%f'</span>);
+0104 <span class="keyword">if</span> isnan(vals(1))
+0105     error(<span class="string">'prt_machine_KernelMTL:WrongArguments'</span>,<span class="keyword">...</span>
+0106         <span class="string">'Argument after -args should be numerical and separated by one white space'</span>)
+0107 <span class="keyword">end</span>
+0108 
+0109 
+0110 <span class="keyword">if</span> ~isempty(regexp(args,<span class="string">'-s\s+[1]'</span>,<span class="string">'once'</span>)) <span class="comment">% Feature learning</span>
+0111     method = Train.rls_mtl_dual(<span class="string">'trace'</span>);
+0112 <span class="keyword">elseif</span> ~isempty(regexp(args,<span class="string">'-s\s+[2]'</span>,<span class="string">'once'</span>)) <span class="comment">% Independent learning</span>
+0113     method = Train.rls_mtl_dual(<span class="string">'ind'</span>);
+0114 <span class="keyword">elseif</span> ~isempty(regexp(args,<span class="string">'-s\s+[3]'</span>,<span class="string">'once'</span>)) <span class="comment">% Variance</span>
+0115     <span class="keyword">if</span> length(vals)&lt;2 <span class="comment">%only one argument, fix gamma</span>
+0116         gamma = 0.01;
+0117     <span class="keyword">else</span>
+0118         gamma = vals(2);
+0119     <span class="keyword">end</span>
+0120     A = eye(nt,nt) + gamma*ones(nt,nt);
+0121     [~,p] = chol(A); <span class="comment">%check A is psd</span>
+0122     <span class="keyword">if</span> p
+0123         error(<span class="string">'prt_machine_KernelMTL:FixednotPSD'</span>,<span class="keyword">...</span>
+0124             <span class="string">'Fixed relationship matrix A must be positive definite'</span>)
+0125     <span class="keyword">end</span>
+0126     tmp_train_method = Train.rls_mtl_dual(<span class="string">'fix'</span>);
+0127     method = @(X,Y,lambda) tmp_train_method(X,Y,lambda,A);
+0128 <span class="keyword">end</span>
+0129   
+0130 <span class="comment">% prepare the learning machine</span>
+0131 lm = LearningMachine;
+0132 lm.verbose = false;
+0133 
+0134 <span class="comment">% set the output kernel learning modality</span>
+0135 lm.setTrain(method);
+0136 
+0137 <span class="comment">% call the Train/Test methods</span>
+0138 lm.Train(Ktr,d.tr_targets,vals(1));
+0139 pred = lm.Test(Kts);
+0140 
+0141 <span class="comment">% Need to do take the sign of predictions for classification</span>
+0142 <span class="keyword">if</span> ~reg   
+0143     predictions = cell(1,nt);
+0144     <span class="keyword">for</span> t = 1:nt
+0145         pred{t} = sign(pred{t});
+0146         c1PredIdx        = pred{t}==1; 
+0147         pred{t}(c1PredIdx)  = 1; <span class="comment">%positive values = 1</span>
+0148         pred{t}(~c1PredIdx) = 2; <span class="comment">%negative values = 2</span>
+0149         predictions{t} = pred{t};
+0150     <span class="keyword">end</span>
+0151 <span class="keyword">else</span>
+0152     predictions = pred;
+0153 <span class="keyword">end</span>
+0154 
+0155 
+0156 <span class="comment">% Outputs</span>
+0157 <span class="comment">%--------------------------------------------------------------------------</span>
+0158 <span class="comment">% check if training succeeded:</span>
+0159 <span class="keyword">if</span> isempty(lm.internal_params) || ~nnz(lm.internal_params.C)
+0160     error(<span class="string">'prt_machine_MTL_MALSAR:MALSARtrainUnsuccessful'</span>,[<span class="string">'Error:'</span><span class="keyword">...</span>
+0161         <span class="string">' Kernel MTL machine function did not run properly!'</span> <span class="keyword">...</span>
+0162         <span class="string">' This could be a problem with the supplied function arguments'</span><span class="keyword">...</span>
+0163         <span class="string">' '</span> num2str(args) <span class="string">''</span>]);
+0164 <span class="keyword">end</span>
+0165 
+0166 output.predictions = predictions;
+0167 output.func_val    = predictions;
+0168 output.alpha       = lm.internal_params.C;
+0169 <span class="comment">% Get extra outputs for specific algorithms</span>
+0170 <span class="keyword">if</span> ~isempty(lm.internal_params.A)
+0171     output.others.A = lm.internal_params.A; 
+0172 <span class="keyword">end</span>
+0173 
+0174 <span class="comment">% Compute primal weights as non-kernel machine for PRoNTo</span>
+0175 primalw = output.alpha'*Xtmp';
+0176 output.w = primalw(:,1:end-1)';
+0177 output.b = primalw(:,end)';
+0178 
+0179 <span class="keyword">end</span>
+0180 
+0181 <span class="comment">% Argiryiou and Pontil's code</span>
+0182 <span class="comment">% % Define method for computing f(D)</span>
+0183 <span class="comment">% function v = vec_inv(d)</span>
+0184 <span class="comment">%     v = zeros(length(d),1);</span>
+0185 <span class="comment">%     ind = find(d &gt; eps);</span>
+0186 <span class="comment">%     v(ind) = 1 ./ d(ind);</span>
+0187 <span class="comment">% end</span>
+0188 <span class="comment">%</span>
+0189 <span class="comment">%</span>
+0190 <span class="comment">% trainx = [];</span>
+0191 <span class="comment">% trainy = [];</span>
+0192 <span class="comment">% index_train = zeros(nt,1);</span>
+0193 <span class="comment">% cnt = 1;</span>
+0194 <span class="comment">% %Machine specific inputs</span>
+0195 <span class="comment">% for t = 1:nt</span>
+0196 <span class="comment">%     if ~reg</span>
+0197 <span class="comment">%         % Change targets to be +1/-1</span>
+0198 <span class="comment">%         c2 = d.tr_targets{t}==2;</span>
+0199 <span class="comment">%         d.tr_targets{t}(c2) = -1;</span>
+0200 <span class="comment">%     end</span>
+0201 <span class="comment">%     % Change from cell array to matrix for training</span>
+0202 <span class="comment">%     trainx = [trainx,d.train{t}'];</span>
+0203 <span class="comment">%     trainy = [trainy;d.tr_targets{t}];</span>
+0204 <span class="comment">%     index_train(t) = cnt;</span>
+0205 <span class="comment">%     cnt = cnt+ size(d.train{t},1);</span>
+0206 <span class="comment">% end</span>
+0207 <span class="comment">%[W,P] = train_alternating(trainx,trainy,task_indexes,gamma,Dini,iterations,...</span>
+0208 <span class="comment">%    method,kernel_method,@vec_inv, @(b)(b/sum(b)));</span>
+0209 <span class="comment">% predictions = cell(1,nt);</span>
+0210 <span class="comment">% func_val = cell(1,nt);</span>
+0211 <span class="comment">% for t = 1:nt</span>
+0212 <span class="comment">%     if ~ reg</span>
+0213 <span class="comment">%         func_val{t} = d.test{t} * W(:, t) + C(t);</span>
+0214 <span class="comment">%         pred = sign(func_val{t});</span>
+0215 <span class="comment">%         % change predictions from 1/-1 to 1/2</span>
+0216 <span class="comment">%         c1PredIdx               = pred==1;</span>
+0217 <span class="comment">%         pred(c1PredIdx)  = 1; %positive values = 1</span>
+0218 <span class="comment">%         pred(~c1PredIdx) = 2; %negative values = 2</span>
+0219 <span class="comment">%         predictions{t} = pred;</span>
+0220 <span class="comment">%     else</span>
+0221 <span class="comment">%         func_val{t} = d.test{t} * W(:, t);</span>
+0222 <span class="comment">%         predictions{t} = func_val{t};</span>
+0223 <span class="comment">%     end</span>
+0224 <span class="comment">%</span>
+0225 <span class="comment">% end</span></pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of script_create_one_file_per_row</title>
+  <meta name="keywords" content="script_create_one_file_per_row">
+  <meta name="description" content="Function to create one file per row of a data matrix.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html v1.5 &copy; 2003-2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="#">utils</a> &gt; script_create_one_file_per_row.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for .\utils&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>script_create_one_file_per_row
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Function to create one file per row of a data matrix.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [path_files] = script_create_one_file_per_row(data_matrix,tosquare) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Function to create one file per row of a data matrix.
+ The files will be saved in a subfolder, with the names 'Sample_' prepended.
+ The second input 'tosquare' reflects whether the data should be turned into
+ a symmetric matrix or not (0, default value).</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [path_files] = script_create_one_file_per_row(data_matrix,tosquare)</a>
+0002 <span class="comment">% Function to create one file per row of a data matrix.</span>
+0003 <span class="comment">% The files will be saved in a subfolder, with the names 'Sample_' prepended.</span>
+0004 <span class="comment">% The second input 'tosquare' reflects whether the data should be turned into</span>
+0005 <span class="comment">% a symmetric matrix or not (0, default value).</span>
+0006 
+0007 <span class="comment">%--------------------------------------------------------------------------</span>
+0008 <span class="comment">% Written for PRoNTo v3.0 by J. Schrouff</span>
+0009 
+0010 <span class="keyword">if</span> nargin&lt;1 || isempty(data_matrix)
+0011     beep
+0012     disp(<span class="string">'At least one variable must be specified, the data matrix to convert'</span>)
+0013     <span class="keyword">return</span>
+0014 <span class="keyword">end</span>
+0015 
+0016 <span class="keyword">if</span> nargin&lt;2 || isempty(tosquare)
+0017     tosquare = 0;
+0018 <span class="keyword">end</span>
+0019 
+0020 nsamp = size(data_matrix,1);
+0021 
+0022 d = dir(<span class="string">'.'</span>);
+0023 path_files = fullfile(d(1).folder,<span class="string">'Samples_mat'</span>);
+0024 <span class="keyword">if</span> ~exist(path_files,<span class="string">'dir'</span>)
+0025     mkdir(path_files);
+0026 <span class="keyword">end</span>
+0027 cd(path_files);
+0028 
+0029 fprintf([<span class="string">'Sample (out of %d):'</span>,repmat(<span class="string">' '</span>,1,ceil(log10(nsamp))),<span class="string">'%d'</span>],nsamp, 1);
+0030 <span class="keyword">for</span> i = 1:nsamp
+0031     <span class="comment">% Subject counter</span>
+0032     <span class="keyword">if</span> i&gt;1
+0033         <span class="keyword">for</span> idisp = 1:ceil(log10(i)) <span class="comment">% delete previous counter display</span>
+0034             fprintf(<span class="string">'\b'</span>);
+0035         <span class="keyword">end</span>
+0036         fprintf(<span class="string">'%d'</span>,i);
+0037     <span class="keyword">end</span>
+0038     
+0039     <span class="comment">% Access sample's data</span>
+0040     datas = data_matrix(i,:);
+0041     <span class="keyword">if</span> tosquare
+0042         <span class="keyword">try</span>
+0043             data = squareform(datas);
+0044         <span class="keyword">catch</span>
+0045             data = datas;
+0046         <span class="keyword">end</span>
+0047     <span class="keyword">else</span>
+0048         data = datas;
+0049     <span class="keyword">end</span>
+0050     
+0051     prep = [];
+0052     <span class="keyword">for</span> idisp = 1:floor(log10(nsamp))-floor(log10(i)) <span class="comment">% Add zeros in front of name for easier access</span>
+0053         prep = [prep,<span class="string">'0'</span>];
+0054     <span class="keyword">end</span>
+0055     fname = [<span class="string">'Sample_'</span>,prep,num2str(i),<span class="string">'.mat'</span>];
+0056     save(fname,<span class="string">'data'</span>);
+0057 <span class="keyword">end</span>
+0058 
+0059 fprintf(<span class="string">'\n'</span>);
+0060 
+0061</pre></div>
+<hr><address>Generated on Mon 03-Jun-2019 01:39:50 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" title="Matlab Documentation in HTML">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
