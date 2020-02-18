@@ -1256,32 +1256,38 @@ handles.wimgh = h;
 spm_orthviews('AddContext', h);
 spm_orthviews('MaxBB');
 if ~isempty(xyz_above)
-%     spm_orthviews('AddBlobs', h, XYZ, Z, M);
-    spm_orthviews_pronto('AddBlobs', h, XYZ, Z, M);
-    spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
-    colgrey = colormap(gray(64));
-%     coldiv = cbrewer('div','RdBu',64);
-%     coldiv = flip(coldiv,1);
-%     colormap([colgrey; coldiv]);
-    % spm_orthviews('Zoom',(xfov*abs(vx(1))))
-  
-% colorbar color fix KT-2020
-coldiv = cbrewer('div','RdBu',64);
-blue = coldiv(1:20,:);
-red = coldiv(45:64,:);
-blue2 = imresize(blue,[29,3],'bilinear');
-red2 = imresize(red,[29,3],'bilinear');
-coldiv(1:29,:) = blue2;
-coldiv(36:end,:) = red2;
-dummy2 = coldiv(25:32,:);
-yyy = smoothdata(dummy2);
-coldiv(25:32,:) = yyy;
-dummy2 = coldiv(33:41,:);
-yyy = smoothdata(dummy2);
-coldiv(33:41,:) = yyy;
-coldiv = flip(coldiv,1);
-colormap([colgrey; coldiv]);   
-% spm_figure('Colormap','gray-jet'); % VERSION 2 COLORBAR 
+    
+    if exist('smoothdata') ~= 2 % for backwards compatibility
+        spm_orthviews('AddBlobs', h, XYZ, Z, M);
+        spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
+        colgrey = colormap(gray(64));
+        coldiv = cbrewer('div','RdBu',64);
+        coldiv = flip(coldiv,1);
+        colormap([colgrey; coldiv]);
+        % spm_orthviews('Zoom',(xfov*abs(vx(1))))
+        
+    else
+        % colorbar color fix KT-2020
+        spm_orthviews_pronto('AddBlobs', h, XYZ, Z, M);
+        spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
+        colgrey = colormap(gray(64));
+        coldiv = cbrewer('div','RdBu',64);
+        blue = coldiv(1:20,:);
+        red = coldiv(45:64,:);
+        blue2 = imresize(blue,[29,3],'bilinear');
+        red2 = imresize(red,[29,3],'bilinear');
+        coldiv(1:29,:) = blue2;
+        coldiv(36:end,:) = red2;
+        dummy2 = coldiv(25:32,:);
+        yyy = smoothdata(dummy2);
+        coldiv(25:32,:) = yyy;
+        dummy2 = coldiv(33:41,:);
+        yyy = smoothdata(dummy2);
+        coldiv(33:41,:) = yyy;
+        coldiv = flip(coldiv,1);
+        colormap([colgrey; coldiv]);
+        % spm_figure('Colormap','gray-jet'); % VERSION 2 COLORBAR
+    end
 
     spm_orthviews('Redraw');
 end
