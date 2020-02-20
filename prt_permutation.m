@@ -370,7 +370,9 @@ else
                 
                 % save the weights per fold if requested
                 if save_perm
-                    PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
+                    if PRT.model(modelid(1)).input.use_kernel
+                        PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
+                    end
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).targets=targets.test;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).predictions=temp_model.predictions;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).func_val=temp_model.func_val;
