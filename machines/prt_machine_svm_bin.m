@@ -163,6 +163,7 @@ else
 end
 
 output.predictions = predictions;
+output.targets_train = d.tr_targets;
 output.predictions_train = predictions_train;
 output.func_val    = func_val(:,1);
 output.func_val_train    = func_val_train(:,1);

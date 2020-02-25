@@ -98,19 +98,29 @@ alpha = zeros(length(d.tr_targets),1);
 alpha(pos) = alpha_sv;
 
 ktest_final = zeros(length(d.te_targets),length(d.tr_targets));
+ktrain_final = zeros(length(d.tr_targets),length(d.tr_targets));
 
 for i = 1:size(d.train,2)
     ktest_final = ktest_final + beta(i)*ktest(:,:,i);
 end
 
+for i = 1:size(d.train,2)
+    ktrain_final = ktrain_final + beta(i)*ktrain(:,:,i);
+end
+
 func_val = ((ktest_final*alpha)+b)+m; % add mean from the training set
+func_val_train = ((ktrain_final*alpha)+b)+m; % add mean from the training set
 
 predictions = func_val;
+predictions_train = func_val_train;
 
 % Outputs
 %-------------------------------------------------------------------------
 output.predictions = predictions;
 output.func_val    = func_val;
+output.targets_train = d.tr_targets;
+output.predictions_train = predictions_train;
+output.func_val_train    = func_val_train;
 output.type        = 'regression';
 output.alpha       = alpha;
 output.b           = b;

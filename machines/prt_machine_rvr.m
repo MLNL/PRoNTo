@@ -47,10 +47,21 @@ if SANITYCHECK==true
     %--------------------------------------------------------------------------
     t=d.tr_targets;
     w=prt_rvr(K,t);
-    
-    output.predictions=d.test{1}*w(1:end-1)+w(end);
-    output.func_val=output.predictions;
-     output.alpha=w(1:end-1);
+     
+     % test set
+output.predictions=d.test{1}*w(1:end-1)+w(end);
+output.func_val=output.predictions;
+
+% train set
+output.targets_train = d.tr_targets;
+output.predictions_train=d.train{1}*w(1:end-1)+w(end);
+output.func_val_train=output.predictions_train;
+
+output.alpha=w(1:end-1);
+     
+     
+     
+     
   
 end
 

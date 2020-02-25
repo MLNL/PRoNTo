@@ -56,8 +56,15 @@ m = mean(d.tr_targets);                     % mean of the training data
 t = d.tr_targets - m;                             % mean centre targets
 w = prt_KRR(K,t,args);
 
+% test set
 output.predictions=d.test{1}*w + m;    % add mean from the training set
 output.func_val=output.predictions;
+
+% train set
+output.targets_train = d.tr_targets;
+output.predictions_train=d.train{1}*w + m;    % add mean from the training set
+output.func_val_train=output.predictions_train;
+
 output.alpha=w;
 
 
