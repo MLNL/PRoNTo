@@ -126,12 +126,12 @@ Vout = spm_create_vol(Vout);
 % Worry about the bins expressed in voxel space and actual ms/Hz.
 % - frequency
 tmp = blocks.fband'; f_bins_Hz_O = tmp(:)';
-[f_bins_vx,f_bins_Hz] = check_bins(f_bins_Hz_O,ind_freq,Vin.mat);
+[f_bins_vx,f_bins_Hz] = check_bins(f_bins_Hz_O,ind_freq,Vin.mat,Vin.dim(ind_freq));
 f_bins_vx = reshape(f_bins_vx, size(blocks.fband'))';
 f_bins_Hz = reshape(f_bins_Hz, size(blocks.fband'))';
 % - time
 tmp = blocks.twind'; t_bins_ms_O = tmp(:)';
-[t_bins_vx,t_bins_ms] = check_bins(t_bins_ms_O,ind_time,Vin.mat);
+[t_bins_vx,t_bins_ms] = check_bins(t_bins_ms_O,ind_time,Vin.mat,Vin.dim(ind_time));
 t_bins_vx = reshape(t_bins_vx, size(blocks.twind'))';
 t_bins_ms = reshape(t_bins_ms, size(blocks.twind'))'; %#ok<*NASGU>
 
@@ -179,9 +179,9 @@ spm_save(fn_labels,Labels)
 end
 
 %% SUBFUNCTIONS
-function [bins_out_vx,bins_out] = check_bins(bins_in,indx,vx2rw)
-% Checking the bins expressed in real world such tha they end up as integer
-% voxel indexes to build the atlas metrix.
+function [bins_out_vx,bins_out] = check_bins(bins_in,indx,vx2rw,Msz)
+% Checking the bins expressed in real world such that they end up as 
+% integer voxel indexes to build the atlas matrix.
 %
 % Operations:
 % - realword to voxel conversion
@@ -193,6 +193,7 @@ function [bins_out_vx,bins_out] = check_bins(bins_in,indx,vx2rw)
 % - original bins,
 % - index of dimension
 % - voxel-to-realworld matrix
+% - maximum size, i.e. max index value
 
 Nbins = numel(bins_in);
 
@@ -204,6 +205,9 @@ bins_out_vx = tmp2(indx,:);
 
 % No index <=0
 bins_out_vx(bins_out_vx<=0) = 1;
+% No index >size
+bins_out_vx(bins_out_vx>Msz) = Msz;
+
 % Round 1st one then check next
 bins_out_vx(1) = round(bins_out_vx(1));
 for ii=2:Nbins
