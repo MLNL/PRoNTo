@@ -41,14 +41,6 @@ in.models_MTL = {PRT.model(models).model_name};
 in.fname = fname;
 in.savePRT = 0;
 
-
-
-in.perm_mode = 1;
-
-
-
-
-
 switch PRT.model(mid).output.fold(1).type
     case {'classifier','classification'}
         n_class = length(PRT.model(mid).output.fold(1).stats.c_acc);
@@ -66,24 +58,7 @@ switch PRT.model(mid).output.fold(1).type
 end
 
 
-
-   
-    
-    if exist('incomplete_across_perms.mat') == 2
-        load('incomplete_across_perms.mat');
-        p_start = p+1; clear p
-        
-    else
-        p_start = 1;
-    
-    end
-
-    
-    
-
-
-for p = p_start:nperm
-    
+for p=1:nperm
     
     % Counter of permutations to be updated
     disp(['Compute for permutation ',num2str(p),' of ',num2str(nperm)])
@@ -92,29 +67,14 @@ for p = p_start:nperm
     % Change the targets in the model input to the permuted targets
     for i=1:length(models)
         perms = PRT.model(models(i)).output.permutation(p).perm_mat;
-        CV = PRT.model(models(i)).input.cv_mat;
+        crossV = PRT.model(models(i)).input.cv_mat;
         if p==1
             tokeep{i} = PRT.model(models(i)).input.targets;
         end
         tars = tokeep{i};
         PRT.model(models(i)).input.targets = tars(perms);
-        
-        
-        
-        
-        
-        
-        
-        PRT.model(models(i)).input.CVperm = CV(perms,:);
+        PRT.model(models(i)).input.cv_mat = crossV(perms,:);
     end
-    
-    
-    
-    
-    
-    
-    
-    
     
     % Run MTL on permuted targets from all tasks
     PRT = prt_cv_MTL(PRT,in);
@@ -188,10 +148,6 @@ for p = p_start:nperm
      temp(1,p).fold = PRT.model(mid).output.fold;
      temp(1,p).fold = rmfield(temp(1,p).fold,'w');
      temp(1,p).perm_stats = perm_stats;
-     
-     
-     
-     save('incomplete_across_perms.mat');
      
 end
 fprintf('\n') % new line

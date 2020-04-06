@@ -54,13 +54,13 @@ else
         beep
         disp('No model output found in this PRT.mat')
         return
-
+        
     end
-
+    
     % configure some variables
     CV       = PRT.model(modelid(1)).input.cv_mat;     % CV matrix
     n_folds  = size(CV,2);                      % number of CV folds
-
+    
 %     % parralel code?
 %     if def_par.allow
 %         try
@@ -73,28 +73,10 @@ else
 %             end
 %         end
 %     end
-
-
-
-
-
-
-
-% rng(3) for the initial experiments
-rng(12);
-
-
-
-
-
-
-
-
-
-
+    
     % targets
     t = PRT.model(modelid(1)).input.targets;
-
+    
     % load data files and configure ID matrix
     % ----------------------------------------
     if ~isfield(PRT.model(modelid(1)).input,'indmodels')
@@ -102,7 +84,7 @@ rng(12);
     else
         indmodels = PRT.model(modelid(1)).input.indmodels;
     end
-
+    
     if PRT.model(modelid(1)).input.use_kernel
         %load kernels and get the used sample in this model
         [Phi_all,ID,fid] = prt_getKernelModel(PRT,prt_dir,modelid(1),indmodels);
@@ -110,7 +92,7 @@ rng(12);
         % Otherwise load features for non-kernel machine
         [Phi_all,ID,fid] = prt_getFeatureModel(PRT,modelid(1));
     end
-
+    
     %get number of classes
     if strcmpi(PRT.model(modelid(1)).input.type,'classification') || ...
             strcmpi(PRT.model(modelid(1)).input.type,'classifier')
@@ -123,7 +105,7 @@ rng(12);
     if isfield(PRT.model(modelid(1)).input,'class')
         fdata.class   = PRT.model(modelid(1)).input.class;
     end
-
+    
 % Initialize counts
 % -------------------------------------------------------------------------
     switch PRT.model(modelid(1)).output(1).fold(1).type
@@ -132,7 +114,7 @@ rng(12);
             total_greater_c_acc = zeros(n_class,1);
             total_greater_b_acc = 0;
             total_greater_auc = 0;
-
+            
         case 'regression'
             total_greater_corr = 0;
             total_greater_mse = 0;
@@ -140,7 +122,7 @@ rng(12);
             total_greater_r2 = 0;
             n_class = [];
     end
-
+    
 % Set up permutations
 % -------------------------------------------------------------------------
     if indmodels %loop over the kernels and output accuracy for each kernel only
@@ -148,7 +130,7 @@ rng(12);
     else
         nk = 1;
     end
-
+    
     % For each model
     flag_use_perms = 0;
     ids = PRT.fs(fid).id_mat(PRT.model(modelid(1)).input.samp_idx,:);
@@ -166,7 +148,7 @@ rng(12);
                 (isfield(PRT.model(modelid(1)).output(k),'permutation') && save_perm) %Back to empty to save other perm param
             PRT.model(modelid(1)).output(k).permutation=struct('fold',[],...
                 'perm_stats',[],'perm_mat',[]);
-
+            
             %When another model was specified to copy permutations from
             if length(modelid) == 2
                 if isfield(PRT.model(modelid(2)).output(1),'permutation') &&...
@@ -189,15 +171,15 @@ rng(12);
 
         fprintf(['Permutation (out of %d):',repmat(' ',1,ceil(log10(n_perm))),'%d'],n_perm, 1);
         for p=1:n_perm
-
+            
             % Counter of permutations to be updated
             if p>1
                 for idisp = 1:ceil(log10(p)) % delete previous counter display
                     fprintf('\b');
                 end
                 fprintf('%d',p);
-            end
-
+            end            
+            
             if perm_train_only %Only set to 0 the train set
                 CVperm = CV;
                 t_perm = t;
@@ -210,38 +192,28 @@ rng(12);
                 t_perm = zeros(length(t),1);
                 IDperm = zeros(size(ID));
             end
-
+            
             % Find chunks in the data (e.g. temporal correlated samples)
             % -------------------------------------------------------------------------
-
+            
             samp_g=unique(ids(:,1));%number of groups
-
+            
             for gid = 1: length(samp_g)
-
+                
                 samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
-
-
-
-%                 samp_s=unique(ids(ids(:,1)==samp_g(gid),2:3),'rows'); %number of subjects for specific group
-
-
-
-
-
-
-
+                
                 for sid = 1: length(samp_s)
-
+                    
                     samp_m=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid),3)); %number of modality for specific group & subject
-
+                    
                     for mid = 1:length(samp_m)
-
+                        
                         samp_c=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid),4)); %number of conditions for specific group & subject & modality
-
+                        
                         ism = find((ids(:,1) == samp_g(gid)) & ...
                             (ids(:,2) == samp_s(sid)) & ...
                             (ids(:,3) == samp_m(mid)));
-
+                        
                         % Multiple images and conditions in the modality, across the
                         % multiple targets: Need to permute within subject
                         % and modality, case 1
@@ -263,10 +235,10 @@ rng(12);
                                 exchange_subjects = 1;
                                 Acrossmod = 0;
                             end
-                        % Other cases: Typically one image per subject
+                        % Other cases: Typically one image per subject 
                         % selected for model, need to permute across
                         % subjects, case 3
-                        else
+                        else 
                             exchange_subjects = 1;
                             Acrossmod = 0;
                         end
@@ -276,18 +248,18 @@ rng(12);
                                 i=1;
                                 offrg = 0;
                             end
-
+                            
                             for cid = 1:length(samp_c)
-
+                                
                                 samp_b=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid) & ids(:,3)==samp_m(mid) & ids(:,4)==samp_c(cid),5));  %number of blocks for specific group & subject & modality & conditions
-
+                                
                                 for bid = 1:length(samp_b)
-
+                                    
                                     rg = find((ids(ism,4) == samp_c(cid)) & ...
                                         (ids(ism,5) == samp_b(bid)));
-
+                                    
                                     chunks{i} = rg'+offrg;
-
+                                    
                                     i=i+1;
                                 end
                             end
@@ -329,10 +301,10 @@ rng(12);
                         if ~perm_train_only
                             itrain = 1:length(iss);
                         end
-                        t_perm(itrain(iss(pchunk))) = t(itrain(iss(chunkpermcv)));
+                        t_perm(itrain(iss(pchunk))) = t(itrain(iss(chunkpermcv)));                        
                         CVperm(itrain(iss(pchunk)),:) = CV(itrain(iss(chunkpermcv)),:); % permute the CV lines corresponding to the subject and modality
                         IDperm(itrain(iss(pchunk)),:) = ID(itrain(iss(chunkpermcv)),:); % permute the ID lines corresponding to the subject and modality (for sample averaging)
-
+                        
                     end
                 end
             end
@@ -340,7 +312,7 @@ rng(12);
             if exchange_subjects
                 i = 1;
                 samp_g=unique(ids(:,1));%number of groups
-                for gid = 1: length(samp_g)
+                for gid = 1: length(samp_g) 
                     samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
                     for sid = 1: length(samp_s)
                         chunks{i} = find(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid)); % get all the images for this subject
@@ -356,23 +328,6 @@ rng(12);
                 for i=1:length(chunks)
                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                 end
-
-
-
-
-
-                % that was for model a when I was fixing STL
-%                 load('maria2.mat','chunkpermcv')
-%                 chunkperm = chunkpermcv';
-
-
-
-
-
-
-
-
-
                 pchunk = cell2mat(chunks);
                 if ~perm_train_only
                     itrain = 1:size(ids,1);
@@ -382,51 +337,13 @@ rng(12);
                 IDperm(itrain(pchunk),:) = ID(itrain(chunkperm),:);
             end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             % Run model with permuted data for each fold
             % -------------------------------------------------------------
             for f = 1:n_folds
                 % configure data structure for prt_cv_fold
-%                 fdata.ID      = IDperm; %IDperm
-                fdata.ID      = ID;
+                fdata.ID      = IDperm; %IDperm
                 fdata.mid     = modelid(1);
-%                 fdata.CV      = CVperm(:,f);
-                fdata.CV      = CV(:,f);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                fdata.CV      = CVperm(:,f);
                 if nk>1
                     fdata.Phi_all = Phi_all(k); %selected kernel for independent modelling
                 else
@@ -437,8 +354,8 @@ rng(12);
                     ~isempty(PRT.model(modelid(1)).input.covar)
                         fdata.cov     = PRT.model(modelid(1)).input.covar;
                 end
-
-
+            
+                
                 % Nested CV for hyper-parameter optimisation or feature selection
                 if isfield(PRT.model(modelid(1)).input,'use_nested_cv')
                     if PRT.model(modelid(1)).input.use_nested_cv
@@ -446,30 +363,14 @@ rng(12);
                         PRT.model(modelid(1)).input.machine.args = out.opt_param;
                     end
                 end
-
-
-
-
-
-                fdata.perm_mode = 1;
-                fdata.f = f;
-                fdata.CVperm = CVperm(:,f);
-                fdata.IDperm = IDperm;
-
-
-
-
-
-
+                
                 %Run model on permuted targets with optimal parameters if
                 %computed
                 [temp_model, targets] = prt_cv_fold(PRT,fdata);
-
+                
                 % save the weights per fold if requested
                 if save_perm
-                    if PRT.model(modelid(1)).input.use_kernel == 1
-                        PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
-                    end
+                    PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).targets=targets.test;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).predictions=temp_model.predictions;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).func_val=temp_model.func_val;
@@ -478,9 +379,9 @@ rng(12);
                 model.output.fold(f).predictions = temp_model.predictions;
                 model.output.fold(f).targets     = targets.test;
                 model.output.fold(f).stats       = stats;
-
+                
             end
-
+            
             % Model level statistics (across folds) - Average
             fnamestats = fieldnames(stats);
             perm_stats = struct;
@@ -496,7 +397,7 @@ rng(12);
                     av_stats = reshape(nanmean(val,2),size_stats);
                     perm_stats = setfield(perm_stats,fnamestats{i},av_stats);
                 else
-                    perm_stats = setfield(perm_stats,fnamestats{i},[]);
+                    perm_stats = setfield(perm_stats,fnamestats{i},[]); 
                 end
             end
             % If classifier, get confusion matrix globally
@@ -505,26 +406,26 @@ rng(12);
                 tp             = vertcat(model.output.fold(:).targets);
                 m.predictions  = vertcat(model.output.fold(:).predictions);
 				% K.T. Edit 03/2019
-                m.func_val    = vertcat(PRT.model(modelid(1)).output.fold(:).func_val);
+				m.func_val    = vertcat(PRT.model(modelid(1)).output.fold(:).func_val);
                 t_stats     = prt_stats(m,tp,n_class);
                 perm_stats.con_mat = t_stats.con_mat;
             end
-
+            
             % Update counts depending on permuted model performance
             switch PRT.model(modelid(1)).output(k).fold(1).type
-
+                
                 case {'classifier','classification'}
-
+                    
                     permutation.b_acc(p)=perm_stats.b_acc;
-
+                    
                     if (perm_stats.b_acc >= PRT.model(modelid(1)).output(k).stats.b_acc)
                         total_greater_b_acc=total_greater_b_acc+1;
                     end
-
+                    
                     if isnan(perm_stats.auc)
                         permutation.auc(p)=NaN;
                     elseif ~isempty(perm_stats.auc)
-                        permutation.auc(p)=perm_stats.auc;
+                        permutation.auc(p)=perm_stats.auc; 
                     else
                         permutation.auc(p)=NaN; % Initialize
                         permutation.auc(p)=[];
@@ -539,16 +440,16 @@ rng(12);
                             end
                         else
                             total_greater_auc = [];
-                        end
+                        end        
                     end
-
+                    
                     for c=1:n_class
                         permutation.c_acc(c,p)=perm_stats.c_acc(c);
                         if (perm_stats.c_acc(c) >= PRT.model(modelid(1)).output(k).stats.c_acc(c))
                             total_greater_c_acc(c)=total_greater_c_acc(c)+1;
                         end
                     end
-
+                    
                 case 'regression'
                     permutation.corr(p)=perm_stats.corr;
                     if (perm_stats.corr >= PRT.model(modelid(1)).output(k).stats.corr)
@@ -566,22 +467,22 @@ rng(12);
                     if (perm_stats.r2 >= PRT.model(modelid(1)).output(k).stats.r2)
                         total_greater_r2=total_greater_r2+1;
                     end
-
+         
             end
-
+            
             if save_perm
                 PRT.model(modelid(1)).output(k).permutation(p).perm_mat = reshape(chunkperm, numel(chunkperm),1); % put in column
                 PRT.model(modelid(1)).output(k).permutation(p).perm_stats = perm_stats;
             end
         end
         fprintf('\n') % new line after each model
-
+        
         %Compute p-values
         switch PRT.model(modelid(1)).output(k).fold(1).type
             case {'classifier','classification'}
-
+                
                 pval_b_acc = (total_greater_b_acc+1) / (n_perm+1);
-
+                
                 if isnan(total_greater_auc)
                     pval_auc = NaN;
                 elseif ~isempty(total_greater_auc)
@@ -589,34 +490,34 @@ rng(12);
                 else
                     pval_auc = [];
                 end
-
+                
                 pval_c_acc=zeros(n_class,1);
                 for c=1:n_class
                     pval_c_acc(c) = (total_greater_c_acc(c)+1) / (n_perm+1);
                 end
-
+                
                 permutation.pvalue_b_acc = pval_b_acc;
                 permutation.pvalue_c_acc = pval_c_acc;
                 permutation.pvalue_auc = pval_auc;
-
+                
             case 'regression'
-
+                
                 pval_corr = (total_greater_corr+1) / (n_perm+1);
-
+                
                 pval_mse = (total_greater_mse+1) / (n_perm+1);
-
+                
                 pval_nmse = (total_greater_nmse+1) / (n_perm+1);
-
+                
                 pval_r2 = (total_greater_r2+1) / (n_perm+1);
-
+                                
                 permutation.pval_corr = pval_corr;
                 permutation.pval_mse = pval_mse;
                 permutation.pval_nmse = pval_nmse;
                 permutation.pval_r2 = pval_r2;
-        end
+        end        
         %update PRT
         PRT.model(modelid(1)).output(k).stats.permutation = permutation;
-
+        
         % Save PRT containing permutation output
         % -------------------------------------------------------------------------
         outfile = fullfile(path,'PRT.mat');
@@ -625,12 +526,13 @@ rng(12);
             save(outfile,'-V6','PRT');
         else
             try %For files larger than 2Gb
-                save(outfile,'PRT','-v7.3','-nocompression');
+                save(outfile,'PRT','-v7.3','-nocompression'); 
             catch %For older versions of Matlab
                 save(outfile,'PRT');
             end
         end
         disp('Permutation test done.')
     end
-
+    
 end
+
