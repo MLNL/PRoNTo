@@ -4,6 +4,9 @@ function [Vout,fn_labels] = prt_create_meegAtlas(Vin,fn_out, blocks,labels,dorde
 % This function creates ad hoc atlas for channel x time x frequency M/EEG
 % data analysis with MKL.
 %
+% FORMAT
+% [Vout,fn_labels] = prt_create_meegAtlas(Vin,fn_out, blocks,labels,dorder)
+% 
 % INPUT
 % Vin       : header information (see 'spm_vol') of one typical data image
 % fn_out    : base name for the generated files, atlas & labels
