@@ -467,12 +467,15 @@ rng(12);
 
                 % save the weights per fold if requested
                 if save_perm
-                    if PRT.model(modelid(1)).input.use_kernel == 1
-                        PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
-                    end
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).targets=targets.test;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).predictions=temp_model.predictions;
                     PRT.model(modelid(1)).output(k).permutation(p).fold(f).func_val=temp_model.func_val;
+                    PRT.model(modelid(1)).output(k).permutation(p).fold(f).targets_train=temp_model.targets_train;
+                    PRT.model(modelid(1)).output(k).permutation(p).fold(f).predictions_train=temp_model.predictions_train;
+                    PRT.model(modelid(1)).output(k).permutation(p).fold(f).func_val_train=temp_model.func_val_train;
+                    if PRT.model(modelid(1)).input.use_kernel == 1
+                        PRT.model(modelid(1)).output(k).permutation(p).fold(f).alpha=temp_model.alpha;
+                    end
                 end
                 stats = prt_stats(temp_model, targets.test, n_class);
                 model.output.fold(f).predictions = temp_model.predictions;
