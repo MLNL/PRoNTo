@@ -404,6 +404,10 @@ rng(12);
                 % configure data structure for prt_cv_fold
 %                 fdata.ID      = IDperm; %IDperm
                 fdata.ID      = ID;
+                % where does ID play any role? Is it used anywhere as an
+                % identifier? I cannot find any place where it is actually
+                % being used, other than initially to harvest the correct
+                % data. Conflicted between ID and IDperm.
                 fdata.mid     = modelid(1);
 %                 fdata.CV      = CVperm(:,f);
                 fdata.CV      = CV(:,f);
@@ -436,6 +440,10 @@ rng(12);
                 if isfield(PRT.model(modelid(1)).input,'covar') && ...
                     ~isempty(PRT.model(modelid(1)).input.covar)
                         fdata.cov     = PRT.model(modelid(1)).input.covar;
+                        % what about the covars? do they not get permuted??
+%                         cov = PRT.model(modelid(1)).input.covar;
+%                         cov_perm = cov(itrain(chunkperm),:);
+%                         fdata.cov     = cov_perm;
                 end
 
 
