@@ -76,19 +76,9 @@ else
 
 
 
-
-
-
-
-% rng(3) for the initial experiments
+% Set the rng seed for replication purposes
+% rng(3) for the MTL_paper experiments
 rng(12);
-
-
-
-
-
-
-
 
 
 
@@ -220,16 +210,6 @@ rng(12);
 
                 samp_s=unique(ids(ids(:,1)==samp_g(gid),2)); %number of subjects for specific group
 
-
-
-%                 samp_s=unique(ids(ids(:,1)==samp_g(gid),2:3),'rows'); %number of subjects for specific group
-
-
-
-
-
-
-
                 for sid = 1: length(samp_s)
 
                     samp_m=unique(ids(ids(:,1)==samp_g(gid) & ids(:,2)==samp_s(sid),3)); %number of modality for specific group & subject
@@ -357,23 +337,18 @@ rng(12);
                     chunkpermcv = [chunkpermcv; chunks{chunkperm(i)}'];  % get permuted indexes for each image in the chunk
                 end
 
-
-
-
-
-                % that was for model a when I was fixing STL
-%                 load('maria2.mat','chunkpermcv')
-%                 chunkperm = chunkpermcv';
-
-
-
-
-
-
-
-
-
+                % Not 100% confident it works 100% properly. Keep it in
+                % mind.
                 pchunk = cell2mat(chunks);
+                if size(pchunk,1)>1
+                    for kz = 1:length(chunkperm)
+                   chunkperm_tmp(:,kz) = [2*chunkperm(kz)-1; 2*chunkperm(kz)];
+                    end                    
+                    chunkperm_tmp = chunkperm_tmp(1:(size(pchunk,1)*size(pchunk,2)));
+                    chunkperm = chunkperm_tmp;
+                    clear chunkperm_tmp;
+                    pchunk = pchunk(1:(size(pchunk,1)*size(pchunk,2)));  
+                end
                 if ~perm_train_only
                     itrain = 1:size(ids,1);
                 end
@@ -381,19 +356,6 @@ rng(12);
                 CVperm(itrain(pchunk),:) = CV(itrain(chunkperm),:);
                 IDperm(itrain(pchunk),:) = ID(itrain(chunkperm),:);
             end
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -411,21 +373,6 @@ rng(12);
                 fdata.mid     = modelid(1);
 %                 fdata.CV      = CVperm(:,f);
                 fdata.CV      = CV(:,f);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -457,14 +404,10 @@ rng(12);
 
 
 
-
-
                 fdata.perm_mode = 1;
                 fdata.f = f;
                 fdata.CVperm = CVperm(:,f);
                 fdata.IDperm = IDperm;
-
-
 
 
 
