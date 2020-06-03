@@ -218,7 +218,7 @@ im = handles.indm(1);
 nfs = length(handles.dat.model(im).input.fs);
 set(handles.edit_atlas,'String','Load atlas');
 for i = 1:nfs
-    in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+    in.fs_name = handles.dat.model(im).input.fs(i).fs_name;
     fid = prt_init_fs(handles.dat,in);
     if isfield(handles.dat.fs(fid),'atlas_name') && ...
             ~isempty(handles.dat.fs(fid).atlas_name) && ...
@@ -295,7 +295,7 @@ im = handles.indm(1);
 nfs = length(handles.dat.model(im).input.fs);
 set(handles.edit_atlas,'String','Load atlas');
 for i = 1:nfs
-    in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+    in.fs_name = handles.dat.model(im).input.fs(i).fs_name;
     fid = prt_init_fs(handles.dat,in);
     if isfield(handles.dat.fs(fid),'atlas_name') && ...
             ~isempty(handles.dat.fs(fid).atlas_name) && ...
@@ -336,7 +336,7 @@ im = handles.indm(val);
 nfs = length(handles.dat.model(im).input.fs);
 set(handles.edit_atlas,'String','Load atlas');
 for i = 1:nfs
-    in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+    in.fs_name = handles.dat.model(im).input.fs(i).fs_name;
     fid = prt_init_fs(handles.dat,in);
     if isfield(handles.dat.fs(fid),'atlas_name') && ...
             ~isempty(handles.dat.fs(fid).atlas_name) && ...

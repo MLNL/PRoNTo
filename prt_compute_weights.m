@@ -217,8 +217,8 @@ for ifs=1:length(PRT.model(model_idx).input.fs)
 
                         elseif ~isempty(in.atl_name{ifs}) % Need to summarize the weights per region, if an atlas was provided
                             % Option not available for MEEG files
-                            [a,b,ext] = spm_fileparts(img_name{1});
-                            if strcmpi(ext,'.mat')
+                            [a,b,ext{1}] = spm_fileparts(img_name{1});
+                            if strcmpi(ext{1},'.mat')
                                 V = load(img_name{1});
                                 if ~isfield(V,'weights') || isfield(V,'D') % found MEEG
                                     beep; fprintf('Summarization of weights not available for MEEG');

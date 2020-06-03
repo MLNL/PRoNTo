@@ -94,7 +94,11 @@ else
     kernel = 0;
 end
 
-if nclass > 2, mfunc = 'multiclass_machine'; end
+% if nclass > 2, mfunc = 'multiclass_machine'; end
+% K.T. Edit 2020
+% the line above doesn't seem to serve anything as both multiclass machines
+% have different prt_weights and it incorrectly assigns them to the same
+% prt_weights_**.m
 m.args      = [];
 
 if nargin<5
@@ -138,11 +142,13 @@ for imodel = 1:length(nmodels)
     if nmodels>1 %get the name of the task
         img_mach{cnt} = [basisname,'_',PRT.model(nmodels(imodel)).model_name];
     else
-        img_mach{cnt} = basisname;
+        % K.T. Edit 2020 Keep in mind to make sure this fix is correct!
+        img_mach(:) = {basisname};
     end
     if nclass>2
         for c=1:nclass %get the name of the class
             img_mach{cnt} = [img_mach{cnt},'_',PRT.model(model_idx).input.class(c).class_name,ext];
+            img_mach{cnt} = strrep(img_mach{cnt},' ','_');
             cnt = cnt+1;
         end        
     else
