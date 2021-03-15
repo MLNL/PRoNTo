@@ -159,17 +159,25 @@ end
 
 % make predictions
 [p mu sigma]  = gp_pred_lap_multiclass(hyp,K,Y,covfunc,Ks,Kss);
+[p_train mu_train sigma_train]  = gp_pred_lap_multiclass(hyp,K,Y,covfunc,K,K);
 [maxp pred]   = max(p,[],2);
+[maxp_train pred_train]   = max(p_train,[],2);
 
 % Outputs
 % -------------------------------------------------------------------------
 output.predictions = pred;
+output.func_val    = p;
+output.targets_train  = tr_lbs;
+output.predictions_train = pred_train;
+output.func_val    = p_train;
 output.type        = mode;
 output.func_val    = p;
 output.tr_targets  = tr_lbs;
 output.te_targets  = te_lbs; 
 output.mu          = mu;
 output.sigma       = sigma;
+output.mu_train          = mu_train;
+output.sigma_train       = sigma_train;
 output.loghyper    = hyp;
 output.nlml        = -lml;
 output.alpha       = alpha;

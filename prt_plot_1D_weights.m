@@ -11,7 +11,10 @@ function [h] = prt_plot_1D_weights(parent,weights,roimat)
 % Remove figure axes and plots
 gch = get(parent,'Children');
 for i=1:numel(gch)
-    delete(gch);
+    if strcmp(gch(i).Tag,'uipanelmat_topoplots')
+        continue
+    end
+    delete(gch(i));
 end
 
 % Define colormap - setting grey for zero, in the middle
@@ -33,13 +36,14 @@ if minw<0 && maxw>0 % Both negative and positive, diverging colormap
 elseif minw>=0 && maxw>0 % Only positive, sequential red colormap
     colpos = cbrewer('seq','Reds',256);
     cols  = colpos;
-    valsN = round(((weights) ./ (maxw-minw)) .* 255)+1;
+    valsN = round(((weights) ./ maxw) .* 255)+1;
     newticks = [1 256];
     labels = [minw;maxw];
 elseif minw<0 && maxw<=0 % Only negative, sequential blue colormap
     colneg = cbrewer('seq','Blues',256);
-    cols  = flip(colneg,1);
-    valsN = round(((weights) ./ (maxw-minw)) .* 255)+1;
+%     cols  = flip(colneg,1);
+    cols  = colneg;
+    valsN = round(((weights) ./ minw) .* 255)+1;
     newticks = [1 256];
     labels = [minw;maxw];
 elseif (minw==0 && maxw==0) || ...
@@ -82,6 +86,11 @@ try
 catch
     hc = colorbar('peer',axmat,'Units','normalized','Position',[0.85 0.2 0.02 0.7]);
 end
+
+if minw<0 && maxw<=0
+    colormap(flipud(cols))
+end
+
 % Change colorbar limits and tick labels
 try
     limhc = get(hc,'Limits');

@@ -132,11 +132,14 @@ elseif k==2 % If binary classidication
 
         stats.auc = auc;
     end
-else k>2 % If multiple classification
+elseif k>2 % If multiple classification
     tpr = [];
     fpr = [];
     auc = [];
-    stats.auc = auc; 
+    stats.auc = auc;
+    
+else
+    error('No assigned classes.')
 end
 
 end

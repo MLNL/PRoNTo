@@ -162,7 +162,14 @@ for i = 1:size(par, 2)
         for j = 1:nfolds
             val(:,j) = f_stats(j).stats.(fnamestats{s})(:);
         end
-        av_stats = reshape(nanmean(val,2),size_stats);
+                
+        if all(isnan(val(:))) % For auc = NaN or []
+            av_stats=NaN;
+        else %elseif ~isempty(val)
+            av_stats = reshape(nanmean(val,2),size_stats);
+        end
+
+%         av_stats = reshape(nanmean(val,2),size_stats);
         tstats = setfield(tstats,fnamestats{s},av_stats);
     end
     % If classifier, get confusion matrix globally

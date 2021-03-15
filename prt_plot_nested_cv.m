@@ -27,7 +27,7 @@ switch PRT.model(model).input.machine.function
             'prt_machine_sMKL_reg','prt_machine_liblinearsvm'}
         x_label = 'C';
         if strcmpi(PRT.model(model).input.type,'regression')
-            y_label = 'NMSE';
+            y_label = 'MSE';
         else
             y_label = 'Balanced Accuracy (%)';
         end
@@ -48,7 +48,7 @@ switch PRT.model(model).input.machine.function
         
     case 'prt_machine_krr'
         x_label = 'Lambda';
-        y_label = 'NMSE';
+        y_label = 'MSE';
         
         %If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
@@ -64,7 +64,7 @@ switch PRT.model(model).input.machine.function
     case 'prt_machine_RT_bin'
         x_label = '# of Trees';
         if strcmpi(PRT.model(model).input.type,'regression')
-            y_label = 'NMSE';
+            y_label = 'MSE';
         else
             y_label = 'Balanced Accuracy (%)';
         end
@@ -80,10 +80,15 @@ switch PRT.model(model).input.machine.function
             logscale = 0;
         end
         
-    case {'prt_machine_wip_cla','prt_machine_GMKL_cla'}
+    case {'prt_machine_wip','prt_machine_GMKL_cla'}
         x_label = 'mu';
-        y_label = 'C';
-        z_label = 'Balanced Accuracy (%)';
+        y_label = 'log(C)';
+        z_label = '';
+%         if strcmpi(PRT.model(model).input.type,'regression')
+%             z_label = 'MSE';
+%         else
+%             z_label = 'Balanced Accuracy (%)';
+%         end
         
         % If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
@@ -97,18 +102,25 @@ switch PRT.model(model).input.machine.function
         end
         
     otherwise
-        x_label = 'Args';
-        y_label = 'Performance';
+        warning('Custom machine detected. Using default hyperparameter names. Please check prt_plot_nested_cv.m for further customization.')
+        x_label = 'Hyperparameter 1';
+        y_label = 'log(Hyperparameter 2)';
+        z_label = '';
+%         if strcmpi(PRT.model(model).input.type,'regression')
+%             z_label = 'MSE';
+%         else
+%             z_label = 'Balanced Accuracy (%)';
+%         end
         
         %If no axes_handle is given, create a new window
         if ~exist('axes_handle', 'var')
             figure;
             axes_handle = axes;
-            logscale = 1;
+            logscale = 0;
         else
             % Clear EVERYTHING in the UI before defining the axes
             cla(axes_handle, 'reset');
-            logscale = 1;
+            logscale = 0;
         end
         %error('Machine not currently supported for nested CV');
 end
@@ -150,7 +162,14 @@ if iscell(PRT.model(model).input.nested_param) && ...
         axes_handle = image(f_mean, 'CDataMapping', 'scaled', 'XData', mu, 'YData', log10(c));
         % set(axes_handle,'Yscale','log','Ydir','normal');
         axes_color = colorbar;
-        title('Mean')
+%         title('Mean')
+        
+        if strcmpi(PRT.model(model).input.type,'regression')
+            title('Mean MSE');
+        else
+            title('Mean Balanced Accuracy (%)');
+        end
+        
         %         subplot(2,1,2);
         %         axes_handle = image(f_std, 'CDataMapping', 'scaled', 'XData', [min(mu), max(mu)], 'YData', [min(c) max(c)]);
         %         title('Standard Deviation')

@@ -120,8 +120,10 @@ end
 
 if contains(args,'-s 5')
     [predictions,~,func_val] = predict(d.te_targets,sparse(d.test{:}),model,'-q');
+	[predictions_train,~,func_val_train] = predict(d.tr_targets,sparse(d.train{:}),model,'-q');
 else
     [predictions,~,func_val] = predict(d.te_targets,d.test{:},model,'-q');
+	[predictions_train,~,func_val_train] = predict(d.tr_targets,d.train{:},model,'-q');
 end
 % Get SV coefficients (alpha) in the original order and the bias term (b) 
 % sgn   = -1*(2 * model.Label(1) - 3); %variable to account for label convention in PRoNTo
@@ -151,6 +153,9 @@ end
 %--------------------------------------------------------------------------
 output.predictions = predictions;
 output.func_val    = func_val;
+output.targets_train = d.tr_targets;
+output.predictions_train = predictions_train;
+output.func_val_train    = func_val_train;
 output.type        = 'classifier';
 output.w           = model.w(1:end-1)';
 output.b           = model.w(end);

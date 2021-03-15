@@ -186,8 +186,8 @@ if strcmpi(func2str(covfunc),'covLINglm') || strcmpi(func2str(covfunc),'covLINgl
     % get default hyperparamter values
     hyp.cov = log(prt_glm_design);
     
-    [tmp1 tmp2 tmp3 tr_lbs] = prt_glm_design(hyp.cov, d.tr_param);
-    [tmp1 tmp2 tmp3 te_lbs] = prt_glm_design(hyp.cov, d.te_param);   
+    [tmp1, tmp2, tmp3, tr_lbs] = prt_glm_design(hyp.cov, d.tr_param);
+    [tmp1, tmp2, tmp3, te_lbs] = prt_glm_design(hyp.cov, d.te_param);   
 else
     % configure covariances
     K   = d.train;
@@ -213,33 +213,47 @@ if optimise_theta
     if map
         [hyp,nlmls] = minimize(hyp, @prt_gp_map, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y, priors);
     else
-        [hyp nlmls] = minimize(hyp, @prt_gp, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y);
+        [hyp, nlmls] = minimize(hyp, @prt_gp, maxeval, inffunc, meanfunc, covfunc, likfunc, K, y);
     end
 else
     nlmls = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc, K, y);
 end
 
-% make predictions
-[ymu ys2 fmu fs2 lp post] = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc,K, y, Ks, zeros(size(Ks{1},1),1), Kss);
+% make predictions for the test set
+[ymu, ys2, fmu, fs2, lp, post] = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc,K, y, Ks, zeros(size(Ks{1},1),1), Kss);
+
+% make predictions for the training set
+[ymu_train, ys2_train, fmu_train, fs2_train, lp_train, post_train] = prt_gp(hyp, inffunc, meanfunc, covfunc, likfunc,K, y, K, zeros(size(K{1},1),1), K);
+
 
 % Outputs
 % -------------------------------------------------------------------------
 if strcmp(mode,'classifier')
     p = exp(lp);
+    p_train = exp(lp_train);
     output.predictions = (1-real(p > 0.5)) + 1;
     output.func_val    = p;
+    output.targets_train  = tr_lbs;
+    output.predictions_train = (1-real(p_train > 0.5)) + 1;
+    output.func_val_train    = p_train;
 else % regression
     output.predictions = ymu + mtr;
     output.func_val    = output.predictions;
+    output.targets_train  = tr_lbs;
+    output.predictions_train = ymu_train + mtr;
+    output.func_val_train    = output.predictions_train;
 end
 output.type        = mode;
 output.loghyper    = hyp;
 output.mu          = ymu;
 output.s2          = ys2;
+output.mu_train          = ymu_train;
+output.s2_train          = ys2_train;
 output.nlml        = min(nlmls);
-output.tr_targets  = tr_lbs;
-output.te_targets  = te_lbs;
+% output.targets_train  = tr_lbs;
+% output.te_targets  = te_lbs;
 output.alpha       = post.alpha;
+output.alpha_train       = post_train.alpha;
 %output.sW          = post.sW;
 %output.L           = post.L;
 

@@ -256,9 +256,24 @@ function kernbutt_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 listfs = {handles.PRT.fs(handles.indf).fs_name};
-kername=handles.PRT.fs(handles.indf(1)).k_file;
+if length(listfs) > 1
+    kername=handles.PRT.model(handles.indm).model_name;
+    multfs_flag = 1;
+else
+    kername=handles.PRT.fs(handles.indf(1)).k_file;
+    multfs_flag = 0;
+end
 try
-    load([handles.prtdir,filesep,kername])
+    if multfs_flag == 0
+        load([handles.prtdir,filesep,kername])
+    else
+        Phi_final = {};
+        for qq = 1:length(handles.indf)
+            load([handles.prtdir,filesep,handles.PRT.fs(handles.indf(qq)).k_file])
+            Phi_final(1,qq) = Phi;
+        end
+        Phi = Phi_final;
+    end
 catch
     beep
     disp('Could not load kernel file')
@@ -266,7 +281,11 @@ catch
 end
 list = {};
 for i=1:length(Phi)
-    list = [list;{['Kernel ',num2str(i)]}];
+    if multfs_flag == 0
+        list = [list;{['Kernel ',num2str(i)]}];
+    else
+        list = [list;{handles.PRT.fs(handles.indf(i)).k_file}];
+    end
 end
 hf=figure;
 set(hf,'NumberTitle','off')
@@ -279,9 +298,15 @@ ratio=min(tmp)*[1 1 1 1];
 set(hf,'Resize','on')
 set(hf,'Position',ratio.*[360 150 440 480])
 set(hf,'Units','normalized')
-fs = uicontrol(hf,'Style','popupmenu',...  
-    'String',listfs,...
-    'Position', ratio.*[110 410 220 50]);
+if multfs_flag == 0
+    fs = uicontrol(hf,'Style','popupmenu',...
+        'String',listfs,...
+        'Position', ratio.*[110 410 220 50]);
+else
+    fs = uicontrol(hf,'Style','popupmenu',...
+        'String',handles.PRT.model(handles.indm).model_name,...
+        'Position', ratio.*[110 410 220 50]);
+end
 set(fs,'Units','normalized')
 set(fs,'Enable','off')
 c = uicontrol(hf,'Style','popupmenu',...

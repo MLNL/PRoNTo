@@ -218,7 +218,7 @@ im = handles.indm(1);
 nfs = length(handles.dat.model(im).input.fs);
 set(handles.edit_atlas,'String','Load atlas');
 for i = 1:nfs
-    in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+    in.fs_name = handles.dat.model(im).input.fs(i).fs_name;
     fid = prt_init_fs(handles.dat,in);
     if isfield(handles.dat.fs(fid),'atlas_name') && ...
             ~isempty(handles.dat.fs(fid).atlas_name) && ...
@@ -295,7 +295,7 @@ im = handles.indm(1);
 nfs = length(handles.dat.model(im).input.fs);
 set(handles.edit_atlas,'String','Load atlas');
 for i = 1:nfs
-    in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+    in.fs_name = handles.dat.model(im).input.fs(i).fs_name;
     fid = prt_init_fs(handles.dat,in);
     if isfield(handles.dat.fs(fid),'atlas_name') && ...
             ~isempty(handles.dat.fs(fid).atlas_name) && ...
@@ -336,7 +336,7 @@ im = handles.indm(val);
 nfs = length(handles.dat.model(im).input.fs);
 set(handles.edit_atlas,'String','Load atlas');
 for i = 1:nfs
-    in.fs_name = handles.dat.model(im).input.fs(1).fs_name;
+    in.fs_name = handles.dat.model(im).input.fs(i).fs_name;
     fid = prt_init_fs(handles.dat,in);
     if isfield(handles.dat.fs(fid),'atlas_name') && ...
             ~isempty(handles.dat.fs(fid).atlas_name) && ...
@@ -478,7 +478,7 @@ function br_atlas_Callback(hObject, eventdata, handles)
 % hObject    handle to br_atlas (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-atl_name=spm_select(inf,'*','Select atlas to build weights per region',[],pwd);
+atl_name=spm_select(inf,'any','Select atlas to build weights per region',[],pwd);
 if ~isempty(handles.atl_name) && size(atl_name,1) == handles.nfs % One atlas per feature set
     for i = 1:size(atl_name,1)
         handles.atl_name{i} = deblank(atl_name(i,:));

@@ -416,7 +416,7 @@ isyc2         = 0;
 c1            = 0;
 c2            = 0;
 rotate3d off
-pos = [0.108 0.1101 0.8543 0.8165];
+pos = [0.126 0.130 0.8543 0.8165];
 set(handles.axes5,'Position',pos);
 
 
@@ -445,6 +445,8 @@ if strcmp(PRT.model(model).input.type,'classification')
             % Confusion matrix - within folds
             % -------------------------------------------------------------
         case 'Confusion Matrix'
+            pos = [0.126 0.123 0.8543 0.8165];
+            set(handles.axes5,'Position',pos);
             prt_plot_confusion_matrix(handles.PRT, model, fold, handles.axes5);
             
             % Predictions

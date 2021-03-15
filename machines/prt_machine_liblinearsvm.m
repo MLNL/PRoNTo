@@ -111,6 +111,8 @@ end
 
 
 [predictions,liblinear_acc,func_val] = predict(d.te_targets,sparse(d.test{:}),model,'-q');
+[predictions_train,liblinear_acc_train,func_val_train] = predict(d.tr_targets,sparse(d.train{:}),model,'-q');
+
 
 % Get SV coefficients (alpha) in the original order and the bias term (b) 
 if ~isempty(model.Label)
@@ -120,14 +122,18 @@ else
 end
 if strcmpi(output.type,'classification')
     output.func_val    = sgn*func_val;
+    output.func_val_train    = sgn*func_val_train;
 % K.T. Edit 03/2019
 else
-    output.func_val    = func_val;	
+    output.func_val    = func_val;
+    output.func_val_train    = func_val_train;
 end
 
 % Outputs
 %--------------------------------------------------------------------------
 output.predictions = predictions;
+output.targets_train = d.tr_targets;
+output.predictions_train = predictions_train;
 
 if ~d.use_kernel
     %Weights for primal

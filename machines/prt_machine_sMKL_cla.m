@@ -134,25 +134,38 @@ alpha = zeros(length(d.tr_targets),1);
 alpha(pos) = alpha_sv;
 
 ktest_final = zeros(length(d.te_targets),length(d.tr_targets));
+ktrain_final = zeros(length(d.tr_targets),length(d.tr_targets));
 
 for i = 1:size(d.train,2)
     ktest_final = ktest_final + beta(i)*ktest(:,:,i);
 end
 
-func_val = (ktest_final*alpha)+b;
+for i = 1:size(d.train,2)
+    ktrain_final = ktrain_final + beta(i)*ktrain(:,:,i);
+end
 
+func_val = (ktest_final*alpha)+b;
 predictions = sign(func_val);
 
+func_val_train = (ktrain_final*alpha)+b;
+predictions_train = sign(func_val_train);
 
 % Outputs
 %--------------------------------------------------------------------------
 % change predictions from 1/-1 to 1/2 
 c1PredIdx               = predictions==1; 
 predictions(c1PredIdx)  = 1; %positive values = 1 
-predictions(~c1PredIdx) = 2; %negative values = 2 
+predictions(~c1PredIdx) = 2; %negative values = 2
+
+c1PredIdx_train               = predictions_train==1; 
+predictions_train(c1PredIdx_train)  = 1; %positive values = 1 
+predictions_train(~c1PredIdx_train) = 2; %negative values = 2 
 
 output.predictions = predictions;
 output.func_val    = func_val;
+output.targets_train = d.tr_targets;
+output.predictions_train = predictions_train;
+output.func_val_train    = func_val_train;
 output.type        = 'classifier';
 output.alpha       = alpha;
 output.b           = b;

@@ -73,8 +73,8 @@ for i = 1:n_mods
             if ~isempty(in.mod(mids(i)).multkernparam) &&...
                     ~isempty(in.mod(mids(i)).multkernparam{j})
                 winsize = in.mod(mids(i)).multkernparam{j};
-				% K.T. Edit 05/2019
-                if round(mod(dim(i,j), in.mod(mids(i)).multkernparam{j}),7)/in.mod(mids(i)).multkernparam{j} >= 0.3 || round(mod(dim(i,j), in.mod(mids(i)).multkernparam{j}),7) == 0               
+                % K.T. Edit 05/2019
+                if round(mod(dim(i,j), in.mod(mids(i)).multkernparam{j}),7)/in.mod(mids(i)).multkernparam{j} >= 0.3 || round(mod(dim(i,j), in.mod(mids(i)).multkernparam{j}),7) == 0
                     x_append = 0;
                     newdim = ceil(round(dim(i,j)/in.mod(mids(i)).multkernparam{j},7));
                 else
@@ -83,7 +83,7 @@ for i = 1:n_mods
                 end
                 dim(i,j) = newdim;
             end
-        end            
+        end
         kernt = dim(i,:) .* in.mod(mids(i)).multkern;
         kernt(kernt==0) = 1;
         n_kern(i) = prod(kernt);
@@ -112,21 +112,21 @@ addin.n_vols_s = n_vols_s;
 Dsubj1 = PRT.fas(mids(1)).hdr;
 
 for ik = 1:nkm
-%     if in.flag_mm
-%         idtk = PRT.fs(fid).id_mat(:,3) == mids(ik);
-%         nimm = length(find(PRT.fs(fid).id_mat(:,3) == mids(ik)));
-%         if nimm~= nim1 %check that modalities have the same dimensions in terms of samples
-%             error('prt_fs:MultKernMod_DifIm',...
-%                 'Modalities should have the same number of samples to be considered for MKL')
-%         end
-%         addin.ID = PRT.fs(fid).id_mat(idtk,:);
-%     else
-        addin.ID = PRT.fs(fid).id_mat;
-%     end
+    %     if in.flag_mm
+    %         idtk = PRT.fs(fid).id_mat(:,3) == mids(ik);
+    %         nimm = length(find(PRT.fs(fid).id_mat(:,3) == mids(ik)));
+    %         if nimm~= nim1 %check that modalities have the same dimensions in terms of samples
+    %             error('prt_fs:MultKernMod_DifIm',...
+    %                 'Modalities should have the same number of samples to be considered for MKL')
+    %         end
+    %         addin.ID = PRT.fs(fid).id_mat(idtk,:);
+    %     else
+    addin.ID = PRT.fs(fid).id_mat;
+    %     end
     addin.dim_m = dim_m;
     if n_kern(ik) ==1
         addin.buildkern = 1;
-        [PRT,Phik] = prt_fs_modality(PRT,in,1,addin);        
+        [PRT,Phik] = prt_fs_modality(PRT,in,1,addin);
         [d1,idmax] = max(Phik);
         [d1,idmin] = min(Phik);
         min_max = find(idmax==idmin);
@@ -136,7 +136,7 @@ for ik = 1:nkm
             error('prt_fs:NoDataInMask',...
                 'Signal is zero for at least one event, cannot create kernel')
         end
-        Phim = {Phik};        
+        Phim = {Phik};
         clear Phik
     else
         %Initialize all fields and compute the feature sets if needed
@@ -167,7 +167,7 @@ for ik = 1:nkm
                     end
                     % Build mask corresponding to which kernel to build
                     if kernt(1) ==1
-                        icht = in.mod(mids(ik)).ich(1:dim_m(ik,1)); 
+                        icht = in.mod(mids(ik)).ich(1:dim_m(ik,1));
                     else
                         icht = in.mod(mids(ik)).ich(ich);
                         lab_atl{nroi} = char(chanlabels(Dsubj1,icht));
@@ -179,7 +179,7 @@ for ik = 1:nkm
                             ifrt = 1;
                         end
                     else
-                        ifrt = in.mod(mids(ik)).ifr(ifr); 
+                        ifrt = in.mod(mids(ik)).ifr(ifr);
                         if ~isempty(lab_atl{nroi})
                             lab_atl{nroi} = [lab_atl{nroi},'_Fr',num2str(ifrt)];
                         else
@@ -188,16 +188,24 @@ for ik = 1:nkm
                     end %i
                     time = in.mod(mids(ik)).time*1000; % time of time points in ms
                     if kernt(3) ==1                 %consider all time points selected
-                        itpt = in.mod(mids(ik)).itp(1:dim_m(ik,3)); 
+                        itpt = in.mod(mids(ik)).itp(1:dim_m(ik,3));
                     elseif kernt(3)== dim_m(ik,3)   %one kernel per tp
-                        itpt = in.mod(mids(ik)).itp(itp); 
+                        itpt = in.mod(mids(ik)).itp(itp);
                         if ~isempty(lab_atl{nroi})
-                            lab_atl{nroi} = [lab_atl{nroi},'_Tp',num2str(time(itpt))];
+                            if time(itpt)<1e-6
+                                lab_atl{nroi} = [lab_atl{nroi},'_Tp',num2str(round(time(itpt)))];
+                            else
+                                lab_atl{nroi} = [lab_atl{nroi},'_Tp',num2str(time(itpt))];
+                            end
                         else
-                            lab_atl{nroi} = ['Tp',num2str(time(itpt))];
+                            if time(itpt)<1e-6
+                                lab_atl{nroi} = ['Tp',num2str(round(time(itpt)))];
+                            else
+                                lab_atl{nroi} = ['Tp',num2str(time(itpt))];
+                            end
                         end
                     else                            %one kernel per time window
-						% K.T. Edit 05/2019
+                        % K.T. Edit 05/2019
                         itpstop = min(itpstart+winsize-1,length(in.mod(mids(ik)).itp));
                         if x_append == 1 && itp == kernt(3)
                             itpstop = max(itpstart+winsize-1,length(in.mod(mids(ik)).itp));
@@ -205,9 +213,20 @@ for ik = 1:nkm
                         itpt = in.mod(mids(ik)).itp(round(itpstart):round(itpstop));
                         itpstart = itpstart+winsize;
                         if ~isempty(lab_atl{nroi})
-                            lab_atl{nroi} = [lab_atl{nroi},'_TpWin',num2str(time(itpt(1)))];
+                            
+                            if time(itpt(1))<1e-6
+                                lab_atl{nroi} = [lab_atl{nroi},'_TpWin',num2str(round(time(itpt(1))))];
+                            else
+                                lab_atl{nroi} = [lab_atl{nroi},'_TpWin',num2str(time(itpt(1)))];
+                            end
                         else
-                            lab_atl{nroi} = ['TpWin',num2str(time(itpt(1)))];
+                            
+                            if time(itpt(1))<1e-6
+                                lab_atl{nroi} = ['TpWin',num2str(round(time(itpt(1))))];
+                            else
+                                lab_atl{nroi} = ['TpWin',num2str(time(itpt(1)))];
+                            end
+                            
                         end
                     end %i
                     tot_vox = 1:numel(mask{ik});
@@ -228,7 +247,7 @@ for ik = 1:nkm
                         beep
                         disp('No overlap between data and mask/atlas for at least one event')
                         disp(['Kernel ',num2str(nroi),' will be removed from further analysis'])
-                    end                    
+                    end
                     Phim{nroi}=Phitmp;
                     [d,dd,ddd] = intersect(squeeze(addin.idvox_fas),PRT.fs(fid).modality(ik).idfeat_fas);
                     PRT.fs(fid).modality(ik).idfeat_img{nroi} = ddd;
@@ -247,13 +266,13 @@ for ik = 1:nkm
             PRT.fs(fid).modality(ik).igood_kerns = igd;
             PRT.fs(fid).modality(ik).idfeat_img = PRT.fs(fid).modality(ik).idfeat_img(igd);
         end
-
+        
     end
     
-
+    
     Phi= [Phi, Phim];
     clear Phim
-    fprintf('\n') % new line 
+    fprintf('\n') % new line
 end
 
 % Save kernel and function output
@@ -266,13 +285,13 @@ if spm_check_version('matlab','7') < 0
     save(outfile,'-V6','PRT');
     save(fs_file,'-V6','Phi');
 else
-%     try
-%         save(outfile,'PRT');
-%         save(fs_file,'Phi');
-%     catch
-        save(outfile,'-v7.3','PRT');
-        save(fs_file,'-v7.3','Phi');
-%     end
+    %     try
+    %         save(outfile,'PRT');
+    %         save(fs_file,'Phi');
+    %     catch
+    save(outfile,'-v7.3','PRT');
+    save(fs_file,'-v7.3','Phi');
+    %     end
 end
 disp('Done.')
 
@@ -291,7 +310,7 @@ for i = 1:n_mods
     ich = in.mod(mid).ich; %i
     ifr = in.mod(mid).ifr; %i
     itp = in.mod(mid).itp; %i
-    ndim = size(PRT.fas(mid).hdr); 
+    ndim = size(PRT.fas(mid).hdr);
     if length(ndim)==3 % No frequency information
         ndim = [ndim(1),1,ndim(2)];
     else
@@ -303,7 +322,7 @@ for i = 1:n_mods
     dim_m(i,:) = [length(ich), length(ifr), length(itp)];
     d1 = zeros(ndim);
     d2 = zeros(ndim);
-    d3 = zeros(ndim); 
+    d3 = zeros(ndim);
     d1(ich,:,:) = 1;
     d2(:,ifr,:) = 1;
     d3(:,:,itp) = 1;
