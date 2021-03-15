@@ -78,7 +78,7 @@ else
 
 % Set the rng seed for replication purposes
 % rng(3) for the MTL_paper experiments
-rng(12);
+rng(12); % for the new DIAMOND and ADNI data MTL_paper experiments
 
 
 
