@@ -21,8 +21,8 @@ end
 minw = min(weights);
 maxw = max(weights);
 if minw<0 && maxw>0 % Both negative and positive, diverging colormap
-    colneg = cbrewer('seq','Blues',128);
-    colpos = cbrewer('seq','Reds',128);
+    colneg = cbrewer('seq','Blues',128,'PCHIP');
+    colpos = cbrewer('seq','Reds',128,'PCHIP');
     cols  = [flip(colneg,1);colpos];
     valspos = round((weights(weights>=0) ./ maxw) *127)+1;
     valsneg = -(round((weights(weights<0) ./ minw) *127));
