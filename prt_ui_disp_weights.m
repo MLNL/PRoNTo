@@ -1261,7 +1261,7 @@ if ~isempty(xyz_above)
         spm_orthviews('AddBlobs', h, XYZ, Z, M);
         spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
         colgrey = colormap(gray(64));
-        coldiv = cbrewer('div','RdBu',64);
+        coldiv = cbrewer('div','RdBu',64,'PCHIP');
         coldiv = flip(coldiv,1);
         colormap([colgrey; coldiv]);
         % spm_orthviews('Zoom',(xfov*abs(vx(1))))
@@ -1271,7 +1271,7 @@ if ~isempty(xyz_above)
         spm_orthviews_pronto('AddBlobs', h, XYZ, Z, M);
         spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
         colgrey = colormap(gray(64));
-        coldiv = cbrewer('div','RdBu',64);
+        coldiv = cbrewer('div','RdBu',64,'PCHIP');
         blue = coldiv(1:20,:);
         red = coldiv(45:64,:);
         blue2 = imresize(blue,[29,3],'bilinear');
@@ -1479,7 +1479,7 @@ end
 cmap = get(gcf,'Colormap');
 if size(cmap,1)~=128
     colgrey = colormap(gray(64));
-    coldiv = cbrewer('div','RdBu',64);
+    coldiv = cbrewer('div','RdBu',64,'PCHIP');
     coldiv = flip(coldiv,1);
     spm_figure('Colormap','gray-jet');
     colormap([colgrey; coldiv]);
