@@ -33,13 +33,13 @@ maxw = max(max(weights));
 maxw = max(maxw,0);
 
 if minw<0 && maxw>0 % Both negative and positive, diverging colormap
-    colneg = cbrewer('seq','Blues',128);
-    colpos = cbrewer('seq','Reds',128);
+    colneg = cbrewer('seq','Blues',128,'PCHIP');
+    colpos = cbrewer('seq','Reds',128,'PCHIP');
     cols  = [flip(colneg,1);colpos];
 elseif minw>=0 && maxw>0 % Only positive, sequential red colormap
-    cols = cbrewer('seq','Reds',256);
+    cols = cbrewer('seq','Reds',256,'PCHIP');
 elseif minw<0 && maxw<=0 % Only negative, sequential blue colormap
-    colneg= cbrewer('seq','Blues',256);
+    colneg= cbrewer('seq','Blues',256,'PCHIP');
     cols  = flip(colneg,1);
 elseif minw==0 && maxw==0 % All zeros, just gray
     cols = [0.5 0.5 0.5];
