@@ -117,7 +117,9 @@ switch lower(Action)
         disp('/_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/  ')
         disp('                                                            ')
 
-        disp( '      PRoNTo v3.0 - http://www.mlnl.cs.ucl.ac.uk/pronto      ');
+        disp( '      PRoNTo v3.0 <strong>beta</strong> - http://www.mlnl.cs.ucl.ac.uk/pronto      ');
+        disp( '      <strong>This is a beta version and is subject to change.</strong> ');
+        
         fprintf('\n');
         
         
