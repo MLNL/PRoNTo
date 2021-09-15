@@ -110,15 +110,14 @@ switch lower(Action)
     case 'asciiwelcome'                       %-ASCII PRoNTo banner welcome
         %==================================================================
         % Slant font from http://patorjk.com/software/taag/#p=testall&f=Chiseled&t=PRoNTo%20v3.0
-        disp('    ____  ____        _   ________              _____  ____ ')
-        disp('   / __ \/ __ \____  / | / /_  __/___     _   _|__  / / __ \')
-        disp('  / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / //_ < / / / /')
-        disp(' / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ /__/ // /_/ / ')
-        disp('/_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/  ')
-        disp('                                                            ')
-
-        disp( '      PRoNTo v3.0 <strong>beta</strong> - http://www.mlnl.cs.ucl.ac.uk/pronto      ');
-        disp( '      <strong>This is a beta version and is subject to change.</strong> ');
+        disp('    ____  ____        _   ________              _____  ____      __         __           ')
+        disp('   / __ \/ __ \____  / | / /_  __/___     _   _|__  / / __ \    / /_  ___  / /_____ _    ')
+        disp('  / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / //_ < / / / /   / __ \/ _ \/ __/ __ `/    ')
+        disp(' / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ /__/ // /_/ /   / /_/ /  __/ /_/ /_/ /     ')
+        disp('/_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/   /_.___/\___/\__/\__,_/      ')
+        disp('                                                                                         ')
+        disp( '      PRoNTo v3.0 <strong>beta</strong> - http://www.mlnl.cs.ucl.ac.uk/pronto           ')
+        disp( '      <strong>This is a beta version and is subject to change.</strong>                 ');
         
         fprintf('\n');
         
