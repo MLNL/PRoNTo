@@ -1,14 +1,15 @@
 % Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
-% Verion 3.0 (PRoNTo3) September-2019
+% Version 3.0 beta - September-2021
 %__________________________________________________________________________
-%    ____  ____        _   ________              _____  ____ 
-%   / __ \/ __ \____  / | / /_  __/___     _   _|__  / / __ \
-%  / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / //_ < / / / /
-% / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ /__/ // /_/ / 
-%/_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/ 
 %
-%
-%                         PRoNTO v3.0 - http://www.mlnl.cs.ucl.ac.uk/pronto
+%             ____  ____        _   ________              _____  ____      __         __         
+%            / __ \/ __ \____  / | / /_  __/___     _   _|__  / / __ \    / /_  ___  / /_____ _    
+%           / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / //_ < / / / /   / __ \/ _ \/ __/ __ `/   
+%          / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ /__/ // /_/ /   / /_/ /  __/ /_/ /_/ /    
+%         /_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/   /_.___/\___/\__/\__,_/      
+%                                                                                                  
+%         PRoNTo v3.0 beta - http://www.mlnl.cs.ucl.ac.uk/pronto.
+%         This is a beta version and is subject to change.
 %__________________________________________________________________________
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 %
@@ -20,27 +21,26 @@
 % Computer Science department, University College London, UK.
 % http://www.mlnl.cs.ucl.ac.uk and associated researchers.
 % 
-% The main contributors (past and present), in alphabetical order, are:
-% - John Ashburner, 
-% - Carlton Chu, 
-% - Andre Marquand,
-% - Joao M. Monteiro, 
-% - Janaina Mourao-Miranda, 
-% - Christophe Phillips, 
-% - Anil Rao,
-% - Jonas Richiardi,
-% - Jane Rondina,
-% - Maria J. Rosa,
+% The main contributors (past and present) are:
+% - Janaina Mourao-Miranda
+% - John Ashburner
+% - Christophe Phillips
+% - Carlton Chu
 % - Jessica Schrouff
+% - Andre Marquand
+% - Joao M. Monteiro
+% - Jonas Richiardi
+% - Jane Rondina
+% - Maria J. Rosa
+% - Konstantinos Tsirlis
 % - Tong Wu
 % 
 % The development of PRoNTo was possible with the financial and logistic 
 % support of 
-% - PASCAL Harvest Programme (http://www.pascal-network.org/)
+% - PASCAL2 (https://cordis.europa.eu/project/id/216886/) and its HARVEST programme;
 % - the Department of Computer Science, University College London
 %   (http://www.cs.ucl.ac.uk);
 % - the Wellcome Trust;
-% - PASCAL2 (http://www.pascal-network.org/) and its HARVEST programme;
 % - the Fonds de la Recherche Scientifique-FNRS, Belgium
 %   (http://www.fnrs.be);
 % - The Foundation for Science and Technology, Portugal 
@@ -53,7 +53,7 @@
 % - Marie Sklodowska-Curie Actions, grant 654038 DecoMP-ECoG to J.S.
 %
 % PRoNTo is designed to work from MATLAB versions R2013a to 
-% R2018a, and will not work with earlier versions.
+% R2021a, and will not work with earlier versions.
 % Some routine may need to be compiled for your specific OS.
 % 
 % Moreover the latest version of the SPM software is also required! You can
