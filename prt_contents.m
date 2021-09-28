@@ -1,5 +1,5 @@
 % Pattern Recognition for Neuroimaging Toolbox, aka. PRoNTo
-% Verion 3.0 beta (PRoNTo3) September-2021
+% Version 3.0 beta - September-2021
 %__________________________________________________________________________
 %
 %             ____  ____        _   ________              _____  ____      __         __         
@@ -26,7 +26,7 @@
 % - John Ashburner
 % - Christophe Phillips
 % - Carlton Chu
-% - Jessica Schrou
+% - Jessica Schrouff
 % - Andre Marquand
 % - Joao M. Monteiro
 % - Jonas Richiardi
