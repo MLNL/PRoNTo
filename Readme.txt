@@ -14,7 +14,7 @@
 % This README gives a brief introduction to the PRoNTo software.
 % Full details can be found on the PRoNTo website:
 % 
-%                      http://www.mlnl.cs.ucl.ac.uk/pronto
+% http://www.mlnl.cs.ucl.ac.uk/pronto
 % 
 % See also prt_Contents.m and prt_licence.man.
 %
@@ -42,6 +42,6 @@
 %
 %                               ----------------
 % 
-% Please refer to this version as "PRoNTo v3.0" in papers and communications.
+% Please refer to this version as "PRoNTo v3.0 beta" in papers and communications.
 % 
 %__________________________________________________________________________
