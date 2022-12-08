@@ -37,6 +37,12 @@ elseif isfield(jobmach,'sMKL_cla')
     model.machine.s_args='';
     opt = jobmach.sMKL_cla.svm_opt;
     
+% ENMKL
+elseif isfield(jobmach,'ENMKL_cla')
+    model.machine.function='prt_machine_ENMKL_SVM';
+    model.machine.s_args='';
+    opt = jobmach.ENMKL_cla.enmkl_opt;
+    
 % L2 Logistic Regression
 elseif isfield(jobmach,'libl2KLR')
     model.machine.function='prt_machine_liblinearsvm';
@@ -107,6 +113,12 @@ elseif isfield(jobmach,'sMKL_reg')
     model.machine.function='prt_machine_sMKL_reg';
     model.machine.s_args     = '';
     opt = jobmach.sMKL_reg.svm_opt;
+    
+% ENMKL
+elseif isfield(jobmach,'ENMKL_reg')
+    model.machine.function='prt_machine_ENMKL_KRR';
+    model.machine.s_args='';
+    opt = jobmach.ENMKL_reg.enmkl_opt;
 
 % epsilon-SVR
 elseif isfield(jobmach,'libeSVR')
@@ -176,6 +188,15 @@ if ~isempty(opt)
     elseif isfield(opt,'rt_no_opt')
         model.cv.nested = 0;
         model.machine.args = opt.machine_no_opt;
+        model.cv.nested_param = [];
+    elseif isfield(opt,'enmkl_opt_p') % ENMKL
+        model.cv.nested = 1;
+        model.cv.nested_param = opt.enmkl_opt_p.enmkl_args;
+        cv_tmp = prt_get_cv_type(opt.enmkl_opt_p.cv_type_nested);
+        model.machine.args = [];
+    elseif isfield(opt,'enmkl_no_opt') % ENMKL
+        model.cv.nested = 0;
+        model.machine.args = opt.enmkl_no_opt;
         model.cv.nested_param = [];
     end
 else

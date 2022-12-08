@@ -388,6 +388,88 @@ sMKL_cla.help    = {'Multi-Kernel Learning. Choose only if multiple kernels ' ..
     'It is strongly advised to "normalize" the kernels (in "operations").'};
 sMKL_cla.val     = {svm_opt};
 
+
+
+
+
+
+
+
+
+% enmkl_args Elastic-net MKL argument values
+% ---------------------------------------------------------------------
+enmkl_args         = cfg_entry;
+enmkl_args.tag     = 'enmkl_args';
+enmkl_args.name    = 'Regularization hyper-parameter';
+enmkl_args.help    = {['Elastic-net Multi-Kernel Learning has 2 hyper-parameters. The hyper-parameters must be added with '...
+    'the exact following format: "val = { [1 x P1]; [1 x P2]};" where the first set of values correspond to the C '...
+    'hyper-parameter of ENMKL, and the second set of values correspond to the mu hyper-parameter. '...
+    'Example: "val = {[0.01 0.1 1 10 100]; [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1]};"']};
+enmkl_args.strtype = 'e';
+enmkl_args.val     = {def.model.enmkl_optargs};
+
+% ---------------------------------------------------------------------
+% enmkl_opt_p
+% ---------------------------------------------------------------------
+enmkl_opt_p        = cfg_branch;
+enmkl_opt_p.tag     = 'enmkl_opt_p';
+enmkl_opt_p.name    = 'Optimize hyper-parameter';
+enmkl_opt_p.help    = {'Specify range of values and nested CV.'};
+enmkl_opt_p.val     = {enmkl_args,svm_cv_type_nested};
+
+% ---------------------------------------------------------------------
+% enmkl_no_opt
+% ---------------------------------------------------------------------
+enmkl_no_opt         = cfg_entry;
+enmkl_no_opt.tag     = 'enmkl_no_opt';
+enmkl_no_opt.name    = 'No optimization';
+enmkl_no_opt.help    = {'Getting default value.'};
+enmkl_no_opt.strtype = 'e';
+enmkl_no_opt.val     = {def.model.enmklargs};
+enmkl_no_opt.num     = [1 2];
+
+% ---------------------------------------------------------------------
+% enmkl_opt group
+% ---------------------------------------------------------------------
+enmkl_opt         = cfg_choice;
+enmkl_opt.tag     = 'enmkl_opt';
+enmkl_opt.name    = 'Machine optimization and parameters';
+enmkl_opt.help    = {'Choose whether to optimize machine or not'};
+enmkl_opt.values     = {enmkl_no_opt,enmkl_opt_p};
+
+
+
+
+
+
+
+
+
+
+
+
+% ---------------------------------------------------------------------
+% ENMKL Classification
+% ---------------------------------------------------------------------
+ENMKL_cla         = cfg_branch;
+ENMKL_cla.tag     = 'ENMKL_cla';
+ENMKL_cla.name    = 'Elastic-net Multi-Kernel Learning';
+ENMKL_cla.help    = {'Multi-Kernel Learning. Choose only if multiple kernels ' ...
+    'were built during the feature set construction (either multiple modalities or ROIs). ' ...
+    'It is strongly advised to "normalize" the kernels (in "operations").'};
+ENMKL_cla.val     = {enmkl_opt};
+
+
+
+
+
+
+
+
+
+
+
+
 % ---------------------------------------------------------------------
 % libl2KLR_sargs L2 Logistic Regression string argument (dual)
 % ---------------------------------------------------------------------
@@ -544,6 +626,28 @@ sMKL_reg.name    = 'Multi-Kernel Regression';
 sMKL_reg.help    = {'Multi-Kernel Regression'};
 sMKL_reg.val     = {svm_opt};
 
+
+
+
+
+
+% ---------------------------------------------------------------------
+% ENMKL Regression
+% ---------------------------------------------------------------------
+ENMKL_reg         = cfg_branch;
+ENMKL_reg.tag     = 'ENMKL_reg';
+ENMKL_reg.name    = 'Elastic-net Multi-Kernel Learning';
+ENMKL_reg.help    = {'Multi-Kernel Learning. Choose only if multiple kernels ' ...
+    'were built during the feature set construction (either multiple modalities or ROIs). ' ...
+    'It is strongly advised to "normalize" the kernels (in "operations").'};
+ENMKL_reg.val     = {enmkl_opt};
+
+
+
+
+
+
+
 % ---------------------------------------------------------------------
 % KRR machine
 % ---------------------------------------------------------------------
@@ -674,8 +778,7 @@ mach_cl_nonkernel.help   = {...
 mach_cl_kernel       = cfg_choice;
 mach_cl_kernel.tag    = 'mach_cl_kernel';
 mach_cl_kernel.name   = 'Kernel machine';
-mach_cl_kernel.values = {svm,gpc, gpclap, sMKL_cla, custom_machine}; 
-% mach_cl_kernel.values = {svm,libl2KLR, gpc, gpclap, sMKL_cla, custom_machine}; 
+mach_cl_kernel.values = {svm, gpc, gpclap, sMKL_cla, ENMKL_cla, custom_machine}; 
 mach_cl_kernel.val    =  {svm};
 mach_cl_kernel.help   = {...
     ['Choose a kernel prediction machine for this model']};
@@ -707,7 +810,7 @@ mach_rg_nonkernel.help   = {...
 mach_rg_kernel       = cfg_choice;
 mach_rg_kernel.tag    = 'mach_rg_kernel';
 mach_rg_kernel.name   = 'Kernel machine';
-mach_rg_kernel.values = {krr,libeSVR,rvr,gpr,sMKL_reg,custom_machine}; 
+mach_rg_kernel.values = {krr, libeSVR, rvr, gpr, sMKL_reg, ENMKL_reg, custom_machine}; 
 mach_rg_kernel.val    =  {krr};
 mach_rg_kernel.help   = {...
     ['Choose a kernel prediction machine for this model']};

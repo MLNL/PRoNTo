@@ -758,6 +758,17 @@ end
 is_kernel = get(handles.kernel_methods,'Value');    
 [machine] = prt_get_machine_ui(is_class,is_kernel,mach{val});
 handles.machine = machine;
+
+if get(handles.flag_opt_param,'Value')
+    if contains(machine.function,'ENMKL')
+        handles.cv.nested_param = handles.def.enmkl_optargs;
+            set(handles.edit_param_range,'String',[ '{[' num2str(handles.cv.nested_param{1,1}) ']    [' num2str(handles.cv.nested_param{1,2}) ']}'])
+    else
+        handles.cv.nested_param = handles.def.libsvm_optargs;
+        set(handles.edit_param_range,'String',num2str(handles.cv.nested_param));
+    end
+end
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -792,6 +803,14 @@ if v
             handles.cv.nested_param = [];
             beep
             disp('No hyper-parameter can be optimized for this machine')
+            
+        case {'prt_machine_ENMKL_SVM','prt_machine_ENMKL_KRR'}
+            set(handles.edit_param_range,'Enable','on')
+            set(handles.pop_cv_nested,'Enable','on')
+            handles.cv.nested = 1;
+            handles.cv.nested_param = handles.def.enmkl_optargs;
+            set(handles.edit_param_range,'String',[ '{[' num2str(handles.cv.nested_param{1,1}) ']    [' num2str(handles.cv.nested_param{1,2}) ']}'])
+            
         otherwise
             set(handles.edit_param_range,'Enable','on')
             set(handles.pop_cv_nested,'Enable','on')

@@ -82,7 +82,7 @@ prt_def.machine.class_K = {'Binary support vector machine',...
     'Binary Gaussian Process Classification',...
         'Multiclass GPC'};
 %         'L2-Logistic Regression', ...      
-prt_def.machine.MK = {'L1 Multi-Kernel Learning'};
+prt_def.machine.MK = {'L1 Multi-Kernel Learning','Elastic-net Multi-Kernel Learning'};
 % handles.MK = {'L1 Multi-Kernel Learning','wip','GMKL'};
 prt_def.machine.class_NK = {'Binary L2-SVM',...
     'Binary L1-SVM',...
@@ -134,6 +134,13 @@ prt_def.model.libsvmargs    = 1;
 % MALSAR - Multi-Task Learning
 prt_def.model.MTLargs       = 1;
 
+% ENMKL
+prt_def.model.enmklargs = [1 0.5];
+
+
+
+
+
 % Specify model: Default optimization parameter values of the different machines
 %--------------------------------------------------------------------------------
 prt_def.model.rt_optargs        = 101:100:1001;
@@ -142,6 +149,13 @@ prt_def.model.libsvm_optargs    = 10.^[-2:3];
 
 % MALSAR - Multi-Task Learning
 prt_def.model.MTL_optargs       = 1;
+
+% ENMKL
+prt_def.model.enmkl_optargs = {[0.01 0.1 1 10 100] [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1]};
+
+
+
+
 
 % Parralelization of the code
 %--------------------------------------------------
