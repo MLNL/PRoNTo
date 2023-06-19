@@ -470,6 +470,19 @@ is_kernel = get(handles.kernel_methods,'Value');
 set(handles.edit_param_range,'Enable','on')
 set(handles.pop_cv_nested,'Enable','on')
 handles.machine = machine;
+
+if get(handles.flag_opt_param,'Value')
+    if contains(machine.function,'ENMKL')
+        handles.newmodel.nested_param = handles.def.enmkl_optargs;
+            set(handles.edit_param_range,'String',[ '{[' num2str(handles.newmodel.nested_param{1,1}) ']    [' num2str(handles.newmodel.nested_param{1,2}) ']}'])
+    else
+        handles.newmodel.nested_param = handles.def.libsvm_optargs;
+        set(handles.edit_param_range,'String',num2str(handles.newmodel.nested_param));
+    end
+end
+
+
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -509,8 +522,14 @@ if v
             set(handles.edit_param_range,'Enable','on')
             set(handles.pop_cv_nested,'Enable','on')
             handles.newmodel.use_nested_cv = 1;
+            
+            if contains(handles.machine.function,'ENMKL')
+            handles.newmodel.nested_param = handles.def.enmkl_optargs;
+            set(handles.edit_param_range,'String',[ '{[' num2str(handles.newmodel.nested_param{1,1}) ']    [' num2str(handles.newmodel.nested_param{1,2}) ']}'])
+            else
             handles.newmodel.nested_param = handles.def.libsvm_optargs;
             set(handles.edit_param_range,'String',num2str(handles.newmodel.nested_param));
+            end
             pop_cv_nested_Callback(hObject, eventdata, handles);
             handles = guidata(hObject);
     end
@@ -977,7 +996,7 @@ if val==1 %Classification
             'Multiclass GPC'};
         if handles.multimod || handles.multiroi
             list = [list,{'L1- Multi-Kernel Learning',...
-                    'wip'}];
+                    'wip', 'Elastic-net MKL SVM'}];
         end
         set(handles.pop_machine,'String',list)
         set(handles.pop_machine,'Value',1)
@@ -995,7 +1014,7 @@ elseif val==2
     set(handles.butt_defclass,'String','Select subjects/scans')
     %set the list of machines
     set(handles.pop_machine,'String',{'Kernel Ridge Regression',...
-        'Relevance Vector Regression','Gaussian Process Regression', 'Multi-Kernel Regression'})
+        'Relevance Vector Regression','Gaussian Process Regression', 'Multi-Kernel Regression', 'Elastic-net MKL KRR'})
     set(handles.pop_machine,'Value',1)
     handles.machine.function='prt_machine_krr';
     handles.machine.args=handles.def.krrargs;
@@ -1247,7 +1266,10 @@ if strcmpi(handles.dat.model(indmod).input.type,'classification')
             mach = 'L1 Multi-Kernel Learning';
         elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_liblinearsvm')
             mach = 'L2-Logistic Regression';
-        end
+        elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_ENMKL_SVM')
+            mach = 'Elastic-net Multi-Kernel Learning';
+        end  
+        
     else % Non-Kernel classification machines
         list = handles.class_NK;
         if strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_liblinearsvm')
@@ -1286,6 +1308,8 @@ elseif strcmpi(handles.dat.model(indmod).input.type,'regression')
             mach = 'L1 Multi-Kernel Learning';
         elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_svm_bin')
             mach = 'epsilon-SVR';
+        elseif strcmpi(handles.dat.model(indmod).input.machine.function,'prt_machine_ENMKL_KRR')
+            mach = 'Elastic-net Multi-Kernel Learning';
         end
     else
         list = handles.reg_NK;
@@ -1319,13 +1343,20 @@ if v
             handles.cv.nested_param = [];
             beep
             disp('No hyper-parameter can be optimized for this machine')
+        
+        case {'prt_machine_ENMKL_SVM','prt_machine_ENMKL_KRR'}
+            set(handles.edit_param_range,'Enable','on')
+            set(handles.pop_cv_nested,'Enable','on')
+            handles.cv.nested = 1;
+            set(handles.edit_param_range,'String',[ '{[' num2str(handles.dat.model(indmod).input.nested_param{1,1}) ']    [' num2str(handles.dat.model(indmod).input.nested_param{1,2}) ']}'])
+           
         otherwise
             set(handles.edit_param_range,'Enable','on')
             set(handles.pop_cv_nested,'Enable','on')
             handles.cv.nested = 1;
+            set(handles.edit_param_range,'String',num2str(handles.dat.model(indmod).input.nested_param))
     end
     set(handles.flag_opt_param,'Value',1)
-    set(handles.edit_param_range,'String',num2str(handles.dat.model(indmod).input.nested_param))
 else
     handles.cv.nested = 0;
     handles.cv.nested_param = [];
@@ -1358,9 +1389,9 @@ elseif strcmpi(tcv,'loso')
     end
 elseif strcmpi(tcv,'losgo')
     if kcv ==0
-        listcv = {'Leave One Subject per Group Out'};
+        listcv = {'Leave One Subject per Group/Class Out'};
     else
-        listcv = {'k-folds CV on Subjects per Group Out'};
+        listcv = {'k-folds CV on Subjects per Group/Class Out'};
     end
 elseif strcmpi(tcv,'custom')
     if kcv ==0

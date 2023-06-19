@@ -39,6 +39,11 @@ if is_class
         elseif any(strfind(name,'Multi-Kernel'))
             machine.function='prt_machine_sMKL_cla';
             machine.args = def.libsvmargs;
+        % ENMKL
+            if any(strfind(name,'Elastic-net'))
+                machine.function='prt_machine_ENMKL_SVM';
+                machine.args = def.enmklargs;
+            end
             
         % Logistic Regression
         elseif any(strfind(name,'Logistic'))
@@ -115,10 +120,15 @@ else
             machine.function='prt_machine_gpr';
             machine.s_args= def.gpr_sargs;
             
-        % simpleMKL    
+        % simpleMKL
         elseif any(strfind(name,'Multi-Kernel'))
             machine.function='prt_machine_sMKL_reg';
             machine.args= def.libsvmargs;
+        % ENMKL
+            if any(strfind(name,'Elastic-net'))
+                machine.function='prt_machine_ENMKL_KRR';
+                machine.args = def.enmklargs;
+            end
         end
         
     % Non-Kernel machines

@@ -163,7 +163,7 @@ switch mfunc
         m.function  = 'prt_weights_gpclap';
     case 'prt_machine_sMKL_cla'
         m.function = 'prt_weights_sMKL_cla';
-    case 'prt_machine_wip_cla'
+    case 'prt_machine_ENMKL_SVM'
         m.function = 'prt_weights_sMKL_cla';
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...

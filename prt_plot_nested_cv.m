@@ -80,7 +80,7 @@ switch PRT.model(model).input.machine.function
             logscale = 0;
         end
         
-    case {'prt_machine_wip','prt_machine_GMKL_cla'}
+    case {'prt_machine_wip','prt_machine_GMKL_cla','prt_machine_ENMKL_SVM','prt_machine_ENMKL_KRR'}
         x_label = 'mu';
         y_label = 'log(C)';
         z_label = '';

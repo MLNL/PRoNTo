@@ -131,6 +131,8 @@ end
 switch mfunc
     case 'prt_machine_sMKL_reg'
         m.function = 'prt_weights_sMKL_reg';
+    case 'prt_machine_ENMKL_KRR'
+        m.function = 'prt_weights_sMKL_reg';
     case 'prt_machine_RT_bin'
         error('prt_compute_weights:MachineNotSupported',...
             'Error: weights computation not supported for this machine!');
