@@ -399,10 +399,12 @@ handles.computeER=0;
 handles.sort_roi = [];
 handles.sort_mod=[];
 
+fid = handles.fid(handles.class);
+
 % chosen model has ROI values or weights per modality : create the table
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... 
         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{1})
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{fid})
    
     get_feature_set_idx(hObject,eventdata,handles,mi(m));
     handles = guidata(hObject);

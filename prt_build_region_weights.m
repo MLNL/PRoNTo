@@ -152,10 +152,25 @@ else
         %put the files into the PRT directory
         mfile_new=['resized_',V1_fn];
         pp=spm_fileparts(f);
-        movefile(fullfile(V1_pth,[rV1_fn,'.img']), ...
-        fullfile(pp,[mfile_new,'.img']));
-        movefile(fullfile(V1_pth,[rV1_fn,'.hdr']), ...
-        fullfile(pp,[mfile_new,'.hdr']));
+        
+        if ~isequal(fullfile(V1_pth,[rV1_fn,'.img']), fullfile(pp,[mfile_new,'.img']))
+            movefile(fullfile(V1_pth,[rV1_fn,'.img']), ...
+                fullfile(pp,[mfile_new,'.img']));
+            movefile(fullfile(V1_pth,[rV1_fn,'.hdr']), ...
+                fullfile(pp,[mfile_new,'.hdr']));
+        else
+            copyfile(fullfile(V1_pth,[rV1_fn,'.img']), ...
+                fullfile(pp,['temp.img']));
+            delete(fullfile(V1_pth,[rV1_fn,'.img']))
+            movefile(fullfile(V1_pth,['temp.img']), ...
+                fullfile(pp,[mfile_new,'.img']));
+            copyfile(fullfile(V1_pth,[rV1_fn,'.hdr']), ...
+                fullfile(pp,['temp.hdr']));
+            delete(fullfile(V1_pth,[rV1_fn,'.hdr']))
+            movefile(fullfile(V1_pth,['temp.hdr']), ...
+                fullfile(pp,[mfile_new,'.hdr']));
+        end
+    
         g=spm_vol(fullfile(pp,[mfile_new,'.img']));
         h=spm_read_vols(g);
     else
