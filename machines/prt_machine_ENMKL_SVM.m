@@ -26,6 +26,7 @@
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Mourao-Miranda 
+% Modified by J. Mourao-Miranda Sept 2025
 
 %--------------------------------------------------------------------------
 % Run ENMKL
@@ -49,7 +50,10 @@ for i = 1:size(d.train,2)
     ktest_final = ktest_final + beta(i)*d.test{i};
 end
 
-func_val = (ktest_final*(tr_targets.*alpha))+b;
+%func_val = (ktest_final*(tr_targets.*alpha))+b; %this line used when alpha was
+%not multiplied by the labels inside the ENMKL code - modified Sept 2025
+
+func_val = (ktest_final*alpha)+b; 
 
 predictions = sign(func_val);
 

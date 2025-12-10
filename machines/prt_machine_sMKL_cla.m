@@ -26,6 +26,7 @@ function output = prt_machine_sMKL_cla(d,args)
 % Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
 
 % Written by J. Mourao-Miranda 
+% Modified by J. Mourao-Miranda in Sept 2025
 
 def = prt_get_defaults;
 
@@ -167,7 +168,7 @@ output.targets_train = d.tr_targets;
 output.predictions_train = predictions_train;
 output.func_val_train    = func_val_train;
 output.type        = 'classifier';
-output.alpha       = alpha;
+output.alpha       = alpha; %since Sept 2025 multiples by the coefficients inside the MKL code
 output.b           = b;
 output.totalSV     = length(alpha_sv);
 output.beta        = beta; %kernel weights
