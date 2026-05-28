@@ -58,7 +58,7 @@ if ~doRow %do the fast method
     % use histc instead of hist, since the latter adds zeros if the entries
     % are all equal and >1 (the bins are interpreted as number of bins, not
     % a vector of bins!)
-    numberOfOccurences = histc(mFinite,uniqueEntries);
+    numberOfOccurences = histcounts(mFinite, [uniqueEntries; max(uniqueEntries)+1]); % [UPDATE v3.1 - R2025a] histc() removed
     
 
     

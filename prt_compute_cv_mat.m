@@ -107,7 +107,7 @@ switch in.cv.type
         end
         snums=[];
         for g = 1:length(gids)
-            snums = [snums;histc(dID(gidx{g},2),unique(dID(gidx{g},2)))];
+            snums = [snums;histcounts(dID(gidx{g},2), [unique(dID(gidx{g},2)); max(dID(gidx{g},2))+1])]; % [UPDATE v3.1 - R2025a] histc() removed
         end
         if length(snums) == 1
             error('prt_model:losoSelectedWithOneSubject',...
@@ -224,7 +224,7 @@ switch in.cv.type
             else %Leave-One-Subject per Class-Out
                 sk=1:ns(g);
             end
-            snums = histc(vcl(is,2),unique(vcl(is,2)));
+            snums = histcounts(vcl(is,2), [unique(vcl(is,2)); max(vcl(is,2))+1]); % [UPDATE v3.1 - R2025a] histc() removed
             G = cell(length(unique(sk)),1);
             for s = 1:length(unique(sk))
                 G{s} = ones(sum(snums(sk==s)),1);
@@ -284,7 +284,7 @@ switch in.cv.type
         end
         snums=[];
         for g = 1:length(cids)
-            snums = [snums;histc(dID(cidx{g},5),unique(dID(cidx{g},5)))];
+            snums = [snums;histcounts(dID(cidx{g},5), [unique(dID(cidx{g},5)); max(dID(cidx{g},5))+1])]; % [UPDATE v3.1 - R2025a] histc() removed
         end
         if length(snums) == 1
             error('prt_model:loboSelectedWithOneBlock',...
@@ -467,7 +467,7 @@ switch in.cv.type
             G = cell(length(unique(sk)),1);
             
             
-            snums = histc(vcl(is,2),unique(vcl(is,2)));
+            snums = histcounts(vcl(is,2), [unique(vcl(is,2)); max(vcl(is,2))+1]); % [UPDATE v3.1 - R2025a] histc() removed
             
             for s = 1:length(unique(sk))
                 G{s} = ones(sum(snums(sk==s)),1);

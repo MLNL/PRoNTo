@@ -165,7 +165,7 @@ if SANITYCHECK==true
                     'Error: training and testing datasest cannot be empty!');
             end
             % check dimensions
-            [Ntrain Dtrain] = size(d.train{k});
+            [Ntrain, Dtrain] = size(d.train{k}); % [UPDATE v3.1 - R2025a] added commas in multi-output assignment
             [Ntest, Dtest]  = size(d.test{k});
             % a: feature space dimension should be equal
             if ~(Dtrain==Dtest)

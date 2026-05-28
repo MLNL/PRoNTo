@@ -125,7 +125,7 @@ for d = 1:length(in.train)
                     m = mean(in.train{d});
                     %out.train{d} = in.train{d} - repmat(m,size(in.train{d},2),1);
                     out.train{d} = zeros(size(in.train{d}));
-                    for r = 1:size(in.train{d},1)
+                    for r = 1:size(in.train{d},1) % [UPDATE v3.1 - R2025a] added dimension arg to size()
                         out.train{d}(r,:) = in.train{d}(r,:) - m;
                     end
                 end
@@ -138,11 +138,11 @@ for d = 1:length(in.train)
                     %out.train{d} = in.train{d} - repmat(m,size(in.train{d},2),1);
                     %out.test{d}  = in.test{d} - repmat(m,size(in.test{d},2),1);
                     out.train{d} = zeros(size(in.train{d}));
-                    for r = 1:size(in.train{d},1)
+                    for r = 1:size(in.train{d},1) % [UPDATE v3.1 - R2025a] added dimension arg to size()
                         out.train{d}(r,:) = in.train{d}(r,:) - m;
                     end
                     out.test{d} = zeros(size(in.test{d}));
-                    for r = 1:size(in.test{d},1)
+                    for r = 1:size(in.test{d},1) % [UPDATE v3.1 - R2025a] added dimension arg to size()
                         out.test{d}(r,:)  = in.test{d}(r,:) - m;
                     end
                 end
@@ -170,7 +170,7 @@ for d = 1:length(in.train)
                     out.train{d} = Phi(tr,tr);
                 else
                     out.train{d} = zeros(size(in.train{d}));
-                    for r = 1:size(in.train{d})
+                    for r = 1:size(in.train{d},1) % [UPDATE v3.1 - R2025a] added dimension arg to size()
                         out.train{d}(r,:) = in.train{d}(r,:) / norm(in.train{d}(r,:));
                     end
                 end
@@ -187,11 +187,11 @@ for d = 1:length(in.train)
                     out.testcov{d}  = Phi(te,te);
                 else
                     out.train{d} = zeros(size(in.train{d}));
-                    for r = 1:size(in.train{d})
+                    for r = 1:size(in.train{d},1) % [UPDATE v3.1 - R2025a] added dimension arg to size()
                         out.train{d}(r,:) = in.train{d}(r,:) / norm(in.train{d}(r,:));
                     end
                     out.test{d} = zeros(size(in.test{d}));
-                    for r = 1:size(in.test{d})
+                    for r = 1:size(in.test{d},1) % [UPDATE v3.1 - R2025a] added dimension arg to size()
                         out.test{d}(r,:) = in.test{d}(r,:) / norm(in.test{d}(r,:));
                     end
                 end
@@ -356,7 +356,7 @@ end
 
 % Compute sample averaging matrix
 cids  = unique(IDc);
-cnums = histc(IDc,cids);
+cnums = histcounts(IDc, [cids; cids(end)+1]); % [UPDATE v3.1 - R2025a] histc() removed, replaced with histcounts()
 C = cell(length(cnums),1);
 for c = 1:length(cnums)
     C{c} = 1/cnums(c) .* ones(1,cnums(c));

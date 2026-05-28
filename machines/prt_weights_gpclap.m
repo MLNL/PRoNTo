@@ -30,7 +30,7 @@ if SANITYCHECK == true
                 ' field!']);
         end
         if isfield(d,'coeffs')
-                [ncoeffs nclass] = size(d.coeffs);
+                [ncoeffs, nclass] = size(d.coeffs); % [UPDATE v3.1 - R2025a] added commas in multi-output assignment
         else
             error('prt_weights_svm_bin:noCoeffsField',...
                 ['Error: ''data'' struct must contain ''coeffs'' '...

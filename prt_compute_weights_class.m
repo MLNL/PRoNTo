@@ -477,7 +477,7 @@ for p=0:maxp
     if p==0
         for f = 1:nfold
             for c = 1:nimage
-                if unique(norm4d{c}(1,f))~=0 % If not all weights at zero, normalize
+                if ~all(norm4d{c}(1,f)==0) % [UPDATE v3.1 - R2025a] unique() returns vector, replaced with ~all()==0
                     img4d{c}(:,:,:,f) = img4d{c}(:,:,:,f)./norm4d{c}(1,f);
                 end
             end
@@ -485,7 +485,7 @@ for p=0:maxp
     end
     
     for c = 1:nimage % average across folds
-        if unique(norm4dav{c})~=0 % If not all weights at zero, normalize
+        if ~all(norm4dav{c}==0) % [UPDATE v3.1 - R2025a] unique() returns vector, replaced with ~all()==0
             img4d{c}(:,:,:,folds_comp) = img4d{c}(:,:,:,folds_comp)./norm4dav{c}; %afm
         end
     end %afm

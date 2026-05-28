@@ -75,7 +75,7 @@ if comp_perm
     [a,b]=fileparts(char(f));
     dirn=[a,filesep,'perm_',b];
     pth=pwd;
-    if isdir(dirn)
+    if isfolder(dirn) % [UPDATE v3.1 - R2025a] isdir() removed, replaced with isfolder()
         %get the names of the weight images
         cd(dirn)
         files=dir(['*perm*',extfile]);
@@ -216,7 +216,7 @@ for ii=1:size(fperm,1)
     
     % Compute the weights and normalized weights
     disp(['Computing weights in each ROI for image ',num2str(ii)])
-    [H HN SN idfeatroi] = prt_region_histogram(w, atlas);
+    [H, HN, SN, idfeatroi] = prt_region_histogram(w, atlas); % [UPDATE v3.1 - R2025a] added commas in multi-output assignment
     nr=size(H,1);
     
     % Put 0 if the fold has only NaNs
