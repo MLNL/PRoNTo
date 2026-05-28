@@ -75,13 +75,21 @@ switch lower(Action)
             addpath(fullfile(spm('Dir'),'external','fieldtrip'));
             clear ft_defaults
             clear global ft_default
-            ft_defaults;
+            % [UPDATE v3.1] Suppress FieldTrip startup banner and citation message.
+            % ft_defaults normally prints the FieldTrip logo and citation notice to
+            % the MATLAB console on every PRoNTo startup. Using evalc() captures all
+            % text output from ft_defaults without affecting its functionality —
+            % the global ft_default structure is still initialised correctly.
+            % Previously: ft_defaults;
+            evalc('ft_defaults');
             global ft_default
             ft_default.trackcallinfo = 'no';
             ft_default.showcallinfo = 'no';
         end
         % Special MEEG batches
-        if ~exist('spm_cfg_channel_selector','file')
+        % [UPDATE v3.1 - SPM25 compatibility] Updated from 'spm_cfg_channel_selector'
+        % to 'spm_cfg_eeg_channel_selector' to match the function name in SPM25.
+        if ~exist('spm_cfg_eeg_channel_selector','file')
             addpath(fullfile(spm('Dir'),'config'));
         end
         
@@ -109,15 +117,17 @@ switch lower(Action)
         %==================================================================
     case 'asciiwelcome'                       %-ASCII PRoNTo banner welcome
         %==================================================================
-        % Slant font from http://patorjk.com/software/taag/#p=testall&f=Chiseled&t=PRoNTo%20v3.0
-        disp('    ____  ____        _   ________              _____  ____      __         __           ')
-        disp('   / __ \/ __ \____  / | / /_  __/___     _   _|__  / / __ \    / /_  ___  / /_____ _    ')
-        disp('  / /_/ / /_/ / __ \/  |/ / / / / __ \   | | / //_ < / / / /   / __ \/ _ \/ __/ __ `/    ')
-        disp(' / ____/ _, _/ /_/ / /|  / / / / /_/ /   | |/ /__/ // /_/ /   / /_/ /  __/ /_/ /_/ /     ')
-        disp('/_/   /_/ |_|\____/_/ |_/ /_/  \____/    |___/____(_)____/   /_.___/\___/\__/\__,_/      ')
-        disp('                                                                                         ')
-        disp( '      PRoNTo v3.0 beta - http://www.mlnl.cs.ucl.ac.uk/pronto                            ')
-        disp( '      <strong>This is a beta version and is subject to change.</strong>                 ');
+        % Slant font from http://patorjk.com/software/taag/#p=testall&f=Chiseled&t=PRoNTo%20v3.1
+        % [UPDATE v3.1] Updated version number from v3.0 beta to v3.1,
+        % updated URL to GitHub repository, removed beta disclaimer.
+        disp('    ____  ____        _   ________         ')
+        disp('   / __ \/ __ \____  / | / /_  __/___      ')
+        disp('  / /_/ / /_/ / __ \/  |/ / / / / __ \    ')
+        disp(' / ____/ _, _/ /_/ / /|  / / / / /_/ /    ')
+        disp('/_/   /_/ |_|\____/_/ |_/ /_/  \____/     ')
+        disp('                                           ')
+        disp( '      PRoNTo v3.1 - https://github.com/MLNL/PRoNTo_public      ')
+        disp( '      Original website: http://www.mlnl.cs.ucl.ac.uk/pronto    ')
         
         fprintf('\n');
         
@@ -190,20 +200,25 @@ function ok = check_installation
 ok = true;
 
 % Check SPM installation
+% [UPDATE v3.1 - SPM25 compatibility] Added isempty(regexpi(SPMver,'spm25')) to
+% the version check condition to accept SPM25 (Version 25.01.02, released Jan 2025).
+% SPM25 spm('Ver') returns 'SPM25' as the version string (parsed from Contents.m).
+% Also updated error messages below to mention SPM25.
 if exist('spm.m','file')
     [SPMver, SPMrel] = spm('Ver');
     if (~(strcmpi(SPMver,'spm8') && str2double(SPMrel)>8.5)) && ...
-            isempty(regexpi(SPMver,'spm12'))
+            isempty(regexpi(SPMver,'spm12')) && ...
+            isempty(regexpi(SPMver,'spm25'))  % [UPDATE v3.1] Added SPM25 check
         beep
         fprintf('\nERROR:\n')
-        fprintf('\tThe *latest* version of SPM8 or SPM12 should be installed on your computer,\n')
+        fprintf('\tThe *latest* version of SPM8, SPM12 or SPM25 should be installed on your computer,\n') % [UPDATE v3.1]
         fprintf('\tand be available on MATLABPATH!\n\n')
         ok = false;
     end
 else
     beep
     fprintf('\nERROR:\n')
-    fprintf('\tThe *latest* version of SPM8 or SPM12 should be installed on your computer,\n')
+    fprintf('\tThe *latest* version of SPM8, SPM12 or SPM25 should be installed on your computer,\n') % [UPDATE v3.1]
     fprintf('\tand be available on MATLABPATH!\n\n')
     ok = false;
 end
