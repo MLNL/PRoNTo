@@ -51,25 +51,45 @@ end
 rotate3d off
 cla(axes_handle, 'reset');
 
+% [UPDATE v3.1 - R2025a] Use ksdensity violin plot if Statistics Toolbox
+% is available, otherwise fall back to histogram with flipped orientation.
+hasStatsTbx = license('test','statistics_toolbox') && exist('ksdensity','file');
+if hasStatsTbx
+    plotHistOpt = 1;    % ksdensity violin plot (original behaviour)
+    plotXYOri   = 'normal';
+else
+    plotHistOpt = 2;    % histogram fallback, no toolbox required
+    plotXYOri   = 'flipped';
+end
+
 % Get violin plot for balanced accuracy
 if isempty(perm_r2)
     % Only plot balanced accuracy if no permutations
-    distributionPlot(axes_handle,r2,'color',c_over(1,:),'showMM',2)
+    distributionPlot(axes_handle,r2,'color',c_over(1,:),'showMM',2,'histOpt',plotHistOpt,'xyOri',plotXYOri)
     legend_text = {'R2','Mean'};
 else
     % Plot balanced accuracy on the left and permutations on the right
-    distributionPlot(axes_handle,r2,'widthDiv',[2 1],'histOri','left','color',c_over(1,:),'showMM',0)
-    distributionPlot(axes_handle,perm_r2','widthDiv',[2 2],'histOri','right','color',c_over(2,:),'showMM',0)
-    distributionPlot(axes_handle,r2,'widthDiv',[2 1],'histOri','left','color',c(1,:),'histOpt',0,'showMM',0)
-    distributionPlot(axes_handle,perm_r2','widthDiv',[2 2],'histOri','right','color',c(2,:),'histOpt',0,'showMM',0)
+    distributionPlot(axes_handle,r2,'widthDiv',[2 1],'histOri','left','color',c_over(1,:),'showMM',0,'histOpt',plotHistOpt,'xyOri',plotXYOri)
+    distributionPlot(axes_handle,perm_r2','widthDiv',[2 2],'histOri','right','color',c_over(2,:),'showMM',0,'histOpt',plotHistOpt,'xyOri',plotXYOri)
+    distributionPlot(axes_handle,r2,'widthDiv',[2 1],'histOri','left','color',c(1,:),'histOpt',plotHistOpt,'showMM',0,'xyOri',plotXYOri)
+    distributionPlot(axes_handle,perm_r2','widthDiv',[2 2],'histOri','right','color',c(2,:),'histOpt',plotHistOpt,'showMM',0,'xyOri',plotXYOri)
     legend_text = {'True labels','Permuted labels'};
 end
 
 % Plot and axes labels
-ylim([-0.05 1.05])
-set(axes_handle,'XTickLabels','')
-title(axes_handle,sprintf('R2 distribution'));
-ylabel(axes_handle,'Model performance','FontWeight','bold')
-xlabel(axes_handle,'','FontWeight','bold')
+% [UPDATE v3.1 - R2025a] Axis labels depend on orientation (normal vs flipped)
+if hasStatsTbx
+    ylim([-0.05 1.05])
+    set(axes_handle,'XTickLabels','')
+    title(axes_handle,sprintf('R2 distribution'));
+    ylabel(axes_handle,'Model performance','FontWeight','bold')
+    xlabel(axes_handle,'','FontWeight','bold')
+else
+    xlim([-0.05 1.05])
+    set(axes_handle,'YTickLabels','')
+    title(axes_handle,sprintf('R2 distribution'));
+    xlabel(axes_handle,'Model performance','FontWeight','bold')
+    ylabel(axes_handle,'','FontWeight','bold')
+end
 legend(legend_text,'Location','NorthEast')
 set(axes_handle,'Color',[1,1,1])
