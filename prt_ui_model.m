@@ -366,6 +366,10 @@ function fs_uns_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns fs_uns contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from fs_uns
 list = get(handles.fs_uns,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+if ~iscell(list)
+    list = cellstr(list);
+end
 val = get(handles.fs_uns,'Value');
 fsname = list{val};
 fsidx = find(strcmpi(fsname,handles.fslist));
@@ -391,6 +395,14 @@ handles.fs(id).fs_name=fsname;
 handles.fs(id).indfs=fsidx;
 % Set CV and machine options
 list=get(handles.pop_cv,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure list/mach is a cell array.
+if ~iscell(list)
+    list = cellstr(list);
+end
+% [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+if ~iscell(list)
+    list = cellstr(list);
+end
 if length(handles.dat.fs(fsidx).modality)>1 %LOO Run if not in list
     if ~any(strcmpi(list,'Leave One Run/Session Out'))
         list=[list;{'Leave One Run/Session Out'}];
@@ -445,6 +457,10 @@ function fs_sel_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns fs_sel contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from fs_sel
 list = get(handles.fs_sel,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+if ~iscell(list)
+    list = cellstr(list);
+end
 val = get(handles.fs_sel,'Value');
 fsname = list{val};
 fsidx = find(strcmpi(fsname,handles.fslist));
@@ -478,6 +494,14 @@ set(handles.fs_uns,'String',handles.fslist(idu));
 set(handles.fs_uns,'Value',length(idu));
 % Update CV and machine options
 list=get(handles.pop_cv,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure list/mach is a cell array.
+if ~iscell(list)
+    list = cellstr(list);
+end
+% [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+if ~iscell(list)
+    list = cellstr(list);
+end
 if ~isempty(handles.fs)
     fsidx = handles.fs(1).indfs;
     if length(handles.dat.fs(fsidx).modality)>1 %LOO Run if not in list
@@ -633,6 +657,14 @@ if strcmpi(handles.type,'classification')
     
     % Options for the outer CV
     list=get(handles.pop_cv,'String');
+    % [UPDATE v3.1 - R2025a compatibility] Ensure list/mach is a cell array.
+    if ~iscell(list)
+        list = cellstr(list);
+    end
+    % [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+    if ~iscell(list)
+        list = cellstr(list);
+    end
     if (speccl.design) && max(ns)==1
         if ~any(ismember(list, 'Leave One Block Out'))
             list=[list;{'Leave One Block Out'}];
@@ -665,6 +697,14 @@ if strcmpi(handles.type,'classification')
         handles.cv.type     = 'loso';
         handles.cv.type_nested='loso';
         list=get(handles.pop_cv,'String');
+        % [UPDATE v3.1 - R2025a compatibility] Ensure list/mach is a cell array.
+        if ~iscell(list)
+            list = cellstr(list);
+        end
+        % [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+        if ~iscell(list)
+            list = cellstr(list);
+        end
         if ~any(ismember(list, 'Leave One Subject per Class Out'))
             list=[list;{'Leave One Subject per Class Out'}];
         end
@@ -701,6 +741,10 @@ else % Regression
         n=n+length(sel(i).subj);
     end
     list=get(handles.pop_cv,'String');
+    % [UPDATE v3.1 - R2025a compatibility] Ensure list/mach is a cell array.
+    if ~iscell(list)
+        list = cellstr(list);
+    end
     if n>1
         if ~any(ismember(list, 'Leave One Subject Out'))
             list=[list;{'Leave One Subject Out'}];
@@ -745,6 +789,10 @@ function pop_machine_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_machine contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_machine
 mach=get(handles.pop_machine,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
+if ~iscell(mach)
+    mach = cellstr(mach);
+end
 val=get(handles.pop_machine,'Value');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
@@ -885,6 +933,14 @@ function pop_cv_Callback(hObject, eventdata, handles)
 % assemble structure for performing cross-validation
 val=get(handles.pop_cv,'Value');
 mach=get(handles.pop_cv,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
+if ~iscell(mach)
+    mach = cellstr(mach);
+end
+% [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
+if ~iscell(mach)
+    mach = cellstr(mach);
+end
 handles.cv.k=0; %by default, Leave-One-Out options
 handles.flagguicv=0; %by default, not custom CV
 if val==0

@@ -322,6 +322,12 @@ function foldmenu_Callback(hObject, eventdata, handles)
 % -------------------------------------------------------------------------
 fold          = get(handles.foldmenu,'Value');
 list = get(handles.plotmenu,'String');
+% [UPDATE v3.1 - R2025a compatibility] In MATLAB R2025a, get(handle,'String')
+% may return a string array instead of a cell array. cellstr() ensures
+% brace indexing at list{get(handles.plotmenu,'Value')} works correctly.
+if ~iscell(list)
+    list = cellstr(list);
+end
 model         = get(handles.classmenu,'Value');
 mi            = handles.mi;
 m         = mi(model);

@@ -328,6 +328,10 @@ function fs_uns_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns fs_uns contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from fs_uns
 list = get(handles.fs_uns,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+if ~iscell(list)
+    list = cellstr(list);
+end
 val = get(handles.fs_uns,'Value');
 fsname = list{val};
 fsidx = find(strcmpi(fsname,handles.fslist));
@@ -384,6 +388,10 @@ function fs_sel_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns fs_sel contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from fs_sel
 list = get(handles.fs_sel,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+if ~iscell(list)
+    list = cellstr(list);
+end
 val = get(handles.fs_sel,'Value');
 fsname = list{val};
 fsidx = find(strcmpi(fsname,handles.fslist));
@@ -455,6 +463,10 @@ function pop_machine_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_machine contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_machine
 mach=get(handles.pop_machine,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
+if ~iscell(mach)
+    mach = cellstr(mach);
+end
 val=get(handles.pop_machine,'Value');
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
@@ -877,6 +889,10 @@ function pop_cv_nested_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from pop_cv_nested
 val=get(handles.pop_cv_nested,'Value');
 mach=get(handles.pop_cv_nested,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
+if ~iscell(mach)
+    mach = cellstr(mach);
+end
 handles.newmodel.cv_k_nested=0; %by default, Leave-One-Out options
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
@@ -1046,6 +1062,10 @@ function pop_cv_Callback(hObject, eventdata, handles)
 % assemble structure for performing cross-validation
 val=get(handles.pop_cv,'Value');
 mach=get(handles.pop_cv,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
+if ~iscell(mach)
+    mach = cellstr(mach);
+end
 handles.cv.k=0; %by default, Leave-One-Out options
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')

@@ -316,6 +316,12 @@ function modname_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from modname
 warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 list=get(handles.modname,'String');
+% [UPDATE v3.1 - R2025a compatibility] In MATLAB R2025a, get(handle,'String')
+% may return a string array instead of a cell array. cellstr() ensures
+% brace indexing works correctly across all MATLAB versions.
+if ~iscell(list)
+    list = cellstr(list);
+end
 
 %handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
 if length(list)==1
@@ -432,6 +438,10 @@ if choice==0
     choice=handles.desnmenu;
 end
 list = get(handles.design_menu,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+if ~iscell(list)
+    list = cellstr(list);
+end
 chosen = list{choice};
 switch chosen
     case 'Load SPM.mat' % for nifti only
@@ -642,6 +652,10 @@ function type_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of type
 val = get(handles.type,'Value');
 typ = get(handles.type,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure typ is a cell array.
+if ~iscell(typ)
+    typ = cellstr(typ);
+end
 if val==0
     val=1;
     set(handles.type,'Value',val)
@@ -663,11 +677,19 @@ else
     if isstruct(handles.subj1)
         
         list=get(handles.modname,'String');
+        % [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+        if ~iscell(list)
+            list = cellstr(list);
+        end
         modname=list{get(handles.modname,'Value')};
         
         if any(strcmpi(modname, {handles.subj1(:).mod_name}))
             handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
             list=get(handles.design_menu,'String');
+            % [UPDATE v3.1 - R2025a compatibility] Ensure list is a cell array.
+            if ~iscell(list)
+                list = cellstr(list);
+            end
             list=[list;{'Replicate design of subject 1'}];
             set(handles.design_menu,'String',list);
         end

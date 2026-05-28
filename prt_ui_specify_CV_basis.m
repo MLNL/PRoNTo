@@ -115,6 +115,10 @@ end
 
 a=varargin{1};
 cvlist=get(a.pop_cv,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure cvlist is a cell array.
+if ~iscell(cvlist)
+    cvlist = cellstr(cvlist);
+end
 set(handles.basepop,'String',cvlist(2:end))
 set(handles.basepop,'Value',1)
 set(handles.nfolds,'Enable','off')
@@ -169,6 +173,10 @@ if a
     set(handles.load,'Value',0)
     val=get(handles.basepop,'Value');
     mach=get(handles.basepop,'String');
+    % [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
+    if ~iscell(mach)
+        mach = cellstr(mach);
+    end
     handles.cv.k=0; %by default, Leave-One-Out options
     if val==0
         warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
@@ -235,6 +243,10 @@ function basepop_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from basepop
 val=get(handles.basepop,'Value');
 mach=get(handles.basepop,'String');
+% [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
+if ~iscell(mach)
+    mach = cellstr(mach);
+end
 handles.cv.k=0; %by default, Leave-One-Out options
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
