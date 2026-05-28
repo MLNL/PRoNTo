@@ -753,9 +753,9 @@ for iData = goodData'
             weightList = weightList / weightList(end);
             md(iData) = goodCurrentData(find(weightList>0.5,1,'first'),1);
         else
-            m(iData) = nanmean(currentData);
-            md(iData) = nanmedian(currentData);
-            sd(iData) = nanstd(currentData);
+            m(iData) = mean(currentData,'omitnan'); % [UPDATE v3.1 - R2025a] nanmean() removed
+            md(iData) = median(currentData,'omitnan'); % [UPDATE v3.1 - R2025a] nanmedian() removed
+            sd(iData) = std(currentData,'omitnan'); % [UPDATE v3.1 - R2025a] nanstd() removed
             sem(iData) = sd(iData)/sqrt(sum(isfinite(currentData)));
         end
         
