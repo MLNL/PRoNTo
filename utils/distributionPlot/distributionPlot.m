@@ -574,7 +574,7 @@ for iData = 1:nData
         switch floor(opt.histOpt)
             case 0
                 % use hist
-                [xHist,yHist] = hist(currentData,opt.divFactor);
+                [xHist,yHist] = histc_compat(currentData,opt.divFactor); % [UPDATE v3.1 - R2025a] hist() removed, see histc_compat below
                 
             case 1
                 % use ksdensity
@@ -968,3 +968,19 @@ if nargout > 0
 end
 
 set(ah,'NextPlot',holdState);
+% -------------------------------------------------------------------------
+% [UPDATE v3.1 - R2025a] hist() was removed in MATLAB R2025a.
+% histc_compat replicates hist(data, nBins) behaviour using histcounts().
+% Compatible with all MATLAB versions from R2014b onwards.
+% -------------------------------------------------------------------------
+function [n, x] = histc_compat(data, nBins)
+if isscalar(nBins)
+    % nBins is a number of bins - replicate hist(data, nBins) behaviour
+    [n, edges] = histcounts(data, nBins);
+    x = edges(1:end-1) + diff(edges)/2; % bin centres
+else
+    % nBins is a vector of bin centres - replicate hist(data, ctrs) behaviour
+    edges = [-Inf, (nBins(1:end-1) + nBins(2:end))/2, Inf];
+    [n, ~] = histcounts(data, edges);
+    x = nBins;
+end

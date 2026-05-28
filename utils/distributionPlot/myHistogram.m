@@ -146,7 +146,9 @@ if factor ~= -1
         
         
         % histogram
-        [nn,xx] = hist(data,nBins);
+        % [UPDATE v3.1 - R2025a] hist() removed, replaced with histcounts()
+        [nn, edges] = histcounts(data, nBins);
+        xx = edges(1:end-1) + diff(edges)/2; % bin centres
         % adjust the height of the histogram
         if normalize
             Z = trapz(xx,nn);
