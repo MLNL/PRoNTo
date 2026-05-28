@@ -1116,7 +1116,7 @@ data_op.labels  = {
     'Sample averaging (within block)'
     'Sample averaging (within subject/condition)'
     'Mean centre features using training data'
-    'Normalize samples'
+    'Normalize samples/kernels'
     'Regress out covariates'
     'Normalize features (Non-kernel only)'
     'Z-score features (Non-kernel only)'
