@@ -618,6 +618,9 @@ for iData = 1:nData
                         ['ksdensity requires the Statistics and Machine ' ...
                          'Learning Toolbox. Falling back to histogram.']);
                     [xHist,yHist] = myHistogram(currentData,opt.divFactor,0);
+                    % Apply same normalisation as ksdensity path so that
+                    % the sum of bins equals the total number of observations
+                    xHist = xHist/sum(xHist)*sum(isfinite(currentData)); % [UPDATE v3.1 - R2025a] normalise fallback histogram to match ksdensity scale
                 end
                 
             case 2
