@@ -578,7 +578,10 @@ for iData = 1:nData
                 
             case 1
                 % use ksdensity
-                
+                % [UPDATE v3.1 - R2025a] Wrapped in try/catch: ksdensity
+                % requires the Statistics and Machine Learning Toolbox.
+                % Falls back to histogram (case 2) if toolbox is missing.
+                try
                 if opt.histOpt == 1.1
                     % use histogram to estimate kernel
                     [dummy,x] = myHistogram(currentData); %#ok<ASGLU>
@@ -608,6 +611,14 @@ for iData = 1:nData
                 % integral under the curve!) equals the total number of
                 % observations, in order to be comparable to hist
                 xHist = xHist/sum(xHist)*sum(isfinite(currentData));
+                catch
+                    % Statistics and Machine Learning Toolbox not available.
+                    % Fall back to histogram-based distribution plot.
+                    warning('distributionPlot:noStatsToolbox', ...
+                        ['ksdensity requires the Statistics and Machine ' ...
+                         'Learning Toolbox. Falling back to histogram.']);
+                    [xHist,yHist] = myHistogram(currentData,opt.divFactor,0);
+                end
                 
             case 2
                 % use histogram - bar heights are counts as in hist
