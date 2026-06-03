@@ -170,7 +170,7 @@ handles.oplistNK = [handles.oplist,...
     'Z-score features'}];
 handles.indop{1}=1:length(handles.oplist);
 handles.indop{2}=0;
-set(handles.uns_list,'String',handles.oplist)
+set(handles.uns_list,'String',cellstr(handles.oplist)) % [UPDATE v3.1 - R2025a] ensure cell array for String
 set(handles.sel_list,'String',{''})
 handles.operations = [];
 handles.namop=handles.oplist;
@@ -1064,7 +1064,7 @@ if isempty(handles.indop{1})
     handles.indop{1}=0;
     set(handles.uns_list,'String',{''})
 else
-    set(handles.uns_list,'String',{handles.namop{handles.indop{1}}})    
+    set(handles.uns_list,'String',cellstr({handles.namop{handles.indop{1}}})) % [UPDATE v3.1 - R2025a]    
 end
 set(handles.uns_list,'Value',1)
 if handles.indop{2}==0
@@ -1072,7 +1072,7 @@ if handles.indop{2}==0
 else
     handles.indop{2}=[handles.indop{2},ind];
 end
-set(handles.sel_list,'String',{handles.namop{handles.indop{2}}})
+set(handles.sel_list,'String',cellstr({handles.namop{handles.indop{2}}})) % [UPDATE v3.1 - R2025a]
 set(handles.sel_list,'Value',length(handles.indop{2}))
 % Update handles structure
 guidata(hObject, handles);
@@ -1112,7 +1112,7 @@ if isempty(handles.indop{2})
     handles.indop{2}=0;
     set(handles.sel_list,'String',{''})
 else
-    set(handles.sel_list,'String',{handles.namop{handles.indop{2}}})    
+    set(handles.sel_list,'String',cellstr({handles.namop{handles.indop{2}}})) % [UPDATE v3.1 - R2025a]    
 end
 set(handles.sel_list,'Value',1)
 if handles.indop{1}==0
@@ -1120,7 +1120,7 @@ if handles.indop{1}==0
 else
     handles.indop{1}=[handles.indop{1},ind];
 end
-set(handles.uns_list,'String',{handles.namop{handles.indop{1}}})
+set(handles.uns_list,'String',cellstr({handles.namop{handles.indop{1}}})) % [UPDATE v3.1 - R2025a]
 set(handles.uns_list,'Value',length(handles.indop{1}))
 % Update handles structure
 guidata(hObject, handles);
@@ -1464,7 +1464,7 @@ set(handles.pop_machine,'Value',1)
 % Deal with operations
 handles.indop{1}=1:length(oplist);
 handles.indop{2}=0;
-set(handles.uns_list,'String',oplist)
+set(handles.uns_list,'String',cellstr(oplist)) % [UPDATE v3.1 - R2025a] ensure cell array for String
 set(handles.sel_list,'String',{''})
 handles.operations = [];
 handles.namop=oplist;

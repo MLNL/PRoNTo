@@ -132,7 +132,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
     %get names of groups
     list={handles.dat.group(:).gr_name};
     ng=length(list);
-    set(handles.group_list,'String',list)
+    set(handles.group_list,'String',cellstr(list)) % [UPDATE v3.1 - R2025a] ensure cell array for String
     
     
     %get the conditions which are common to all groups and subjects for the
@@ -178,7 +178,7 @@ if ~isempty(varargin) && strcmpi(varargin{1},'UserData')
         handles.flagrev=0;
         set(handles.group_list,'Value',1)
         list={handles.dat.group(1).subject(:).subj_name};
-        set(handles.uns_list,'String',list);
+        set(handles.uns_list,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array for String
         set(handles.sel_list,'String',{});
         % Update handles structure
         guidata(hObject, handles);
@@ -385,14 +385,14 @@ set(handles.edit2,'String',handles.class(vc).class_name)
 %set subjects lists
 if handles.clas{vc,2}{cg,1}~=0
     set(handles.uns_list,'Value',1);
-    set(handles.uns_list,'String',list(handles.clas{vc,2}{cg,1}));
+    set(handles.uns_list,'String',cellstr(list(handles.clas{vc,2}{cg,1}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
 else
     set(handles.uns_list,'Value',0);
     set(handles.uns_list,'String',{});
 end
 if handles.clas{vc,2}{cg,2}~=0
     set(handles.sel_list,'Value',1);
-    set(handles.sel_list,'String',list(handles.clas{vc,2}{cg,2}));
+    set(handles.sel_list,'String',cellstr(list(handles.clas{vc,2}{cg,2}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
 else
     set(handles.sel_list,'Value',0);
     set(handles.sel_list,'String',{});
@@ -401,14 +401,14 @@ end
 if handles.flagcond
     if handles.clas{vc,3}~=0
         set(handles.uns_cond_list,'Value',1);
-        set(handles.uns_cond_list,'String',clist(handles.clas{vc,3}));
+        set(handles.uns_cond_list,'String',cellstr(clist(handles.clas{vc,3}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
     else
         set(handles.uns_cond_list,'Value',0);
         set(handles.uns_cond_list,'String',{});
     end
     if handles.clas{vc,4}~=0
         set(handles.sel_cond_list,'Value',1);
-        set(handles.sel_cond_list,'String',clist(handles.clas{vc,4}));
+        set(handles.sel_cond_list,'String',cellstr(clist(handles.clas{vc,4}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
     else
         set(handles.sel_cond_list,'Value',0);
         set(handles.sel_cond_list,'String',{});
@@ -459,14 +459,14 @@ list=handles.condm{1,3}{cg};
 %set subjects lists
 if handles.clas{cl,2}{cg,1}~=0
     set(handles.uns_list,'Value',1);
-    set(handles.uns_list,'String',list(handles.clas{cl,2}{cg,1}));
+    set(handles.uns_list,'String',cellstr(list(handles.clas{cl,2}{cg,1}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
 else
     set(handles.uns_list,'Value',0);
     set(handles.uns_list,'String',{});
 end
 if handles.clas{cl,2}{cg,2}~=0
     set(handles.sel_list,'Value',1);
-    set(handles.sel_list,'String',list(handles.clas{cl,2}{cg,2}));
+    set(handles.sel_list,'String',cellstr(list(handles.clas{cl,2}{cg,2}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
 else
     set(handles.sel_list,'Value',0);
     set(handles.sel_list,'String',{});
@@ -518,14 +518,14 @@ list=handles.condm{1,3}{cg};
 %set subjects lists
 if handles.clas{cl,2}{cg,1}~=0
     set(handles.uns_list,'Value',1);
-    set(handles.uns_list,'String',list(handles.clas{cl,2}{cg,1}));
+    set(handles.uns_list,'String',cellstr(list(handles.clas{cl,2}{cg,1}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
 else
     set(handles.uns_list,'Value',0);
     set(handles.uns_list,'String',{});
 end
 if handles.clas{cl,2}{cg,2}~=0
     set(handles.sel_list,'Value',1);
-    set(handles.sel_list,'String',list(handles.clas{cl,2}{cg,2}));
+    set(handles.sel_list,'String',cellstr(list(handles.clas{cl,2}{cg,2}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
 else
     set(handles.sel_list,'Value',0);
     set(handles.sel_list,'String',{});
@@ -577,14 +577,14 @@ end
 list=handles.condm{1,3}{cg};
 %set subjects lists
 if handles.clas{cl,2}{cg,1}~=0
-    set(handles.uns_list,'String',list(handles.clas{cl,2}{cg,1}));
+    set(handles.uns_list,'String',cellstr(list(handles.clas{cl,2}{cg,1}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
     set(handles.uns_list,'Value',length(get(handles.uns_list,'String')));
 else
     set(handles.uns_list,'Value',0);
     set(handles.uns_list,'String',{});
 end
 if handles.clas{cl,2}{cg,2}~=0
-    set(handles.sel_list,'String',list(handles.clas{cl,2}{cg,2}));
+    set(handles.sel_list,'String',cellstr(list(handles.clas{cl,2}{cg,2}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
     set(handles.sel_list,'Value',length(get(handles.sel_list,'String')));
 else
     set(handles.sel_list,'Value',0);
@@ -624,7 +624,7 @@ handles.clas{cl,2}{cg,2}=indsel;
 handles.clas{cl,2}{cg,1}=0;
 set(handles.uns_list,'String',{});
 set(handles.uns_list,'Value',0);
-set(handles.sel_list,'String',list(handles.clas{cl,2}{cg,2}));
+set(handles.sel_list,'String',cellstr(list(handles.clas{cl,2}{cg,2}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
 set(handles.sel_list,'Value',length(get(handles.sel_list,'String')));
 % Update handles structure
 guidata(hObject, handles);
@@ -764,7 +764,7 @@ handles.clas{cl,4}=indsel;
 handles.clas{cl,3}=0;
 set(handles.uns_cond_list,'String',{});
 set(handles.uns_cond_list,'Value',0);
-set(handles.sel_cond_list,'String',list(handles.clas{cl,4}));
+set(handles.sel_cond_list,'String',cellstr(list(handles.clas{cl,4}))); % [UPDATE v3.1 - R2025a] ensure cell array for String
 set(handles.sel_cond_list,'Value',length(get(handles.sel_cond_list,'String')));
 % Update handles structure
 guidata(hObject, handles);

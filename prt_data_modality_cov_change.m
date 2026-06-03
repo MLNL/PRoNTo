@@ -404,7 +404,7 @@ if isstruct(handles.subj1)
         % Allow to replicate subject 1 design
         list=get(handles.design_menu,'String');
         list=[list;{'Replicate design of subject 1'}];
-        set(handles.design_menu,'String',list);
+        set(handles.design_menu,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array for String
     end
 end
 handles.mod.name=modname;
@@ -691,7 +691,7 @@ else
                 list = cellstr(list);
             end
             list=[list;{'Replicate design of subject 1'}];
-            set(handles.design_menu,'String',list);
+            set(handles.design_menu,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array for String
         end
     end
 end

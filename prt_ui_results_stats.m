@@ -223,7 +223,7 @@ else
         
         % Set model pulldown menu
         handles.mnames = model_name;
-        set(handles.classmenu,'String',handles.mnames);
+        set(handles.classmenu,'String',cellstr(handles.mnames)); % [UPDATE v3.1 - R2025a] ensure cell array for String
         
         % Get folds pulldown menu
         m             = get(handles.classmenu,'Value');
@@ -233,7 +233,7 @@ else
             folds{f+1} = num2str(f);
         end
         handles.folds = folds;
-        set(handles.foldmenu,'String',handles.folds);
+        set(handles.foldmenu,'String',cellstr(handles.folds)); % [UPDATE v3.1 - R2025a] ensure cell array for String
         set(handles.foldmenu,'Value',1);
         
         % Set plots menu for first model, for Average fold
@@ -252,7 +252,7 @@ else
                 plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
             end
         end
-        set(handles.plotmenu,'String',plots);
+        set(handles.plotmenu,'String',cellstr(plots)); % [UPDATE v3.1 - R2025a] ensure cell array for String
         
         % Initialize model button
         handles.model_button = 0;
@@ -359,7 +359,7 @@ if isfield(handles.PRT.model(m).input,'use_nested_cv')
         plots{length(plots)+1} = 'Influence of the hyper-parameter on performance';
     end
 end
-set(handles.plotmenu,'String',plots);
+set(handles.plotmenu,'String',cellstr(plots)); % [UPDATE v3.1 - R2025a] ensure cell array for String
 
 if ~isempty(setdiff(list,plots))
     % Menu changed,
@@ -545,7 +545,7 @@ for f = 1:handles.nfold
 end
 % Set folds and call fold function to change plot/stats
 handles.folds = folds;
-set(handles.foldmenu,'String',handles.folds);
+set(handles.foldmenu,'String',cellstr(handles.folds)); % [UPDATE v3.1 - R2025a] ensure cell array for String
 handles.model_button = 1;
 
 foldmenu_Callback(hObject, eventdata, handles);
@@ -576,7 +576,7 @@ foldmenu_Callback(hObject, eventdata, handles);
 % end
 
 
-% set(handles.plotmenu,'String',plots);
+% set(handles.plotmenu,'String',cellstr(plots)); % [UPDATE v3.1 - R2025a] ensure cell array for String
 
 % Update stats if they are being shown
 if isfield(handles, 'stats')
