@@ -341,7 +341,10 @@ end
 ngr=length(handles.ds);
 handles.cgr=ngr;
 handles.dat.group(ngr).gr_name=gname;
-newlist=[get(handles.group_list,'String'); {gname}];
+newlist=get(handles.group_list,'String');
+    % [UPDATE v3.1 - R2025a] Ensure cell array before concatenation
+    if ~iscell(newlist); newlist = cellstr(newlist); end
+    newlist=[newlist; {gname}];
 set(handles.group_list,'String',newlist);
 set(handles.use_scans,'Enable','on');
 val=get(handles.use_scans,'Value');
@@ -378,6 +381,8 @@ if isempty(renam)
 end
 handles.dat.group(val).gr_name=renam;
 list=get(handles.group_list,'String');
+% [UPDATE v3.1 - R2025a] Ensure cell array
+if ~iscell(list); list = cellstr(list); end
 list{val}=renam;
 set(handles.group_list,'String',list)
 % Update handles structure
@@ -390,6 +395,8 @@ function gr_remove_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 list=get(handles.group_list,'String');
+% [UPDATE v3.1 - R2025a] Ensure cell array
+if ~iscell(list); list = cellstr(list); end
 ngr=length(handles.ds);
 if ngr==1
     nlist=[];
@@ -493,7 +500,10 @@ if ~isfield(handles.dat.group(handles.cgr),'subject')
     handles.dat.group(handles.cgr).subject=[];
 end
 handles.dat.group(handles.cgr).subject(handles.cs).subj_name=sname;
-newlist=[get(handles.subjects_list,'String'); {sname}];
+newlist=get(handles.subjects_list,'String');
+    % [UPDATE v3.1 - R2025a] Ensure cell array before concatenation
+    if ~iscell(newlist); newlist = cellstr(newlist); end
+    newlist=[newlist; {sname}];
 set(handles.subjects_list,'String',newlist);
 rens=uicontextmenu;
 % Update handles structure
@@ -532,6 +542,8 @@ if ~isempty(strfind(lower(renam),'scan'))
 end
 handles.dat.group(handles.cgr).subject(val).subj_name=renam;
 list=get(handles.subjects_list,'String');
+% [UPDATE v3.1 - R2025a] Ensure cell array
+if ~iscell(list); list = cellstr(list); end
 list{val}=renam;
 set(handles.subjects_list,'String',list)
 % Update handles structure
@@ -582,6 +594,8 @@ function subj_remove_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 list=get(handles.subjects_list,'String');
+% [UPDATE v3.1 - R2025a] Ensure cell array
+if ~iscell(list); list = cellstr(list); end
 cgr=handles.cgr;
 nsubj=length(handles.ds{cgr});
 if nsubj==1
@@ -652,6 +666,11 @@ mod=prt_data_modality('UserData',{in1,in2,in3,in4,in5});
 if isnumeric(mod)
     return
 end
+% [UPDATE v3.1 - R2025a compatibility] In R2025a, mod may be a
+% figure handle instead of a struct. Guard before accessing .name.
+if ~isstruct(mod)
+    return;
+end
 if isempty(mod) || isempty(mod.name)
     beep
     disp('A name should be given to the modality')
@@ -681,9 +700,12 @@ handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).design=m
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).scans=mod.scans;
 handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).type = mod.type;
 
-newlist=[get(handles.modality_list,'String'); {mod.name}];
+newlist=get(handles.modality_list,'String');
+    % [UPDATE v3.1 - R2025a] Ensure cell array before concatenation
+    if ~iscell(newlist); newlist = cellstr(newlist); end
+    newlist=[newlist; {mod.name}];
 set(handles.modality_list,'String',newlist);
-set(handles.modality_list,'Value',length(newlist));
+set(handles.modality_list,'Value',max(1,length(newlist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
 %update mask list and structure if modality was not MEEG
 masklist = get(handles.mask_list,'String');
 if size(masklist,1)==1 && strcmpi(masklist,'none')
@@ -694,7 +716,7 @@ if strcmpi(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.c
 end
 if ~isempty(masklist) 
     set(handles.mask_list,'String',masklist);
-    set(handles.mask_list,'Value',length(masklist));
+    set(handles.mask_list,'Value',max(1,length(masklist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
 else
     set(handles.mask_list,'String',{'none'});
     set(handles.mask_list,'Value',1);
@@ -778,6 +800,8 @@ handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.cm).type=mod
 %update list of modalities and remove the former name from the modlist and
 %mask_list if it is not present in any other subject
 list=get(handles.modality_list,'String');
+% [UPDATE v3.1 - R2025a] Ensure cell array
+if ~iscell(list); list = cellstr(list); end
 if ~strcmpi(list{val},mod.name)
     flag=0;
     if ~isempty(handles.modlist)
@@ -836,7 +860,7 @@ if ~strcmpi(list{val},mod.name)
         set(handles.mask_list,'Value',1);
     else
         set(handles.mask_list,'String',masklist);
-        set(handles.mask_list,'Value',length(masklist));
+        set(handles.mask_list,'Value',max(1,length(masklist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
     end
     
 end
@@ -852,6 +876,8 @@ function mod_remove_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 list=get(handles.modality_list,'String');
+% [UPDATE v3.1 - R2025a] Ensure cell array
+if ~iscell(list); list = cellstr(list); end
 cgr=handles.cgr;
 cs=handles.cs;
 nmod=length(handles.ds{cgr}{cs});
@@ -936,7 +962,7 @@ if ~flag % If modality removed for all subjects
             set(handles.mask_list,'Value',1);
         else
             set(handles.mask_list,'String',masklist);
-            set(handles.mask_list,'Value',length(masklist));
+            set(handles.mask_list,'Value',max(1,length(masklist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
         end
     end
 end
@@ -1032,6 +1058,8 @@ function mask_list_Callback(hObject, eventdata, handles)
 
 warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 list=get(handles.mask_list,'String');
+% [UPDATE v3.1 - R2025a] Ensure cell array
+if ~iscell(list); list = cellstr(list); end
 %handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
 if length(list)==1
     set(handles.mask_list,'Value',1)
@@ -1319,6 +1347,8 @@ ng=length(handles.ds);
 nm=length(handles.ds{1}{1});
 ns=length(handles.ds{1});
 list=get(handles.mask_list,'String');
+% [UPDATE v3.1 - R2025a] Ensure cell array
+if ~iscell(list); list = cellstr(list); end
 nmask=size(list,1);
 if nmask == 1 && strcmpi(list,'none')
     nmask = 0;
