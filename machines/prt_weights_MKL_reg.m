@@ -1,7 +1,8 @@
-function weights = prt_weights_sMKL_reg(d,args)
+function weights = prt_weights_MKL_reg(d,args)
+% [UPDATE v3.1] Renamed from prt_weights_sMKL_reg. Used by both SimpleMKL and ENMKL-KRR machines.
 % Function to compute weights for binary MKL.
 %
-% FORMAT weights = prt_weights_sMKL (d,args)
+% FORMAT weights = prt_weights_MKL (d,args)
 % Inputs:
 %       d               - data structure
 %           .datamat    - data matrix [Nfeatures x Nexamples]
