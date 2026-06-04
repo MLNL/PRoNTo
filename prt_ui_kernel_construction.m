@@ -255,6 +255,7 @@ function edit_mask_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_mask as a double
 fname=get(handles.mask_mod,'String');
 val=get(handles.pop_mod,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 handles.modmask{val}=fname;
 % Update handles structure
 guidata(hObject, handles);
@@ -278,6 +279,7 @@ function br_mask_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 val=get(handles.pop_mod,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 list=get(handles.pop_mod,'String');
 fname=spm_select(1,'image',['Select mask for modality ',list(val)]);
 handles.modmask{val}=fname;

@@ -404,7 +404,7 @@ if isstruct(handles.subj1)
         % Allow to replicate subject 1 design
         list=get(handles.design_menu,'String');
         list=[list;{'Replicate design of subject 1'}];
-        set(handles.design_menu,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array for String
+        set(handles.design_menu,'String',list);
     end
 end
 handles.mod.name=modname;
@@ -433,6 +433,7 @@ function design_menu_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns design_menu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from design_menu
 choice=get(handles.design_menu,'Value');
+choice=choice(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 %Mac and Matlab versions strange things with popup menus
 if choice==0
     choice=handles.desnmenu;
@@ -691,7 +692,7 @@ else
                 list = cellstr(list);
             end
             list=[list;{'Replicate design of subject 1'}];
-            set(handles.design_menu,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array for String
+            set(handles.design_menu,'String',list);
         end
     end
 end
@@ -708,6 +709,7 @@ function target_menu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns target_menu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from target_menu
 choice=get(handles.target_menu,'Value');
+choice=choice(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 %Mac and Matlab versions strange things with popup menus
 if choice==0
     choice=2;

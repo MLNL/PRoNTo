@@ -468,6 +468,7 @@ if ~iscell(mach)
     mach = cellstr(mach);
 end
 val=get(handles.pop_machine,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_machine,'Value',1)
@@ -612,6 +613,7 @@ function uns_list_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns uns_list contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from uns_list
 val=get(handles.uns_list,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.uns_list,'Value',1)
@@ -660,6 +662,7 @@ function sel_list_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns sel_list contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from sel_list
 val=get(handles.sel_list,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.sel_list,'Value',1)
@@ -888,6 +891,7 @@ function pop_cv_nested_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns pop_cv_nested contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_cv_nested
 val=get(handles.pop_cv_nested,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 mach=get(handles.pop_cv_nested,'String');
 % [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
 if ~iscell(mach)
@@ -997,6 +1001,7 @@ function pop_reg_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_reg contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_reg
 val=get(handles.pop_reg,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_reg,'Value',1)
@@ -1005,6 +1010,7 @@ end
 if val==1 %Classification
     handles.type='classification';
     nk=get(handles.kernel_methods,'Value');
+    nk=nk(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
     if nk==1
         %set the list of machines
         list = {'Binary support vector machine',...
@@ -1061,6 +1067,7 @@ function pop_cv_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from pop_cv
 % assemble structure for performing cross-validation
 val=get(handles.pop_cv,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 mach=get(handles.pop_cv,'String');
 % [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
 if ~iscell(mach)

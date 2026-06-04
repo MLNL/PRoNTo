@@ -170,7 +170,7 @@ handles.oplistNK = [handles.oplist,...
     'Z-score features'}];
 handles.indop{1}=1:length(handles.oplist);
 handles.indop{2}=0;
-set(handles.uns_list,'String',cellstr(handles.oplist)) % [UPDATE v3.1 - R2025a] ensure cell array for String
+set(handles.uns_list,'String',handles.oplist)
 set(handles.sel_list,'String',{''})
 handles.operations = [];
 handles.namop=handles.oplist;
@@ -599,6 +599,7 @@ function pop_reg_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_reg contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_reg
 val=get(handles.pop_reg,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_reg,'Value',1)
@@ -794,6 +795,7 @@ if ~iscell(mach)
     mach = cellstr(mach);
 end
 val=get(handles.pop_machine,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_machine,'Value',1)
@@ -932,6 +934,7 @@ function pop_cv_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from pop_cv
 % assemble structure for performing cross-validation
 val=get(handles.pop_cv,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 mach=get(handles.pop_cv,'String');
 % [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
 if ~iscell(mach)
@@ -1051,6 +1054,7 @@ function uns_list_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns uns_list contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from uns_list
 val=get(handles.uns_list,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.uns_list,'Value',1)
@@ -1064,7 +1068,7 @@ if isempty(handles.indop{1})
     handles.indop{1}=0;
     set(handles.uns_list,'String',{''})
 else
-    set(handles.uns_list,'String',cellstr({handles.namop{handles.indop{1}}})) % [UPDATE v3.1 - R2025a]    
+    set(handles.uns_list,'String',{handles.namop{handles.indop{1}}})    
 end
 set(handles.uns_list,'Value',1)
 if handles.indop{2}==0
@@ -1072,7 +1076,7 @@ if handles.indop{2}==0
 else
     handles.indop{2}=[handles.indop{2},ind];
 end
-set(handles.sel_list,'String',cellstr({handles.namop{handles.indop{2}}})) % [UPDATE v3.1 - R2025a]
+set(handles.sel_list,'String',{handles.namop{handles.indop{2}}})
 set(handles.sel_list,'Value',length(handles.indop{2}))
 % Update handles structure
 guidata(hObject, handles);
@@ -1099,6 +1103,7 @@ function sel_list_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns sel_list contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from sel_list
 val=get(handles.sel_list,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.sel_list,'Value',1)
@@ -1112,7 +1117,7 @@ if isempty(handles.indop{2})
     handles.indop{2}=0;
     set(handles.sel_list,'String',{''})
 else
-    set(handles.sel_list,'String',cellstr({handles.namop{handles.indop{2}}})) % [UPDATE v3.1 - R2025a]    
+    set(handles.sel_list,'String',{handles.namop{handles.indop{2}}})    
 end
 set(handles.sel_list,'Value',1)
 if handles.indop{1}==0
@@ -1120,7 +1125,7 @@ if handles.indop{1}==0
 else
     handles.indop{1}=[handles.indop{1},ind];
 end
-set(handles.uns_list,'String',cellstr({handles.namop{handles.indop{1}}})) % [UPDATE v3.1 - R2025a]
+set(handles.uns_list,'String',{handles.namop{handles.indop{1}}})
 set(handles.uns_list,'Value',length(handles.indop{1}))
 % Update handles structure
 guidata(hObject, handles);
@@ -1380,6 +1385,7 @@ function pop_cv_nested_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns pop_cv_nested contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_cv_nested
 val=get(handles.pop_cv_nested,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 mach=get(handles.pop_cv_nested,'String');
 handles.cv.k_nested=0; %by default, Leave-One-Out options
 if val==0
@@ -1464,7 +1470,7 @@ set(handles.pop_machine,'Value',1)
 % Deal with operations
 handles.indop{1}=1:length(oplist);
 handles.indop{2}=0;
-set(handles.uns_list,'String',cellstr(oplist)) % [UPDATE v3.1 - R2025a] ensure cell array for String
+set(handles.uns_list,'String',oplist)
 set(handles.sel_list,'String',{''})
 handles.operations = [];
 handles.namop=oplist;

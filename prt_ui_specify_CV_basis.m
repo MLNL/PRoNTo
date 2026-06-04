@@ -166,12 +166,14 @@ function base_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of base
 a=get(handles.base,'Value');
+a=a(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if a
     set(handles.basepop,'Enable','on')
     handles.spectype=2;
     set(handles.specnum,'Value',0)
     set(handles.load,'Value',0)
     val=get(handles.basepop,'Value');
+    val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
     mach=get(handles.basepop,'String');
     % [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
     if ~iscell(mach)
@@ -218,6 +220,7 @@ function specnum_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of specnum
 a=get(handles.specnum,'Value');
+a=a(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if a
     set(handles.nfolds,'Enable','on')
     handles.spectype=3;
@@ -242,6 +245,7 @@ function basepop_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns basepop contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from basepop
 val=get(handles.basepop,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 mach=get(handles.basepop,'String');
 % [UPDATE v3.1 - R2025a compatibility] Ensure mach is a cell array.
 if ~iscell(mach)
@@ -321,6 +325,7 @@ function load_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of load
 a=get(handles.load,'Value');
+a=a(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if a
     set(handles.br_load,'Enable','on')
     handles.spectype=1;

@@ -216,6 +216,7 @@ function targmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns targmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from targmenu
 choice=get(handles.targmenu,'Value');
+choice=choice(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if choice==1
     ntar=str2double(prt_text_input('Title','Enter number of targets'));
     if isnan(ntar)

@@ -255,12 +255,14 @@ function pop_cond_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_cond contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_cond
 val=get(handles.pop_cond,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 %handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
 if val==0
     set(handles.pop_cond,'Value',1)
 end
 val=get(handles.pop_cond,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==1
     handles.mod.mode='all_scans';
 else
@@ -291,6 +293,7 @@ function pop_det_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_det contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_det
 val=get(handles.pop_det,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 %handle particular bug with matlab(7.10.0499) and mac (OSX 10.6.4)
 if val==0
@@ -348,10 +351,12 @@ if length(list)==1
     set(handles.pop_mod,'Value',1)
 end
 val=get(handles.pop_mod,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     set(handles.pop_mod,'Value',1)
 end
 val=get(handles.pop_mod,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 handles.mod.mod_name=list(val);
 
 % if modality chosen is '.mat' disable some options
@@ -432,6 +437,7 @@ function pop_norm_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from pop_norm
 warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
 val=get(handles.pop_norm,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     set(handles.pop_norm,'Value',1)
 end

@@ -287,6 +287,7 @@ function condmenu_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns condmenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from condmenu
 choice=get(handles.condmenu,'Value');
+choice=choice(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if choice==1
     ncond=str2double(prt_text_input('Title','Enter number of conditions'));
     if isnan(ncond)
@@ -435,6 +436,7 @@ function pop_unit_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_unit contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_unit
 un=get(handles.pop_unit,'Value');
+un=un(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if un==0
     set(handles.pop_unit,'Value',1)
     un=1;

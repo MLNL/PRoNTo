@@ -326,6 +326,7 @@ function pop_models_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns pop_models contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from pop_models
 val=get(handles.pop_models,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if val==0
     warning('off','MATLAB:hg:uicontrol:ParameterValuesMustBeValid')
     set(handles.pop_models,'Value',1)

@@ -251,6 +251,7 @@ function foldp_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns foldp contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from foldp
 v=get(handles.foldp,'Value');
+v=v(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if v==0 || isempty(v)
     v=1;
 end
@@ -302,6 +303,7 @@ function sortHN_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 v=get(handles.foldp,'Value');
+v=v(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if v==0 || isempty(v)
     v=1;
 end

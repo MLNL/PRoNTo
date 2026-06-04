@@ -878,6 +878,7 @@ function save_perm_weights_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of save_perm_weights
 % Save the weights and predictions for each permutation if required
 flag=get(handles.save_perm_weights,'Value');
+flag=flag(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if flag
     handles.save_weights=1;
 else

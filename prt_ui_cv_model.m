@@ -268,6 +268,7 @@ function unslist_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns unslist contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from unslist
 val=get(handles.unslist,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if ~any(handles.models{2})
     handles.models{2}=handles.models{1}(val);
 else
@@ -316,6 +317,7 @@ function sellist_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns sellist contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from sellist
 val=get(handles.sellist,'Value');
+val=val(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 if ~any(handles.models{1})
     handles.models{1}=handles.models{2}(val);
 else
