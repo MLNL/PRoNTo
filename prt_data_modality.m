@@ -591,21 +591,7 @@ end
 typ = get(handles.type,'Value');
 desn=[];
 if typ>1 % either MEEG or .mat with data matrix (v3.1)
-    % [UPDATE v3.1 - R2025a] spm_select uses cfg_getfile which has a
-    % listbox scalar bug in R2025a. Wrap in try/catch and fall back to
-    % uigetfile if spm_select fails.
-    try
-        [t, status]=spm_select([1 Inf],'mat','Select files for the modality',sel);
-    catch
-        [fname, fpath] = uigetfile('*.mat','Select files for the modality','MultiSelect','on');
-        if isequal(fname,0)
-            t = ''; status = 0;
-        else
-            if ischar(fname); fname = {fname}; end
-            t = char(cellfun(@(f) fullfile(fpath,f), fname, 'UniformOutput', false));
-            status = 1;
-        end
-    end
+    [t, status]=spm_select([1 Inf],'mat','Select files for the modality',sel);
     if typ==2 %MEEG, load events in file
         if isempty(t)
             beep
@@ -630,22 +616,7 @@ if typ>1 % either MEEG or .mat with data matrix (v3.1)
         set(handles.text7, 'Visible','on')
     end
 else
-    % [UPDATE v3.1 - R2025a] spm_select uses cfg_getfile which has a
-    % listbox scalar bug in R2025a. Wrap in try/catch and fall back to
-    % uigetfile if spm_select fails.
-    try
-        [t,status]=spm_select([1 Inf],'image','Select files for the modality',sel);
-    catch
-        [fname, fpath] = uigetfile({'*.img;*.nii','Image files (*.img,*.nii)'},...
-            'Select files for the modality','MultiSelect','on');
-        if isequal(fname,0)
-            t = ''; status = 0;
-        else
-            if ischar(fname); fname = {fname}; end
-            t = char(cellfun(@(f) fullfile(fpath,f), fname, 'UniformOutput', false));
-            status = 1;
-        end
-    end
+    [t,status]=spm_select([1 Inf],'image','Select files for the modality',sel);
 end
 if status
     handles.mod.scans=t;
@@ -708,7 +679,6 @@ function target_menu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns target_menu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from target_menu
 choice=get(handles.target_menu,'Value');
-choice=choice(1); % [UPDATE v3.1 - R2025a] ensure scalar Value
 %Mac and Matlab versions strange things with popup menus
 if choice==0
     choice=2;
