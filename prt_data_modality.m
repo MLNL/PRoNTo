@@ -200,8 +200,8 @@ else
                 nlist=varargin{2}{1};
                 modsel=varargin{2}{2}.modality(varargin{2}{3});
                 valsel=find(strcmpi(modsel.mod_name,nlist));
-                set(handles.modname,'String',nlist);
-                set(handles.modname,'Value',valsel);
+                set(handles.modname,'String',cellstr(nlist)); % [UPDATE v3.1 - R2025a] ensure cell array
+                set(handles.modname,'Value',max(1,valsel(1))); % [UPDATE v3.1 - R2025a] ensure scalar Value
                 handles.mod.design=modsel.design;
                 if ~isempty(modsel.design)
                     if ~isstruct(modsel.design) && modsel.design== 0
@@ -251,17 +251,17 @@ else
                 set(handles.modname,'Enable','off')
             else
                 nlist=[varargin{2}{1}, {'Enter new'}];
-                set(handles.modname,'String',nlist,'Value',length(nlist));  
+                set(handles.modname,'String',cellstr(nlist),'Value',max(1,length(nlist))); % [UPDATE v3.1 - R2025a]  
             end
         else
             nlist=[varargin{2}{1}, {'Enter new'}];
-            set(handles.modname,'String',nlist,'Value',length(nlist));  
+            set(handles.modname,'String',cellstr(nlist),'Value',max(1,length(nlist))); % [UPDATE v3.1 - R2025a]  
             handles.subjmod={};
         end
     else
         nlist={'Enter new'};
         handles.subjmod={};
-        set(handles.modname,'String',nlist,'Value',1);
+        set(handles.modname,'String',cellstr(nlist),'Value',1); % [UPDATE v3.1 - R2025a] ensure cell array
     end
     if length(varargin{2})>=4 && ~isempty(varargin{2}{4})
         handles.subj1=varargin{2}{4};
@@ -324,7 +324,7 @@ if any(strfind(list{get(handles.modname,'Value')}, 'Enter'))
     else
         beep
         disp('This modality has already been set for the selected subject')
-        set(handles.modname,'String',list);
+        set(handles.modname,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array
         valall=strfind(list,'Enter');
         for i=1:length(valall)
             if ~isempty(valall{i})
@@ -332,20 +332,20 @@ if any(strfind(list{get(handles.modname,'Value')}, 'Enter'))
                 break
             end
         end
-        set(handles.modname,'Value',val);
+        set(handles.modname,'Value',max(1,val(1))); % [UPDATE v3.1 - R2025a] ensure scalar Value
         return               
     end     
-    set(handles.modname,'String',nlist);
-    set(handles.modname,'Value',length(nlist));
+    set(handles.modname,'String',cellstr(nlist)); % [UPDATE v3.1 - R2025a] ensure cell array
+    set(handles.modname,'Value',max(1,length(nlist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
 else
     modname=list{get(handles.modname,'Value')};
     if ~isempty(handles.subjmod)
         if any(strcmpi(handles.subjmod,modname))
-            set(handles.modname,'String',list);
+            set(handles.modname,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array
             valall=strfind(list,'Enter');
             if length(valall)==1 && isempty(valall{1}) %case of reviewing the modality
                 val=1;
-                set(handles.modname,'Value',val);
+                set(handles.modname,'Value',max(1,val(1))); % [UPDATE v3.1 - R2025a] ensure scalar Value
             else    %user tries to give a name he already used
                 beep
                 disp('This modality has already been set for the selected subject')            
@@ -355,7 +355,7 @@ else
                         break
                     end
                 end
-                set(handles.modname,'Value',val);
+                set(handles.modname,'Value',max(1,val(1))); % [UPDATE v3.1 - R2025a] ensure scalar Value
                 return
             end
         end
@@ -390,7 +390,7 @@ if isstruct(handles.subj1)
         % Allow to replicate subject 1 design
         list=get(handles.design_menu,'String');
         list=[list;{'Replicate design of subject 1'}];
-        set(handles.design_menu,'String',list);
+        set(handles.design_menu,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array
     end
 end
 handles.mod.name=modname;
@@ -637,7 +637,7 @@ val = get(handles.type,'Value');
 typ = get(handles.type,'String');
 if val==0
     val=1;
-    set(handles.type,'Value',val)
+    set(handles.type,'Value',val(1)) % [UPDATE v3.1 - R2025a] ensure scalar Value
 end
 if val==2
     set(handles.design_menu,...
@@ -662,7 +662,7 @@ else
             handles.indmods1=find(strcmpi(modname, {handles.subj1(:).mod_name}));
             list=get(handles.design_menu,'String');
             list=[list;{'Replicate design of subject 1'}];
-            set(handles.design_menu,'String',list);
+            set(handles.design_menu,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array
         end
     end
 end
