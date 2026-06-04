@@ -591,7 +591,21 @@ end
 typ = get(handles.type,'Value');
 desn=[];
 if typ>1 % either MEEG or .mat with data matrix (v3.1)
-    [t, status]=spm_select([1 Inf],'mat','Select files for the modality',sel);
+    % [UPDATE v3.1 - R2025a] spm_select uses cfg_getfile which has a
+    % listbox scalar bug in R2025a. Wrap in try/catch and fall back to
+    % uigetfile if spm_select fails.
+    try
+        [t, status]=spm_select([1 Inf],'mat','Select files for the modality',sel);
+    catch
+        [fname, fpath] = uigetfile('*.mat','Select files for the modality','MultiSelect','on');
+        if isequal(fname,0)
+            t = ''; status = 0;
+        else
+            if ischar(fname); fname = {fname}; end
+            t = char(cellfun(@(f) fullfile(fpath,f), fname, 'UniformOutput', false));
+            status = 1;
+        end
+    end
     if typ==2 %MEEG, load events in file
         if isempty(t)
             beep
@@ -616,7 +630,22 @@ if typ>1 % either MEEG or .mat with data matrix (v3.1)
         set(handles.text7, 'Visible','on')
     end
 else
-    [t,status]=spm_select([1 Inf],'image','Select files for the modality',sel);
+    % [UPDATE v3.1 - R2025a] spm_select uses cfg_getfile which has a
+    % listbox scalar bug in R2025a. Wrap in try/catch and fall back to
+    % uigetfile if spm_select fails.
+    try
+        [t,status]=spm_select([1 Inf],'image','Select files for the modality',sel);
+    catch
+        [fname, fpath] = uigetfile({'*.img;*.nii','Image files (*.img,*.nii)'},...
+            'Select files for the modality','MultiSelect','on');
+        if isequal(fname,0)
+            t = ''; status = 0;
+        else
+            if ischar(fname); fname = {fname}; end
+            t = char(cellfun(@(f) fullfile(fpath,f), fname, 'UniformOutput', false));
+            status = 1;
+        end
+    end
 end
 if status
     handles.mod.scans=t;
