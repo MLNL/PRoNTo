@@ -208,17 +208,18 @@ if exist('spm.m','file')
     [SPMver, SPMrel] = spm('Ver');
     if (~(strcmpi(SPMver,'spm8') && str2double(SPMrel)>8.5)) && ...
             isempty(regexpi(SPMver,'spm12')) && ...
-            isempty(regexpi(SPMver,'spm25'))  % [UPDATE v3.1] Added SPM25 check
+            isempty(regexpi(SPMver,'spm25')) && ...
+            isempty(regexpi(SPMver,'spm26'))  % [UPDATE v3.1] Added SPM26 check
         beep
         fprintf('\nERROR:\n')
-        fprintf('\tThe *latest* version of SPM8, SPM12 or SPM25 should be installed on your computer,\n') % [UPDATE v3.1]
+        fprintf('\tThe *latest* version of SPM8, SPM12, SPM25 or SPM26 should be installed on your computer,\n') % [UPDATE v3.1]
         fprintf('\tand be available on MATLABPATH!\n\n')
         ok = false;
     end
 else
     beep
     fprintf('\nERROR:\n')
-    fprintf('\tThe *latest* version of SPM8, SPM12 or SPM25 should be installed on your computer,\n') % [UPDATE v3.1]
+    fprintf('\tThe *latest* version of SPM8, SPM12, SPM25 or SPM26 should be installed on your computer,\n') % [UPDATE v3.1]
     fprintf('\tand be available on MATLABPATH!\n\n')
     ok = false;
 end
