@@ -345,7 +345,8 @@ newlist=get(handles.group_list,'String');
     % [UPDATE v3.1 - R2025a] Ensure cell array before concatenation
     if ~iscell(newlist); newlist = cellstr(newlist); end
     newlist=[newlist; {gname}];
-set(handles.group_list,'String',newlist);
+set(handles.group_list,'String',cellstr(newlist));
+set(handles.group_list,'Value',max(1,length(newlist))); % [UPDATE v3.1 - R2025a] set Value after String to avoid ListboxTop error
 set(handles.use_scans,'Enable','on');
 val=get(handles.use_scans,'Value');
 ren=uicontextmenu;
@@ -384,7 +385,8 @@ list=get(handles.group_list,'String');
 % [UPDATE v3.1 - R2025a] Ensure cell array
 if ~iscell(list); list = cellstr(list); end
 list{val}=renam;
-set(handles.group_list,'String',list)
+set(handles.group_list,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array
+set(handles.group_list,'Value',max(1,length(cellstr(list)))); % [UPDATE v3.1 - R2025a] set Value after String
 % Update handles structure
 guidata(hObject, handles);
 
@@ -442,7 +444,8 @@ if val==1 && isfield(handles,'ds')
     set(handles.subj_add,'enable','on')
     set(handles.subj_remove,'enable','on')
 end
-set(handles.group_list,'String',nlist);
+set(handles.group_list,'String',cellstr(nlist)); % [UPDATE v3.1 - R2025a] ensure cell array
+set(handles.group_list,'Value',max(1,length(cellstr(nlist)))); % [UPDATE v3.1 - R2025a] set Value after String
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
@@ -504,7 +507,8 @@ newlist=get(handles.subjects_list,'String');
     % [UPDATE v3.1 - R2025a] Ensure cell array before concatenation
     if ~iscell(newlist); newlist = cellstr(newlist); end
     newlist=[newlist; {sname}];
-set(handles.subjects_list,'String',newlist);
+set(handles.subjects_list,'String',cellstr(newlist)); % [UPDATE v3.1 - R2025a] ensure cell array
+set(handles.subjects_list,'Value',max(1,length(cellstr(newlist)))); % [UPDATE v3.1 - R2025a] set Value after String
 rens=uicontextmenu;
 % Update handles structure
 guidata(hObject, handles);
@@ -545,7 +549,8 @@ list=get(handles.subjects_list,'String');
 % [UPDATE v3.1 - R2025a] Ensure cell array
 if ~iscell(list); list = cellstr(list); end
 list{val}=renam;
-set(handles.subjects_list,'String',list)
+set(handles.subjects_list,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array
+set(handles.subjects_list,'Value',max(1,length(cellstr(list)))); % [UPDATE v3.1 - R2025a] set Value after String
 % Update handles structure
 guidata(hObject, handles);
 
@@ -569,12 +574,14 @@ handles.dat.group(handles.cgr).subject=[];
 if val==1
     set(handles.subj_add,'enable','off')
     set(handles.subj_remove,'enable','off')
-    set(handles.subjects_list,'String',{'Scans'});
+    set(handles.subjects_list,'String',cellstr({'Scans'})); % [UPDATE v3.1 - R2025a] ensure cell array
+    set(handles.subjects_list,'Value',max(1,length(cellstr({'Scans'})))); % [UPDATE v3.1 - R2025a] set Value after String
     handles.dat.group(handles.cgr).subject(handles.cs).subj_name='Samples';
 else
     set(handles.subj_add,'enable','on')
     set(handles.subj_remove,'enable','on')
-    set(handles.subjects_list,'String',{});
+    set(handles.subjects_list,'String',cellstr({})); % [UPDATE v3.1 - R2025a] ensure cell array
+    set(handles.subjects_list,'Value',max(1,length(cellstr({})))); % [UPDATE v3.1 - R2025a] set Value after String
 end
 % Update handles structure
 guidata(hObject, handles);
@@ -633,7 +640,8 @@ else
     handles.cm=1;
     handles.cf=1;
 end
-set(handles.subjects_list,'String',nlist);
+set(handles.subjects_list,'String',cellstr(nlist)); % [UPDATE v3.1 - R2025a] ensure cell array
+set(handles.subjects_list,'Value',max(1,length(cellstr(nlist)))); % [UPDATE v3.1 - R2025a] set Value after String
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
@@ -704,7 +712,7 @@ newlist=get(handles.modality_list,'String');
     % [UPDATE v3.1 - R2025a] Ensure cell array before concatenation
     if ~iscell(newlist); newlist = cellstr(newlist); end
     newlist=[newlist; {mod.name}];
-set(handles.modality_list,'String',newlist);
+set(handles.modality_list,'String',cellstr(newlist)); % [UPDATE v3.1 - R2025a] ensure cell array
 set(handles.modality_list,'Value',max(1,length(newlist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
 %update mask list and structure if modality was not MEEG
 masklist = get(handles.mask_list,'String');
@@ -715,10 +723,10 @@ if strcmpi(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.c
     masklist = union(masklist,{mod.name});
 end
 if ~isempty(masklist) 
-    set(handles.mask_list,'String',masklist);
+    set(handles.mask_list,'String',cellstr(masklist)); % [UPDATE v3.1 - R2025a] ensure cell array
     set(handles.mask_list,'Value',max(1,length(masklist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
 else
-    set(handles.mask_list,'String',{'none'});
+    set(handles.mask_list,'String',cellstr({'none'})); % [UPDATE v3.1 - R2025a] ensure cell array
     set(handles.mask_list,'Value',1);
 end
 flag=0;
@@ -738,7 +746,8 @@ end
 handles.dat.masks(indm).type = mod.type;
 handles.dat.masks(indm).mod_name = mod.name;
 if ~isempty(mod.scans)
-    set(handles.file_list,'String',cellstr(mod.scans));
+    set(handles.file_list,'String',cellstr(cellstr(mod.scans))); % [UPDATE v3.1 - R2025a] ensure cell array
+    set(handles.file_list,'Value',max(1,length(cellstr(cellstr(mod.scans))))); % [UPDATE v3.1 - R2025a] set Value after String
 end
 handles.cf=1;
 renm=uicontextmenu;
@@ -829,7 +838,8 @@ if ~strcmpi(list{val},mod.name)
         end
     end
     list{val}=mod.name;
-    set(handles.modality_list,'String',list);
+    set(handles.modality_list,'String',cellstr(list)); % [UPDATE v3.1 - R2025a] ensure cell array
+    set(handles.modality_list,'Value',max(1,length(cellstr(list)))); % [UPDATE v3.1 - R2025a] set Value after String
     % Update mask structure
     if isfield(handles.dat.masks,'mod_name')
         for i=1:size(handles.dat.masks,2)
@@ -856,10 +866,10 @@ if ~strcmpi(list{val},mod.name)
         end
     end
     if isempty(masklist)
-        set(handles.mask_list,'String',{'none'});
+        set(handles.mask_list,'String',cellstr({'none'})); % [UPDATE v3.1 - R2025a] ensure cell array
         set(handles.mask_list,'Value',1);
     else
-        set(handles.mask_list,'String',masklist);
+        set(handles.mask_list,'String',cellstr(masklist)); % [UPDATE v3.1 - R2025a] ensure cell array
         set(handles.mask_list,'Value',max(1,length(masklist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
     end
     
@@ -907,7 +917,8 @@ else
     handles.cm=handles.cm-1;
     handles.cf=1;
 end 
-set(handles.modality_list,'String',nlist);
+set(handles.modality_list,'String',cellstr(nlist)); % [UPDATE v3.1 - R2025a] ensure cell array
+set(handles.modality_list,'Value',max(1,length(cellstr(nlist)))); % [UPDATE v3.1 - R2025a] set Value after String
 if ~isempty(handles.modlist)
     for i=1:length(handles.ds)  %for each group
         for j=1:length(handles.ds{i}) %for each subject
@@ -958,10 +969,10 @@ if ~flag % If modality removed for all subjects
             end
         end
         if isempty(masklist)
-            set(handles.mask_list,'String',{'none'});
+            set(handles.mask_list,'String',cellstr({'none'})); % [UPDATE v3.1 - R2025a] ensure cell array
             set(handles.mask_list,'Value',1);
         else
-            set(handles.mask_list,'String',masklist);
+            set(handles.mask_list,'String',cellstr(masklist)); % [UPDATE v3.1 - R2025a] ensure cell array
             set(handles.mask_list,'Value',max(1,length(masklist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
         end
     end
@@ -1031,7 +1042,8 @@ end
 handles.dat.group(cgr).subject(cs).modality(cm).scans=fnames;
 handles.ds{cgr}{cs}{cm}=size(fnames,1);
 handles.cf=1;
-set(handles.file_list,'String',cellstr(fnames));
+set(handles.file_list,'String',cellstr(cellstr(fnames))); % [UPDATE v3.1 - R2025a] ensure cell array
+set(handles.file_list,'Value',max(1,length(cellstr(cellstr(fnames))))); % [UPDATE v3.1 - R2025a] set Value after String
 
 % Update handles structure
 guidata(hObject, handles);
@@ -1212,9 +1224,11 @@ for i=1:length(handles.dat.masks)
     end
 end
 if ~isempty(masklist)
-    set(handles.mask_list,'String',masklist);
+    set(handles.mask_list,'String',cellstr(masklist)); % [UPDATE v3.1 - R2025a] ensure cell array
+    set(handles.mask_list,'Value',max(1,length(cellstr(masklist)))); % [UPDATE v3.1 - R2025a] set Value after String
 else
-    set(handles.mask_list,'String',{'none'});
+    set(handles.mask_list,'String',cellstr({'none'})); % [UPDATE v3.1 - R2025a] ensure cell array
+    set(handles.mask_list,'Value',max(1,length(cellstr({'none'})))); % [UPDATE v3.1 - R2025a] set Value after String
 end
 handles.cgr=1;
 handles.cs=1;
@@ -1222,7 +1236,8 @@ handles.cm=1;
 handles.cf=1;
 a=fileparts(prtname);
 set(handles.edit1,'String',a)
-set(handles.group_list,'String',{PRT.group(:).gr_name})
+set(handles.group_list,'String',cellstr({PRT.group(:).gr_name})); % [UPDATE v3.1 - R2025a] ensure cell array
+set(handles.group_list,'Value',max(1,length(cellstr({PRT.group(:).gr_name})))); % [UPDATE v3.1 - R2025a] set Value after String
 set(handles.use_scans,'Enable','on');
 
 %set the 'rename' and 'modify' right-clicks
