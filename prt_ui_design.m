@@ -333,10 +333,17 @@ gname=prt_text_input('Title','Enter group name');
 if isnumeric(gname)
     return
 end
-if ~isfield(handles,'ds')
-    handles.ds=cell(1);
+% [UPDATE v3.1] Fixed pre-existing bug: handles.ds could be a row cell array
+% causing vertcat to fail with "Dimensions of arrays being concatenated
+% are not consistent" when adding a second group.
+if ~isfield(handles,'ds') || isempty(handles.ds)
+    handles.ds=cell(1,1);
 else
-    handles.ds=[handles.ds; cell(1)];
+    % Ensure handles.ds is a column cell array before concatenation
+    if size(handles.ds,2) > 1
+        handles.ds = handles.ds(:);
+    end
+    handles.ds=[handles.ds; cell(1,1)];
 end
 ngr=length(handles.ds);
 handles.cgr=ngr;
