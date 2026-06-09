@@ -454,8 +454,12 @@ if val==1 && isfield(handles,'ds')
     set(handles.subj_add,'enable','on')
     set(handles.subj_remove,'enable','on')
 end
-set(handles.group_list,'String',cellstr(nlist)); % [UPDATE v3.1 - R2025a] ensure cell array
-set(handles.group_list,'Value',max(1,length(cellstr(nlist)))); % [UPDATE v3.1 - R2025a] set Value after String
+% [UPDATE v3.1 - R2025a] Handle empty nlist case (nlist=[] when last group removed)
+if isempty(nlist)
+    set(handles.group_list,'String',{},'Value',1);
+else
+    set(handles.group_list,'String',cellstr(nlist),'Value',max(1,length(cellstr(nlist))));
+end
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
@@ -650,8 +654,12 @@ else
     handles.cm=1;
     handles.cf=1;
 end
-set(handles.subjects_list,'String',cellstr(nlist)); % [UPDATE v3.1 - R2025a] ensure cell array
-set(handles.subjects_list,'Value',max(1,length(cellstr(nlist)))); % [UPDATE v3.1 - R2025a] set Value after String
+% [UPDATE v3.1 - R2025a] Handle empty nlist case (nlist=[] when last subject removed)
+if isempty(nlist)
+    set(handles.subjects_list,'String',{},'Value',1);
+else
+    set(handles.subjects_list,'String',cellstr(nlist),'Value',max(1,length(cellstr(nlist))));
+end
 update_display_data(hObject,handles);
 handles=guidata(hObject);
 handles.saved=0;
@@ -927,8 +935,12 @@ else
     handles.cm=handles.cm-1;
     handles.cf=1;
 end 
-set(handles.modality_list,'String',cellstr(nlist)); % [UPDATE v3.1 - R2025a] ensure cell array
-set(handles.modality_list,'Value',max(1,length(cellstr(nlist)))); % [UPDATE v3.1 - R2025a] set Value after String
+% [UPDATE v3.1 - R2025a] Handle empty nlist case (nlist=[] when last modality removed)
+if isempty(nlist)
+    set(handles.modality_list,'String',{},'Value',1);
+else
+    set(handles.modality_list,'String',cellstr(nlist),'Value',max(1,length(cellstr(nlist))));
+end
 if ~isempty(handles.modlist)
     for i=1:length(handles.ds)  %for each group
         for j=1:length(handles.ds{i}) %for each subject
