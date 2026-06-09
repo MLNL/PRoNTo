@@ -741,7 +741,7 @@ if strcmpi(handles.dat.group(handles.cgr).subject(handles.cs).modality(handles.c
     masklist = union(masklist,{mod.name});
 end
 if ~isempty(masklist) 
-    set(handles.mask_list,'String',cellstr(masklist)); % [UPDATE v3.1 - R2025a] ensure cell array
+    if isempty(masklist); set(handles.mask_list,'String',{},'Value',1); else; set(handles.mask_list,'String',cellstr(masklist)); end % [UPDATE v3.1 - R2025a] handle empty masklist
     set(handles.mask_list,'Value',max(1,length(masklist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
 else
     set(handles.mask_list,'String',cellstr({'none'})); % [UPDATE v3.1 - R2025a] ensure cell array
@@ -887,7 +887,7 @@ if ~strcmpi(list{val},mod.name)
         set(handles.mask_list,'String',cellstr({'none'})); % [UPDATE v3.1 - R2025a] ensure cell array
         set(handles.mask_list,'Value',1);
     else
-        set(handles.mask_list,'String',cellstr(masklist)); % [UPDATE v3.1 - R2025a] ensure cell array
+        if isempty(masklist); set(handles.mask_list,'String',{},'Value',1); else; set(handles.mask_list,'String',cellstr(masklist)); end % [UPDATE v3.1 - R2025a] handle empty masklist
         set(handles.mask_list,'Value',max(1,length(masklist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
     end
     
@@ -994,7 +994,7 @@ if ~flag % If modality removed for all subjects
             set(handles.mask_list,'String',cellstr({'none'})); % [UPDATE v3.1 - R2025a] ensure cell array
             set(handles.mask_list,'Value',1);
         else
-            set(handles.mask_list,'String',cellstr(masklist)); % [UPDATE v3.1 - R2025a] ensure cell array
+            if isempty(masklist); set(handles.mask_list,'String',{},'Value',1); else; set(handles.mask_list,'String',cellstr(masklist)); end % [UPDATE v3.1 - R2025a] handle empty masklist
             set(handles.mask_list,'Value',max(1,length(masklist))); % [UPDATE v3.1 - R2025a] ensure scalar Value
         end
     end
@@ -1246,8 +1246,8 @@ for i=1:length(handles.dat.masks)
     end
 end
 if ~isempty(masklist)
-    set(handles.mask_list,'String',cellstr(masklist)); % [UPDATE v3.1 - R2025a] ensure cell array
-    set(handles.mask_list,'Value',max(1,length(cellstr(masklist)))); % [UPDATE v3.1 - R2025a] set Value after String
+    if isempty(masklist); set(handles.mask_list,'String',{},'Value',1); else; set(handles.mask_list,'String',cellstr(masklist)); end % [UPDATE v3.1 - R2025a] handle empty masklist
+    if ~isempty(masklist); set(handles.mask_list,'Value',max(1,length(cellstr(masklist)))); end % [UPDATE v3.1 - R2025a]
 else
     set(handles.mask_list,'String',cellstr({'none'})); % [UPDATE v3.1 - R2025a] ensure cell array
     set(handles.mask_list,'Value',max(1,length(cellstr({'none'})))); % [UPDATE v3.1 - R2025a] set Value after String
