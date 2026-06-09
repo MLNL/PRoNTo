@@ -351,6 +351,9 @@ handles.dat.group(ngr).gr_name=gname;
 newlist=get(handles.group_list,'String');
     % [UPDATE v3.1 - R2025a] Ensure cell array before concatenation
     if ~iscell(newlist); newlist = cellstr(newlist); end
+    % [UPDATE v3.1] Remove empty/blank entries from initial listbox state
+    % to prevent first group appearing in second row
+    newlist = newlist(~cellfun(@(x) isempty(strtrim(x)), newlist));
     newlist=[newlist; {gname}];
 set(handles.group_list,'String',cellstr(newlist));
 set(handles.group_list,'Value',max(1,length(newlist))); % [UPDATE v3.1 - R2025a] set Value after String to avoid ListboxTop error
