@@ -35,10 +35,17 @@ if fold == 1
         else
             fVals  = PRT.model(model).output.fold(f).predictions;
         end
+        % [UPDATE v3.1] Fixed pre-existing bug: if/else was inverted.
+        % stats_tool = which('perfcurve') returns non-empty string if the
+        % Statistics and Machine Learning Toolbox is installed.
+        % perfcurve() should be called when stats_tool is non-empty (toolbox
+        % available), and prt_tpr_fpr() used as fallback when it is empty.
         if stats_tool
-            [tpr{f},fpr{f}] = prt_tpr_fpr(targets,fVals);
+            [fpr{f},tpr{f}] = perfcurve(targets,fVals,1);
         else
-            [fpr{f},tpr(f)] = perfcurve(targets,fVals,1);   
+            % Fallback: use PRoNTo's own TPR/FPR function when
+            % Statistics Toolbox is not installed
+            [tpr{f},fpr{f}] = prt_tpr_fpr(targets,fVals);
         end
         if all(isnan(tpr{f})) || all(isnan(fpr{f}))
             tpr_mean(f,:) = NaN * ones(1,length(fpr_mean));
