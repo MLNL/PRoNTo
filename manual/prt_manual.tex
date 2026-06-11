@@ -1,0 +1,231 @@
+% $Id$
+
+\documentclass[a4paper,titlepage]{book}
+% \documentclass[draft]{book}
+\usepackage{epsfig,amsmath,pifont,moreverb,minitoc,alltt}
+\usepackage[
+	colorlinks=true,
+	pdfpagemode=UseOutlines,
+	pdftitle={PRoNTo Manual},
+	pdfauthor={The PRoNTo Team},
+	pdfsubject={Pattern Recognition in Neuroimaging Toolbox},
+	pdfkeywords={neuroimaging, data mining, multivariate analysis, pattern recognition}
+	]{hyperref}
+\usepackage[usenames,dvipsnames]{color}
+\hypersetup{
+ colorlinks,
+ citecolor=PineGreen,
+ linkcolor=NavyBlue,
+ urlcolor=NavyBlue}
+\usepackage[titles]{tocloft}
+\usepackage{subcaption}
+\usepackage{silence}
+\WarningFilter{latex}{Text page}
+
+% \usepackage[T1]{fontenc} % NOT USED
+% \usepackage{bigfoot} % to allow verbatim in footnote % NOT USED
+\usepackage{listings}
+% \usepackage[numbered,framed]{matlab-prettifier} % NOT USED
+
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\lstset{language=Matlab,%
+    %basicstyle=\color{red},
+    breaklines=true,%
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},%
+    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},%
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},%
+    showstringspaces=false,%without this there will be a symbol in the places where there is a space
+    numbers=left,%
+    numberstyle={\tiny \color{black}},% size of the numbers
+    numbersep=9pt, % this defines how far the numbers are from the text
+    emph=[1]{for,end,break},emphstyle=[1]\color{red}, %some words to emphasise
+    %emph=[2]{word1,word2}, emphstyle=[2]{style},    
+}
+
+\pagestyle{headings}
+\bibliographystyle{plain}
+
+%-----------------------------------------------------------------------
+
+\hoffset=-6mm
+\voffset=-5mm
+\oddsidemargin=0mm
+\evensidemargin=0mm
+\topmargin=0mm
+\headheight=12pt
+\headsep=10mm
+\textheight=240mm
+\textwidth=170mm
+\marginparsep=5mm
+\marginparwidth=21mm
+\footskip=10mm
+
+%-----------------------------------------------------------------------
+\title{\huge{PRoNTo Manual}}
+\author{The PRoNTo Team}
+
+%-----------------------------------------------------------------------
+% Defining some new commands & character sequences
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\matlab}{\textsc{Matlab}}
+\newcommand{\bslash}{\texttt{\symbol{92}}}
+
+% extra space between section number & name in TOC
+\renewcommand*\cftsecnumwidth{3em}
+\renewcommand*\cftsubsecnumwidth{4em}
+
+%\newcommand{\PRoNTo}{\textsc{PRoNTo}}
+%\newcommand{\PRoNTo}{{\it PRoNTo} }
+\def\PRoNTo{\hbox{\it P\hskip -1.5pt R\hskip -1.5pt o\hskip -1.5pt N\hskip -1.5pt T\hskip -1.5pt o }}
+\def\HPRoNTo{\hbox{\it P\hskip -4.5pt R\hskip -4.5pt o\hskip -4.5pt N\hskip -4.5pt T\hskip -4.5pt o }}
+\def\hPRoNTo{\hbox{\it P\hskip -3.5pt R\hskip -3.5pt o\hskip -3.5pt N\hskip -3.5pt T\hskip -3.5pt o }}
+
+
+%==========================================
+%==========================================
+\begin{document}
+
+\let\oldlabel=\label
+\renewcommand{\label}[1]{
+{\pdfdest name {#1} fit}
+\oldlabel{#1}
+}
+
+%-----------------------------------------------------------------------
+
+%\maketitle
+\newlength{\centeroffset}
+\setlength{\centeroffset}{-0.5\oddsidemargin}
+\addtolength{\centeroffset}{0.5\evensidemargin}
+\thispagestyle{empty}
+
+
+\vspace*{\stretch{1}}
+\noindent\hspace*{\centeroffset}\makebox[0pt][l]{\begin{minipage}{\textwidth}
+\flushright
+\color{NavyBlue}
+\textbf{\Huge{\HPRoNTo Manual}}
+{\noindent\rule[-1ex]{\textwidth}{5pt}\\[2.5ex]}
+\hfill{{\huge The \hPRoNTo Development Group} \\
+\Large{(and honorary members)}\\}
+\vspace{20mm}
+\hfill{
+John Ashburner\\
+Carlton Chu\\
+Andre Marquand\\
+Janaina Mourao-Miranda\\
+Joao M. Monteiro\\
+Christophe Phillips\\
+Anil Rao\\
+Jonas Richiardi\\
+Jane Rondina\\
+Maria J. Rosa\\
+Jessica Schrouff\\
+Konstantinos Tsirlis\\
+Tong Wu\\
+}
+\end{minipage}}
+
+\begin{figure*}[h!]
+  \includegraphics[scale=0.7]{images/Logo_man.png}
+\end{figure*}
+
+\vspace{\stretch{1}}
+\noindent\hspace*{\centeroffset}\makebox[0pt][l]{\begin{minipage}{\textwidth}
+\flushright
+\color{NavyBlue}
+{\footnotesize
+\underline{\textbf{This is a beta version and is subject to change.}}\\
+\vspace{5mm}
+Machine Learning \& Neuroimaging Laboratory\\
+Centre for Medical Image Computing\\
+Computer Science Department, UCL\\
+90 High Holborn, Holborn, London WC1V 6LJ, UK \\
+\today\\
+\url{http://www.mlnl.cs.ucl.ac.uk/pronto}}
+
+\end{minipage}}
+
+%-----------------------------------------------------------------------
+
+\dominitoc 
+%\hypersetup{linkcolor=NavyBlue}
+\tableofcontents
+\newpage
+
+%%%%%% INTRODUCTION %%%%%%s
+%==========================================
+\include{introduction}
+
+%%%%%% GUI HELP %%%%%%
+%==========================================
+\part{Description of PRoNTo tools}
+\label{sec:part_1}
+% Description of each main and review step
+\include{gui1_DataDesign}
+\include{gui2_PreprocKernel}
+\include{gui3_ModelCrossV}
+\include{gui5_DisRes}
+\include{gui4_ModelWeight}
+\include{gui6_DisWeights}
+\include{input_files}
+
+%%%%%% BATCHING HELP %%%%%%
+%==========================================
+\part{Batch interfaces}
+\label{sec:BATCH}
+% Help on the batching system
+% These files are automatically generated by prt_latex.m from the batch help fields!
+\include{batch_data}
+\include{batch_fs}
+\include{batch_model}
+\include{batch_cv_model}
+
+
+%%%%%% DATA EXAMPLE %%%%%%
+%==========================================
+% Help on the data examples
+\part{Practical Tutorials}
+\include{data_example1}
+\include{data_example2}
+\include{data_example3}
+\include{confounds}
+% \include{confounds_reg}
+\include{multimodal_face_tutorial}
+\include{semi_simulated_ecog}
+\include{non_kernel_machine_tutorial}
+\include{within_subject_regression}
+% \include{psychometric_dataset_tutorial}
+% \include{between_subject_regression}
+\include{new_machine_tutorial}
+
+%%%%%% ADVANCED TOPICS %%%%%%
+%==========================================
+\part{Advanced topics}
+\label{sec:ADVTOP}
+% \include{dev_guide}
+\include{developers_manual}
+% \include{adv_PRTstruct}
+% The adv_PRTstruct.tex file is automatically generated by prt_struct2latex.m from an existing PRT structure.
+% \include{adv_functions}
+% The adv_functions.tex file is automatically generated by prt_latex.m from the help fields.
+\include{new_adv_functions}
+
+%%%%%% APPENDIX %%%%%%
+%==========================================
+\part{Appendix}
+\include{appendix}
+
+
+%%%%%% BIBLIOGRAPHY %%%%%%
+%==========================================
+\part{Bibliography}
+\bibliography{prt_manual}
+
+
+\end{document}

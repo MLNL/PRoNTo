@@ -1,0 +1,187 @@
+% $Id: gui_disres.tex 395 2011-11-17 22:34:59Z cphillip $
+%
+% Written by J. Schrouff for v2.0
+%_______________________________________________
+
+
+\chapter{Display weights}
+\label{chap:DisWeights}
+\minitoc
+
+\section{Introduction}
+
+In PRoNTo it is possible to visualize the weights for a specific model. There is a huge debate in the neuroimaging field on how to interpret weights of linear machine learning models (\cite{haufe2014interpretation, Schrouff2018, schrouff2018interpreting, weichwald2015causal}).
+Nevertheless, the model parameters or weights can provide some insights on which features are driven the predictions.
+\\
+
+% \noindent \textbf{Note:} PRoNTo is first and foremost a machine learning tool used for neuroimaging analyses, so throughout the manual we mostly refer to examples that focus on neuroimaging data. That being said, since from the current release PRoNTo supports MEEG (SPM) data as well as any .mat file, one can use PRoNTo to analyze for example MEEG data in sensor space (2D, or even 1D), or yet any kind of .mat, even in applications irrelevant to neuroimaging. However, it's best to use PRoNTo primarily for neuroimaging data which is its original purpose. So from the current release, we will refer to our data with the general term "samples" and "features", instead of referring to "voxels" as our features. The reason is that from the current release we have expanded our functionalities to include data that are not 3D, and therefore they do not have "voxels" as features.
+% \\
+
+Some brain areas are probably more informative about class membership/regression targets than others. For example, in a visual task, we would expect discriminative information in the occipital lobe. This can be seen as \textit{information mapping}, and it can be helpful to evaluate a specific model - if the discriminative weights of a machine are concentrated in the eyes, for example, it is important to correct the mask used in the analysis to exclude them. The \textit{weight map} is a spatial representation of the decision function, i.e. every feature with non zero weight contributes to the decision function. Pattern recognition models (classifiers or regression functions) are multivariate, i.e. they take into account correlations in the data. Since the discrimination or prediction is based on the whole pattern, rather than on individual regions or features, all features (with non zero weights) contribute to the classification or regression and no conclusions should be drawn about a particular subset of features in isolation.
+\\
+
+It is also possible (starting from ProNTo v2.0)  to derive weights at the region level (as anatomically defined by an atlas, from MKL or from summarizing the weights). The `Display weights' window allows to display maps of voxels/features and of region contribution. Furthermore, the region contributions can be ranked in descending order, yielding a sorted list of regions according to their contribution to the classification/regression model. We hope this will help the interpretation of model's weights.
+\\
+
+Moreover, as mentioned in chapter \ref{chap:intro}, starting from PRoNTo v3.0, PRoNTo supports MEEG (SPM) data as well as any .mat file, for example MEEG data in sensor space (2D, or even 1D), or any kind of .mat data, therefore the models' weights can have different dimensions (corresponding to the data used).
+\\
+
+\textbf{Important note:} The implemented version of MKL (\cite{Rakotomamonjy2008}) is sparse in the kernel combination. This means that only a few kernels (which might correspond to different modalities, regions or channels, for example) will contribute to the model. However, this selection of kernels might depend on the dataset, and small variations in the dataset (as induced by cross-validation) might lead to different subsets of kernels begin selected. Therefore, care should be taken when reporting selected kernels and each fold should be looked at separately. We also provide a quantification of the variability across folds of the ranking of the kernels (`Expected Ranking', see further) to provide some insights on this issue.
+\\
+
+\section{Displaying weights}
+
+To launch the `Display weights' window, make sure that weight maps have been computed for at least one model (Compute Weights, Chapter~\ref{chap:ComputeWeights}) and press the `Display weights' option. At the `Select PRT.mat' window, navigate to where your `PRT.mat' file is stored (using the left column), and select it in the right column. The display window then opens (Figure \ref{fig_prt_ui_weights_empty}).
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[height=9cm]{images/Tutorial/v3/display_weights_empty.png}
+\caption{Display weights main window after selection of PRT.mat.}
+\label{fig_prt_ui_weights_empty}
+\end{center}
+\end{figure}
+
+
+\noindent The window is divided into four panels. Going from top left to bottom left, they are:
+\\
+
+\begin{description}
+\item[Display]: This panel allows the user to choose which model and weights to display. As well as whether to display the voxel/feature weights or the region contributions, whenever this is available. Finally the user can also display the average weights across all folds, or the weights of a specific fold.
+
+\item[Weights map]: This displays different weights (according to the type and dimension of data) of the selected weight map and allows to navigate it.
+
+\item[Anatomical img]: The user can also load an anatomical image, which if loaded, it will display three projections, and the cross-hair will be synchronised with the weight map. Note: This option only makes sense for weights for NIfTI brain data, e.g. MRI or fMRI.
+
+\item[Additional plots]: The blank area at the bottom of the window will display additional information about the model weights, such as a sorted list of the kernels (e.g. regions or channels) according to their contribution (if weights per region/channel were computed, in the form of a table) and a bar plot of the relative kernel contribution. If MKL modelling was performed based on multiple modalities, the same table and bar plot will display the relative contributions of each modality to the decision function. 
+\end{description}
+
+\subsection{Select image to display}
+
+The `Display' panel shows the models for which weights have been computed and weight images were found in the same folder as the PRT. For each model, the list of images available is displayed in the `Weights' pop-down list. Typically, one image will be created for a binary classifier or regression with only one modality or multiple modalities concatenated as samples (e.g. multiple runs). On the other hand, multiclass classification models will return one image per class (with the index of the class appended to the name of the image). In the same way, multiple modalities used in multiple kernels will lead to the building of one weight image per modality. For each image, the weight map can be displayed for each fold or for their average. Starting from PRoNTo v2.0, in case of NIfTI brain data, it is possible to display the contributions of each voxel (`weights per voxel') or of each region (`weights per region', if previously computed).
+\\
+
+\textbf{Note:} the weight images (per voxel and per region) are automatically detected in the list of files in the PRT folder according to the name specified in the `Compute weights' step (Chapter \ref{chap:ComputeWeights}). Modifying the image name afterwards or moving the images might lead to warning messages and the images will not be listed in the GUI.
+\\
+
+To display a weight image, select a model, an weight image and a fold. If we have MRI data, and if only weights per voxel were estimated, the window will look similar to Figure \ref{display_weights_only_vox}. Notice that the `weights per region' radio button is currently deactivated.
+\\
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[height=10cm]{images/Tutorial/v3/display_weights_only_vox.png}
+\caption{Displaying weight image of a two-class SVM model.}
+\label{display_weights_only_vox}
+\end{center}
+\end{figure}
+
+As we mentioned before, from the current release (v3.0), PRoNTo also supports MEEG (SPM) data, as well as data in simple .mat format. Therefore, weights maps can be built and displayed for all modality types, i.e. for MEEG data, both directly from their original MEEG format, and also from the NIfTI images generated from them inside SPM, and also from any generic .mat files that were analyzed. % In figures \ref{XXXX}, \ref{XXXX} and \ref{XXXX}\footnote{Taken from the tutorial of chapter \ref{sec:multimodal_face}} you see the 3 examples mentioned just above, where we have weights maps for.
+More specifically:  
+
+\bi
+\item \textbf{For 1D data:} For MEEG and .mat, weights are displayed as bar graphs (with the color of the bar representing the amplitude of the weight) (e.g. vector with brain connectivity features used for .mat). Example in figure \ref{fig:display_weights_1d}.
+\ei
+
+\begin{figure}[!h]
+  \centering
+		\includegraphics[scale=0.59]{images/Tutorial/v3/display_weights_1d.png}
+	\caption{`Display weights' for 1D MEEG or .mat data.}
+	\label{fig:display_weights_1d}
+\end{figure}
+
+\bi
+\item \textbf{For 2D data:} The display shows the matrix, with y-axis as the 1st dimension and x-axis as the 2nd dimension (after squeezing out dimensions of size 1), with the color of a (x,y) pair displaying the magnitude of its weight. Example in figure \ref{fig:display_weights_2d}. Finally, 2D NIfTI images (like MEEG data) are displayed as before, except a small change in the color map. Example in figure \ref{fig:display_weights_2d_nifti}.
+\ei
+
+\begin{figure}[!h]
+  \centering
+		\includegraphics[scale=0.59]{images/Tutorial/v3/display_weights_2d.png}
+	\caption{`Display weights' for 2D MEEG or .mat data.}
+	\label{fig:display_weights_2d}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+		\includegraphics[scale=0.59]{images/Tutorial/v3/display_weights_2d_nifti.png}
+	\caption{`Display weights' for 2D NIfTI images derived from 2D MEEG data (using SPM).}
+	\label{fig:display_weights_2d_nifti}
+\end{figure}
+
+
+
+\bi
+\item \textbf{For 3D data:} Displaying weights in 3D data in PRoNTo v3.0 is only available using NIfTI brain images, as has been from versions 2.X. Examples in figure \ref{display_weights_only_vox}.
+\ei
+
+
+
+\subsection{Weights map}
+
+All the different types of weight maps are displayed with a colorbar. 2D and 3D NIfTI images are also displayed with a cross-hair. The colorbar indicates the relative importance of the voxel/feature to the decision function. This value is also indicated in the `intensity' field of the `Anatomical img' panel. Note that all voxels/features with weight different from zero contribute to the decision function, since the analysis is multivariate. \textbf{Contrary to common practice in Statistical Parametric Mapping, which is a mass-univariate approach, it is not recommended to threshold the weight map and report only on the peaks of the decision function's weight map, unless they have perfectly null contribution (as might happen with sparse models such as L1-MKL modelling)}. 
+% In v2.1, the `browse' ($[${\tt ...}$]$) button under the edit box is disabled. 
+
+\subsection{Anatomical image}
+
+By clicking on the $[${\tt ...}$]$ button next to the `Load anatomical img' field, a dialogue opens that allows you to select an anatomical images `.img' file that was co-registered with the data images. In this panel, the cross-hair position is displayed in voxels and in mm. It can also be reset to the origin of the image. For each position, the corresponding voxel weight is displayed in the `intensity' field.
+\\
+
+The main reason behind displaying the anatomical image next to the weights map was to help users identify which parts of the brain correspond to which weights in the weights map, therefore it only makes sense for NIfTI brain data (e.g. MRI, fMRI). This correspondence is only used as an approximation and you should not rely it.
+\\
+
+\noindent \textbf{Note:} One should only use the co-registered anatomical images as a crude heuristic to help them navigate through the weights maps only in the case of MRI (3D) NIfTI images. There is no real correspondence between the anatomical image and other types of data (for example 2D MEEG data).
+
+\subsection{Additional plots}
+\label{ssec:add_plots}
+
+Additional information will be displayed in two main cases:
+\begin{itemize}
+\item \textbf{Multiple Kernel Learning modelling:} MKL modelling based on modalities, regions or channels, will provide weights at two levels: the kernel level and the voxel/feature level. The kernel contributions, which sum to 1, can then be ranked in descending order. 
+\item \textbf{Summarizing weights per region:} Starting from PRoNTo v2.0, weights can be summarized within regions of interest as defined by an atlas (user-specified). For each region, a normalized contribution can be defined, and those contributions can then be ranked in descending order. If the atlas was not selected as second-level mask at the feature set step, users might see one extra region in the ROI label column in a table labelled as `other' in case there are voxels/features that do not overlap with the selected atlas (see Chapter \ref{chap:ComputeWeights}). 
+\end{itemize}
+
+In both cases, the kernel's or region's contributions will be displayed in a table as well as in a bar plot, for each fold and for their average (according to the selected fold in the `Display' panel). An example is displayed in Figure \ref{fig_prt_ui_weights_ROI}, for weight summarization per region after MKL modelling.
+\\
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[height=9cm]{images/Tutorial/v3/display_weights_roi.png}
+\caption{Displaying ROI contributions for a two-class MKL model.}
+\label{fig_prt_ui_weights_ROI}
+\end{center}
+\end{figure}
+
+In the case where kernels were built both at the modality and at the region level (i.e. multiple modalities with each multiple regions as defined by an atlas), two tables will be displayed (one for regions, one for modalities). The table for modalities will sum the contributions of each region within that modality.
+\\
+
+\noindent \textbf{Note:} Everything mentioned above also applies to all the other types of data formats.
+
+\subsubsection{Sorted table of region/modality contributions}
+
+The displayed table comprises one row per region and 5 columns (for an example on ROIs, as displayed in Figure \ref{fig_prt_ui_weights_ROI}):
+
+\begin{itemize}
+\item \textbf{Index of the ROI:} The first column displays the ranking of the region of interest in the selected fold, according to its contribution.
+\item \textbf{ROI Label:} When using the atlas provided in \textit{your PRoNTo folder/atlas}, the labels of each region will be loaded automatically from a .mat, stored alongside the atlas. If using another atlas, the labels can be loaded through the `Load Labels' button. In this case, the user should select a .mat comprising a cell array of size \textit(number of regions,1), with the label for each region in the corresponding cell (in characters). The cell array should be saved under the variable name `ROI\_ names'. Otherwise, generic names will be used (e.g. ROI\_ 1).
+\item \textbf{ROI weight:} The (normalized) contribution of each region is displayed in the third column (in \%). The rows of the table are sorted in descending order according to this value. 
+\item \textbf{ROI size:} This column displays the size of the ROI in voxels/features. This gives indications on the overlap between the atlas and the data.
+
+\item \textbf{Expected Ranking}: This measure reflects how stable the ranking of the region is across folds. It is computed from the ranking in each fold (see \cite{Schrouff2013a} for details), and is therefore the same, whether the user is displaying fold 1, or the average of all folds. If the Expected Ranking (ER) is close to the ranking in the selected fold, then it reflects that this region has a similar ranking across folds. On the contrary, if the ER is quite different from the ranking shown for the selected fold, this means that the ranking might be variable across folds. This variability can come from the fact that the region did not have the same contribution across the different folds. It might also happen that it is not selected at all in some folds (as can happen with L1-MKL since it will not select kernels with correlated information).
+\end{itemize}
+
+When selecting a specific region label in the table, the weight map will only display colored voxel or region weights (according to which plot was selected) for this region, the rest of the image being in grey scale. This allows e.g. to look closely at the voxel weights within a region that highly contributes to the selected model and fold (Figure \ref{fig_prt_ui_weights_specROI}). Finally, the table can be exported as a text file using the `Export Table' button.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[height=9cm]{images/Tutorial/v3/display_weights_fusiform.png}
+\caption{Displaying fusiform weights for binary MKL model.}
+\label{fig_prt_ui_weights_specROI}
+\end{center}
+\end{figure}
+
+
+\subsubsection{Bar plot of kernel}
+
+The bar plot displays the third column of the table, i.e. the contribution of each kernel to the decision function. The x-axis represents the index of the ROI/channel/modality in the table (i.e. first column of the table), in the selected fold, while the y-axis displays the contribution of each ROI/channel/modality. The bar graph provides insights on how sparse or dense the kernel contributions are for the model.
+
+
+
+

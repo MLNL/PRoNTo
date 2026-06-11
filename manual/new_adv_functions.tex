@@ -1,0 +1,68 @@
+\chapter{PRoNTo functions and the PRT structure}
+\label{pronto_func_prt_struct}
+
+\minitoc
+
+\section{List of PRoNTo functions}
+
+For the users interested in delving deeper into the PRoNTo functions, there is a set of HTML files of all the functions inside the \textit{PRoNTo/manual/html\_doc} directory that can be opened with any application that supports HTML.
+\\
+
+The \textit{index.html} is the main HTML file which has a short description of all the PRoNTo functions. Scrolling to the end of it, the user will also find the index to all the subdirectories.
+\\
+
+Clicking into a specific PRoNTo function, for example \textit{prt\_cv\_model}, one could see:
+
+\bi
+\item A synopsis section, which informs us that this is a function related to cross-validation for a given model,
+\item A further description section, with the way the inputs and the outputs of this function are structured, potential notes, etc.
+\item A cross-reference information section, which informs us of the functions that {prt\_cv\_model} calls, as well as the functions that call {prt\_cv\_model}.
+\item A subfunctions section, which lists all the subfunctions in our main function.
+\item And finally a source code section, which is just the function itself.
+\ei
+
+Users interested in customizing PRoNTo functions to their needs and/or further developing, are advised to make use of the HTML file indexing to get a better sense of the relations between the PRoNTo functions. 
+
+
+\section{The PRT structure}
+
+Another useful thing to have is the whole picture of the PRT structure. Exploring the PRT structure and learning your way around it, will certainly prove to be quite useful for various reasons.
+\\
+
+The most straight-forward way of exploring the PRT structure is through the MATLAB Workspace. But this way has a couple of difficulties, and usually you cannot see the whole picture of the structure because of MATLAB limitations.
+\\
+
+Another much more practical way of visualizing the PRT structure is by converting it to a JSON file format and then opening it with any compatible application. There are various different software programs with which you can visualize the structure in a much more meaningful way. You can even find Internet browsers (for example \textit{Mozilla Firefox}) that have built-in JSON viewer where simply dragging \& dropping the \textit{.json} file in the browser will open it. A couple of other useful advantage of the JSON format is that:
+
+\bi
+\item You can use it to store and/or transfer the information of a PRT structure without using much space (as a JSON file format is just an array of strings), and without requiring MATLAB to be installed in order to open it.
+
+\item You can parse the PRT structure quite easily.
+\ei
+
+The most straight-forward way of converting a PRT structure to a JSON file format and vice versa is through the \textit{spm\_jsonwrite()} (to encode) and the \textit{jsondecode()} (to decode) commands.
+
+\bi
+\item \textbf{spm\_jsonwrite(`prt\_struct.json',PRT)} will encode your current PRT in a JSON file format with the name \textit{prt\_struct} and directly save it in your current folder. That is an SPM function and hence requires you to have SPM in your path.
+
+\item \textbf{PRT\_rec = jsondecode(fileread(`prt\_struct.json'))} will decodes it and recreate the PRT structure in a struct called \textit{PRT\_rec}. That is a MATLAB built-in function introduced with version R2016b.
+\ei
+
+There are of course many more ways of encoding/decoding MATLAB to JSON and vice versa, such as for example JSONlab, or even using the MATLAB built-in function \textit{jsonencode} and then saving it by yourself.
+\\
+
+Inside the \textit{PRoNTo/manual} you can find a \textit{prt\_struct.json} file that we created based on the PRT structure of the tutorial in Chapter \ref{sec:Block_design_fMRI_dataset}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

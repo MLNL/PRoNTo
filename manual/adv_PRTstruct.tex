@@ -1,0 +1,239 @@
+\chapter{PRT structure}
+\label{sec:PRTstruct}
+\minitoc
+
+This is how the main {\tt PRT} structure is organised.
+
+{\tt PRT}
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.2cm}}
+\item group
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item gr\_name
+\item subject
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item subj\_name
+\item modality
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item rt\_subj
+\item covar
+\item mod\_name
+\item TR
+\item design
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.2cm}}
+\item conds
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.7cm}}
+\item cond\_name()
+\item onsets()
+\item durations()
+\item scans()
+\item blocks()
+\item discardedscans()
+\item hrfdiscardedscans()
+\end{list}
+\item stats
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.7cm}}
+\item overlap
+\item goodscans
+\item discscans
+\item meanovl
+\item stdovl
+\item mgoodovl
+\item sgoodovl
+\item goodovl
+\end{list}
+\item TR
+\item unit
+\end{list}
+\item scans
+\item type
+\end{list}
+\end{list}
+\end{list}
+\item masks
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item mod\_name
+\item type
+\item fname
+\item hrfoverlap
+\item hrfdelay
+\end{list}
+\item fs
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item fs\_name
+\item k\_file
+\item id\_col\_names
+\item fas
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item im
+\item ifa
+\end{list}
+\item modality
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item mod\_name
+\item detrend
+\item param\_dt
+\item mode
+\item idfeat\_fas
+\item normalise
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item type
+\item scaling
+\end{list}
+\item igood\_kerns
+\end{list}
+\item id\_mat
+\item multkernelROI
+\item multkernel
+\item atlas\_name
+\item atlas\_label
+\end{list}
+\item fas
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item mod\_name
+\item dat
+\item detrend
+\item param\_dt
+\item hdr
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item fname
+\item dim
+\item dt
+\item pinfo
+\item mat
+\item n
+\item descrip
+\item private
+\end{list}
+\item idfeat\_img
+\end{list}
+\item model
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{0.7cm}}
+\item model\_name
+\item input
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item use\_kernel
+\item type
+\item machine
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item function
+\item s\_args
+\item args
+\end{list}
+\item use\_nested\_cv
+\item nested\_param
+\item cv\_type\_nested
+\item cv\_k\_nested
+\item subsample
+\item indmodels
+\item class
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item class\_name()
+\item group()
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.2cm}}
+\item gr\_name
+\item subj
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.7cm}}
+\item num
+\item modality
+\end{list}
+\end{list}
+\end{list}
+\item fs
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item fs\_name
+\end{list}
+\item samp\_idx
+\item include\_allscans
+\item targets
+\item targ\_allscans
+\item covar
+\item cov\_allscans
+\item cv\_k
+\item cv\_mat
+\item cv\_type
+\item operations
+\end{list}
+\item output
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.2cm}}
+\item fold
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item targets()
+\item predictions()
+\item stats()
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.2cm}}
+\item con\_mat
+\item acc
+\item c\_acc
+\item b\_acc
+\item c\_pv
+\item acc\_lb
+\item acc\_ub
+\item auc
+\end{list}
+\item type()
+\item func\_val()
+\item alpha()
+\item b()
+\item totalSV()
+\end{list}
+\item stats
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item con\_mat
+\item acc
+\item c\_acc
+\item b\_acc
+\item c\_pv
+\item acc\_lb
+\item acc\_ub
+\item auc
+\item permutation
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{2.2cm}}
+\item b\_acc
+\item auc
+\item c\_acc
+\item pvalue\_b\_acc
+\item pvalue\_c\_acc
+\item pvalue\_auc
+\end{list}
+\end{list}
+\item permutation
+\begin{list}{$\bullet$}
+	{\setlength{\labelsep}{.2cm}\setlength{\itemindent}{0cm}\setlength{\leftmargin}{1.7cm}}
+\item fold
+\item perm\_stats
+\item perm\_mat
+\end{list}
+\item weight\_ROI
+\item weight\_MOD
+\item weight\_idfeatroi
+\item weight\_atlas
+\item weight\_img
+\end{list}
+\end{list}
+\end{list}
