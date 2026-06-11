@@ -230,7 +230,7 @@ end
 % - svm
 dumb = which('svmtrain');
 if ~isempty(strfind(dumb,'libsvm'))          % svm found in libsvm folder, OK
-    disp('SVM path: OK')
+    disp('LIBSVM path: OK')
     flag=1;
 elseif ~isempty(strfind(dumb,'biolearning')) % svm found in the Matlab toolbox
     flag=0;
@@ -291,7 +291,7 @@ end
 % - GP
 dumb = which('solve_chol');
 if ~isempty(dumb) && ~isempty(strfind(dumb,'.mex'))
-    disp('GP path: OK')
+    disp('GPML path: OK')
 else
     beep
     disp('GP not compiled: routines will work but be slower')
@@ -310,8 +310,8 @@ end
 
 % - LIBLINEAR
 dumb = which('train');
-if ~isempty(strfind(dumb,'liblinear'))          % svm found in libsvm folder, OK
-    disp('SVM path: OK')
+if ~isempty(strfind(dumb,'liblinear'))          % svm found in liblinear folder, OK
+    disp('LIBLINEAR path: OK')
     flag=1;
 elseif ~isempty(strfind(dumb,'nnet')) % svm found in the Matlab toolbox
     flag=0;
@@ -333,11 +333,11 @@ if ~flag
     end
     dumb = which('train');
     if isempty(strfind(dumb,'liblinear'))
-        flag=2; %s till not working, need to recompile
+        flag=2; % still not working, need to recompile
     elseif ~isempty(strfind(dumb,'nnet'))
         flag = 2;
         disp('PRoNTo was found under the Neural Net toolbox, please correct path')
-        disp('SVM path: OK')
+        disp('LIBLINEAR path: OK')
     else
         flag =1;
     end
