@@ -1,0 +1,250 @@
+% $Id$ 
+
+\chapter{Feature set/Kernel  \label{Chap:fs}}
+
+\vskip 1.5cm
+
+Compute feature set according to the design specified
+
+
+\section{Load PRT.mat}
+Select data/design structure file (PRT.mat).
+
+
+\section{Feature/kernel name}
+Target name for kernel matrix. This should containonly alphanumerical characters or underscores (\_).
+
+
+\section{Data format}
+Data format for selected modalities. The different input files should be in either nifti, SPM MEEG object or .mat format
+
+
+\subsection{Nifti}
+Add modalities in nifti format
+
+
+\subsubsection{Modality}
+Specify modality, such as name and data.
+
+
+\paragraph{Modality name}
+Name of modality. Example: 'BOLD'. Must match design specification
+
+
+\paragraph{Samples / Conditions}
+Which task conditions do you want to include in the kernel matrix? Select conditions: select specific conditions from the design. All conditions: include all conditions extracted from the design. All samples: include all samples for each subject. This may be used for modalities with only one sample per subject (e.g. PET), if you want to include all samples from an fMRI timeseries (assumes you have not already detrended the timeseries and extracted task components)
+
+
+\subparagraph{All samples}
+No design specified. This option can be used for modalities (e.g. structural) that do not have an experimental design or for an fMRI designwhere you want to include all samples in the timeseries
+
+
+\subparagraph{All Conditions}
+Include all conditions in this kernel matrix
+
+
+\paragraph{Voxels to include}
+Specify which voxels from the current modality you would like to include
+
+
+\subparagraph{All voxels}
+Use all voxels in the design mask for this modality
+
+
+\subparagraph{Specify mask file}
+Select a mask for the selected modality.
+
+
+\paragraph{Detrend}
+Type of temporal detrending to apply
+
+
+\subparagraph{None}
+Do not detrend the data 
+
+
+\subparagraph{Polynomial detrend }
+Perform a voxel-wise polynomial detrend on the data (1 is linear detrend) 
+
+
+\textbf{Order}
+Enter the order for polynomial detrend (1 is linear detrend)
+
+
+\subparagraph{Discrete cosine transform}
+Use a discrete cosine basis set to detrend the data.
+
+
+\textbf{Cutoff of high-pass filter (second)}
+The default high-pass filter cutoff is 128 seconds (same as SPM)
+
+
+\paragraph{Scale input scans}
+Do you want to scale the input scans to have a fixed mean (i.e. grand mean scaling)?
+
+
+\subparagraph{No scaling}
+Do not scale the input scans
+
+
+\subparagraph{Specify from *.mat}
+Specify a mat file containing the scaling parameters for each modality.
+
+
+\paragraph{Use atlas to build ROI specific kernels}
+Select an atlas file to build one kernel per ROI. The AAL atlas (named 'aal\_79x91x69.img') is available in the 'atlas' subdirectory of PRoNTo
+
+
+\subsection{MEEG}
+Add modalities in SPM MEEG format
+
+
+\subsubsection{Modality}
+Specify modality, such as name and data.
+
+
+\paragraph{Modality name}
+Name of modality. Example: 'BOLD'. Must match design specification
+
+
+\paragraph{Channels}
+
+\subparagraph{Channel selection}
+Channel selection.
+
+
+\textbf{All}
+
+
+
+\textbf{Select channels by type}
+Select channels by type.
+
+
+\textbf{Custom channel}
+Enter a single channel name.
+
+
+\textbf{Regular expression}
+Enter a regular expression for matching multiple channel labels.
+
+
+\textbf{Channel file}
+
+
+
+\subparagraph{Average}
+Average across selected.
+
+
+\subparagraph{Multiple kernels}
+Build one kernel per selected feature in this dimension.
+
+ This will result in e.g. one kernel per channel, per time point, or 
+
+per frequency bin. Choosing multiple kernels on one dimension does not 
+
+exclude the computation of multiple kernels on other dimensions.
+
+
+\paragraph{Time points}
+
+\subparagraph{Time window}
+Start and stop of the time window (ms).
+
+
+\subparagraph{Average}
+Average across selected.
+
+
+\subparagraph{Multiple kernels}
+Build one kernel per selected dimension.
+
+
+\textbf{No}
+Do not build multiple kernels
+
+
+\textbf{One kernel per time point}
+Build one kernel per time point
+
+
+\textbf{One kernel per time window}
+Build one kernel per time window
+
+
+\textsc{Time window (ms)}
+Length of time window to consider (in ms). E.g. 10
+
+
+\paragraph{Frequencies}
+
+\subparagraph{Frequency window}
+Start and stop of the frequency window (Hz).
+
+
+\subparagraph{Average}
+Average across selected.
+
+
+\subparagraph{Multiple kernels}
+Build one kernel per selected feature in this dimension.
+
+ This will result in e.g. one kernel per channel, per time point, or 
+
+per frequency bin. Choosing multiple kernels on one dimension does not 
+
+exclude the computation of multiple kernels on other dimensions.
+
+
+\subsection{.mat}
+Add modalities in .mat format
+
+
+\subsubsection{Modality}
+Specify modality, such as name and data.
+
+
+\paragraph{Modality name}
+Name of modality. Example: 'BOLD'. Must match design specification
+
+
+\paragraph{Samples / Conditions}
+Which task conditions do you want to include in the kernel matrix? Select conditions: select specific conditions from the design. All conditions: include all conditions extracted from the design. All samples: include all samples for each subject. This may be used for modalities with only one sample per subject (e.g. PET), if you want to include all samples from an fMRI timeseries (assumes you have not already detrended the timeseries and extracted task components)
+
+
+\subparagraph{All samples}
+No design specified. This option can be used for modalities (e.g. structural) that do not have an experimental design or for an fMRI designwhere you want to include all samples in the timeseries
+
+
+\subparagraph{All Conditions}
+Include all conditions in this kernel matrix
+
+
+\paragraph{Scale input scans}
+Do you want to scale the input scans to have a fixed mean (i.e. grand mean scaling)?
+
+
+\subparagraph{No scaling}
+Do not scale the input scans
+
+
+\subparagraph{Specify from *.mat}
+Specify a mat file containing the scaling parameters for each modality.
+
+
+\paragraph{Features to include}
+Specify which features from the current modality you would like to include
+
+
+\subparagraph{All features}
+Use all features in the matrix for this modality
+
+
+\subparagraph{Specify mask file}
+Select a mask for the selected modality.
+
+
+\paragraph{Use atlas to build ROI specific kernels}
+Select an atlas file to build one kernel per ROI. The atlas should have the same dimensions as the input .mat data.
+

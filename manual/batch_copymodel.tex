@@ -1,0 +1,1334 @@
+% $Id$ 
+
+\chapter{Model: Specify from  \label{Chap:copymodel}}
+
+\vskip 1.5cm
+
+Specify model from a previsouly specified model and change a few fields.
+
+
+\section{Load PRT.mat}
+Select data/design structure file (PRT.mat).
+
+
+\section{Model name}
+Name for new model.
+
+
+\section{Model to copy}
+Name of the model to copy.
+
+
+\section{Fields to modify}
+Modify one field in this model. Click 'new' or 'repeat' to add another field.
+
+
+\subsection{Field}
+Field to modify in copied model. All choices performed should be consistent with the selected model type, selected samples and cross-validation scheme.
+
+
+\subsubsection{Feature sets}
+Feature set(s) to include in this model.
+
+
+\paragraph{Feature set name}
+Add onefeature set to this model. Click 'new' or 'repeat' to add another feature set.
+
+
+\subparagraph{Name}
+Enter the name of a feature set to include in this model. This can be kernel or a feature matrix. 
+
+
+\subsubsection{Model Type }
+Select which machine should be used. The selected 
+
+machine should be of the same type (i.e. classification or regression)
+
+ as in the copied model.
+
+
+\paragraph{Classification }
+Select whether a kernel or non-kernel method is to be used.
+
+
+\subparagraph{Kernel machine}
+Choose a kernel prediction machine for this model
+
+
+\textbf{SVM Classification}
+Binary support vector machine.
+
+
+\textsc{SVM string argument}
+String argument for LIBSVM interfacing.
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Gaussian Process Classification}
+Gaussian Process Classification
+
+
+\textsc{String arguments}
+String arguments for GPML machine binary classification machine.
+
+
+\textbf{Multiclass GPC}
+Multiclass GPC
+
+
+\textsc{String arguments}
+String arguments for GPML multiclass classification machine.
+
+
+\textbf{L1 Multi-Kernel Learning}
+Multi-Kernel Learning. Choose only if multiple kernels 
+
+were built during the feature set construction (either multiple modalities or ROIs). 
+
+It is strongly advised to "normalize" the kernels (in "operations").
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Custom machine}
+Choose another prediction machine
+
+
+\textsc{Function}
+Choose a function that will perform prediction.
+
+
+\textsc{Custom machine string argument}
+String argument for custom machine.
+
+
+\textsc{Custom machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Enter parameter fixed value if needed.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Hyper-parameter range for prediction machine.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\subparagraph{Non-kernel machine}
+Choose a non-kernel prediction machine for this model
+
+
+\textbf{Binary L2-SVM}
+Non-kernel L2-regularized L2-Loss support vector machine,can be used for multiclass problem.
+
+
+\textsc{String arguments}
+String arguments for LIBLINEAR interfacing.
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Multiclass SVM}
+Multiclass support vector classification by Crammer and Singer, can also be used for binary classification.
+
+
+\textsc{String arguments}
+String arguments for LIBLINEAR interface.
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Binary L1-SVM}
+Non-kernel L1-regularized L2-Loss support vector machine.
+
+
+\textsc{String arguments}
+String arguments for LIBLINEAR interface.
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{L2-Logistic Regression}
+Non-kernel L2-regularized Logistic Regression from LIBLINEAR.
+
+
+\textsc{String arguments}
+String arguments for LIBLINEAR interface.
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{L1-Logistic Regression}
+Non-kernel L1-regularized Logistic Regression from LIBLINEAR.
+
+
+\textsc{String arguments}
+String arguments for LIBLINEAR interface.
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Custom machine}
+Choose another prediction machine
+
+
+\textsc{Function}
+Choose a function that will perform prediction.
+
+
+\textsc{Custom machine string argument}
+String argument for custom machine.
+
+
+\textsc{Custom machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Enter parameter fixed value if needed.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Hyper-parameter range for prediction machine.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\paragraph{Regression }
+Select whether a kernel or non-kernel method is to be used.
+
+
+\subparagraph{Kernel machine}
+Choose a kernel prediction machine for this model
+
+
+\textbf{Kernel Ridge Regression}
+Kernel Ridge Regression.
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{epsilon-SVR}
+Kernel epsilon Support Vector Regression from LIBSVM.
+
+
+\textsc{String arguments}
+String arguments for LIBSVM interface.
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Relevance Vector Regression}
+Relevance Vector Regression. Tipping, Michael E.; Smola, Alex (2001).
+
+"Sparse Bayesian Learning and the Relevance Vector Machine". Journal of Machine Learning Research 1: 211?244.
+
+
+\textbf{Gaussian Process Regression}
+Gaussian Process Regression
+
+
+\textsc{String arguments}
+String arguments for GMPL machine prt\_machine\_gpr.
+
+
+\textbf{Multi-Kernel Regression}
+Multi-Kernel Regression
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Custom machine}
+Choose another prediction machine
+
+
+\textsc{Function}
+Choose a function that will perform prediction.
+
+
+\textsc{Custom machine string argument}
+String argument for custom machine.
+
+
+\textsc{Custom machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Enter parameter fixed value if needed.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Hyper-parameter range for prediction machine.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\subparagraph{Non-kernel machine}
+Choose a non-kernel prediction machine for this model
+
+
+\textbf{epsilon-SVR}
+Non-kernel epsilon-Support Vector Regression from LIBLINEAR.
+
+
+\textsc{String arguments}
+String arguments for LIBLINEAR interface.
+
+
+\textsc{Machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Getting default value.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Value(s) for hyper-parameter. Examples: 10.\^[-2:5] or 1:100:1000 or 0.01 0.1 1 10 100.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\textbf{Custom machine}
+Choose another prediction machine
+
+
+\textsc{Function}
+Choose a function that will perform prediction.
+
+
+\textsc{Custom machine string argument}
+String argument for custom machine.
+
+
+\textsc{Custom machine optimization and parameters}
+Choose whether to optimize machine or not
+
+
+\textsl{No optimization}
+Enter parameter fixed value if needed.
+
+
+\textsl{Optimize hyper-parameter}
+Specify range of values and nested CV.
+
+
+\textit{Regularization hyper-parameter}
+Hyper-parameter range for prediction machine.
+
+
+\textit{Cross-validation type for hyper-parameter optimization}
+Choose the type of cross-validation to be used
+
+
+\textit{Leave one subject out}
+Leave a single subject out each cross-validation iteration
+
+
+\textit{k-folds CV on subjects}
+k-partitioning of subjects at each cross-validation iteration
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one subject per group out}
+Leave out a single subject from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k-folds CV on subjects per group}
+K-partitioning of subjects from each group at a time. Appropriate for repeated measures or paired samples designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block out}
+Leave out a single block or event from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on blocks}
+k-partitioning on blocks or events from each subject each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one block per class out}
+Leave out a single block or event from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k-folds CV on block per class}
+k-partitioning on blocks or events from each class each iteration. Appropriate for single subject designs.
+
+
+\textit{k}
+Number of folds/partitions for CV. To create a 50%-50%,choose k as 2. Please note that there can be more partitions than specified when leaving subjects per group out. Also note that leaving more than 50% of the data out is not permitted.
+
+
+\textit{Leave one run/session out}
+Leave out a single run (modality) from each subject each iteration. Appropriate for single subject designs with multiple runs/sessions.
+
+
+\subsubsection{Data operations}
+Specify operations to apply
+
+
+\paragraph{Mean centre features}
+Select an operation to apply.
+
+
+\paragraph{Other Operations}
+Include other operations?
+
+
+\subparagraph{No operations}
+No design specified. This option can be used for modalities (e.g. structural scans) that do not have an experimental design or for an fMRI designwhere you want to include all scans in the timeseries
+
+
+\subparagraph{Select Operations}
+Add zero or more operations to be applied to the data before the prediction machine is called. These are executed within the cross-validation loop (i.e. they respect training/test independence) and will be executed in the order specified. 
+
+
+\textbf{Operation}
+Select an operation to apply.
+
