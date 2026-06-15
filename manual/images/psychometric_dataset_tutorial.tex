@@ -131,7 +131,7 @@ After you are finished with the ANX modality, repeat the procedure for the other
 		
 	\item Select the `k-fold CV on Subjects per Class' cross-validation scheme (external loop), again with k=5; 
 	
-	\item In the `Data operations' box, select the `Mean centre features using training data' and `{\color{black}Normalize samples/kernels'} options Then, the `Specify model' window should look similar to the one in Figure \ref{fig:psychometric_dataset_gui_specify_model_new_final};
+	\item In the `Data operations' box, select the `Mean centre features using training data' and `Normalize samples' options Then, the `Specify model' window should look similar to the one in Figure \ref{fig:psychometric_dataset_gui_specify_model_new_final};
 	
 	\item Click on `Specify and run model' and the model will be immediately estimated, therefore there is no need to use the `Run model' module in this case. If however you wanted to check the statistical significance of your results, you need to use the `Run model' module in order to do permutation testing. It will take a few minutes to complete.
 
@@ -140,7 +140,7 @@ After you are finished with the ANX modality, repeat the procedure for the other
 The MKL machine will learns the contribution of each scale (scales or kernel weights) and the contribution of each question within each scale (questions weights) to build the prediction function.
 \\
 
-For this dataset, it could be useful to also run the analysis with a non-kernel method, like L1-SVM. Just repeat the steps as described above, unclick the “Use Kernel” option, choose the ‘Binary L1-SVM’ machine and do not include the ‘{\color{black}Normalize samples/kernels}’ data operation.
+For this dataset, it could be useful to also run the analysis with a non-kernel method, like L1-SVM. Just repeat the steps as described above, unclick the “Use Kernel” option, choose the ‘Binary L1-SVM’ machine and do not include the ‘Normalize samples’ data operation.
 
 
 
@@ -350,7 +350,7 @@ Most differences will be in this module.
 
 \end{itemize}
 
-For this dataset, it could be useful to also run the analysis with a multiple kernel method, like MKL so that we also learn the weight contribution of each feature set or modality independently. Just repeat the steps as described above, click the “Use Kernel” option, choose the MKL machine and include the ‘{\color{black}Normalize samples/kernels}’ data operation.
+For this dataset, it could be useful to also run the analysis with a multiple kernel method, like MKL so that we also learn the weight contribution of each feature set or modality independently. Just repeat the steps as described above, click the “Use Kernel” option, choose the MKL machine and include the ‘Normalize samples’ data operation.
 
 
 % %--------------------------------------------------------------------

@@ -1,4 +1,3 @@
-% ===== CHANGES FOR v3.1 — modified text shown in red =====
 % $Id$
 
 \chapter{Introduction}
@@ -21,7 +20,7 @@ Therefore, there has been an increasing interest in investigating this spatially
 Several active areas of research in machine learning are crucially important for the difficult problem of neuroimaging data analysis: modelling of high-dimensional multivariate time series, sparsity, regularisation, dimensionality reduction, causal modelling, and ensembling to name a few. However, the application of pattern recognition approaches to the analysis of neuroimaging data is limited mainly by the lack of user-friendly and comprehensive tools available to the fundamental, cognitive, and clinical neuroscience communities. Furthermore, it is not uncommon for these methods to be used incorrectly, with the most typical case being improper separation of training and testing datasets.
 \\
 
-\noindent \textbf{Note:} PRoNTo (Pattern Recognition for Neuroimaging Toolbox) is first and foremost a machine learning tool used for neuroimaging analyses, so throughout the manual we mostly refer to examples that focus on neuroimaging data. That being said, since from version 3.0 PRoNTo supports MEEG (SPM) data as well as any .mat file, one can use PRoNTo to analyze for example MEEG data in sensor space (2D, or even 1D), or yet any kind of .mat file, such as behavior data. However, it is best to use PRoNTo primarily for neuroimaging data which is its original purpose or to build multi-modal predictive models including imaging and non-imaging information. So from the current release, we will refer to our data with the general term `samples' and `features', instead of referring to `voxels' as our features. The reason is that from the current release we have expanded our functionalities to include data that are not 3D, and therefore they do not have `voxels' as features.
+\noindent \textbf{Note:} PRoNTo (Pattern Recognition for Neuroimaging Toolbox) is first and foremost a machine learning tool used for neuroimaging analyses, so throughout the manual we mostly refer to examples that focus on neuroimaging data. That being said, since from the current release PRoNTo supports MEEG (SPM) data as well as any .mat file, one can use PRoNTo to analyze for example MEEG data in sensor space (2D, or even 1D), or yet any kind of .mat file, such as behavior data. However, it is best to use PRoNTo primarily for neuroimaging data which is its original purpose or to build multi-modal predictive models including imaging and non-imaging information. So from the current release, we will refer to our data with the general term `samples' and `features', instead of referring to `voxels' as our features. The reason is that from the current release we have expanded our functionalities to include data that are not 3D, and therefore they do not have `voxels' as features.
 \\
 
 %==========================
@@ -60,7 +59,7 @@ Finally, the model weights can be displayed only for 1D and 2D MEEG or .mat inpu
 
 \subsection{Machine learning algorithms}
 
-In PRoNTo different pattern recognition algorithms correspond to different machines. {\color{black}The machine library in PRoNTo v3.1 includes three single kernel classification algorithms: Support Vector Machine (\cite{Cristianini2000}, \cite{Mourao-Miranda2007}), Gaussian Process Classifier (binary and multiclass, \cite{Rasmussen2006}, \cite{Marquand2010}), and two multiple kernel classification algorithms: L1 Multi-Kernel Learning \cite{Rakotomamonjy2008} and Elastic-net Multiple Kernel Learning SVM (ENMKL-SVM) \cite{MouraoMiranda2025}. There are also four single kernel regression algorithms available: Kernel Ridge Regression \cite{ShaweTaylor2004}, Relevance Vector Regression \cite{Tipping2001}, Gaussian Process Regression \cite{Rasmussen2006} and linear epsilon-insensitive SVM ($\epsilon$-SVM) regression, and two multiple kernel regression algorithms: L1 Multi-Kernel regression \cite{Rakotomamonjy2008} and Elastic-net Multiple Kernel Learning KRR (ENMKL-KRR) \cite{MouraoMiranda2025}. From the current release there is also the option of using non-kernel machines in addition to the kernel ones. So there are 5 available non-kernel classification algorithms: Binary SVM using L1 and L2 loss, Multiclass SVM, as well as Logistic Regression using L1 and L2 loss (\cite{chang2011libsvm, fan2008liblinear}). Finally, for regression there is only the linear epsilon-insensitive SVM ($\epsilon$-SVM) at the moment.}
+In PRoNTo different pattern recognition algorithms correspond to different machines. The machine library in PRoNTo v3.0 includes three pattern classification algorithms: Support Vector Machine (\cite{Cristianini2000}, \cite{Mourao-Miranda2007}), Gaussian Process Classifier (binary and multiclass, \cite{Rasmussen2006}, \cite{Marquand2010}) and L1 Multi-Kernel Learning \cite{Rakotomamonjy2008}. There are also five pattern regression algorithms available: Kernel Ridge Regression \cite{ShaweTaylor2004}, Relevance Vector Regression \cite{Tipping2001}, Gaussian Process Regression \cite{Rasmussen2006}, linear epsilon-insensitive SVM ($\epsilon$-SVM) regression, and L1 Multi-Kernel regression \cite{Rakotomamonjy2008}. From the current release there is also the option of using non-kernel machines in addition to the kernel ones. So there are 5 available non-kernel classification algorithms: Binary SVM using L1 and L2 loss, Multiclass SVM, as well as Logistic Regression using L1 and L2 loss (\cite{chang2011libsvm, fan2008liblinear}). Finally, for regression there is only the linear epsilon-insensitive SVM ($\epsilon$-SVM) at the moment.
 \\
 
 
@@ -74,12 +73,12 @@ PRoNTo was developed with the aim of facilitating the interaction between machin
 
 In order to work properly, PRoNTo requires 2 other softwares:
 \bi
-\item {\color{black}A recent version of \matlab. PRoNTo is compatible with \matlab{} R2017b--R2024b. The Statistics Toolbox of \matlab{} is required for some plots. PRoNTo has not been extensively tested with \matlab{} R2025a or later versions. In particular, minor GUI window display issues and a known file selector error may appear.}
+\item A recent version of \matlab. We used versions 7.5 (R2007b) to 9.4 (R2018a) to develop PRoNTo, and PRoNTo will not work with earlier versions\footnote{Any later \matlab{}~version should work, {\it in principle}.}. The statistics toolbox of \matlab{} is also required. Note: Windows and Mac users may encounter compiler issues when using R2016b and R2017b. Files may need to be compiled again. Users can install the \matlab{} required compiler from Add-Ons, or by manually downloading \href{https://www.mingw-w64.org/}{MinGW}.
 
-\item {\color{black}SPM12, SPM25 or SPM26. SPM25 or SPM26 recommended. SPM can be downloaded from \url{https://www.fil.ion.ucl.ac.uk/spm/}.}
+\item SPM12 \cite{SPM8} installed on your computer\footnote{SPM12 can be dowloaded from the following website: \url{http://www.fil.ion.ucl.ac.uk/spm/software/}.  You should install it in a suitable directory, for example {\tt C:\bslash SPM12\bslash }, then make sure that this directory is on the \matlab{} path. No need to include the subdirectories!}. Users are recommended to have the latest updates by typing: spm\_update (check if there are new updates available) and spm\_update update (start updating files). \textbf{Important note}: if you already have a version of SPM on your computer, please update it. Various bugs, especially in terms of weight visualization, arise from out of date SPM versions.
 \ei
 
-{\color{black}PRoNTo latest public version can be downloaded from the following address: \url{https://github.com/MLNL/PRoNTo/releases}.}
+PRoNTo latest public version can be downloaded, after registration, from the following address: \url{http://www.mlnl.cs.ucl.ac.uk/pronto/prtsoftware.html}.
 
 
 \subsection{Installation}
@@ -94,7 +93,7 @@ After downloading the zipped file containing PRoNTo, the installation proceeds a
 \item	Click on save.
 \end{enumerate}
 
-{\color{black}Some routines, in particular the `machines', are written in C++ ({\tt .cpp} files) for increased efficiency. Pre-compiled MEX binaries are provided for: Windows 64-bit ({\tt .mexw64}), Mac Intel 64-bit ({\tt .mexmaci64}), Mac Apple Silicon ({\tt .mexmaca64}), and Linux 64-bit ({\tt .mexa64}). If your platform is not listed or routines do not work properly then you should compile the routines for your specific OS.} 
+Some routines, in particular the `machines', are written in C++ ({\tt .cpp} files) for increased efficiency. We are trying to provide these compiled routines for the usual Operating Systems (OS's) such as: Windows XP (32 bits), Windows 7/10 (64 bits), Mac OS 10 and Linux (32 and 64 bits). If your OS is not listed or routines do not work properly then you should compile the routines for your specific OS. 
 
 \subsection{Launching and batching}
 %--------------------------------------
@@ -114,21 +113,21 @@ Of course most tools can also be called individually by calling them directly fr
 \subsection{Troubleshooting}
 %--------------------------------------
 
-{\color{black}Pre-compiled MEX binaries are provided for Windows 64-bit, Mac Intel, Mac Apple Silicon, and Linux 64-bit systems. Note for Linux users: liblinear binaries are not included for Linux 64-bit --- users wishing to use non-kernel machines on Linux will need to compile LIBLINEAR manually (see instructions below). Mac users with Apple Silicon can use the included {\tt .mexmaca64} binaries with no recompilation needed. However, if your system specifications do not align with those above, making new MEX files is necessary. In such cases you will most likely hit an error. Please follow the instructions below in case this happens.}
+MEX files are provided for 64 bit Windows, MacOS and Linux (Ubuntu/Debian) systems. However, if your system specifications do not align with those above, making new MEX files is necessary. In such cases you will most likely hit an error. Please follow the instructions below in case this happens.
 
 \subsubsection{Compiling LIBSVM}
-{\color{black}Some problems when using SVMs might also arise due to LIBSVM, in which case, you might need to compile it on your own. The first thing that needs to be done is to download the desired LIBSVM version (usually the latest one) from the following website: \url{https://www.csie.ntu.edu.tw/~cjlin/libsvm/}. Then, the process will depend on your operating system.}
+Some problems when using SVMs might also arise due to LIBSVM, in which case, you might need to compile it on your own. The first thing that needs to be done is to download the desired LIBSVM version (usually the latest one) from the following website: \url{http://www.csie.ntu.edu.tw/~cjlin/libsvm/}. Then, the process will depend on your operating system.
 
-{\color{black}If the steps described below do not work, please refer to the {\tt README} file that comes with LIBSVM.}
+If the steps described bellow do not work, please refer to the {\tt README} file that comes with LIBSVM.
 
 \paragraph{Microsoft Windows}
 \begin{itemize}
     \item Make sure you have a C++ compiler install. If not, you can install Microsoft Visual C/C++;
     \item Copy the libsvm folder to the `machines' directory of your PRoNTo instalation\\(e.g. C:\bslash PRoNTo\bslash machines\bslash);
-    \item {\color{black}Open a Developer Command Prompt for Visual Studio and change to the libsvm folder:\\{\tt cd C:\bslash PRoNTo\bslash machines\bslash libsvm-3.20\bslash}\\If the environment variables have not been set, run the {\tt vcvars64.bat} script from your Visual Studio installation directory;}
+    \item Open a DOS command window and change to the libsvm folder in the previous step ({\tt cd C:\bslash PRoNTo\bslash machines\bslash libsvm-3.17\bslash}). If the environment variables of VC++ have not been set, run the following command:\\{\tt C:\bslash Program Files\bslash Microsoft Visual Studio 10.0\bslash VC\bslash bin\bslash vcvars32.bat}. This command might be different, depending on the path of your Visual Studio installation;
     \item In the libsvm folder run the command: {\tt nmake -f Makefile.win clean all} 
     \item If no errors appear, open \matlab;
-    \item {\color{black}Change to the `matlab' folder inside the libsvm folder (e.g. C:\bslash PRoNTo\bslash machines\bslash libsvm-3.20\bslash matlab\bslash);}
+    \item Change to the `matlab' folder inside the libsvm folder (e.g. C:\bslash PRoNTo\bslash machines\bslash libsvm-3.17 \bslash matlab\bslash);
     \item Run {\tt make} in the \matlab{} Command Window. If there are no errors, you have just successfully compiled LIBSVM to be used with \matlab.
 \end{itemize}
 
@@ -139,11 +138,11 @@ Remember, if you want to use the version that you have just compiled, you have t
 
 \begin{itemize}
     \item Make sure you have a C++ compiler installed. If you are using Mac OS, please install `Xcode'. On Linux systems, you should already have `gcc' installed;
-    \item {\color{black}Copy the libsvm-3.20 folder to the `machines' directory of your PRoNTo installation\\(e.g. {\tt /home/<username>/PRoNTo/machines/});}
+    \item Copy the libsvm folder to the `machines' directory of your PRoNTo instalation\\(e.g. {\tt /home/<username>/PRoNTo/machines/});
     \item Open a terminal window and change to the `machines' directory: {\tt cd PRoNTo/machines/}
     \item Compile libsvm by running the following command: {\tt make}
     \item If no errors appear, open \matlab;
-    \item {\color{black}Change to the `matlab' folder inside the libsvm folder (e.g. PRoNTo/machines/libsvm-3.20/matlab/);}
+    \item Change to the `matlab' folder inside the libsvm folder (e.g. PRoNTo/machines/libsvm-3.17/matlab/);
     \item Run {\tt make} in the \matlab{} Command Window. If there are no errors, you have just successfully compiled LIBSVM to be used with \matlab.
 \end{itemize}
 
@@ -159,49 +158,9 @@ In case there are compiler problems when using GPs due to GPML, you will need to
 \ei
 
 
-{\color{black}\subsubsection{Compiling LIBLINEAR}
-
-PRoNTo uses LIBLINEAR for non-kernel machines (e.g. L1/L2-SVM, logistic regression). Pre-compiled binaries are included for Windows 64-bit, Mac Intel and Mac Apple Silicon. Linux users and anyone needing to recompile should follow the instructions below.
-
-\textbf{Note:} liblinear binaries are not included for Linux 64-bit. Linux users wishing to use non-kernel machines must compile LIBLINEAR manually.
-
-\paragraph{Microsoft Windows}
-\begin{itemize}
-    \item Make sure you have a C++ compiler installed (e.g. Microsoft Visual C/C++ via Visual Studio);
-    \item Copy the liblinear folder to the `machines' directory of your PRoNTo installation\\(e.g. C:\bslash PRoNTo\bslash machines\bslash);
-    \item Open a Developer Command Prompt for Visual Studio and change to the liblinear folder:\\{\tt cd C:\bslash PRoNTo\bslash machines\bslash liblinear-2.20\bslash}
-    \item Run the command: {\tt nmake -f Makefile.win}
-    \item If no errors appear, open \matlab;
-    \item Change to the `matlab' folder inside the liblinear folder\\(e.g. C:\bslash PRoNTo\bslash machines\bslash liblinear-2.20\bslash matlab\bslash);
-    \item Run {\tt make} in the \matlab{} Command Window. If there are no errors, you have successfully compiled LIBLINEAR for use with \matlab.
-\end{itemize}
-
-\paragraph{Unix (Mac OS or Linux)}
-\begin{itemize}
-    \item Make sure you have a C++ compiler installed. On Mac OS, install Xcode; on Linux, {\tt gcc} should already be available;
-    \item Copy the liblinear folder to the `machines' directory of your PRoNTo installation\\(e.g. {\tt /home/<username>/PRoNTo/machines/});
-    \item Open a terminal and change to the liblinear directory: {\tt cd PRoNTo/machines/liblinear-2.20/}
-    \item Compile LIBLINEAR by running: {\tt make}
-    \item If no errors appear, open \matlab;
-    \item Change to the `matlab' folder inside the liblinear folder\\(e.g. {\tt PRoNTo/machines/liblinear-2.20/matlab/});
-    \item Run {\tt make} in the \matlab{} Command Window. If there are no errors, you have successfully compiled LIBLINEAR for use with \matlab.
-\end{itemize}
-
-Remember to add the liblinear folder to your \matlab{} path. You should only have one liblinear folder in your path.}
-
-
 %==========================
 \section{What's new?}
 %==========================
-
-{\color{black}\subsection{Version 3.1}}
-{\color{black}
-\begin{itemize}
-    \item \textbf{New machines:} PRoNTo v3.1 includes two new machine learning methods based on elastic-net regularisation for Multiple Kernel Learning (MKL): ENMKL-SVM (classification) and ENMKL-KRR (regression). Both methods simultaneously learn a combination of kernels and a classifier or regression function, with the kernel weights regularised using an elastic-net penalty (a combination of L1 and L2 norms) that promotes both sparsity and the selection of correlated kernels. The mixing parameter $\mu \in (0,1]$ controls the balance between the two norms. Both methods require multiple kernels as input (e.g. one kernel per region of interest or per modality). For a full description see \cite{MouraoMiranda2025}.
-    \item \textbf{Interface changes:} `Normalise samples' has been renamed to `Normalise samples/kernels' to clarify that the operation applies to both data samples and kernel matrices. Note that the figures in the manual have not been updated since version 3.0 and might still display `Normalise samples'.
-    \item \textbf{Compatibility:} PRoNTo v3.1 was developed and tested with \matlab{} R2017b--R2024b and SPM12, SPM25 or SPM26.
-\end{itemize}
-}
 
 \subsection{Version 3.0}
 \label{ssec:whats_new_v3}
@@ -342,18 +301,11 @@ Please cite:
 \item Schrouff J, Monteiro, JM, Portugal L, Rosa MJ, Phillips C, Mourao-Miranda J. \href{https://doi.org/10.1007/s12021-017-9347-8}{Embedding Anatomical or Functional Knowledge in Whole-Brain Multiple Kernel Learning Models}. Neuroinformatics, 2018, 16(1), 117-143. 
 \ei
 
-\noindent When using a posteriori weight summarization with atlas-defined regions of interest one should also refer to:
+\noindent And finally when using a posteriori weight summarization with atlas-defined regions of interest one should also refer to:
 
 \bi
 \item Schrouff J, Cremers J, Garraux G, Baldassarre L, Mourao-Miranda J, Phillips C. \href{https://doi.org/10.1109/PRNI.2013.40}{Localizing and Comparing Weight Maps Generated from Linear Kernel Machine Learning Models}. International Workshop on Pattern Recognition in Neuroimaging (PRNI), 2013, 124-127, DOI: 10.1109/PRNI.2013.40.
 \ei
-
-{\color{black}\noindent When using Elastic-net Multiple Kernel Learning (ENMKL), please cite:
-
-\bi
-\item Mour\~{a}o-Miranda J, Hussain Z, Tsirlis K, Phillips C, Shawe-Taylor J. \href{https://arxiv.org/abs/2512.11547}{Elastic-Net Multiple Kernel Learning: Combining Multiple Data Sources for Prediction}. arXiv preprint, arXiv:2512.11547, 2025.
-\ei
-}
 
 
 
@@ -367,11 +319,10 @@ The first version of the `Pattern Recognition for Neuroimaging Toolbox', aka. PR
 The original development group included Janaina Mourao-Miranda, Christophe Phillips, Jessica Schrouff, John Ashburner, Maria Joao Rosa, Jonas Richiardi, Andre Marquand, Jane Rondina and Carlton Chu. The motivation to develop PRoNTo stemmed from the unmet need of a flexible pattern recognition analysis framework that would accommodate different types of neuroimaging data, could address various research questions, and be safely used by neuroimagers who are non-expert in machine learning. As the team included \href{https://www.fil.ion.ucl.ac.uk/spm/}{SPM} developers (John Ashburner and Christophe Phillips) PRoNTo took advantage of many of the SPM existing functions, such as those for file handling and image display, as well as the batch system (\href{https://sourceforge.net/projects/matlabbatch/}{Glauch V.}).
 \\
 
-Over the years, new contributors have joined the development group and PRoNTo was further extended to include new functionalities, such as flexible cross-validation frameworks, option to remove effect of confounds, and atlas based multiple kernel learning (PRoNTo versions 1.1, 2.0, 2.1). In particular, Jessica Schrouff has been a major contributor of PRoNTo from its inception till version 3.0. {\color{black}PRoNTo v3.0 accepts multiple data formats and enables the building of multimodal predictive models. PRoNTo v3.0 was supported by the \href{http://www.wellcome.org/}{Wellcome Trust}.}
-
-{\color{black}PRoNTo v3.1 (2026) extends v3.0 with the Elastic-net Multiple Kernel Learning (ENMKL) algorithm for multi-source prediction \cite{MouraoMiranda2025}. PRoNTo v3.1 was led by Prof.\ Janaina Mourao-Miranda and co-supervised by Prof.\ Christophe Phillips. Konstantinos Tsirlis was responsible for the development, management and maintenance.} 
+Over the years, new contributors have joined the development group and PRoNTo was further extended to include new functionalities, such as flexible cross-validation frameworks, option to remove effect of confounds, and atlas based multiple kernel learning (PRoNTo versions 1.1, 2.0, 2.1). In particular, Jessica Schrouff has been a major contributor of PRoNTo from its inception till version 3.0. PRoNTo's latest version (PRoNTo v3.0) now accepts multiple data formats and enables the building of multimodal predictive models. The latest versions of PRoNTo have been supported by the \href{http://www.wellcome.org/}{Wellcome Trust}. 
 \\
 
+Currently, the PRoNTo project is led by Prof Janaina Mourao-Miranda and co-supervised by Prof Christophe Phillips. Konstantinos Tsirlis supports the PRoNTo developments and is in charge of its management and maintenance. Contributions (e.g. new features, debugging, manual, demonstration data) are mostly provided by Prof Janaina Mourao-Miranda's group and collaborators but external contributions are welcome.
 
 
 %==========================
@@ -384,15 +335,15 @@ The main contributors, in alphabetical order, are:
 	\item[Dr. John Ashburner] is a Professor of Imaging Science at the Wellcome Trust Centre for Neuroimaging at the University College London Institute of Neurology. He is mainly interested in modelling brain anatomy from MR scans, and more recently in applying pattern recognition methods to make predictions about individual subjects. He is a co-developer of the SPM software (intra- and inter-subject registration, tissue classification, visualization and image file formats), which is used internationally by thousands of neuroimaging researchers. He has a Web of Science h-index of 98.  He did not contribute any actual code to PRoNTo, but he did attend many of the meetings;
     \item[Dr. Carlton Chu] is a research scientist at  Google DeepMind. Before joining DeepMind, he was a research fellow in brain imaging at the National Institute of Mental Health (NIMH), NIH. He received the B.Eng. degree (1\textsuperscript{st} class Honours) from Auckland University, in 2002 and the master of Biomedical Engineering from University of New South Wales, in 2004. Carlton obtained a PhD in Neuroimaging method from University College London in 2009, working in the statistical methods group at the Wellcome Trust Centre for Neuroimaging, creators of the famous ``SPM'' program. There he developed innovative pattern recognition methods to automatically detect the early stages of neurodegenerative diseases such as Alzheimer's and Huntingdon's from structural brain images. In 2007, Carlton won the first prize in the 2nd Pittsburgh Brain Activity Interpretation Competition (PBAIC), a prestigious international competition involving the application of machine learning to the problem of classification of brain activity. He led a small research team to victory, acclaim from peers in the field, and the \$10K first prize. His current research interests include image segmentation using convolutional neural networks and applications of deep-learning. Carlton was involved in the development of PRoNTo v1.0;
 	\item[Dr. Andre Marquand] is a Principal Investigator and an assistant professor at the Donders Institute for Brain Cognition and Behaviour. His research focuses on the application of probabilistic machine learning techniques to neuroimaging data, particularly for clinical applications. His recent work includes the development of multi-class, multi-task and multi-modality pattern classification methods that offer many advantages over current techniques including more sensitive and specific detection of disease effects. He did his PhD in Clinical Neuroscience, King's College London, UK. Andre was involved in the developement of PRoNTo v1.0;
-	\item[Prof Janaina Mourao-Miranda] is a Wellcome Trust Senior Research Fellow and a Professorial Research Associate at the Centre for Medical Image Computing (CMIC), Computer Science Department, UCL. Over the past years her research has involved developing and applying pattern recognition methods to analyze neuroimaging data, in particular brain activation and structural patterns that distinguish between controls and patients. Her current research focuses on developing machine-learning models to investigate complex relationships between neuroimaging data and multidimensional descriptions of mental health disorders. {\color{black}Janaina has been leading the PRoNTo project since 2011 and has contributed to PRoNTo v1.0, v1.1, v2.0, v2.1, v3.0 and v3.1;}
+	\item[Prof Janaina Mourao-Miranda] is a Wellcome Trust Senior Research Fellow and a Professorial Research Associate at the Centre for Medical Image Computing (CMIC), Computer Science Department, UCL. Over the past years her research has involved developing and applying pattern recognition methods to analyze neuroimaging data, in particular brain activation and structural patterns that distinguish between controls and patients. Her current research focuses on developing machine-learning models to investigate complex relationships between neuroimaging data and multidimensional descriptions of mental health disorders. Janaina has been leading the PRoNTo project since 2011 and has contributed to PRoNTo v1.0, v1.1, v2.0, v2.1 and v3.0;
 	\item[Dr. Joao M. Monteiro] is a former MPhil/PhD Student at University College London under the supervision of Prof John Shawe-Taylor and Dr. Janaina Mourao-Miranda. His research focused on the application of unsupervised machine learning methods to neuroimaging. He contributed to PRoNTo v1.1, v2.0 and v2.1;
-	\item[Dr. Christophe Phillips] is Research Director at the GIGA Cyclotron Research Centre in vivo imaging and Associate Professor at the Department of Electrical Engineering and Computer Science, University of Li\`ege, Belgium. His research focuses on the processing of multi-modal neuroimaging data. Recent work within the field of ``brain decoding'' aimed at distinguishing between levels of consciousness in unresponsive patients or between typical and atypical Parkinson Disease patients using Positron Emission Tomography (PET) imaging, as well as tracking mnesic traces in trained healthy subjects with fMRI. {\color{black}Christophe contributed to PRoNTo v1.0, v1.1, v2.0, v2.1, v3.0 and v3.1;}
+	\item[Dr. Christophe Phillips] is Research Director at the GIGA Cyclotron Research Centre in vivo imaging and Associate Professor at the Department of Electrical Engineering and Computer Science, University of Li\`ege, Belgium. His research focuses on the processing of multi-modal neuroimaging data. Recent work within the field of ``brain decoding'' aimed at distinguishing between levels of consciousness in unresponsive patients or between typical and atypical Parkinson Disease patients using Positron Emission Tomography (PET) imaging, as well as tracking mnesic traces in trained healthy subjects with fMRI. Christophe contributed to PRoNTo v1.0, v1.1, v2.0, v2.1 and v3.0;
 	\item[Dr. Anil Rao] was a post-doctoral researcher in Centre for Medical Image Computing (CMIC) and Max Planck University College London Centre for Computational Psychiatry and Ageing Research at the University College London. He contributed to version 2.1, in particular to the removing confounds functionality.    
 	\item[Dr. Jonas Richiardi] is currently Clinical Research Lead in the Department of Radiology, Lausanne University Hospital, with a joint affiliation to Siemens Healthcare Switzerland's Advanced Clinical Imaging Technology group. He was previously a Marie Curie Fellow with a project on `Modelling and Inference on brain Networks for Diagnosis', jointly affiliated to the FINDlab at Stanford University and LabNIC at the University of Geneva. His research interests include the combination of imaging modalities with other biological information sources including genomic data, learning with graphs, machine learning for neuroimaging, brain connectivity / resting-state data analysis, interpretability of brain decoding results, and functional biomarkers. Jonas contributed to PRoNTo v1.0 and v1.1;
 	\item[Dr. Jane Rondina] is a research fellow at the University College London Institute of Neurology. Previously, she was a post-doctoral research associate at the Centre for Neuroimaging Sciences, King's College London. In the past years, her research has involved application of pattern recognition methods to neuroimaging data and development of a stability-based method for feature selection and mapping in neuroimaging. Her current research focuses on prognosis and prediction of treatment response, mainly addressing approaches to combine complementary information from different imaging modalities and other sources of data (clinical, demographic and genetic). She contributed to the development of PRoNTo v1.0 and v2.0;
 	\item[Dr. Maria J. Rosa] is an Advanced Support Engineer at MathWorks. Before joining Mathworks, she was an imaging scientist at IXICO, plc. Before, she was a Post-Doctoral Research Fellow at the Institute of Psychiatry, King's College London (KCL) and a Wellcome Trust post doctoral research associate at the Centre for Computational Statistics and Machine Learning (CSML), UCL. Maria's main area of work is the development and application of machine learning and multivariate methods to neuroimaging data. She did her PhD at the Wellcome Trust Centre for Neuroimaging, UCL. She contributed to PRoNTo v1.0, v1.1, v2.0 and materials for v3.0;
 	\item[Dr. Jessica Schrouff] got her PhD from the University of Li\`ege, under the supervision of Dr. C. Phillips. She was a post-doctoral researcher at the Laboratory of Behavioral and Cognitive Neuroscience, Stanford University before obtaining a Marie Curie fellowship with University College London. Her research applied machine learning techniques to neuroimaging data (both cognitive and clinical neuroscience) and investigated the limitations of such models, especially in terms of interpretation. Jessica now pursues related work at Google Health. She contributed to PRoNTo versions 1.0, 1.1, 2.0, 2.1 and was a major contributor to v3.0;
-	\item[Konstantinos Tsirlis] has a background in Physics, Neuroscience and Machine Learning. His M.Sc. Thesis was in Causal Structure Learning where he implemented a novel hybrid method for learning the causal structure of continuous data in the presence of latent confounders. Before joining CMIC he was involved in various computational and experimental neuroscience projects, and two causal discovery and bioinformatics projects. {\color{black}He was a Research Software Engineer in the MLNL lab, focusing on developments in PRoNTo v3.0 and v3.1, as well as some machine learning projects.}
+	\item[Konstantinos Tsirlis] has a background in Physics, Neuroscience and Machine Learning. His M.Sc. Thesis was in Causal Structure Learning where he implemented a novel hybrid method for learning the causal structure of continuous data in the presence of latent confounders. Before joining CMIC he was involved in various computational and experimental neuroscience projects, and two causal discovery and bioinformatics projects. He is currently a Research Software Engineer in the lab, focusing on developments in PRoNTo v3.0, as well as some machine learning projects.
 	\item[Dr. Tong Wu] got her PhD from the University of Queensland in Australia, under supervision of Dr. Tianzi Jiang, Dr. David Reutens and Dr. Simone Bosshard. She was a post-doctoral researcher in Centre for Medical Image Computing (CMIC) at University College London. Her research focus during PhD was resting-state mouse fMRI in both wild type mice and a schizophrenia mouse model. She contributed to PRoNTo v2.1 and was involved in PRoNTo v3.0.
 	
 \end{description}

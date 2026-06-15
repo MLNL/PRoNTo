@@ -118,7 +118,7 @@ As in previous Chapters, we will start analyzing the data with PRoNTo's GUI and 
 	
 	\item Similar to the inner loop, select the `k-folds CV on Subject per Class' cross-validation scheme for the external loop, where k=10.
 	
-	\item In the `Data operations' box, select the `Mean centre features using training data', `Normalize samples' and `Regress out covariates (subject level)' option. The `Regress out covariates (subject level)' option corresponds to the "regressing out" effect of confounds from the data. Note that the order of the operations is important and can affect the results. However, when selected, the `Regress out covariates' option will be performed first (even if not selected as first). Then, the `Specify model' window should look similar to (Figure \ref{fig:confounds_gui_specify_model_new_final}). Click on the `Specify and run model' button.
+	\item In the `Data operations' box, select the `Mean centre features using training data', `{\color{black}Normalize samples/kernels'} and `Regress out covariates (subject level)' option. The `Regress out covariates (subject level)' option corresponds to the "regressing out" effect of confounds from the data. Note that the order of the operations is important and can affect the results. However, when selected, the `Regress out covariates' option will be performed first (even if not selected as first). Then, the `Specify model' window should look similar to (Figure \ref{fig:confounds_gui_specify_model_new_final}). Click on the `Specify and run model' button.
 	
 	\item Remember that if you want to check the statistical significance of the results you should specify your models here and run them using the `Model: Run' module where you will have the option of choosing or not to run permutation tests.
 	
@@ -325,7 +325,7 @@ The batch can either be run directly or the following modules can be added to co
 		\begin{itemize}
 		\item  Leave the `Mean centre features' field as it is, i.e. `Yes'. 
 				
-		\item  Click on the `Other Operations' button, choose `Select operations', `New Operation' and select the `Normalize samples'. 
+		\item  Click on the `Other Operations' button, choose `Select operations', `New Operation' and select the `{\color{black}Normalize samples/kernels'}. 
 		
 		\item Click `Select operations', `New Operation', and select `Regress out covariates (subject level)' option from the list. 
 		\end{itemize}

@@ -353,7 +353,7 @@ If for example you want to do a quick check of the feature set that you input in
 \noindent \textbf{\underline{MKL model}}
 \\
 
-We can also build multimodal models in PRoNTo and use it to investigate the different contribution of each modality for the predictive model. In this example we can use the MKL model to investigate which modality contains most information for the `Faces' versus `Scrambled' comparison, and see if using different features improves performance when compared to the single modalities. So use the `Specify model from' module again, but this time instead of having only one feature set, add all feature sets to the model. You will also need to change the machine to the `L1 Multi-Kernel Learning'. Finally you will also need to add the `{\color{black}Normalize samples/kernels'} operation in the `Data operations' to compensate for the fact that different modalities have different numbers of features. Leave all the other options as they are. The `Specify model from' window for the MKL model should look similar to the one in figure \ref{fig:multimodal_face_gui_specify_model_from_mkl_final}.
+We can also build multimodal models in PRoNTo and use it to investigate the different contribution of each modality for the predictive model. In this example we can use the MKL model to investigate which modality contains most information for the `Faces' versus `Scrambled' comparison, and see if using different features improves performance when compared to the single modalities. So use the `Specify model from' module again, but this time instead of having only one feature set, add all feature sets to the model. You will also need to change the machine to the `L1 Multi-Kernel Learning'. Finally you will also need to add the `Normalize samples' operation in the `Data operations' to compensate for the fact that different modalities have different numbers of features. Leave all the other options as they are. The `Specify model from' window for the MKL model should look similar to the one in figure \ref{fig:multimodal_face_gui_specify_model_from_mkl_final}.
 
 %------------------------------------------------------------------
 
@@ -748,7 +748,7 @@ After you have set everything for the first subject, you can go to `Subjects' an
 % 		\begin{itemize}
 % 		\item  Leave the `Mean centre features' field as it is, i.e. `Yes'. 
 				
-% 		\item  Click on the `Other Operations' field and select the option `Select Operations', then add a new operation and select the `{\color{black}Normalize samples/kernels'} option.
+% 		\item  Click on the `Other Operations' field and select the option `Select Operations', then add a new operation and select the `Normalize samples' option.
 % 		\end{itemize}
 	
 \end{itemize}
@@ -785,7 +785,7 @@ If one wanted to use the `Model: Specify from' module, then they would mostly ha
     
     \item We are going to include all 6 feature sets in this model, so in the `Feature set name' include 6 entries and put the 6 names of the feature sets, `interpEEG', `interpMEG', `EEG', `MEG', `ConnEEG' and `ConnMEG'.
     
-    \item The second thing we will need to change is in the `Data operations' where in the `Other Operations' we are going to select the `Select Operations' option, include a new operation, and choose the `{\color{black}Normalize samples/kernels'} option from the list.
+    \item The second thing we will need to change is in the `Data operations' where in the `Other Operations' we are going to select the `Select Operations' option, include a new operation, and choose the `Normalize samples' option from the list.
     
     \item Leave all the other fields as they are.
     

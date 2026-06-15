@@ -1,0 +1,97 @@
+
+\chapter{List of input files}
+\label{chap:input_files}
+\minitoc
+
+In PRoNTo, different files need to be input by the user depending on the type of data that will be analyzed. These typically need to include a specific variable or satisfy certain conditions. Here is a summary of input files and their requirements:
+\\
+
+\noindent \underline{\textbf{Data \& Design}}
+
+\begin{itemize}
+
+\item \textbf{.mat inputs:} For .mat modalities, PRoNTo expects one file per sample, as for nifti. This means that, no matter the dimensionality of the data, one .mat file needs to be saved per subject for `Select by Scans' or per trial
+`Select by Subject'. The first variable of this file will then be extracted as the data for that sample. The data array can be of any dimensionality but needs to be consistent across samples and should not contain missing values.
+
+A script is provided (in Appendix and in PRoNTo/utils) to convert a matrix that contains all the data for the different samples into separate .mat files. The script reads each row of the matrix and saves it as a .mat file in a separate subdirectory.
+
+\item \textbf{Regression target file - across subjects:} A regression target file needs to have 2 variables:
+
+\begin{itemize}
+\item `names': a cell array with the names of the regression targets, the first name corresponding to the first column of the matrix, and so on. Example: {`age',`score'}.
+
+\item `rt\_subj': a matrix of size \# of subject x \# of regression targets. For 3 subjects and the 2 regression targets mentioned above, we would have:
+\\
+
+$>>$ rt\_subj = [25, 6; 26, 8; 30, 7]
+\\
+
+rt\_subj = \\
+25 6 \\
+26 8 \\
+30 7
+
+\end{itemize}
+
+\item \textbf{Covariate file - across subjects:} The covariate file at the subject level should contain a matrix R, of size \# subjects x \# covariates. It cannot contain missing or NaN values and cannot be a cell array. For categorical variables, the values need to be one-hot encoded if no ordinal ranking is expected. For the 3 subjects above, a one-hot encoding of gender would be (2 males and 1 female,  using the representation [0 1] for female and [1 0] for male):
+\\
+
+$>>$ R = [1, 0; 1, 0; 0, 1]
+\\
+
+R = \\
+1 0 \\
+1 0 \\
+0 1 \\
+
+The same number of covariates should be provided across subjects.
+
+\item \textbf{Conditions file - within subject:} To specify the design of a subject using a .mat file, 5 variables can be provided (this option is normally used with data types that have temporal information with an experimental design happening during the data acquisition, e.g. fMRI, MEEG):
+
+\begin{itemize}
+\item names: cell array of conditions names, e.g. {`A',`B'}
+\item onsets: cell array of vectors on onsets for each condition, e.g. {[1,4,8],[2,5,7]}
+\item durations: cell array of vectors or single values for each condition, e.g. {1,1}. In the case of a single value, this value will be repeated for all trials.
+\item (optional) rt\_trial: cell array of vectors containing one target per trial (including bad trials for MEEG), e.g. {[1.2, 1.3, 1.1],[2.1, 2.5, 2.3]}.
+\item (optional) R: cell array of matrices or vectors containing covariates per trial (including bad trials for MEEG). Each matrix should have the size \# trials in condition x \# covariates. The same number of covariates should be provided across conditions and subjects. E.g. {[1,0;0,1;1,0],[0,1;1,0;1,0]}.
+
+\end{itemize}
+
+\end{itemize}
+
+\noindent \underline{\textbf{Feature set}}
+
+\begin{itemize}
+
+\item \textbf{Atlas for .mat:} When loading an atlas for a .mat modality, PRoNTo will extract the first variable of that file. This first variable (which can have any name) should contain one array. This array should have the exact same dimensions as the dimensions of the data from the first (and other) subjects. It should include values between 1 and the number of ROIs. 0 and NaN values will be excluded from the feature set (as the atlas is also forced as 2nd level mask).
+
+To include labels of ROIs with the atlas, a separate file called `Labels\_atlasname.mat' needs to be found along the atlas `atlasname.mat'. This file should contain the variable `ROI\_names', a cell array of ROI labels. The structure of this file is the same as for nifti ROI labels. Alternatively, ROI labels can be loaded at the `Display weights' step.
+
+A script that builds an atlas and its labels automatically from a list of networks for connectivity matrices is provided in appendix and along the PRoNTo distribution (in /utils). If we assume that 2D connectivity matrices are provided as input, estimated from a certain number of time series (e.g. 200). Among those time series, some are thought to pertain to a same `network' (e.g. `Default Mode' or `Visual'). The script will build a ROI for each `network' within and between interaction. For example, `Visual-Visual' will be ROI1, `Visual-Default Mode' will be ROI2 and `Default Mode-Default Mode' will be ROI3.
+
+\item \textbf{Channel selection file for MEEG in batch:} The `channel selection' module in the batch comes from SPM directly. They accept a file containing a cell array called `label', with each cell being a channel name to include.
+
+\end{itemize}
+
+\noindent \underline{\textbf{Model}}
+
+\bi
+\item \textbf{Custom cross-validation:} Custom cross-validation allows to load a matrix. The name of the variable in the .mat file should be `CV' and the matrix should be of size \#samples x \#folds. The values in the matrix need to be either 0 (sample not selected in fold), 1 (sample used for training) or 2 (sample used for testing).
+\ei
+
+\noindent \underline{\textbf{Display weights}}
+
+\bi
+\item \textbf{Labels for ROIs:}
+For nifti and .mat, ROI labels can be loaded when displaying the weights (MEEG comes with its own labelling). The loaded .mat file should contain a variable `ROI\_names', a cell array of ROI labels. The number of labels has to match the number of regions as defined in the atlas.
+\ei
+
+
+
+
+
+
+
+
+
+
