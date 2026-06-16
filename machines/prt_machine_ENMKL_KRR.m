@@ -38,19 +38,27 @@ tr_targets = d.tr_targets - m;
 [alpha,beta] = ENMKLKRRtrain(tr_targets,d.train,C,beta,mu);
 
 ktest_final = zeros(length(d.te_targets),length(d.tr_targets));
-
 for i = 1:size(d.train,2)
     ktest_final = ktest_final + beta(i)*d.test{i};
 end
 
-func_val = (ktest_final*alpha)+m;
+ktrain_final = zeros(length(d.tr_targets),length(d.tr_targets)); % Added in June 2026 for the Save permutation parameters bug
+for i = 1:size(d.train,2)
+    ktrain_final = ktrain_final + beta(i)*d.train{i};
+end
 
+func_val = (ktest_final*alpha)+m;
+func_val_train = (ktrain_final*alpha)+m; % Added in June 2026 for the Save permutation parameters bug
 predictions = func_val;
+predictions_train = func_val_train; % Added in June 2026 for the Save permutation parameters bug
 
 % Outputs
 %--------------------------------------------------------------------------
 output.predictions = predictions;
+output.targets_train = d.tr_targets; % Added in June 2026 for the Save permutation parameters bug
+output.predictions_train = predictions_train; % Added in June 2026 for the Save permutation parameters bug
 output.func_val    = func_val;
+output.func_val_train    = func_val_train; % Added in June 2026 for the Save permutation parameters bug
 output.type        = 'regression';
 output.alpha       = alpha;
 output.beta        = beta; %kernel weights

@@ -45,17 +45,22 @@ tr_targets  (~c1PredIdx) = -1; %negative values = 2
 [alpha,beta,b] = ENMKLSVMtrain(tr_targets,d.train,C,beta,mu);
 
 ktest_final = zeros(length(d.te_targets),length(d.tr_targets));
-
 for i = 1:size(d.train,2)
     ktest_final = ktest_final + beta(i)*d.test{i};
+end
+
+ktrain_final = zeros(size(d.train{1})); % Added in June 2026 for the Save permutation parameters bug
+for i = 1:size(d.train,2)
+    ktrain_final = ktrain_final + beta(i)*d.train{i};
 end
 
 %func_val = (ktest_final*(tr_targets.*alpha))+b; %this line used when alpha was
 %not multiplied by the labels inside the ENMKL code - modified Sept 2025
 
 func_val = (ktest_final*alpha)+b; 
-
+func_val_train = (ktrain_final*alpha)+b; % Added in June 2026 for the Save permutation parameters bug
 predictions = sign(func_val);
+predictions_train = sign(func_val_train); % Added in June 2026 for the Save permutation parameters bug
 
 % Outputs
 %--------------------------------------------------------------------------
@@ -63,9 +68,15 @@ predictions = sign(func_val);
 c1PredIdx               = predictions==1; 
 predictions(c1PredIdx)  = 1; %positive values = 1 
 predictions(~c1PredIdx) = 2; %negative values = 2 
+c1PredIdx_train                     = predictions_train==1; % Added in June 2026 for the Save permutation parameters bug
+predictions_train(c1PredIdx_train)  = 1;
+predictions_train(~c1PredIdx_train) = 2;
 
 output.predictions = predictions;
+output.targets_train = d.tr_targets; % Added in June 2026 for the Save permutation parameters bug
+output.predictions_train = predictions_train; % Added in June 2026 for the Save permutation parameters bug
 output.func_val    = func_val;
+output.func_val_train    = func_val_train; % Added in June 2026 for the Save permutation parameters bug
 output.type        = 'classifier';
 output.alpha       = alpha;
 output.b           = b;
