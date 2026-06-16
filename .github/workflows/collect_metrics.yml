@@ -1,0 +1,40 @@
+name: Collect Usage Metrics
+
+on:
+  schedule:
+    # Run every Monday at 9am UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    # Also allow manual trigger from the Actions tab
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit the CSV back to the repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Create metrics directory
+        run: mkdir -p metrics
+
+      - name: Collect metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/collect_metrics.py
+
+      - name: Commit and push metrics
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add metrics/metrics.csv
+          git diff --cached --quiet || git commit -m "chore: update usage metrics $(date +%Y-%m-%d)"
+          git push
