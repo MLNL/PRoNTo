@@ -4,6 +4,17 @@ All notable changes to PRoNTo are documented here.
 
 ---
 
+## [3.1.0] — 2026
+
+### Added
+- Elastic-net Multiple Kernel Learning for classification (Elastic-net MKL Support Vector Machine, ENMKL-SVM) and regression (Elastic-net MKL Kernel Ridge Regression, ENMKL-KRR)
+
+### Changed
+- 'Normalise samples' renamed to 'Normalise samples/kernels' in the GUI
+- MATLAB compatibility updated to R2017b–R2024b
+
+---
+
 ## [3.0.0-beta] — 2021-09-28
 
 ### Added
