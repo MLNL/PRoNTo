@@ -404,7 +404,7 @@ fid = handles.fid(handles.class);
 % chosen model has ROI values or weights per modality : create the table
 if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... 
         ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
-       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{fid})
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{handles.class})
    
     get_feature_set_idx(hObject,eventdata,handles,mi(m));
     handles = guidata(hObject);
