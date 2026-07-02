@@ -74,7 +74,7 @@ PRoNTo supports two families of prediction frameworks — **linear kernel-based*
 | ![Framework 2a](docs/images/fig_non_kernel_single.png) | ![Framework 2b](docs/images/fig_non_kernel_multi.png) |
 | `primal model` | `primal model` |
 
-? **[See full framework diagrams → docs/figures.md](docs/figures.md)**
+**[See full framework diagrams → docs/figures.md](docs/figures.md)**
 Visual illustrations of each framework with descriptions, when to use them, and tutorial examples.
 
 ---
