@@ -17,7 +17,8 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Prediction Frameworks](#prediction-frameworks)- [Requirements](#requirements)
+- [Prediction Frameworks](#prediction-frameworks)
+- [Requirements](#requirements)
 - [Installation](#installation)
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
