@@ -1,4 +1,4 @@
-# PRoNTo Courses & Tutorials
+# PRoNTo Courses
 
 PRoNTo courses have been held periodically and provide an introduction to pattern recognition methods in the context of neuroimaging, as well as a practical introduction to the toolbox. The course is designed for all levels, from students to experienced researchers.
 
@@ -17,7 +17,7 @@ PRoNTo courses have been held periodically and provide an introduction to patter
 **Materials:**
 - [Programme (PDF)](http://www.mlnl.cs.ucl.ac.uk/pronto/PRoNTo_program_UCL_2021_final_kt.pdf)
 
-To gain access to the slides and videos, please fill in the [registration form](http://www.mlnl.cs.ucl.ac.uk/pronto/prtcourse_2021_form.html). Once the form is submitted, the page will reload to include the course material. For bug reports or comments, please use [GitHub Issues](https://github.com/MLNL/PRoNTo_public/issues).
+To gain access to the slides and videos, please fill in the [registration form](http://www.mlnl.cs.ucl.ac.uk/pronto/prtcourse_2021_form.html). Once the form is submitted, the page will reload to include the course material. For bug reports or comments, please use [GitHub Issues](https://github.com/MLNL/PRoNTo/issues).
 
 ---
 

@@ -22,7 +22,8 @@
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
 - [Datasets](#datasets)
-- [Courses & Tutorials](#courses--tutorials)
+- [Tutorials](#tutorials)
+- [Courses](#courses)
 - [How to Cite](#how-to-cite)
 - [Credits](#credits)
 - [License](#license)
@@ -138,7 +139,8 @@ For full installation details, see the [manual](docs/manual.md).
 | [Mac Instructions](instructions-for-mac.md) | Installation guide for Mac users |
 | [FAQ](docs/faq.md) | Frequently asked questions |
 | [Datasets](docs/datasets.md) | Benchmark datasets for tutorials |
-| [Courses](docs/courses.md) | Course slides and materials |
+| [Tutorials](docs/tutorials.md) | Video tutorials showing how to use PRoNTo |
+| [Courses](docs/courses.md) | Course slides and previous course dates |
 | [How to Cite](docs/citation.md) | Citation instructions |
 | [Credits](docs/credits.md) | Team and sponsors |
 | [History](docs/history.md) | Development history |
@@ -158,9 +160,15 @@ Example datasets for the PRoNTo tutorials are listed in [`docs/datasets.md`](doc
 
 ---
 
-## Courses & Tutorials
+## Tutorials
 
-PRoNTo courses have been held periodically, introducing pattern recognition in neuroimaging and demonstrating the toolbox. There are currently no courses scheduled. 📹 **[Video tutorials showing how to use PRoNTo](docs/tutorials.md)** are available in `docs/tutorials.md`. For the full 2021 course including lectures and slides, see the [2021 PRoNTo Course page](http://www.mlnl.cs.ucl.ac.uk/pronto/prtcourse_2021.html).
+📹 **[Video tutorials showing how to use PRoNTo](docs/tutorials.md)** are available in `docs/tutorials.md`. The tutorials cover step-by-step demonstrations using real neuroimaging datasets.
+
+---
+
+## Courses
+
+PRoNTo courses have been held periodically, introducing pattern recognition in neuroimaging and demonstrating the toolbox. There are currently no courses scheduled. For the full 2021 course including lectures and slides, see the [2021 PRoNTo Course page](http://www.mlnl.cs.ucl.ac.uk/pronto/prtcourse_2021.html). Course slides and previous course dates are available in [`docs/courses.md`](docs/courses.md)..
 
 ---
 
