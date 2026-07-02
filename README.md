@@ -162,7 +162,7 @@ Example datasets for the PRoNTo tutorials are listed in [`docs/datasets.md`](doc
 
 ## Tutorials
 
-📹 **[Video tutorials showing how to use PRoNTo](docs/tutorials.md)** are available in `(https://github.com/MLNL/PRoNTo/blob/main/docs/tutorials.md)`. The tutorials cover step-by-step demonstrations using real neuroimaging datasets.
+📹 [Video tutorials showing how to use PRoNTo](https://github.com/MLNL/PRoNTo/blob/main/docs/tutorials.md) are available in `docs/tutorials.md`. The tutorials cover step-by-step demonstrations using real neuroimaging datasets.
 
 ---
 
