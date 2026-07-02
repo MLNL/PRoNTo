@@ -18,7 +18,6 @@ All notable changes to PRoNTo are documented here.
 
 ### Fixed
 - Cross-validation now reports the underlying machine error on a fold failure, instead of a misleading "Unrecognized field name func_val" error
-- Weights display: modality names containing underscores no longer render as subscripts; table cells no longer show raw HTML on recent MATLAB versions
 
 ---
 
