@@ -55,7 +55,7 @@ PRoNTo bridges the gap between the **machine learning** and **neuroimaging** com
 
 PRoNTo supports two families of prediction frameworks — **linear kernel-based** and **linear non-kernel** — each available for single and multi-modality data.
 
-**Linear kernel-based** — recommended when #features $\gg$ #subjects
+**Linear kernel-based** — recommended when number of features $\gg$ number of subjects
 
 | 1a — Single modality prediction | 1b — Multimodal prediction | 1b (variant) — Multi-grouping prediction |
 |:---:|:---:|:---:|
