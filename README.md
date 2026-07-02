@@ -73,7 +73,7 @@ PRoNTo supports two families of prediction frameworks — **linear kernel-based*
 | ![Framework 2a](docs/images/fig_non_kernel_single.png) | ![Framework 2b](docs/images/fig_non_kernel_multi.png) |
 | `primal model` | `primal model` |
 
-**[See full framework diagrams → docs/figures.md](docs/figures.md)**
+? **[See full framework diagrams → docs/figures.md](docs/figures.md)**
 Visual illustrations of each framework with descriptions, when to use them, and tutorial examples.
 
 ---
@@ -135,7 +135,7 @@ For full installation details, see the [manual](docs/manual.md).
 | [Prediction Frameworks](docs/figures.md) | Visual overview of the three prediction frameworks |
 | [Methods](docs/methods.md) | Why PRoNTo uses linear kernel methods — explained for neuroimagers |
 | [Manual](docs/manual.md) | Full reference manual (also at `PRoNTo/manual/prt_manual.pdf`) |
-| [Mac Instructions](docs/instructions-for-mac.md) | Installation guide for Mac users |
+| [Mac Instructions](instructions-for-mac.md) | Installation guide for Mac users |
 | [FAQ](docs/faq.md) | Frequently asked questions |
 | [Datasets](docs/datasets.md) | Benchmark datasets for tutorials |
 | [Courses](docs/courses.md) | Course slides and materials |
@@ -160,7 +160,7 @@ Example datasets for the PRoNTo tutorials are listed in [`docs/datasets.md`](doc
 
 ## Courses & Tutorials
 
-PRoNTo courses have been held periodically, introducing pattern recognition in neuroimaging and demonstrating the toolbox. There are currently no courses scheduled. Slides from previous courses (2017–2021) and videos from the latest course (2021) are available in [`docs/courses.md`](docs/courses.md).
+PRoNTo courses have been held periodically, introducing pattern recognition in neuroimaging and demonstrating the toolbox. There are currently no courses scheduled. 📹 **[Video tutorials showing how to use PRoNTo](docs/tutorials.md)** are available in `docs/tutorials.md`. For the full 2021 course including lectures and slides, see the [2021 PRoNTo Course page](http://www.mlnl.cs.ucl.ac.uk/pronto/prtcourse_2021.html).
 
 ---
 
