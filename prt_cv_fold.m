@@ -45,15 +45,19 @@ cvdata.pred_type  = PRT.model(in.mid).input.type;
 try
     model = prt_machine(cvdata, PRT.model(in.mid).input.machine);
 catch err
-    warning('prt_cv_fold:modelDidNotReturn',...
-        'Prediction method did not return [%s]',err.message);
-    if ntasks>1
-        for t=1:ntasks
-            model.predictions{t} = zeros(size(cvdata.te_targets{t}));
-        end
-    else
-        model.predictions = zeros(size(cvdata.te_targets));
-    end
+    % [UPDATE v3.1 fix] Previously a failure inside the prediction machine was
+    % swallowed here: a warning was issued and a stub 'model' containing only a
+    % zeroed 'predictions' field was returned. Downstream code (prt_nested_cv)
+    % then failed on the missing 'model.func_val', producing a confusing
+    % "Unrecognized field name func_val" error that hid the real cause (e.g. a
+    % missing/incompatible libSVM 'svmtrain'). We now re-raise the original
+    % machine error, adding it as the cause, so the actual problem is reported
+    % clearly instead of being masked.
+    ME = MException('prt_cv_fold:modelDidNotReturn', ...
+        ['The prediction machine did not run successfully. ', ...
+         'See the underlying error below for the cause.']);
+    ME = addCause(ME, err);
+    throw(ME);
 end
 
 % check that it produced a predictions field
