@@ -8,10 +8,16 @@ All notable changes to PRoNTo are documented here.
 
 ### Added
 - Elastic-net Multiple Kernel Learning for classification (Elastic-net MKL Support Vector Machine, ENMKL-SVM) and regression (Elastic-net MKL Kernel Ridge Regression, ENMKL-KRR)
+- Weights display: box-and-jitter plot of per-modality kernel weights, with additional modality-table columns (median kernel weight, number of kernels)
+- Weights display: "Full kernel weight list" window listing each kernel's weight (%), modality and ROI/grouping name, with CSV export
+
 
 ### Changed
 - 'Normalise samples' renamed to 'Normalise samples/kernels' in the GUI
 - MATLAB compatibility updated to R2017b–R2024b
+
+### Fixed
+- Cross-validation now reports the underlying machine error on a fold failure, instead of a misleading "Unrecognized field name func_val" error
 
 ---
 
