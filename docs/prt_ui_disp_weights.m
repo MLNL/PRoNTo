@@ -1,0 +1,2639 @@
+function varargout = prt_ui_disp_weights(varargin)
+% PRT_UI_DISP_WEIGHTS MATLAB code for prt_ui_disp_weights.fig
+%
+% PRT_UI_DISP_WEIGHTS, by itself, creates a new PRT_UI_DISP_WEIGHTS or raises the
+% existing singleton*.
+%
+% H = PRT_UI_DISP_WEIGHTS returns the handle to a new PRT_UI_DISP_WEIGHTS or the
+% handle to the existing singleton*.
+%
+% PRT_UI_DISP_WEIGHTS('CALLBACK',hObject,eventData,handles,...) calls the local
+% function named CALLBACK in PRT_UI_DISP_WEIGHTS.M with the given input arguments.
+%
+% PRT_UI_DISP_WEIGHTS('Property','Value',...) creates a new PRT_UI_DISP_WEIGHTS or
+% raises the existing singleton*.  Starting from the left, property value
+% pairs are applied to the GUI before prt_ui_disp_weights_OpeningFcn gets called.
+% An unrecognized property name or invalid value makes property application
+% stop.  All inputs are passed to prt_ui_disp_weights_OpeningFcn via varargin.
+%
+% *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+% instance to run (singleton)".
+%
+% See also: GUIDE, GUIDATA, GUIHANDLES
+%__________________________________________________________________________
+% Copyright (C) 2011 Machine Learning & Neuroimaging Laboratory
+
+% Written by M. J. Rosa and J. Schrouff
+% $Id: prt_ui_disp_weights.m 784 2013-08-22 16:43:32Z monteiro $
+
+% Edit the above text to modify the response to help prt_ui_disp_weights
+
+% Last Modified by GUIDE v2.5 14-Nov-2019 13:18:58
+
+% Begin initialization code - DO NOT EDIT
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @prt_ui_disp_weights_OpeningFcn, ...
+    'gui_OutputFcn',  @prt_ui_disp_weights_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+
+% --- Executes just before prt_ui_disp_weights is made visible.
+function prt_ui_disp_weights_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to prt_ui_disp_weights (see VARARGIN)
+
+%if window already exists, just put it as the current figure
+Tag='WeightResults';
+F = findall(allchild(0),'Flat','Tag',Tag);
+if length(F) > 1
+    % Multiple Graphics windows - close all but most recent
+    close(F(2:end))
+    F = F(1);
+    uistack(F,'top')
+elseif length(F)==1
+    uistack(F,'top')
+else
+    set(handles.figure1,'Tag',Tag)
+    set(handles.figure1,'Name','PRoNTo :: Weights')
+    set(handles.figure1,'MenuBar','figure','WindowStyle','normal');
+    
+    %set size of the window, taking screen resolution and platform into account
+    %--------------------------------------------------------------------------
+    S0= spm('WinSize','0',1);   %-Screen size (of the current monitor)
+    if ispc
+        PF='MS Sans Serif';
+    else
+        PF= spm_platform('fonts');     %-Font names (for this platform)
+        PF=PF.helvetica;
+    end
+    tmp  = [S0(3)/1280 (S0(4))/800];
+    ratio=min(tmp)*[1 1 1 1];
+    FS = 1 + 0.85*(min(ratio)-1);  %factor to scale the fonts
+    x=get(handles.figure1,'Position');
+    set(handles.figure1,'Position',ratio.*x)
+    set(handles.figure1,'Resize','on')
+    
+    
+    color=prt_get_defaults('color');
+    set(handles.figure1,'Color',color.bg1)
+
+    % Add a "Full kernel weight list" button (created here in code so the .fig layout
+    % file does not need to change). It opens a separate window listing every
+    % kernel's weight (%) and the modality it belongs to, with a button to
+    % export that list to a CSV file. It is placed in the free space of the
+    % bottom button row, between 'Load labels' and 'Quit'. Its font is matched
+    % to the neighbouring buttons just after the styling loop below.
+    if isempty(findall(handles.figure1,'Tag','kernel_list_btn'))
+        handles.kernel_list_btn = uicontrol(handles.figure1, ...
+            'Style','pushbutton','String','Full kernel weight list', ...
+            'Tag','kernel_list_btn','Units','normalized', ...
+            'Position',[0.52 0.0165 0.18 0.0331], ...
+            'BackgroundColor',color.fr, ...
+            'Callback', ...
+            'prt_ui_disp_weights(''kernel_list_btn_Callback'',gcbo,[],guidata(gcbo))');
+    end
+
+    aa=get(handles.figure1,'children');
+    for i=1:length(aa)
+        if strcmpi(get(aa(i),'type'),'uipanel')
+            set(aa(i),'BackgroundColor',color.bg2)
+            bb=get(aa(i),'children');
+            if ~isempty(bb)
+                for j=1:length(bb)
+                    if strcmpi(get(bb(j),'type'),'uipanel')
+                        cc=get(bb(j),'children');
+                        set(bb(j),'BackgroundColor',color.bg2)
+                        for k=1:length(cc)
+                            if strcmpi(get(cc(k),'type'),'uipanel')
+                                dd=get(cc(k),'children');
+                                set(cc(k),'BackgroundColor',color.bg2)
+                                for l=1:length(dd)
+                                    if strcmpi(get(dd(l),'type'),'uicontrol')
+                                        if ~isempty(find(strcmpi(get(dd(l),'Style'),{'text',...
+                                                'radiobutton','checkbox'})))
+                                            set(dd(l),'BackgroundColor',color.bg2)
+                                        elseif ~isempty(find(strcmpi(get(dd(l),'Style'),'pushbutton')))
+                                            set(dd(l),'BackgroundColor',color.fr)
+                                        end
+                                    end
+                                    set(dd(l),'FontUnits','pixel')
+                                    xf=get(dd(l),'FontSize');
+                                    if ispc
+                                        set(dd(l),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                            'FontUnits','normalized','Units','normalized')
+                                    else
+                                        set(dd(l),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                            'Units','normalized')
+                                    end
+                                end
+                            elseif strcmpi(get(cc(k),'type'),'uicontrol') && ...
+                                    ~isempty(find(strcmpi(get(cc(k),'Style'),{'text',...
+                                    'radiobutton','checkbox'})))
+                                set(cc(k),'BackgroundColor',color.bg2)
+                            elseif strcmpi(get(cc(k),'type'),'uicontrol')&& ...
+                                    ~isempty(find(strcmpi(get(cc(k),'Style'),'pushbutton')))
+                                set(cc(k),'BackgroundColor',color.fr)
+                            end
+                            set(cc(k),'FontUnits','pixel')
+                            xf=get(cc(k),'FontSize');
+                            set(cc(k),'FontSize',ceil(FS*xf),'FontName',PF,...
+                                'Units','normalized')
+                        end
+                    elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
+                            ~isempty(find(strcmpi(get(bb(j),'Style'),{'text',...
+                            'radiobutton','checkbox'})))
+                        set(bb(j),'BackgroundColor',color.bg2)
+                    elseif strcmpi(get(bb(j),'type'),'uicontrol') && ...
+                            ~isempty(find(strcmpi(get(bb(j),'Style'),'pushbutton')))
+                        set(bb(j),'BackgroundColor',color.fr)
+                    end
+                    set(bb(j),'FontUnits','pixel')
+                    xf=get(bb(j),'FontSize');
+                    set(bb(j),'FontSize',ceil(FS*xf),'FontName',PF,...
+                        'Units','normalized')
+                end
+            end
+        elseif strcmpi(get(aa(i),'type'),'uicontrol')
+            if ~isempty(find(strcmpi(get(aa(i),'Style'),{'text',...
+                    'radiobutton','checkbox'})))
+                set(aa(i),'BackgroundColor',color.bg1)
+            elseif ~isempty(find(strcmpi(get(aa(i),'Style'),'pushbutton')))
+                set(aa(i),'BackgroundColor',color.fr)
+            end
+        end
+        if ~strcmpi(get(aa(i),'type'),'uimenu')
+            set(aa(i),'FontUnits','pixel')
+            xf=get(aa(i),'FontSize');
+            set(aa(i),'FontSize',ceil(FS*xf),'FontName',PF,...
+                'Units','normalized')
+        end
+    end
+
+    % Match the new "Full kernel weight list" button's font to the neighbouring
+    % bottom-row buttons. The styling loop above scales each control's font
+    % from its own starting size, so the programmatically-created button can
+    % end up a different size; copying the final font settings from an existing
+    % bottom button ('Load labels') guarantees the same font and font size.
+    if isfield(handles,'kernel_list_btn') && ishandle(handles.kernel_list_btn) ...
+            && isfield(handles,'butt_load_labels') && ishandle(handles.butt_load_labels)
+        ref = handles.butt_load_labels;
+        set(handles.kernel_list_btn, ...
+            'FontName',   get(ref,'FontName'), ...
+            'FontUnits',  get(ref,'FontUnits'), ...
+            'FontSize',   get(ref,'FontSize'), ...
+            'FontWeight', get(ref,'FontWeight'), ...
+            'ForegroundColor', get(ref,'ForegroundColor'));
+    end
+    
+    % Initialize window
+    % -------------------------------------------------------------------------
+    
+    if ~isfield(handles,'notinit')
+        
+        % Load PRT.mat
+        PRT     = spm_select(1,'mat','Select PRT.mat',[],pwd,'PRT.mat');
+        if isempty(PRT)
+            disp('No PRT file selected')     
+            return
+        end
+
+        pathdir = regexprep(PRT,'PRT.mat', '');
+        handles.pathdir = pathdir;
+        handles.prtdir=fileparts(PRT);
+        load(PRT);
+        handles.PRT = PRT;
+        
+        % Flag to load new weights
+        handles.noloadw = 0;
+        
+        % Load model names
+        if ~isfield(PRT,'model')
+            error('No models found in PRT.mat!')
+        end
+        
+        
+        nmodels = length(PRT.model);
+        mi  = [];
+        nmi = 0;
+        nmroi = [];
+
+        for m = 1:nmodels
+            if isfield(PRT.model(m),'input') && ~isempty(PRT.model(m).input)
+                if isfield(PRT.model(m),'output') && ~isempty(PRT.model(m).output)
+                    if isfield(PRT.model(m).output,'weight_img') && ~isempty(PRT.model(m).output.weight_img)
+                        nmi = nmi +1;
+                        model_name{nmi} = PRT.model(m).model_name;
+                        mi = [mi, m];
+                        if isfield(PRT.model(m).output,'weight_ROI') && ...
+                                ~isempty(PRT.model(m).output.weight_ROI)
+                            nmroi = [nmroi, 1];
+                        else
+                            nmroi = [nmroi, 0];
+                        end
+                    else
+                        disp(sprintf('Weights not computed for model %s ! It will not be displayed',PRT.model(m).model_name));
+                    end
+                else
+                    beep;
+                    disp(sprintf('Weights not computed for model %s ! It will not be displayed',PRT.model(m).model_name));
+                end
+            else
+                beep;
+                disp(sprintf('Model %s not properly specified! It will not be displayed',PRT.model(m).model_name));
+            end
+            
+        end
+        
+        if nmi
+            handles.mi = mi;
+            
+            % Set model pulldown menu
+            handles.mnames = model_name;
+            set(handles.classmenu,'String',handles.mnames);
+            
+            % Get folds pulldown menu
+            m             = get(handles.classmenu,'Value');
+            handles.nfold = length(PRT.model(mi(m)).output.fold);
+            folds{1}      = 'All folds / Average';
+            for f = 1:handles.nfold
+                folds{f+1} = num2str(f);
+            end
+            handles.folds = folds;
+            set(handles.foldmenu,'String',handles.folds);
+            set(handles.foldmenu,'Value',1);
+            
+            list = handles.PRT.model(mi(m)).output.weight_img;
+            if ~isempty(list)
+                set(handles.imagemenu,'String',list)
+                set(handles.imagemenu,'Value',1)
+            else
+                set(handles.imagemenu,'Enable','off')
+            end   
+        end
+        % Initialize model button
+        handles.model_button = 0;
+        
+        % Deal with ROI table and bar graph: 1st turned off        
+        set(handles.axes1, 'visible','off')
+        set(handles.ROItable,'visible','off')
+        handles.selectedcell = [];
+        handles.labels=cell(nmodels,1);
+        set(handles.butt_load_labels,'visible','off');
+        set(handles.saveweight,'visible','off');
+        set(handles.modtable,'Visible','off')
+        set(handles.modtable,'Enable','off')
+    end
+end
+set(handles.disp_voxels,'Value',1)
+set(handles.disp_voxels,'Enable','off')
+set(handles.disp_regions,'Value',0)
+set(handles.disp_regions,'Enable','off')
+set(handles.loadweight,'Enable','off')
+set(handles.loadanatomical,'Enable','off')
+set(handles.weightbutton,'Enable','off')
+set(handles.weightbutton,'Visible','off')
+uistack(handles.uipanelnifti,'bottom')
+uistack(handles.uipanelmat,'bottom')
+uistack(handles.uipanelmat_topoplots,'bottom')
+% Choose default command line output for prt_ui_disp_weights
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes prt_ui_disp_weights wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+
+% --- Outputs from this function are returned to the command line.
+function varargout = prt_ui_disp_weights_OutputFcn(hObject, eventdata, handles)
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+% delete(handles.figure1)
+varargout{1} = handles.output;
+
+%--------------------------------------------------------------------------
+% Initialize all plots and tables
+%--------------------------------------------------------------------------
+% --- Executes on selection change in classmenu.
+function classmenu_Callback(hObject, eventdata, handles)
+% hObject    handle to classmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns classmenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from classmenu
+m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
+end
+mi = handles.mi;
+
+% Set the list of weight images generated for this model
+list = handles.PRT.model(mi(m)).output.weight_img;
+if ~isempty(list)
+    set(handles.imagemenu,'String',list)
+else
+    set(handles.imagemenu,'Enable','off')
+end
+set(handles.imagemenu,'Value',1);
+handles.class = 1;
+
+% Get the feature set indexes and potential multiple modalities
+%---------------------------------------------------------------
+get_feature_set_idx(hObject,eventdata,handles,mi(m));
+handles = guidata(hObject);
+imagemenu_Callback(hObject,eventdata,handles)
+handles = guidata(hObject);
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function classmenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to classmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes on selection change in imagemenu.
+function imagemenu_Callback(hObject, eventdata, handles)
+% hObject    handle to imagemenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns imagemenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from imagemenu
+% Get models (classmenu), classes (imagemenu) and folds (foldmenu)
+m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
+end
+mi = handles.mi;
+handles.nfold = length(handles.PRT.model(mi(m)).output.fold);
+
+
+folds{1}      = 'All folds / Average';
+for f = 1:handles.nfold
+    folds{f+1} = num2str(f);
+end
+
+% Set folds and call fold function to plot the weights for that model
+handles.folds = folds;
+set(handles.foldmenu,'String',handles.folds);
+
+disp_vox = get(handles.disp_voxels,'Value');
+set(handles.disp_voxels,'Enable','on')
+
+%get the fold to display
+ffi = get(handles.foldmenu,'Value')-1;
+if ffi == -1 % for Mac issues with popup menus
+    ffi = 0;
+end
+if ffi==0 % for average
+    ffi=length(get(handles.foldmenu,'String'));
+end
+
+% get the image to display
+handles.class = get(handles.imagemenu,'Value');
+if handles.class ==0
+    handles.class = 1;
+end
+
+
+% Initialize the table
+% -------------------------------------------------------------------------
+handles.computeER=0;
+handles.sort_roi = [];
+handles.sort_mod=[];
+
+fid = handles.fid(handles.class);
+
+% chosen model has ROI values or weights per modality : create the table
+if isfield(handles.PRT.model(mi(m)).output,'weight_ROI') &&... 
+        ~isempty(handles.PRT.model(mi(m)).output.weight_ROI) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_ROI{handles.class})
+   
+    get_feature_set_idx(hObject,eventdata,handles,mi(m));
+    handles = guidata(hObject);
+    fid = handles.fid(handles.class);
+    mids = handles.mids(handles.class);
+   % For each modality if multiple modalities in multiple kernel settings
+   if handles.PRT.fs(fid).multkernel
+       stm = length(handles.nmods); %if multiple modalities
+   else
+       stm =1; % if modalities concatenated or only one
+   end
+   if isfield(handles.PRT.fs(fid),'atlas_name') && ~iscell(handles.PRT.fs(fid).atlas_name)
+       handles.PRT.fs(fid).atlas_name = {handles.PRT.fs(fid).atlas_name};
+   end
+   % Get the number of ROIs and their labels for each modality
+   handles.num_roi = cell(stm,1);
+   
+   for i = 1:stm
+       if isfield(handles.PRT.fs(fid).modality(i),'num_ROI') && ~handles.summed
+            num_roi = handles.PRT.fs(fid).modality(i).num_ROI; % MKL on regions
+            atl_name = handles.PRT.fs(fid).atlas_name{i};
+       else
+           num_roi = 1:size(handles.PRT.model(mi(m)).output.weight_ROI{handles.class},1);
+           if isfield(handles.PRT.model(mi(m)).output,'weight_atlas') && ...
+                   ~isempty(handles.PRT.model(mi(m)).output.weight_atlas{i})
+                atl_name = handles.PRT.model(mi(m)).output.weight_atlas{i} ; %summarized weights
+           else
+               atl_name = []; %MKL on modalities
+           end
+       end
+       handles.num_roi{i} = num_roi;
+       
+       % Get the labels if they are stored in a .mat along the atlas file for
+       % MKL on regions and summarisation: get labels for ROIs
+       if ~isempty(atl_name)
+           if isfield(handles.PRT.fs(fid),'atlas_label') && ... 
+                   ~isempty(handles.PRT.fs(fid).atlas_label)
+               try
+                   handles.labels{mi(m)}{i} = handles.PRT.fs(fid).atlas_label{i};
+               end
+           else
+              [a,b]=fileparts(atl_name);
+              try
+                  load(fullfile(a,['Labels_',b,'.mat']))
+                  try
+                      handles.labels{mi(m)}{i}=ROI_names;
+                  catch
+                      disp('No variable ROI_names found, generic names used')
+                  end
+              catch
+                  disp('No file containing the names of the ROIs found, generic names used')
+              end
+           end       
+           
+           if ~isfield(handles,'labels') || ...
+                   isempty(handles.labels{mi(m)}) || ...
+                   i>length(handles.labels{mi(m)}) || ...
+                   isempty(handles.labels{mi(m)}{i})
+               label=cell(length(num_roi),1);
+               for j=1:length(num_roi)
+                   label{j} = ['ROI_',num2str(num_roi(j))];
+               end
+           else
+               if isfield(handles.PRT.fs(fid),'multkernelROI') && ...
+                       handles.PRT.fs(fid).multkernelROI && ...
+                       ~handles.summed
+                   if isfield(handles.PRT.fs(fid).modality(i),'igood_kerns')
+                       good_kerns = handles.PRT.fs(fid).modality(i).igood_kerns;
+                   elseif isfield(handles.PRT.fs(fid),'igood_kerns') && ...
+                         ~isfield(handles.PRT.fs(fid).modality(i),'igood_kerns')  
+                        good_kerns = handles.PRT.fs(fid).igood_kerns;
+                   end
+                    if length(good_kerns)==length(num_roi)
+                        label = handles.labels{mi(m)}{i}(good_kerns); %take 0 kernels out
+                        handles.num_roi{i} = good_kerns;
+                    end
+               else
+                   try
+                       label = handles.labels{mi(m)}{i}(num_roi);
+                   catch
+                       if length(num_roi)==length(handles.labels{mi(m)}{i})  % match between labels and number of regions
+                           label = handles.labels{mi(m)}{i}(num_roi);
+                           handles.num_roi{i} = num_roi;
+                       elseif length(num_roi)==length(handles.labels{mi(m)}{i})+1    %missing the 'others' region
+                           handles.labels{mi(m)}{i} = [{'others'};handles.labels{mi(m)}{i}];
+                           label = handles.labels{mi(m)}{i}(num_roi);
+                           handles.num_roi{i} = num_roi;
+                       else
+                           warning('prt_ui_disp_weights:LabelsDoNotCorrespondtoROI',... % could not use file
+                               'Number of labels in .mat does not correspond to number of ROIs');
+                           label=cell(length(num_roi(:,i)),1);
+                           for j=1:length(handles.num_roi{i})
+                               label{j} = ['ROI_',num2str(num_roi(j,i))];
+                           end
+                       end
+                   end
+
+               end
+           end 
+           lc = {'Label','Weight (%)'};
+           xlabel = 'Index in table';
+           ylabel = 'Weight';
+           set(handles.butt_load_labels,'Visible','on')
+           set(handles.saveweight,'Visible','on')
+       else %get names of the modalities for MKL on modalities
+           label = cell(length(handles.PRT.fs(fid).modality),1);
+           for j = 1:length(handles.PRT.fs(fid).modality)
+               label{j} = char(handles.PRT.fs(fid).modality(j).mod_name);
+           end
+           lc = {'Modality','Mod. weight (%)'};
+           xlabel = 'Index in table';
+           ylabel = 'Weight';
+           set(handles.butt_load_labels,'Visible','off')
+           set(handles.saveweight,'Visible','off')
+       end
+   end
+   dat(:,1) = label;
+   weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
+   if length(dat(:,1))==length(weights)
+       dat(:,2) = num2cell(weights); 
+   end
+       
+   
+   % Fill the table with ROI size if ROIs
+   if isfield(handles.PRT.model(mi(m)).output.fold(1),'beta') && ...
+       ~isempty(handles.PRT.model(mi(m)).output.fold(1).beta) && ...
+           handles.PRT.fs(fid).multkernelROI  && ...%Multiple kernel learning on ROIs
+           length(dat(:,1))==length(weights) % Labels of ROIs of MEEG are not available
+       if isfield(handles.PRT.fs(fid).modality,'idfeat_img')&& ... % Get the indexes of each ROI in the image
+               ~isempty(handles.PRT.fs(fid).modality(mids).idfeat_img)
+           lc = [lc,{'Size (feat.)'}];
+           for i=1:length(handles.PRT.fas)
+               if strcmpi(handles.PRT.fs(fid).modality(mids).mod_name,...
+                       handles.PRT.fas(i).mod_name)
+                   mid = i;
+               end
+           end
+           idfeat = handles.PRT.fas(mid).idfeat_img;
+           if isempty(handles.PRT.fs(fid).modality(mids).idfeat_fas) % get the 2nd level masking
+               idfeat_fas = 1:length(idfeat);
+           else
+               idfeat_fas = handles.PRT.fs(fid).modality(mids).idfeat_fas;
+           end
+           handles.idfeat_roi = cell(length(handles.PRT.fs(fid).modality(mids).idfeat_img),1);
+           for i = 1:length(handles.PRT.fs(fid).modality(mids).idfeat_img)
+               dat(i,3) = {length(handles.PRT.fs(fid).modality(mids).idfeat_img{i})};
+               if ~isempty(idfeat) %nifti
+                    handles.idfeat_roi{i} = idfeat(idfeat_fas(handles.PRT.fs(fid).modality(mids).idfeat_img{i}));
+               else
+%                    handles.idfeat_roi{i} = idfeat_fas(handles.PRT.fs(fid).modality(mids).idfeat_img{i});
+                    handles.idfeat_roi{i} = handles.PRT.fs(fid).modality(mids).idfeat_img{i};
+               end
+           end
+       end
+       set(handles.disp_regions,'Enable','on')
+       handles.computeER = 1;
+   elseif isfield(handles.PRT.model(mi(m)).output,'weight_idfeatroi') &&... % Summarizing the weights for ROI
+           ~isempty(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}) % Get the indexes of each ROI in the image
+       lc = [lc,{'Size (feat.)'}];
+       handles.idfeat_roi = cell(length(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}),1);
+       for i = 1:length(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class})
+           dat(i,3) = {length(handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}{i})};
+           handles.idfeat_roi{i} = handles.PRT.model(mi(m)).output.weight_idfeatroi{handles.class}{i};
+       end
+       set(handles.disp_regions,'Enable','on')
+       handles.computeER=1;
+   else % if MKL on modalities, do not fill third column and do not display weights per region
+       set(handles.disp_regions,'Enable','off')
+       handles.flagmodMKL = 1;
+       handles.computeER=0;
+   end 
+   
+   if handles.computeER
+       % Compute Expected Ranking for model
+       erwn=zeros(size(handles.PRT.model(mi(m)).output.weight_ROI{handles.class},1),handles.nfold);
+       for fold = 1:handles.nfold
+           w_all = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,fold)*100;
+           %take 0 columns out of the computation
+           mw = min(w_all);
+           mxw = max(w_all);
+           id0 = find(mw==mxw);
+           id0 = id0(mw(id0)==0);
+           id = 1:size(w_all,2);
+           idtr = setdiff(id,id0);
+           if isempty(idtr)   % if a modality has always 0 weights
+%                erwn=NaN*ones(length(num_roi),1);
+                 erwn(:,fold)=NaN*ones(length(num_roi),1);
+           else
+               w_all = w_all(:,idtr);
+               %deal with NaNs
+               [d1,d2]=sort(w_all,1,'ascend');
+               isn=find(isnan(w_all(:,1)));
+               d3=size(d1,1)-length(isn)+1:size(d1,1);
+               d4=1:size(d1,1)-length(isn);
+               ihn=[d2(d3,:);d2(d4,:)];
+               [d1,dwn]=sort(ihn);
+               dwn(isn)=0;
+               isnu=find((w_all(:,1)==0));
+               dwn(isnu)=0;
+               for i=1:size(w_all,1)
+                   for j=1:size(w_all,1)
+                       tmp=length(find(dwn(i)==j));
+                       erwn(i,fold)=erwn(i,fold)+j*tmp;
+                   end
+               end
+               erwn(:,fold)=erwn(:,fold)/length(idtr);
+           end
+
+       end
+       erwn = mean(erwn,2);
+       dat = [dat, num2cell(erwn)]; 
+       lc = [lc,{'Exp. Ranking'}];
+       handles.dattable = dat;
+       [vald,idwroi] = sort(weights,'descend');
+       handles.sort_roi= idwroi;
+   end
+else
+    % Do not display the region or modality table
+    handles.sort_roi = [];
+    set(handles.disp_regions,'Enable','off')
+end
+
+if ~iscell(handles.PRT.model(mi(m)).output.weight_img)
+    handles.PRT.model(mi(m)).output.weight_img={handles.PRT.model(mi(m)).output.weight_img};
+end
+
+% Select the image to display and check whether its ROI version exists
+if disp_vox
+    fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
+    set(handles.disp_voxels,'Value',1)
+    set(handles.disp_regions,'Value',0)
+    if isfield(handles.PRT.model(mi(m)).output,'weight_atlas') &&... % chosen model has ROI values
+         ~isempty(handles.PRT.model(mi(m)).output.weight_atlas{1}) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_atlas{handles.class})
+        set(handles.disp_regions,'Enable','on');
+    else
+        set(handles.disp_regions,'Enable','off');
+    end
+elseif ~disp_vox && isfield(handles.PRT.model(mi(m)).output,'weight_atlas') &&... % chosen model has ROI values
+         ~isempty(handles.PRT.model(mi(m)).output.weight_atlas) &&...
+       ~isempty(handles.PRT.model(mi(m)).output.weight_atlas{handles.class})
+    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];%get ROI image for the weights
+    set(handles.disp_voxels,'Value',0)
+    set(handles.disp_regions,'Value',1)
+else
+    beep
+    disp('Weights per region selected, but no ROI_ image found')
+    disp('Displaying image of weights per voxels')
+    fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
+    set(handles.disp_voxels,'Value',1)
+    set(handles.disp_regions,'Value',0)
+end
+
+% Fill modality table in the case of multiple modalities and multiple ROIs
+% (whether summarized or MKL)
+if handles.flagmodMKL
+    datmod = cell(length(handles.nmods),5);
+    datmod(:,1) = {handles.nmods{:}};
+    wemod = zeros(length(handles.nmods),handles.nfold+1);
+    for i=1:length(handles.nmods) % get all the modalities
+        wemod(i,:) = [handles.PRT.model(mi(m)).output.weight_MOD{i}];
+    end
+    % Column 2: sum of the kernel weights per modality (weight_MOD), in %
+    datmod(:,2) = num2cell(wemod(:,ffi)*100);
+    % Column 3: median kernel weight per modality, in % (matches the median
+    % line drawn in the box-and-jitter plot for that modality)
+    datmod(:,3) = num2cell(local_modality_median(handles,mi(m),ffi));
+    % Column 4: number of kernels per modality (fold-independent)
+    datmod(:,4) = num2cell(local_modality_nkernels(handles,mi(m)));
+    % Compute Expected Ranking for modalities
+    %take 0 columns out of the computation
+    wem = wemod(:,1:handles.nfold);
+    mw = min(wem);
+    mxw = max(wem);
+    id0 = find(mw==mxw);
+    id0 = id0(mw(id0)==0);
+    id = 1:size(wem,2);
+    idtr = setdiff(id,id0);
+    if isempty(idtr)   % if a modality has always 0 weights
+       erwn2=NaN*ones(length(handles.nmods),1);
+    else
+       wem = wem(:,idtr);
+       %deal with NaNs
+       [d1,d2]=sort(wem,1,'ascend');
+       isn=find(isnan(wem(:,1)));
+       d3=size(d1,1)-length(isn)+1:size(d1,1);
+       d4=1:size(d1,1)-length(isn);
+       ihn=[d2(d3,:);d2(d4,:)];
+       [d1,dwn]=sort(ihn);
+       dwn(isn)=0;
+       isnu=find((wem(:,1)==0));
+       dwn(isnu)=0;
+       erwn2=zeros(length(handles.nmods),1);
+       for i=1:size(wem,1)
+           for j=1:size(wem,1)
+               tmp=length(find(dwn(i,:)==j));
+               erwn2(i)=erwn2(i)+j*tmp;
+           end
+       end
+       erwn2=erwn2/handles.nfold;
+    end
+   % Column 5: expected ranking of the modality across folds (fold-independent)
+   datmod(:,5) = num2cell(erwn2);
+   [vald,idwmod] = sort(wemod(:,ffi),'descend');
+   handles.sort_mod= idwmod;
+else
+    handles.sort_mod=[];
+    datmod = [];
+end
+handles.datmod = datmod;  
+
+% Display weights, according to image type
+[a,b,c] = fileparts(fntl);
+handles.wmap = [handles.prtdir,filesep,b,c];
+weightdisp(hObject,eventdata,handles);
+handles = guidata(hObject);
+
+% Fill table and bar graph if needed
+if isfield(handles,'sort_roi') &&... % chosen model has ROI weight values
+         ~isempty(handles.sort_roi) &&...
+        isfield(handles,'wmap') && ~isempty(handles.wmap)
+    handles.dattable = dat;
+    
+    dat = dat(handles.sort_roi,:);
+    set(handles.ROItable,'Data',dat);
+    set(handles.ROItable,'ColumnEditable',false(1,length(lc)));
+    set(handles.ROItable,'ColumnName',lc);
+    set(handles.ROItable,'visible','on');
+    
+    %Bar graph to show decrease in ROI weights
+    handles.weights_bar = prt_plot_Kernel_Contribution_bar(handles.axes1,weights(idwroi));
+   
+else
+    reset(handles.axes1);
+    set(handles.ROItable,'visible','off');
+    set(handles.axes1,'visible','off');
+    set(handles.butt_load_labels,'visible','off');
+    set(handles.saveweight,'Visible','off')
+    set(handles.modtable,'Visible','off')
+    set(handles.modtable,'Enable','off')
+    if isfield(handles, 'weights_bar')
+    set(handles.weights_bar,'Visible','off')
+    end
+end
+
+if ~isempty(datmod) % Chosen model has modality weight values
+    set(handles.modtable,'Visible','on')
+    set(handles.modtable,'Enable','on')
+    set(handles.modtable,'Data',datmod(handles.sort_mod,:))
+    set(handles.modtable,'ColumnEditable',false(1,size(datmod,2)));
+    set(handles.modtable,'ColumnName',{'Modality','Sum of kernel weights (%)',...
+        'Median kernel weight (%)','Number of kernels','Exp. ranking'});
+    % Stretch the columns to fill the table width (instead of leaving white
+    % space on the right with the default 'auto' column widths)
+    local_fit_modtable_columns(handles.modtable);
+    if handles.flagmodMKL %only MKL across modalities, not across regions on top
+        % Modality summary plot. Instead of a single bar per modality showing
+        % the SUM of its kernel weights, draw a hybrid plot: a box-and-jitter
+        % (weight distribution) for each modality that has several kernels and a
+        % single marker for each modality that has only one kernel. local_mod-
+        % ality_kernel_data gathers the per-modality kernel weights (ordered like
+        % the sorted modality table, idwmod) and returns vok = true as soon as at
+        % least one modality is multi-kernel. If no modality has more than one
+        % kernel (e.g. plain MKL across single-kernel modalities), fall back to
+        % the original bar plot of the summed modality weights.
+        [vdata,vlabels,vmulti,vok] = local_modality_kernel_data(handles,mi(m),ffi,idwmod);
+        if vok
+            handles.weights_bar = prt_plot_Kernel_Contribution_box(handles.axes1,vdata,vlabels,vmulti);
+        else
+            handles.weights_bar = prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod,ffi));
+        end
+%         handles = guidata(hObject);
+    end
+    
+else
+    set(handles.modtable,'Visible','off')
+    set(handles.modtable,'Enable','off')
+end
+
+handles.model_button = 0;
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function imagemenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to imagemenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% Sub-function to select which panel and image type
+function weightdisp(hObject,eventdata,handles)
+
+if exist([handles.wmap],'file')
+    [a,b,c] = spm_fileparts(handles.wmap);
+    if strcmpi(c,'.img') || strcmpi(c,'.nii') % nifti        
+        V               = spm_vol(handles.wmap);
+        handles.vols{1} = V;
+        handles.noloadw = 1;
+        handles.model_button = 0;
+        set(handles.uipanelnifti,'Visible','on')
+        uistack(handles.uipanelnifti,'top') %Switch to nifti panel
+        set(handles.uipanelmat,'Visible','off')
+        set(handles.uipanelmat_topoplots,'Visible','off')
+        if isempty(eventdata) || ~strcmpi(eventdata.EventName,'CellSelection')
+            handles.selectedcell = [];
+        end
+        % Update handles structure
+        guidata(hObject, handles);
+        % Call weightbutton to display the chosen image
+        handles=weightbutton_Callback(hObject, eventdata, handles);
+    else %.mat extension, but can be either MEEG or .mat
+        set(handles.uipanelmat,'Visible','on')
+        uistack(handles.uipanelmat,'top') %Switch to nifti panel
+        set(handles.uipanelmat_topoplots,'Visible','off')
+%         uistack(handles.uipanelmat_topoplots,'top') %Switch to nifti panel
+        set(handles.uipanelnifti,'Visible','off')
+        if isempty(eventdata) || ~strcmpi(eventdata.EventName,'CellSelection')
+            handles.selectedcell = [];
+        end
+        % Update handles structure
+        guidata(hObject, handles);
+        % Call matdisplay to display the chosen file
+        matdisplay(hObject, eventdata, handles);
+        handles = guidata(hObject);
+    end
+end
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes on selection change in foldmenu.
+function foldmenu_Callback(hObject, eventdata, handles)
+% hObject    handle to foldmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns foldmenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from foldmenu
+
+
+% Update table and bar graph
+%--------------------------------------------------------------------------
+m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
+end
+mi = handles.mi;
+ffi = get(handles.foldmenu,'Value')-1;
+if ffi == -1 % for Mac issues with popup menus
+    ffi = 0;
+end
+if ffi==0 % for average
+    ffi=length(get(handles.foldmenu,'String'));
+end
+if isfield(handles,'sort_roi') &&... % chosen model has ROI values
+         ~isempty(handles.sort_roi) 
+   dat = handles.dattable;
+   weights = handles.PRT.model(mi(m)).output.weight_ROI{handles.class}(:,ffi)*100;
+   dat(:,2) = num2cell(weights);
+   [vald,idwroi] = sort(weights,'descend');
+   dat = dat(idwroi,:);
+   handles.sort_roi= idwroi;
+   set(handles.ROItable,'Data',dat);
+   set(handles.ROItable,'visible','on');
+   set(handles.butt_load_labels,'visible','on');
+   
+   %Bar graph to show decrease in ROI weights
+    handles.weights_bar = prt_plot_Kernel_Contribution_bar(handles.axes1,weights(idwroi));   
+end   
+if ~isempty(handles.datmod)
+    datmod = handles.datmod;
+    wemod = zeros(length(handles.nmods),handles.nfold+1);
+    for i=1:length(handles.nmods) % get all the modalities
+        wemod(i,:) = [handles.PRT.model(mi(m)).output.weight_MOD{i}];
+    end
+    datmod(:,2) = num2cell(wemod(:,ffi)*100);
+    % Refresh the median kernel weight (%) column for the newly selected fold
+    % (the sum in column 2 and this median both depend on the fold; the number
+    % of kernels in column 4 and the expected ranking in column 5 are
+    % fold-independent and kept as is)
+    datmod(:,3) = num2cell(local_modality_median(handles,mi(m),ffi));
+    [vald,idwmod] = sort(wemod(:,ffi),'descend');
+    datmod= datmod(idwmod,:);
+    set(handles.modtable,'Data',datmod)
+    set(handles.modtable,'Visible','on')
+    local_fit_modtable_columns(handles.modtable);   % keep columns filling the width
+    if ~isfield(handles,'sort_roi') ||... % chosen model has no ROI values
+         isempty(handles.sort_roi) 
+        % Modality summary plot, refreshed when the displayed fold changes.
+        % Same hybrid logic as in imagemenu_Callback: box-and-jitter per multi-
+        % kernel modality, single marker per single-kernel modality, ordered by
+        % the sorted modality weights (idwmod). Falls back to the summed-weight
+        % bar plot when no modality has more than one kernel (vok == false).
+         [vdata,vlabels,vmulti,vok] = local_modality_kernel_data(handles,mi(m),ffi,idwmod);
+         if vok
+             handles.weights_bar = prt_plot_Kernel_Contribution_box(handles.axes1,vdata,vlabels,vmulti);
+         else
+             handles.weights_bar = prt_plot_Kernel_Contribution_bar(handles.axes1,wemod(idwmod,ffi));
+         end
+    end
+end
+
+
+% Change weight map
+% -------------------------------------------------------------------------
+if ~handles.model_button
+%     if isfield(handles,'vols')
+     handles.noloadw = 1;
+     handles.selectedcell = [];
+     weightdisp(hObject,eventdata,handles)
+     handles = guidata(hObject);
+%     end
+end
+
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function foldmenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to foldmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+% --- Executes on button press in disp_voxels.
+function disp_voxels_Callback(hObject, eventdata, handles)
+% hObject    handle to disp_voxels (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of disp_voxels
+
+% Get folds and model indexes
+m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
+end
+mi = handles.mi;
+handles.nfold = length(handles.PRT.model(mi(m)).output.fold);
+ffi = get(handles.foldmenu,'Value')-1;
+if ffi == -1 % for Mac issues with popup menus
+    ffi = 0;
+end
+if ffi==0 % for average
+    ffi=handles.nfold+1;
+end
+
+% Select which image to display: weights per voxels or regions
+disp_vox = get(handles.disp_voxels,'Value');
+if disp_vox
+    fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
+    set(handles.disp_regions,'Value',0);
+else
+    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];
+    set(handles.disp_regions,'Value',1);
+    set(handles.disp_voxels,'Value',0);
+end
+
+%Load and display corresponding weight image if it exists
+[a,b,c] = fileparts(fntl);
+handles.wmap = [handles.prtdir,filesep,b,c];
+weightdisp(hObject, eventdata, handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes on button press in disp_regions.
+function disp_regions_Callback(hObject, eventdata, handles)
+% hObject    handle to disp_regions (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of disp_regions
+% Get folds and model indexes
+m  = get(handles.classmenu,'Value');
+if m==0
+    m=1;
+end
+mi = handles.mi;
+handles.nfold = length(handles.PRT.model(mi(m)).output.fold);
+ffi = get(handles.foldmenu,'Value')-1;
+if ffi == -1 % for Mac issues with popup menus
+    ffi = 0;
+end
+if ffi==0 % for average
+    ffi=handles.nfold+1;
+end
+
+% Select which image to display: weights per voxels or regions
+disp_reg = get(handles.disp_regions,'Value');
+if ~disp_reg
+    fntl = handles.PRT.model(mi(m)).output.weight_img{handles.class};
+    set(handles.disp_regions,'Value',0);
+    set(handles.disp_voxels,'Value',1);
+else
+    fntl = ['ROI_',handles.PRT.model(mi(m)).output.weight_img{handles.class}];
+    set(handles.disp_regions,'Value',1);
+    set(handles.disp_voxels,'Value',0);
+end
+
+%Load and display corresponding weight image if it exists
+[a,b,c] = fileparts(fntl);
+handles.wmap = [handles.prtdir,filesep,b,c];
+weightdisp(hObject, eventdata, handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
+
+% -------------------------------------------------------------------------
+% Functions in Nifti anatomical and weight panels
+% -------------------------------------------------------------------------
+
+% --- Executes on button press in originbutton.
+function originbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to originbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Reset the crosshairs position
+% -------------------------------------------------------------------------
+if isfield(handles,'img')
+    spm_orthviews('Reposition',[0 0 0]);
+    child = get(handles.weightspanel,'Children');
+    count = [];
+    for i = 1:length(child) % Resize colorbar if blobs
+        if strcmpi(get(child(i),'Type'),'axes')
+            count = [count, i];
+        end
+    end
+%     if length(count)==4
+%         pos = get(child(count(1)),'Position');
+%         set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+%     end
+end
+
+function mmedit_Callback(hObject, eventdata, handles)
+% hObject    handle to mmedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of mmedit as text
+%        str2double(get(hObject,'String')) returns contents of mmedit as a double
+
+% Move crosshairs position in mm
+% -------------------------------------------------------------------------
+if isfield(handles,'img')
+    mp    = handles.mmedit;
+    posmm = get(mp,'String');
+    pos = sscanf(posmm, '%g %g %g');
+    if length(pos)~=3
+        pos = spm_orthviews('Pos');
+    end
+    spm_orthviews('Reposition',pos);
+    child = get(handles.weightspanel,'Children');
+    count = [];
+    for i = 1:length(child) % Resize colorbar if blobs
+        if strcmpi(get(child(i),'Type'),'axes')
+            count = [count, i];
+        end
+    end
+%     if length(count)==4
+%         pos = get(child(count(1)),'Position');
+%         set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+%     end
+end
+
+% --- Executes during object creation, after setting all properties.
+function mmedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to mmedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function vxedit_Callback(hObject, eventdata, handles)
+% hObject    handle to vxedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of vxedit as text
+%        str2double(get(hObject,'String')) returns contents of vxedit as a double
+
+% Move crosshairs position in vx
+% -------------------------------------------------------------------------
+if isfield(handles,'img')
+    mp    = handles.vxedit;
+    posvx = get(mp,'String');
+    pos   = sscanf(posvx, '%g %g %g');
+    if length(pos)~=3
+        pos = spm_orthviews('pos',1);
+    end
+    tmp = handles.vols{1}.mat;
+    pos = tmp(1:3,:)*[pos ; 1];
+    spm_orthviews('Reposition',pos);
+    child = get(handles.weightspanel,'Children');
+    count = [];
+    for i = 1:length(child) % Resize colorbar if blobs
+        if strcmpi(get(child(i),'Type'),'axes')
+            count = [count, i];
+        end
+    end
+%     if length(count)==4
+%         pos = get(child(count(1)),'Position');
+%         set(child(count(1)),'Position',[pos(1)*1.3,pos(2),pos(3),pos(4)*0.9])
+%     end
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function vxedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to vxedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function loadweight_Callback(hObject, eventdata, handles)
+% hObject    handle to loadweight (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of loadweight as text
+%        str2double(get(hObject,'String')) returns contents of loadweight as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function loadweight_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to loadweight (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in weightbutton.
+function handles = weightbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to weightbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+disp('Loading weights...>>')
+
+% Select results (.img) for weight map
+% -------------------------------------------------------------------------
+if ~isfield(handles,'wmap') || ~handles.noloadw
+    wmap            = spm_select(1,'image','Select weight map.');
+    % Remove number in file name
+    if strcmp(wmap(end-1),',')
+        wmap = wmap(1:end-2);
+    end
+    V               = spm_vol(wmap);
+    handles.vols{1} = V;
+    handles.wmap    = wmap;
+    
+end
+
+spm_orthviews('Reset');
+gcfchil = get(handles.weightspanel,'Children');
+for i=1:length(gcfchil)
+    if strcmpi(get(gcfchil(i),'Type'),'axes')
+        delete(gcfchil(i)) % Delete any left-over colorbar
+    end
+end
+
+% Image dimensions
+% -------------------------------------------------------------------------
+fold          = get(handles.foldmenu,'Value')-1;
+Vfolds        = handles.vols{1};
+V             = Vfolds(1);
+M             = V.mat;
+DIM           = V.dim(1:3)';
+xdim          = DIM(1); ydim  = DIM(2); zdim  = DIM(3);
+if length(V.private.dat.dim) < 4
+    fdim = 1;                       % Handle 3D images
+else
+    fdim = V.private.dat.dim(4);    % Handle 4D images
+end
+[xords,yords] = ndgrid(1:xdim,1:ydim);
+xords         = xords(:)';  yords = yords(:)';
+I             = 1:xdim*ydim;
+zords_init    = ones(1,xdim*ydim);
+
+if ~isempty(handles.selectedcell) && ~isempty(handles.idfeat_roi)
+    matroi = NaN * ones(xdim,ydim,zdim);
+    idroi = handles.idfeat_roi{handles.sort_roi(handles.selectedcell(1))};
+    matroi(idroi) = 1;
+    handles.roimatdisp = matroi;
+else
+    matroi = ones(xdim,ydim,zdim);
+    handles.roimatdisp = matroi;
+end
+
+% Get image values above zero for each fold and all folds
+% -------------------------------------------------------------------------
+xyz_above = [];
+z_above   = [];
+if fold == 0
+    fold_coord = fdim*ones(1,xdim*ydim);
+    V = Vfolds(fdim);
+else
+    fold_coord = fold*ones(1,xdim*ydim);
+    V = Vfolds(fold);
+end
+
+for z = 1:zdim
+    zords = z*zords_init;
+    xyz   = [xords(I); yords(I); zords(I); fold_coord];
+    zvals = spm_get_data(V,xyz);
+    if isfield(handles,'roimatdisp') && ~isempty(handles.roimatdisp)
+        indmask = sub2ind([xdim,ydim,zdim],xords(I)', yords(I)', zords(I)');
+        mroi = handles.roimatdisp(indmask);
+        zvals = zvals.*mroi';
+    end
+    above = find(~isnan(zvals));
+    if length(above)==length(zvals) %old version of weight computation
+        above = find(zvals~=0);
+    end
+    if ~isempty(above)
+        xyz_above = [xyz_above,xyz(:,above)];
+        z_above   = [z_above,zvals(above)];
+    end
+end
+if ~isempty(xyz_above)
+    XYZ   = xyz_above(1:3,:);
+    Z     = z_above;
+    
+    %compute center of gravity to reposition crosshairs
+    xm = round(median(XYZ(1,:)));
+    ym = round(median(XYZ(2,:)));
+    zm = round(median(XYZ(3,:)));
+else
+    disp('Only null contributions in this image')
+end
+
+% Set spm_orthviews properties
+% -------------------------------------------------------------------------
+rotate3d off
+try
+    clear st
+end
+global st
+
+handles.notinit = 1;
+handles.img     = 1;
+
+st.handles  = handles;
+st.fig      = handles.figure1;
+st.V        = V;
+st.callback = 'prt_ui_disp_weights(''showpos'')';
+
+% Display maps
+% -------------------------------------------------------------------------
+[BB vx] = spm_get_bbox(handles.wmap);
+xax = BB(1,1):abs(vx(1)):BB(2,1);
+yax = BB(1,2):abs(vx(2)):BB(2,2);
+zax = BB(1,3):abs(vx(3)):BB(2,3);
+
+try 
+    h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08],handles.weightspanel); 
+catch
+    h  = spm_orthviews('Image', handles.wmap,[0.03 0.01 0.95 1.08]);
+end
+handles.wimgh = h;
+spm_orthviews('AddContext', h);
+spm_orthviews('MaxBB');
+if ~isempty(xyz_above)
+    
+    if exist('smoothdata') ~= 2 % for backwards compatibility
+        spm_orthviews('AddBlobs', h, XYZ, Z, M);
+        spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
+        colgrey = colormap(gray(64));
+        coldiv = cbrewer('div','RdBu',64,'PCHIP');
+        coldiv = flip(coldiv,1);
+        colormap([colgrey; coldiv]);
+        % spm_orthviews('Zoom',(xfov*abs(vx(1))))
+        
+    else
+        % colorbar color fix KT-2020
+        spm_orthviews_pronto('AddBlobs', h, XYZ, Z, M);
+        spm_orthviews('Reposition',[sign(vx(1))*xax(xm),sign(vx(2))*yax(ym),sign(vx(3))*zax(zm)])
+        colgrey = colormap(gray(64));
+        coldiv = cbrewer('div','RdBu',64,'PCHIP');
+        blue = coldiv(1:20,:);
+        red = coldiv(45:64,:);
+        blue2 = imresize(blue,[29,3],'bilinear');
+        red2 = imresize(red,[29,3],'bilinear');
+        coldiv(1:29,:) = blue2;
+        coldiv(36:end,:) = red2;
+        dummy2 = coldiv(25:32,:);
+        yyy = smoothdata(dummy2);
+        coldiv(25:32,:) = yyy;
+        dummy2 = coldiv(33:41,:);
+        yyy = smoothdata(dummy2);
+        coldiv(33:41,:) = yyy;
+        coldiv = flip(coldiv,1);
+        colormap([colgrey; coldiv]);
+        % spm_figure('Colormap','gray-jet'); % VERSION 2 COLORBAR
+    end
+
+    spm_orthviews('Redraw');
+end
+
+[fpw,faw]=fileparts(handles.wmap); %Sometimes extensions can pose problems
+for i=1:length(st.vols) % Image was added to variable st
+    if ~isempty(st.vols{i})
+        [fp,fa] = fileparts(st.vols{i}.fname);
+        if strcmpi([fp,fa],[fpw,faw])
+            idxw = i;
+            set(st.vols{idxw}.ax{1}.ax,'parent',handles.weightspanel);
+            set(st.vols{idxw}.ax{2}.ax,'parent',handles.weightspanel);
+            set(st.vols{idxw}.ax{3}.ax,'parent',handles.weightspanel);
+            if ~isempty(xyz_above)
+                set(st.vols{idxw}.blobs{1}.cbar,'parent',handles.weightspanel);
+                set(st.vols{idxw}.blobs{1}.cbar,'YAxisLocation','right'); % Colorbar labels on the right
+%                 set(st.vols{idxw}.blobs{1}.cbar,'Position',...
+%                     [cbp(1)*1.3,cbp(2),cbp(3),cbp(4)*0.9]);
+                handles.posaxe4 = get(st.vols{idxw}.blobs{1}.cbar,'Position');
+            end
+            handles.posaxe1 = get(st.vols{idxw}.ax{1}.ax,'Position');
+            handles.posaxe2 = get(st.vols{idxw}.ax{2}.ax,'Position');
+            handles.posaxe3 = get(st.vols{idxw}.ax{3}.ax,'Position');
+        end
+    end
+end
+
+if isfield(handles,'aimg')
+    anatomicalbutton_Callback(hObject, eventdata, handles);
+end
+
+% Reset flag to load weights
+handles.noloadw = 1;
+
+% Show file name
+% -------------------------------------------------------------------------
+set(handles.loadweight,'String',handles.wmap);
+guidata(hObject, handles);
+
+function loadanatomical_Callback(hObject, eventdata, handles)
+% hObject    handle to loadanatomical (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of loadanatomical as text
+%        str2double(get(hObject,'String')) returns contents of loadanatomical as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function loadanatomical_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to loadanatomical (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in anatomicalbutton.
+function anatomicalbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to anatomicalbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Check if weight map and anatomical image exist and reset orthviews
+% -------------------------------------------------------------------------
+if ~isfield(handles,'wmap')
+    spm_orthviews('Reset');
+end
+% gcfchil = get(handles.anatomicalpanel,'Children');
+% for i=1:length(gcfchil)
+%     if strcmpi(get(gcfchil(i),'Type'),'axes')
+%         delete(gcfchil(i)) % Delete any left-over colorbar
+%     end
+% end
+global st
+st.fig = handles.figure1;
+if ~isfield(handles,'aimg') || ~handles.noloadi
+    img    = spm_select(1,'image','Select anatomical image.');
+else
+    img = handles.aimg;
+end
+
+% Show anatomical image
+% -------------------------------------------------------------------------
+rotate3d off
+handle = spm_orthviews('Image', img,[0.03 0.01 0.95 1.08]);
+% handle = spm_orthviews('Image', img,[0.03 0.01 0.95 1.08],handles.anatomicalpanel);
+spm_orthviews('AddContext',handle);
+[pimg,aimg]=fileparts(img); % Sometimes extension can pose problems
+if isfield(handles,'wmap') 
+    [fpl,fal] = fileparts(handles.wmap);
+end
+for i=1:length(st.vols) % Image was added to variable st
+    if ~isempty(st.vols{i}) % Look for weight image
+        [fp,fa] = fileparts(st.vols{i}.fname);
+        if isfield(handles,'wmap') && strcmpi([fp,fa],[fpl,fal])
+            idxw = i;
+            set(st.vols{idxw}.ax{1}.ax,'Position',handles.posaxe1);
+            set(st.vols{idxw}.ax{2}.ax,'Position',handles.posaxe2);
+            set(st.vols{idxw}.ax{3}.ax,'Position',handles.posaxe3);
+            set(st.vols{idxw}.blobs{1}.cbar,'Position',handles.posaxe4);
+        elseif strcmpi([fp,fa],[pimg,aimg]) % Look for anatomical image
+            idxa = i;
+            set(st.vols{idxa}.ax{1}.ax,'parent',handles.anatomicalpanel);
+            set(st.vols{idxa}.ax{2}.ax,'parent',handles.anatomicalpanel);
+            set(st.vols{idxa}.ax{3}.ax,'parent',handles.anatomicalpanel);
+        end
+    end
+end
+
+cmap   = get(gcf,'Colormap');
+if size(cmap,1)~=128
+    spm_figure('Colormap','gray')
+end
+
+handles.aimgh   = handle;
+handles.aimg    = img;
+handles.img     = 1;
+handles.noloadi = 1;
+
+% Show file name
+% -------------------------------------------------------------------------
+set(handles.loadanatomical,'String',handles.aimg);
+guidata(hObject, handles);
+
+
+
+
+function repedit_Callback(hObject, eventdata, handles)
+% hObject    handle to repedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of repedit as text
+%        str2double(get(hObject,'String')) returns contents of repedit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function repedit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to repedit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% Show crosshairs position
+% -------------------------------------------------------------------------
+function showpos()
+
+global st
+
+mp13 = st.handles.mmedit;
+mp14 = st.handles.vxedit;
+tx20 = st.handles.posintensitytext;
+
+set(mp13,'String',sprintf('%.1f %.1f %.1f',spm_orthviews('Pos')));
+pos = spm_orthviews('Pos',1);
+set(mp14,'String',sprintf('%.1f %.1f %.1f',pos));
+set(tx20,'String',sprintf('%g',spm_sample_vol(st.V,pos(1),pos(2),pos(3),st.hld)));
+% child = get(st.handles.weightspanel,'Children');
+% count = [];
+% for i = 1:length(child) % Resize colorbar if blobs
+%     if strcmpi(get(child(i),'Type'),'axes')
+%         count = [count, i];     
+%     end
+% end
+% Ensure colorbar labels are on the right side
+[fpw,faw] = fileparts(st.handles.wmap);
+for i=1:length(st.vols)
+    if ~isempty(st.vols{i})
+        [fp,fa] = fileparts(st.vols{i}.fname);
+        if strcmpi([fp,fa],[fpw,faw])
+            idxw = i;
+            set(st.vols{idxw}.blobs{1}.cbar,'parent',st.handles.weightspanel);
+            set(st.vols{idxw}.blobs{1}.cbar,'YAxisLocation','right');
+        end
+    end
+end
+
+cmap = get(gcf,'Colormap');
+if size(cmap,1)~=128
+    colgrey = colormap(gray(64));
+    coldiv = cbrewer('div','RdBu',64,'PCHIP');
+    coldiv = flip(coldiv,1);
+    spm_figure('Colormap','gray-jet');
+    colormap([colgrey; coldiv]);
+end
+
+
+% --- Executes on button press in resetbutton.
+function resetbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to resetbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+spm_orthviews('Reset');
+if isfield(handles, 'wmap'), handles = rmfield(handles, 'wmap'); end
+if isfield(handles, 'aimg'), handles = rmfield(handles,'aimg'); end
+reset(handles.axes1);
+set(handles.ROItable,'visible','off');
+set(handles.axes1,'visible','off');
+set(handles.butt_load_labels,'visible','off');
+set(handles.saveweight,'visible','off');
+set(handles.modtable,'Visible','off')
+set(handles.modtable,'Enable','off')
+if isfield(handles, 'weights_bar')
+    set(handles.weights_bar,'Visible','off')
+end
+set(handles.loadweight,'String','Load weights map')
+set(handles.loadanatomical,'String','Load anatomical img')
+handles.noloadw = 0;
+gcfchil = get(handles.weightspanel,'Children');
+for i=1:length(gcfchil)
+    if strcmpi(get(gcfchil(i),'Type'),'axes')
+        delete(gcfchil(i)) % Delete any left-over colorbar
+    end
+end
+gcfchil = get(handles.anatomicalpanel,'Children');
+for i=1:length(gcfchil)
+    if strcmpi(get(gcfchil(i),'Type'),'axes')
+        delete(gcfchil(i)) % Delete any left-over colorbar
+    end
+end
+guidata(hObject, handles);
+
+% --- Executes on selection change in table if it is a ROI label.
+function disp_weights_CellSelectionCallback(hObject,eventdata,handles)
+% hObject    handle to foldmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.selectedcell=eventdata.Indices;
+if ~isempty(handles.selectedcell) && handles.selectedcell(2)==1 && ...
+        handles.computeER%ROI label selected
+    weightdisp(hObject, eventdata, handles);
+else
+    handles.selectedcell = [];
+end
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes on selection change in foldmenu.
+function listbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to foldmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = get(hObject,'String') returns foldmenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from foldmenu
+
+
+% --- Executes during object creation, after setting all properties.
+function listbox1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to foldmenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes on button press in butt_load_labels.
+function butt_load_labels_Callback(hObject, eventdata, handles)
+% hObject    handle to butt_load_labels (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+mi = handles.mi;
+m = get(handles.classmenu,'Value');
+if m==0 % Mac weird error with popup menus
+    m=1;
+end
+% mim = get(handles.imagemenu,'Value');
+% if mim==0
+%     mim=1;
+% end
+mim=1;
+fname=spm_select(1,'.mat','Select the file containing the names of the ROIs');
+if isempty(fname)
+    disp('No file containing the names of the ROIs found, generic names used')
+    handles.labels{mi(m)}{mim}=[];
+else
+    load(fname)
+    try
+        handles.labels{mi(m)}{mim}=ROI_names;
+    catch
+        disp('No variable ROI_names found, generic names used')
+    end
+end
+num_roi = handles.num_roi{mim};
+try
+    label = handles.labels{mi(m)}{mim}(num_roi);
+catch
+    if length(num_roi)==length(handles.labels{mi(m)}{mim})  % match between labels and number of regions
+        label = handles.labels{mi(m)}{mim}(num_roi);
+    elseif length(num_roi)==length(handles.labels{mi(m)}{mim})+1    %missing the 'others' region
+        handles.labels{mi(m)}{mim} = [{'others'};handles.labels{mi(m)}{mim}];
+        label = handles.labels{mi(m)}{mim}(num_roi);
+    else
+        warning('prt_ui_disp_weights:LabelsDoNotCorrespondtoROI',... % could not use file
+            'Number of labels in .mat does not correspond to number of ROIs');
+        label = [];
+    end
+end
+if ~isempty(handles.labels{mi(m)}{mim}) && ~isempty(label)
+    dat = handles.dattable;
+    dat(:,1) = label;
+    handles.dattable = dat;
+    dat = dat(handles.sort_roi,:);
+    set(handles.ROItable,'Data',dat);
+    set(handles.ROItable,'visible','on');
+    guidata(hObject, handles);
+end
+
+
+%--------------------------------------------------------------------------
+% Display 1D or 2D mat of MEEG
+% -------------------------------------------------------------------------
+
+function matdisplay(hObject, eventdata, handles)
+
+% Load file and get whether it is MEEG or .mat
+file = handles.wmap;
+try
+    weights = spm_eeg_load(file);
+    MEEG = 1;
+catch
+    wmat = load(file);
+    if isfield(wmat,'weights')
+        weights = wmat.weights;
+    else
+        beep
+        disp('No variable weights in selected .mat file')
+        return
+    end
+    MEEG = 0;
+end
+
+% Get which fold to display
+ffi = get(handles.foldmenu,'Value')-1;
+if ffi == -1 % for Mac issues with popup menus
+    ffi = 0;
+end
+if ffi==0 % for average
+    ffi=length(get(handles.foldmenu,'String'));
+end
+
+% Get dimensions of file, ignoring last (folds)
+dim = size(weights);
+dim_mat = dim(1:end-1);
+access_last = 'weights(:';
+i = 2;
+while i<=numel(dim_mat)
+    access_last = [access_last,',:'];
+    i=i+1;
+end
+access_last = [access_last,',',num2str(ffi),');'];
+wmap = eval(access_last);
+
+wmap = squeeze(wmap);
+dim_mat = size(wmap);
+
+if ~isempty(handles.selectedcell) && ~isempty(handles.idfeat_roi)
+    try
+        matroi = NaN * ones(dim_mat);
+        idroi = handles.idfeat_roi{handles.sort_roi(handles.selectedcell(1))};
+        matroi(idroi) = 1;
+        handles.roimatdisp = matroi;
+    catch % When MEEG objects do not have the same size as the original file
+        matroi = ones(dim_mat);
+        handles.roimatdisp = matroi;
+    end
+else
+    matroi = ones(dim_mat);
+    handles.roimatdisp = matroi;
+end
+
+if numel(dim_mat)~=2 % Cannot plot more than 2D
+    beep
+    disp('Can not render files with more than 2D')
+    disp('Use external viewers instead')
+    return
+elseif any(dim_mat == 1) % Vector, plotting as bar graph
+%     set(handles.uipanelmat_topoplots,'Visible','off')
+    h = prt_plot_1D_weights(handles.uipanelmat,wmap,matroi);
+else                    % Matrix, plotting with imshow
+    h = prt_plot_2D_weights(handles.uipanelmat,wmap.*matroi, weights);
+%     axmat = weights.ftraw;
+    set(handles.uipanelmat_topoplots,'Visible','on')
+    uistack(handles.uipanelmat_topoplots,'top')
+    handles.time_range_from_ms.String = '';
+    handles.time_range_to_ms.String = '';
+    handles.time_window_ms.String = '';  
+end
+
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes when entered data in editable cell(s) in ROItable.
+function ROItable_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to ROItable (see GCBO)
+% eventdata  structure with the following fields (see UITABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function edit7_Callback(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit7 as text
+%        str2double(get(hObject,'String')) returns contents of edit7 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit7_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% Save menu
+% -------------------------------------------------------------------------
+function savemenu_Callback(hObject, eventdata, handles)
+% hObject    handle to savemenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+wd=cd;
+cd(handles.prtdir)
+[filename, pathname] = uiputfile( ...
+    {'*.png','Portable Network Graphics (*.png)';...
+    '*.jpeg','JPEG figure (*.jpeg)';...
+    '*.tiff','Compressed TIFF figure (*.tiff)';...
+    '*.fig','Matlab figure (*.fig)';...
+    '*.pdf','Color PDF file (*.pdf)';...
+    '*.epsc',  'Encapsulated PostScript (*.eps)'},...
+    'Save figure as','.png');
+[a,b,c]=fileparts(filename);
+ext=['-d',c(2:end)];
+
+% Set the color of the different backgrounds and figure parameters to white
+cf=get(handles.figure1,'Color');
+set(handles.figure1,'Color',[1,1,1])
+aa=get(handles.figure1,'children');
+xc=[];
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        try
+            xc=[xc;get(aa(i),'BackgroundColor')];
+            set(aa(i),'BackgroundColor',[1 1 1])
+        end
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                try
+                    xc=[xc;get(bb(j),'BackgroundColor')];
+                    set(bb(j),'BackgroundColor',[1 1 1])
+                end
+                if strcmpi(get(bb(j),'type'),'uipanel')
+                    cc=get(bb(j),'children');
+                    if ~isempty(cc)
+                        for k=1:length(cc)
+                            try
+                                xc=[xc;get(cc(k),'BackgroundColor')];
+                                set(cc(k),'BackgroundColor',[1 1 1])
+                            end
+                            if strcmpi(get(cc(k),'type'),'uipanel')
+                                dd=get(cc(k),'children');
+                                if ~isempty(dd)
+                                    for l=1:length(dd)
+                                        try
+                                            xc=[xc;get(dd(l),'BackgroundColor')];
+                                            set(dd(l),'BackgroundColor',[1 1 1])
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if ~strcmpi(get(aa(i),'type'),'uimenu')
+        try
+            xc=[xc;get(aa(i),'BackgroundColor')];
+            set(aa(i),'BackgroundColor',[1 1 1])
+        end
+    end
+end
+
+print(handles.figure1,ext,[pathname,filesep,b],'-r500')
+
+% Set the color of the different backgrounds and figure parameters to white
+set(handles.figure1,'Color',cf)
+scount=1;
+for i=1:length(aa)
+    if strcmpi(get(aa(i),'type'),'uipanel')
+        try
+            set(aa(i),'BackgroundColor',xc(scount,:))
+            scount=scount+1;
+        end
+        bb=get(aa(i),'children');
+        if ~isempty(bb)
+            for j=1:length(bb)
+                try
+                    set(bb(j),'BackgroundColor',xc(scount,:))
+                    scount=scount+1;
+                end
+                if strcmpi(get(bb(j),'type'),'uipanel')
+                    cc=get(bb(j),'children');
+                    if ~isempty(cc)
+                        for k=1:length(cc)
+                            try
+                                set(cc(k),'BackgroundColor',xc(scount,:))
+                                scount=scount+1;
+                            end
+                            if strcmpi(get(cc(k),'type'),'uipanel')
+                                dd=get(cc(k),'children');
+                                if ~isempty(dd)
+                                    for l=1:length(dd)
+                                        try
+                                            set(dd(l),'BackgroundColor',xc(scount,:))
+                                            scount=scount+1;
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    elseif ~strcmpi(get(aa(i),'type'),'uimenu')
+        try
+            set(aa(i),'BackgroundColor',xc(scount,:))
+            scount=scount+1;
+        end
+    end
+end
+
+cd(wd)
+
+% --- Executes on button press in saveweight.
+function saveweight_Callback(hObject, eventdata, handles)
+% hObject    handle to saveweight (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% chosen model has ROI values or weights per modality : create the table
+
+%If there are weights per region, then save the weightes for different
+%regisons
+mim = get(handles.imagemenu,'Value');
+if mim==0
+    mim=1;
+end
+image_name = get(handles.imagemenu,'String');
+
+num_roi = handles.num_roi{1};
+
+disp('Saving the sorted list of regions to text file.....>>');
+[d,model_name] = spm_fileparts(image_name{mim}); 
+modelname = char(strcat(model_name,'_RegionList.txt'));
+path = fileparts(handles.pathdir);
+weightname=fullfile(path,modelname);
+disp(weightname);
+fid=fopen(weightname,'w');
+fprintf(fid,'%s\t%s\t%s\t%s\r\n','"ROI Label"','"ROI weight (%)"','"ROI size (vox)"','"Exp. Ranking"');
+dat = handles.dattable;
+dat = dat(handles.sort_roi,:);
+for i = 1:numel(num_roi)
+    cellvalue= dat(i,:);
+    fprintf(fid,'%s\t%.2f\t%.2f\t%.2f\r\n', cellvalue{:});
+end
+fclose(fid);
+disp('Save Done!');
+
+% --- Executes on button press in quitbutton.
+function quitbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to quitbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Close and clear figure
+% -------------------------------------------------------------------------
+Tag='WeightResults';
+F = findall(allchild(0),'Flat','Tag',Tag);
+delete(F);
+clear handles
+clear F
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: delete(hObject) closes the figure
+Tag='WeightResults';
+F = findall(allchild(0),'Flat','Tag',Tag);
+delete(F);
+clear handles
+clear F
+
+%--------------------------------------------------------------------------
+% Subfunctions
+%--------------------------------------------------------------------------
+
+function get_feature_set_idx(hObject,eventdata,handles,m)
+nfs = length(handles.PRT.model(m).input.fs);
+if isfield(handles.PRT.model(m).output,'weight_MOD')
+    nim = cell(length(handles.PRT.model(m).output.weight_MOD),1);
+else
+    nim=1;
+end
+% Were the modalities used in MKL context or summed?
+if isfield(handles.PRT.model(m).output.fold(1),'beta') && ...
+        ~isempty(handles.PRT.model(m).output.fold(1).beta)
+    handles.summed = 0;
+else
+    handles.summed = 1; % summed modalities
+end
+count = 1;
+if strcmpi(handles.PRT.model(m).input.type,'classification') && ...
+        length(handles.PRT.model(m).input.class)>2
+    nc = length(handles.PRT.model(m).input.class);
+else
+    nc = 1;
+end
+ifs = [];
+imod = [];
+for i=1:nfs
+    in.fs_name = handles.PRT.model(m).input.fs(i).fs_name;
+    if nfs>1
+        nim{count} = in.fs_name;
+    end
+    fid = prt_init_fs(handles.PRT,in);
+    cm = 1;
+    if handles.PRT.fs(fid).multkernel
+        nmod = length(handles.PRT.fs(fid).modality);
+        mods = cell(nmod,1);
+        for im=1:nmod
+            mods{im} = handles.PRT.fs(fid).modality(im).mod_name{1};
+            if ~isempty(nim{count})
+                nim{count} = [nim{count},'_',mods{im}];
+            else
+                nim{count} = mods{im};
+            end
+            count = count + 1;
+            imod = [imod,repmat(cm,1,nc)];
+            cm = cm+1;
+        end
+    else
+        nmod = 1;
+        count = count +1;
+        imod = [imod, 1];
+    end
+    ifs = [ifs,repmat(fid,1,length(nmod)*nc)];
+end
+
+if numel(nim)>1 && ~handles.summed
+    handles.flagmodMKL =1;
+else
+    handles.flagmodMKL =0;
+end
+
+handles.fid = ifs;
+handles.nmods = nim;
+handles.mids = imod;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in pushbutton_create_topoplots.
+function pushbutton_create_topoplots_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton_create_topoplots (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+prt_create_topoplots(handles.wmap, handles.topoplots.time_from, handles.topoplots.time_to, handles.topoplots.time_window)
+
+
+
+function time_range_from_ms_Callback(hObject, eventdata, handles)
+% hObject    handle to time_range_from_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of time_range_from_ms as text
+%        str2double(get(hObject,'String')) returns contents of time_range_from_ms as a double
+val = str2double(get(handles.time_range_from_ms,'String'));
+handles.topoplots.time_from = val;
+guidata(hObject,handles)
+
+
+
+% --- Executes during object creation, after setting all properties.
+function time_range_from_ms_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to time_range_from_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function time_range_to_ms_Callback(hObject, eventdata, handles)
+% hObject    handle to time_range_to_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of time_range_to_ms as text
+%        str2double(get(hObject,'String')) returns contents of time_range_to_ms as a double
+val = str2double(get(handles.time_range_to_ms,'String'));
+handles.topoplots.time_to = val;
+guidata(hObject,handles)
+
+% --- Executes during object creation, after setting all properties.
+function time_range_to_ms_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to time_range_to_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function time_window_ms_Callback(hObject, eventdata, handles)
+% hObject    handle to time_window_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of time_window_ms as text
+%        str2double(get(hObject,'String')) returns contents of time_window_ms as a double
+val = str2double(get(handles.time_window_ms,'String'));
+handles.topoplots.time_window = val;
+guidata(hObject,handles)
+
+% --- Executes during object creation, after setting all properties.
+function time_window_ms_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to time_window_ms (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Gather the per-modality kernel-weight vectors for the box+jitter plot.
+% -------------------------------------------------------------------------
+function [data, labels, multi, ok] = local_modality_kernel_data(handles, modidx, ffi, order)
+% Collect, for each modality, the vector of its individual kernel weights so
+% that the modality summary can be drawn as a hybrid box-and-jitter / marker
+% plot: a box-and-jitter for modalities with several kernels, a single marker
+% for modalities with one kernel.
+%
+%   modidx : model index (i.e. mi(m))
+%   ffi    : fold column index into weight_ROI (selected fold or average)
+%   order  : ordering of the modalities (e.g. idwmod from the sorted modality
+%            table) so the boxes line up with the table; [] keeps order 1:n
+% Returns:
+%   data   : 1 x nMod cell, data{k} = kernel weights (in %) of modality order(k)
+%   labels : 1 x nMod cell of modality names (in the same order)
+%   multi  : 1 x nMod logical, multi(k) is true if that modality has >1 kernel
+%   ok     : true if AT LEAST ONE modality has more than one kernel (so a
+%            box-and-jitter is meaningful for it). When false (every modality
+%            has a single kernel, e.g. plain MKL across modalities) the caller
+%            keeps the bar plot.
+data = {}; labels = {}; multi = []; ok = false;
+
+out = handles.PRT.model(modidx).output;
+if ~isfield(out, 'weight_ROI') || isempty(out.weight_ROI)
+    return
+end
+wroi = out.weight_ROI;
+if ~iscell(wroi)
+    wroi = {wroi};
+end
+
+nmod = numel(handles.nmods);
+
+% Only the case where weight_ROI is stored as one cell per modality is
+% handled here (verified against the two-modality MKL-on-regions PRT). If the
+% layout does not match the number of modalities, fall back to the bar plot.
+if numel(wroi) ~= nmod || nmod < 1
+    return
+end
+
+if nargin < 4 || isempty(order)
+    order = 1:nmod;
+end
+
+data   = cell(1, nmod);
+labels = cell(1, nmod);
+multi  = false(1, nmod);
+
+% Modality-level weights (one value per modality, per fold). These are needed
+% for single-kernel / non-region modalities: prt_compute_weights only fills
+% weight_ROI for modalities that have regions or an atlas, so a single-kernel
+% modality has an EMPTY weight_ROI cell and its weight must be read from
+% weight_MOD instead (otherwise it would be drawn as a blank slot).
+if isfield(out, 'weight_MOD')
+    wmod = out.weight_MOD;
+else
+    wmod = {};
+end
+
+for k = 1:nmod
+    i = order(k);
+    Wi = wroi{i};
+    if ~isempty(Wi)
+        % Region/atlas modality: weight_ROI holds one row per kernel.
+        col = min(ffi, size(Wi, 2));     % guard against an out-of-range fold
+        data{k} = Wi(:, col) * 100;      % match the % convention used elsewhere
+        multi(k) = size(Wi, 1) > 1;      % >1 kernel -> box+jitter, else marker
+    else
+        % Single-kernel / non-region modality: no per-region weights stored,
+        % so use the modality-level weight as the single marker value.
+        multi(k) = false;
+        if iscell(wmod) && numel(wmod) >= i && ~isempty(wmod{i})
+            wv  = wmod{i};
+            col = min(ffi, numel(wv));   % guard against an out-of-range fold
+            data{k} = wv(col) * 100;     % scalar, drawn as a marker
+        else
+            data{k} = [];                % weight unavailable -> nothing to draw
+        end
+    end
+    if iscell(handles.nmods)
+        labels{k} = handles.nmods{i};
+    else
+        labels{k} = num2str(i);
+    end
+end
+ok = any(multi);
+
+
+% --- Median kernel weight (in %) per modality, for the modality table.
+% -------------------------------------------------------------------------
+function med = local_modality_median(handles, modidx, ffi)
+% Return a column vector (length nMod, natural order 1:nMod) with the median
+% of each modality's kernel weights, in %, for the selected fold ffi. This is
+% the value shown in the "Median kernel weight (%)" column of the modality
+% table, and it matches the median line of the box-and-jitter plot.
+%
+% For a single-kernel / non-region modality there are no per-region weights
+% (weight_ROI cell is empty), so the median is simply that modality's own
+% weight (weight_MOD), since there is only one kernel.
+nmod = numel(handles.nmods);
+med  = nan(nmod, 1);
+
+out = handles.PRT.model(modidx).output;
+if ~isfield(out, 'weight_ROI')
+    return
+end
+wroi = out.weight_ROI;
+if ~iscell(wroi)
+    wroi = {wroi};
+end
+if isfield(out, 'weight_MOD')
+    wmod = out.weight_MOD;
+else
+    wmod = {};
+end
+
+for i = 1:nmod
+    if numel(wroi) >= i && ~isempty(wroi{i})
+        % Multi-kernel (or 1-row) modality: median over its kernel weights
+        Wi  = wroi{i};
+        col = min(ffi, size(Wi, 2));          % guard against an out-of-range fold
+        med(i) = median(Wi(:, col)) * 100;    % match the % convention used elsewhere
+    elseif iscell(wmod) && numel(wmod) >= i && ~isempty(wmod{i})
+        % Single-kernel / non-region modality: median == its only weight
+        wv  = wmod{i};
+        col = min(ffi, numel(wv));
+        med(i) = wv(col) * 100;
+    end
+end
+
+
+% --- Number of kernels per modality, for the modality table.
+% -------------------------------------------------------------------------
+function nk = local_modality_nkernels(handles, modidx)
+% Return a column vector (length nMod, natural order 1:nMod) with the number
+% of kernels of each modality, as shown in the "Number of kernels" column of
+% the modality table. For a region / MKL modality this is the number of rows
+% in its weight_ROI cell (one row per kernel = one row per region). A single-
+% kernel / non-region modality has an empty weight_ROI cell and contributes a
+% single kernel, so the default count of 1 is kept. This is fold-independent.
+nmod = numel(handles.nmods);
+nk   = ones(nmod, 1);   % default: a single kernel
+
+out = handles.PRT.model(modidx).output;
+if ~isfield(out, 'weight_ROI')
+    return
+end
+wroi = out.weight_ROI;
+if ~iscell(wroi)
+    wroi = {wroi};
+end
+
+for i = 1:nmod
+    if numel(wroi) >= i && ~isempty(wroi{i})
+        nk(i) = size(wroi{i}, 1);   % one row per kernel
+    end
+end
+
+
+% --- Stretch the modality-table columns to fill the table width.
+% -------------------------------------------------------------------------
+function local_fit_modtable_columns(h)
+% Set the table's ColumnWidth (in pixels) so the columns fill the width of the
+% table rather than leaving white space on the right (the default 'auto' sizes
+% each column to its content). The first column (the modality name, which is
+% text) is given a larger share and the remaining numeric columns split the
+% rest evenly.
+%
+% This sizes the columns for the table's current pixel width. If the window is
+% resized the proportions stay about right (the table itself is in normalized
+% units), but the pixel widths are not recomputed live; that would need a
+% figure SizeChangedFcn.
+if isempty(h) || ~ishandle(h)
+    return
+end
+ncol = numel(get(h, 'ColumnName'));
+if ncol < 1
+    return
+end
+
+% Pixel width of the table, independent of its Units
+try
+    ppos = getpixelposition(h);
+    W = ppos(3);
+catch
+    return                          % cannot determine width -> leave as is
+end
+
+avail = W - 24;                     % leave room for borders / a scrollbar
+if avail <= 0
+    return
+end
+
+if ncol >= 2
+    w1 = round(0.30 * avail);       % wider first (text) column
+    wr = max(floor((avail - w1) / (ncol - 1)), 1);
+    cw = [{w1}, repmat({wr}, 1, ncol - 1)];
+else
+    cw = {max(floor(avail), 1)};
+end
+
+set(h, 'ColumnWidth', cw);
+
+
+% --- "Kernel list" button: open a window listing every kernel and modality.
+% -------------------------------------------------------------------------
+function kernel_list_btn_Callback(hObject, eventdata, handles)
+% Open (or raise) a separate window with a three-column table: the weight (%)
+% of every kernel, the modality it belongs to, and the name of the ROI (or
+% grouping) it corresponds to, for the currently selected model and fold. The
+% window also has a button to export the table to CSV.
+
+% Currently selected model
+m = get(handles.classmenu,'Value');
+if isempty(m) || m == 0
+    m = 1;
+end
+if ~isfield(handles,'mi') || isempty(handles.mi)
+    beep
+    disp('No model with weights is available to list kernels for.')
+    return
+end
+mi = handles.mi;
+
+% Currently selected fold (or the average), same convention as elsewhere
+ffi = get(handles.foldmenu,'Value') - 1;
+if ffi <= 0
+    ffi = length(get(handles.foldmenu,'String'));   % "All folds / Average"
+end
+
+% Gather the per-modality kernel weights (%), modality names and the per-
+% modality "is multi-kernel" flag, then flatten them into one row per kernel.
+% Reuses the same helper as the box-and-jitter plot, so single-kernel /
+% non-region modalities are handled too.
+[data, labels, multi] = local_modality_kernel_data(handles, mi(m), ffi, []);
+if isempty(data)
+    beep
+    disp('No per-kernel weights are available for this model.')
+    return
+end
+
+rows = {};
+for k = 1:numel(data)
+    w = data{k}(:);
+    % ROI / grouping name for each kernel of this modality. Multi-kernel
+    % modalities have one ROI per kernel; a single-kernel modality is the
+    % whole modality, so it has no sub-region.
+    if multi(k)
+        roin = local_modality_roi_labels(handles, mi(m), k, numel(w));
+    else
+        roin = {'(whole modality)'};
+    end
+    for j = 1:numel(w)
+        rows(end+1, 1) = {w(j)};      %#ok<AGROW>  kernel weight (%)
+        rows(end,   2) = labels(k);   %             modality name
+        if j <= numel(roin)
+            rows(end, 3) = roin(j);   %             ROI / grouping name
+        else
+            rows(end, 3) = {''};
+        end
+    end
+end
+if isempty(rows)
+    beep
+    disp('There are no kernels to list.')
+    return
+end
+
+% Sort by kernel weight, descending (largest contributions first)
+wv = cell2mat(rows(:,1));
+[~, ord] = sort(wv, 'descend');
+rows = rows(ord, :);
+
+% Data needed by the export callback (kept on the window via appdata)
+kd.rows     = rows;
+kd.colnames = {'Kernel weight (%)','Kernel modality','ROI / grouping'};
+if isfield(handles,'prtdir')
+    kd.prtdir = handles.prtdir;
+else
+    kd.prtdir = pwd;
+end
+
+% Colours, to match the main window
+try
+    color = prt_get_defaults('color');
+    bg = color.bg1; fr = color.fr;
+catch
+    bg = get(0,'defaultUicontrolBackgroundColor'); fr = bg;
+end
+
+% Build (or reuse) the kernel-list window
+Tag = 'KernelListWindow';
+F = findall(0,'Type','figure','Tag',Tag);
+if ~isempty(F)
+    f = F(1);
+    figure(f);
+    delete(get(f,'Children'));     % clear so it can be rebuilt
+else
+    f = figure('Tag',Tag,'Name','PRoNTo :: Full kernel weight list', ...
+        'NumberTitle','off','MenuBar','none','ToolBar','none', ...
+        'Units','normalized','Position',[0.36 0.25 0.28 0.5], ...
+        'Color',bg);
+end
+setappdata(f,'kerneldata',kd);
+
+% The table. We display the raw values directly (kernel weight as a number,
+% modality and ROI/grouping as text). Earlier versions wrapped each cell in
+% centered HTML, but the classic-figure uitable only renders HTML on older
+% (Java-based) MATLAB; on newer MATLAB it prints the markup literally
+% (e.g. "<html><div align=...>3.341</div></html>"), so the HTML has been
+% removed. Numbers are shown right-aligned and text left-aligned (the default),
+% which renders correctly on all MATLAB versions. The formatted weight is used
+% for display; kd.rows (appdata) keeps the full-precision raw values for CSV.
+disp_rows = cell(size(rows));
+for r = 1:size(rows,1)
+    disp_rows{r,1} = rows{r,1};                  % kernel weight (%) as a number
+    md = rows{r,2};
+    if ~ischar(md), md = char(md); end
+    disp_rows{r,2} = md;                         % modality
+    rn = rows{r,3};
+    if ~ischar(rn), rn = char(rn); end
+    disp_rows{r,3} = rn;                         % ROI / grouping
+end
+t = uitable(f,'Units','normalized','Position',[0.05 0.13 0.90 0.83], ...
+    'Data',disp_rows,'ColumnName',kd.colnames, ...
+    'ColumnFormat',{'numeric','char','char'}, ...
+    'ColumnEditable',[false false false],'RowName',[]);
+% Stretch the three columns to fill the table width
+try
+    pp = getpixelposition(t);
+    wcol = max(floor((pp(3) - 24) / 3), 1);
+    set(t,'ColumnWidth',{wcol, wcol, wcol});
+end
+
+% Export-to-CSV button
+uicontrol(f,'Style','pushbutton','String','Export table as CSV', ...
+    'Units','normalized','Position',[0.28 0.03 0.44 0.07], ...
+    'BackgroundColor',fr, ...
+    'Callback', ...
+    'prt_ui_disp_weights(''kernel_list_export_csv'',gcbo,[],guidata(gcbo))');
+
+
+% --- Export the kernel-list table to a CSV file.
+% -------------------------------------------------------------------------
+function kernel_list_export_csv(hObject, eventdata, handles)
+% Export the two-column kernel list (weight % and modality) shown in the
+% kernel-list window to a CSV file chosen by the user. The data is read from
+% the window's appdata (set in kernel_list_btn_Callback), not from handles,
+% because this button lives in a separate figure.
+f  = ancestor(hObject,'figure');
+kd = getappdata(f,'kerneldata');
+if isempty(kd) || ~isfield(kd,'rows') || isempty(kd.rows)
+    beep
+    disp('Nothing to export.')
+    return
+end
+
+% Ask the user where to save
+startdir = pwd;
+if isfield(kd,'prtdir') && ~isempty(kd.prtdir)
+    startdir = kd.prtdir;
+end
+wd = cd;
+try
+    cd(startdir)
+    [filename, pathname] = uiputfile( ...
+        {'*.csv','Comma-separated values (*.csv)'}, ...
+        'Export kernel list as','kernel_list.csv');
+catch
+    filename = 0; pathname = '';
+end
+cd(wd)
+if isequal(filename,0) || isequal(pathname,0)
+    disp('Export cancelled.')
+    return
+end
+
+outfile = fullfile(pathname, filename);
+fid = fopen(outfile,'w');
+if fid == -1
+    beep
+    disp(['Could not open file for writing: ', outfile])
+    return
+end
+
+% Header (the three column names)
+fprintf(fid,'%s,%s,%s\r\n', kd.colnames{1}, kd.colnames{2}, kd.colnames{3});
+% One row per kernel: numeric weight, then modality and ROI/grouping name
+% (each quoted if it contains a comma or a double quote)
+for r = 1:size(kd.rows,1)
+    w   = kd.rows{r,1};
+    mod = local_csv_text(kd.rows{r,2});
+    roi = local_csv_text(kd.rows{r,3});
+    fprintf(fid,'%.6g,%s,%s\r\n', w, mod, roi);
+end
+fclose(fid);
+
+disp(['Kernel list exported to: ', outfile])
+
+
+% --- Make a text value safe to write as a single CSV field.
+% -------------------------------------------------------------------------
+function s = local_csv_text(val)
+% Convert a cell/char value to a CSV field, quoting and escaping it when it
+% contains a comma or a double quote.
+s = val;
+if ~ischar(s)
+    try, s = char(s); catch, s = ''; end
+end
+if ~isempty(s) && (any(s == ',') || any(s == '"'))
+    s = ['"', strrep(s, '"', '""'), '"'];
+end
+
+
+% --- ROI / grouping name for each kernel of a modality.
+% -------------------------------------------------------------------------
+function lab = local_modality_roi_labels(handles, modidx, i, nrows)
+% Return a cell array (length nrows) with the ROI / grouping name of each
+% kernel of modality i, aligned to the rows of weight_ROI{i} (i.e. to the
+% kernel weights gathered for the kernel list).
+%
+% Names are taken from the first source that yields a consistent list:
+%   1) handles.labels{modidx}{i} (resolved by imagemenu_Callback / loaded via
+%      the "Load labels" button), aligned by handles.num_roi{i};
+%   2) the atlas label list stored in the feature set itself,
+%      handles.PRT.fs( handles.fid(i) ).atlas_label{ handles.mids(i) },
+%      aligned by the modality's igood_kerns. This second source is needed for
+%      modalities such as the EEG/MEG time-window groupings, whose labels are
+%      not reached by the ROI-table resolution because they have no num_ROI.
+% If neither source is consistent, generic 'ROI <n>' names are used.
+
+lab = repmat({''}, nrows, 1);
+done = false;
+
+for src = 1:2
+    names   = {};
+    roi_idx = [];
+
+    if src == 1
+        % Source 1: labels resolved by the GUI / loaded via "Load labels"
+        if isfield(handles,'labels') && numel(handles.labels) >= modidx ...
+                && iscell(handles.labels{modidx}) && numel(handles.labels{modidx}) >= i
+            names = handles.labels{modidx}{i};
+        end
+        if isfield(handles,'num_roi') && numel(handles.num_roi) >= i ...
+                && ~isempty(handles.num_roi{i})
+            roi_idx = handles.num_roi{i}(:);
+        end
+    else
+        % Source 2: atlas labels stored in the feature set (covers e.g. the
+        % EEG/MEG groupings). Map modality i to its feature set and modality
+        % index, then read the stored label list and good-kernel indices.
+        if isfield(handles,'fid') && numel(handles.fid) >= i
+            fid  = handles.fid(i);
+            mids = 1;
+            if isfield(handles,'mids') && numel(handles.mids) >= i
+                mids = handles.mids(i);
+            end
+            try
+                al = handles.PRT.fs(fid).atlas_label;
+                if iscell(al) && numel(al) >= mids && ~isempty(al{mids})
+                    names = al{mids};
+                end
+                md = handles.PRT.fs(fid).modality(mids);
+                if isfield(md,'igood_kerns') && ~isempty(md.igood_kerns)
+                    roi_idx = md.igood_kerns(:);
+                end
+            end
+        end
+    end
+
+    if isempty(names) || ~iscell(names)
+        continue
+    end
+
+    % Choose how the names line up with the weight_ROI rows
+    sel = [];
+    if ~isempty(roi_idx) && numel(roi_idx) == nrows && max(roi_idx) <= numel(names)
+        sel = roi_idx;                 % names indexed by the ROI/good-kernel ids
+    elseif numel(names) == nrows
+        sel = (1:nrows)';              % names already aligned one-to-one
+    end
+
+    if ~isempty(sel)
+        for j = 1:nrows
+            v = names{sel(j)};
+            if iscell(v) && ~isempty(v), v = v{1}; end
+            lab{j} = char(v);
+        end
+        done = true;
+        break
+    end
+end
+
+if ~done
+    for j = 1:nrows
+        lab{j} = sprintf('ROI %d', j);   % generic fallback
+    end
+end
