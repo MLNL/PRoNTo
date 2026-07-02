@@ -168,7 +168,7 @@ Example datasets for the PRoNTo tutorials are listed in [`docs/datasets.md`](doc
 
 ## Courses
 
-PRoNTo courses have been held periodically, introducing pattern recognition in neuroimaging and demonstrating the toolbox. There are currently no courses scheduled. For the full 2021 course including lectures and slides, see the [2021 PRoNTo Course page](http://www.mlnl.cs.ucl.ac.uk/pronto/prtcourse_2021.html). Course slides and previous course dates are available in [`docs/courses.md`](docs/courses.md)..
+PRoNTo courses have been held periodically, introducing pattern recognition in neuroimaging and demonstrating the toolbox. There are currently no courses scheduled. For the full 2021 course including lectures and slides, see the [2021 PRoNTo Course page](http://www.mlnl.cs.ucl.ac.uk/pronto/prtcourse_2021.html). Course slides and previous course dates are available in [`docs/courses.md`](docs/courses.md).
 
 ---
 
