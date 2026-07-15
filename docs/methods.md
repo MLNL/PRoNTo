@@ -2,13 +2,15 @@
 
 ## The challenge: neuroimaging data is high-dimensional
 
-In a typical neuroimaging study, each brain scan contains far more measurements than there are subjects — often thousands to millions of voxels from only tens or hundreds of subjects. This means the dimensionality $p$ (number of measurements per scan) far exceeds the sample size $N$ (number of subjects), a situation written as $p \gg N$.
+In a typical neuroimaging study, each brain scan contains far more measurements than there are subjects — often thousands to millions of voxels from only tens or hundreds of subjects. This means the dimensionality $p$ (number of measurements per scan/subject) far exceeds the sample size $N$ (number of scans/subjects), a situation written as $p \gg N$.
 
-Standard machine learning methods that work directly on the data struggle in this setting — both because there are too few examples relative to the number of measurements, and because the data matrix itself is very large. Regularised kernel methods address both issues: regularisation prevents overfitting when $p \gg N$, and the kernel representation replaces the large data matrix with a compact $N \times N$ summary of pairwise similarities between scans.
+Standard machine learning methods that work directly on the data struggle in this setting — both because there are too few examples relative to the number of measurements, and because the data matrix itself is very large. Regularised kernel methods address both issues: 
+- regularisation prevents overfitting when $p \gg N$, and
+- the kernel representation replaces the large data matrix with a compact $N \times N$ summary of pairwise similarities between scans.
 
 ### Feature vectors and the data matrix
 
-In machine learning, the measurements extracted from each data example (e.g. from each brain scan) are represented as a **feature vector** — a list of values, one per measurement. For a dataset of $N$ data examples, stacking all feature vectors produces the **data matrix $X$** of size $N \times p$. For example, in a dataset with sMRI of 100 subjects and 200,000 voxels per scan, **$X$** would be $100 \times 200,000$ — a matrix with 20 million entries. The kernel matrix **$K$**, by contrast, is only $100 \times 100$ (10,000 entries), regardless of the number of voxels.
+In machine learning, the measurements extracted from each data example (e.g. from each brain scan) are represented as a **feature vector** — a list of values, one per measurement. For a dataset of $N$ data examples, stacking all feature vectors produces the **data matrix $X$** of size $N \times p$. For example, in a dataset with sMRI of 100 subjects and 200,000 voxels per scan, **$X$** would be $100 \times 200,000$ — a matrix with 20 million entries. The kernel matrix **$K$**, by contrast, is only 100 $\times$ 100 (10,000 entries), regardless of the number of voxels.
 
 ---
 
