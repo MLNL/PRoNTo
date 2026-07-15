@@ -10,7 +10,7 @@ For step-by-step instructions, see the [manual](manual.md) and the [tutorial dat
 
 ## Linear kernel-based frameworks
 
-*Recommended when number of features $\gg$ number of subjects*
+*Recommended when number of features* $\gg$ *number of subjects*
 
 In these frameworks, data is represented through a kernel matrix encoding pairwise similarity between subjects. Multiple modalities or feature groups can be combined either by summing their kernels equally (Path A) or by learning an optimal weighted combination jointly with the prediction model via Multiple Kernel Learning — MKL (Path B).
 
@@ -91,7 +91,7 @@ In these frameworks, data is represented through a kernel matrix encoding pairwi
 
 ## Linear non-kernel frameworks
 
-*Recommended when number of features $\ll$ number of subjects*
+*Recommended when number of features* $\ll$ *number of subjects*
 
 In these frameworks, features are passed directly into a primal prediction model without computing a kernel matrix. Multiple feature sets are concatenated into a single feature matrix before the model.
 
