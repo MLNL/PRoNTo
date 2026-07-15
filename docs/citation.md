@@ -51,5 +51,5 @@ If you use PRoNTo in your research, please cite the appropriate paper(s) dependi
 
 ## Third-Party Studies Using PRoNTo
 
-- [PRoNTo citations on Scopus](https://www.scopus.com/pages/search/publications?searchId=440c3207-403b-4db9-904c-83a17f1bb0fa)
+- [PRoNTo citations on Scopus](https://www.scopus.com/pages/search/publications?searchId=7069aea2-396b-4703-b8d5-5f24b0e55008)
 - [PRoNTo citations on Google Scholar](https://scholar.google.be/scholar?hl=en&as_sdt=2005&sciodt=0,5&cites=7211414365261705180&scipsc=&q=&scisbd=1)
