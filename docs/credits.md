@@ -39,7 +39,7 @@ The development of PRoNTo was made possible with support from:
 - [PASCAL2](https://cordis.europa.eu/project/id/216886) and its HARVEST programme
 - [Department of Computer Science, University College London](http://www.cs.ucl.ac.uk)
 - [The Wellcome Trust](http://www.wellcome.org/) — grants WT086565/Z/08/Z and WT102845/Z/13/Z
-- Fonds de la Recherche Scientifique ([FNRS](http://www.fnrs.be)), Belgium
+- Fonds de la Recherche Scientifique ([FNRS](http://www.fnrs.be)), Belgium (Christophe Phillips & Jessica Schrouff)
 - Fundação para a Ciência e Tecnologia ([FCT](http://www.fct.pt)), Portugal
 - Swiss National Science Foundation (PP00P2-123438) and Center for Biomedical Imaging ([CIBM](https://cibm.ch/)), EPFL and Universities and Hospitals of Lausanne and Geneva
 - EU Marie Curie Action, FP7-PEOPLE-2011-IOF #299500 (Jonas Richiardi)
