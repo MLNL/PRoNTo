@@ -70,7 +70,7 @@ PRoNTo supports two families of prediction frameworks — **linear kernel-based*
 | <img src="docs/images/fig_multimodal_grouping.png" width="220" alt="Framework 1c"/> |
 | `linear MKL / sum of kernels` |
 
-**Linear non-kernel** — recommended when number of features << number of subjects
+**Linear non-kernel** — recommended when number of features $\ll$ number of subjects
 
 | 2a — Non-kernel single modality | 2b — Non-kernel multi-modality |
 |:---:|:---:|
@@ -165,7 +165,7 @@ Example datasets for the PRoNTo tutorials are listed in [`docs/datasets.md`](doc
 
 ## Tutorials
 
-📹 [Video tutorials showing how to use PRoNTo](https://github.com/MLNL/PRoNTo/blob/main/docs/tutorials.md) are available in `docs/tutorials.md`. The tutorials cover step-by-step demonstrations using real neuroimaging datasets.
+📹 [Video tutorials showing how to use PRoNTo](https://github.com/MLNL/PRoNTo/blob/main/docs/tutorials.md) are available in [`docs/tutorials.md`](docs/tutorials.md). The tutorials cover step-by-step demonstrations using real neuroimaging datasets.
 
 ---
 
@@ -195,7 +195,7 @@ PRoNTo is free software under the **[GNU General Public License v2](https://gith
 
 ## Contributing
 
-Contributions are welcome — new features, bug fixes, documentation, and demo data. At present, PRoNTo does not have a dedicated person managing developments or providing support. If you are interested in contributing, please contact **Prof. Janaina Mourao-Miranda** or **Prof. Christophe Phillips** — see the [Contributing guidelines](CONTRIBUTING.md) for more details.
+Contributions are welcome — new features, bug fixes, documentation, and demo data. At present, PRoNTo does not have a dedicated person managing developments or providing support. If you are interested in contributing, please contact [**Prof. Janaina Mourao-Miranda**](https://github.com/mouraomiranda) or [**Prof. Christophe Phillips**](https://github.com/ChristophePhillips) — see the [Contributing guidelines](CONTRIBUTING.md) for more details.
 
 ---
 
