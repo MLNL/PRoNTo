@@ -137,7 +137,7 @@ For full installation details, see the [manual](docs/manual.md).
 | [Prediction Frameworks](docs/figures.md) | Visual overview of the three prediction frameworks |
 | [Methods](docs/methods.md) | Why PRoNTo uses linear kernel methods — explained for neuroimagers |
 | [Manual](docs/manual.md) | Full reference manual (also at `PRoNTo/manual/prt_manual.pdf`) |
-| [Mac Instructions](instructions-for-mac.md) | Installation guide for Mac users |
+| [Mac Instructions](docs/instructions-for-mac.md) | Installation guide for Mac users |
 | [FAQ](docs/faq.md) | Frequently asked questions |
 | [Datasets](docs/datasets.md) | Benchmark datasets for tutorials |
 | [Tutorials](docs/tutorials.md) | Video tutorials showing how to use PRoNTo |
