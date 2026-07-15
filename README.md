@@ -1,5 +1,3 @@
-![Logo](docs/images/Pronto_manual.png)
-
 # PRoNTo — Pattern Recognition for Neuroimaging Toolbox &nbsp;<img src="docs/images/Pronto_manual.png" alt="PRoNTo manual logo" width="130" align="center"/>
 
 <p align="center">
